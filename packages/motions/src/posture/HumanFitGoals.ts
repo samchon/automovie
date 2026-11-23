@@ -17,20 +17,10 @@ import { HumanJacobian } from "./HumanJacobian";
  * These are relationships of the displayed body, rather than a bone moved
  * as a substitute for them. The sprint set needs its knee, hip and centre
  * constrained together with its four supports.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two measurements and the consumer requiring them.
- * @evidence contracts/development/design.md#principled-representation An angle between three bone-carried landmarks and a world centre-of-mass point, in degrees and metres, become scalar rows of the existing whole-body fit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns these goals' reading and analytic slopes; HumanBodyFitRows and HumanBodyFitMerit share them, and HumanFitBalance owns the mass model.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No changed joint ranges, proxy bone or action-specific result.
  */
 export namespace HumanFitGoals {
   /**
    * The additional quantities of one displayed-body reading.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each value's unit and ordering.
-   * @evidence contracts/development/design.md#principled-representation Values of the goals on the same bones as every contact row.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the rows, merit and final residuals.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No predicted or unclamped configuration is read.
    */
   export interface IReading {
     /** Included angles, radians, in goal order. */
@@ -48,14 +38,6 @@ export namespace HumanFitGoals {
    * @param centre The requested mass centre, if any.
    * @returns Radians and world metres.
    * @throws If an angle or point is invalid, or an angle has a zero ray.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, result and invalid geometry.
-   * @evidence contracts/development/implementation.md#principled-implementation Included angles are atan2 of cross-product length and dot product; the mass centre is the existing segmental reading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One angle map and an optional centre reading.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid targets throw instead of yielding a fabricated point or angle.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the landmarks plus the mass segments when a centre is requested; no new forward kinematics.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the fit's resolved bones and HumanFitBalance's cached mass model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -83,14 +65,6 @@ export namespace HumanFitGoals {
    * @param target The three landmarks and valid desired angle.
    * @returns The included angle, radians.
    * @throws If the target is invalid or either ray has zero length.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units, vertex and degeneracies.
-   * @evidence contracts/development/implementation.md#principled-implementation atan2 of the sine numerator and cosine numerator gives the unsigned geometric angle without acos cancellation near its endpoints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three landmarks and two vector products.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bones, empty means and zero rays throw.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the points defining the three landmarks.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The owning reading calls once per angle.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function angle(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -106,14 +80,6 @@ export namespace HumanFitGoals {
    *
    * @param target The geometric angle goal.
    * @returns Its ordered inclusive limits in radians.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States units, scalar convention and validity.
-   * @evidence contracts/development/implementation.md#principled-implementation Converts the goal's degree interval to radians without changing its physical width.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One normalization, validation and conversion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Rejects reversed, nonfinite or endpoint-singular goals rather than clipping them.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Rows, merit and residuals share this convention.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bounds(target: IAutoMovieMotionHumanFitGoals.IAngle): readonly [number, number] {
     const degrees: readonly [number, number] =
@@ -135,14 +101,6 @@ export namespace HumanFitGoals {
    * @param target The three landmarks.
    * @returns Radians per variable's unit, in motion order.
    * @throws At collinear rays, where the unsigned angle has no unique derivative.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the Jacobian units and noncollinearity requirement.
-   * @evidence contracts/development/implementation.md#principled-implementation Differentiates atan2 of cross length and dot: with unit n along u cross v, gradients of the angle in its two rays are (u cross n)/|u|² and (n cross v)/|v|²; the vertex moves both rays negatively. Rigid-point velocities are HumanJacobian's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ray gradients dotted with each variable's endpoint-minus-vertex velocities; private velocity owns lazy current landmark-point preparation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A singular angle is reported instead of inventing a bending plane or perturbing the pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms For n variables and L points across the three landmarks, keeps O(n*L) rigid-point velocity work but reduces repeated world-point transforms from n*L to L, with O(L) local point storage; owned mean accumulators also avoid a new sum vector per point, and no finite-difference fits or forward kinematics are added.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same unchanged bones and bone-local points serve all variable motions during this synchronous call, and HumanJacobian.velocity does not mutate them; each point is prepared at its first original velocity phase and later motions reuse that exact completed world point.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources At most three local point arrays are acquired only when a motion consumes them and released on return or throw; the returned scalar slopes retain no points, bones or motion history.
    */
   export function slopes(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -185,14 +143,6 @@ export namespace HumanFitGoals {
    * @param target The positional goal.
    * @returns Unit world directions, preserving their given order.
    * @throws If an explicit direction is zero or non-finite.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States normalization, frame, order and invalid directions.
-   * @evidence contracts/development/implementation.md#principled-implementation A position constrained on a direction is its scalar projection; normalization keeps the row in metres regardless of the author's vector length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure World-axis basis vectors or normalized supplied directions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid directions throw rather than becoming an unrelated world axis.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in requested axes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The rows, merit and result use this same direction convention.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function directions(target: IAutoMovieMotionHumanFitGoals.ICentre): IAutoMovieVector3[] {
     return (target.axes ?? (["x", "y", "z"] as const)).map(
@@ -220,14 +170,6 @@ export namespace HumanFitGoals {
    * @param equal The existing equality-row builder, receiving already scaled slopes.
    * @param mm The row owner's millimetres/milliradians scale.
    * @param readColumns Optional lazy centre-velocity producer for this same body, bones and ordered motions; called only after angle rows and when a centre goal exists.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States row order and scaling.
-   * @evidence contracts/development/implementation.md#principled-implementation The same scalar values the merit reads are linearised by the angle derivative and the segmental centre's mass-weighted point Jacobian.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Angle rows, then selected Cartesian centre rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every goal uses its own price or the existing default; no action is named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One angle derivative per target and one centre Jacobian shared across its axes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the owning equality builder and accepts a lazy same-body/bones/motions centre-column producer, invoked only at the original centre-Jacobian phase after angle rows; absent it, HumanFitBalance.velocities computes fresh columns.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The row builder owns the emitted callbacks and scalar coefficients until model release; this function retains no data globally, and a supplied lazy column producer is consumed synchronously.
    */
   export function rows(
     step: HumanBodyFitRows.IStep,

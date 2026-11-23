@@ -9,11 +9,6 @@ import { ExerciseKey } from "../exercise/ExerciseKey";
  * The handspring's two body-dependent key shapes, shared by its wheel and
  * flight. Their provisional joint angles are the handspring's existing
  * lunge and arched line; unspecified angles belong to the body's standing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two shapes, their provisional status and the source of unspecified angles.
- * @evidence contracts/development/design.md#principled-representation Two pure constructors of the existing exercise key.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The lunge and arch read by the handspring law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Keeps the existing provisional shapes and derives their relaxed defaults from the body.
  */
 export namespace handspringKeys {
   /**
@@ -22,14 +17,6 @@ export namespace handspringKeys {
    *
    * @param body The body.
    * @returns The key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the left-leading lunge, provisional clinical angles and returned body-dependent key; handspring.lunged preserves this exact constructor alias and shape.
-   * @evidence contracts/development/implementation.md#principled-implementation An ExerciseKey on the given body, with its existing lunge angles and the body's own relaxed defaults.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One constructor call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle or timing changes in this extraction.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms No algorithm is chosen.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses ExerciseKey.from.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lunged(
     body: IAutoMovieMotionHumanBody,
@@ -49,14 +36,6 @@ export namespace handspringKeys {
    *
    * @param body The body.
    * @returns The key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the provisional arched line shared by the wheel and flight; handspring.arched preserves this exact constructor alias and body-dependent defaults.
-   * @evidence contracts/development/implementation.md#principled-implementation An ExerciseKey on the given body with the handspring's existing arch and the body's own relaxed defaults.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One constructor call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle or timing changes in this extraction.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms No algorithm is chosen.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses ExerciseKey.from.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function arched(
     body: IAutoMovieMotionHumanBody,

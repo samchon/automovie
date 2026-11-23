@@ -14,21 +14,11 @@ import { HumanColliderBound } from "./HumanColliderBound";
  * against before it asks the exact distance (`HumanArmOvershoot`), and the
  * sphere a trajectory's shape list screens by (`HumanArmShapes`). Each
  * posed frame's shapes are framed once and kept while the frame lives.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is framed, for which readers and how long it is kept.
- * @evidence contracts/development/design.md#principled-representation A shape's bound is its sphere and, for a hull, its face planes in its own frame, the two tests a point is screened by before an exact query.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The framed record, the framing, the screen test and the sphere, read by the forearm's clearance and the trajectory's shapes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape kind is special-cased beyond the four the engine's colliders have.
  */
 export namespace HumanShapeFraming {
   /**
    * A placed shape's bounding sphere and, for a hull, its face planes and
    * the frame they are read in.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The sphere every shape has and the hull's planes, frame and last deciding face, absent for other shapes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, each read by `beyond`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The planes are packed numbers in the hull's own frame, so a test reads no object.
    */
   export interface IFramed {
     /** The centre of a sphere the shape lies inside, world metres. */
@@ -56,14 +46,6 @@ export namespace HumanShapeFraming {
    * that frame: the same numbers every call computes for the same posed
    * frame and shape, so they are computed once per frame and shape, a swivel
    * sweep reading one trunk's colliders at every candidate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is computed and why it is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation The sphere and, for a hull, the face planes of the engine's hull, its centre and the rotation into its frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and, once per frame and shape, one framing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same numbers every call would compute, kept, never approximated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each posed frame's shapes are framed once and read by every candidate of a sweep.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `sphere` and the engine's hull faces.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Kept in a WeakMap keyed by the posed frame and released with it.
    */
   export function of(
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
@@ -114,14 +96,6 @@ export namespace HumanShapeFraming {
 
   /**
    * Return the current packed planes only if their original indexed reads are plain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the original native plane backing and unproved fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation Requires the actual cache identity and native typed length before borrowing the array.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ownership test and the descriptor chain of length.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Never inspects unknown replacement array objects.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work before the consumer reads its exact current plane words.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The room's scorer can compare live planes without reading unvisited exact hulls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bendPlanes(
     points: readonly IAutoMovieVector3[],
@@ -195,14 +169,6 @@ export namespace HumanShapeFraming {
    * outside. The face that last showed a point beyond is tried first and the
    * scan stops at the first face beyond, so the answer is the greatest's
    * without reading every face.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the measure, why it never exceeds the signed distance and the face order.
-   * @evidence contracts/development/implementation.md#principled-implementation A point's distance from the bounding sphere, then the greatest of a hull's face-plane distances, each no more than the signed distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The sphere, then the last deciding face, then the rest.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a point that surely lies beyond the bound is answered yes; the exact distance stays the caller's.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The scan stops at the first face beyond, the last deciding face tried first.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called per point with nothing to reuse but the remembered face.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Remembers only the deciding face on the framed record it is given.
    */
   export function beyond(
     p: IAutoMovieVector3,
@@ -256,14 +222,6 @@ export namespace HumanShapeFraming {
    * distance to the shape is never less than its distance from this sphere,
    * inside the shape too, where the ray from the centre through the point
    * meets the surface within the sphere.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each shape kind's sphere and why it bounds the signed distance.
-   * @evidence contracts/development/implementation.md#principled-implementation The shape's own containing sphere (`HumanColliderBound`), placed by the shape's and the segment's frames.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One local sphere and one placement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No radius is padded.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per shape, a hull's own sphere aside.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of a placed shape's bounding sphere, read by the framing, the trajectory's shapes, the body's distance screen and the digits' near colliders; the local sphere is HumanColliderBound's and every world placement is recomputed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only a fresh world centre and scalar radius escape; no input or computed placement is retained by this function.
    */
   export function sphere(
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],

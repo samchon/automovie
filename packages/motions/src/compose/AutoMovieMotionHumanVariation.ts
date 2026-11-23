@@ -44,11 +44,6 @@ import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariati
  * moves no other slot. The repeat of the action is the index into the slot's
  * low-discrepancy sequence, so consecutive repeats land apart. Without
  * variation every function returns its input and reads no draw.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a slot is, where the owner sits, how a spread is read and bounded, how a name is kept and how draws are keyed.
- * @evidence contracts/development/design.md#principled-representation Movement variability as the motor control literature models it: a spread that narrows with skill (Schmidt et al. 1979; Wing and Kristofferson 1973), an end point ellipse along the arrival (Gordon et al. 1994; van Beers et al. 2004), and task-relevant slots narrowing more than the rest (Scholz and Schoner 1999; Todorov and Jordan 2002).
- * @evidence contracts/development/design.md#minimal-and-owned-surface One source record, the spread table, the fixed bounds and the functions of a strike point, a direction, a duration and a pause; the other slot types and the draws have their own files. `HumanSkill` keeps the skill quantities and the engine the streams.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A law never writes an offset and no attribute is added: `IManner.variation` is the only switch, and a bound is a rule over the names and the body, never a clamp.
  */
 export namespace AutoMovieMotionHumanVariation {
   /**
@@ -132,14 +127,6 @@ export namespace AutoMovieMotionHumanVariation {
    * @param manner The manner; its `variation` and `proficiency` are read.
    * @returns The source, or `undefined` when the variation is absent or 0.
    * @throws {Error} When the variation or the proficiency lies outside [0, 1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read, the absent result and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation A stated proficiency is the skill of this action, so it replaces the two axes the spreads read; each slot's stream is the action's series on the channel `variation` and the slot key.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two range checks and one record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A value outside its range throws, a non-number included; no variation builds no source, so no draw can be read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `IHumanActionContext.series`, the owner of the action's keyed streams.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The source holds the context's own series function and nothing else.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "skill" | "series">,
@@ -190,14 +177,6 @@ export namespace AutoMovieMotionHumanVariation {
    * @param key The slot key.
    * @param props The radius, the scatter and the travel.
    * @returns The offset from the region's point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the frame, the spread, the bound and the absent result.
-   * @evidence contracts/development/implementation.md#principled-implementation A point inside a wide region is free within its name and the weapon also misses what was meant; only the miss grows with speed. The disc is the radial normal's quantile over a uniform angle, so the bound is a distance from the region's point and not a square.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two spreads, one shrink factor, one polar draw and one turn into the region's frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped: both spreads shrink by one factor until the disc's edge lies within the radius.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanVariationDraw.disc`; the scatter is `HumanSkill.scatter`'s, passed in by the striking law that knows the travel.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function strike(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,
@@ -251,14 +230,6 @@ export namespace AutoMovieMotionHumanVariation {
    * @param vector The direction, any frame; its length is kept.
    * @param gap The angle to the nearest other named direction, degrees; absent, only `BOUNDS.direction` binds.
    * @returns The turned direction.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the spread, the bound and each input's meaning when absent.
-   * @evidence contracts/development/implementation.md#principled-implementation A direction has two freedoms, so the turn's size and its heading about the direction come from one draw on a disc; the direction leans by the size toward a tangent at the heading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound, one polar draw and one rotation written as a sum of the direction and a tangent.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A zero vector has no direction and is returned as it is; the tangent basis never degenerates because its reference is the world axis the direction is farthest from.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `AutoMovieMotionHumanVariationDraw.basis`, the frame a place's offset is built on, and its `disc`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function direction(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,
@@ -320,14 +291,6 @@ export namespace AutoMovieMotionHumanVariation {
    * @param key The slot key.
    * @param seconds The phase's duration, seconds.
    * @returns The varied duration, seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the spread, the bound, what the bound guarantees and what is not passed through.
-   * @evidence contracts/development/implementation.md#principled-implementation The motor term of Wing and Kristofferson's (1973) two-level timing model, a spread in seconds independent of the interval; the clock term is the manner's tempo offset, which stays where it is.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scalar offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped; a duration of 0 has no room and stays.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared scalar offset; the spread's two ends are `HumanSkill.jitter`'s motor term.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function duration(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,
@@ -360,14 +323,6 @@ export namespace AutoMovieMotionHumanVariation {
    * @param key The slot key.
    * @param seconds The pause, seconds.
    * @returns The varied pause, seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, the spread, the two bounds and the fixed case.
-   * @evidence contracts/development/implementation.md#principled-implementation The clock term of the timing model: an interval a performer times varies in proportion to its length, with the coefficient of variation `HumanSkill.jitter` uses (Wing and Kristofferson 1973; Grondin and Killeen 2009).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bound and one scalar offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped; the name `none` has no length to vary.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `PAUSES` of `AutoMovieMotionHumanTiming` through the shared cell rule and the shared scalar offset.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function pause(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,

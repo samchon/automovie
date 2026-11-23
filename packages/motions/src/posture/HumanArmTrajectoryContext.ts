@@ -24,19 +24,9 @@ import { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
  * and each site's touched collider and normal. What a waypoint holds is
  * built once per waypoint, so a refinement of the same arms reads only the
  * waypoints it adds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines fixed arm setup, per-waypoint frames, original allowances, ordinary fresh setup and explicit unchanged-operation setup preparation with borrowed metadata lifetime.
- * @evidence contracts/development/design.md#principled-representation Actual frames and ordered arm coordinates retain the existing trajectory problem; one same-base FK reader shares only identical completed math across its arm frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One problem record and one numerical builder serve ordinary contexts and a prepared static-setup reader used by actual following/refinement work; no caller-supplied setup verdict is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No candidate, range, rest, external reference or contact allowance is changed by sharing the synchronous frame-construction reader.
  */
 export namespace HumanArmTrajectoryContext {
   /** What the context is built from: the trajectory's problem, or a still configuration of it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines body, seconds, original base frames, arm contact inputs and the still flag; coordinate and contact meanings remain with the geometry/model owners.
-   * @evidence contracts/development/design.md#principled-representation Ordered per-arm sites and per-second bases describe the same deterministic trajectory whose coordinates are optimized.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every input is read by the setup, waypoint, rest or allowed-pair construction.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Borrows the original body, poses and declarations without replacing unmet contacts or widening joint ranges; parallel time/base/site lengths remain caller premises.
    */
   export interface IProblem {
     /** The body. */
@@ -85,14 +75,6 @@ export namespace HumanArmTrajectoryContext {
      *
      * @param seconds Seconds of the problem.
      * @returns The share, 0 to 1.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the input, the result's range and what reads it.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callable slot with no body; the problem's owner supplies the share.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callable slot with no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callable slot with no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callable slot selects no strategy.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callable slot defines no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callable slot retains nothing.
      */
     share?: (seconds: number) => number;
   }
@@ -103,14 +85,6 @@ export namespace HumanArmTrajectoryContext {
    * @param problem The problem.
    * @param previous The context of the same arms on other waypoints, an earlier reading of the trajectory a refinement splits: a waypoint at a second it read, on the same base and with the same sites, keeps what was built there (its frames, the arm resting there placed, each probe's allowances, each site's touched collider and normal), so only the new waypoints are read.
    * @returns The context.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies original problem inputs, continued-waypoint reuse and returned fixed context.
-   * @evidence contracts/development/implementation.md#principled-implementation Prepares actual arm charts, hard intervals and contact geometry; exact same-base FK dependencies may share completed math across arms while every pose still receives full ordered admission and fresh outputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Setup and per-second frame construction precede waypoint reuse and lazy pair-allowance readers; each shared FK reader is local to one base's synchronous setup map and is created only when an actual frame miss requests it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps arm/time order, original reference depths, bidirectional declared rests, grasp exemptions, still/open endpoints and hard-box rounding behavior; the shared FK reader is never retained in a context or reused at another second.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Full arm/base pose scans and fresh outputs remain; identical completed FK math can be reused for the second arm at one base. An all-hit frame map allocates no resolution reader or FK maps. Waypoint geometry is built only for new base/site combinations, and allowance maps evaluate each requested pair key once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing setup, frame, waypoint and audit owners; one operation-local reader serves only the same base's arm frames, and the existing store preserves actual frame/site-identity matches across refinement.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A same-base FK reader dies after its synchronous map. Existing weak context stores retain distinct queried waypoint seconds and their pair keys while a continued context lives; closures borrow the original problem and current points, with no new global result cache.
    */
   export function of(problem: IProblem, previous?: M.IContext): M.IContext {
     return built(problem, previous);
@@ -118,14 +92,6 @@ export namespace HumanArmTrajectoryContext {
 
   /**
    * Bind genuine arm setup metadata for one unchanged-body trajectory operation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Copies fixed side order, prepares actual native setups and returns current-problem readers; body/rig/ROM mappings and returned borrowed setup metadata stay unchanged until release.
-   * @evidence contracts/development/implementation.md#principled-implementation Arm charts, effective ROM, rest and mobile-axis metadata depend on fixed body/side rather than waypoint poses/sites, so only those invariants are prepared once; each current frame/allowance still builds normally.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A fixed native setup producer feeds the same private builder as ordinary of; changed body/side domains select its original fresh setup path.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller-provided setup/index/verdict is accepted, and no pose, waypoint, physical query, box bound or candidate is dropped; ordinary of retains current-input preparation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Across Q contexts, fixed setup axes/ROM preparation costs O(A*B) once for A arms/B rig bones instead of Q repetitions; every dynamic frame/contact/allowance query and output remains actual, with unmeasured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged body/canonical mappings and copied ordered sides establish only static setup equivalence. Current problem frames, sites, rests and previous-waypoint matching retain their owning builder.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns A native setups and copied sides until release; the reader stores no current problem/context, pose, FK reader or queried time. Returned contexts borrow fixed setups under the same unchanged-operation contract.
    */
   export function prepare(body: IAutoMovieMotionHumanBody, sides: readonly ("left" | "right")[]):
     (problem: IProblem, previous?: M.IContext) => M.IContext {

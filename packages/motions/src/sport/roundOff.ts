@@ -55,11 +55,6 @@ import { cartwheel } from "./cartwheel";
  *
  * Events: `handsDown` (the first hand bears), `inverted` (half the wheel),
  * `feetDown` (the feet bear again), `relax` (the end).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the figure, the two turns and where each happens, where the twist and the roll overlap and how they compose with its follow-up, the timing, the events and what is left out.
- * @evidence contracts/development/design.md#principled-representation A wheel table from the body's own joints, the quarter turns a function of the wheel's angle.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the seconds, the closing shape, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: the travel follows from the spokes.
  */
 export namespace roundOff {
   /** The action's name. */
@@ -89,14 +84,6 @@ export namespace roundOff {
    *
    * @param body The body.
    * @returns The key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shape and that its angles are provisional.
-   * @evidence contracts/development/implementation.md#principled-implementation An exercise key on the body (`ExerciseKey.from`), so what it leaves unstated is the body's own standing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from` and `ExerciseKey.stood`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function landed(
     body: IAutoMovieMotionHumanBody,
@@ -114,14 +101,6 @@ export namespace roundOff {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the seconds are not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The shape at an angle is the cartwheel's wheel in the first half and closes to `landed` in the second; its heading turns by the quarter turns; the wheel table rolls it over both feet, each foot, each hand and both feet again.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape by angle, the table, the angle by time, the supports from the table.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The final posture is returned with no roll, the same body as a whole wheel, so the next action does not unwind it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Original table rows retain demanded spoke FK. Standing/wheel/landing keys and two ordered joint unions prepare once; each changing angle performs its actual interpolation. Entry FK requests only ankles; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses cartwheel geometry/step, prepared exercise blends and the standing plan. Fixed key endpoints are shared within this plan, with no time-keyed shape cache or changed interpolation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its table and two fixed key-pair readers, without retaining query postures or FK readers.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoundOff.IParams>,

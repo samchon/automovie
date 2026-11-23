@@ -29,11 +29,6 @@ import type {
  * A stationary target gives zero corrections and the planned goal unchanged;
  * a target moving at constant velocity is met exactly, because each
  * prediction is then exact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the observation, prediction and correction model with its sources, the cutoff and the exact cases.
- * @evidence contracts/development/design.md#principled-representation Tracking as film-second timing, a planned goal in world metres and superposed correction units, evaluated causally.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The observation step and shortest correction every strike tracks with, the timing, the tracker and the three functions the punch and kick laws and the tests read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the engine's minimum-jerk unit and the interface vector.
  */
 export namespace StrikingAim {
   /** The observation step, seconds: one film frame at 24 frames a second, every strike's alike. */
@@ -49,14 +44,6 @@ export namespace StrikingAim {
    * @param timing The timing.
    * @returns Film seconds, ascending, the launch first.
    * @throws {Error} When the contact is not after the launch.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the schedule, its cutoff, the order and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One observation per film frame from the launch while a correction starting a latency later can still run its shortest duration before contact.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A contact not after the launch throws; 1e-9 s absorbs rounding at the cutoff.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the observations.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function observations(timing: IAutoMovieMotionHumanStrikingAim.ITiming): number[] {
     if (!(timing.impact > timing.launch))
@@ -81,14 +68,6 @@ export namespace StrikingAim {
    * @param impact The contact second.
    * @param step The difference step, seconds.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the prediction, the difference and every unit.
-   * @evidence contracts/development/implementation.md#principled-implementation First-order extrapolation with a backward difference (Brenner and Smeets 1996); a contact already past predicts the current point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two reads and one extrapolation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the opaque target's exact now then seconds-step reads, original backward-difference scale and nonnegative remaining-time extrapolation; no future observation, alternative velocity or target snapshot replaces either call.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two target reads.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs; the tracker memoises its calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function predict(
     aim: (seconds: number) => IAutoMovieVector3,
@@ -115,14 +94,6 @@ export namespace StrikingAim {
    * @param timing The timing.
    * @param offset A fixed offset added to every prediction (the declared accuracy and the seeded scatter), world metres.
    * @returns The tracker, memoising each observation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the causality of the target reads, the offset and the memo.
-   * @evidence contracts/development/implementation.md#principled-implementation The planned goal is the launch observation's prediction; each later observation adds its change as a correction unit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The original schedule/prediction owner feeds one started-observation iterator; units emits its original timed records, while goal collects only displacement vectors before the original ordered fold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the original schedule, initial launch prediction, fixed offset, started-time comparison, actual prediction callback order and every correction difference. All observations/displacements still precede goal accumulation, and no sample, active unit, timing bound or fitted answer is skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each actual prediction is produced once under the original index memo; K active corrections still cost O(K). Goal-only reads omit K unused timed-unit records while retaining original displacement snapshots and fold order; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original observation-index prediction memo remains. Units and goal share started-time tests and exact prediction/difference order; no query goal, unit output or accumulation is retained or reused across seconds.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The existing memo is bounded by the fixed observation count and released with the tracker. Each read owns its temporary fresh unit/displacement outputs, and goal-only vectors/array end on return or failure without extending history.
    */
   export function track(
     aim: (seconds: number) => IAutoMovieVector3,

@@ -53,11 +53,6 @@ import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
  * down (`GymnasticsWheelPlants`); no run-up, no lunge into the first hand and no push off the
  * second are shown. A round-off, a handspring and a vault are not this law:
  * they bend the body between their supports or fly between them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the law shows, its kinematic model, the one axis, the events and what the first pass leaves out.
- * @evidence contracts/development/design.md#principled-representation A table of the wheel's root by angle, built once per plan from the body's own joints, so a tall and a small body roll different distances by their own spokes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the shape, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: the travel follows from the spokes.
  */
 export namespace cartwheel {
   /** The action's name. */
@@ -91,14 +86,6 @@ export namespace cartwheel {
    *
    * @param body The body.
    * @returns The key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shape and that its angles are provisional.
-   * @evidence contracts/development/implementation.md#principled-implementation An exercise key on the body (`ExerciseKey.from`), so what it leaves unstated is the body's own standing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function wheel(
     body: IAutoMovieMotionHumanBody,
@@ -131,14 +118,6 @@ export namespace cartwheel {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the seconds are not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One table by angle: the shape at that angle is posed, the lowest spoke bears, the root's height sets that joint at its bearing height and the root's place keeps the joint where it came down; a change of spoke hands the place over while both are down, so the root is continuous.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape by angle, the table, the posture by time, the supports from the table's runs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The final posture is returned with no roll, which is the same body as a whole turn, so the next action does not unwind it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The original 73 table rows use demanded spoke FK. The fixed standing/wheel pair and its ordered joint union prepare once; row/playback interpolation allocates only the actual key/joints. Entry FK requests only ankles; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exercise key's one prepared blend owner, standing plan and GymnasticsWheel table. Only unchanged body-dependent endpoint keys are shared; every queried angle still evaluates its original interpolation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its table and one fixed key-pair reader; queried shapes retain no history or FK reader.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCartwheel.IParams>,

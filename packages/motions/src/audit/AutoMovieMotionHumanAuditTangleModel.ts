@@ -27,22 +27,12 @@ import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotion
  * The reasons for the probes, the related pairs and the reference depths
  * are stated on the audit; this holds their construction and the depth
  * arithmetic.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, for whom, and where the reasons are stated.
- * @evidence contracts/development/design.md#principled-representation One model per body, built once, from which every reading of the audit is a lookup and a depth.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The model's records, its construction and the four depth readings the audit calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every probe and sphere is read from the body's own colliders and joints.
  */
 export namespace AutoMovieMotionHumanAuditTangleModel {
   /** The reference overlap beyond which two segments' surfaces are one volume by their build, metres (`AutoMovieMotionHumanAuditSkin.BUILT`). */
   export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
   /** One collider segment's probes and bounding sphere in its own frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the carrying bone, ordered shape/axis probes, surface prefix and metre-valued local sphere.
-   * @evidence contracts/development/design.md#principled-representation Actual collider corners and along-bone points share one segment-local frame and its conservative bounding sphere.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Model construction produces every field for the canonical audit, arm-frame and trajectory reference readers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No probe is invented from a scene, no physical radius is padded and surface/axis ownership stays explicit.
    */
   export interface IPart {
     /** The bone that carries the segment. */
@@ -73,11 +63,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   }
 
   /** What is derived once per body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States ordered parts, own-body exclusions, the two actual reference placements and lazy ordered-pair depth readings.
-   * @evidence contracts/development/design.md#principled-representation A body's actual build and fixed reference poses define its probe allowances; external bodies receive no such own-body reference.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The shared model supplies the audit and arm planner without duplicating collider construction or reference policy.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The existing live-body cache holds this build only; current candidate poses and scores are not represented as model state.
    */
   export interface IModel {
     /** The segments, in the order the colliders are placed. */
@@ -105,14 +90,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    *
    * @param bone The bone.
    * @returns The part's name; the bone's own otherwise.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and the two grouped parts.
-   * @evidence contracts/development/implementation.md#principled-implementation A finger belongs to its hand and a toe to its foot by the rig's naming.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One side test and two suffix tests.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone with no side is its own part.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function group(bone: AutoMovieHumanoidBone): string {
     const side: string = bone.startsWith("left")
@@ -131,14 +108,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    *
    * @param body The body.
    * @returns The model, the same one for every later call with this body.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and that it is remembered.
-   * @evidence contracts/development/implementation.md#principled-implementation Probes are the shapes' corners and three points along the bone to each child joint; two segments are related when they are one part or one's nearest ancestor with a collider is the other; the reference postures are the rest T-pose and the quiet stance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The skeleton's relations, the probes and spheres, the related pairs, then the stance.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A bone without a collider is skipped to its ancestor, never treated as a joint of its own.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Built once per body; pairs are quadratic in the segments, a few dozen.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered in a `WeakMap` keyed by the body.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One model per live body, released with it.
    */
   export function model(body: IAutoMovieMotionHumanBody): IModel {
     const known: IModel | undefined = MODELS.get(body);
@@ -315,14 +284,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param p The placed segment.
    * @param part Its part in the model.
    * @returns World metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The part's centre carried by the segment's pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One transform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Carries the supplied canonical centre without replacing it by the bone origin or modifying its radius.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function centre(
     p: IAutoMovieMotionHumanColliders.IPlaced,
@@ -341,14 +302,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param a The segment that carries them.
    * @param b The segment they are read in.
    * @returns Metres per probe, zero outside.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the outside value.
-   * @evidence contracts/development/implementation.md#principled-implementation Interior depth of a point in a convex hull is its least distance to the face planes; other shapes are read by the engine's shape distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reading through `prepareAutoMovieMotionHumanAuditDepths`, which owns the arithmetic; a caller reading many segments against `b` in one pose prepares `b` once there (`beyond`'s `targets`).
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine still owns every hull face and shape distance. Shape DTO transforms remain unchanged during this synchronous depth read; no query, bound, face order, deepest comparison or tolerance changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One preparation of `b` and one reading: sphere screening, selected point transforms and the face loop's early cut, with each selected hull's inverse computed once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Nothing is shared between calls here; the preparation lives for this one reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The preparation is dropped on return; only the fresh depth array escapes.
    */
   export function depths(
     probes: readonly IAutoMovieVector3[],
@@ -367,14 +320,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
    * @returns Metres per probe; `Infinity` for a corner of a pair whose colliders overlap past the skin by their build.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit, who reads it and the value of a pair the audit sets aside.
-   * @evidence contracts/development/implementation.md#principled-implementation The reference depth is the deeper of the rest pose's and the quiet stance's; corners share their pair's deepest reference depth, set aside past `BUILT`, and a point of the bone's axis keeps its own.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two depth readings, one maximum per probe, then the corners' shared depth.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the corners share a depth, so a crossing limb's axis is read in full.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Computed once per ordered pair.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Remembered in the model's baseline map, which `beyond` reads too.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The baselines live with the model, bounded by the segment pairs.
    */
   export function reference(m: IModel, i: number, j: number): Float64Array {
     const key: number = i * m.parts.length + j;
@@ -415,14 +360,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param targets The caller's own list for this one reading of `placed`, empty when first given: each segment read in is prepared into it once (`prepareAutoMovieMotionHumanAuditDepths`) and read from it after. The caller drops it with `placed` and gives it with no other placement.
    * @param room An array of the probes' length to receive each probe's room in `j` (`prepareAutoMovieMotionHumanAuditDepths`), for a caller that certifies how long the pair stays clear; not filled when absent.
    * @returns Metres per probe; zero or less where it lies no deeper.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit, the sign, the room's use, and whose the list of prepared segments is and how long it holds.
-   * @evidence contracts/development/implementation.md#principled-implementation The depth now less the reference depth, probe by probe.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The reference, one depth reading, then one subtraction per probe.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every probe is read against its own reference, none skipped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One depth reading per call, the room read off its own sphere distances; the reference is computed once per ordered pair, and with `targets` what a reading needs of segment `j` alone once per pose rather than once per pair.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads `reference`. A prepared segment is shared only through the list its caller made for the same `placed`, by that segment's index, so it is the preparation of `placed[j]` as placed.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array and fills the caller's room array; the list, one entry per segment read in, is the caller's and ends with its reading.
    */
   export function beyond(
     m: IModel,
@@ -457,14 +394,6 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param j The segment they are read in.
    * @param targets The caller's list of prepared segments for this reading of `placed` (`beyond`).
    * @returns Metres; zero when no probe lies deeper.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and the zero.
-   * @evidence contracts/development/implementation.md#principled-implementation The greatest of `beyond`'s readings, floored at zero.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every original beyond reading and the zero floor without a new margin or pair exemption.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the probes, with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `beyond`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function excess(
     m: IModel,

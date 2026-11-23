@@ -17,11 +17,6 @@ import { HumanFoot } from "../posture/HumanFoot";
  * their tips go under the support, and there they become its lowest point
  * and slide as the heel rises. The keyed dances (`DanceFootwork`) and the
  * line walk (`lineWalk`) share it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the bend is, why it is needed and who reads it.
- * @evidence contracts/development/design.md#principled-representation Degrees of toe extension from a foot placement and a support height in world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The fade height, the bend and the row wrapper its two consumers use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No law or body is named.
  */
 export namespace AutoMovieMotionHumanToesOnFloor {
   /** How near the floor a risen ball starts to bend its toes back, metres: they lie flat once it is down (provisional). */
@@ -39,14 +34,6 @@ export namespace AutoMovieMotionHumanToesOnFloor {
    * @param at The foot's placement, its pitch read for the heel's lift.
    * @param floor The support's height under the ball, world metres.
    * @returns The toes' extension, degrees, at least 0.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule, the fade and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The metatarsophalangeal joint extends by the heel's rise in the forefoot rocker, so the toes stay on the floor (Perry and Burnfield, Gait Analysis: the forefoot rocker); above it the toes, turning about the ball, bend by the closed-form arcsine excess of the tip's angle below the ball over the one that reaches the support.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lift, one fade, one tip bound.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fade height is provisional and named.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanFoot`, the one owner of the foot's points and pitch.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bend(
     body: IAutoMovieMotionHumanBody,
@@ -85,14 +72,6 @@ export namespace AutoMovieMotionHumanToesOnFloor {
    * @param leg The leg row.
    * @param floor The support's height under a ball, world metres, by the ankle the goal places.
    * @returns The row, its write bending the toes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is added to the row.
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the foot the row's goal places, so the bend follows the heel the row raised.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One wrapper over the row's write.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A goal without a foot rotation, or no bend, leaves the row's posture as it was.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work a write.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `bend`, the one reading of the toes.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the row and the floor reader with the plan.
    */
   export function row(
     body: IAutoMovieMotionHumanBody,

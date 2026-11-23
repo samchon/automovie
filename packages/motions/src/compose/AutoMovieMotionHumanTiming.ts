@@ -26,11 +26,6 @@ import { HumanBound } from "../law/HumanBound";
  *
  * {@link AutoMovieMotionHumanTiming.of} chooses: a place that is solid and
  * has a width is aimed at, any other is travelled to.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both rules with their formulas, units and sources, which values are provisional, and which rule a movement takes.
- * @evidence contracts/development/design.md#principled-representation Movement time as a function of distance, and of distance and target width where the movement must stop on something, the two cases motor-control studies separate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three functions and their constants; the only owner of default durations, so one modifier can scale them.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every coefficient is a named constant with its source; no body part or law is named.
  */
 export namespace AutoMovieMotionHumanTiming {
   /** The free-space rule's time at no distance, seconds (provisional). */
@@ -56,14 +51,6 @@ export namespace AutoMovieMotionHumanTiming {
    *
    * @param distance Metres travelled.
    * @returns Seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input's unit and the result's; the namespace gives the formula and its standing.
-   * @evidence contracts/development/implementation.md#principled-implementation `BASE + RATE D`, a time that grows with distance from a floor of a few tenths of a second; named provisional.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A negative distance counts as none, since a length cannot be negative; both coefficients are named provisional constants.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One expression with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function transport(distance: number): number {
     return BASE + RATE * Math.max(0, distance);
@@ -75,14 +62,6 @@ export namespace AutoMovieMotionHumanTiming {
    * @param distance Metres travelled.
    * @param width The target's width across the grip or the touch, metres; 0 for a point.
    * @returns Seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit and meaning and the result's; the namespace gives the formula and its source.
-   * @evidence contracts/development/implementation.md#principled-implementation McIntosh et al. 2018's two-factor model with the group coefficients of its table 1.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression over four named constants.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fit is not extrapolated below its shortest measured amplitude; a negative width counts as none.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One expression with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache; `HumanPrehension.nominal` delegates here.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function aimed(distance: number, width: number): number {
     return (
@@ -98,14 +77,6 @@ export namespace AutoMovieMotionHumanTiming {
    * @param distance Metres travelled.
    * @param place Whether the place is solid, and its width when it has one.
    * @returns Seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and that the place decides the rule; the namespace states the rule.
-   * @evidence contracts/development/implementation.md#principled-implementation A movement that must stop on a solid thing of a known width is an aimed movement; a movement to a free place has no width to be accurate to.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One condition over the two rules.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A solid place without a width takes the free-space rule instead of an invented width.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `aimed` and `transport`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One condition with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
     distance: number,
@@ -145,14 +116,6 @@ export namespace AutoMovieMotionHumanTiming {
    * @param span The span, on any rung.
    * @returns Seconds.
    * @throws {Error} When a scale lies outside [0.5, 1.5], explicit seconds are negative or not finite, or an explicit source is empty.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result's unit and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A pause reads `PAUSES`; a travel takes the aimed rule when it states a width and the free-space rule otherwise.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per rung.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped: a scale past its bound and an unsourced value throw.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `aimed` and `transport`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function seconds(span: IAutoMovieMotionHumanTiming.Span): number {
     if (typeof span === "string") return PAUSES[span];
@@ -176,14 +139,6 @@ export namespace AutoMovieMotionHumanTiming {
    * @param roles The phases by role.
    * @returns The phrase, in seconds; a hold or a decay left out stays out.
    * @throws {Error} When a span is refused by `seconds`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result and what happens to an absent member.
-   * @evidence contracts/development/implementation.md#principled-implementation Each member is its span's seconds; the phrase's structure is unchanged, so the clock reads it as before.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record literal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No absent member is given a length.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates every member to `seconds`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function phrase(
     roles: IAutoMovieMotionHumanTiming.IRoles,

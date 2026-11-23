@@ -37,11 +37,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * `LEAD` seconds of the plant and sheds it over the last (`load`), so it
  * lands on its ball and lowers its heel, and its heel is already up within
  * the passive limit when it leaves.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two limits, the weight's share, the rocker, the fixed forefoot and the shedding before a lift.
- * @evidence contracts/development/design.md#principled-representation A pure correction of a foot placement against the load's dorsal range.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The lead, the load share and one correction.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The limits are the engine's range constants; the rocker and the hips are the walk's and the body's own.
  */
 export namespace AutoMovieMotionHumanFootRelax {
   /** Seconds before a lift over which a planted foot sheds its weight (provisional: a tenth of a second, a walking weight shift's order). */
@@ -58,14 +53,6 @@ export namespace AutoMovieMotionHumanFootRelax {
    * @param leave The second the foot lifts.
    * @param at The second the plant began; a plant shorter than twice `LEAD` takes and sheds over its halves.
    * @returns Rising on a minimum-jerk share from 0 at the landing, 1 between the leads, falling to 0 at the lift.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the share and its fall.
-   * @evidence contracts/development/implementation.md#principled-implementation A minimum-jerk fall over the lead, so the heel's rise is smooth.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamp and one share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reaches exactly 0 at the lift.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared minimum-jerk share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function load(
     seconds: number,
@@ -91,14 +78,6 @@ export namespace AutoMovieMotionHumanFootRelax {
    * @param ball Whether the heel rises about the ball the foot bears on, for a support held under the ball (a line, a stirrup); about the toes' joint when false.
    * @param edge The forefoot edge a foot rolled past the ankle's range bears on and turns about, in the foot's rest frame from the ankle (`HumanFoot.edge`); the pivot above when absent.
    * @returns The placement with its heel raised about the toes' joint where the ask would pass the limit, else the ask.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the correction.
-   * @evidence contracts/development/implementation.md#principled-implementation The hip joint from the posture's root, heading and pelvis; the closed-form lean's excess over the load's dorsal limit taken off the pitch about the toes' joint, re-read from the moved ankle a fixed number of times.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Hip, limit, rocker, pivot.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A foot within the limit is returned unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One hip read and at most PASSES closed-form leans.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The walk's lean, margin and dorsal limit, the shared hip reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,

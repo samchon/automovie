@@ -20,11 +20,6 @@ import type { IAutoMovieSwivelArcs } from "@automovie/interface";
  * and a decomposition pins it at gimbal lock, is refused, and every
  * enclosure is widened by `SLACK` degrees, far above the rounding of the
  * fits and the decompositions it encloses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two readings, their enclosures, the refusal and the slack.
- * @evidence contracts/development/design.md#principled-representation An enclosure is an ordered pair of degrees, or null where none is certified.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two constants and the readers the two bounds share.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sampling: every enclosure is closed form or refused.
  */
 export namespace AutoMovieMotionHumanBendEnclosure {
   /** The least length of an angle's vector, or the projected cosine of a middle angle, over which an enclosure is certified. */
@@ -35,11 +30,6 @@ export namespace AutoMovieMotionHumanBendEnclosure {
 
   /**
    * An enclosure of an angle, degrees, the lesser end first.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit and the order of the ends.
-   * @evidence contracts/development/design.md#principled-representation An ordered pair of degrees, the form every enclosure and reader shares.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two numbers and nothing else.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No sentinel ends: an uncertified enclosure is null at its reader.
    */
   export type IInterval = [number, number];
 
@@ -49,14 +39,6 @@ export namespace AutoMovieMotionHumanBendEnclosure {
    * @param f The sinusoid.
    * @param angle The parameter, degrees.
    * @returns Its value.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input's unit and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation `a + b cos θ + c sin θ`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one evaluation every enclosure and premise check reads.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function at(f: IAutoMovieSwivelArcs.ISinusoid, angle: number): number {
     const turn: number = angle / DEGREES;
@@ -70,14 +52,6 @@ export namespace AutoMovieMotionHumanBendEnclosure {
    * @param low The interval's start, degrees.
    * @param high The interval's end, degrees, not before `low`.
    * @returns The enclosure in degrees, or null where the angle may come within `FLOOR` of its right angle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The sinusoid's closed-form range, then the increasing `asin`, widened by the slack.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One range, one refusal, two `asin`s.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A range reaching the poles is refused, never clamped into an answer.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the shoulder's and the wrist's middle angles.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function middle(
     sine: IAutoMovieSwivelArcs.ISinusoid,
@@ -102,14 +76,6 @@ export namespace AutoMovieMotionHumanBendEnclosure {
    * @param low The interval's start, degrees.
    * @param high The interval's end, degrees, not before `low`.
    * @returns The enclosure in degrees, not wrapped, or null where the vector may come within `FLOOR` of the origin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The angle at the middle and the Lipschitz spread `w M / r`, widened by the slack.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One evaluation, one slope, one refusal, one spread.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A vector that may vanish is refused.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the shoulder's, the wrist's and the forearm's outer angles.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function outer(
     y: IAutoMovieSwivelArcs.ISinusoid,
@@ -141,14 +107,6 @@ export namespace AutoMovieMotionHumanBendEnclosure {
    * @param angle The angle, degrees.
    * @param interval The interval, degrees.
    * @returns The distance; 0 for an interval of a full turn or more.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The angle's offset from the interval's start reduced to one turn, against the interval's width.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reduction, one comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A full turn is distance 0.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the shoulder's distance from its neutral.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function circular(angle: number, interval: IInterval): number {
     const width: number = interval[1] - interval[0];
@@ -165,14 +123,6 @@ export namespace AutoMovieMotionHumanBendEnclosure {
    * @param lo The reserved interval's start, degrees.
    * @param hi The reserved interval's end, degrees.
    * @returns The least excess, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The excess is convex and piecewise linear, least at the reserved interval's middle, so on each shift it is least at the shift's point nearest that middle; the shift nearest it and its two neighbours hold the least.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three shifts, one clamp each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A full turn or more is excess 0.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the forearm's and the wrist's excesses.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function excess(interval: IInterval, lo: number, hi: number): number {
     if (!(interval[1] - interval[0] < 360)) return 0;
@@ -196,14 +146,6 @@ export namespace AutoMovieMotionHumanBendEnclosure {
    * @param low The interval's start, degrees.
    * @param high The interval's end, degrees, not before `low`.
    * @returns Its least and greatest values.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation `a + R cos(θ − φ)`: the extremes where `φ` or `φ + 180` lies in the interval, the ends otherwise.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two ends, two containment tests.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `middle`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function range(
     f: IAutoMovieSwivelArcs.ISinusoid,

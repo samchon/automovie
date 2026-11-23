@@ -19,11 +19,6 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  * `AutoMovieMotionHumanTarget.IDefault` that `AutoMovieMotionHumanTarget`'s
  * `fallback` and `resolve` take), and the names a world point falls in
  * (`nearest`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the names, the rungs, what they resolve to and the inverse.
- * @evidence contracts/development/design.md#principled-representation Names of the body's own measure on the three axes of the performer's floor frame, so a law states intent and the body supplies the numbers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three axes' names and shares, the rungs, the resolution and its inverse; split from `AutoMovieMotionHumanTarget`, which owns the place record, the defaults and the resolution of a target, so each file holds one responsibility.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No name carries a number of its own beyond the tables and `OVERHEAD`; the record is the target's own `IDefault`.
  */
 export namespace AutoMovieMotionHumanTargetGrid {
   /** Every height, lowest first: the order `nearest` breaks a tie by and a nudge names a neighbour from, and the list {@link IAutoMovieMotionHumanTargetGrid.Height} is read from. */
@@ -102,14 +97,6 @@ export namespace AutoMovieMotionHumanTargetGrid {
    * @param body The body.
    * @param name The height.
    * @returns The share of the stature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result's unit.
-   * @evidence contracts/development/implementation.md#principled-implementation Each name is a joint height of the body's measure over its stature; the knee is the hip less the thigh, and `overhead` the shoulder plus `OVERHEAD` arms.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One exhaustive switch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No height is a typed share of the stature; the one number is the named `OVERHEAD`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function height(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -150,14 +137,6 @@ export namespace AutoMovieMotionHumanTargetGrid {
    * @param place The place, on any rung.
    * @returns The share record `fallback` and `resolve` take.
    * @throws {Error} When a nudge's component exceeds `NUDGE`, a between share lies outside [0, 1] or joins two facings, or an explicit place has an empty source.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the mirroring, the result's consumers and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Names read the body's measure and the share tables; a nudge in arm lengths is converted to each axis's own unit (statures up, half shoulder widths out); a between interpolates each numeric field linearly.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per rung over two private helpers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped: a nudge past its bound throws and names the neighbouring name, and a between of two facings throws, since a facing cannot be interpolated.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `height`, `LATERALS`, `DISTANCES` and `AutoMovieMotionHumanTarget.DEFAULTS`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function place(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -218,14 +197,6 @@ export namespace AutoMovieMotionHumanTargetGrid {
    * @param side The acting hand, which the lateral names mirror by.
    * @param point The point, world metres.
    * @returns The three names; a tie goes to the name listed first in its union.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, that the root's height is not read, and the tie rule.
-   * @evidence contracts/development/implementation.md#principled-implementation The inverse of `place` followed by `fallback`: the point is taken into the performer's floor frame and each axis takes the name whose resolved length is nearest, so a captured pose is checked against a law's names through a path that does not run the resolver forward.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One frame transform and one nearest-name search per axis.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A point far from every name still returns the nearest names; the caller reports the distance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the eighteen names.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanFrame.local`, `height` and the share tables.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function nearest(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,

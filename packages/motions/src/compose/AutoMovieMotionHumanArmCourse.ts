@@ -46,20 +46,10 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  *
  * Timing is the law's span: a course the span is too short for is not
  * admitted and goes to the optimiser, whose refusal names the time needed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the instants, the hold's fits, who lays the transports, the admission and the fallback.
- * @evidence contracts/development/design.md#principled-representation The course is the arms' clinical triples at the hold's instants, read through the same playback as a solved trajectory.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One input record and one function, read by `AutoMovieMotionHumanArmPlanned.planned`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No bound is the course's own: the admission is the trajectory model's reading.
  */
 export namespace AutoMovieMotionHumanArmCourse {
   /**
    * What the planner lends the course.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and owner.
-   * @evidence contracts/development/design.md#principled-representation The planner's own readers of one group over one span.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members the course reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every reader is the planner's, so the course and the optimiser read one problem.
    */
   export interface IProps {
     /** The body. */
@@ -81,40 +71,16 @@ export namespace AutoMovieMotionHumanArmCourse {
 
     /**
      * The posture so far and its pose with the group's arms left out, at an instant.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `course`, which implements it, carries this claim.
      */
     at: (seconds: number) => { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose };
 
     /**
      * An arm's goal at an instant, as the plan perceives it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `course`, which implements it, carries this claim.
      */
     aimed: (arm: number, seconds: number) => IAutoMovieHumanLimbGoal;
 
     /**
      * The trajectory problem on given waypoints, the optimiser's own.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States when the member is called and what it gives.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A member's signature; the caller of `course`, which implements it, carries this claim.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A member's signature; the caller of `course`, which implements it, carries this claim.
      */
     problem: (times: readonly number[]) => HumanArmTrajectory.IProblem;
 
@@ -129,14 +95,6 @@ export namespace AutoMovieMotionHumanArmCourse {
    * @param props The planner's readers.
    * @param inheritedPace The original coupled speed limits for a separate trial of one member.
    * @returns The trajectories in the group's order and the admission; none without a hold instant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the instants, the phases, the result and when there is none.
-   * @evidence contracts/development/implementation.md#principled-implementation The hold is the rig's analytic two-bone fit at adaptive knots, each continuing the knot it splits from, and the closed-form placement at the interpolated swivel between them (Tolani, Goswami and Badler 2000, section 3.2.4), split where the placement leaves the knot's fit by more than the trajectory's tolerance (Douglas and Peucker 1973's error-bounded subdivision); the transports are the trajectory reader's blend, and the whole is admitted by the trajectory model's own feasibility reading.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The instants, one recursive knot judgement over the hold, the original model admission, then a local contact-branch continuation for a refused hold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is admitted that the model refuses; a refused course only seeds the optimiser, every requirement intact.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A refined two-bone limb fit per arm only at a knot (the hold's ends and each split interval's middle), and a closed-form placement at a prescribed swivel at every other hold instant, on the planner's solved base with no posture solve; no fit on a transport instant, then one model evaluation, in place of the optimiser's penalty rounds of convexified programmes and its sampling planner.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the planner's cached postures, bases and goals, and the trajectory's playback.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-instant arms live until the admission; the readers returned keep only the trajectory's playback data.
    */
   export function course(
     props: IProps,

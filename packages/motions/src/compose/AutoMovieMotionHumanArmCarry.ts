@@ -32,11 +32,6 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
  * (`AutoMovieMotionHumanArmAngles`) and a goal, and the primitive that
  * writes an arm, planned over its action (`AutoMovieMotionHumanArmPlanned`)
  * or carried, the members `AutoMovieMotionHumanArm` names.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two things the file holds, what the primitive delegates to and who names them.
- * @evidence contracts/development/design.md#principled-representation A free arm movement is described by its joint angles (Soechting and Lacquaniti 1981), so the carry reads and writes triples and solves a goal only to read its angles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The carry, its record and its primitive; `AutoMovieMotionHumanArm` re-exports each by name.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The blend and the clearing are their owners' (`blendHumanJoint`, `HumanArmClearing`), not restated.
  */
 export namespace AutoMovieMotionHumanArmCarry {
   /**
@@ -70,14 +65,6 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @param source Optional same-body exact FK source borrowed only through this synchronous carry.
    * @param projection Optional genuine same-body direct ROM projector; both actual native pose solves still project every joint.
    * @returns The posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both ends, what is blended, why and what the result holds.
-   * @evidence contracts/development/implementation.md#principled-implementation Free arm movements are smooth in joint space (Soechting and Lacquaniti 1981), so the transport blends the joints of the two ends and solves the goal only to read its joints; `blendHumanJoint` blends a ball joint as a rotation, which does not depend on the chart its triple is written in, and a joint with fewer freedoms angle by angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One posture solve (two with a planned arrival), then three blended joints and one clearing course per arm (`HumanArmClearing.course`, solved at fixed shares of the carry so the turn does not step between two instants), each arm cleared in the pose the arms before it were written into.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulder takes the shorter arc between its two rotations, so neither a twist near 180 degrees nor a solution in its other chart swings the arm; the share is clamped so the arm cannot pass either end.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve for both arms and a second for planned arrival when given, none at either end. Fixed joint pairs prepare endpoint rotation/chart only at first interior use; every course key still runs the actual blend/clearing. Two paired endpoint baseline observations replace four duplicate full FK/clearance reads; their original scalar projection/interpolation remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Actual current/planned solves and baseline/cleared observations share one exact FK getter, optionally borrowed from the same-body parent; a genuine parent projector shares only direct ROM metadata. Body and endpoint triples stay unchanged during this carry, so between shares fixed endpoint preparation across original course shares; all varying poses, goals and clearing candidates remain actual.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous carry owns or borrows lazy FK/ROM metadata, existing per-key arm/pose maps and local course callbacks only until return/throw. No returned posture or goal retains the readers, projector, maps or callbacks.
    */
   export function carry(
     body: IAutoMovieMotionHumanBody,
@@ -168,14 +155,6 @@ export namespace AutoMovieMotionHumanArmCarry {
    * @param props The carry.
    * @returns The primitive, on the arm's channel.
    * @throws {HumanRefusal} When a planned arm has no trajectory that meets its constraints: when its action is composed (`prepare`), or at the first second written where nothing composes it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two ways an arm is carried, what each reads, the channel claimed and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A reach that lays a hand on a site is a motion-planning problem, solved as one trajectory over the action against the very postures it is written on (TrajOpt), so the plan is a constant of the action; a transport with no site keeps the joint-space carry (Soechting and Lacquaniti 1981). With an attitude, the hand between the ends is solved to it on the carried arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The group joined once; per second the planned arm or one `carry`, whose goal an arm without a span solves continued along the action's course (`AutoMovieMotionHumanArmChain`), then one hand solve with an attitude.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The group is solved once, when its first member is prepared on the posture before it, and a member asked while it is being solved throws instead of solving twice, and a solve that refuses keeps its refusal (`ITogether.refused`), which every later read of a member throws again instead of solving again; the hand's fingers are not claimed, so a row that shapes them composes with this one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One trajectory solve per group/action, refused or not; each write reads its cubic or carry, with no carry solve at weights 0/1. An interior attitude still evaluates all three actual hand-end postures, but canonical observations can omit only proven independent goals/digits and FK outputs only the hand; the final held solve retains its physical work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates planning/carry/attitude to their owners. A synchronous write borrows its host FK/ROM loans for actual fallback carry and hand observations/held solve; standalone writes own lazy metadata. Only exact prerequisites share, while distinct posture/goal requests remain actual solves.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains props, its group's trajectory and existing follower. A standalone fixed-posture reader is built outside the write environment, so a retained follower cannot capture that write's metadata through its fallback callback. Hand demand and FK/ROM loans end on return/throw; no output or plan stores them or new time/result history.
    */
   export function carried(
     props: IAutoMovieMotionHumanArmCarry.ICarry,
@@ -469,14 +448,6 @@ export namespace AutoMovieMotionHumanArmCarry {
    *
    * @param carries The carries planned together.
    * @returns The bound, metres per second by the action's seconds, or undefined.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the combination and the default.
-   * @evidence contracts/development/implementation.md#principled-implementation Arms planned as one problem share one speed bound; the fastest declared admits every member's own delivery.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One filter and one maximum per second.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A group with no declared pace keeps the planner's own.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the group per second read.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the carries.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains the declaring carries only.
    */
   export function pace(
     carries: readonly IAutoMovieMotionHumanArmCarry.ICarry[],
