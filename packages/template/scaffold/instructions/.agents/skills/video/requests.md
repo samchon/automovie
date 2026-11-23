@@ -45,4 +45,4 @@ Give each input one role, and state it in the prompt under [input roles](diffusi
 
 ## Record
 
-Add to each request's [record](../production/media-records.md#records) its scene file, the hint interval with the beat addresses it covers, its adherence and each input with its role.
+Add to each request's [record](../production/media-records.md#records) its scene file, the hint interval with the beat addresses it covers, its adherence and each input with its role. Take the interval's output frames from a [trusted render report](../production/media-records.md#render-reports)'s `cut`.

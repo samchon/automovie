@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States where each member comes from, the order of names and kinds, the union rule and how declared later kinds differ from actual marks.
+States where each member comes from, including the delivery intent, sound list and cut copied as the subject supplies them, the order of names and kinds, the union rule and how declared later kinds differ from actual marks.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

@@ -4,19 +4,28 @@ import type {
   IAutoMovieFilmSound,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
+  IAutoMoviePlaybackTimeline,
 } from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
- * A subject made ready to draw: its scene, its delivery camera, its clock and raster, and how to put it at a second.
+ * A subject made ready to draw: its scene, its delivery camera, its clock and
+ * raster, and how to put it at a second.
  *
- * The draw function holds one for the life of the page. Before every picture it calls `seek` and waits for it, then asks `marks` for the same second, applies the cell's inspection to `scene`, and draws through the camera the cell's view resolves to. A production's film and a motion case both fit it; nothing in it names what kind of subject it is.
+ * The draw function holds one for the life of the page. Before every picture it
+ * calls `seek` and waits for it, then asks `marks` for the same second, applies
+ * the cell's inspection to `scene`, and draws through the camera the cell's
+ * view resolves to. A production's film and a motion case both fit it; nothing
+ * in it names what kind of subject it is.
  */
 export interface IAutoMovieDrawScene {
   /** The scene drawn, owned by the subject until `dispose`. */
   scene: THREE.Scene;
 
-  /** The delivery camera, which the `film` view draws through and whose field of view and clips the other views take. */
+  /**
+   * The delivery camera, which the `film` view draws through and whose field of
+   * view and clips the other views take.
+   */
   camera: THREE.PerspectiveCamera;
 
   /** Running time in seconds. */
@@ -40,7 +49,17 @@ export interface IAutoMovieDrawScene {
    */
   sound?: IAutoMovieFilmSound;
 
-  /** The subject's own named views, each placing a camera in world metres at a second; absent when it has none. */
+  /**
+   * The film's cut on the output clock, the timeline of its sequence entries,
+   * which the delivery render records against the frames it draws; absent when
+   * the subject has no sequence.
+   */
+  cut?: IAutoMoviePlaybackTimeline;
+
+  /**
+   * The subject's own named views, each placing a camera in world metres at a
+   * second; absent when it has none.
+   */
   views?: Readonly<
     Record<
       string,
@@ -54,54 +73,72 @@ export interface IAutoMovieDrawScene {
     >
   >;
 
-  /** Instants the subject names, such as a motion case's beats, which captions and records of cells drawn at them carry; absent when it names none. */
+  /**
+   * Instants the subject names, such as a motion case's beats, which captions
+   * and records of cells drawn at them carry; absent when it names none.
+   */
   instants?: readonly { seconds: number; label: string }[];
 
-  /** Kind names the subject declares for its lifetime. Capture planning, drawing and Viewer controls admit them at empty frames. `marks` supplies geometry and styles at each second and can supply additional kinds. */
+  /**
+   * Kind names the subject declares for its lifetime. Capture planning, drawing
+   * and Viewer controls admit them at empty frames. `marks` supplies geometry
+   * and styles at each second and can supply additional kinds.
+   */
   markKinds?: readonly string[];
 
   /**
-   * The marks the subject's owners supply at a second, asked for after `seek`; absent when it supplies none.
+   * The marks the subject's owners supply at a second, asked for after `seek`;
+   * absent when it supplies none.
    */
   marks?: (seconds: number) => readonly IAutoMovieMark[];
 
   /**
-   * The film's camera response at a second, asked for after `seek` before each beauty draw; absent draws the beauty pass straight to the canvas under the renderer's own curve, as before optics existed.
+   * The film's camera response at a second, asked for after `seek` before each
+   * beauty draw; absent draws the beauty pass straight to the canvas under the
+   * renderer's own curve, as before optics existed.
    *
-   * When present, the draw host and the inspector render the beauty pass into a linear target with the renderer's curve at none and exposure at one, and `AutoMovieFilmResponseStage` gives it this response. An out-of-range value throws, naming the second and the field. Structural passes never ask for it.
+   * When present, the draw host and the inspector render the beauty pass into a
+   * linear target with the renderer's curve at none and exposure at one, and
+   * `AutoMovieFilmResponseStage` gives it this response. An out-of-range value
+   * throws, naming the second and the field. Structural passes never ask for
+   * it.
    */
   optics?: (seconds: number) => IAutoMovieFilmOptics;
 
   /**
-   * Optional production diagnostics, read synchronously after the outer seek is ready and before any inspection changes the scene.
+   * Optional production diagnostics, read synchronously after the outer seek is
+   * ready and before any inspection changes the scene.
    */
   inspectPlaced?: (
     sample: IAutoMovieDrawScene.IPlacedSample,
   ) => IAutoMovieInspectionDiagnostics;
 
   /**
-   * Put every object and the delivery camera at a second; objects may be replaced. The returned promise resolves once the subject is ready, including its textures. The draw host binds inspection after this placement, so no removed object's masks or measurements stand in for the current geometry.
+   * Put every object and the delivery camera at a second; objects may be
+   * replaced. The returned promise resolves once the subject is ready,
+   * including its textures. The draw host binds inspection after this
+   * placement, so no removed object's masks or measurements stand in for the
+   * current geometry.
    */
   seek(seconds: number): Promise<void>;
 
   /**
-   * Place the scene at a second synchronously, leaving it exactly as an
-   * awaited `seek` to the same second would. Offered only by a subject whose
-   * placement needs nothing asynchronous; inspection uses it to sample motion
-   * between output frames and then places the drawn second again.
+   * Place the scene at a second synchronously, leaving it exactly as an awaited
+   * `seek` to the same second would. Offered only by a subject whose placement
+   * needs nothing asynchronous; inspection uses it to sample motion between
+   * output frames and then places the drawn second again.
    */
   place?(seconds: number): void;
 
-  /**
-   * Release the scene's resources when the page is done with it.
-   */
+  /** Release the scene's resources when the page is done with it. */
   dispose(): void;
 }
 
 /** Types shared by the draw and review hosts of a placed subject. */
 export namespace IAutoMovieDrawScene {
   /**
-   * The same settled delivery scene for any host, before the view or overlays select what the audience sees.
+   * The same settled delivery scene for any host, before the view or overlays
+   * select what the audience sees.
    */
   export interface IPlacedSample {
     /** Film time with an exact delivery frame when available. */
@@ -123,11 +160,16 @@ export namespace IAutoMovieDrawScene {
     readonly mode: "viewer" | "capture" | "delivery";
 
     /**
-     * The subject's synchronous placement, when it offers one. A caller that places another second must place this sample's second again before returning.
+     * The subject's synchronous placement, when it offers one. A caller that
+     * places another second must place this sample's second again before
+     * returning.
      */
     readonly place?: (seconds: number) => void;
 
-    /** Scratch render access for the offscreen capture and delivery audits, absent in the Viewer. Restore renderer and scene state before returning. */
+    /**
+     * Scratch render access for the offscreen capture and delivery audits,
+     * absent in the Viewer. Restore renderer and scene state before returning.
+     */
     readonly auditRaster?: {
       /** The renderer used for the actual offscreen delivery. */
       readonly renderer: THREE.WebGLRenderer;

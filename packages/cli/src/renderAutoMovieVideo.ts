@@ -57,6 +57,13 @@ interface IDeliveryReport {
    * PCM digest and the master's measurements.
    */
   sound: IAutoMovieDrawnVideoResult["sound"] | null;
+  /**
+   * The film's cut, one row per sequence entry with the output frames it is
+   * live in; absent when the subject supplied no cut. It describes the
+   * `film.mp4` beside this report only when `status` is `published` and
+   * `source.sha256` is that file's digest.
+   */
+  cut?: IAutoMovieDrawnVideoResult["cut"];
   delivery: DeliveryAudit | null;
   /**
    * How the encoded file differs from its video and audio profiles; empty when
@@ -192,6 +199,7 @@ export async function renderAutoMovieVideo(
             hash,
           }));
           attempt.diagnostics = drawn.diagnostics ?? null;
+          if (drawn.cut !== undefined) attempt.cut = drawn.cut;
           phase = "encode";
           await run(props.ffmpeg, args);
         },

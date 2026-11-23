@@ -22,7 +22,7 @@ Follow [delivery repairs](../review/delivery-review.md#repairs) for a failed cut
 
 - its revision, media identities, fixed inputs, source, dependencies and reproduction commands;
 - checks, observers and outstanding limits;
-- for a whole motion hint, each shot's name, frame range, resolved camera and chosen lens;
+- for a whole motion hint, each shot's name, frame range, resolved camera and chosen lens, taking the frame ranges from a [trusted render report](media-records.md#render-reports)'s `cut`;
 - rights, attribution, generation requests and the derivatives they produced;
 - takes with content credentials, required disclosures and any required music cue sheet from the locked cut.
 

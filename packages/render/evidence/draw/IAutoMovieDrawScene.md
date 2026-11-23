@@ -6,7 +6,7 @@ Seconds are the subject's own timebase, the raster is whole pixels, and `seek` r
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Every member is read by `installAutoMovieDraw`: the scene and camera to draw, the clock, raster and named instants for the capture plan, `views` and `marks` for the inspection, `seek` and `dispose` for its life. View placements and marks use the shapes `resolveAutoMovieInspectionView` and `IAutoMovieMark` already own.
+Every member is read by `installAutoMovieDraw`: the scene and camera to draw, the clock, raster and named instants for the capture plan, the delivery intent, sound list and cut for the delivery render, `views` and `marks` for the inspection, `seek` and `dispose` for its life. View placements and marks use the shapes `resolveAutoMovieInspectionView` and `IAutoMovieMark` already own.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -41,6 +41,12 @@ The pipeline keeps one film's files in these folders of `media/automovie/<film>/
 
 Use the film's [acceptance record](../review/delivery-review.md#acceptance-record) to establish the current verdict on a revision.
 
+### Render reports
+
+Every render attempt installs its `render-report.json` in its output folder, but a blocked or failed attempt keeps the previous video there. Trust a report, and every record it vouches for, only when its `status` is `published` and its `source.sha256` equals the SHA-256 of the video file beside it. When the check fails, render again before using the files.
+
+A trusted report's `cut` lists each sequence entry with the output frames it is live in, `liveFrames` as `[first, endExclusive)`. An entry that opens with a dissolve is live from the dissolve's first frame, so its first frames still show mostly the previous shot.
+
 ## Records
 
 Record the following in `media/manifest.json` or the generation request:
