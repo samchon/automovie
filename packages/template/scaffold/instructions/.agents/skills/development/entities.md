@@ -36,7 +36,7 @@ Letter only from a font source the shot lists: a font the production synthesizes
 
 A book's face and a folded sheet carry no graphic, because a surface that rides an articulation is refused.
 
-The film draws only what it mounts. After building a shot's scene, mount its flames with `prepareAutoMovieFlames` and its surface graphics with `prepareAutoMovieSurfaceGraphics`, and call each one's `apply` at the shot-local second in `seek`. A shot with a feed layer also needs the film's `beforeDraw` to call the graphics' `renderFeeds` with the film's `optics` at that second, or the screen shows an empty picture, or raw scene light without the optics. Dispose both with the film.
+The film draws only what it mounts. After building a shot's scene, mount its flames with `prepareAutoMovieFlames` and its surface graphics with `prepareAutoMovieSurfaceGraphics`, and call each one's `apply` at the shot-local second in `seek`. A shot with a feed layer also needs the film's `beforeDraw` to call the graphics' `renderFeeds` with the film's `optics` at that second. Without the call the screen shows an empty picture, and without the optics it shows raw scene light. Dispose both with the film.
 
 ### Everything else
 
