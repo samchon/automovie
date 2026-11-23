@@ -18,20 +18,10 @@ import type { IAutoMovieMotionHumanProp } from "./IAutoMovieMotionHumanProp";
  * declares, at the height and depth the chair has, and a grasp, a touch or
  * a look goes to the contact the object names instead of to coordinates
  * written by hand.
- *
- * @evidence contracts/development/common.md#meaningful-documentation body: Its physical data (an archetype's model body); none when absent or null.
- * @evidence contracts/development/design.md#principled-representation body: Its physical data (an archetype's model body); none when absent or null.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanObject.ts (HumanObject.frame, placement); perform/HumanObject.ts (HumanObject.prop, placement); perform/HumanObject.ts (HumanObject.prop, motion); perform/HumanObject.ts (HumanObject.seat, placement); perform/HumanObstacle.ts (HumanObstacle.apertures, placement); perform/HumanObstacle.ts (HumanObstacle.object, placement).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieAffordance, IAutoMoviePhysicalShape, IAutoMovieBody, IAutoMovieRigidTransform identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanObject {
   /**
    * An object as a prop of a performance: actions aim at its contacts by their ids, hands grasp its handles, and it rides the hand that holds it. What is read of an object.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation body: Its physical data (an archetype's model body); none when absent or null.
-   * @evidence contracts/development/design.md#principled-representation body: Its physical data (an archetype's model body); none when absent or null.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanObject.ts (HumanObject.prop, model); perform/HumanObject.ts (HumanObject.seat, model); perform/HumanObstacle.ts (HumanObstacle.apertures, model); perform/HumanObstacle.ts (HumanObstacle.object, model); perform/HumanObject.ts (HumanObject.prop).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieAffordance, IAutoMoviePhysicalShape, IAutoMovieBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IModel {
     /** Whether the model declares internal articulation. Omission leaves the adapter unable to certify that a model with a pose method is rigid. */
@@ -67,11 +57,6 @@ export namespace IAutoMovieMotionHumanObject {
 
   /**
    * Two endpoints in the current model pose, in model-space metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States endpoint order, frame and units.
-   * @evidence contracts/development/design.md#principled-representation The ordered endpoints use the canonical vector and are resolved at one articulation state.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A provider can return its existing span state. Motion uses only the endpoints.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No model class or algorithm is required by this record.
    */
   export interface ISpanEnds {
     /** The first endpoint in the model's posed space, in metres. */
@@ -83,11 +68,6 @@ export namespace IAutoMovieMotionHumanObject {
 
   /**
    * The model's declared span geometry and its current endpoint reader.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names span identity, physical lengths and the no-rest-length case.
-   * @evidence contracts/development/design.md#principled-representation A stable span id identifies geometry in metres, including the declared length of a line allowed to slack.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.cord reads the same declaration and endpoint method the provider uses to lay out the line.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The span reader is required. Its provider's own span records may carry other data without motions importing the provider package.
    */
   export type ISpanModel = IModel &
     Required<Pick<IModel, "span">> & {
@@ -101,11 +81,6 @@ export namespace IAutoMovieMotionHumanObject {
 
   /**
    * A declared span's soft-cord placement and physical discretization.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names subject and owner identity, linear topology, mass, friction and the fixed-step solver.
-   * @evidence contracts/development/design.md#principled-representation Rest length and radius belong to the model. The caller supplies its cord mass in kg, number of links and the engine's timebase and material settings.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanObject.cord consumes only the owning prop, the separate cord identity and the soft settings absent from the model's span declaration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No gravity, mass, timestep, friction or animation is inferred from the model name.
    */
   export interface ICord {
     /** Unique subject id of the soft cord in the performance. */
@@ -138,11 +113,6 @@ export namespace IAutoMovieMotionHumanObject {
    * under its origin and the heading its own `+Z` faces, degrees about +Y;
    * `fixed` sets it as a fixture, which hands grip and never carry
    * (`IAutoMovieMotionHumanProp.fixed`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation at: World floor point beneath the object's origin, metres; the object builder places its origin above this floor point. yaw: Object yaw in degrees about world +Y. fixed: Whether the object is immovable; omitted leaves the normal movable placement behavior.
-   * @evidence contracts/development/design.md#principled-representation at: World floor point beneath the object's origin, metres; the object builder places its origin above this floor point. yaw: Object yaw in degrees about world +Y. fixed: Whether the object is immovable; omitted leaves the normal movable placement behavior.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanObject.ts (HumanObject.frame, placement); perform/HumanObject.ts (HumanObject.prop, placement); perform/HumanObject.ts (HumanObject.prop, motion); perform/HumanObject.ts (HumanObject.seat, placement); perform/HumanObstacle.ts (HumanObstacle.apertures, placement); perform/HumanObstacle.ts (HumanObstacle.object, placement).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieRigidTransform, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type Placement = (
     | IAutoMovieRigidTransform

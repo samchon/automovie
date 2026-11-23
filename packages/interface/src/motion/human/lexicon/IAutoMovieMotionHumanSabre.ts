@@ -2,11 +2,6 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 
 /**
  * A cavalry sabre carried on the march and brought to the charge from the saddle (#3949, #3957): the right hand closes on the sabre's grip and the left holds both reins as one bridle hand; at the slope the blade rests upright against the right shoulder, and at the engage the arm reaches straight forward with the blade level along the travel, point leading and edge down, the thrusting pattern of 1908. A trumpet's charge cue brings the slope to the engage after the rider's warned reaction, within one gallop stride.
- *
- * @evidence contracts/development/common.md#meaningful-documentation on: The horse's subject id. frame: Its seat contact. prop: The sabre's subject id. carry: The carriage the act begins in. cue: The charge cue's track. gaits: The ride's gait changes as a cue track. target: What the engage points at. transition: Seconds the slope takes to reach the engage. duration: How long the act lasts.
- * @evidence contracts/development/design.md#principled-representation Subject and contact ids, a closed carriage literal, a cue track and seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters `HumanSabre` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The cue is the author's; the reaction is the rider's own warned latency.
  */
 export interface IAutoMovieMotionHumanSabre {
   /** The horse's subject id. */
@@ -39,11 +34,6 @@ export interface IAutoMovieMotionHumanSabre {
 export namespace IAutoMovieMotionHumanSabre {
   /**
    * A sabre carriage: `slope`, upright against the right shoulder, or `engage`, level forward at the charge.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two carriages and where the blade is in each.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the march carriage and the charge carriage of the 1908 thrusting pattern.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The act's `carry` member reads it as the carriage it begins in, and `HumanSabre` branches on it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per carriage, with no optional fields to combine.
    */
   export type Carry = "slope" | "engage";
 }

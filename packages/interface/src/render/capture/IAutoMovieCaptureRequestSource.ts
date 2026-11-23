@@ -2,11 +2,6 @@
  * Named text values a capture request is read from: a page address, a command line, or a component's props written as text.
  *
  * `URLSearchParams` and `Map<string, string>` both satisfy it as they are, so the page passes its address's parameters and the command passes the map `readAutoMovieCaptureArguments` makes, and neither host parses an option itself.
- *
- * @evidence contracts/development/design.md#principled-representation A request is a set of named texts; `get` reads one and `keys` lists the names given, which is what lets the reader refuse a name it does not know and a name given twice.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two methods, the subset of `URLSearchParams` and `Map` the reader calls; declared structurally so neither host adapts its own object.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No member names a host; an absent key reads as null or undefined, the two absences the two hosts return.
- * @evidence contracts/development/common.md#meaningful-documentation States which objects satisfy it as they are, and what each method returns for an absent key.
  */
 export interface IAutoMovieCaptureRequestSource {
   /**

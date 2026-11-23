@@ -5,11 +5,6 @@ import type { IAutoMoviePlanContourWalks64Ring } from "./IAutoMoviePlanContourWa
  * Stateful two-phase slit-walk closures. Complete every prepare call and all ring
  * refinement before the first resolve call. Closures retain walks, ring objects,
  * point tuples and source-owner callbacks until the result is released.
- *
- * @evidence contracts/development/design.md#principled-representation Ordered local ring selections define a cyclic millimetre walk; R preserves source ownership shared with insertion and identity callbacks.
- * @evidence contracts/development/design.md#minimal-and-owned-surface planAutoMovieContourWalks64 exposes preparation to boundary staging and resolution to contour emission, sharing one cache.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Resolving an unprepared branch or preparing after any resolve throws; no alternative slit is silently generated during emission.
- * @evidence contracts/development/common.md#meaningful-documentation Defines phase ordering, cache retention, shared return storage, selection premises and propagated callback failures.
  */
 export interface IAutoMoviePlanContourWalks64Plans<
   R extends IAutoMoviePlanContourWalks64Ring,

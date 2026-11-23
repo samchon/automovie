@@ -3,11 +3,6 @@ import type { IAutoMovieInstancePrototypeChoices } from "./IAutoMovieInstancePro
 
 /**
  * Instance-set identity and complete choice table needed for deterministic prototype selection.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States explicit-ID refusal, weighted order and seed, full-table convention, empty-table premise and borrowed result ownership.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing explicit IDs throw instead of silently drawing another prototype; a final-entry residual policy handles floating-point remainder without content-specific branches.
- * @evidence contracts/development/design.md#principled-representation Stable set and model-group IDs accompany a deterministic seed and complete weighted table. Selection rejects an empty table; finite-weight, total and slot-range invariants require upstream population admission.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Regeneration and structural subject comparison share these inputs; Choice preserves compiled tier data on the selected borrowed entry without requiring it on the minimal fallback.
  */
 export namespace IAutoMovieSelectInstancePrototype {
   /**
@@ -27,11 +22,6 @@ export namespace IAutoMovieSelectInstancePrototype {
    * regenerated member changes prototype. The choice returned is the table's own
    * entry, so a caller holding a compiled table reads that entry's tiers.
    * Choice keeps those extra fields in the returned type. Selection rejects an explicitly empty table. The caller admits positive finite weights, a finite positive total and valid slot addresses; selection does not check those remaining premises. An absent table creates the one-entry default. No selection or table cache survives the call.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States explicit-ID refusal, weighted order and seed, full-table convention, empty-table premise and borrowed result ownership.
-   * @evidence contracts/development/design.md#principled-representation Stable set and model-group IDs accompany a deterministic seed and complete weighted table. Selection rejects an empty table; finite-weight, total and slot-range invariants require upstream population admission.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Regeneration and structural subject comparison share these inputs; Choice preserves compiled tier data on the selected borrowed entry without requiring it on the minimal fallback.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing explicit IDs throw instead of silently drawing another prototype; a final-entry residual policy handles floating-point remainder without content-specific branches.
    */
   export type IInstanceSet<
     Choice extends Pick<

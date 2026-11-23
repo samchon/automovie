@@ -9,22 +9,12 @@ import type { IAutoMoviePhysicalRecoveryPolicy } from "./IAutoMoviePhysicalRecov
 
 /**
  * Sampled physical-scene inputs, bounded controller policy and requested-torque diagnostics.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Authored world poses and causal ownership/control policy for one cache sample. One scene body's physical profile, authored samples and bounded controller policy.
- * @evidence contracts/development/design.md#principled-representation Sample k supplies continuous poses at k/rate seconds but its discrete policy owns the preceding interval [(k-1)/rate,k/rate); sample zero initializes ownership. targets includes zero and all duration times rate endpoints; translational gains use N/m and N s/m, angular gains N m/rad and N m s/rad.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMoviePhysicalSimulation clones targets before admission and identity hashing; physical target fitting may derive different motor goals without rewriting these authored samples. Simulation compute clones this descriptor, supplies documented defaults and admits it before allocating native objects; optional controllers add only the declared physical policy.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts admitPhysicalTargets requires complete segment coverage, finite positions, unit quaternions and strengths in [0,1]. dynamicSegments must explicitly include descendants of every selected parent. admitPhysicalBody, admitPhysicalReleasePolicy and admitPhysicalTargets own cross-field validation. Internal actuation requires supportTracking or balance; omitted optional controllers are inactive.
  */
 export namespace IAutoMoviePhysicalSimulationInput {
   /**
    * Authored world poses and causal ownership/control policy for one cache sample.
    *
    * Sample k supplies continuous poses at k/rate seconds but its discrete policy owns the preceding interval [(k-1)/rate,k/rate); sample zero initializes ownership. AutoMoviePhysicalSimulation clones targets before admission and identity hashing; physical target fitting may derive different motor goals without rewriting these authored samples. admitPhysicalTargets requires complete segment coverage, finite positions, unit quaternions and strengths in [0,1]. dynamicSegments must explicitly include descendants of every selected parent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Authored world poses and causal ownership/control policy for one cache sample.
-   * @evidence contracts/development/design.md#principled-representation Sample k supplies continuous poses at k/rate seconds but its discrete policy owns the preceding interval [(k-1)/rate,k/rate); sample zero initializes ownership.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMoviePhysicalSimulation clones targets before admission and identity hashing; physical target fitting may derive different motor goals without rewriting these authored samples.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts admitPhysicalTargets requires complete segment coverage, finite positions, unit quaternions and strengths in [0,1]. dynamicSegments must explicitly include descendants of every selected parent.
    */
   export interface ITarget {
     /** Complete authored world bone-origin poses: positions in metres and unit rotations. Admission requires exactly every profile segment. */
@@ -69,11 +59,6 @@ export namespace IAutoMoviePhysicalSimulationInput {
    * One scene body's physical profile, authored samples and bounded controller policy.
    *
    * targets includes zero and all duration times rate endpoints; translational gains use N/m and N s/m, angular gains N m/rad and N m s/rad. Simulation compute clones this descriptor, supplies documented defaults and admits it before allocating native objects; optional controllers add only the declared physical policy. admitPhysicalBody, admitPhysicalReleasePolicy and admitPhysicalTargets own cross-field validation. Internal actuation requires supportTracking or balance; omitted optional controllers are inactive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One scene body's physical profile, authored samples and bounded controller policy.
-   * @evidence contracts/development/design.md#principled-representation targets includes zero and all duration times rate endpoints; translational gains use N/m and N s/m, angular gains N m/rad and N m s/rad.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Simulation compute clones this descriptor, supplies documented defaults and admits it before allocating native objects; optional controllers add only the declared physical policy.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts admitPhysicalBody, admitPhysicalReleasePolicy and admitPhysicalTargets own cross-field validation. Internal actuation requires supportTracking or balance; omitted optional controllers are inactive.
    */
   export interface IBody {
     /** Unique nonblank scene body id, excluding '/' and the reserved id 'floor'. */
@@ -192,11 +177,6 @@ export namespace IAutoMoviePhysicalSimulationInput {
    * Complete sampled scene and explicit work budgets for deterministic fixed-step simulation.
    *
    * rate is cached intervals/s; substeps multiplies it into native ticks/s. Positive duration times rate is an exact safe integer bounded by maximumSteps. AutoMoviePhysicalSimulation owns a clone with defaults applied; settings, profiles, targets and impulses participate in content identity and checkpoint compatibility. admitPhysicalSimulation checks finite scalars, floor dimensions, population and clock budgets before world allocation. Empty arrays are valid where no body or impulse is needed; invalid references or budgets throw.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Complete sampled scene and explicit work budgets for deterministic fixed-step simulation.
-   * @evidence contracts/development/design.md#principled-representation rate is cached intervals/s; substeps multiplies it into native ticks/s. Positive duration times rate is an exact safe integer bounded by maximumSteps.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMoviePhysicalSimulation owns a clone with defaults applied; settings, profiles, targets and impulses participate in content identity and checkpoint compatibility.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts admitPhysicalSimulation checks finite scalars, floor dimensions, population and clock budgets before world allocation. Empty arrays are valid where no body or impulse is needed; invalid references or budgets throw.
    */
   export interface IInput {
     /** Positive finite local film duration in seconds; duration times rate must be a safe integer. */
@@ -282,11 +262,6 @@ export namespace IAutoMoviePhysicalSimulationInput {
    * A joint tracking error and requested-torque saturation diagnostic at one output instant.
    *
    * seconds uses local film time and error is a shortest-arc norm in radians; saturated names joint-frame coordinates. trackPhysicalWorld records material pre-solve demands, while trackingAt allocates diagnostics against the original authored target and borrows saturation history by completed step. No diagnostic claims achieved torque or contact load; recovery-fitted targets can differ from authored targets. Stored rows omit unsaturated negligible errors.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A joint tracking error and requested-torque saturation diagnostic at one output instant.
-   * @evidence contracts/development/design.md#principled-representation seconds uses local film time and error is a shortest-arc norm in radians; saturated names joint-frame coordinates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface trackPhysicalWorld records material pre-solve demands, while trackingAt allocates diagnostics against the original authored target and borrows saturation history by completed step.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No diagnostic claims achieved torque or contact load; recovery-fitted targets can differ from authored targets. Stored rows omit unsaturated negligible errors.
    */
   export interface IDiagnostic {
     /** Film second. */

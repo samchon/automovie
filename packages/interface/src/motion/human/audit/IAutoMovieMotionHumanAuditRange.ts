@@ -14,21 +14,11 @@ import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanA
  * an angle on an axis the joint does not have by its whole magnitude, and a
  * ball joint's combined flexion and abduction by what it exceeds the swing
  * cone. A joint the table does not list is unconstrained.
- *
- * @evidence contracts/development/common.md#meaningful-documentation duration: The motion's length, film seconds. overshoot: The farthest a joint stands past its range, degrees, with the bone and the axis (`flexion`, `abduction`, `twist` or `swing`); `Infinity` for a non-finite angle.
- * @evidence contracts/development/design.md#principled-representation duration: The motion's length, film seconds. overshoot: The farthest a joint stands past its range, degrees, with the bone and the axis (`flexion`, `abduction`, `twist` or `swing`); `Infinity` for a non-finite angle.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAuditRange.ts (AutoMovieMotionHumanAuditRange.measure, motion); audit/AutoMovieMotionHumanAuditRange.ts (AutoMovieMotionHumanAuditRange.unloaded, posed); audit/HumanVerdicts.ts (HumanVerdicts.of.posed, return); audit/AutoMovieMotionHumanAuditRange.ts (AutoMovieMotionHumanAuditRange.measure, return); audit/AutoMovieMotionHumanAuditRange.ts (AutoMovieMotionHumanAuditRange.unloaded, return); audit/HumanVerdicts.ts (HumanVerdicts.of).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMoviePose, IAutoMovieMotionHumanAuditMeasure identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanAuditRange {
   /**
    * A motion as this audit reads it: a person's displayed pose at any film
    * second. `HumanPerformance` is one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and which producer satisfies it.
-   * @evidence contracts/development/design.md#principled-representation Clinical angles live on the pose, not on the resolved bones the other audits read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, a structural subset of `HumanPerformance`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface's pose; no cast or optional member.
    */
   export interface IPosed {
     /** The motion's length, film seconds. */
@@ -46,11 +36,6 @@ export namespace IAutoMovieMotionHumanAuditRange {
 
   /**
    * What the reading found.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and what it is read on.
-   * @evidence contracts/development/design.md#principled-representation The worst overshoot and the one share it cannot tell.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, each asserted by the audit's test.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
    */
   export interface IResult {
     /** The farthest a joint stands past its range, degrees, with the bone and the axis (`flexion`, `abduction`, `twist` or `swing`); `Infinity` for a non-finite angle. */

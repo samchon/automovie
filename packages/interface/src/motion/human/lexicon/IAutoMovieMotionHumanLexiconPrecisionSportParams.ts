@@ -3,11 +3,6 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 
 /**
  * Open parameters for the installed precision sport actions. Implement strokes bind an already held implement and a separate ball; bare-hand strokes strike the ball with the hand. The action planner admits the strike and publishes its launch only after measuring the fitted contact.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes prop custody and the planner that admits the requested stroke.
- * @evidence contracts/development/design.md#principled-representation Closed row map over a shared timed strike. The optional cue bridge is a distinct target on the playing surface.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each row exposes the same authored impact and shot controls. Cue strokes add support on the table.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing target and side contracts. Runtime admission owns reach and geometric fit.
  */
 export interface IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /** Baseball hit on the scheduled pitch path. */
@@ -64,11 +59,6 @@ export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
   /**
    * A timed bare-hand contact with a real scene ball and a separately
    * authored outgoing shot: the hand itself is the striking surface.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names ball custody, local strike seconds, world speed units and the striking hand.
-   * @evidence contracts/development/design.md#principled-representation The row fixes the sport and the contact surface. The same impact event fixes both posture and ball launch.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the ball, aim, impact time, outgoing speed and side; physical checks stay with the law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A ball's radius and center come from the prop's own sized grip. No implement is named because none is held.
    */
   export interface IHand {
     /** Subject id of the stationary or moving ball. */
@@ -95,11 +85,6 @@ export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
   }
   /**
    * A timed contact with a real scene ball and a separately authored outgoing shot.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names tool and ball custody, local strike seconds, and world speed units.
-   * @evidence contracts/development/design.md#principled-representation The row fixes the sport and the contact affordance. The same impact event fixes both posture and ball launch.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the bound equipment, side, aim, impact time and outgoing speed. Physical checks stay with the law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A ball's radius and center come from the prop's own sized grip. No duplicated world point is required for the strike.
    */
   export interface IStroke extends IHand {
     /** Subject id of the implement the striking hand already holds. */
@@ -108,11 +93,6 @@ export namespace IAutoMovieMotionHumanLexiconPrecisionSportParams {
 
   /**
    * A cue stroke with a fixed bridge contact read from the named table surface.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The bridge points to a fixed target for the guide hand during the stroke.
-   * @evidence contracts/development/design.md#principled-representation Extends the shared timed strike with one distinct hand contact.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface No extra grip or bridge path is authored for the cue.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the canonical motion target rather than a private table coordinate type.
    */
   export interface ICue extends IStroke {
     /** Stable bed or rail point supporting the hand that guides the shaft. */

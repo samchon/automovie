@@ -2,21 +2,11 @@ import type { IAutoMovieRecoveryInput } from "../../index";
 
 /**
  * Prepare declared source aliases and original edge/vertex face incidence.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Exact-position serialization key to the first admitted canonical vertex index. One in-range canonical connectivity index per original vertex; this does not move source coordinates.
- * @evidence contracts/development/design.md#principled-representation Exact-position serialization key to the first admitted canonical vertex index.
- * @evidence contracts/development/design.md#minimal-and-owned-surface bindRecoveryOrderedFits, extractRecoveryMeshSections, observeRecoveryOrderedCuts share IAutoMovieRecoveryMeshIncidencePreparationOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts One in-range canonical connectivity index per original vertex; this does not move source coordinates.
  */
 
 export namespace IAutoMovieRecoveryMeshIncidencePreparationOperation {
   /**
    * Prepare declared source aliases and original edge/vertex face incidence.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Exact-position serialization key to the first admitted canonical vertex index. One in-range canonical connectivity index per original vertex; this does not move source coordinates.
-   * @evidence contracts/development/design.md#principled-representation Exact-position serialization key to the first admitted canonical vertex index.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface bindRecoveryOrderedFits, extractRecoveryMeshSections, observeRecoveryOrderedCuts share IAutoMovieRecoveryMeshIncidencePreparationOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One in-range canonical connectivity index per original vertex; this does not move source coordinates.
    */
 
   export type Operation = (

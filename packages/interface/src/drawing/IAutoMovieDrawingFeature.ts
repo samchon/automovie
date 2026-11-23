@@ -5,11 +5,6 @@ import type { AutoMovieDrawingFeatureKind } from "./AutoMovieDrawingFeatureKind"
  * to.
  *
  * Derivation re-resolves this positional address against current static CPU geometry. It moves the note anchor or recomputes a dimension, but note text is copied as authored. Coordinate sorting can renumber features after rotation or deformation, and equal feature counts do not establish that an index still identifies the originally intended feature.
- *
- * @evidence contracts/development/design.md#principled-representation `resolveAutoMovieDrawingFeature` places the element by its world matrix, filters the model's parts when `part` is set, builds the addressed family in a canonical order, and refuses a non-integer or out-of-range index or a count that differs from the current family size.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Element, optional part, family, index and optional count form a coordinate-free positional address. The count detects size changes in the addressed family, not arbitrary replacements; stable feature identity or geometry-version tracking is not stored.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A changed feature count makes the target stale instead of relocating it onto whichever feature inherited the index, and an unresolvable target never snaps to the nearest surviving feature.
- * @evidence contracts/development/common.md#meaningful-documentation States what places the feature, when `part` is ignored, which families renumber under reordering and which do not, the legal index for `axis` and `centroid`, and what the authored count protects against.
  */
 export interface IAutoMovieDrawingFeature {
   /** Building element the feature belongs to; its world matrix places it. */

@@ -4,22 +4,12 @@ import type { IAutoMoviePlacementSummary } from "./IAutoMoviePlacementSummary";
 
 /**
  * Chunk-addressed and whole-population placement summaries from one ordered slot traversal.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents zero-based contiguous addresses, world-metre point semantics, hero inclusion, output ownership, empty behavior and callback failure.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Chunk centroid is a running mean of members rather than a box centre, and whole centroid is folded from every point rather than an unweighted mean of chunks.
- * @evidence contracts/development/design.md#principled-representation Ordered chunk records describe disjoint half-open slot intervals and summaries over their actual points; index is a chunk ordinal, not a member ID or spatial key.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Formation and instance materializers consume both chunk and global summaries from the same traversal, avoiding a second placement pass.
  */
 export namespace IAutoMovieSummarizeCompiledSlotChunks {
   /**
    * Caller-owned summaries over every generated world-space placement point, in metres.
    *
    * Each slot from zero through count - 1 is sampled exactly once in ascending order and folded into its chunk and the whole population. Bounds are exact component extrema of placement points, excluding model geometry and later motion; centroids are order-dependent running means. Formation heroes are included here, before materialization adds anonymous counts. Population callers admit positive integer count/chunkSize and finite points. A zero count produces no chunks and an infinite-sentinel whole bound with zero centroid, not an admitted finite population. Callback exceptions propagate before any result is returned; neither the callback nor point history is retained.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents zero-based contiguous addresses, world-metre point semantics, hero inclusion, output ownership, empty behavior and callback failure.
-   * @evidence contracts/development/design.md#principled-representation Ordered chunk records describe disjoint half-open slot intervals and summaries over their actual points; index is a chunk ordinal, not a member ID or spatial key.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Formation and instance materializers consume both chunk and global summaries from the same traversal, avoiding a second placement pass.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Chunk centroid is a running mean of members rather than a box centre, and whole centroid is folded from every point rather than an unweighted mean of chunks.
    */
   export type IResult = {
     /** Caller-owned chunk records in ascending start order. */

@@ -2,11 +2,6 @@
  * A reusable directional surface-envelope query over a copied mesh.
  *
  * Input plane coordinates and returned axial depths are mesh-local metres, with Y/Z, Z/X or X/Y query planes for X, Y or Z depth. The factory rejects malformed meshes and axes; queries reject nonfinite coordinates or depths, return null on a miss and skip zero-area triangle projections.
- *
- * @evidence contracts/development/design.md#principled-representation Input plane coordinates and returned axial depths are mesh-local metres, with Y/Z, Z/X or X/Y query planes for X, Y or Z depth.
- * @evidence contracts/development/design.md#minimal-and-owned-surface createAutoMovieMeshDepthSampler owns the copied spatial index; callers own the returned closure and each fresh depth record.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The factory rejects malformed meshes and axes; queries reject nonfinite coordinates or depths, return null on a miss and skip zero-area triangle projections.
- * @evidence contracts/development/common.md#meaningful-documentation A reusable directional surface-envelope query over a copied mesh. Input plane coordinates and returned axial depths are mesh-local metres, with Y/Z, Z/X or X/Y query planes for X, Y or Z depth.
  */
 export namespace IAutoMovieCreateMeshDepthSampler {
   /**
@@ -27,11 +22,6 @@ export namespace IAutoMovieCreateMeshDepthSampler {
    * that overflows; a query throws on a non-finite coordinate or depth.
    *
    * The closure retains only its copied index until released; queries are synchronous, return a fresh mutable pair or null, and retain no query arguments. u and v must be finite metre coordinates in the stated cyclic plane order.
-   *
-   * @evidence contracts/development/design.md#principled-representation Input plane coordinates and returned axial depths are mesh-local metres, with Y/Z, Z/X or X/Y query planes for X, Y or Z depth.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface createAutoMovieMeshDepthSampler owns the copied spatial index; callers own the returned closure and each fresh depth record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The factory rejects malformed meshes and axes; queries reject nonfinite coordinates or depths, return null on a miss and skip zero-area triangle projections.
-   * @evidence contracts/development/common.md#meaningful-documentation A reusable directional surface-envelope query over a copied mesh. Input plane coordinates and returned axial depths are mesh-local metres, with Y/Z, Z/X or X/Y query planes for X, Y or Z depth.
    */
   export type IResult = (
     u: number,

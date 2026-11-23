@@ -13,40 +13,20 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * horizontal and face down along the travel, `hover` upright, `seated` with
  * the hips and knees folded, `stride` in a running stride in the air. It
  * faces along its horizontal travel. The path carries no gravity check.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path, its profile, the shapes, the heading and the absent gravity check, with the source.
- * @evidence contracts/development/design.md#principled-representation World points in metres, seconds and a closed shape union; the law refuses a non-positive time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters the registered `wireFlight` law reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The path is the author's; nothing is fitted to it.
  */
 export namespace IAutoMovieMotionHumanWireFlight {
   /**
    * The body's shape in the air.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the flight shapes; the namespace states the posture of each.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the shapes the body holds along the wire path.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IParams` reads it and `wireFlight.plan` chooses the held posture by it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per shape, with no optional fields to combine.
    */
   export type Shape = "superman" | "hover" | "seated" | "stride" | "limp";
 
   /**
    * A hand or a foot that touches a surface in the air.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the four end effectors that can touch a surface in the air.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the two hands and two feet, by side.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The flight's touch records read it to choose the limb `wireFlight.plan` places on the surface.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per hand or foot, with no optional fields to combine.
    */
   export type Part = "leftHand" | "rightHand" | "leftFoot" | "rightFoot";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame, unit and default.
-   * @evidence contracts/development/design.md#principled-representation World root points in metres and seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `wireFlight.plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member has one meaning in every shape.
    */
   export interface IParams {
     /** Where the root ends, world metres: its height above the floor included. */
@@ -68,11 +48,6 @@ export namespace IAutoMovieMotionHumanWireFlight {
   /**
    * One touch of a surface in the air: an ordinary contact with the named
    * surface at a share of the flight.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation A part, a target and a share of the flight.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `wireFlight.plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A touch the part cannot reach from the path is refused.
    */
   export interface ITouch {
     /** The touching hand or foot. */
@@ -89,11 +64,6 @@ export namespace IAutoMovieMotionHumanWireFlight {
    * An arrested fall: the body falls free from where it stands raised, the
    * wire takes it and stops it above the ground within a bounded
    * deceleration, then lowers it to stand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation Metres, metres per second squared and seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `wireArrest.plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A fall the bound cannot stop above `stop` is refused.
    */
   export interface IArrest {
     /** How far the body falls free before the wire takes it, metres; positive. */

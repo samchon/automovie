@@ -5,21 +5,11 @@ import type { IAutoMovieMotionObstacleAperture } from "../perform/IAutoMovieMoti
  * Parameters of the opt-in `HumanTravelCarExit.getOut` law for a stationary
  * car with an already-open rear door. The performer enters seated on the
  * bench and ends standing outside the door.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the opening, the entered support and the standing outcome.
- * @evidence contracts/development/design.md#principled-representation A placed bench and an opening in world metres, with an authored exterior floor elevation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The registered getOut planner consumes these parameters.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing seat frame and obstacle aperture types.
  */
 export namespace IAutoMovieMotionHumanTravelCarExit {
   /**
    * World geometry for the selected rear door. The law admits the seated
    * entry and checks passage; the author supplies the already-open door.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the seat, raw cushion width, selected opening, exterior floor, phase timing, landing position and extra flexion.
-   * @evidence contracts/development/design.md#principled-representation Bench extent consists of its canonical seat frame, explicit depth and cushion width. The aperture describes its clear opening in the same frame as the exterior floor.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Consumed by HumanTravelCarExit.getOut through the registered action parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Width comes from the physical seat affordance; it is independent of performer size and car class.
    */
   export interface IParams {
     /** Rear bench in world metres, as read by HumanObject.seat, with its actual depth. */

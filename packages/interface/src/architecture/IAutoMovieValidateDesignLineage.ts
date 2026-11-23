@@ -2,11 +2,6 @@ import type { IAutoMovieDesignLineage } from "./IAutoMovieDesignLineage";
 
 /**
  * Data and callback contracts shared by the ValidateDesignLineage operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Validate one lineage record as a self-consistent phase, alternative, and derivation graph. Member documentation states the supplied records, units and absence meanings used by validateDesignLineage.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The lineage record remains separate from building identities and external bytes; host binding and byte verification cannot be inferred from self-consistency.
- * @evidence contracts/development/design.md#principled-representation lineage owns revision, phase, alternative, lifecycle and derived-artifact identities; validateDesignLineage checks graph consistency, freshness and digest syntax.
- * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateDesignLineage, used by validateDesignLineage. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
  */
 export namespace IAutoMovieValidateDesignLineage {
   /**
@@ -44,11 +39,6 @@ export namespace IAutoMovieValidateDesignLineage {
    * with `$input` paths and nothing throws; the lineage query functions throw on
    * the first finding instead. Host identities are not checked here;
    * {@link validateDesignLineageBinding} does that.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Validate one lineage record as a self-consistent phase, alternative, and derivation graph. Member documentation states the supplied records, units and absence meanings used by validateDesignLineage.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The lineage record remains separate from building identities and external bytes; host binding and byte verification cannot be inferred from self-consistency.
-   * @evidence contracts/development/design.md#principled-representation lineage owns revision, phase, alternative, lifecycle and derived-artifact identities; validateDesignLineage checks graph consistency, freshness and digest syntax.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateDesignLineage.IProps, used by validateDesignLineage. Its lineage members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Lineage record to validate. */

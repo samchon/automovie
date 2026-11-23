@@ -5,11 +5,6 @@ import type { IAutoMovieMeshClearanceWitness } from "./IAutoMovieMeshClearanceWi
  * Inputs for turning directional clearance witnesses into inspection segments.
  *
  * The mesh and witness gap share metre coordinates; anchor selects the object-local frame or null for world space. Witness lengths and front vertex bounds are checked; finite mesh values, weights, gaps and a matching measurement axis remain caller premises.
- *
- * @evidence contracts/development/design.md#principled-representation The mesh and witness gap share metre coordinates; anchor selects the object-local frame or null for world space.
- * @evidence contracts/development/design.md#minimal-and-owned-surface markAutoMovieMeshClearance consumes measurement witnesses and produces IAutoMovieMark segments without mutating source buffers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Witness lengths and front vertex bounds are checked; finite mesh values, weights, gaps and a matching measurement axis remain caller premises.
- * @evidence contracts/development/common.md#meaningful-documentation Inputs for turning directional clearance witnesses into inspection segments. The mesh and witness gap share metre coordinates; anchor selects the object-local frame or null for world space.
  */
 export namespace IAutoMovieMarkMeshClearance {
   /**
@@ -18,11 +13,6 @@ export namespace IAutoMovieMarkMeshClearance {
    * A witness's front point is its front triangle's vertices weighted by its barycentric weights, and its back point is that point moved `gap` metres back along the measured axis, because the gap is the front depth minus the back depth there. Each becomes a segment of kind `clearance`, label `clearance witness`, colour yellow-green `9acd32`, at path `<path>/clearance/<ordinal>`, flagged when its gap is negative. Coordinates are those of the meshes, which share one frame; `anchor` names the scene object that frame belongs to, or null for world space.
    *
    * It throws for a witness that names a vertex outside the front mesh or does not hold three vertices and three weights.
-   *
-   * @evidence contracts/development/design.md#principled-representation The mesh and witness gap share metre coordinates; anchor selects the object-local frame or null for world space.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface markAutoMovieMeshClearance consumes measurement witnesses and produces IAutoMovieMark segments without mutating source buffers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Witness lengths and front vertex bounds are checked; finite mesh values, weights, gaps and a matching measurement axis remain caller premises.
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs for turning directional clearance witnesses into inspection segments. The mesh and witness gap share metre coordinates; anchor selects the object-local frame or null for world space.
    */
   export type IProps = {
     /**

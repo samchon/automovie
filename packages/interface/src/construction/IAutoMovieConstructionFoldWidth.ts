@@ -14,11 +14,6 @@
  * A fold whose walls face each other is a cleft: as `beta` nears `pi` the ball touches the walls ever farther from their line, and past `cap` it no longer fits between them within the reach the author allows. With `reach` that is refused as `cleft`: the walls there are two sheets in contact, not a fillet. Without `reach` the chord is cut at the cap as before.
  *
  * Engine admission: `radius` and `cap` positive; `reach`, when given, positive; `radii`, when given, at least 3 positive values. With `reach`, at every point whose fold term reaches it, `radius` under the radius of curvature each surface turns toward the fold there (a ball larger than that cannot touch the surface without cutting it: the offset surface at that distance is singular); refused as `fold radius`.
- *
- * @evidence contracts/development/design.md#principled-representation A circle of radius R tangent to two planes that meet at the turn beta touches each a distance R tan(beta / 2) from their line, the rolling-ball blend's chord, read here at each traced point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A radius and a cap state the law; the turn comes from the surfaces, not from another field.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The cap bounds a near-flat fold's chord rather than any rail being moved after the fact.
- * @evidence contracts/development/common.md#meaningful-documentation States the formula, its geometric source, where it is evaluated and interpolated, the cap and the admission.
  */
 export interface IAutoMovieConstructionFoldWidth {
   /** Discriminator. */

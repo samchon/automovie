@@ -5,11 +5,6 @@ import type { AutoMovieViewLoftInputsScalar } from "./AutoMovieViewLoftInputsSca
  * Prepared raw scalar readers used by ViewLoft admission and cap-ring density.
  *
  * Every argument is physical station in millimetres. The factory reuses retained direct outline preparations or prepares generic-girth outlines once; closures keep those preparations and the report callback alive until released. They do not mutate the prepared sources, which must remain unchanged. A failed read calls report with source identity and returns NaN, while exceptions from report propagate. Quarter calls return fresh mutable four-entry arrays. These are values before sign conversion and effective cap shoulder adjustment, not physical derivative capabilities.
- *
- * @evidence contracts/development/design.md#principled-representation Four signed coordinate laws and the fullness owner retain their distinct mm or dimensionless meanings at the same physical station.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieViewLoftInputs prepares the six readers that ViewLoft uses for box admission, fullness and original cap density, sharing existing direct preparations where present.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent departures define zero laws, whereas failed declared outlines cause factory failure or NaN with diagnostics rather than silently becoming zero.
- * @evidence contracts/development/common.md#meaningful-documentation Defines station units, signed output roles, callback failures, retained preparation and fresh quarter-array ownership.
  */
 export interface IAutoMovieViewLoftInputsInputs {
   /** Raw front-positive u coordinate in local millimetres, before box admission; the reader preserves the authored sign and declared pole closure. */

@@ -40,20 +40,10 @@
  * its pelvis is where the way says: each step is then as long as the way
  * gone in it, as a drilled soldier keeps his place at a called cadence by
  * the length of his step.
- *
- * @evidence contracts/development/common.md#meaningful-documentation distance: The path's length, metres. period: The realised step period for a planned one, seconds. lead: How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent.
- * @evidence contracts/development/design.md#principled-representation distance: The path's length, metres. period: The realised step period for a planned one, seconds. lead: How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/WalkPace.ts (WalkPace.fit, props); actions/WalkPace.ts (WalkPace.travelled, props); actions/walkStation.ts (walkStation.cadenced, return); actions/WalkPace.ts (WalkPace).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in WalkPace.fit.
  */
 export namespace IAutoMovieMotionHumanWalkPace {
   /**
    * The timing with the fewest steps whose cruising step is no longer than the longest one: at least two steps whenever there is a way to go, one step the whole way being a lunge, the pelvis crossing the distance over a single stance. What a timing is planned from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation distance: The path's length, metres. period: The realised step period for a planned one, seconds. lead: How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent.
-   * @evidence contracts/development/design.md#principled-representation distance: The path's length, metres. period: The realised step period for a planned one, seconds. lead: How far ahead of the ankle the middle of a flight gait's centre of pressure path lies, metres; 0 when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/WalkPace.ts (WalkPace.fit, props); actions/WalkPace.ts (WalkPace.travelled, props); actions/walkStation.ts (walkStation.cadenced, return); actions/WalkPace.ts (WalkPace).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in WalkPace.fit.
    */
   export interface IProps {
     /** The path's length, metres. */

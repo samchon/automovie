@@ -9,20 +9,10 @@ import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
  * the pair's forks: the composed outline is each curve's arcs outside its neighbours, so a lobe's extremes are the child's own and the
  * valley between two lobes ends in the forks. The pair's seam plane passes through both forks and holds the unit bisector of the two
  * children's axes, so it is a function of both children's frames; its normal points from the lower child toward the upper one.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sections, the forks, the lobes and the seam plane with its orientation.
- * @evidence contracts/development/design.md#principled-representation A branch node's surface is made of its children's root sections (Ji, Liu and Wang 2010); the union outline of closed curves is their arcs outside one another, and the plane through two crossing points that holds the axes' bisector is the mirror plane of two equal children, in which their skins meet.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The section record, the input, the composition with its forks, seams and lobes, the builder and the section of a cut skin.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neighbours that do not cross twice, others that overlap and a bisector along the forks' chord are refused by name; no fork is tabulated or snapped.
  */
 export namespace IAutoMovieConstructionComposedEnd {
   /**
    * One child's section in the end plane.
-   *
-   * @evidence contracts/development/design.md#principled-representation A closed curve by the child's own phase with its tangent, and the child's axis, are what the forks and the bisector are computed from.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A name, one reader and one direction.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader is the child's own curve; no polygon stands in for it past the search for crossings.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and direction.
    */
   export interface ISection {
     /** The child's name in refusals. */
@@ -39,11 +29,6 @@ export namespace IAutoMovieConstructionComposedEnd {
 
   /**
    * One piece of the composed outline: a lobe of one section, read from one fork to the next.
-   *
-   * @evidence contracts/development/design.md#principled-representation The outline is the sections' own arcs joined at the forks, so a piece is a section and a phase interval in the direction the outline runs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A section index and two phases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The piece names the child's own curve; no fitted curve stands in for it.
-   * @evidence contracts/development/common.md#meaningful-documentation States the direction and the unit.
    */
   export interface IPiece {
     /** The section the piece lies on. */
@@ -60,11 +45,6 @@ export namespace IAutoMovieConstructionComposedEnd {
    * The composed outline as one closed curve: every section's lobes joined through the forks, in the order they bound the union.
    *
    * Sections that cross have no gap between them, so the saddle rule (a radius of half the gap between two root sections) gives each fork a zero radius: a fork is a corner of the outline, a point of both lobes, and needs no fillet.
-   *
-   * @evidence contracts/development/design.md#principled-representation The union outline of closed curves that cross pairwise is their outer arcs in order; a host family that adopts it for its last section ends on the children's own curves.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The pieces and one reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader evaluates the sections themselves; nothing is resampled or smoothed at a fork.
-   * @evidence contracts/development/common.md#meaningful-documentation States the pieces' order, the parameter and the fork's corner.
    */
   export interface IOutline {
     /** The pieces in order round the outline, the first the first section's lobe read by increasing phase. */
@@ -85,11 +65,6 @@ export namespace IAutoMovieConstructionComposedEnd {
 
   /**
    * What a composition is built from.
-   *
-   * @evidence contracts/development/design.md#principled-representation The end plane and the sections in the children's order are the whole composition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four fields; the sample count is the caller's sampling input.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and order.
    */
   export interface IInput {
     /** A point of the end plane, mm. */
@@ -107,11 +82,6 @@ export namespace IAutoMovieConstructionComposedEnd {
 
   /**
    * One fork: a point two neighbouring sections share.
-   *
-   * @evidence contracts/development/design.md#principled-representation The crossing point with its phase on each of the two curves, so each child reads its own lobe from it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A point and two phases.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point is the lower child's curve at its phase; the upper child's curve passes through it to the solver's rounding.
-   * @evidence contracts/development/common.md#meaningful-documentation States the owner of the point and the phases' order.
    */
   export interface IFork {
     /** The fork, mm: the lower child's section at its phase. */
@@ -123,11 +93,6 @@ export namespace IAutoMovieConstructionComposedEnd {
 
   /**
    * The seam between two neighbours.
-   *
-   * @evidence contracts/development/design.md#principled-representation Two forks and the plane through them that holds the axes' bisector.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The forks, the plane's normal and the bisector.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values derived from the two sections alone.
-   * @evidence contracts/development/common.md#meaningful-documentation States the forks' order and both directions' orientation.
    */
   export interface ISeam {
     /** The forks: the first on the left of the direction from the lower child's centre to the upper child's, seen against the end plane's normal. */
@@ -142,11 +107,6 @@ export namespace IAutoMovieConstructionComposedEnd {
 
   /**
    * A built composition.
-   *
-   * @evidence contracts/development/design.md#principled-representation The seams between neighbours and each child's lobes are the composed outline's whole structure.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three arrays.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values derived from the sections alone.
-   * @evidence contracts/development/common.md#meaningful-documentation States each array's indexing and unit.
    */
   export interface IComposition {
     /** Seam `j` between sections `j` and `j + 1`. */

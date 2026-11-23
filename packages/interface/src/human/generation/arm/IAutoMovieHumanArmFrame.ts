@@ -6,11 +6,6 @@ import type { IAutoMovieHumanArmWalk } from "./IAutoMovieHumanArmWalk";
 
 /**
  * Type contracts exchanged by AutoMovieHumanArmFrame; runtime evaluation remains in Human.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanArmFrame exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
- * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IInput, IOutput. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanArmFrame; Human retains the computation and source preparation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IInput, IOutput contracts and adds no alternate implementation, optional mode or runtime state.
  */
 export namespace IAutoMovieHumanArmFrame {
   /** Original placement/control inputs; no completed source or neighbouring part is required.
@@ -65,12 +60,6 @@ export namespace IAutoMovieHumanArmFrame {
   }
 
   /** Common axis/site chart before any native girth solve, scalar curve or loft.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Common axis/site chart before any native girth solve, scalar curve or loft.
-   * @evidence contracts/development/design.md#principled-representation `source`: Pure jointed axis, site stations, source pole and original frame mapping. `run`: Proximal support distance inside the shoulder girdle, calibration mm. `humerus`: Actual rigid GH-to-elbow distance, calibration mm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanArmFrame.create. Read by AutoMovieHumanArmHandControls.create. Also types AutoMovieHumanArmSources.frame, AutoMovieHumanArmSources.value.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `source`, `run`, `humerus`; callers supply the complete record.
    */
   export interface IOutput {
     /** Pure jointed axis, site stations, source pole and original frame mapping. */

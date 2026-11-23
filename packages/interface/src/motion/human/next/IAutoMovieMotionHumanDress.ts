@@ -11,9 +11,6 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * Putting on, taking off and fastening clothing.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Dress family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Dress laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanDress<Chain> {
   /**
@@ -76,11 +73,6 @@ export namespace IAutoMovieMotionHumanDress {
    * The parameters of `drawFromCarrier`: the staged pair, the drawing hand and the other hand's pull.
    *
    * The pair is `HumanSheath.of`'s staged record, which names the blade, the carrier and the sockets the draw runs between.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, its default and what the staged pair holds.
-   * @evidence contracts/development/design.md#principled-representation The staged record and the draw's own pull type, so the method reads the identities the staging derived and states none of its own.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, the ones `HumanSheath.draw` reads besides the chain and the anchor.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every member is optional or required as `HumanSheath.draw` takes it.
    */
   export interface IDrawFromCarrier {
     /** The staged blade and carrier, as `HumanSheath.of` returns them. */
@@ -95,11 +87,6 @@ export namespace IAutoMovieMotionHumanDress {
 
   /**
    * The parameters of `putDownAperture`: the staged pair and the holding hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and its default.
-   * @evidence contracts/development/design.md#principled-representation The staged record names the entry, the seat and the guide, so the return states no frame of its own.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, the ones `HumanSheath.sheathe` reads besides the chain and the anchor.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the hand is optional as `HumanSheath.sheathe` takes it.
    */
   export interface IPutDownAperture {
     /** The staged blade and carrier, as `HumanSheath.of` returns them. */
@@ -139,17 +126,10 @@ export namespace IAutoMovieMotionHumanDress {
  * Not yet: the jacket through rigid sleeve sockets, shoes and socks while
  * seated, zips and buttons (garment sockets as props), and a watch on the
  * other wrist.
- *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The hand that holds it; the one the entry holds it in when absent, `right` if neither. point: Dressing contact point in world metres. surface: Hand surface placed on the item: palm for a hat, index tip for glasses.
  */
 export namespace IAutoMovieMotionHumanDress {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation A closed item, the held wearable, its hand and a manner.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
    */
   export interface IParams {
     /** The item: where it is worn and how the free hand steadies it. */
@@ -167,11 +147,6 @@ export namespace IAutoMovieMotionHumanDress {
 
   /**
    * A hand's place for an item on a posture, and the surface laid there. An item put on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A hand's place for an item on a posture, and the surface laid there. An item put on.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "hat", "glasses" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: dressing/dress.ts (dress.place, item); executable/cases/dressCases.ts (wearable, item); dressing/dress.ts (dress.WORN); dressing/dress.ts (dress.plan); executable/cases/dressCases.ts (WEAR).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in dress.place.
    */
   export type Item = "hat" | "glasses";
 
@@ -180,11 +155,6 @@ export namespace IAutoMovieMotionHumanDress {
    *   surface and where its forward points: a palm flat on the head with the
    *   fingers ahead, or an index finger pointing back along the temple with
    *   the palm toward the head.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: Dressing contact point in world metres. surface: Hand surface placed on the item: palm for a hat, index tip for glasses.
-   * @evidence contracts/development/design.md#principled-representation point: Dressing contact point in world metres. surface: Hand surface placed on the item: palm for a hat, index tip for glasses.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: dressing/dress.ts (dress.place, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanHand.Surface identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IPlaceResult = {
     /** Dressing contact point in world metres. */

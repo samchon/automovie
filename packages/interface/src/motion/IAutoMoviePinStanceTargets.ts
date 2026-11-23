@@ -7,20 +7,10 @@ import type { IAutoMovieTimedGround } from "./IAutoMovieTimedGround";
 
 /**
  * Data and callback contracts shared by the PinStanceTargets operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Parallel FK frames and local-second times produce inclusive stance runs and per-frame targets in model metres. Opening targets are authoritative for runs beginning at frame zero; each run shares one fixed target object and callers admit the parallel arrays.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This namespace groups the IAutoMoviePinStanceTargets contracts used by packages/engine/src/motion/pinStanceTargets.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
- * @evidence contracts/development/design.md#principled-representation Parallel FK frames and local-second times produce inclusive stance runs and per-frame targets in model metres. Opening targets are authoritative for runs beginning at frame zero; each run shares one fixed target object and callers admit the parallel arrays. The namespace groups these type contracts without implementing the operation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMoviePinStanceTargets contract belongs to interface; packages/engine/src/motion/pinStanceTargets.ts and packages/engine/src/motion/plantStanceFeet.ts use its nested records and callbacks. Runtime computation remains with those consumers.
  */
 export namespace IAutoMoviePinStanceTargets {
   /**
    * Group each leg's stance mask into maximal inclusive runs and assign one fixed model-frame contact per run. A run beginning at frame zero resumes an authoritative opening target; otherwise its first foot supplies XZ and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Parallel FK frames and local-second times produce inclusive stance runs and per-frame targets in model metres. Opening targets are authoritative for runs beginning at frame zero; each run shares one fixed target object and callers admit the parallel arrays.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts IAutoMoviePinStanceTargets.IProps keeps the operation's declared data fields separate from its implementation. The declared structural types do not certify the documented numerical or semantic preconditions.
-   * @evidence contracts/development/design.md#principled-representation Parallel FK frames and local-second times produce inclusive stance runs and per-frame targets in model metres. Opening targets are authoritative for runs beginning at frame zero; each run shares one fixed target object and callers admit the parallel arrays. Required members and referenced canonical contracts establish the structural shape; numeric and cross-field constraints remain runtime obligations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMoviePinStanceTargets.IProps contract belongs to interface; packages/engine/src/motion/pinStanceTargets.ts and packages/engine/src/motion/plantStanceFeet.ts use this boundary. Runtime computation remains with those consumers.
    */
   export type IProps = {
     /** Legs whose feet are planted. */
@@ -51,11 +41,6 @@ export namespace IAutoMoviePinStanceTargets {
 
   /**
    * Group each leg's stance mask into maximal inclusive runs and assign one fixed model-frame contact per run. A run beginning at frame zero resumes an authoritative opening target; otherwise its first foot supplies XZ and sampled ground supplies Y. Parallel times/FK arrays are caller-admitted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Parallel FK frames and local-second times produce inclusive stance runs and per-frame targets in model metres. Opening targets are authoritative for runs beginning at frame zero; each run shares one fixed target object and callers admit the parallel arrays.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts IAutoMoviePinStanceTargets.IResult keeps the operation's declared data fields separate from its implementation. The declared structural types do not certify the documented numerical or semantic preconditions.
-   * @evidence contracts/development/design.md#principled-representation Parallel FK frames and local-second times produce inclusive stance runs and per-frame targets in model metres. Opening targets are authoritative for runs beginning at frame zero; each run shares one fixed target object and callers admit the parallel arrays. Required members and referenced canonical contracts establish the structural shape; numeric and cross-field constraints remain runtime obligations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMoviePinStanceTargets.IResult contract belongs to interface; packages/engine/src/motion/pinStanceTargets.ts and packages/engine/src/motion/plantStanceFeet.ts use this boundary. Runtime computation remains with those consumers.
    */
   export type IResult = {
     /** Compact inclusive stance records, one per detected run. */

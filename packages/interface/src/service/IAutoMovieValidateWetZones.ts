@@ -3,11 +3,6 @@ import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 
 /**
  * Typed wet-zone declarations checked against building boundaries and service drain nodes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Typed wet-zone declarations checked against building boundaries and service drain nodes. Declared upturn is nonnegative metres and floor slope is a nonnegative ratio; validateWetZones checks identities, grades, coverage, thresholds and drainage references.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The gate reads declarations rather than measuring floor gradients or membrane construction; an empty zone array succeeds and typed graph structure remains a premise.
- * @evidence contracts/development/design.md#principled-representation Declared upturn is nonnegative metres and floor slope is a nonnegative ratio; validateWetZones checks identities, grades, coverage, thresholds and drainage references.
- * @evidence contracts/development/design.md#minimal-and-owned-surface lowerServiceNetwork invokes this separate zone gate beside network admission; both read the same network and served built environment.
  */
 export namespace IAutoMovieValidateWetZones {
   /**
@@ -29,11 +24,6 @@ export namespace IAutoMovieValidateWetZones {
    * a drain that really discharges waste.
    * Slope and membrane upturn are declared scalars; this gate does not measure
    * an actual floor gradient or infer waterproof construction from mesh geometry.
-   *
-   * @evidence contracts/development/design.md#principled-representation Declared upturn is nonnegative metres and floor slope is a nonnegative ratio; validateWetZones checks identities, grades, coverage, thresholds and drainage references.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface lowerServiceNetwork invokes this separate zone gate beside network admission; both read the same network and served built environment.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The gate reads declarations rather than measuring floor gradients or membrane construction; an empty zone array succeeds and typed graph structure remains a premise.
-   * @evidence contracts/development/common.md#meaningful-documentation Typed wet-zone declarations checked against building boundaries and service drain nodes. Declared upturn is nonnegative metres and floor slope is a nonnegative ratio; validateWetZones checks identities, grades, coverage, thresholds and drainage references.
    */
   export type IProps = {
     /** Borrowed graph containing wet zones, drain nodes and systems; no zones produces a successful empty validation. */

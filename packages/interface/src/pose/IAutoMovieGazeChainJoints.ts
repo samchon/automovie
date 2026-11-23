@@ -2,11 +2,6 @@ import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
 
 /**
  * Solved clinical aim distributed across the connected neck/head chain.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Explains rig fallback, clinical aim units and intentionally retained excess on the head.
- * @evidence contracts/development/design.md#principled-representation Finite flexion/twist degrees are caller premises; a connected head/neck chain shares effective ROM, otherwise the full aim stays on head.
- * @evidence contracts/development/design.md#minimal-and-owned-surface gazeChainJoints reads the rig's ancestry and constraints and leaves impossible residual for the downstream ROM gate.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Null explicitly means no rig; two-axis addition is documented as an approximation rather than claiming exact quaternion preservation.
  */
 export namespace IAutoMovieGazeChainJoints {
   /**
@@ -34,11 +29,6 @@ export namespace IAutoMovieGazeChainJoints {
    * because rotating a neck the head does not hang from would not move the head.
    * A missing per-bone constraint falls back to the default humanoid ROM, as the
    * gate does.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Explains rig fallback, clinical aim units and intentionally retained excess on the head.
-   * @evidence contracts/development/design.md#principled-representation Finite flexion/twist degrees are caller premises; a connected head/neck chain shares effective ROM, otherwise the full aim stays on head.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface gazeChainJoints reads the rig's ancestry and constraints and leaves impossible residual for the downstream ROM gate.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Null explicitly means no rig; two-axis addition is documented as an approximation rather than claiming exact quaternion preservation.
    */
   export type IProps = {
     /** Rig used to find head/neck ancestry and effective ROM. Null, missing bones, or a non-neck head parent keeps the full aim on head. */

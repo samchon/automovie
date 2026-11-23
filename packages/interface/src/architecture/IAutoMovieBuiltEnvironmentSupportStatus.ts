@@ -3,11 +3,6 @@ import type { IAutoMovieBuiltSupportQuery } from "./IAutoMovieBuiltSupportQuery"
 
 /**
  * An authored bearing or suspension relation and the building that resolves its subjects.
- *
- * @evidence contracts/development/common.md#meaningful-documentation An authored bearing or suspension relation and the building that resolves its subjects. The shared support query carries its relation discriminant and optional metre tolerance; builtEnvironmentSupportStatus rejects negative or non-finite tolerance and defaults omission to 1e-9 metres.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Suspension requires both sides to resolve but asserts no load capacity; bearing uses finite footprint probes and cannot certify continuous mesh contact.
- * @evidence contracts/development/design.md#principled-representation The shared support query carries its relation discriminant and optional metre tolerance; builtEnvironmentSupportStatus rejects negative or non-finite tolerance and defaults omission to 1e-9 metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The operation borrows existing environment and support-query contracts and reports their resolution bases with the verdict.
  */
 export namespace IAutoMovieBuiltEnvironmentSupportStatus {
   /**
@@ -22,11 +17,6 @@ export namespace IAutoMovieBuiltEnvironmentSupportStatus {
    * A support surface bears on its footprint polygon and height rule, and one whose footprint encloses no area does not resolve. A support body bears on the top of the drawn part nearest the subject's underside among the parts its footprint covers; a subject over none of the parts is measured against one of them, which answers `not-over-support`, because the body's union box would claim the subject stands over a notch or the air beside a shelf. `gap` is the signed metre distance from that face to the subject's underside, null when unresolved, suspended, or not over the support, and `unresolved` names each side that did not resolve.
    *
    * The delegated gap uses finite footprint and ring-corner probes. Thin overlaps or deeper relief between probes can be missed; box proxies and a resting verdict do not certify continuous mesh contact.
-   *
-   * @evidence contracts/development/design.md#principled-representation The shared support query carries its relation discriminant and optional metre tolerance; builtEnvironmentSupportStatus rejects negative or non-finite tolerance and defaults omission to 1e-9 metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The operation borrows existing environment and support-query contracts and reports their resolution bases with the verdict.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Suspension requires both sides to resolve but asserts no load capacity; bearing uses finite footprint probes and cannot certify continuous mesh contact.
-   * @evidence contracts/development/common.md#meaningful-documentation An authored bearing or suspension relation and the building that resolves its subjects. The shared support query carries its relation discriminant and optional metre tolerance; builtEnvironmentSupportStatus rejects negative or non-finite tolerance and defaults omission to 1e-9 metres.
    */
   export type IProps = {
     /** Borrowed building world transforms, subject geometry and support surfaces. */

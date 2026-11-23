@@ -7,20 +7,9 @@ import type { IAutoMovieHumanEyelid } from "./IAutoMovieHumanEyelid";
  * Prepared skin openings, their projected trim outlines, optional eye lids and millimetre detail boxes.
  *
  * The interface package owns these declarations; AutoMovieHumanBodyApertures in Human supplies their runtime values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Prepared skin openings, their projected trim outlines, optional eye lids and millimetre detail boxes. Member comments specify the individual units, frames and optional-value meanings.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IPrepared, DetailBoxes declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
- * @evidence contracts/development/design.md#principled-representation IPrepared, DetailBoxes separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanBodyApertures exchanges the named IPrepared, DetailBoxes contracts with its Human callers. Interface owns these type declarations without importing that implementation.
  */
 export namespace IAutoMovieHumanBodyApertures {
   /** An aperture with its margin and projected cut outline evaluated once.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation An aperture with its margin and projected cut outline evaluated once.
-   * @evidence contracts/development/design.md#principled-representation `aperture`: Aperture data. `outline`: Projected outline of the cut: the margin itself, or for an eye the outer edge of the lid band around it. `lid`: Lid of an eye opening: the calibrated eye nearest the margin's centre lies behind it; null for any other opening.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanBodyApertures.prepare. Read by AutoMovieHumanApertureSpan.of, AutoMovieHumanBodyApertures.refine, AutoMovieHumanBodySurfaceOpening.open. Also types AutoMovieHumanBodySurface.spans.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `aperture`, `outline`, `lid`, `edge`; callers supply the complete record.
    */
   export interface IPrepared {
     /** Aperture data. */
@@ -54,12 +43,6 @@ export namespace IAutoMovieHumanBodyApertures {
   @param target Chain being lofted.
   @param heights Increasing stations.
   @param phases Probe phases, the chain's own ring phases.
-   *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Stations refined wherever a chain's rings pass through a detail box, at the same SPACING as around openings: a colour boundary drawn per vertex, such as the lips', is otherwise sampled on triangles several millimetres tall and shows as steps.
- * @evidence contracts/development/design.md#principled-representation Stations refined wherever a chain's rings pass through a detail box, at the same SPACING as around openings: a colour boundary drawn per vertex, such as the lips', is otherwise sampled on triangles several millimetres tall and shows as steps. The outer tuple/array is readonly; nested element types determine whether their contents can change.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanBodyApertures.DetailBoxes is the canonical exchange used by AutoMovieHumanBodyApertures.detail.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanBodyApertures.detail for stations refined wherever a chain's rings pass through a detail box, at the same SPACING as around openings: a colour boundary drawn per vertex, such as the lips', is otherwise sampled on triangles several millimetres tall and shows as steps.
  */
   export type DetailBoxes = readonly [
     [number, number, number],

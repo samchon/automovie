@@ -10,11 +10,6 @@ import type { IAutoMovieSweepSection } from "./IAutoMovieSweepSection";
  * `u` is the chord-length parameter along the spine and `v` the turn around
  * it, both from 0 to 1. Under direction correspondence v is polar angle divided by 2*pi; under parameter correspondence it is the section curve parameter and need not be polar angle or arc-length share. Position, section and frame queries clamp u and wrap v. Differential queries require u in [0,1]; their endpoint stencil is one-sided. Every query is deterministic. Angular linear reconstruction and a local
  * feature nearest-branch change limit the smoothness guarantees. Coordinates use the authored model frame and metres. Returned points and frames are fresh mutable records. The compiled surface retains its source declaration and coefficients; preserve authored data while using it. compileAutoMovieSweep admits authored geometry, while individual queries refuse invalid generated radii or section coordinates; finite query arguments remain the caller's responsibility.
- *
- * @evidence contracts/development/design.md#principled-representation The queries a sampler, a bridge and a measurement need from a parametric surface: position, radius and its split into shape and scale, section frame, outward normal and the derivative along the spine.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record of closures over the compiled tables, so callers never repeat the compile.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Section and frame queries clamp u while differential queries require u in [0,1]; the common number signature does not enforce that premise or distinguish polar and curve-parameter v.
- * @evidence contracts/development/common.md#meaningful-documentation States the producer, parameter ranges, clamping and wrapping, and each query's unit and direction.
  */
 export interface IAutoMovieSweepSurface {
   /** Borrowed source declaration by identity, not a deep snapshot. Changing it after compilation can disagree with retained coefficients. */

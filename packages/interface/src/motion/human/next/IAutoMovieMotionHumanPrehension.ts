@@ -11,10 +11,6 @@ import type { IAutoMovieMotionHumanRegrasp } from "../handling/IAutoMovieMotionH
  * Taking, holding and releasing an object by hand: the grasp, the carry pose and the regrasp. pickUp and putDown share one reach model (`HumanPrehension`).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Prehension family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Prehension laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanPrehension<Chain> {
   /**
@@ -121,11 +117,6 @@ export interface IAutoMovieMotionHumanPrehension<Chain> {
 export namespace IAutoMovieMotionHumanPrehension {
   /**
    * A planned transport of the wrist and the hand's turn.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation duration: Seconds the transport lasts. wrist: The wrist at a second of the transport (clamped to its span), metres.
-   * @evidence contracts/development/design.md#principled-representation duration: Seconds the transport lasts. wrist: The wrist at a second of the transport (clamped to its span), metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanPrehension.ts (HumanPrehension.transport, return); handling/handOver.ts (handOver.plan); handling/handshake.ts (handshake.plan); handling/pickUp.ts (pickUp.plan); handling/putDown.ts (putDown.plan); handling/receive.ts (receive.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ITransport {
     /** Seconds the transport lasts. */
@@ -144,11 +135,6 @@ export namespace IAutoMovieMotionHumanPrehension {
 
   /**
    * Plan a transport. Input rotation of HumanPrehension.transport. The hand's world rotation at the start and at the grasp.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation from: Initial world orientation as a unit quaternion. to: Final world orientation as a unit quaternion.
-   * @evidence contracts/development/design.md#principled-representation from: Initial world orientation as a unit quaternion. to: Final world orientation as a unit quaternion.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanPrehension.ts (HumanPrehension.transport, rotation).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type ITransportRotation = {
     /** Initial world orientation as a unit quaternion. */

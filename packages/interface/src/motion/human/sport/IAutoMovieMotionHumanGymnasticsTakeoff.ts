@@ -14,20 +14,10 @@ import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHum
  * asked velocity on the next plan; the heading moves with the place, so the
  * correction is made three times. The jump's plan is used up to its
  * `takeoff`; what the body does in the air is the caller's.
- *
- * @evidence contracts/development/common.md#meaningful-documentation plan: The jump's plan; its postures up to `seconds` are the push-off. seconds: The take-off, seconds of the plan. centre: The centre of mass at the take-off, world metres.
- * @evidence contracts/development/design.md#principled-representation plan: The jump's plan; its postures up to `seconds` are the push-off. seconds: The take-off, seconds of the plan. centre: The centre of mass at the take-off, world metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/GymnasticsTakeoff.ts (GymnasticsTakeoff.of, return); sport/GymnasticsTakeoff.ts (GymnasticsTakeoff.of); sport/highJump.ts (highJump.plan); sport/poleVault.ts (poleVault.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanActionPlan, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGymnasticsTakeoff {
   /**
    * Plan a take-off at the velocity a law asks for. A planned take-off.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation plan: The jump's plan; its postures up to `seconds` are the push-off. seconds: The take-off, seconds of the plan. centre: The centre of mass at the take-off, world metres.
-   * @evidence contracts/development/design.md#principled-representation plan: The jump's plan; its postures up to `seconds` are the push-off. seconds: The take-off, seconds of the plan. centre: The centre of mass at the take-off, world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/GymnasticsTakeoff.ts (GymnasticsTakeoff.of, return); sport/GymnasticsTakeoff.ts (GymnasticsTakeoff.of); sport/highJump.ts (highJump.plan); sport/poleVault.ts (poleVault.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanActionPlan, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ITakeoff {
     /** The jump's plan; its postures up to `seconds` are the push-off. */

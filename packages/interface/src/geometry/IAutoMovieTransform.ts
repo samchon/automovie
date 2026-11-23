@@ -7,11 +7,6 @@ import type { IAutoMovieVector3 } from "./IAutoMovieVector3";
  * A local point is scaled, then rotated, then translated. Matrix4.compose builds T · R · S in the glTF/three.js convention; nodes, cameras, lights, bones, model parts, attachments and a pose's root carry this record. Joint articulation instead uses semantic angles through {@link IAutoMovieJointPose}.
  *
  * validateTransformScalars, used by model, pose, affordance, building and scene-artifact admission, refuses nonfinite components, a quaternion norm more than 1e-6 from one and nonpositive scale components without repairing the record. These scalar checks do not guarantee finite derived products, a representable inverse or an exactly decomposable hierarchy: rotating a child under nonuniform parent scale can introduce shear.
- *
- * @evidence contracts/development/design.md#principled-representation T · R · S with a unit quaternion and positive axis scales is mathematically invertible and orientation-preserving. Runtime validation admits near-unit rotations within 1e-6 rather than proving exact orthogonality, and binary64 underflow/overflow and sheared hierarchy products remain consumers' numerical and representation limits.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three named parts instead of a 4x4 matrix keep each part checkable on its own and decomposable without numerical fitting, and one shape serves every placed record so a single validator covers them all.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted local record has no explicit shear, reflection or collapsed-scale field; this does not certify an arbitrary composed matrix as unsheared or numerically nonsingular. The owning record supplies parent identity and consumers retain their documented matrix/decomposition limits.
- * @evidence contracts/development/common.md#meaningful-documentation States application order, record owners, semantic joint distinction, unchanged scalar admission and derived-product/hierarchy limitations; members give metre translation, quaternion rotation and dimensionless scale.
  */
 export interface IAutoMovieTransform {
   /** Translation in parent space, meters. */

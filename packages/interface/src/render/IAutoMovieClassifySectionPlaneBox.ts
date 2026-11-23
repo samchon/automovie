@@ -3,11 +3,6 @@ import type { IAutoMovieSectionPlane } from "./IAutoMovieSectionPlane";
 
 /**
  * Data and callback contracts shared by the ClassifySectionPlaneBox operations.
- *
- * @evidence contracts/development/design.md#principled-representation Finite ordered world-metre box corners and a readonly plane list define one inclusive half-space classification; an empty list keeps the box.
- * @evidence contracts/development/design.md#minimal-and-owned-surface classifyAutoMovieSectionPlaneBox reuses shared vectors and section-plane records independently of authored camera frusta.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Invalid box/plane input throws; floating boundary arithmetic remains numerical and section classification is not delivery visibility.
- * @evidence contracts/development/common.md#meaningful-documentation Documents world units, inclusive zero distance, empty planes and numerical limits.
  */
 export namespace IAutoMovieClassifySectionPlaneBox {
   /**
@@ -18,11 +13,6 @@ export namespace IAutoMovieClassifySectionPlaneBox {
    * Throws a `RangeError` when a corner coordinate is not finite or `min` exceeds `max` on an axis, because the support corners of such a box are swapped and a box wholly kept would read as cut; a degenerate plane throws as {@link autoMovieSectionPlaneDistance} does.
    *
    * This tells a reviewer which subjects a section left in view. It is not folded into {@link intersectsPerspectiveFrustumBox}: an authored camera declares no plane, so folding it into delivery acceptance would add a term that is always empty there while making the acceptance of a sliced subject a silent decision.
-   *
-   * @evidence contracts/development/design.md#principled-representation Finite ordered world-metre box corners and a readonly plane list define one inclusive half-space classification; an empty list keeps the box.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface classifyAutoMovieSectionPlaneBox reuses shared vectors and section-plane records independently of authored camera frusta.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Invalid box/plane input throws; floating boundary arithmetic remains numerical and section classification is not delivery visibility.
-   * @evidence contracts/development/common.md#meaningful-documentation Documents world units, inclusive zero distance, empty planes and numerical limits.
    */
   export type IProps = {
     /** Cutting planes; a point any of them removes is removed. */

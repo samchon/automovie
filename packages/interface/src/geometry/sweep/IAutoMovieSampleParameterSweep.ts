@@ -2,11 +2,6 @@ import type { IAutoMovieSweepSurface } from "./IAutoMovieSweepSurface";
 
 /**
  * Fixed Cartesian sampling footprint bound to a live sweep frame and scale slots.
- *
- * @evidence contracts/development/common.md#meaningful-documentation A fixed normalized-u/turn footprint combines metre section coordinates with live dimensionless scale and frame slots. Signed Cartesian cancellation may legitimately yield the origin; nonrepresentable products fail before publishing output instead of becoming radial substitutes.
- * @evidence contracts/development/design.md#principled-representation A fixed normalized-u/turn footprint combines metre section coordinates with live dimensionless scale and frame slots.
- * @evidence contracts/development/design.md#minimal-and-owned-surface sampleAutoMovieParameterSweep registers shapes once and uses the sweep rig's supplied readers during pose writes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Signed Cartesian cancellation may legitimately yield the origin; nonrepresentable products fail before publishing output instead of becoming radial substitutes.
  */
 export namespace IAutoMovieSampleParameterSweep {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieSampleParameterSweep {
    * only a nonzero normalized result lost in multiplication is refused. Scale
    * products, positive weights and world coordinates are admitted before output
    * publication. A rejected write leaves the caller's output buffer unchanged.
-   *
-   * @evidence contracts/development/design.md#principled-representation Unscaled metre section coordinates are averaged over dimensionless u/v spacing and placed in a live model-metre frame. Registration admits finite nonnegative spacing; writes admit scales and generated coordinates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSweep supplies its existing frame and scale registries so parameter-correspondence sampling retains signed Cartesian shape instead of reconstructing a polar radius.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Signed cancellation to the section origin is valid; only unrepresentable nonzero results are refused, and failed evaluation does not publish partial XYZ output.
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies callback timing and live-buffer ownership, scalar frame offsets, spacing units and transactional output behavior.
    */
   export type IProps = {
     /** Compiled rest sweep whose unscaled section-plane shape returns metre coordinates. Registration samples at most nine shape points and retains their weighted values, rather than re-reading shapes per pose. */

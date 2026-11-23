@@ -9,8 +9,6 @@ import type { IAutoMovieMotionHumanArmWrestle } from "../touch/IAutoMovieMotionH
  * Holds, throws, clinches and arm wrestling between two bodies. The grappling law reads no skill: its scene lengths are authored.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Grapple laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanGrapple<Chain> {
   /**
@@ -88,9 +86,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
  * at the lengths on `Kind`; no skill or strength
  * is read. A kind is a staging, not a rulebook: the award is not inferred
  * from the pose.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States that both roles share one authored scene.
- * @evidence contracts/development/design.md#principled-representation A closed scene kind and explicit staged outcome separate choreography from partner identity.
  */
 export namespace IAutoMovieMotionHumanGrapple {
   /**
@@ -98,11 +93,6 @@ export namespace IAutoMovieMotionHumanGrapple {
    * The sumo bouts crouch at the shikiri lines, charge at the tachiai and end
    * with a push out of the ring (`oshiDashi`), a belt-grip force-out
    * (`yoriKiri`) or an overarm belt throw (`uwateNage`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each literal names one selectable judo, wrestling or mat scene.
-   * @evidence contracts/development/design.md#principled-representation Closed scene kinds select the named staging rows and their corresponding support movements.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The scene input uses these fourteen names to select its choreography.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Scene kind and scene outcome are separate inputs.
    */
   export type Kind =
     /** Judo shoulder throw, 3.5 s by default. */
@@ -136,31 +126,16 @@ export namespace IAutoMovieMotionHumanGrapple {
 
   /**
    * The two parts of a scene played on the same clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The initiator supplies the moving hand goals and the receiver supplies their partner-relative frames.
-   * @evidence contracts/development/design.md#principled-representation Each actor plays one of two distinct position and contact schedules.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two roles are sufficient for the paired composition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Actor identities are bound separately from their chosen roles.
    */
   export type Role = "initiator" | "receiver";
 
   /**
    * Whether the planned movement settles or is interrupted and released.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A complete scene proceeds to its selected finish and a denied scene returns to standing.
-   * @evidence contracts/development/design.md#principled-representation The two outcomes select the shared completion or interruption path.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One authored outcome is shared by both roles.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A contact distance or a score never chooses the outcome.
    */
   export type Outcome = "complete" | "denied";
 
   /**
    * Settings common to both roles.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each input describes its staging meaning and default.
-   * @evidence contracts/development/design.md#principled-representation A named scene, lead side, selected branch and per-scene duration.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface These four settings are the inputs common to the two actors.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The outcome is an input, independent of body dimensions or performance sampling.
    */
   export interface IScene {
     /** Which authored scene to stage. */
@@ -178,11 +153,6 @@ export namespace IAutoMovieMotionHumanGrapple {
 
   /**
    * One actor's action in a shared grappling scene.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the role and the other actor.
-   * @evidence contracts/development/design.md#principled-representation The scene is common, while role and reciprocal subject identify this actor's part.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The motion law consumes the shared settings and the two actor-specific fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No participant placement or score is embedded in the inputs.
    */
   export interface IParams extends IScene {
     /** The actor's part in the paired scene. */
@@ -194,11 +164,6 @@ export namespace IAutoMovieMotionHumanGrapple {
 
   /**
    * A clinch preset: the grip and the hold a named clinch fixes, such as judo's grip (kumikata) for a throw. Spread into `clinch`'s parameters with the partner; each value means what the clinch's member of the same name does.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and where its members' meanings are.
-   * @evidence contracts/development/design.md#principled-representation Two required members typed by the clinch law's own named members, so a preset always fixes exactly the grip and the hold and the clinch keeps every other default.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanGrapple.JUDO_GRIP` is its data and the `judoGrip` row reads it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the clinch's parameters.
    */
   export interface IClinchPreset {
     /** The grip, as `IAutoMovieMotionHumanClinch.IParams.grip`. */
@@ -210,11 +175,6 @@ export namespace IAutoMovieMotionHumanGrapple {
 
   /**
    * The parameters a clinch row leaves to the composition: the clinch's parameters without the grip and the hold its preset fixes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameters a clinch row takes and the two it fixes.
-   * @evidence contracts/development/design.md#principled-representation The clinch's own parameters less exactly the members of `IClinchPreset`, so a row cannot be given what its preset fixes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClinch.IParams` owns the shape; the lexicon's social map names the row's parameters by this alias.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit`.
    */
   export type IClinchRow = Omit<
     IAutoMovieMotionHumanClinch.IParams,

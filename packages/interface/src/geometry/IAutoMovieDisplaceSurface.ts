@@ -4,11 +4,6 @@ import type { IAutoMovieSubdivisionSurface } from "./IAutoMovieSubdivisionSurfac
  * Per-vertex normal heights applied to an evaluated subdivision surface.
  *
  * Heights are metres in the surface frame, positive outward; crease vertices move along the normalized sum of their distinct limit normals. The producer checks height count and finiteness and local aggregate normal orientation; the caller supplies an admitted surface and verifies individual faces and global intersections.
- *
- * @evidence contracts/development/design.md#principled-representation Heights are metres in the surface frame, positive outward; crease vertices move along the normalized sum of their distinct limit normals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface displaceAutoMovieSurface borrows the surface and heights and returns new position and normal arrays while sharing topology, UVs and parameters.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks height count and finiteness and local aggregate normal orientation; the caller supplies an admitted surface and verifies individual faces and global intersections.
- * @evidence contracts/development/common.md#meaningful-documentation Per-vertex normal heights applied to an evaluated subdivision surface. Heights are metres in the surface frame, positive outward; crease vertices move along the normalized sum of their distinct limit normals.
  */
 export namespace IAutoMovieDisplaceSurface {
   /**
@@ -32,11 +27,6 @@ export namespace IAutoMovieDisplaceSurface {
    * global absence of self-intersections. The heights usually come from a field evaluated
    * at each vertex's `locateAutoMovieSurfaceVertices` location, which depends
    * on no pose, so a posed surface takes the same heights.
-   *
-   * @evidence contracts/development/design.md#principled-representation Heights are metres in the surface frame, positive outward; crease vertices move along the normalized sum of their distinct limit normals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface displaceAutoMovieSurface borrows the surface and heights and returns new position and normal arrays while sharing topology, UVs and parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer checks height count and finiteness and local aggregate normal orientation; the caller supplies an admitted surface and verifies individual faces and global intersections.
-   * @evidence contracts/development/common.md#meaningful-documentation Per-vertex normal heights applied to an evaluated subdivision surface. Heights are metres in the surface frame, positive outward; crease vertices move along the normalized sum of their distinct limit normals.
    */
   export type IProps = {
     /**

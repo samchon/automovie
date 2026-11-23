@@ -8,21 +8,11 @@ import type {
 
 /**
  * Fit a boundary collar with affine hanging-control constraints against private PL observations. Each leaf is an axis-aligned UV rectangle, so clipping and local coordinates preserve the physical-area polynomial objective. Adaptive attempts split residual-marked leaves at their observed UV locations and close opposed interface intervals. Exhausted or incompatible attempts retain the previous field. Returned edge identities are coefficient relations, not source topology or G1 claims. Optional physical-gradient observations change the declared fitting objective. Their millimetre exchange length scales with physical units. Refinement retains the preceding candidate unless the combined objective improves without worsening its original physical-area position RMS. Every attempt reuses the initial coefficient enclosure; restricting a boundary cubic cannot silently shrink the feasible box. Point fallback supplies no gradient fit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Stable chart identity retained by the fitted patch family. Private physical chart observations in millimetres.
- * @evidence contracts/development/design.md#principled-representation Private physical chart observations in millimetres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafFit, RecoveryChartSurface share IAutoMovieRecoveryChartLeafFit's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Requested correspondence residual in millimetres, independent of embedding.
  */
 
 export namespace IAutoMovieRecoveryChartLeafFit {
   /**
    * Input observations and explicit numerical policy for RecoveryChartLeafFit. Stable chart identity retained by the fitted patch family.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Stable chart identity retained by the fitted patch family. Private physical chart observations in millimetres.
-   * @evidence contracts/development/design.md#principled-representation Private physical chart observations in millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafFit, RecoveryChartSurface share IAutoMovieRecoveryChartLeafFit's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Requested correspondence residual in millimetres, independent of embedding.
    */
 
   export type Input = {
@@ -70,11 +60,6 @@ export namespace IAutoMovieRecoveryChartLeafFit {
 
   /**
    * Returned coefficient or observation state from RecoveryChartLeafFit. Patch populations attempted in each recorded refinement round.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Returned complete millimetre coefficient registry with fixed boundary authority. Fitted leaf identities and row-major sixteen-control registry references.
-   * @evidence contracts/development/design.md#principled-representation Returned complete millimetre coefficient registry with fixed boundary authority.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafFit, RecoveryChartSurface share IAutoMovieRecoveryChartLeafFit's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Combined numerical and declared observation acceptance, without an embedding claim.
    */
 
   export type Result = {
@@ -152,11 +137,6 @@ export namespace IAutoMovieRecoveryChartLeafFit {
 
   /**
    * Fit a boundary collar with affine hanging-control constraints against private PL observations. Each leaf is an axis-aligned UV rectangle, so clipping and local coordinates preserve the physical-area polynomial objective. Adaptive attempts split residual-marked leaves at their observed UV locations and close opposed interface intervals. Exhausted or incompatible attempts retain the previous field. Returned edge identities are coefficient relations, not source topology or G1 claims. Optional physical-gradient observations change the declared fitting objective. Their millimetre exchange length scales with physical units. Refinement retains the preceding candidate unless the combined objective improves without worsening its original physical-area position RMS. Every attempt reuses the initial coefficient enclosure; restricting a boundary cubic cannot silently shrink the feasible box. Point fallback supplies no gradient fit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Fit a boundary collar with affine hanging-control constraints against private PL observations. Each leaf is an axis-aligned UV rectangle, so clipping and local coordinates preserve
-   * @evidence contracts/development/design.md#principled-representation Fit a boundary collar with affine hanging-control constraints against private PL observations. Each leaf is an axis-aligned UV rectangle, so clipping and local coordinates preserve
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartLeafFit, RecoveryChartSurface share IAutoMovieRecoveryChartLeafFit's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
    */
 
   export type Operation = (

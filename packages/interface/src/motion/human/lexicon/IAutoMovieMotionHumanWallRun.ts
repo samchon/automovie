@@ -10,20 +10,10 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  *
  * Every wall contact is checked against the face's friction cone, and a top
  * beyond the climber's reach from the steps is refused with the shortfall.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both moves, the compositions, the checks and the refusals.
- * @evidence contracts/development/design.md#principled-representation A discriminated union on kind; each names the wall, its face and the foot that steps.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One registered vocabulary entry; planWallRun in motions is the only consumer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No height or friction is restated; they come from the wall and the body.
  */
 export namespace IAutoMovieMotionHumanWallRun {
   /**
    * One foot planted on the face, ready for the next move.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and default.
-   * @evidence contracts/development/design.md#principled-representation The wall, its face and the stepping foot.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the wall step reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The step's height follows from the body.
    */
   export interface IWallStep {
     /** Discriminant: a single wall step. */
@@ -41,11 +31,6 @@ export namespace IAutoMovieMotionHumanWallRun {
 
   /**
    * Steps up the face to a cat hang from the wall's top.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and default.
-   * @evidence contracts/development/design.md#principled-representation The wall, its face, its top edge and the first foot.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the wall run reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The top's height comes from the ledge affordance.
    */
   export interface IRun {
     /** Discriminant: a wall run to a cat hang. */
@@ -66,11 +51,6 @@ export namespace IAutoMovieMotionHumanWallRun {
 
   /**
    * Parameters: a wall step or a wall run.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the variants.
-   * @evidence contracts/development/design.md#principled-representation A closed discriminated union on kind.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The variants planWallRun dispatches on.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alternatives are separated by kind rather than optional fields.
    */
   export type IParams = IWallStep | IRun;
 }

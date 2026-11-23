@@ -8,50 +8,25 @@ import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDa
  * apex. The turnout is the hip's external rotation and is refused beyond
  * the hip's range; a split beyond the hips' flexion and extension is
  * refused too.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps, the turnout and the refusals.
- * @evidence contracts/development/design.md#principled-representation A step kind with its own optional fields.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/balletStep.ts (balletStep.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
  */
 export namespace IAutoMovieMotionHumanBallet {
   /**
    * The steps.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The steps' names.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "position", "pirouette", "grandJete".
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/balletStep.ts (balletStep.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
    */
   export type Kind = "position" | "pirouette" | "grandJete";
 
   /**
    * What the legs do in a position, on alternate beats.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Held, bent over the toes, or risen onto the balls.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "hold", "plie", "releve".
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/balletPositions.ts (balletPositions.course).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
    */
   export type Movement = "hold" | "plie" | "releve";
 
   /**
    * Which way a pirouette turns: away from the supporting leg (en dehors) or toward it (en dedans).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The two turning directions.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "enDehors", "enDedans".
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/balletPirouette.ts (balletPirouette.course).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
    */
   export type Direction = "enDehors" | "enDedans";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default, and which values the law refuses.
-   * @evidence contracts/development/design.md#principled-representation The step, the position and movement, the turnout and split in degrees, the turns and the tempo in beats per minute.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members balletStep.plan and its position, pirouette and jeté courses read; `lock` reuses the dance law's own type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One record with members per step kind rather than a union on `kind`: a member only another step uses is not refused by step kind; ranges and the hip limits remain for balletStep.plan's runtime refusals.
    */
   export interface IParams {
     /** The step. */

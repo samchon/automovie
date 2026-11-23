@@ -5,20 +5,10 @@ import type { IAutoMovieMotionTrajectoryPartition } from "./IAutoMovieMotionTraj
 
 /**
  * Data and callback contracts shared by the IntegrateMotionTrajectory operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This namespace groups the IAutoMovieIntegrateMotionTrajectory contracts used by packages/engine/src/motion/integrateMotionTrajectory.ts; each nested declaration retains its own shape and domain constraints, without an implementation-package dependency.
- * @evidence contracts/development/design.md#principled-representation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends. The namespace groups these type contracts without implementing the operation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieIntegrateMotionTrajectory contract belongs to interface; packages/engine/src/motion/integrateMotionTrajectory.ts and packages/engine/src/motion/integrateAirborneRotation.ts use its nested records and callbacks. Runtime computation remains with those consumers.
  */
 export namespace IAutoMovieIntegrateMotionTrajectory {
   /**
    * What a trajectory is integrated from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts IAutoMovieIntegrateMotionTrajectory.IProps keeps the operation's declared data fields separate from its implementation. The declared structural types do not certify the documented numerical or semantic preconditions.
-   * @evidence contracts/development/design.md#principled-representation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends. Required members and referenced canonical contracts establish the structural shape; numeric and cross-field constraints remain runtime obligations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieIntegrateMotionTrajectory.IProps contract belongs to interface; packages/engine/src/motion/integrateMotionTrajectory.ts and packages/engine/src/motion/integrateAirborneRotation.ts use this boundary. Runtime computation remains with those consumers.
    */
   export interface IProps {
     /**
@@ -82,11 +72,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
    * the vector state's value the larger of the step's two ends, the
    * orientation's the length of its rotation vector over the step, the
    * error norm the root mean square of the components' error over that.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts IAutoMovieIntegrateMotionTrajectory.ITolerance keeps the operation's declared data fields separate from its implementation. The declared structural types do not certify the documented numerical or semantic preconditions.
-   * @evidence contracts/development/design.md#principled-representation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends. Required members and referenced canonical contracts establish the structural shape; numeric and cross-field constraints remain runtime obligations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieIntegrateMotionTrajectory.ITolerance contract belongs to interface; packages/engine/src/motion/integrateMotionTrajectory.ts and packages/engine/src/motion/integrateAirborneRotation.ts use this boundary. Runtime computation remains with those consumers.
    */
   export interface ITolerance {
     /** The share of a component's value, non-negative. */
@@ -101,11 +86,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
 
   /**
    * A state's rate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts IAutoMovieIntegrateMotionTrajectory.IRate keeps the operation's declared data fields separate from its implementation. The declared structural types do not certify the documented numerical or semantic preconditions.
-   * @evidence contracts/development/design.md#principled-representation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends. Required members and referenced canonical contracts establish the structural shape; numeric and cross-field constraints remain runtime obligations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieIntegrateMotionTrajectory.IRate contract belongs to interface; packages/engine/src/motion/integrateMotionTrajectory.ts and packages/engine/src/motion/integrateAirborneRotation.ts use this boundary. Runtime computation remains with those consumers.
    */
   export interface IRate {
     /** The vector state's derivative, one per component. */
@@ -117,11 +97,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
 
   /**
    * A state read at one time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts IAutoMovieIntegrateMotionTrajectory.IState keeps the operation's declared data fields separate from its implementation. The declared structural types do not certify the documented numerical or semantic preconditions.
-   * @evidence contracts/development/design.md#principled-representation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends. Required members and referenced canonical contracts establish the structural shape; numeric and cross-field constraints remain runtime obligations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieIntegrateMotionTrajectory.IState contract belongs to interface; packages/engine/src/motion/integrateMotionTrajectory.ts and packages/engine/src/motion/integrateAirborneRotation.ts use this boundary. Runtime computation remains with those consumers.
    */
   export interface IState {
     /** The vector state. */
@@ -133,11 +108,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
 
   /**
    * An integrated trajectory.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts IAutoMovieIntegrateMotionTrajectory.ITrajectory keeps the operation's declared data fields separate from its implementation. The declared structural types do not certify the documented numerical or semantic preconditions.
-   * @evidence contracts/development/design.md#principled-representation The vector's components retain the caller's units and dx is their rate per second; optional quaternion orientation uses body-frame radians-per-second angular velocity. The integrator checks finite ordered times, positive step, usable state and rate dimensions, and finite nonnegative nonzero tolerance; readers hold the ends. Required members and referenced canonical contracts establish the structural shape; numeric and cross-field constraints remain runtime obligations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The canonical IAutoMovieIntegrateMotionTrajectory.ITrajectory contract belongs to interface; packages/engine/src/motion/integrateMotionTrajectory.ts and packages/engine/src/motion/integrateAirborneRotation.ts use this boundary. Runtime computation remains with those consumers.
    */
   export interface ITrajectory {
     /** The first second. */

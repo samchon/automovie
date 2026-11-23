@@ -2,12 +2,6 @@
  * A facial action unit of the Facial Action Coding System (FACS; Ekman and Friesen 1978), named by its action.
  *
  * Each unit describes the visible effect of one muscle or muscle group. The FACS number follows each name. Units for gross behaviour (tongue show, jaw thrust, cheek puff and the like), head position and gaze are not facial deformation and are not listed. Head position belongs to pose, while gaze describes eye orientation. Blink (45) and wink (46) are timed or one-sided forms of eye closure, authored as `eyesClosed` with a side.
- *
- *
- * @evidence contracts/development/common.md#meaningful-documentation A facial action unit of the Facial Action Coding System (FACS; Ekman and Friesen 1978), named by its action.
- * @evidence contracts/development/design.md#principled-representation Each string names one documented FACS muscle action; side and activation strength remain separate fields.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns the vocabulary. ActionUnitActivation references this vocabulary; Expression carries those activations independently of clinical head pose.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Blink and wink use eyesClosed with side/timing; gross behavior and head/gaze pose are not invented facial-deformation alternatives.
  */
 export type AutoMovieHumanActionUnit =
   /** AU1, frontalis medial part: the inner brow rises. */

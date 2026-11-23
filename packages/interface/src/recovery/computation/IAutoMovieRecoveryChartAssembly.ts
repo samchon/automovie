@@ -7,21 +7,11 @@ import type {
 
 /**
  * Assemble fitted chart fields using one canonical boundary coefficient registry. Equal declared boundary intervals share four exact coefficient IDs, including reversal; coincident independent sheets retain distinct IDs. Different edge partitions retain common analytic curves but report unmatched tessellation spans. Physical transverse jets and coarse/fine edge-sample conformity are separate work. Stored oriented knots map directly to their canonical counterparts without a subtraction round trip. Each canonical endpoint has one evaluation owner; its binary64 restriction difference is measured against the fitted field below.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Caller-assigned stable semantic identity retained in generated coefficient and observation records. Bernstein control positions in the common registered millimetre frame, ordered by control registry ID.
- * @evidence contracts/development/design.md#principled-representation Bernstein control positions in the common registered millimetre frame, ordered by control registry ID.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationPublish, RecoveryChartAssembly, observeAutoMovieRecoveryAtlas share IAutoMovieRecoveryChartAssembly's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Observed admission failures and qualification limits in production order; an empty array adds no extra certificate.
  */
 
 export namespace IAutoMovieRecoveryChartAssembly {
   /**
    * Assemble fitted chart fields using one canonical boundary coefficient registry. Equal declared boundary intervals share four exact coefficient IDs, including reversal; coincident independent sheets retain distinct IDs. Different edge partitions retain common analytic curves but report unmatched tessellation spans. Physical transverse jets and coarse/fine edge-sample conformity are separate work. Stored oriented knots map directly to their canonical counterparts without a subtraction round trip. Each canonical endpoint has one evaluation owner; its binary64 restriction difference is measured against the fitted field below.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Caller-assigned stable semantic identity retained in generated coefficient and observation records. Bernstein control positions in the common registered millimetre frame, ordered by control registry ID.
-   * @evidence contracts/development/design.md#principled-representation Bernstein control positions in the common registered millimetre frame, ordered by control registry ID.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationPublish, RecoveryChartAssembly, observeAutoMovieRecoveryAtlas share IAutoMovieRecoveryChartAssembly's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Observed admission failures and qualification limits in production order; an empty array adds no extra certificate.
    */
 
   export type Operation = (

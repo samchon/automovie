@@ -12,11 +12,6 @@ import type { IAutoMovieHumanHeadNeckLayout } from "./IAutoMovieHumanHeadNeckLay
 
 /**
  * Call-owned head source definitions, lazy raw results, regional attempts and anatomical placement inputs. Runtime construction and admission remain with AutoMovieHumanHeadComposer in Human.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes call-owned head source definitions, lazy raw results, regional attempts and anatomical placement inputs; nested declarations retain their units, frames, optional states and callback contracts.
- * @evidence contracts/development/design.md#principled-representation Call-owned head source definitions, lazy raw results, regional attempts and anatomical placement inputs. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these dependency-free exchange types for AutoMovieHumanHeadComposer; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups the existing HeadComposer contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
  */
 export namespace IAutoMovieHumanHeadComposer {
   /**
@@ -24,11 +19,6 @@ export namespace IAutoMovieHumanHeadComposer {
    *
    * Raw inspection and the body realization retain the same original part dependencies.
    * Caller ownership includes the map, parts, raw lofts and transitive source closures; there is no global registry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The composed head's canonical inputs, source context and raw results.
-   * @evidence contracts/development/design.md#principled-representation One closed layout supplies all original parts; source leaves bind those exact millimetre definitions at realization.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The original definition owns the source map and lazy raw supplier; source-edge and already-requested raw diagnostics remain observable without creating geometry.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Studies remain outside the production tree, and neither raw loft nor context presence establishes final join success.
    */
   export interface IOutput {
     /** The exact closed layout consumed by every source builder below. */
@@ -77,11 +67,6 @@ export namespace IAutoMovieHumanHeadComposer {
    *
    * compose borrows this exact definition and source map rather than preparing regional inputs again.
    * Its caller owns all original part and parent-source dependencies and attempt records.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Actual original regional definitions and every attachment outcome.
-   * @evidence contracts/development/design.md#principled-representation Production composition and source-only observation consume the same original regional builders and actual parent map.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Original definitions precede lofting; explicit failed attempts remain data and prohibit complete publication.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No failed child is replaced by geometry, and valid siblings do not imply a successful whole head.
    */
   export interface IDefinition {
     /** Requested catalogue scope, not a certificate that all attempted sources succeeded. Partial top-level definitions cannot assemble a whole head. */
@@ -121,11 +106,6 @@ export namespace IAutoMovieHumanHeadComposer {
    *
    * The same record is passed to composition; mass source and neck are not rebuilt.
    * The caller owns the layout, original closures and any requested raw mass loft for its definition lifetime.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Canonical mass preparation, independent of regional face source success.
-   * @evidence contracts/development/design.md#principled-representation Retains one caliper/neck family; explicit full-source demand selects its closed upper field while guide/lower consumers borrow the proven invariant originals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One preparation record precedes regional composition without a second head model.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It is not a fallback, proxy or successful partial head tree.
    */
   export interface IBase {
     /** Public caliper/neck layout; upper fullness selection is a later explicit demand. */
@@ -184,11 +164,6 @@ export namespace IAutoMovieHumanHeadComposer {
    *
    * Inspection and realization borrow the identical original part.
    * The composed output owns this record and its retained source/loft dependencies.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A placed original part, its source leaf and lazy raw demand.
-   * @evidence contracts/development/design.md#principled-representation The leaf and explicit raw getter resolve the same retained feature part.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Original input, tree key and optional raw demand remain separate.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No sampled declaration replaces the actual source callbacks.
    */
   export interface IPlaced {
     /** The part. */
@@ -203,11 +178,6 @@ export namespace IAutoMovieHumanHeadComposer {
 
   /**
    * Explicit selected placement laws, calibration mm.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Explicit selected placement laws, calibration mm.
-   * @evidence contracts/development/design.md#principled-representation Passes the actual tragion/ear-height and face-fullness laws from the lane to source authors.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Optional anatomical placement values and the shared neck original keep placement separate from shape and realization.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts These are generating laws, not post-fit translations or guarantees of anatomical accuracy.
    */
   export interface IPlaces {
     /** Same-layout original neck preparation supplied before head construction; no parent source is acquired here. */

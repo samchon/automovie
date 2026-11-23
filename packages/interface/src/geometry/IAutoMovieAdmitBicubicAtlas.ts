@@ -4,11 +4,6 @@ import type { IAutoMovieBicubicAtlasGeometry } from "../model/IAutoMovieBicubicA
  * Structural selection from a bicubic atlas before tessellation.
  *
  * Patch and control integers index the original recipe; they do not renumber coefficients or certify geometric quality. Global identity and budgets throw on invalid input; malformed local coefficients or bindings omit incident patches while independent finite patches survive.
- *
- * @evidence contracts/development/design.md#principled-representation Patch and control integers index the original recipe; they do not renumber coefficients or certify geometric quality.
- * @evidence contracts/development/design.md#minimal-and-owned-surface admitAutoMovieBicubicAtlas supplies realizeAutoMovieBicubicAtlas64 with retained occurrences and canonical boundary declarations.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Global identity and budgets throw on invalid input; malformed local coefficients or bindings omit incident patches while independent finite patches survive.
- * @evidence contracts/development/common.md#meaningful-documentation Structural selection from a bicubic atlas before tessellation. Patch and control integers index the original recipe; they do not renumber coefficients or certify geometric quality.
  */
 export namespace IAutoMovieAdmitBicubicAtlas {
   /**
@@ -18,11 +13,6 @@ export namespace IAutoMovieAdmitBicubicAtlas {
    * Producer source-fit qualifications are retained as diagnostics independently
    * of structural completeness and never suppress finite usable patches.
    * An empty declared patch array is an explicit incomplete generated domain.
-   *
-   * @evidence contracts/development/design.md#principled-representation Patch and control integers index the original recipe; they do not renumber coefficients or certify geometric quality.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface admitAutoMovieBicubicAtlas supplies realizeAutoMovieBicubicAtlas64 with retained occurrences and canonical boundary declarations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Global identity and budgets throw on invalid input; malformed local coefficients or bindings omit incident patches while independent finite patches survive.
-   * @evidence contracts/development/common.md#meaningful-documentation Structural selection from a bicubic atlas before tessellation. Patch and control integers index the original recipe; they do not renumber coefficients or certify geometric quality.
    */
   export type IResult = {
     /**

@@ -4,11 +4,6 @@ import type { IAutoMovieSupportSectionVertex } from "./IAutoMovieSupportSectionV
  * One convex XZ section obtained by intersecting oriented half-planes.
  *
  * Offsets and points use the same local metre chart; pair and tight entries refer to the supplied normal order. Callers admit finite dense arrays, unit normals, bounded directions and the sine threshold; numerical intersection, weak-direction and area refusals propagate.
- *
- * @evidence contracts/development/design.md#principled-representation Offsets and points use the same local metre chart; pair and tight entries refer to the supplied normal order.
- * @evidence contracts/development/design.md#minimal-and-owned-surface evaluateAutoMovieSupportSection delegates directly to createAutoMovieSupportSectionQuery and returns its fresh counter-clockwise polygon.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Callers admit finite dense arrays, unit normals, bounded directions and the sine threshold; numerical intersection, weak-direction and area refusals propagate.
- * @evidence contracts/development/common.md#meaningful-documentation One convex XZ section obtained by intersecting oriented half-planes. Offsets and points use the same local metre chart; pair and tight entries refer to the supplied normal order.
  */
 export namespace IAutoMovieEvaluateSupportSection {
   /**
@@ -19,11 +14,6 @@ export namespace IAutoMovieEvaluateSupportSection {
    * determinant owner. Zero incidence means exact equality for the supplied
    * doubles, independently of observation uncertainty. A weak feasible pair refuses.
    * Callers supply finite dense arrays, unit normals and a bounded section.
-   *
-   * @evidence contracts/development/design.md#principled-representation Offsets and points use the same local metre chart; pair and tight entries refer to the supplied normal order.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface evaluateAutoMovieSupportSection delegates directly to createAutoMovieSupportSectionQuery and returns its fresh counter-clockwise polygon.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Callers admit finite dense arrays, unit normals, bounded directions and the sine threshold; numerical intersection, weak-direction and area refusals propagate.
-   * @evidence contracts/development/common.md#meaningful-documentation One convex XZ section obtained by intersecting oriented half-planes. Offsets and points use the same local metre chart; pair and tight entries refer to the supplied normal order.
    */
   export type IInput = {
     /**
@@ -46,11 +36,6 @@ export namespace IAutoMovieEvaluateSupportSection {
    * The feasible corners of one admitted half-plane intersection, with canonical plane-pair identity and exact tight incidence.
    *
    * A newly owned mutable polygon with at least three distinct positive-area corners. It is counter-clockwise in XZ, has no duplicate closing point and throws rather than returning an empty or unresolved section.
-   *
-   * @evidence contracts/development/design.md#principled-representation Offsets and points use the same local metre chart; pair and tight entries refer to the supplied normal order.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface evaluateAutoMovieSupportSection delegates directly to createAutoMovieSupportSectionQuery and returns its fresh counter-clockwise polygon.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Callers admit finite dense arrays, unit normals, bounded directions and the sine threshold; numerical intersection, weak-direction and area refusals propagate.
-   * @evidence contracts/development/common.md#meaningful-documentation One convex XZ section obtained by intersecting oriented half-planes. Offsets and points use the same local metre chart; pair and tight entries refer to the supplied normal order.
    */
   export type IResult = IAutoMovieSupportSectionVertex[];
 }

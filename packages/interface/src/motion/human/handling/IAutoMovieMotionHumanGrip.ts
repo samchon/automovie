@@ -25,30 +25,15 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * radius and its far end read from the collider, so contact meets what is
  * drawn; a body whose profile declares no digit colliders is refused, since
  * its finger thickness is unknown.
- *
- * @evidence contracts/development/common.md#meaningful-documentation joints: Closed finger-joint rotations in clinical degrees. gaps: Final signed digit-to-collider gaps in metres, positive while separated; only digits participating in this grip are present.
- * @evidence contracts/development/design.md#principled-representation joints: Closed finger-joint rotations in clinical degrees. gaps: Final signed digit-to-collider gaps in metres, positive while separated; only digits participating in this grip are present.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanClasp.ts (HumanClasp.colliders.digits, digit); handling/HumanGrip.ts (HumanGrip.bones, digit); handling/HumanGrip.ts (HumanGrip.chain, digit); handling/HumanGrip.ts (HumanGrip.close.result, d); handling/HumanGrip.ts (HumanGrip.fingers.digits, d); handling/HumanGrip.ts (HumanGrip.aperture.tip, digit).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanGrip {
   /**
    * A digit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A digit.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "Index", "Middle", "Ring", "Little", "Thumb" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanClasp.ts (HumanClasp.colliders.digits, digit); handling/HumanGrip.ts (HumanGrip.bones, digit); handling/HumanGrip.ts (HumanGrip.chain, digit); handling/HumanGrip.ts (HumanGrip.close.result, d); handling/HumanGrip.ts (HumanGrip.fingers.digits, d); handling/HumanGrip.ts (HumanGrip.aperture.tip, digit).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanClasp.colliders.digits.
    */
   export type Digit = "Index" | "Middle" | "Ring" | "Little" | "Thumb";
 
   /**
    * Close a hand's digits on an object. Result returned by HumanGrip.close. The closed finger angles of that hand and each closing digit's final gap, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation joints: Closed finger-joint rotations in clinical degrees. gaps: Final signed digit-to-collider gaps in metres, positive while separated; only digits participating in this grip are present.
-   * @evidence contracts/development/design.md#principled-representation joints: Closed finger-joint rotations in clinical degrees. gaps: Final signed digit-to-collider gaps in metres, positive while separated; only digits participating in this grip are present.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/HumanGrip.ts (HumanGrip.close, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanGrip.Digit identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type ICloseResult = {
     /** Closed finger-joint rotations in clinical degrees. */

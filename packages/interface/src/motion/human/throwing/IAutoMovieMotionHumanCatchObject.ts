@@ -33,30 +33,15 @@ import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHum
  * Not yet: hand closure timed by optical expansion (Savelsbergh et al.
  * 1991), a running catch (McLeod and Dienes 1996), a fumble, the catch
  * against the chest, and a held prop handed from the throw.
- *
- * @evidence contracts/development/common.md#meaningful-documentation hands: One hand or two; `two` when absent. hand: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
- * @evidence contracts/development/design.md#principled-representation hands: One hand or two; `two` when absent. hand: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.pass, params); chain/HumanChainMutual.ts (HumanChainMutual.catchObject, params); throwing/catchObject.ts (catchObject.plan, context); throwing/catchObject.ts (catchObject.plan, return); actions/HumanMutual.ts (HumanMutual.pass); executable/cases/throwCases.ts (throwCases.object).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCatchObject {
   /**
    * How many hands take the object: `one` or `two`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two hand counts a catch takes.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the catch's two hand counts.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters' `hands` member and the catch presets read it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per hand count, with no optional fields to combine.
    */
   export type Hands = "one" | "two";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The source anchor, prop and hand configuration identify the catch.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ordinary and staged catch share the same hand options.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The referenced throw and ball supply the ordinary approach.
    */
   export interface IParams {
     /** The anchor of the throw caught. */
@@ -77,11 +62,6 @@ export namespace IAutoMovieMotionHumanCatchObject {
 
   /**
    * Staged catch parameters, using the prop's actual placed trajectory.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the stage-only interception time and its placement bounds.
-   * @evidence contracts/development/design.md#principled-representation The ordinary hand parameters and optional positive elapsed time identify the capture on the anchored flight.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only stageCatch admits the explicit interception time.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Performance supplies the contact point even for a specified interception time.
    */
   export interface IStageParams extends IParams {
     /**
@@ -95,11 +75,6 @@ export namespace IAutoMovieMotionHumanCatchObject {
 
   /**
    * A catch's plan: an action plan with the object's place over time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation object: The object's centre at a second of the action.
-   * @evidence contracts/development/design.md#principled-representation object: The object's centre at a second of the action.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: throwing/catchObject.ts (catchObject.plan, return); executable/cases/throwCases.ts (throwCases.object).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPlan extends IAutoMovieMotionHumanActionPlan {
     /**
@@ -113,11 +88,6 @@ export namespace IAutoMovieMotionHumanCatchObject {
 
   /**
    * The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that the law takes staged parameters and that its plan publishes the object path.
-   * @evidence contracts/development/design.md#principled-representation An action law over `IStageParams` whose `plan` narrows the result to `IPlan`, so the object path is part of the law's type.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One override of the action law's `plan`; `stageCatch` implements it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every other member is the action law's own.
    */
   export interface IStageLaw extends IAutoMovieMotionHumanActionLaw<IStageParams> {
     /**

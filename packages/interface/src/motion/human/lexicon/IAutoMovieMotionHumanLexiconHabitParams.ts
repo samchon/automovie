@@ -6,11 +6,6 @@ import type { IAutoMovieMotionHumanTouch } from "../next/IAutoMovieMotionHumanTo
 
 /**
  * Open parameters of the habit lexicon family, keyed by each runtime export name.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The habit family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the habit row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconHabitParams {
   /** A draw on a cigarette: held at the lips for a puff's length, drawn by the seed between 1.6 and 2.1 s (#3346: mean puff durations of the Pennsylvania Adult Smoking Study and NCT04844762; a cigarette's dozen puffs, their intervals of 25 to 28 s and the decline of the puff over the cigarette are the composition's), the head level, between fingers that point up and back at the mouth with the palm toward the chin; its end stands 0.15 of a hand off the fingertips' pads (provisional). With `prop`, the held cigarette's `mouth` end meets the lips. */

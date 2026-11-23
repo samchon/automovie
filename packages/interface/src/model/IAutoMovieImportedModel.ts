@@ -5,11 +5,6 @@ import type { IAutoMovieImportedModelLod } from "./IAutoMovieImportedModelLod";
 
 /**
  * Compiler-sealed imported appearance facts consumed by the viewer.
- *
- * @evidence contracts/development/design.md#principled-representation The viewer consumes the compiler-sealed digest closure and authoritative indices rather than inferred names.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One named contract is shared by the authoring model and its existing consumers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This declaration supplies no geometry, inference, fallback or runtime behavior.
- * @evidence contracts/development/common.md#meaningful-documentation States profile qualification, permitted byte closure, detail ordering and authoritative mappings.
  */
 export interface IAutoMovieImportedModel {
   /** Normalization profile proved from resident model bytes. */

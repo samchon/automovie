@@ -4,10 +4,6 @@ import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
  * The gaits of a horror creature, stage readings of a walk with its own Froude number, step and unevenness (provisional; no study was read).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the HorrorCreature family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The HorrorCreature laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
   /**

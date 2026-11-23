@@ -9,22 +9,12 @@
  * Input rings and source callbacks must already be admitted; callback and
  * arithmetic failures can throw, and the surrounding preparation stage records
  * those failures separately instead of fabricating a successful result.
- *
- * @evidence contracts/development/design.md#principled-representation A qualification flag is separate from contact traces, exact-predicate work counts and optional elapsed time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This result records one invocation and carries no unused source-ring type parameter or retained geometry buffer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Exact predicates certify represented chord signs, not source-curve simplicity, injectivity or exact floating-point subdivision.
- * @evidence contracts/development/common.md#meaningful-documentation Defines projection scope, unresolved contact, trace interpretation, count ownership and absent timing.
  */
 export namespace IAutoMovieRefineContourInteractions64 {
   /**
    * Newly owned trace and scalar observations after one refinement call.
    * Fewer than two selected rings returns qualified:true, empty diagnostics and
    * zero counters; requested timing can still report that invocation's duration.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Refinement qualification, ordered trace, split/predicate counts and nullable millisecond timing remain separate measurements. Nonempty diagnostics do not imply failure, and null elapsedMs means timing was not requested rather than zero work.
-   * @evidence contracts/development/design.md#principled-representation Refinement qualification, ordered trace, split/predicate counts and nullable millisecond timing remain separate measurements.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface refineAutoMovieContourInteractions64 returns owned observations to boundary preparation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Nonempty diagnostics do not imply failure, and null elapsedMs means timing was not requested rather than zero work.
    */
   export type IResult = {
     /**

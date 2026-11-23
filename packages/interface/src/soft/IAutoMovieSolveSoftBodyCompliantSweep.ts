@@ -1,10 +1,5 @@
 /**
  * Prepared lattice and mutable XPBD buffers for one ordered constraint sweep.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the XPBD equation, metre/newton compliance, multiplier reset/accumulation, mutation scope and finite-iteration limits.
- * @evidence contracts/development/design.md#principled-representation P row-major particles use 3P metre positions, P kg^-1 masses and 12P rest/multiplier slots; runtime preparation establishes layout and representable arithmetic.
- * @evidence contracts/development/design.md#minimal-and-owned-surface solveSoftBodyCompliantSweep consumes the core's existing prepared topology plus three family compliances and mutable multipliers, without owning the clock or iteration loop.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Compliance varies by structural/shear/bend data; no fixed fixture, iteration-invariant solution or general stability guarantee is encoded.
  */
 export namespace IAutoMovieSolveSoftBodyCompliantSweep {
   /**
@@ -36,11 +31,6 @@ export namespace IAutoMovieSolveSoftBodyCompliantSweep {
    * slot and is reset by the caller at the start of each step.
    *
    * Only predicted and lambda are mutated, with separate storage required for the working and preparation arrays. Each undirected edge updates only its lower-index endpoint's multiplier slot. Negative rest slots, zero effective denominators and collapsed current edges are skipped. This helper validates no buffers or numerical inputs and retains none; simulateSoftBodyCore supplies domain-admitted preparation and chooses the number of sweeps.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the XPBD equation, metre/newton compliance, multiplier reset/accumulation, mutation scope and finite-iteration limits.
-   * @evidence contracts/development/design.md#principled-representation P row-major particles use 3P metre positions, P kg^-1 masses and 12P rest/multiplier slots; runtime preparation establishes layout and representable arithmetic.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface solveSoftBodyCompliantSweep consumes the core's existing prepared topology plus three family compliances and mutable multipliers, without owning the clock or iteration loop.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Compliance varies by structural/shear/bend data; no fixed fixture, iteration-invariant solution or general stability guarantee is encoded.
    */
   export type IProps = {
     /** Positive integer lattice width; particles are indexed by row * columns + column. */

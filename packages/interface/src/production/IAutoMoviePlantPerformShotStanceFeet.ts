@@ -8,22 +8,12 @@ import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
  * Mutable motion table and borrowed rig context for world-aware stance planting.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Mutable motion table and borrowed rig context for world-aware stance planting. Plant positions cross between world and model metres using staged unit-scale yaw-only transforms; times stay on each shot-local motion clock. The stage result is an admitted-input premise.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing rigs/nodes or clips with no recognized feet remain untouched. This mutation is not transactional: a later callback/solver exception can leave earlier actors' motion entries replaced.
- * @evidence contracts/development/design.md#principled-representation Plant positions cross between world and model metres using staged unit-scale yaw-only transforms; times stay on each shot-local motion clock. The stage result is an admitted-input premise.
- * @evidence contracts/development/design.md#minimal-and-owned-surface performShot calls plantPerformShotStanceFeet before coupling and motion validation; only motions entries with resulting plants are replaced, and returned world plants feed the next beat.
  */
 export namespace IAutoMoviePlantPerformShotStanceFeet {
   /**
    * Pin the stance feet of every gait-bearing or resumed actor clip, replacing the clip in `motions` and returning the world-space plants a later beat can resume.
    *
    * An actor is planted when its clip carries a gait cycle or the previous beat left it opening plants, and it has a rig and a staged node; a static gesture or hold clip keeps its authored key grid. Opening plants are converted from scene world space into the actor's model frame for the solve, and the new plants back into world space, exactly once. With a scene space, its world ground height is carried into the model frame for contact; otherwise the model-space `y = 0` plane is the ground. The conversion assumes the unit-scale, yaw-only actor transform `stageScene` emits. A rig with no recognized foot plants nothing, and its clip is left untouched so a host's own plant measurements are not shadowed. Actors are processed in code-unit order of their ids, which is the order of the returned entries.
-   *
-   * @evidence contracts/development/design.md#principled-representation Plant positions cross between world and model metres using staged unit-scale yaw-only transforms; times stay on each shot-local motion clock. The stage result is an admitted-input premise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface performShot calls plantPerformShotStanceFeet before coupling and motion validation; only motions entries with resulting plants are replaced, and returned world plants feed the next beat.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing rigs/nodes or clips with no recognized feet remain untouched. This mutation is not transactional: a later callback/solver exception can leave earlier actors' motion entries replaced.
-   * @evidence contracts/development/common.md#meaningful-documentation Mutable motion table and borrowed rig context for world-aware stance planting. Plant positions cross between world and model metres using staged unit-scale yaw-only transforms; times stay on each shot-local motion clock. The stage result is an admitted-input premise.
    */
   export type IProps = {
     /**

@@ -17,11 +17,6 @@ import type { IAutoMovieSurfaceConstruction } from "./IAutoMovieSurfaceConstruct
  * fixed in size by the network and tier when the rig compiles and released
  * with the rig, and each sweep's row cache of `compileAutoMovieSweep`, which
  * the rig fills while compiling and `pose` does not touch.
- *
- * @evidence contracts/development/design.md#principled-representation The pose-invariant compile and per-pose evaluation split of a deformable surface, with the posed cage equal to sampling the network `poseAutoMovieSurfaceNetwork` makes.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One shared rest cage, an optional rest construction snapshot and one pose writer that fills a buffer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The fit residual is returned on every pose, so a caller can refuse a pose whose fit did not converge.
- * @evidence contracts/development/common.md#meaningful-documentation States what compiles once, what moves per pose, the allocation and cache guarantees and the residual.
  */
 export interface IAutoMovieSurfaceRig {
   /** The cage at rest: topology, UVs, coordinates, rings, targets and fitted positions. */

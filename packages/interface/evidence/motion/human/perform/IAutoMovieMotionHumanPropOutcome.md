@@ -1,0 +1,71 @@
+# src/motion/human/perform/IAutoMovieMotionHumanPropOutcome.ts#IAutoMovieMotionHumanPropOutcome
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+from: Seconds since the launch it begins. end: Seconds since the launch it ends at a contact; Infinity when it does not. contact: The contact that ends it, absent when none does.
+
+## @evidence contracts/development/design.md#principled-representation
+
+from: Seconds since the launch it begins. end: Seconds since the launch it ends at a contact; Infinity when it does not. contact: The contact that ends it, absent when none does.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Runtime boundary references: perform/HumanPropOutcome.ts (HumanPropOutcome.legs, return); perform/HumanPropOutcome.ts (HumanPropOutcome.at, leg); perform/HumanPropFlight.ts (HumanPropFlight.fly.meet, return); perform/HumanPropFlight.ts (HumanPropFlight.fly.settle, m); perform/HumanPropFlight.ts (HumanPropFlight.contactOf, meeting); perform/HumanPropSweep.ts (HumanPropSweep.sweep, return).
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Shares the canonical IAutoMovieProjectileContinue.Segment, IAutoMovieMotionHumanPropFlight.IContact, IAutoMovieHit, IAutoMovieMotionHumanPropFlight.Struck, IAutoMovieMotionHumanProp, IAutoMovieProjectile identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+
+# src/motion/human/perform/IAutoMovieMotionHumanPropOutcome.ts#IAutoMovieMotionHumanPropOutcome.ILeg
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Documents launch-relative seconds, the engine segment, an infinite unended leg and its optional ending contact.
+
+## @evidence contracts/development/design.md#principled-representation
+
+One engine continuation segment retains its timing and observed contact without a parallel trajectory representation; sorted/progressing times remain the producer's obligation.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+HumanPropFlight reads segment frames and recorded contacts; legs constructs every field.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A missing contact is explicit and no predicted impact is substituted for an observed one.
+
+# src/motion/human/perform/IAutoMovieMotionHumanPropOutcome.ts#IAutoMovieMotionHumanPropOutcome.IMeeting
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the sweep-relative hit, target kind and collider identity used for pass exclusion or a resolved bounce's physical departure query.
+
+## @evidence contracts/development/design.md#principled-representation
+
+Reuses the engine hit and the flight's target union; their correspondence is supplied by the sweep rather than encoded twice.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+The continuation loop reads the hit, target and collider for outcome, settlement and the next sweep.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Contains no inferred material coefficient or alternative collision solver.
+
+# src/motion/human/perform/IAutoMovieMotionHumanPropOutcome.ts#IAutoMovieMotionHumanPropOutcome.ILegsProps
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+prop: Borrowed prop and physical outcome settings, stable throughout this synchronous continuation call. projectile: Initial projectile whose zero is the original launch. meeting: First observed contact; hit.time is finite nonnegative seconds from the original launch, checked by legs.
+
+## @evidence contracts/development/design.md#principled-representation
+
+prop: Borrowed prop and physical outcome settings, stable throughout this synchronous continuation call. projectile: Initial projectile whose zero is the original launch. meeting: First observed contact; hit.time is finite nonnegative seconds from the original launch, checked by legs.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Runtime boundary references: perform/HumanPropOutcome.ts (HumanPropOutcome.legs, props).
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Shares the canonical IAutoMovieMotionHumanProp, IAutoMovieProjectile, IAutoMovieMotionHumanPropOutcome.IMeeting, IAutoMovieMotionHumanPropFlight.IContact identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.

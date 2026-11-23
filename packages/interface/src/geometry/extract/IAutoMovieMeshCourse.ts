@@ -3,22 +3,12 @@ import type { AutoMovieVector3Tuple } from "../AutoMovieVector3Tuple";
 
 /**
  * Data and callback contracts shared by the MeshCourse operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Course section planes and loop readings use millimetres, radians and dimensionless conic shoulder ratios; normals are world unit vectors. Nullable loops, readings and shoulder measurements preserve missing intersections; structural types cannot enforce all correlated-null or orthogonality premises.
- * @evidence contracts/development/design.md#principled-representation Course section planes and loop readings use millimetres, radians and dimensionless conic shoulder ratios; normals are world unit vectors.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieMeshCourse extracts and measures sections for course inspection using the canonical tuple contract.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nullable loops, readings and shoulder measurements preserve missing intersections; structural types cannot enforce all correlated-null or orthogonality premises.
  */
 export namespace IAutoMovieMeshCourse {
   /**
    * One station's section plane: origin on the course, chart axes `u` and
    * `v` in the plane, normal `v x u` along the course (the
    * `AutoMovieLoftFrame` and `AutoMovieViewAxis` convention).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units, the orthonormal premise and the normal's orientation.
-   * @evidence contracts/development/design.md#principled-representation A course plane is a station with an origin and two chart axes; the normal is derived, so it cannot disagree with them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A course cut extends the shared loft section frame with its station label; the same millimetre origin and u/v convention serve both producers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Orthonormality remains a producer premise, not re-checked; the station is only a label for ordering and interpolation, not assumed to be arclength.
    */
   export interface IPlane extends IAutoMovieLoftSectionFrame {
     /** Station along the course, millimetres (a label; not assumed to be arclength). */
@@ -27,11 +17,6 @@ export namespace IAutoMovieMeshCourse {
 
   /**
    * One quarter's conic shoulder read off a loop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States rho's definition, its admissible range and its millimetre scale.
-   * @evidence contracts/development/design.md#principled-representation The measured share and the corner reach that turns a share into millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the trace's reduction and its diagnostics.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Null is kept for a loop that never meets the segment instead of a default value.
    */
   export interface IQuarter {
     /**
@@ -51,11 +36,6 @@ export namespace IAutoMovieMeshCourse {
 
   /**
    * One quarter between two given guides, split at its shoulder bar.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the guides, the arc, the split point, its tangent reading, the two pieces and every null meaning.
-   * @evidence contracts/development/design.md#principled-representation The loop's own arc between two guide points (each tangent along its support line) split at that arc's shoulder point, each piece a conic on its two ends and tangent lines with its own shoulder read on its own sub-arc (#3158).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the trace's split runs and receipt.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing crossing or an unmet tangent pair stays null; nothing is clamped.
    */
   export interface IPiece {
     /** The split point: the arc's outermost crossing of the segment from the guides' chord midpoint toward their support lines' corner, chart mm; null when the arc misses it. */
@@ -74,11 +54,6 @@ export namespace IAutoMovieMeshCourse {
   /**
    * One point of a loop where its tangent is square to a support direction
    * and its outward side faces that direction.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two kinds, the point's chart and the value's meaning.
-   * @evidence contracts/development/design.md#principled-representation A crest (a local maximum of the support, the loop convex there) or a notch (a local minimum facing the same way, the loop concave there), with its point and support value.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the trace's receipt and its feature lines.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only features standing out by the walk's tolerance are reported; nothing is smoothed or merged, and no loop point is dropped.
    */
   export interface IFeature {
     /** `crest`: a local maximum of the support; `notch`: a local minimum facing the same direction. */
@@ -93,11 +68,6 @@ export namespace IAutoMovieMeshCourse {
 
   /**
    * A loop's four chart extents and four conic quarters about the course point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the extents' order and signs, the touch offsets' meaning, the features' order and the quarter order.
-   * @evidence contracts/development/design.md#principled-representation The four-quarter view section's own inputs (four support lines and four shoulders) plus the touch offsets and the features that report what those inputs leave out.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member is read by the trace or its receipt.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values are the loop's own; nothing is admitted or refused here.
    */
   export interface IReading {
     /** Signed extents `+u`, `-u`, `+v`, `-v`, millimetres about the course point: the loop's measured envelope. */
@@ -133,11 +103,6 @@ export namespace IAutoMovieMeshCourse {
 
   /**
    * One station's section.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States every member's unit and frame and exactly when each is null.
-   * @evidence contracts/development/design.md#principled-representation The cut's own flags beside the holding loop and its in-plane readings; `loop`, `reading`, `area` and `reach` are null together when no loop holds the course point, and `normal` and `centroid` are also null for a zero-area loop, where neither exists.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member feeds the trace, its diagnostics or its receipt.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No loop reading is defaulted to zero; the nulls are the producer's guarantee, documented rather than encoded as a union because the trace reads them through one guard.
    */
   export interface ISection {
     /** The station's plane. */

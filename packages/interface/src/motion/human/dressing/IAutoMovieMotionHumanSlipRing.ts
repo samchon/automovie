@@ -6,11 +6,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * ring brings its hole onto the fingertip and slides it along the finger to
  * its base, where it is worn on the finger's proximal bone from then on and
  * the dresser lets go.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States who does what, where the ring ends and every member's meaning.
- * @evidence contracts/development/design.md#principled-representation The ring, the partner and the finger by its hand and its name; the place along the finger follows from the partner's bones.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members `slipRing` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A ring not held, a missing partner, the dresser as the partner and a finger out of reach are refused at runtime by the law.
  */
 export interface IAutoMovieMotionHumanSlipRing {
   /** The ring's scene subject, held at entry in the dresser's ring hand, with a `wear` socket whose `+Y` is its hole's axis. */
@@ -35,11 +30,6 @@ export interface IAutoMovieMotionHumanSlipRing {
 export namespace IAutoMovieMotionHumanSlipRing {
   /**
    * The fingers a ring is worn on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the four fingers a ring can be slipped onto.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the non-thumb fingers, so a thumb or an unknown finger cannot be named.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The `finger` member of the slip-ring action reads it to choose the finger's bones.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per finger, with no optional fields to combine.
    */
   export type Finger = "index" | "middle" | "ring" | "little";
 }

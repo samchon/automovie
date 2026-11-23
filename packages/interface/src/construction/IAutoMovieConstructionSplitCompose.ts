@@ -6,20 +6,10 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 /**
  * What a split derives from its declared planes (`IAutoMovieConstructionSplit.ICut`, `ICompose`): a child's rail as its skin cut by
  * planes written in a named frame, and from a composed end the forks on the host's ring, the seam planes and every child's rail.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two derivations and their sources.
- * @evidence contracts/development/design.md#principled-representation Planes fixed in a section's frame are resolved through that frame, and the composed end's forks, seam planes and rails are computed from the children's skins, so every result is a function of the parts' frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A frame record, a child record, the derived record and three functions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every failed premise is returned as a named refusal; nothing is clamped, tabulated or repaired.
  */
 export namespace IAutoMovieConstructionSplitCompose {
   /**
    * An orthonormal frame in kernel coordinates.
-   *
-   * @evidence contracts/development/design.md#principled-representation An origin and three unit axes carry a point or a direction written in the frame into the kernel's coordinates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four vectors.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only.
-   * @evidence contracts/development/common.md#meaningful-documentation States the units.
    */
   export interface IBasis {
     /** The origin, mm. */
@@ -37,11 +27,6 @@ export namespace IAutoMovieConstructionSplitCompose {
 
   /**
    * One child as the derivations read it.
-   *
-   * @evidence contracts/development/design.md#principled-representation The child's skin, its kept side, its own stations and its facing end's frame are what a cut of it needs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; the realization admits the face before it builds this record.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit.
    */
   export interface IChild {
     /** The child face's name in refusals. */
@@ -65,11 +50,6 @@ export namespace IAutoMovieConstructionSplitCompose {
 
   /**
    * What a composed end gives the split.
-   *
-   * @evidence contracts/development/design.md#principled-representation The seams' host phases, their planes' headings and the children's rails are exactly the members the split otherwise reads from its declaration.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values derived from the children's skins and the host's ring alone.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's indexing and unit.
    */
   export interface IDerived {
     /** Each seam's host phases `[a, b]` in the split's own convention, radians. */

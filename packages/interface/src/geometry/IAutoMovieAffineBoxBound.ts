@@ -1,20 +1,10 @@
 /**
  * Bound one declared affine row over a common independent-coefficient box. Duplicate original IDs first combine in input order using binary64 addition. The resulting floating-point coefficients, constants, bounds and target are then interpreted as exact dyadic numbers. Endpoint arithmetic and the strict squared-distance comparison against tolerance are exact for that row. Returned endpoints round outward. minimumDistanceMm is an approximate number view; only infeasibleAtTolerance uses the exact comparison. A false decision does not establish that several observations can be fitted simultaneously. Row identities do not identify source vertices, and this box is not generated geometry, continuous source support or a closest-surface distance certificate. Nonfinite input, conflicting bounds, invalid IDs, exhausted raw term budgets, nonfinite duplicate sums or nonrepresentable number views throw atomically.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Constant part of the substituted position row, millimetres. Original independent IDs and dimensionless weights; repeated IDs combine in input order.
- * @evidence contracts/development/design.md#principled-representation Constant part of the substituted position row, millimetres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartReachableBox share IAutoMovieAffineBoxBound's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Original independent IDs and dimensionless weights; repeated IDs combine in input order.
  */
 
 export namespace IAutoMovieAffineBoxBound {
   /**
    * Bound one declared affine row over a common independent-coefficient box. Duplicate original IDs first combine in input order using binary64 addition. The resulting floating-point coefficients, constants, bounds and target are then interpreted as exact dyadic numbers. Endpoint arithmetic and the strict squared-distance comparison against tolerance are exact for that row. Returned endpoints round outward. minimumDistanceMm is an approximate number view; only infeasibleAtTolerance uses the exact comparison. A false decision does not establish that several observations can be fitted simultaneously. Row identities do not identify source vertices, and this box is not generated geometry, continuous source support or a closest-surface distance certificate. Nonfinite input, conflicting bounds, invalid IDs, exhausted raw term budgets, nonfinite duplicate sums or nonrepresentable number views throw atomically.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Constant part of the substituted position row, millimetres. Original independent IDs and dimensionless weights; repeated IDs combine in input order.
-   * @evidence contracts/development/design.md#principled-representation Constant part of the substituted position row, millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryChartReachableBox share IAutoMovieAffineBoxBound's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Original independent IDs and dimensionless weights; repeated IDs combine in input order.
    */
 
   export type Operation = (input: {

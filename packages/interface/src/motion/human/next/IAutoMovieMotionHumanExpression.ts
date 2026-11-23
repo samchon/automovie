@@ -6,10 +6,6 @@ import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLay
  * An overlay: what the body's own signals add to any whole-body action, as additive layers over the trunk, shoulders, head and face rather than goals of the hands or feet. Affect is a display on a clock (a laugh, a sigh, a yawn, a cough); breath is the continuous rhythm of the chest.
  *
  * Both methods are layer builders, not chain actions: each returns an `IAutoMovieMotionHumanLayer` that a performance lays over the actions it spans, so the family has no `Chain` parameter and the runtime namespace holds plain functions. The layer writes joint angles, so every planted or gripping limb goal stays where it is.
- *
- * @evidence contracts/development/design.md#principled-representation One method per layer builder of the Expression family, each taking the builder's own parameter type and returning the layer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The affect and breath layers and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing display or option type of its builder; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanExpression {
   /**
@@ -36,17 +32,10 @@ export interface IAutoMovieMotionHumanExpression {
 
 /**
  * The parameter types of the Expression methods.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each method's parameters with their units.
  */
 export namespace IAutoMovieMotionHumanExpression {
   /**
    * The parameters of `affect`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation The one argument the builder takes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the argument of `affect`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the display type `IAutoMovieMotionHumanAffect` owns.
    */
   export interface IAffect {
     /** The displays, each at its film second for its length. */

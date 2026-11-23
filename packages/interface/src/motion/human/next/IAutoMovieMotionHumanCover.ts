@@ -4,8 +4,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * Moving against a cover: peeking, sidling, a window and a breach, with the back or the chest against the wall.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Climb family, each taking the law's own parameter type.
  */
 export interface IAutoMovieMotionHumanCover<Chain> {
   /**
@@ -29,28 +27,15 @@ export interface IAutoMovieMotionHumanCover<Chain> {
  * give the opening to stay below, and a door's `hinge` articulation and its
  * handle give the leaf to drive and where to strike it. Refusals name the
  * dimension that does not fit.
- *
- * @evidence contracts/development/design.md#minimal-and-owned-surface One registered vocabulary entry; planCover in motions is the only consumer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No wall plane, opening or hinge is restated; they come from the props.
  */
 export namespace IAutoMovieMotionHumanCover {
   /**
    * Which way the body faces the wall it sidles along.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both values.
-   * @evidence contracts/development/design.md#principled-representation A closed choice of the side against the wall.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the sidle.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted values are declared here directly.
    */
   export type Against = "back" | "chest";
 
   /**
    * Lean the head out past a wall's end and back, the feet behind the end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The wall's face and the end peeked past; exposure in metres past the end's plane; hold in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the peek reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The end's plane comes from the face's width.
    */
   export interface IPeek {
     /** Discriminant: a corner peek. */
@@ -74,11 +59,6 @@ export namespace IAutoMovieMotionHumanCover {
 
   /**
    * Step sideways along a wall's face, the back or chest against it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The face, the signed distance along it in metres and the trunk's gap from it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the sidle reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The lane follows from the face and the body's depth.
    */
   export interface ISidle {
     /** Discriminant: a wall sidle. */
@@ -102,11 +82,6 @@ export namespace IAutoMovieMotionHumanCover {
 
   /**
    * Pass along a wall under a window, the head below its sill.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and unit.
-   * @evidence contracts/development/design.md#principled-representation The window prop and the signed distance past it along its wall, metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the window passage reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The sill height and opening width come from the window.
    */
   export interface IWindow {
     /** Discriminant: a window passage. */
@@ -121,11 +96,6 @@ export namespace IAutoMovieMotionHumanCover {
 
   /**
    * Kick a closed door open at its latch side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The door prop; its hinge and handle place the strike and the swing.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The field the breach reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A door that opens toward the performer or is out of reach is refused at runtime.
    */
   export interface IBreach {
     /** Discriminant: a door breach. */
@@ -137,11 +107,6 @@ export namespace IAutoMovieMotionHumanCover {
 
   /**
    * Parameters: one of the four cover moves.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the variants.
-   * @evidence contracts/development/design.md#principled-representation A closed discriminated union on kind.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The variants planCover dispatches on.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alternatives are separated by kind rather than optional fields.
    */
   export type IParams = IPeek | ISidle | IWindow | IBreach;
 }

@@ -4,11 +4,6 @@ import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 
 /**
  * Data and callback contracts shared by the ValidatePropPlacements operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Validate a source-owned prop registry, its unique staged join, its typed building relations, its support graph, the bearing of every prop on the face it says holds it up, and every transformed volume it claims. Member documentation states the supplied records, units and absence meanings used by validatePropPlacements.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Source props retain their own model proxies and affordances; imported appearance does not substitute unmeasured asset geometry for placement checks.
- * @evidence contracts/development/design.md#principled-representation props, set and builtEnvironments are separate authored registries joined by exact identity; the validator checks their unique correspondence and world-metre relations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidatePropPlacements, used by validatePropPlacements. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
  */
 export namespace IAutoMovieValidatePropPlacements {
   /**
@@ -21,11 +16,6 @@ export namespace IAutoMovieValidatePropPlacements {
    * A prop omitting placement makes no relation, containment, overlap or passage claim of its own, but its staged occupancy can obstruct another prop's clearance and its model affordances can support another prop. Geometry delegates to validatePropPlacementGeometry: a space subtree with neither cells nor shells imposes no containment restriction, shell-only spaces are measured, and model-less fills or ambiguous staging joins cannot supply the corresponding bounds.
    *
    * Where a prop's appearance came from changes nothing here. A prop drawing an external asset (`IAutoMoviePropSpec.modelRef`) forges like any other, so it is contained, borne, cleared, and judged against passages through exactly these rules, read off the deterministic proxy `propOccupancyBounds` measures and the affordances its own spec declares.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Validate a source-owned prop registry, its unique staged join, its typed building relations, its support graph, the bearing of every prop on the face it says holds it up, and every transformed volume it claims. Member documentation states the supplied records, units and absence meanings used by validatePropPlacements.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Source props retain their own model proxies and affordances; imported appearance does not substitute unmeasured asset geometry for placement checks.
-   * @evidence contracts/development/design.md#principled-representation props, set and builtEnvironments are separate authored registries joined by exact identity; the validator checks their unique correspondence and world-metre relations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidatePropPlacements.IProps, used by validatePropPlacements. Its props, set, builtEnvironments members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Source-owned registry whose exact node and target identities are retained. */

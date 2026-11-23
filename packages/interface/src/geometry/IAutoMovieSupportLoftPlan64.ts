@@ -6,11 +6,6 @@ import type { IAutoMovieConvexSupportLoft } from "../model/IAutoMovieConvexSuppo
  * identities, with their fixed normal determinant. Event incidence joins their
  * physical endpoints; no coordinate
  * welding or sampled source data supplies that relationship.
- *
- * @evidence contracts/development/design.md#principled-representation Plane-pair cubic coefficients, feasible triple-plane events and open-interval incidence describe the same admitted support field before tessellation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One internal plan transfers numerical construction between the event planner and mesh emitter; the public saved contract remains the support profiles.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source mesh, original normals, per-row contour table or approximate coordinate identity enters the plan.
- * @evidence contracts/development/common.md#meaningful-documentation States metre coefficients, local event phases, plane incidence and temporary ownership separate from the serialized recipe.
  */
 export interface IAutoMovieSupportLoftPlan64 {
   /** Borrowed immutable-for-call support normals in registry order. */

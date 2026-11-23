@@ -16,20 +16,10 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * the vertical. A goal attached to a bone (`IAutoMovieHumanLimbGoal.on`) rides
  * its bone already and is left alone. On the ground the carry is the
  * identity, so nothing changes there.
- *
- * @evidence contracts/development/common.md#meaningful-documentation yaw: That turn's yaw about the vertical, degrees.
- * @evidence contracts/development/design.md#principled-representation yaw: That turn's yaw about the vertical, degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/stand.ts (stand.plan.carried, return); actions/standFeet.ts (standFeet.of, carry); carrier/HumanSupportAim.ts (HumanSupportAim.correction, carry); carrier/HumanSupportAim.ts (HumanSupportAim.posture, carry); carrier/HumanSupportCarry.ts (HumanSupportCarry.of, return); carrier/HumanSupportCarry.ts (HumanSupportCarry.posture, carry).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanSupportCarry {
   /**
    * A support's rigid motion since a start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation yaw: That turn's yaw about the vertical, degrees.
-   * @evidence contracts/development/design.md#principled-representation yaw: That turn's yaw about the vertical, degrees.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/stand.ts (stand.plan.carried, return); actions/standFeet.ts (standFeet.of, carry); carrier/HumanSupportAim.ts (HumanSupportAim.correction, carry); carrier/HumanSupportAim.ts (HumanSupportAim.posture, carry); carrier/HumanSupportCarry.ts (HumanSupportCarry.of, return); carrier/HumanSupportCarry.ts (HumanSupportCarry.posture, carry).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ICarry {
     /**

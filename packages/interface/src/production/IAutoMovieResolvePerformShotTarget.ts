@@ -1,10 +1,5 @@
 /**
  * Untrusted positional-target input and the context for its diagnostic paths.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Untrusted positional-target input and the context for its diagnostic paths. target is deliberately unknown at the runtime admission boundary; the resolver checks record shape, ids, staged membership and a finite world-metre point before returning it. seconds is a shot-local lookup time.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts unknown is the actual unvalidated input, not a substitute for a known domain type. formationsFramed permits a camera mass target; other consumers reject formation groups before point resolution.
- * @evidence contracts/development/design.md#principled-representation target is deliberately unknown at the runtime admission boundary; the resolver checks record shape, ids, staged membership and a finite world-metre point before returning it. seconds is a shot-local lookup time.
- * @evidence contracts/development/design.md#minimal-and-owned-surface resolvePerformShotTarget serves action and camera target gates; path, label and subject preserve the caller's input location and message grammar.
  */
 export namespace IAutoMovieResolvePerformShotTarget {
   /**
@@ -18,11 +13,6 @@ export namespace IAutoMovieResolvePerformShotTarget {
    * 2. The target must be a record; a `bone` target's actor must be a staged node with an actor context and a rig carrying that bone; a `group` must list its nodes as an array with every member staged, and each formation it names must be one this shot compiled. Every id must be a non-blank string.
    * 3. Missing nodes, malformed point vectors, empty groups and non-positional kinds are refused before invoking the live resolver.
    * 4. The point comes from the live resolver at `seconds` when it answers, and otherwise from the staged placements and opening formation points; a missing or non-finite point is refused naming the id that failed.
-   *
-   * @evidence contracts/development/design.md#principled-representation target is deliberately unknown at the runtime admission boundary; the resolver checks record shape, ids, staged membership and a finite world-metre point before returning it. seconds is a shot-local lookup time.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface resolvePerformShotTarget serves action and camera target gates; path, label and subject preserve the caller's input location and message grammar.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts unknown is the actual unvalidated input, not a substitute for a known domain type. formationsFramed permits a camera mass target; other consumers reject formation groups before point resolution.
-   * @evidence contracts/development/common.md#meaningful-documentation Untrusted positional-target input and the context for its diagnostic paths. target is deliberately unknown at the runtime admission boundary; the resolver checks record shape, ids, staged membership and a finite world-metre point before returning it. seconds is a shot-local lookup time.
    */
   export type IProps = {
     /**

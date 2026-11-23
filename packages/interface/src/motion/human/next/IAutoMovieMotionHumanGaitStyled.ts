@@ -4,10 +4,6 @@ import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
  * The styled gaits of the Gait family, each running the walk's stepping plan in a gait of its own: the march and double time at a drill cadence, the sneak, prowl and tiptoe, the moods, the limps and the drunk walk. Each stops at `to` with the feet side by side, facing `face` or along the last leg, as a walk does. The speed model, the presets and what a method's return and anchor are, are on `IAutoMovieMotionHumanGait`.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the gaits it holds, where every one ends, and where the shared speed model, presets, return and anchor are documented.
- * @evidence contracts/development/design.md#principled-representation One method per gait law, each taking the law's own parameter type, over the one speed model of the walk's stepping plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The gait laws of the walk family: walk, run, approach, carryLoad, the pursuit laws, the door, the aided walks and the styled gaits.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; no gait has a method of its own that only respells a pace.
  */
 export interface IAutoMovieMotionHumanGaitStyled<Chain> {
   /**

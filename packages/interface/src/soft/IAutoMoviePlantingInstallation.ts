@@ -6,11 +6,6 @@ import type { IAutoMoviePlantingSupport } from "./IAutoMoviePlantingSupport";
  * The binding that makes an independent planting cluster a building's planting.
  *
  * This record, not the planting recipe, is the building-owned half. The recipe and the cluster stay free-standing computational units; the installation says _this building unit's logical space holds that cluster, it stands on this support, and this is the port that waters it_. A production world with no building at all places the same cluster by simply not writing one of these.
- *
- * @evidence contracts/development/design.md#principled-representation Installation admission joins exact environment, logical space, cluster and declared support, checks generated members where the space has cells and validates aquatic fluid and irrigation element ownership.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Building responsibility and branch/leaf materials stay on the binding while independent recipe and cluster laws remain reusable outside architecture.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Semantic spaces lacking volume receive no invented containment proof; null irrigation remains an explicit unbound supply and kind does not alter growth geometry.
- * @evidence contracts/development/common.md#meaningful-documentation Defines architecture/cluster joins, support, nullable default materials and unresolved irrigation ownership.
  */
 export interface IAutoMoviePlantingInstallation {
   /** Stable installation identity within the production. */

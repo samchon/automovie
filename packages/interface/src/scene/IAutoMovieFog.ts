@@ -6,11 +6,6 @@ import type { IAutoMovieColor } from "../color/IAutoMovieColor";
  * Transmittance is `T(d) = exp(-(density * d)^2)` and the rendered color is `subject * T(d) + color * (1 - T(d))`, where `d` is camera-axis depth rather than radial distance. The squared law is the renderer's convention rather than physical Beer-Lambert extinction and gives equal attenuation to opposite signed depths.
  *
  * Density is inverse metres; half-transmittance occurs at `sqrt(ln(2)) / density`, approximately `0.8326 / density` metres. Zero density gives unit transmission.
- *
- * @evidence contracts/development/design.md#principled-representation The shared fog transmittance uses exp of negative squared density-times-camera-depth to match the viewer's FogExp2 shader, with inverse-meter density and zero as unit transmission.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One scene-wide density and linear target color describe the supported depth cue without per-region particle or volumetric simulation data.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This squared-depth law is not physical Beer-Lambert extinction and treats opposite signed depths equally. Binary64 predictions do not prove exact GPU pixels, and structural guide passes suspend fog rather than tint their geometry projection.
- * @evidence contracts/development/common.md#meaningful-documentation Defines camera-axis depth, density units, transmittance and half-visibility formulas, zero state and linear color with unused alpha.
  */
 export interface IAutoMovieFog {
   /**

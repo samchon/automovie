@@ -7,20 +7,10 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Borrowed rail inputs and published strips for continuation, split and port bands.
- *
- * @evidence contracts/development/design.md#principled-representation Surface station/phase addresses, world millimetre ribbons and periodic loop clocks retain their distinct parameterizations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface SplitBand shares strip construction across bridge, split and port realization without a separate mesh owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Builders return a refusal string for failed sampled correspondence, ribbon or orientation premises; success does not certify global unfolding.
- * @evidence contracts/development/common.md#meaningful-documentation Names source ownership, units and the builders' reported-failure boundary.
  */
 export namespace IAutoMovieConstructionSplitBand {
   /**
    * One side of a band: the face's surface, the rail's station on it and the station's sign into the band's continuation.
-   *
-   * @evidence contracts/development/design.md#principled-representation A rail at one station with a station sign fixes the ribbon's chart direction `(into, 0)`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three fields are the whole side.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The station is the realization's, not searched here.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and sign meaning.
    */
   export interface ISide {
     /** The face's surface, mm. */
@@ -43,11 +33,6 @@ export namespace IAutoMovieConstructionSplitBand {
 
   /**
    * What one band is built from.
-   *
-   * @evidence contracts/development/design.md#principled-representation The host's arc, its end normal and the child's rail determine the loop and both ribbons.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The split's per-band slice of its declaration, in kernel units.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Realization owns valid sampling and arc inputs; create additionally refuses degenerate correspondence, ribbons or strip orientation rather than substituting a band.
-   * @evidence contracts/development/common.md#meaningful-documentation States the arc's orientation, the normal's direction and the units.
    */
   export interface IInput {
     /** The band's chain name. */
@@ -86,11 +71,6 @@ export namespace IAutoMovieConstructionSplitBand {
 
   /**
    * One built band.
-   *
-   * @evidence contracts/development/design.md#principled-representation Publishes the strip chain with the column data the body's cycles need, so the shared vertices are the columns' own points.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Extends the strip with the host arc phases needed by split realization to share its boundary vertices.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Column values are the ones the strip interpolates, not resampled.
-   * @evidence contracts/development/common.md#meaningful-documentation States each array's indexing and unit.
    */
   export interface IBand extends IAutoMovieConstructionSplitBand.IStrip {
     /** The arc's host phases at columns `0..n/2`, radians. */
@@ -99,11 +79,6 @@ export namespace IAutoMovieConstructionSplitBand {
 
   /**
    * One built strip from a loop to a child's rail.
-   *
-   * @evidence contracts/development/design.md#principled-representation Publishes the strip chain with the column data the body's cycles need, so the shared vertices are the columns' own points.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The chain, its surface and the column arrays.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Column values are the ones the strip interpolates, not resampled.
-   * @evidence contracts/development/common.md#meaningful-documentation States each array's indexing and unit.
    */
   export interface IStrip {
     /** The strip chain: station 0 the loop, station `length` the child's rail. */
@@ -145,11 +120,6 @@ export namespace IAutoMovieConstructionSplitBand {
 
   /**
    * One stretch of a band's loop in a split into more than two: a host arc, or a seam read from one of its forks to the other.
-   *
-   * @evidence contracts/development/design.md#principled-representation An arc is two host phases and a seam a built curve and the direction the loop reads it in; together they are every stretch a loop is made of.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A discriminated pair and its column count.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Fan checks the first arc and sum of counts; positive integral counts and consistent fork geometry remain realization premises.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and direction.
    */
   export type IStretch =
     | {
@@ -181,11 +151,6 @@ export namespace IAutoMovieConstructionSplitBand {
 
   /**
    * What one band of a split into more than two is built from.
-   *
-   * @evidence contracts/development/design.md#principled-representation The loop's stretches, the host's and the child's sides and the corner turn determine the loop and both ribbons, as one arc and one seam do for a two-way split.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The split's per-band slice of its declaration, in kernel units.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Fan checks initial-arc/count agreement and sampled geometry, while valid reach/window ranges remain the realizing caller's premise.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's role and unit.
    */
   export interface IFanInput {
     /** The band's chain name. */

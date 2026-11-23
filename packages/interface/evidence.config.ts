@@ -10,6 +10,7 @@ export default {
       name: "interface documentation",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: "type",
       reference: {
         type: "markdown",
@@ -23,6 +24,7 @@ export default {
       name: "interface types",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: "type",
       reference: {
         type: "markdown",

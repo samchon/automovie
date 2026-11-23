@@ -5,11 +5,6 @@ import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHuman
 /**
  * Open parameters of the archery lexicon family, keyed by each runtime export name.
  * Release rows can also transfer one staged prop onto an authored continuation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The archery family is a closed export-name map that reuses source law types and adds one shared continuation record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the archery row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconArcheryParams {
   /** Take an arrow by its shaft. */
@@ -40,11 +35,6 @@ export interface IAutoMovieMotionHumanLexiconArcheryParams {
 export namespace IAutoMovieMotionHumanLexiconArcheryParams {
   /**
    * Transfer one prop from its current nock onto a scene-authored animation carrier. The mount maintains the prop's frame across the cue.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the source, transferred identity, destination mark and transition behavior.
-   * @evidence contracts/development/design.md#principled-representation Four subject and affordance references specify the scene mount without encoding a flight model.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Both release rows accept this one record; the performance mount and carrier own pose evaluation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values identify subjects and a socket. HumanArcheryCue owns scene-reference admission.
    */
   export interface IContinuation {
     /** Subject id of the staged bow or crossbow currently carrying the prop. */

@@ -3,11 +3,6 @@ import type { IAutoMovieScriptNode } from "../harness/IAutoMovieScriptNode";
 
 /**
  * Data and callback contracts shared by the ValidateScriptTree operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Validate the screenplay refinement tree against its script's flat beats, the structural gate a script with a `tree` must pass before commit. Member documentation states the supplied records, units and absence meanings used by validateScriptTree.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Canonical node kinds and parent ids carry authored structure; the validator enforces graph/refinement joins without pretending to evaluate later feedback propagation.
- * @evidence contracts/development/design.md#principled-representation tree and beats express the refinement graph and its flat beat inventory; logline and theme preserve the script header that the intent root must match.
- * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateScriptTree, used by validateScriptTree. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
  */
 export namespace IAutoMovieValidateScriptTree {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieValidateScriptTree {
    * - Group rationales are nonblank prose, rather than empty bracketed headings.
    *
    * The cross-edge semantics (feedback propagation up the refinement chain) are consumed later; this validator only guarantees the graph is well-formed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Validate the screenplay refinement tree against its script's flat beats, the structural gate a script with a `tree` must pass before commit. Member documentation states the supplied records, units and absence meanings used by validateScriptTree.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Canonical node kinds and parent ids carry authored structure; the validator enforces graph/refinement joins without pretending to evaluate later feedback propagation.
-   * @evidence contracts/development/design.md#principled-representation tree and beats express the refinement graph and its flat beat inventory; logline and theme preserve the script header that the intent root must match.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateScriptTree.IProps, used by validateScriptTree. Its tree, beats, logline, theme members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** The refinement tree to validate. */

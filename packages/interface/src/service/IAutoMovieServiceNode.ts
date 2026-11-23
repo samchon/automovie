@@ -8,11 +8,6 @@ import type { IAutoMovieServiceState } from "./IAutoMovieServiceState";
  * One fixture, machine, junction, terminal or inline device on the network.
  *
  * A basin, a sprinkler head, a socket outlet, a diffuser, an air handling unit, a tee in a chase and a shut-off valve are all this record. What separates them is the ports they carry and the volume they need to be serviced in, not a class hierarchy: a media wall that is simultaneously a wall, a powered device and a light source declares the ports for each and stays one node.
- *
- * @evidence contracts/development/design.md#principled-representation Node position and ports are held in the referenced logical space where declared cells permit measurement, while its axis-aligned local maintenance box is translated into world keep-out for run checks.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Computational role, element realization, typed ports and operating state share one node; maintenance extent remains explicit instead of inferred from equipment names.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Bare junctions intentionally have null element and nonmoving devices null state; missing room extent cannot yield a fabricated placement proof or quantitative equipment model.
- * @evidence contracts/development/common.md#meaningful-documentation Defines network identity, logical space and element joins, world-meter point, ports, nullable state and node-local maintenance box composition.
  */
 export interface IAutoMovieServiceNode {
   /** Stable node identity within the network. */

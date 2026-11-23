@@ -3,11 +3,6 @@ import type { IAutoMovieDeliveryCropNdc } from "./IAutoMovieDeliveryCropNdc";
 
 /**
  * Camera-local inputs to six-plane perspective segment clipping.
- *
- * @evidence contracts/development/design.md#principled-representation IProps names local endpoints, metre-valued depths and dimensionless lens/crop scalars; numerical validity remains a caller premise.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shared local predicate serves world-segment and box-frustum readers without repeated corner transformation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Canonical vector and crop contracts are reused, and geometric intersection is not presented as rendered visibility.
- * @evidence contracts/development/common.md#meaningful-documentation IProps records axis convention, inclusive planes and representability assumptions.
  */
 export namespace IAutoMovieLocalSegmentMeetsPerspectiveFrustum {
   /**
@@ -16,11 +11,6 @@ export namespace IAutoMovieLocalSegmentMeetsPerspectiveFrustum {
    * Both ends are already in the camera's frame, looking down −Z with +Y up, so a caller testing many segments of one body transforms each corner once rather than once per segment. The frustum is bounded by the `near` and `far` depths and by the side planes through the lens and the crop's NDC edges at `halfX` and `halfY` tangents. A segment touching a face counts as meeting it.
    *
    * Inputs are borrowed and no validation runs here. Callers must supply finite endpoints, positive ordered clip distances, positive finite tangents, a valid crop and representable intermediate arithmetic. The boolean includes face contact under floating-point clipping; it measures no rendered pixels or occlusion.
-   *
-   * @evidence contracts/development/design.md#principled-representation Endpoints use camera-local metres and -Z viewing depth; tangents and crop coordinates are dimensionless. Numeric validity and crop conversion belong to callers, not this record or the clipping predicate.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface World-segment and box frustum consumers share the same local six-plane inputs, allowing the box reader to transform each corner once.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The canonical crop record is reused, and finite-value/boundary-rounding premises remain explicit rather than being presented as a visibility certificate.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines axes, units, lens tangents, positive-depth interval, caller validation and inclusive contact.
    */
   export type IProps = {
     /** Segment start in camera-local metres: +X right, +Y up, -Z forward. */

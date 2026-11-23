@@ -8,10 +8,6 @@ import type { IAutoMovieMotionHumanClimbStairs } from "../terrain/IAutoMovieMoti
  * Climbing with the support law: the ladder, the stairs, the rope, the tree and a wall on fixed holds. One limb at a time takes the body's weight; a beat is 0.8 s on a ladder and 0.6 s on a rope or tree (provisional).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Climb family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Climb laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanClimb<Chain> {
   /**

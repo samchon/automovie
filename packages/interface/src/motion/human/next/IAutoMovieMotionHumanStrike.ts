@@ -12,10 +12,6 @@ import type { IAutoMovieMotionHumanStep } from "../striking/IAutoMovieMotionHuma
  * A named technique that fixes only some of a law's parameters is a preset, data spread into that law's parameters beside the target: `AutoMovieMotionHumanStrike.JAB`, `CROSS`, the hooks, uppercuts, elbows, kicks and knees (`IPunchPreset`, `IFootStrikePreset`, `ICloseStrikePreset`, `IKickPreset` and `IKneePreset`); a preset adds no method.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Strike family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Strike laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanStrike<Chain> {
   /**
@@ -97,11 +93,6 @@ export interface IAutoMovieMotionHumanStrike<Chain> {
 export namespace IAutoMovieMotionHumanStrike {
   /**
    * A punch preset: the technique and the hand a named punch fixes, such as the jab (a straight with the lead hand). Spread into `punch`'s parameters with the target; each value means what the punch's member of the same name does.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and where its members' meanings are.
-   * @evidence contracts/development/design.md#principled-representation Two required members typed by the punch law's own named unions, so a preset always fixes exactly the technique and the hand and the punch keeps every other default.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanStrike.JAB`, `CROSS`, `LEAD_HOOK`, `REAR_HOOK`, `LEAD_UPPERCUT`, `REAR_UPPERCUT`, `CHAIN_PUNCH`, `REAR_CHAIN_PUNCH`, `BACKFIST`, `HAMMERFIST` and `PALM_HEEL` are its data and the lexicon rows of the same names read them.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the punch's parameters.
    */
   export interface IPunchPreset {
     /** The punch's technique, as `IAutoMovieMotionHumanPunch.IParams.technique`. */
@@ -113,11 +104,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * A foot-strike preset: the technique and the leg a named foot strike fixes, and the whole turn or the jump where the strike has one. Spread into `footStrike`'s parameters with the target; each value means what the foot strike's member of the same name does.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and where its members' meanings are.
-   * @evidence contracts/development/design.md#principled-representation The technique and the leg are required and typed by the foot strike's own named unions; `spin` and `jump` are fixed only by the strikes that turn or leave the floor, so the foot strike keeps its defaults otherwise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanStrike.MEIA_LUA_DE_FRENTE`, `ARMADA`, `SIDE_KICK`, `BACK_KICK`, `HOOK_KICK`, `CRESCENT_KICK`, `AXE_KICK`, `STOMP`, `LEG_SWEEP`, `SPINNING_HOOK_KICK` and `JUMPING_SIDE_KICK` are its data and the lexicon rows of the same names read them.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the foot strike's parameters.
    */
   export interface IFootStrikePreset {
     /** The foot strike's technique, as `IAutoMovieMotionHumanFootStrike.IParams.technique`. */
@@ -135,11 +121,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * A close-strike preset: the technique a named elbow or headbutt fixes and, for an elbow, the arm. Spread into `closeStrike`'s parameters with the target; each value means what the close strike's member of the same name does.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and where its members' meanings are.
-   * @evidence contracts/development/design.md#principled-representation The technique is required and typed by the close strike's own named union; `arm` is fixed by the elbows and left to the close strike's default by the headbutt, which has no arm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanStrike.HORIZONTAL_ELBOW`, `RISING_ELBOW`, `DESCENDING_ELBOW`, `SPINNING_ELBOW`, `SPINNING_BACKFIST` and `HEADBUTT` are its data and the lexicon rows of the same names read them.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the close strike's parameters.
    */
   export interface ICloseStrikePreset {
     /** The close strike's technique, as `IAutoMovieMotionHumanCloseStrike.IParams.technique`. */
@@ -151,11 +132,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * A kick preset: the technique and the leg a named kick fixes, such as the teep (a push kick with the rear leg). Spread into `kick`'s parameters with the target; each value means what the kick's member of the same name does.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and where its members' meanings are.
-   * @evidence contracts/development/design.md#principled-representation Two required members typed by the kick law's own named unions, so a preset always fixes exactly the technique and the leg.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanStrike.ROUND_KICK`, `SWITCH_KICK`, `PUSH_KICK` and `TEEP` are its data and the lexicon rows of the same names read them.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the members are named once here instead of an inline pick of the kick's parameters.
    */
   export interface IKickPreset {
     /** The kick's technique, as `IAutoMovieMotionHumanKick.IParams.technique`. */
@@ -167,11 +143,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * A knee preset: the leg a named knee strike fixes, the lead knee or the rear knee. Spread into `knee`'s parameters with the target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and where its member's meaning is.
-   * @evidence contracts/development/design.md#principled-representation One required member typed by the knee law's own named union, so a preset always fixes exactly the leg.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `AutoMovieMotionHumanStrike.LEAD_KNEE` and `REAR_KNEE` are its data and the lexicon rows of the same names read them.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the member is named once here instead of an inline pick of the knee's parameters.
    */
   export interface IKneePreset {
     /** The kneeing leg, as `IAutoMovieMotionHumanKnee.IParams.leg`. */
@@ -180,11 +151,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * The parameters a punch row leaves to the composition: the punch's parameters without the technique and the hand its preset fixes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameters a punch row takes and the two it fixes.
-   * @evidence contracts/development/design.md#principled-representation The punch's own parameters less exactly the members of `IPunchPreset`, so a row cannot be given what its preset fixes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPunch.IParams` owns the shape; the lexicon's strike map names the rows' parameters by this alias.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit` in every row.
    */
   export type IPunchRow = Omit<
     IAutoMovieMotionHumanPunch.IParams,
@@ -193,11 +159,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * The parameters a foot-strike row leaves to the composition: the foot strike's parameters without the technique, the leg, the turn and the jump its preset fixes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameters a foot-strike row takes and the four it fixes.
-   * @evidence contracts/development/design.md#principled-representation The foot strike's own parameters less exactly the members of `IFootStrikePreset`, so a row cannot be given what its preset fixes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFootStrike.IParams` owns the shape; the lexicon's strike map names the rows' parameters by this alias.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit` in every row.
    */
   export type IFootStrikeRow = Omit<
     IAutoMovieMotionHumanFootStrike.IParams,
@@ -206,11 +167,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * The parameters a close-strike row leaves to the composition: the close strike's parameters without the technique and the arm its preset fixes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameters a close-strike row takes and the two it fixes.
-   * @evidence contracts/development/design.md#principled-representation The close strike's own parameters less exactly the members of `ICloseStrikePreset`, so a row cannot be given what its preset fixes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCloseStrike.IParams` owns the shape; the lexicon's strike map names the rows' parameters by this alias.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit` in every row.
    */
   export type ICloseStrikeRow = Omit<
     IAutoMovieMotionHumanCloseStrike.IParams,
@@ -219,11 +175,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * The parameters a kick row leaves to the composition: the kick's parameters without the technique and the leg its preset fixes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameters a kick row takes and the two it fixes.
-   * @evidence contracts/development/design.md#principled-representation The kick's own parameters less exactly the members of `IKickPreset`, so a row cannot be given what its preset fixes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKick.IParams` owns the shape; the lexicon's strike map names the rows' parameters by this alias.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit` in every row.
    */
   export type IKickRow = Omit<
     IAutoMovieMotionHumanKick.IParams,
@@ -232,11 +183,6 @@ export namespace IAutoMovieMotionHumanStrike {
 
   /**
    * The parameters a knee row leaves to the composition: the knee's parameters without the leg its preset fixes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the parameters a knee row takes and the one it fixes.
-   * @evidence contracts/development/design.md#principled-representation The knee's own parameters less exactly the member of `IKneePreset`, so a row cannot be given what its preset fixes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKnee.IParams` owns the shape; the lexicon's strike map names the rows' parameters by this alias.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit` in every row.
    */
   export type IKneeRow = Omit<
     IAutoMovieMotionHumanKnee.IParams,

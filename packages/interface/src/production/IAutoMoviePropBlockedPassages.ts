@@ -3,11 +3,6 @@ import type { IAutoMoviePropBox } from "../harness/IAutoMoviePropBox";
 
 /**
  * World occupancy query against measurable building passage volumes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation World occupancy query against measurable building passage volumes. bounds is an axis-aligned world-metre box tested for strict interior overlap with rest opening fills and swept connector boxes; touching boundaries do not count as intrusion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Open or unmeasurable cuts cannot establish blockage, and connector sections must be declared. The query returns known overlaps rather than claiming complete clearance for unmeasurable passages.
- * @evidence contracts/development/design.md#principled-representation bounds is an axis-aligned world-metre box tested for strict interior overlap with rest opening fills and swept connector boxes; touching boundaries do not count as intrusion.
- * @evidence contracts/development/design.md#minimal-and-owned-surface propBlockedPassages delegates passage measurement to createPropPassageBlocker, also shared by prop placement validation.
  */
 export namespace IAutoMoviePropBlockedPassages {
   /**
@@ -18,11 +13,6 @@ export namespace IAutoMoviePropBlockedPassages {
    * A connector is swept from its own route: each segment's box widens by half the usable width horizontally and rises by the clear height, which is the volume a body traversing it needs. A varying section is read at the segment's ends and at every section station inside it, and the segment takes the widest width and tallest clearance among them, so the box stays an outer bound of the tapering corridor. A connector that states no section, or whose route has no length, sweeps nothing: an unstated width is not a width of zero, and `validateBuiltEnvironment` refuses that record on its own path.
    *
    * Intrusion is {@link propBoundsOverlap}, so a volume that only touches a passage does not block it.
-   *
-   * @evidence contracts/development/design.md#principled-representation bounds is an axis-aligned world-metre box tested for strict interior overlap with rest opening fills and swept connector boxes; touching boundaries do not count as intrusion.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface propBlockedPassages delegates passage measurement to createPropPassageBlocker, also shared by prop placement validation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Open or unmeasurable cuts cannot establish blockage, and connector sections must be declared. The query returns known overlaps rather than claiming complete clearance for unmeasurable passages.
-   * @evidence contracts/development/common.md#meaningful-documentation World occupancy query against measurable building passage volumes. bounds is an axis-aligned world-metre box tested for strict interior overlap with rest opening fills and swept connector boxes; touching boundaries do not count as intrusion.
    */
   export type IProps = {
     /**

@@ -12,10 +12,6 @@ import type { IAutoMovieMotionHumanTurnOver } from "../floor/IAutoMovieMotionHum
  * The actions on and from the floor: lying down, rolling, crawling and getting up.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Floor family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Floor laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanFloor<Chain> {
   /**
@@ -112,11 +108,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
 export namespace IAutoMovieMotionHumanFloor {
   /**
    * The kind and hold that a named lying or sitting down fixes: the `kind` and `hold` of `lieDown`. Spread into `lieDown`'s parameters; `AutoMovieMotionHumanFloor.SIT_ON_FLOOR`, `SIT_CROSS_LEGGED`, `SIT_SIDEWAYS` and `LIE_STILL` are its data and the rows of the same names read them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which presets use it, how it is applied and where the members' meanings are.
-   * @evidence contracts/development/design.md#principled-representation The lieDown law's own members, so a preset fixes only the values its row means and the law keeps every other default.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `lieDown` owns the members' meanings.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `lieDown`'s own members and redefines none.
    */
   export type ILieDownPreset = Pick<
     IAutoMovieMotionHumanLieDown.IParams,

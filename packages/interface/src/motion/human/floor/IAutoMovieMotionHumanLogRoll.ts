@@ -7,11 +7,6 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * overhead, rolls about its long axis toward one side, for a number of half
  * turns or to a named place, ending on the back or the front: a dodge on
  * the ground, or the stop, drop and roll of #3976.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the movement and every member's meaning.
- * @evidence contracts/development/design.md#principled-representation The side rolled toward, and either a count of half turns or a floor point to reach.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The side, the count or place, the end position and the manner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Both or neither of a count and a place, and an entry not lying, are refused at runtime.
  */
 export interface IAutoMovieMotionHumanLogRoll {
   /** The side of the body rolled toward. */
@@ -36,11 +31,6 @@ export interface IAutoMovieMotionHumanLogRoll {
 export namespace IAutoMovieMotionHumanLogRoll {
   /**
    * The positions a log roll ends in.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two end positions, on the back or on the front.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the positions a whole number of half turns about the long axis reaches from lying.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The action's `end` member reads it to round a place's half turns.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One literal per position, with no optional fields to combine.
    */
   export type End = "supine" | "prone";
 }

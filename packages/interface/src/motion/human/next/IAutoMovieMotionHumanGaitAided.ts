@@ -7,10 +7,6 @@ import type { IAutoMovieMotionHumanFrailWalk } from "../lexicon/IAutoMovieMotion
  * The aided walks of the Gait family: a cane, a crutch or a walking frame over authored floor stations, two crutches, the frail walk, and a long cane swept over a walk. The speed model and what a method's return and anchor are, are on `IAutoMovieMotionHumanGait`.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the walks it holds and where the shared speed model, return and anchor are documented.
- * @evidence contracts/development/design.md#principled-representation One method per gait law, each taking the law's own parameter type, over the one speed model of the walk's stepping plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The gait laws of the walk family: walk, run, approach, carryLoad, the pursuit laws, the door, the aided walks and the styled gaits.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; no gait has a method of its own that only respells a pace.
  */
 export interface IAutoMovieMotionHumanGaitAided<Chain> {
   /**

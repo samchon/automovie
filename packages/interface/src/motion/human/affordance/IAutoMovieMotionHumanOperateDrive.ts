@@ -17,20 +17,10 @@ import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHuman
  * slider's or a button's travel. The hand's goal at a progress is the
  * contact of the prop posed at that travel, so the hand cannot drift from
  * the part; the drive writes the same travel at the same progress.
- *
- * @evidence contracts/development/common.md#meaningful-documentation point: A point of the line, world metres. axis: Its unit axis; the vertical when absent. point: World metres.
- * @evidence contracts/development/design.md#principled-representation point: A point of the line, world metres. axis: Its unit axis; the vertical when absent. point: World metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part, return); affordance/operateDrive.ts (operateDrive.hinge, part); affordance/operateDrive.ts (operateDrive.drive, part); affordance/operateDrive.ts (operateDrive.hinge, return); affordance/operateDrive.ts (operateDrive.radius, line); affordance/operateDrive.ts (operateDrive.foot, line).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanOperate.Mechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanOperateDrive {
   /**
    * A leaf's hinge line: a point of it and its unit axis, the vertical when absent (a door's line given by a point).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: A point of the line, world metres. axis: Its unit axis; the vertical when absent.
-   * @evidence contracts/development/design.md#principled-representation point: A point of the line, world metres. axis: Its unit axis; the vertical when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.hinge, return); affordance/operateDrive.ts (operateDrive.radius, line); affordance/operateDrive.ts (operateDrive.foot, line); affordance/operateState.ts (operateState.at, hinge); affordance/operate.ts (operate.plan); executable/cases/affordanceCases.ts (affordanceCases).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IHinge {
     /** A point of the line, world metres. */
@@ -42,11 +32,6 @@ export namespace IAutoMovieMotionHumanOperateDrive {
 
   /**
    * A contact's world point and outward unit normal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: World metres.
-   * @evidence contracts/development/design.md#principled-representation point: World metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part, return); affordance/operateDrive.ts (operateDrive.part).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPlace {
     /** World metres. */
@@ -58,11 +43,6 @@ export namespace IAutoMovieMotionHumanOperateDrive {
 
   /**
    * An operated part of an articulated prop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation line: A hinge articulation's own line at the stroke's start, world: a point of it and its unit axis, the affordance frame's `+Y`, about which a positive travel turns by the right-hand rule (a door's upright hinge, a gun cock's cross pin). Absent for any other articulation.
-   * @evidence contracts/development/design.md#principled-representation line: A hinge articulation's own line at the stroke's start, world: a point of it and its unit axis, the affordance frame's `+Y`, about which a positive travel turns by the right-hand rule (a door's upright hinge, a gun cock's cross pin). Absent for any other articulation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part, return); affordance/operateDrive.ts (operateDrive.hinge, part); affordance/operateDrive.ts (operateDrive.drive, part); affordance/operate.ts (operate.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanOperateDrive.IPlace, IAutoMovieMotionHumanOperateDrive.ILine identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPart {
     /** The prop's subject. */
@@ -105,11 +85,6 @@ export namespace IAutoMovieMotionHumanOperateDrive {
 
   /**
    * A turning line, world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: A point of the line, metres.
-   * @evidence contracts/development/design.md#principled-representation point: A point of the line, metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.part.line, return); affordance/operateDrive.ts (operateDrive.part).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ILine {
     /** A point of the line, metres. */
@@ -121,11 +96,6 @@ export namespace IAutoMovieMotionHumanOperateDrive {
 
   /**
    * A mechanism's signed amount in its articulation's unit: a button's press and a slider's travel in metres (a button's 0.005 when absent, as `operate` presses it), a knob's turn and a hinge's swing in degrees. Input mechanism of operateDrive.amount. The mechanism, not an insertion.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation kind: Exclusion pattern removing insertion from the amount calculation; socket insertion is handled by its separate law.
-   * @evidence contracts/development/design.md#principled-representation kind: Exclusion pattern removing insertion from the amount calculation; socket insertion is handled by its separate law.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.amount, mechanism).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanOperate.Mechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IAmountMechanism = Exclude<
     IAutoMovieMotionHumanOperate.Mechanism,
@@ -137,11 +107,6 @@ export namespace IAutoMovieMotionHumanOperateDrive {
 
   /**
    * A hinged leaf's line: the vertical through the point the mechanism names (a door's), or else the operated prop's own hinge articulation (`IPart.line`), however it lies: a gun cock's cross pin. Input mechanism of operateDrive.hinge. The hinge mechanism.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation kind: Selects rotation of the operated object about its hinge.
-   * @evidence contracts/development/design.md#principled-representation kind: Selects rotation of the operated object about its hinge.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: affordance/operateDrive.ts (operateDrive.hinge, mechanism).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanOperate.Mechanism identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IHingeMechanism = Extract<
     IAutoMovieMotionHumanOperate.Mechanism,

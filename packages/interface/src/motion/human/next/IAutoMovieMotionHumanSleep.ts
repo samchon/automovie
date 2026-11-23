@@ -6,10 +6,6 @@ import type { IAutoMovieMotionHumanTurnOver } from "../floor/IAutoMovieMotionHum
  * Sleeping: over a long lie the performer turns over seeded times into positions drawn by how much of the night people spend in each (Skarpsno et al. 2017: side 54.1 %, back 37.5 %, front 7.3 %, the side split evenly), never the one it lies in, holding still between; it pulls a cover over and lies together with a partner. De Koninck et al. 1992 count such shifts through the night; a film sleep compresses them into its seconds.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and its sources.
- * @evidence contracts/development/design.md#principled-representation One method per law or helper of the Sleep behaviour, each taking one named parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Sleep methods and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The turns are the turn-over law's; nothing is posed here.
  */
 export interface IAutoMovieMotionHumanSleep<Chain> {
   /**
@@ -45,11 +41,6 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
 export namespace IAutoMovieMotionHumanSleep {
   /**
    * The parameters of `sleep`: a sleep's length, its position changes and their seed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, units and default.
-   * @evidence contracts/development/design.md#principled-representation The whole length, the count of turns, the seed and the support.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members `sleep` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The seed makes the draw reproducible; nothing is random.
    */
   export interface ISleep {
     /** The whole sleep, seconds; it must leave stillness after the changes' 2 s each. */

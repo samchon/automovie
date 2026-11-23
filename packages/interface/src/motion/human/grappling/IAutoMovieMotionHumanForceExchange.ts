@@ -36,20 +36,10 @@ import type { AutoMovieHumanForceSite } from "../perform/AutoMovieHumanForceSite
  * The phases' timing (kuzushi, tsukuri, kake) is not taken from a study of
  * seoi-nage: the instants are the mechanics' own, from the forces and the
  * bodies.
- *
- * @evidence contracts/development/common.md#meaningful-documentation release: Seconds from the break to the release. edge: The base's extent along the pull, metres. seconds: Seconds from the pull's start to the broken base.
- * @evidence contracts/development/design.md#principled-representation release: Seconds from the break to the release. edge: The base's extent along the pull, metres. seconds: Seconds from the pull's start to the broken base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.breaking, props); grappling/HumanForceExchange.ts (HumanForceExchange.broken, props); grappling/HumanForceExchange.ts (HumanForceExchange.drawn, props); grappling/HumanForceExchange.ts (HumanForceExchange.drawn, return); grappling/HumanForceExchange.ts (HumanForceExchange.resisted, props); grappling/HumanForceExchange.ts (HumanForceExchange.swing, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanForceSite, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanForceExchange {
   /**
    * A throw's swing about the fulcrum, read by time from the base's break.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation release: Seconds from the break to the release.
-   * @evidence contracts/development/design.md#principled-representation release: Seconds from the break to the release.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.swing, return); grappling/HumanForceThrow.ts (HumanForceThrow.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanForceExchange.swing.
    */
   export interface ISwing {
     /** Seconds from the break to the release. */
@@ -76,11 +66,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
 
   /**
    * The constant horizontal pull that breaks a base at a declared instant. Input props of HumanForceExchange.breaking. The partner's mass, eigenfrequency, the base's extent along the pull and the instant.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation edge: The base's extent along the pull, metres. seconds: Seconds from the pull's start to the broken base.
-   * @evidence contracts/development/design.md#principled-representation edge: The base's extent along the pull, metres. seconds: Seconds from the pull's start to the broken base.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.breaking, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanForceExchange.breaking.
    */
   export type IBreakingProps = {
     /** Kilograms. */
@@ -98,11 +83,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
 
   /**
    * When a constant pull breaks a base: the inverse of `breaking`. Input props of HumanForceExchange.broken. The partner's mass, eigenfrequency, the base's extent along the pull and the pull.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation edge: The base's extent along the pull, metres.
-   * @evidence contracts/development/design.md#principled-representation edge: The base's extent along the pull, metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.broken, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanForceExchange.broken.
    */
   export type IBrokenProps = {
     /** Kilograms. */
@@ -120,11 +100,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
 
   /**
    * The centre's travel along a constant pull from rest: its offset, its speed and its extrapolated offset. Input props of HumanForceExchange.drawn. The partner's mass, eigenfrequency, the pull and the seconds since it started.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds since the pull started.
-   * @evidence contracts/development/design.md#principled-representation seconds: Seconds since the pull started.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.drawn, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanForceExchange.drawn.
    */
   export type IDrawnProps = {
     /** Kilograms. */
@@ -142,11 +117,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
 
   /**
    * The centre's travel along a constant pull from rest: its offset, its speed and its extrapolated offset. Result returned by HumanForceExchange.drawn. Metres, metres per second and metres along the pull.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation offset: Horizontal centre displacement along the pull, metres. speed: Horizontal centre velocity along the pull, metres per second. extrapolated: Extrapolated centre position offset + speed / pendulum frequency, metres.
-   * @evidence contracts/development/design.md#principled-representation offset: Horizontal centre displacement along the pull, metres. speed: Horizontal centre velocity along the pull, metres per second. extrapolated: Extrapolated centre position offset + speed / pendulum frequency, metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.drawn, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanForceExchange.drawn.
    */
   export type IDrawnResult = {
     /** Horizontal centre displacement along the pull, metres. */
@@ -159,11 +129,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
 
   /**
    * How far a resisting partner's centre of pressure moves toward the pull: the pull's moment at grip height over the weight; null when that passes the base's extent along the pull, where no counter-lean resists. Input props of HumanForceExchange.resisted. The partner's mass, the pull, the grip's height and the base's extent along the pull.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation height: The grip's height above the floor, metres. edge: The base's extent from the centre along the pull, metres.
-   * @evidence contracts/development/design.md#principled-representation height: The grip's height above the floor, metres. edge: The base's extent from the centre along the pull, metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.resisted, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanForceExchange.resisted.
    */
   export type IResistedProps = {
     /** Kilograms. */
@@ -181,11 +146,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
 
   /**
    * A throw's swing about the fulcrum, from the momentum the pull left to the release where the centre comes level with the fulcrum. Input props of HumanForceExchange.swing. The partner's mass, inertia about its centre on the swing's axis, the centre's distance from the fulcrum, its starting angle and rate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation radius: The centre's distance from the fulcrum, metres. angle: The starting angle from the vertical, radians, positive toward the throw. torque: The pull's moment about the fulcrum on the swing's axis while it lasts, N m; none when absent.
-   * @evidence contracts/development/design.md#principled-representation radius: The centre's distance from the fulcrum, metres. angle: The starting angle from the vertical, radians, positive toward the throw. torque: The pull's moment about the fulcrum on the swing's axis while it lasts, N m; none when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.swing, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanForceExchange.swing.
    */
   export type ISwingProps = {
     /** Kilograms. */
@@ -212,11 +172,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
 
   /**
    * The pull as the force input's sustained records: the force spread equally over the grip sites, constant over the window. Input props of HumanForceExchange.pull. The pulled person, the grip sites, the horizontal direction, the force and the window.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation from: Film seconds, start. to: Film seconds, end.
-   * @evidence contracts/development/design.md#principled-representation from: Film seconds, start. to: Film seconds, end.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceExchange.ts (HumanForceExchange.pull, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanForceSite, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IPullProps = {
     /** The pulled person. */

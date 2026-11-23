@@ -25,20 +25,10 @@
  * reads the body's measure, so the stance fits any stature and proportion.
  *
  * The stance does not set how far apart the fighters stand, and no discipline's fighting distance in metres is defined (provisional, missing): place the fighters with `approach` `at` in metres. A strike whose target is beyond the arm's or the leg's band steps in by up to one stance length (punch) or half a stance (kick), so a fight starting within that gap still lands; the timing of the strikes is in {@link IAutoMovieMotionHumanPunch}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation line: Heading of the line toward the opponent, degrees about +Y (0 faces +Z).
- * @evidence contracts/development/design.md#principled-representation line: Heading of the line toward the opponent, degrees about +Y (0 faces +Z).
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: striking/StrikingStance.ts (StrikingStance.rear, stance); striking/StrikingStance.ts (StrikingStance.heading, stance); striking/StrikingStance.ts (StrikingStance.feet, stance); striking/StrikingStance.ts (StrikingStance.guard, stance); striking/guard.ts (guard.build).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in StrikingStance.rear.
  */
 export namespace IAutoMovieMotionHumanStrikingStance {
   /**
    * A stance: which side leads and the heading of the line to the opponent.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and the heading's convention.
-   * @evidence contracts/development/design.md#principled-representation A closed lead union and a heading in degrees about +Y.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values every stance query reads; queries needing only the lead take that part.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IStance {
     /** The leading side: `left` is orthodox, `right` southpaw. */

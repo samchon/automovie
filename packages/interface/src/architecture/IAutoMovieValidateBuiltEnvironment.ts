@@ -2,11 +2,6 @@ import type { IAutoMovieBuiltEnvironment } from "./IAutoMovieBuiltEnvironment";
 
 /**
  * Data and callback contracts shared by the ValidateBuiltEnvironment operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Validate the graph, geometry references, and spatial topology of a building. Member documentation states the supplied records, units and absence meanings used by validateBuiltEnvironment.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A typed building is not proof of valid references or numeric geometry; validateBuiltEnvironment collects those domain violations under its documented container premises.
- * @evidence contracts/development/design.md#principled-representation environment supplies the canonical building graph in world metres; validation resolves its authored identities, geometry and operating-state constraints without rewriting the graph.
- * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateBuiltEnvironment, used by validateBuiltEnvironment. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
  */
 export namespace IAutoMovieValidateBuiltEnvironment {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieValidateBuiltEnvironment {
    * element hierarchy.
    *
    * Record defects are collected with `$input` paths, warnings included. Typed containers and executable traversal depth remain premises; this is not a universal non-throw guarantee for arbitrary runtime values or resource exhaustion. Guarded lowering and downstream consumers refuse a rejected record.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Validate the graph, geometry references, and spatial topology of a building. Member documentation states the supplied records, units and absence meanings used by validateBuiltEnvironment.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A typed building is not proof of valid references or numeric geometry; validateBuiltEnvironment collects those domain violations under its documented container premises.
-   * @evidence contracts/development/design.md#principled-representation environment supplies the canonical building graph in world metres; validation resolves its authored identities, geometry and operating-state constraints without rewriting the graph.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface interface owns IAutoMovieValidateBuiltEnvironment.IProps, used by validateBuiltEnvironment. Its environment members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
    */
   export type IProps = {
     /** Building record to validate. */

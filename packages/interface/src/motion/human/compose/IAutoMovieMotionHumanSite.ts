@@ -16,20 +16,10 @@
  * and stays at its end beyond it. The slope of one is the rule's, not a
  * measured one: the studies report the inverse relation, and its measured
  * slope is to be read before it becomes a constant (#3357's research list).
- *
- * @evidence contracts/development/common.md#meaningful-documentation weight: Its relative weight, positive. low: The lowest place a hand may hold, metres from the handle's base. high: The highest, metres from the handle's base; at least `low`.
- * @evidence contracts/development/design.md#principled-representation weight: Its relative weight, positive. low: The lowest place a hand may hold, metres from the handle's base. high: The highest, metres from the handle's base; at least `low`.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanSite.ts (AutoMovieMotionHumanSite.draw, sites); compose/AutoMovieMotionHumanSite.ts (AutoMovieMotionHumanSite.draw, s); compose/AutoMovieMotionHumanSite.ts (AutoMovieMotionHumanSite.draw.total, s); compose/AutoMovieMotionHumanSite.ts (AutoMovieMotionHumanSite.grasp, band).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in AutoMovieMotionHumanSite.draw.
  */
 export namespace IAutoMovieMotionHumanSite {
   /**
    * An allowed place and how often it is drawn.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and range.
-   * @evidence contracts/development/design.md#principled-representation An id and a positive weight, a categorical distribution's entry.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `draw`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The weight is relative; no total is stored.
    */
   export interface IWeighted {
     /** The place's id among the target's places. */
@@ -41,11 +31,6 @@ export namespace IAutoMovieMotionHumanSite {
 
   /**
    * A band along a handle's axis, metres from its base.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The two ends of the part of a handle a hand may hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by `grasp`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The band is the affordance's; nothing is assumed of its length.
    */
   export interface IBand {
     /** The lowest place a hand may hold, metres from the handle's base. */

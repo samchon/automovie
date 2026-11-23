@@ -22,11 +22,6 @@ import type { IAutoMovieMotionHumanSideDrumStrike } from "../tasks/IAutoMovieMot
 
 /**
  * Open parameters of the manipulate lexicon family, keyed by each runtime export name.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The manipulate family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the manipulate row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconManipulateParams {
   /** The keyed contact sequence itself, for a production that names its own contacts. */

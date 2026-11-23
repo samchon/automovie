@@ -2,11 +2,6 @@
  * Minimum directional depth separation for each overlapping front triangle.
  *
  * Triangle is an original front-triangle ordinal; minimum is front-minus-back depth in the meshes' common metre frame. The measurement validates buffers, axis and arithmetic; it skips axial projections of zero area and omits triangles with no overlap, so this is not a volume collision test.
- *
- * @evidence contracts/development/design.md#principled-representation Triangle is an original front-triangle ordinal; minimum is front-minus-back depth in the meshes' common metre frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieMeshClearance supplies directional ordering queries and minimizeAutoMovieMeshClearance constraints.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The measurement validates buffers, axis and arithmetic; it skips axial projections of zero area and omits triangles with no overlap, so this is not a volume collision test.
- * @evidence contracts/development/common.md#meaningful-documentation Minimum directional depth separation for each overlapping front triangle. Triangle is an original front-triangle ordinal; minimum is front-minus-back depth in the meshes' common metre frame.
  */
 export namespace IAutoMovieMeasureMeshClearance {
   /**
@@ -30,11 +25,6 @@ export namespace IAutoMovieMeasureMeshClearance {
    * clipping or depth arithmetic that overflows.
    *
    * The list and entries are newly allocated and mutable. The optional measurement visitor runs synchronously for every clipped overlap vertex, may retain its fresh witness arrays, and is not retained after return; a visitor exception propagates and prevents return of the list.
-   *
-   * @evidence contracts/development/design.md#principled-representation Triangle is an original front-triangle ordinal; minimum is front-minus-back depth in the meshes' common metre frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieMeshClearance supplies directional ordering queries and minimizeAutoMovieMeshClearance constraints.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The measurement validates buffers, axis and arithmetic; it skips axial projections of zero area and omits triangles with no overlap, so this is not a volume collision test.
-   * @evidence contracts/development/common.md#meaningful-documentation Minimum directional depth separation for each overlapping front triangle. Triangle is an original front-triangle ordinal; minimum is front-minus-back depth in the meshes' common metre frame.
    */
   export type IResult = {
     /**

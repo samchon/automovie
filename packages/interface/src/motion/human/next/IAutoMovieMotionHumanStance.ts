@@ -12,10 +12,6 @@ import type { IAutoMovieMotionHumanShift } from "../everyday/IAutoMovieMotionHum
  * A planted posture computes no balance. A named rest or hold that fixes parameter values is a preset, data spread into the law's parameters beside the hold: `AutoMovieMotionHumanStance.ARMS_CROSSED`, `HANDS_ON_HIPS`, `HANDS_IN_POCKETS`, `PARADE_REST`, `HANDS_CLASPED`, `HANDS_BEHIND_HEAD` and `THINKING`, `REST_SIDE`, `CHIN_REST` and `ELBOW_SUPPORT` (`IRestPreset`), `SQUAT_SIT` and `TAKE_COVER` (`ICrouchPreset`) and `MOUNTAIN_POSE` (`IStandPreset`); a preset adds no method.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Stance family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Stance laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanStance<Chain> {
   /**
@@ -88,11 +84,6 @@ export interface IAutoMovieMotionHumanStance<Chain> {
 export namespace IAutoMovieMotionHumanStance {
   /**
    * The places of both hands that a named rest fixes: the `left` and `right` of `rest`. Spread into `rest`'s parameters with the hold; the preset constants of `AutoMovieMotionHumanStance` (`ARMS_CROSSED`, `HANDS_ON_HIPS`, `HANDS_IN_POCKETS`, `PARADE_REST`, `HANDS_CLASPED`, `HANDS_BEHIND_HEAD` and `THINKING`) are its data and the rows of the same names read them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which presets use it, how it is applied and where the places' meanings are.
-   * @evidence contracts/development/design.md#principled-representation The rest law's own `left` and `right` members, so a preset fixes exactly the two places and the law keeps every other default.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `rest` owns the places' meanings.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `rest`'s own members and redefines none.
    */
   export type IRestPreset = Pick<
     IAutoMovieMotionHumanRest.IParams,
@@ -101,21 +92,11 @@ export namespace IAutoMovieMotionHumanStance {
 
   /**
    * The hold that a named stand fixes: the `hold` of `stand`, in seconds. Spread into `stand`'s parameters; `AutoMovieMotionHumanStance.MOUNTAIN_POSE` is its data and the `mountainPose` row reads it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which preset uses it, how it is applied and where the member's meaning is.
-   * @evidence contracts/development/design.md#principled-representation The stand law's own `hold` member, so a preset fixes exactly the hold and the law keeps every other default.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `stand` owns the hold's meaning.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `stand`'s own member and redefines none.
    */
   export type IStandPreset = Pick<IAutoMovieMotionHumanStand.IParams, "hold">;
 
   /**
    * The depth, heel position and hold that a named crouch fixes: the `depth`, `heels` and `hold` of `crouch`. Spread into `crouch`'s parameters; `AutoMovieMotionHumanStance.SQUAT_SIT` and `TAKE_COVER` are its data and the rows of the same names read them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, which presets use it, how it is applied and where the members' meanings are.
-   * @evidence contracts/development/design.md#principled-representation The crouch law's own members, so a preset fixes only the values its row means and the law keeps every other default.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `crouch` owns the members' meanings.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `crouch`'s own members and redefines none.
    */
   export type ICrouchPreset = Pick<
     IAutoMovieMotionHumanCrouch.IParams,

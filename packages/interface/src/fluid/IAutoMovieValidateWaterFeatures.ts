@@ -4,11 +4,6 @@ import type { IAutoMovieWaterFeature } from "./IAutoMovieWaterFeature";
 
 /**
  * Architecture and fluid records joined by water-feature admission.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States reference resolution, nested admission, empty-list behavior, ownership and the bed-centre-only geometry scope.
- * @evidence contracts/development/design.md#principled-representation Separate canonical records express identity joins without adding architecture to fluid domains; runtime checks own id membership and world-metre containment.
- * @evidence contracts/development/design.md#minimal-and-owned-surface validateWaterFeatures consumes exactly the environment, feature bindings and fluid catalogue needed for its cross-record report.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The request does not pretend typed references establish valid joins, material existence, complete basin enclosure or environment admission.
  */
 export namespace IAutoMovieValidateWaterFeatures {
   /**
@@ -23,11 +18,6 @@ export namespace IAutoMovieValidateWaterFeatures {
    * Every bed point is checked in row-major order, including in convex basins: arbitrary interior bed elevations need not lie in the corners' convex hull. This initial bed-centre check does not certify future solved surfaces fit the basin.
    *
    * Inputs remain unchanged. Empty features skip binding checks but do not skip supplied-domain admission; returned violations may retain offending input values. Malformed typed containers may throw.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States reference resolution, nested admission, empty-list behavior, ownership and the bed-centre-only geometry scope.
-   * @evidence contracts/development/design.md#principled-representation Separate canonical records express identity joins without adding architecture to fluid domains; runtime checks own id membership and world-metre containment.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface validateWaterFeatures consumes exactly the environment, feature bindings and fluid catalogue needed for its cross-record report.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The request does not pretend typed references establish valid joins, material existence, complete basin enclosure or environment admission.
    */
   export type IProps = {
     /** Previously admitted building whose id, spaces and boundaries resolve feature references; not itself validated here. */

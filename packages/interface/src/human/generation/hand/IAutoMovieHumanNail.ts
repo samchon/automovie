@@ -4,20 +4,10 @@ import type { IAutoMovieLoftRelief } from "../../../construction/IAutoMovieLoftR
 
 /**
  * Nail geometry inputs and generated plate, ownership and diagnostic records.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Nail geometry inputs and generated plate, ownership and diagnostic records.
- * @evidence contracts/development/design.md#principled-representation The nail frame, digit charts and plate plane are separate named domains, using millimetres and radians.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNail consumes the inputs and derives a nail for the skin builder and region readers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Published and estimated proportions are supplied by the caller, while the same law builds hand and foot nails.
  */
 export namespace IAutoMovieHumanNail {
   /**
    * The frame of the last digit segment or the plate it carries.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The frame of the last digit segment or the plate it carries.
-   * @evidence contracts/development/design.md#principled-representation The origin is in millimetres in the figure's frame. Distal and dorsal are orthogonal unit directions. Orthonormality remains the caller's premise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNail builds and classifies the plate in this frame.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Three named vectors express the frame independently of the digit family.
    */
   export interface IFrame {
     /** The last joint's centre, mm. */
@@ -32,11 +22,6 @@ export namespace IAutoMovieHumanNail {
 
   /**
    * Complete skin of a digit before a nail relief is applied.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Complete skin of a digit before a nail relief is applied.
-   * @evidence contracts/development/design.md#principled-representation The reader takes course millimetres and chart radians, returning a figure-space point in millimetres. First and tip bound the allowed station interval.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNail reads the unmodified skin throughout the distal segment.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback provides the digit's own evaluated skin. The nail producer admits its usable region.
    */
   export interface ISkin {
     /**
@@ -53,11 +38,6 @@ export namespace IAutoMovieHumanNail {
 
   /**
    * Plate proportions for a measured or explicitly estimated digit class.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Plate proportions for a measured or explicitly estimated digit class.
-   * @evidence contracts/development/design.md#principled-representation Width, aspect, lunula and wrap are dimensionless. Thickness, fold and a specified radius are in millimetres. Null delegates the radius to the skin.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNail uses each value to build the plate and its skin reliefs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Population data and admissible numeric domains remain under the caller and producer respectively.
    */
   export interface IProportions {
     /** The plate's width between the lateral folds over the digit's breadth across its last joint. */
@@ -88,11 +68,6 @@ export namespace IAutoMovieHumanNail {
 
   /**
    * Measurements and convergence observations from one plate calculation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Measurements and convergence observations from one plate calculation.
-   * @evidence contracts/development/design.md#principled-representation Distances and residual components follow the named figure or nail frame, with lengths in millimetres and turns in radians.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Nail diagnostics and visual tools consume the producer's measurements from the plate actually built.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Observed fit data describes that calculation and supplies no acceptance tolerance.
    */
   export interface IReadings {
     /** The digit's breadth across the last joint, mm. */
@@ -155,11 +130,6 @@ export namespace IAutoMovieHumanNail {
 
   /**
    * The plate, skin reliefs and ownership data produced for one digit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The plate, skin reliefs and ownership data produced for one digit.
-   * @evidence contracts/development/design.md#principled-representation The family and frame use figure-space millimetres. The outline uses course millimetres and chart radians, while the ownership plan uses plate-plane millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNail produces one record that the skin builder, ownership predicate and inspection paths consume.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reliefs and the plate family describe the same input digit. No extra topology or material ownership is inferred from their meshes.
    */
   export interface INail {
     /** The plate, a family in the figure's frame. */
@@ -196,11 +166,6 @@ export namespace IAutoMovieHumanNail {
 
   /**
    * The outline of the plate in its own distal and transverse axes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The outline of the plate in its own distal and transverse axes.
-   * @evidence contracts/development/design.md#principled-representation All coordinates and extents are millimetres from the nail frame. Front and edge samples are piecewise linear and require ordered sample coordinates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNail.owns reads the same plan that defines the plate's skin region.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The plan defines a plate-plane region and one floor. It carries no assumptions about the final mesh.
    */
   export interface IPlan {
     /** Where the proximal fold's apex and the free edge's stand along. */

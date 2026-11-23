@@ -13,11 +13,6 @@ import type { IAutoMovieMotionHumanSeated } from "../everyday/IAutoMovieMotionHu
  * through the sit and the rise. A sit starts with both crutches standing on
  * their tips beside the body, each hand taking its own; a rise starts as a
  * sit leaves the body, both crutches in the injured side's hand.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both orders, their sources and every member's meaning.
- * @evidence contracts/development/design.md#principled-representation The two crutch props, the injured side, the seat and the direction.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members `HumanCrutchSit` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Crutches without a grip and a tip, a sit without a seat and a rise from standing are refused at runtime.
  */
 export interface IAutoMovieMotionHumanCrutchSit {
   /** The crutch at the left side, a prop with a `grip` and a `tip`, carried by the hands (never a tracked prop). */

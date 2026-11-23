@@ -9,10 +9,6 @@ import type { IAutoMovieMotionHumanTapDance } from "../exercise/IAutoMovieMotion
  * Footwork and body movement on a beat: social, ballet, tap, street and group dance, and the slow-dance sway. A beat count at a tempo gives the duration; the dance styles share one clock of 120 beats a minute, 0.5 s a beat, unless `bpm` or a cue track (`lock`) sets it. No tempo by style (a waltz, a hip-hop groove) is defined: choose `bpm` (provisional, missing).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Dance family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Dance laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanDance<Chain> {
   /**
@@ -89,11 +85,6 @@ export interface IAutoMovieMotionHumanDance<Chain> {
 export namespace IAutoMovieMotionHumanDance {
   /**
    * The parameters of `slowDanceSway`: a sway's size, beat and repetitions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and its meaning.
-   * @evidence contracts/development/design.md#principled-representation The size in metres, the beat in seconds and a whole count of sways.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the sway reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The beat and the distance are the author's; no default is assumed.
    */
   export interface ISlowDanceSway {
     /** How far the pelvis goes over each foot, metres; positive. */
@@ -148,11 +139,6 @@ export namespace IAutoMovieMotionHumanDance {
 export namespace IAutoMovieMotionHumanDance {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The step, the tempo and the number of beats.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The tempo is a number, not audio.
    */
   export interface IParams {
     /** The step. */
@@ -185,11 +171,6 @@ export namespace IAutoMovieMotionHumanDance {
 
   /**
    * The cue track a dance's beats lock to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation A track id and the event name read from it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the beat lock reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The track is the performance's input, never audio.
    */
   export interface ILock {
     /** Performance cue-track id whose instants entrain the dance beats. */
@@ -201,11 +182,6 @@ export namespace IAutoMovieMotionHumanDance {
 
   /**
    * The waltz timing and travel of the box step.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit, frame and default.
-   * @evidence contracts/development/design.md#principled-representation A turn in degrees, a pivot and a travel in world metres, and the role.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The four values the waltz box reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted members keep the basic square; nothing is assumed.
    */
   export interface IWaltz {
     /** Signed rotation through the last beat, in degrees. Defaults to zero. */
@@ -223,21 +199,11 @@ export namespace IAutoMovieMotionHumanDance {
 
   /**
    * The foot that steps first.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two admitted feet.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "left", "right" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The foot choice of the solo dance steps.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
    */
   export type Side = "left" | "right";
 
   /**
    * Capture cases of the solo dance steps (#3253), eight beats at 120 bpm from quiet standing. The steps.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Capture cases of the solo dance steps (#3253), eight beats at 120 bpm from quiet standing. The steps.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "bounce", "sway", "stepTouch", "boxStep" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/danceCases.ts (danceCases).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in danceCases.
    */
   export type Kind = "bounce" | "sway" | "stepTouch" | "boxStep";
 }

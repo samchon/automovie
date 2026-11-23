@@ -5,11 +5,6 @@ import type { IAutoMovieHumanHeadDomeHost } from "./IAutoMovieHumanHeadDomeHost"
  * Head-region dome definitions and attachment attempts, preserving original parents and explicit failures.
  *
  * The interface package owns these declarations; AutoMovieHumanHeadDome in Human supplies their runtime values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Head-region dome definitions and attachment attempts, preserving original parents and explicit failures. Member comments specify the individual units, frames and optional-value meanings.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IAttempt, IDome, IPart declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
- * @evidence contracts/development/design.md#principled-representation IAttempt, IDome, IPart separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHeadDome exchanges the named IAttempt, IDome, IPart contracts with its Human callers. Interface owns these type declarations without importing that implementation.
  */
 export namespace IAutoMovieHumanHeadDome {
   /**
@@ -21,11 +16,6 @@ export namespace IAutoMovieHumanHeadDome {
    * Data performs no work.
    * The attempt factory owns original construction.
    * The explicit inspection owns its bounded actual-caller records.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One actual source attempt collected before publishing any composed result.
-   * @evidence contracts/development/design.md#principled-representation `name`: Actual child source name. `definition`: Identical original frame, widths, rise and profile, before parent queries. `parent`: Actual selected material owner, distinct from the tree's parent label.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanHeadDome.attempt, AutoMovieHumanHeadEarParts.of, AutoMovieHumanHeadEarParts.part. Also types AutoMovieHumanHeadComposer.attachments, AutoMovieHumanHeadComposer.failures.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `name`, `definition`, `parent`, `parentSource`, `domain`, `base`, `point`, `attachment`, `error`; callers supply the complete record.
    */
   export interface IAttempt {
     /** Actual child source name. */
@@ -58,11 +48,6 @@ export namespace IAutoMovieHumanHeadDome {
    * A data contract chooses no algorithm.
    * A data contract coordinates no work.
    * A data contract owns no runtime resource lifecycle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A dome's generating frame and positive dimensions in calibration mm.
-   * @evidence contracts/development/design.md#principled-representation `name`: Chain name. `origin`: Nominal cap-base centre before the stem's embedding offset, world mm. `outward`: Unit direction from the cap base to its apex, inward for a cutter.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanHeadDome.attempt, AutoMovieHumanHeadDome.of, AutoMovieHumanHeadDome.sagitta. Also types AutoMovieHumanHeadInnerParts.dome.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `host`: Explicit parent-plane datum or numeric host radius, calibration mm.
    */
   export interface IDome {
     /** Chain name. */
@@ -110,11 +95,6 @@ export namespace IAutoMovieHumanHeadDome {
    * Data performs no work.
    * Regional metadata borrows the identical prepared contact.
    * The composition owns the part and its transitive original-parent source.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A cap retaining its actual original material contact for downstream consumers.
-   * @evidence contracts/development/design.md#principled-representation `attachment`: Identical source contact consumed by embedding, or null without an original parent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHeadDome.attempt. Also types AutoMovieHumanHeadDome.part, AutoMovieHumanHeadEarParts.source.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `attachment`; callers supply the complete record.
    */
   export interface IPart extends IAutoMovieViewPart {
     /** Identical source contact consumed by embedding, or null without an original parent. */

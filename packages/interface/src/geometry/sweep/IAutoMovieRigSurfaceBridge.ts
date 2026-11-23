@@ -3,11 +3,6 @@ import type { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
 
 /**
  * Matched loop samples and target slots for a pose-updated Hermite bridge.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Corresponding metre loops and dimensionless tension define reserved Hermite bridge controls in a live packed buffer. Loop cardinality and tension are admitted by planning; degenerate directions or crossing columns remain possible and are not hidden by the contract.
- * @evidence contracts/development/design.md#principled-representation Corresponding metre loops and dimensionless tension define reserved Hermite bridge controls in a live packed buffer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface rigAutoMovieSurfaceBridge consumes the shared samples and probes supplied by network patch planning.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Loop cardinality and tension are admitted by planning; degenerate directions or crossing columns remain possible and are not hidden by the contract.
  */
 export namespace IAutoMovieRigSurfaceBridge {
   /**
@@ -27,11 +22,6 @@ export namespace IAutoMovieRigSurfaceBridge {
    * the loop's tangent at the scale of the first row, so near a corner of the
    * loop the columns turn over the points within one row of it rather than at
    * the corner alone. This local construction does not certify that columns never cross or that the resulting patch is free of self-intersection. Nondegenerate loop lengths and direction vectors are caller premises; this kernel can write nonfinite controls for a degenerate tangent, which the owning network rejects after evaluating all writers. No rollback of earlier interior writes is provided.
-   *
-   * @evidence contracts/development/design.md#principled-representation Loop indices address packed model-metre positions; rows and dimensionless tension define interior Hermite samples. Patch planning admits count agreement and positive finite tension before calling this unchecked kernel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface planAutoMovieSurfaceRigPatches supplies shared loop samples and resolved probes; the bridge writes only its reserved interior vertex indices.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Nullable sweep/curve sample metadata must identify the primitive required by each direction rule; degenerate tangents and self-intersection are not made impossible by this shape.
-   * @evidence contracts/development/common.md#meaningful-documentation States copied indices versus borrowed arrays, pose ordering, column-major output indexing and tangent-unit conversion.
    */
   export type IProps = {
     /** First loop's ordered sample records, borrowed by the returned writer. Each sample's sweep or curve rig supplies its bridge direction; preserve order and references while the writer lives. */

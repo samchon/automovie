@@ -36,20 +36,10 @@ import type { IAutoMovieMotionHumanLadder } from "./IAutoMovieMotionHumanLadder"
  *
  * Not yet: the two-beat patterns, and hanging, traversing, mantling and
  * vaulting (the rest of #3238).
- *
- * @evidence contracts/development/common.md#meaningful-documentation rungs: How many rungs the feet climb; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
- * @evidence contracts/development/design.md#principled-representation rungs: How many rungs the feet climb; 3 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainTravel.ts (HumanChainTravel.climbLadder, params); climbing/climbLadder.ts (climbLadder.plan, context); climbing/climbLadder.ts (climbLadder.plan, limb); climbing/climbLadder.ts (climbLadder.plan.level, limb); climbing/climbLadder.ts (climbLadder.plan, return); executable/cases/climbCases.ts (climbCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner, IAutoMovieMotionHumanLadder.ILadder identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanClimbLadder {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The ladder as the scene's prop, and how far to climb.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hold is typed.
    */
   export interface IParams {
     /** The ladder's prop subject: a fixture whose rungs are its `rung1` upward. */
@@ -67,21 +57,11 @@ export namespace IAutoMovieMotionHumanClimbLadder {
 
   /**
    * A limb of the climb.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A limb of the climb.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "leftHand", "rightHand", "leftFoot", "rightFoot" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: climbing/climbLadder.ts (climbLadder.plan, limb); climbing/climbLadder.ts (climbLadder.plan.level, limb); climbing/climbLadder.ts (climbLadder.ORDER); climbing/climbLadder.ts (climbLadder.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in climbLadder.plan.
    */
   export type Limb = "leftHand" | "rightHand" | "leftFoot" | "rightFoot";
 
   /**
    * A climb's plan: an action plan with the ladder it resolved.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation ladder: The ladder.
-   * @evidence contracts/development/design.md#principled-representation ladder: The ladder.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: climbing/climbLadder.ts (climbLadder.plan, return); executable/cases/climbCases.ts (climbCases).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanLadder.ILadder identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPlan extends IAutoMovieMotionHumanActionPlan {
     /** The ladder. */
@@ -91,21 +71,11 @@ export namespace IAutoMovieMotionHumanClimbLadder {
   /**
    * Which way a landing route runs: `up` from the floor to the landing,
    * `down` from the landing to the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both directions.
-   * @evidence contracts/development/design.md#principled-representation A closed choice; down replays the same stances in reverse order.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by planLadderAccess.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
    */
   export type Direction = "up" | "down";
 
   /**
    * The surface at the upper end of a fixed ladder route.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the placed surface and the direction, with its default.
-   * @evidence contracts/development/design.md#principled-representation The prop's level surface affordance supplies the height, width and depth in world metres; the direction orders the same contact route.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by planLadderAccess only when the author requests a complete route.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The landing names a real surface, without an invented endpoint; a moving, sloped, misaligned or unreachable one is refused at runtime.
    */
   export interface ILanding {
     /** Subject of the fixed prop that bears the performer at the top. */

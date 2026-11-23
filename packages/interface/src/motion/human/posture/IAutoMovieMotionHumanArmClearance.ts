@@ -19,21 +19,11 @@
  * whole (`room`), against another body's colliders too when one stands in its
  * way, and its elbow let out or folded until the forearm asks no more room
  * than the carry's two ends hold (`cleared`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation forearm: The forearm's needed room `overshoot` reads, degrees. segments: The arm's segments' depth the tangle audit reads, degrees.
- * @evidence contracts/development/design.md#principled-representation forearm: The forearm's needed room `overshoot` reads, degrees. segments: The arm's segments' depth the tangle audit reads, degrees.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry.plain, return); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry.plan, return); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry.reading, of); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry, return); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carry, of); compose/AutoMovieMotionHumanArmCarry.ts (AutoMovieMotionHumanArmCarry.carried.arm, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in AutoMovieMotionHumanArmCarry.carry.plain.
  */
 export namespace IAutoMovieMotionHumanArmClearance {
   /**
    * An arm's joint angles: `[flexion, abduction, twist]` of the upper arm,
    * the lower arm and the hand, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the three members, their order and unit.
-   * @evidence contracts/development/design.md#principled-representation The clinical triples a pose holds for the three joints of an arm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Three members, all written into the pose `room` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No side and no bone name: the functions that read it take the side.
    */
   export interface IArm {
     /** The upper arm's angles. */
@@ -51,11 +41,6 @@ export namespace IAutoMovieMotionHumanArmClearance {
    * arm's segments by the tangle audit, degrees. Each is measured against
    * its own value in a reference posture, since one reading's slack is not
    * room for the other.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two members, their unit and why they are apart.
-   * @evidence contracts/development/design.md#principled-representation One allowance per reading, so a thick flank that the hanging forearm already touches lends no depth to the fingers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, read by `room`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No combined slack.
    */
   export interface IBaseline {
     /** The forearm's needed room `overshoot` reads, degrees. */

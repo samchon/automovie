@@ -15,30 +15,15 @@ import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDa
  *
  * Each member's timing strays from the beat within `vary`, drawn from its
  * own seed, so a crowd does not dance cloned.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three dances and the seeded variation.
- * @evidence contracts/development/design.md#principled-representation A dance kind with the group geometry it needs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/groupDance.ts (groupDance.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
  */
 export namespace IAutoMovieMotionHumanGroupDance {
   /**
    * The dances.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The dances' names.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "line", "circle", "conga".
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/groupDance.ts (groupDance.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
    */
   export type Kind = "line" | "circle" | "conga";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit, range and default.
-   * @evidence contracts/development/design.md#principled-representation The dance, the tempo in beats per minute, the repeats, the circle's centre in world metres and size, the neighbours by scene id, and the timing variation in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members groupDance.plan and its line, circle and conga courses read; `lock` reuses the dance law's own type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One record with members per dance rather than a union on `kind`: the circle's and the conga's members are optional fields the other dances leave unused, and their presence per dance remains for the law.
    */
   export interface IParams {
     /** The dance. */

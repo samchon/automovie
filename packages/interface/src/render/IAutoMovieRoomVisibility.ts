@@ -4,11 +4,6 @@
  * A space is hidden only when it is proved unreachable from the camera through every opening, connector and exterior route the design declares. Everything else stays drawn. An exterior or ambiguous camera position and an unstated space extent therefore hide nothing.
  *
  * The exterior is a node of the portal graph, not the absence of one. A room with a window is reachable from outside, so from a sealed interior room the other windowed rooms are still hidden, while from a windowed room they are kept: light and geometry can travel out one opening and in another, and the graph says so instead of the culler guessing.
- *
- * @evidence contracts/development/design.md#principled-representation Cell-and-portal reachability starts from one containing leaf space and includes declared openings, every connector stop and exterior routes; reachable spaces and their ancestors remain drawn. Valid ids, references and an acyclic parent graph are caller premises, and numerical containment inherits the shared cell/shell predicate's tolerances and finite-intermediate limitations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Camera classification, visible/hidden partition and explicit inconclusive reason separate geometric placement from proof of exclusion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Exterior, ambiguous or unknown leaf extents hide nothing, and an opening remains a possible portal even with a movable door leaf; no unproved closed-door state drives aggressive culling.
- * @evidence contracts/development/common.md#meaningful-documentation Defines leaf-camera ownership, placement classification, sorted complementary populations and incomplete-proof reason.
  */
 export interface IAutoMovieRoomVisibility {
   /** Hint format. */

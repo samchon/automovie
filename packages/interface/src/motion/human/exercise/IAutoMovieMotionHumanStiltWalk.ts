@@ -3,20 +3,10 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 /**
  * A walk on stilts (#3997): each foot strapped on a stilt's platform, the
  * stilts' tips the only floor contacts, short steps on a wide base.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the walk and its contacts.
- * @evidence contracts/development/design.md#principled-representation The two stilts, the stop and the step count.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/stiltWalk.ts (stiltWalk.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The stilts are scene props, read by their own affordances.
  */
 export namespace IAutoMovieMotionHumanStiltWalk {
   /**
    * The stilts worn.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The prop under each foot.
-   * @evidence contracts/development/design.md#principled-representation One scene id per foot.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two ids.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IStilts {
     /** The stilt under the left foot. */
@@ -28,11 +18,6 @@ export namespace IAutoMovieMotionHumanStiltWalk {
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame, unit, range and default.
-   * @evidence contracts/development/design.md#principled-representation The two stilts by scene id, the stop as a world floor point in metres and a whole step count.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three members stiltWalk.plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: every member is used by every walk, and reach and support limits remain for the law's runtime refusals.
    */
   export interface IParams {
     /** The stilts, each standing under its foot as the walk starts. */

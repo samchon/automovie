@@ -6,20 +6,9 @@ import type { IAutoMovieHumanLegWalk } from "./IAutoMovieHumanLegWalk";
 
 /**
  * Type contracts exchanged by AutoMovieHumanLegSourceFamily; runtime evaluation remains in Human.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the AutoMovieHumanLegSourceFamily exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
- * @evidence contracts/development/design.md#principled-representation A type-only namespace groups IOutput, IAnkle, IInput. Units, frames and admissibility belong to those member contracts; the namespace creates no value or runtime validation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Interface owns these declarations used by Human's AutoMovieHumanLegSourceFamily; Human retains the computation and source preparation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace only qualifies the IOutput, IAnkle, IInput contracts and adds no alternate implementation, optional mode or runtime state.
  */
 export namespace IAutoMovieHumanLegSourceFamily {
   /** Regional and full demands of the same production family.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Regional and full demands of the same production family.
-   * @evidence contracts/development/design.md#principled-representation Regional and full demands of the same production family.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanLegSourceFamily.create. Also types AutoMovieHumanLegSources.legSource.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanLegSourceFamily.create, AutoMovieHumanLegSources.legSource for regional and full demands of the same production family.
    */
   export interface IOutput {
     /**
@@ -42,12 +31,6 @@ export namespace IAutoMovieHumanLegSourceFamily {
   }
 
   /** Exact retained region with the actual explicit full-resolver capability.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Exact retained region with the actual explicit full-resolver capability.
-   * @evidence contracts/development/design.md#principled-representation Exact retained region with the actual explicit full-resolver capability.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Also types AutoMovieHumanLegSourceFamily.ankle.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation is used by AutoMovieHumanLegSourceFamily.ankle, AutoMovieHumanLegSourceFamily.create for exact retained region with the actual explicit full-resolver capability.
    */
   export type IAnkle = Omit<
     IAutoMovieHumanFootInterim.IAnkleSource,
@@ -58,12 +41,6 @@ export namespace IAutoMovieHumanLegSourceFamily {
   };
 
   /** Invocation-owned production inputs and its optional full-parent completion seam.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Invocation-owned production inputs and its optional full-parent completion seam.
-   * @evidence contracts/development/design.md#principled-representation `name`: Existing side-qualified production name. `bones`: Actual immutable bone frames. `law`: Existing measured and intermediate source laws.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by AutoMovieHumanLegSourceFamily.create.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts `complete`: Successfully complete the owning trunk before full demand, or throw its failure; binding a trial alone is not completion.
    */
   export interface IInput {
     /** Existing side-qualified production name. */

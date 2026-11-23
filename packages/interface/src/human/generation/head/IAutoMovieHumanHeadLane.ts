@@ -8,11 +8,6 @@ import type { IAutoMovieHumanHeadComposer } from "./IAutoMovieHumanHeadComposer"
  * Prepared head originals and their completed subtree, sharing skeleton, eye and attachment metadata.
  *
  * The interface package owns these declarations; AutoMovieHumanHeadLane in Human supplies their runtime values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Prepared head originals and their completed subtree, sharing skeleton, eye and attachment metadata. Member comments specify the individual units, frames and optional-value meanings.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The namespace groups only IOutput, ISkeleton, IPrepared declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
- * @evidence contracts/development/design.md#principled-representation IOutput, ISkeleton, IPrepared separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanHeadLane exchanges the named IOutput, ISkeleton, IPrepared contracts with its Human callers. Interface owns these type declarations without importing that implementation.
  */
 export namespace IAutoMovieHumanHeadLane {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieHumanHeadLane {
    * Data performs no work.
    * The prepared source and records are retained unchanged by both body and head consumers.
    * The caller owns the tree, map, original-source dependencies, raw lofts and records until releasing the definition.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The complete head subtree, its source context and shared records.
-   * @evidence contracts/development/design.md#principled-representation `root`: The head's subtree, metres. `source`: The same composed source object used to make root; studies remain explicitly outside that tree. `face`: The head's face the body meets.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHeadLane.create. Also types AutoMovieHumanBodyLaw.headLane.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `root`, `source`, `face`, `search`, `radius`, `vermilion`, `cap`, `skeleton`, `eyes`, `landmarks`, `stature`; callers supply the complete record.
    */
   export interface IOutput {
     /** The head's subtree, metres. */
@@ -85,11 +75,6 @@ export namespace IAutoMovieHumanHeadLane {
    * A data type has no algorithm.
    * Readers share one lane's record.
    * The lane output owns four fixed-size fields.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Joint references from the lane's generating neck and head axis.
-   * @evidence contracts/development/design.md#principled-representation `neckBase`: Actual generating mass axis at the lower overlap height, mm; not a named base-tape point. `occiput`: Head mass's axis at the midpoint of the ears' tragia, mm. `crown`: Head mass's crown pole, mm.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Also types AutoMovieHumanSkeletonLaw.{ occiput, crown }.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `neckBase`, `occiput`, `crown`, `neckRadius`; callers supply the complete record.
    */
   export interface ISkeleton {
     /** Actual generating mass axis at the lower overlap height, mm; not a named base-tape point. */
@@ -115,11 +100,6 @@ export namespace IAutoMovieHumanHeadLane {
    * Data performs no work.
    * Full creation reuses the identical canonical source and records without rebuilding them.
    * The caller owns the base, records and transitive source dependencies.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Canonical original material and records, before regional composition.
-   * @evidence contracts/development/design.md#principled-representation `source`: Actual canonical mass and neck, without any regional face source. `places`: The same selected laws used for the mass and the regional builders.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHeadLane.prepare. Read by AutoMovieHumanHeadLane.create. Also types AutoMovieHumanBodyPreparation.head, AutoMovieHumanBodySources.head.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `source`, `places`; callers supply the complete record.
    */
   export interface IPrepared extends Omit<
     IOutput,

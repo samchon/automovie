@@ -14,20 +14,10 @@ import type { IAutoMovieMotionHumanAuditMeasure } from "./IAutoMovieMotionHumanA
  * pose, and a declared contact between them is a statement that the skins
  * meet, never that one body may enter the other. How much a pressed skin
  * gives is the caller's limit to state.
- *
- * @evidence contracts/development/common.md#meaningful-documentation depth: How deep, metres, positive. worst: The deepest pair, named `<subject> <part> in <other> <into>`; zero and `none` when the bodies never pass into each other.
- * @evidence contracts/development/design.md#principled-representation depth: How deep, metres, positive. worst: The deepest pair, named `<subject> <part> in <other> <into>`; zero and `none` when the bodies never pass into each other.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure, one); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure, other); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure.read, from); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure.read, to); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure, return); audit/AutoMovieMotionHumanAuditPartner.ts (AutoMovieMotionHumanAuditPartner.measure.pairs, x).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, AutoMovieHumanoidBone, IAutoMovieMotionHumanAuditMeasure identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanAuditPartner {
   /**
    * One of the two people.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what it names.
-   * @evidence contracts/development/design.md#principled-representation A subject of the motion with the body its bones belong to.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both needed to place the person's colliders.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member.
    */
   export interface IPerson {
     /** The person's subject in the motion. */
@@ -39,11 +29,6 @@ export namespace IAutoMovieMotionHumanAuditPartner {
 
   /**
    * One segment of one person inside one segment of the other.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit or whose it is.
-   * @evidence contracts/development/design.md#principled-representation The entering part, the entered part, the depth and its instant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members, each needed to find the defect in a film.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Bones keep their rig type; no optional member.
    */
   export interface IPair {
     /** The person whose segment lies inside. */
@@ -67,11 +52,6 @@ export namespace IAutoMovieMotionHumanAuditPartner {
 
   /**
    * The reading of {@link measure}.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its order or its empty value.
-   * @evidence contracts/development/design.md#principled-representation The deepest pair as a measure, and every pair for diagnosis.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, as the self-penetration reading has.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member; no pair reads as a zero measure named `none`.
    */
   export interface IResult {
     /** The deepest pair, named `<subject> <part> in <other> <into>`; zero and `none` when the bodies never pass into each other. */

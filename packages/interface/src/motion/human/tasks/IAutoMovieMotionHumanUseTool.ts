@@ -42,20 +42,10 @@ import type { IAutoMovieMotionHumanToolWork } from "./IAutoMovieMotionHumanToolW
  *
  * Not yet: two-handed tools (shovel, broom, mop), kneeling or seated work,
  * fatigue (Cote et al. 2002, 2005).
- *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The working hand; the hand that holds `prop` when absent, `right` if both or neither do. count: How many cycles; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. offset: The working point from the grip socket, in the hand's frame, metres.
- * @evidence contracts/development/design.md#principled-representation hand: The working hand; the hand that holds `prop` when absent, `right` if both or neither do. count: How many cycles; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. offset: The working point from the grip socket, in the hand's frame, metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.useTool, params); tasks/useTool.ts (useTool.plan, context); tasks/useTool.ts (useTool.plan, return); executable/cases/toolCases.ts (toolCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanToolWork.Kind, IAutoMovieMotionTarget, AutoMovieHumanSide, IAutoMovieMotionManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanUseTool {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation The work, the held tool, the work point, the hand and the count.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place or tool length is typed.
    */
   export interface IParams {
     /** The work: hammering, sawing, stirring or driving a screw. */
@@ -79,11 +69,6 @@ export namespace IAutoMovieMotionHumanUseTool {
 
   /**
    * A tool's plan: the working point's offset in the hand's frame and the work point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation offset: The working point from the grip socket, in the hand's frame, metres. on: The work point, world metres.
-   * @evidence contracts/development/design.md#principled-representation offset: The working point from the grip socket, in the hand's frame, metres. on: The work point, world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: tasks/useTool.ts (useTool.plan, return); executable/cases/toolCases.ts (toolCases).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanToolWork.Kind identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPlan extends IAutoMovieMotionHumanActionPlan {
     /** The tool. */

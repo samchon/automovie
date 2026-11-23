@@ -34,10 +34,6 @@ import type { IAutoMovieMotionHumanTouchSite } from "../touch/IAutoMovieMotionHu
  * The family carries its fixed-parameter touches as presets, data on `AutoMovieMotionHumanTouch`: the touch kinds `TAP`, `PAT`, `STROKE`, `RUB`, `PRESS`, `SQUEEZE`, `HOLD` and `SCRATCH`, read by the rows of `HumanTouchRows`; the emblems `EMBLEM_SALUTE`, `EMBLEM_HAND_ON_HEART`, `EMBLEM_BLOWN_KISS_SEND`, `EMBLEM_COVER_MOUTH` and `EMBLEM_COVER_EARS`, read by the rows of `HumanEmblem`; the social touches `SOCIAL_SHOULDER_PAT`, `SOCIAL_COMFORT` and `SOCIAL_FIRM_PRESS`, read by the rows of `HumanSocial`; and `PARTNER_DANCE_HOLD`, read by the row of `HumanPartner`. A preset adds no method and is spread into the parameters of `touch`; each row and its preset share one value.
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per law of the Touch family, each taking the law's own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The Touch laws and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanTouch<Chain> {
   /**
@@ -125,11 +121,6 @@ export interface IAutoMovieMotionHumanTouch<Chain> {
 export namespace IAutoMovieMotionHumanTouch {
   /**
    * The parameters of the mutual `hug` and `shoulderClasp` rows: the nominal touch dwell.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the member's meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation One dwell in seconds, as the `touch` law's own `hold`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the two mutual rows read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is widened or cast.
    */
   export interface IHold {
     /** The nominal touch dwell, seconds; 1 when absent, a brief greeting. */
@@ -137,11 +128,6 @@ export namespace IAutoMovieMotionHumanTouch {
   }
   /**
    * The `touch` parameters a preset fixes: `kind`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchKindPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -150,11 +136,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * The `touch` parameters a preset fixes: `target`, `effector`, `kind`, `hand`, `elbow`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchTargetEffectorKindHandElbowPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -163,11 +144,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * The `touch` parameters a preset fixes: `target`, `effector`, `kind`, `hand`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchTargetEffectorKindHandPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -176,11 +152,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * The `touch` parameters a preset fixes: `target`, `effector`, `kind`, `hold`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchTargetEffectorKindHoldPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -189,11 +160,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * The `touch` parameters a preset fixes: `target`, `other`, `effector`, `kind`, `hand`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchTargetOtherEffectorKindHandPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -202,11 +168,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * The `touch` parameters a preset fixes: `effector`, `kind`, `count`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchEffectorKindCountPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -215,11 +176,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * The `touch` parameters a preset fixes: `effector`, `kind`, `hold`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchEffectorKindHoldPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -228,11 +184,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * The `touch` parameters a preset fixes: `effector`, `kind`, `manner`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchEffectorKindMannerPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -241,11 +192,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * The `touch` parameters a preset fixes: `effector`, `kind`, `hold`, `hand`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the `touch` members the presets of this key set fix.
-   * @evidence contracts/development/design.md#principled-representation A `Pick` of the law's own parameters; the alias adds no member.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type ITouchEffectorKindHoldHandPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,
@@ -291,21 +237,11 @@ export namespace IAutoMovieMotionHumanTouch {
    * How a touch's arms hold on their regions: `relaxed`, the elbow never
    * locked, or `straight`, the elbow locked and the arm's whole length
    * reached.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each value's meaning.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the two arm holds the touch's reach share reads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two holds the touch law distinguishes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A named alias instead of an inline union on the parameter.
    */
   export type Arms = "relaxed" | "straight";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The region as the shared target union, the kind and the effector as closed unions, timing as counts and seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target union and the manner.
    */
   export interface IParams {
     /**
@@ -390,11 +326,6 @@ export namespace IAutoMovieMotionHumanTouch {
 
   /**
    * One touch.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The phrase clock, the effector, the region as a frame of the posture and the kind with its repetitions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members `touch` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The region is a frame function, so a partner's region and the performer's own fit one member.
    */
   export interface ITouch {
     /** The body. */

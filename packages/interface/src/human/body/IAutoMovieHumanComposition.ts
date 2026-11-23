@@ -4,12 +4,6 @@ import type { IAutoMovieHumanSubcutaneousFat } from "./IAutoMovieHumanSubcutaneo
  * Fat and lean mass as two quantities.
  *
  * Body mass index mixes fat and lean, so a muscular person and a fat person of equal index must not be built alike; fat decides where volume sits and how soft the surface reads, lean mass decides muscle relief. Both are dual-energy X-ray absorptiometry quantities, as in the NHANES reference values (Kelly et al. 2009, PLoS ONE 4(9):e7038).
- *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Fat and lean mass as two quantities.
- * @evidence contracts/development/design.md#principled-representation `bodyFatPercentage`: Whole-body fat mass over body mass, percent. `appendicularLeanMassIndex`: Appendicular lean mass index: lean mass of the arms and legs over stature squared, kilograms per square metre. `subcutaneousFat`: Subcutaneous fat thickness over each region, the fat that decides how sharply muscle shows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanComposition is the canonical exchange used by IAutoMovieHumanCompositionSchema, IAutoMovieHumanIdentity.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `bodyFatPercentage`, `appendicularLeanMassIndex`, `subcutaneousFat`; callers supply the complete record.
  */
 export interface IAutoMovieHumanComposition {
   /** Whole-body fat mass over body mass, percent. Schema constraints: Minimum: 2; Maximum: 75; retained by Human's schema refinement. */

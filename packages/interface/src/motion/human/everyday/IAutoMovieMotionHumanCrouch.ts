@@ -41,20 +41,10 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  * Alexander 1984) and by the manner's tempo (provisional), the hold `hold`
  * seconds and the rise as long as the descent. Events: `descend` at the
  * start, `lowest`, `ascend`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation depth: How deep; `partial` when absent. heels: The heels; `flat` for a partial and `up` for a full squat when absent. hold: Seconds held at the lowest pose; 1 when absent. Inclusive minimum: 0. Unit: "s".
- * @evidence contracts/development/design.md#principled-representation depth: How deep; `partial` when absent. heels: The heels; `flat` for a partial and `up` for a full squat when absent. hold: Seconds held at the lowest pose; 1 when absent. Inclusive minimum: 0. Unit: "s".
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.crouch, params); everyday/crouch.ts (crouch.plan, context); executable/cases/crouchCases.ts (crouchCases); everyday/crouch.ts (crouch.KNEE); everyday/crouch.ts (crouch.DESCENT); everyday/crouch.ts (crouch.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCrouch {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and its default.
-   * @evidence contracts/development/design.md#principled-representation Two closed names and a hold; the knee flexion and the heel lift come from tables.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Four optional members, all read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No height or angle is typed by the author.
    */
   export interface IParams {
     /**
@@ -81,21 +71,11 @@ export namespace IAutoMovieMotionHumanCrouch {
 
   /**
    * How deep: a parallel squat or a deep squat.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation How deep: a parallel squat or a deep squat.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "partial", "full" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/crouch.ts (crouch.KNEE); everyday/crouch.ts (crouch.DESCENT); everyday/crouch.ts (crouch.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in crouch.KNEE.
    */
   export type Depth = "partial" | "full";
 
   /**
    * Whether the heels stay on the floor or rise about the toes' joints.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Whether the heels stay on the floor or rise about the toes' joints.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "flat", "up" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/crouch.ts (crouch.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in crouch.plan.
    */
   export type Heels = "flat" | "up";
 }

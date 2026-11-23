@@ -3,11 +3,6 @@ import type { IAutoMovieContactReceipt } from "./IAutoMovieContactReceipt";
 
 /**
  * Local accumulating appearance weight at an actual provider surface point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the sample clock/frame, transported contact centres, explicit impulse estimates and decay policy.
- * @evidence contracts/development/design.md#principled-representation World/provider metre coordinates share one current frame; weightPerImpulse is per N s and decaySeconds is positive seconds or Infinity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface sampleContactSurfaceResponse reads canonical contact events; the provider's center callback and appearance channels own surface transport and colour.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry-only contacts require declared impulse estimates; a localized appearance weight is not a medical model or an invented solver impulse.
  */
 export namespace IAutoMovieSampleContactSurfaceResponse {
   /**
@@ -16,11 +11,6 @@ export namespace IAutoMovieSampleContactSurfaceResponse {
    * centre is supplied in the same current provider frame as the sample, so skin
    * marks follow the struck region through later articulation. Engine does not
    * choose a whole-part tint or assert a medical bruise model.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the sample clock/frame, transported contact centres, explicit impulse estimates and decay policy.
-   * @evidence contracts/development/design.md#principled-representation World/provider metre coordinates share one current frame; weightPerImpulse is per N s and decaySeconds is positive seconds or Infinity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface sampleContactSurfaceResponse reads canonical contact events; the provider's center callback and appearance channels own surface transport and colour.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Geometry-only contacts require declared impulse estimates; a localized appearance weight is not a medical model or an invented solver impulse.
    */
   export type IInput = {
     /** Actual receipts for this provider body. */

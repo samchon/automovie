@@ -6,11 +6,6 @@ import type { IAutoMovieSurfaceSample } from "./IAutoMovieSurfaceSample";
  * binding and finalization are allowed only before finalization; afterward only
  * count, identity lookup and the resolved writers remain usable. A binding
  * failure leaves the registry terminal and releases its compile-only records.
- *
- * @evidence contracts/development/design.md#principled-representation Vertices welded by exact identity, each bound once to the evaluation that places it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One map from identity to index and one ordered list of writers, which runs in dependency order because a vertex is registered after everything it reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing is welded by distance; `existing` refuses an identity no patch made.
- * @evidence contracts/development/common.md#meaningful-documentation States the identity rule, the writer order and the finalization of sweep points.
  */
 export interface IAutoMovieSurfaceRegistry {
   /** Writers in registration order, each filling its vertices into a target buffer. */
@@ -85,11 +80,6 @@ export interface IAutoMovieSurfaceRegistry {
 export namespace IAutoMovieSurfaceRegistry {
   /**
    * One geometric sample and its resolved parameter-space footprint, before any cage control pin.
-   *
-   * @evidence contracts/development/design.md#principled-representation The same sweep writer and resolved cell used by the emitted shared sample.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A writer and four scalar reaches; callers bind them once during compilation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries geometric field data rather than a mutable target-buffer lookup.
-   * @evidence contracts/development/common.md#meaningful-documentation States units, stage and finalization-only delivery.
    */
   export interface ISweep {
     /** Exact registered sweep coordinate along the spine, before identity rounding; probes differentiate at this coordinate. */

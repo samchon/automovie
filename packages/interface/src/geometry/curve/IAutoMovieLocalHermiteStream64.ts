@@ -5,11 +5,6 @@ import type { IAutoMovieLocalHermiteStream64FaceRange } from "./IAutoMovieLocalH
 
 /**
  * Physical-station Hermite streaming input, published chunks and terminal counts.
- *
- * @evidence contracts/development/design.md#principled-representation Open normalized courses and physical millimetre stations define the field; chunks use model metres and global vertex indices.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Input, Chunk and Summary describe the local Hermite generator's accepted run, yielded suffixes and terminal return.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted intervals remain explicit and finite output does not certify continuity, embedding or source fidelity.
- * @evidence contracts/development/common.md#meaningful-documentation Contracts state admission owners, immutable input lifetime, transferred arrays and cancellation semantics.
  */
 export namespace IAutoMovieLocalHermiteStream64 {
   /**
@@ -18,11 +13,6 @@ export namespace IAutoMovieLocalHermiteStream64 {
    * AutoMovieLocalHermiteField64.prepare admits matching stations and open
    * continuous courses. Keep the input unchanged until completion or cancellation
    * because field and planning closures retain these arrays and policy values.
-   *
-   * @evidence contracts/development/design.md#principled-representation Increasing finite station millimetres pair with open normalized course curves; runtime preparation enforces cardinality, continuity and representable station widths.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Planning and tessellation consume the same immutable run, interpolation choice and explicit per-interval resource budget.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported intervals are omitted explicitly; no source triangle, coordinate weld or replacement field enters this contract.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines physical versus normalized coordinates, admission owners, policy defaults and borrowed lifetime.
    */
   export type Input = {
     /** Nonblank run name used to form generated interval/root-cell patch IDs. */
@@ -50,11 +40,6 @@ export namespace IAutoMovieLocalHermiteStream64 {
    * Each yielded record owns its arrays and is no longer appended by the generator.
    * A failed interval may publish an empty diagnostic chunk or retain an already
    * emitted finite prefix; construction lines are only added after normal emission.
-   *
-   * @evidence contracts/development/design.md#principled-representation Each index names an already published or current vertex; face ranges use chunk-relative triangle ordinals.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Geometry, source-free identity and diagnostic attribution travel together.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Independent sheets are separated by topologyDomain rather than coordinate welding.
-   * @evidence contracts/development/common.md#meaningful-documentation States indexing, metre units and consumer ownership.
    */
   export type Chunk = {
     /** Zero-based physical interval index j between stations[j] and stations[j+1]. */
@@ -91,11 +76,6 @@ export namespace IAutoMovieLocalHermiteStream64 {
   /**
    * Complete-run counts and explicit interval limitations, returned after generator
    * exhaustion. Cancellation after a finite prefix does not deliver this record.
-   *
-   * @evidence contracts/development/design.md#principled-representation Summary counts describe published output, not source fidelity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A final record separates completion from per-chunk data.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Omitted intervals keep explicit reasons.
-   * @evidence contracts/development/common.md#meaningful-documentation States count scope and final-return semantics.
    */
   export type Summary = {
     /** Admitted station interval count. */

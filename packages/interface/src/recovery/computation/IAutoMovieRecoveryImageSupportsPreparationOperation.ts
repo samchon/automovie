@@ -2,21 +2,11 @@ import type { IAutoMovieRecoveryImageObservation } from "../../index";
 
 /**
  * Admit measured image supports and prepare their common physical row chart. Retain every original row inside the shared interval; interpolate other views linearly only within their measured domains. This changes neither image bytes nor the meaning of a recorded row. Cameras and rigidity remain supplied inputs.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Minimum common admitted vertical support coordinate in millimetres. Maximum common admitted vertical support coordinate in millimetres.
- * @evidence contracts/development/design.md#principled-representation Minimum common admitted vertical support coordinate in millimetres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieRecoveryImageLoft, fitAutoMovieRecoveryImageSupportLoft, prepareRecoveryImageSupports share IAutoMovieRecoveryImageSupportsPreparationOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
  */
 
 export namespace IAutoMovieRecoveryImageSupportsPreparationOperation {
   /**
    * Admit measured image supports and prepare their common physical row chart. Retain every original row inside the shared interval; interpolate other views linearly only within their measured domains. This changes neither image bytes nor the meaning of a recorded row. Cameras and rigidity remain supplied inputs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Minimum common admitted vertical support coordinate in millimetres. Maximum common admitted vertical support coordinate in millimetres.
-   * @evidence contracts/development/design.md#principled-representation Minimum common admitted vertical support coordinate in millimetres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieRecoveryImageLoft, fitAutoMovieRecoveryImageSupportLoft, prepareRecoveryImageSupports share IAutoMovieRecoveryImageSupportsPreparationOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
    */
 
   export type Operation = (

@@ -70,20 +70,10 @@ import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHum
  * (`StrikingSkill.PUNCH_PEAK_SPEED`). The performer's skill is its
  * `proficiency` ({@link IAutoMovieMotionHumanPerformer}); `manner` does not
  * change these times.
- *
- * @evidence contracts/development/common.md#meaningful-documentation hand: Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. accuracy: Declared accuracy; `hit` when absent. feint: A feint: the share of the delivery shown before returning, in (0, 1).
- * @evidence contracts/development/design.md#principled-representation hand: Which hand: the stance's lead or rear; lead for a straight or a hook and rear for an uppercut when absent. accuracy: Declared accuracy; `hit` when absent. feint: A feint: the share of the delivery shown before returning, in (0, 1).
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.punch, params); striking/punch.ts (punch.hand, params); striking/punch.ts (punch.plan, context); striking/punchContact.ts (punchContact.solve, context); striking/punchGeometry.ts (punchGeometry.build, context); striking/defend.ts (defend.telegraph).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingQuality.Accuracy identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPunch {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, range and default.
-   * @evidence contracts/development/design.md#principled-representation Closed unions for the technique and the hand, the interface's motion target, the accuracy union and a feint share in (0, 1), checked when planning.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan, the defence's telegraph and the kickboxing rules read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the target and accuracy types.
    */
   export interface IParams {
     /** The technique. */
@@ -115,11 +105,6 @@ export namespace IAutoMovieMotionHumanPunch {
   /**
    * How much repeats of a punch differ in where they aim. It changes neither
    * the times nor the fist's speed, which follow the performer's skill.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the two members change and what they leave to the performer's skill.
-   * @evidence contracts/development/design.md#principled-representation Two shares in [0, 1]; the punch maps `aimSkill` onto the manner's `consistency` when it draws the spread.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two members the punch's aim spread reads; the manner's other members do not apply to a punch.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a named type instead of an inline pick of the manner, and its own name for the aim skill, since `accuracy` is the declared outcome.
    */
   export interface IManner {
     /** How far repeats spread the point aimed at within a person's region, in [0, 1]; 0 when absent: every repeat aims at the region's own point. */
@@ -132,11 +117,6 @@ export namespace IAutoMovieMotionHumanPunch {
   /**
    * The technique: the punches by their path and the close hand strikes by
    * the surface of the hand they land.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the three punches and the three close hand strikes.
-   * @evidence contracts/development/design.md#principled-representation A closed union; each literal selects the striking surface, the arrival direction, the hand's attitude and the elbow band.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the punch law and its strike rows.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Explicit literals; the punch law owns each technique's geometry.
    */
   export type Technique =
     | "straight"
@@ -149,11 +129,6 @@ export namespace IAutoMovieMotionHumanPunch {
 
   /**
    * The hand that punches: the stance's lead hand or its rear hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two hands by the stance.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the stance's two hands, so no other hand type-checks.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the punch law's `hand` member and by the strike family's punch presets.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Explicit literals; the stance owns which physical hand each names.
    */
   export type Hand = "lead" | "rear";
 }

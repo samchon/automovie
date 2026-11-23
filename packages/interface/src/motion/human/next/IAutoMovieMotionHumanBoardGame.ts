@@ -4,10 +4,6 @@ import type { IAutoMovieMotionHumanTabletop } from "../handling/IAutoMovieMotion
  * Tabletop handling composed from pickups and placements: a chess move with its capture, a deal round the seats, cards laid face up, a shuffle's two held packets joined, a chip stack pushed to the pot and a die released onto the table. Every prop keeps its own subject from start to rest, and each step hands it from its support to the hand and from the hand to its next support, so one owner holds it at every instant. A seat or square beyond the arm is refused with its distance. No timing is defined by the family: each prop takes the pickup and the placement laws' own (provisional: no study of tabletop speeds).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model and what its methods have in common.
- * @evidence contracts/development/design.md#principled-representation One method per composition of the BoardGame behaviour, each taking its own parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tabletop compositions and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its composition; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanBoardGame<Chain> {
   /**

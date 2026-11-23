@@ -14,10 +14,6 @@ import type { IAutoMovieMotionHumanTouch } from "./IAutoMovieMotionHumanTouch";
  * The presets are the constants of `AutoMovieMotionHumanBlade` that the film rows of `HumanBlade` and `HumanWeaponMelee` read: the footwork steps (`ADVANCE`, `RETREAT`, `TRAVERSE`, `VOID_STEP`), the parry holds (`BEAT`, `BIND`), the feint (`FEINT`), the club blows (`CLUB_SWING`, `CLUB_STRIKE`) and the reload (`RELOAD`).
  *
  * @template Chain The chain every method returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared blade timing, what the composition gives and the preset constants.
- * @evidence contracts/development/design.md#principled-representation One method per law of the family, each taking the law's own parameter type, and one named type per narrowing or preset.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The family's laws and presets and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each method takes the existing parameter type of its law or a named narrowing of it; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanBlade<Chain> {
   /**
@@ -93,11 +89,6 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
 export namespace IAutoMovieMotionHumanBlade {
   /**
    * The direction and step count a footwork preset fixes (`ADVANCE`, `RETREAT`, `TRAVERSE`, `VOID_STEP`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the members of `IAutoMovieMotionHumanStep.IParams` that the rows reading it fix, with the values each preset gives them.
-   * @evidence contracts/development/design.md#principled-representation The fixed members are those of `IAutoMovieMotionHumanStep.IParams` with its own units, frames and invariants; the values are the preset constants'.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStep.IParams` owns the members; this alias types the family's preset constants so no preset is written inline.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IFootworkPreset = Pick<
     IAutoMovieMotionHumanStep.IParams,
@@ -106,11 +97,6 @@ export namespace IAutoMovieMotionHumanBlade {
 
   /**
    * The hold, in seconds, a parry preset fixes (`BEAT`, `BIND`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the members of `IAutoMovieMotionHumanSwordParry.IParry` that the rows reading it fix, with the values each preset gives them.
-   * @evidence contracts/development/design.md#principled-representation The fixed members are those of `IAutoMovieMotionHumanSwordParry.IParry` with its own units, frames and invariants; the values are the preset constants'.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwordParry.IParry` owns the members; this alias types the family's preset constants so no preset is written inline.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IHoldPreset = Pick<
     IAutoMovieMotionHumanSwordParry.IParry,
@@ -119,21 +105,11 @@ export namespace IAutoMovieMotionHumanBlade {
 
   /**
    * The share of the cut a feint preset delivers before it is withdrawn (`FEINT`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the members of `IAutoMovieMotionHumanSword.ICut` that the rows reading it fix, with the values each preset gives them.
-   * @evidence contracts/development/design.md#principled-representation The fixed members are those of `IAutoMovieMotionHumanSword.ICut` with its own units, frames and invariants; the values are the preset constants'.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSword.ICut` owns the members; this alias types the family's preset constants so no preset is written inline.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IFeintPreset = Pick<IAutoMovieMotionHumanSword.ICut, "feint">;
 
   /**
    * The line and striking tip a club blow preset fixes (`CLUB_SWING`, `CLUB_STRIKE`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the members of `IAutoMovieMotionHumanSword.ICut` that the rows reading it fix, with the values each preset gives them.
-   * @evidence contracts/development/design.md#principled-representation The fixed members are those of `IAutoMovieMotionHumanSword.ICut` with its own units, frames and invariants; the values are the preset constants'.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSword.ICut` owns the members; this alias types the family's preset constants so no preset is written inline.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IClubPreset = Pick<
     IAutoMovieMotionHumanSword.ICut,
@@ -142,11 +118,6 @@ export namespace IAutoMovieMotionHumanBlade {
 
   /**
    * The touch the reload preset fixes: the support hand's palm pressed once (`RELOAD`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the members of `IAutoMovieMotionHumanTouch.IParams` that the rows reading it fix, with the values each preset gives them.
-   * @evidence contracts/development/design.md#principled-representation The fixed members are those of `IAutoMovieMotionHumanTouch.IParams` with its own units, frames and invariants; the values are the preset constants'.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTouch.IParams` owns the members; this alias types the family's preset constants so no preset is written inline.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IReloadPreset = Pick<
     IAutoMovieMotionHumanTouch.IParams,

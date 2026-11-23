@@ -30,20 +30,11 @@
  * a Laban analyst rather than measured, and no study located gives
  * population values. Each factor changes its quantities monotonically, and
  * a neutral Effort (all zero) leaves every law unchanged.
- *
- * @evidence contracts/development/common.md#meaningful-documentation curvature: Lateral path deviation, a share of the path length.
- * @evidence contracts/development/design.md#principled-representation curvature: Lateral path deviation, a share of the path length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanEffort.ts (HumanEffort.modifiers, return); everyday/HumanEffort.ts (HumanEffort.modifiers, effort); compose/AutoMovieMotionManner.ts (AutoMovieMotionManner.resolve); everyday/approach.ts (approach.to); everyday/gesture.ts (gesture.plan); everyday/HumanEffort.ts (HumanEffort.ACTIONS).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanEffort.modifiers.
  */
 export namespace IAutoMovieMotionHumanEffort {
   /** Laban's eight basic Effort action names. HumanEffort.ACTIONS supplies the
    * corresponding weight, time and space factors; AutoMovieMotionManner accepts
    * these keys alongside its mood presets. Flow is neutral for these actions.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the three factors combined by the eight action labels and the neutral flow.
-   * @evidence contracts/development/design.md#principled-representation A closed literal vocabulary is independent of the runtime factor table.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanEffort.ACTIONS is keyed by Action and manner preset lookup reads the same keys.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No keyof typeof implementation dependency defines the admitted vocabulary.
    */
   export type Action =
     | "punch"
@@ -56,11 +47,6 @@ export namespace IAutoMovieMotionHumanEffort {
     | "float";
   /**
    * The four factors, each in [-1, 1]; absent is 0.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation weight: -1 light to 1 strong. time: -1 sustained to 1 sudden. space: -1 indirect to 1 direct.
-   * @evidence contracts/development/design.md#principled-representation weight: -1 light to 1 strong. time: -1 sustained to 1 sudden. space: -1 indirect to 1 direct.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanEffort.ts (HumanEffort.modifiers, effort); everyday/HumanEffort.ts (HumanEffort.ACTIONS).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanEffort.modifiers.
    */
   export interface IEffort {
     /** -1 light to 1 strong. Strong reaches farther and swings the arms more: extent `1 + 0.1 weight`, arm swing `1 + 0.2 weight` (`HumanEffort.modifiers`, provisional). */
@@ -78,11 +64,6 @@ export namespace IAutoMovieMotionHumanEffort {
 
   /**
    * The modifiers of an Effort. What a law reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation curvature: Lateral path deviation, a share of the path length.
-   * @evidence contracts/development/design.md#principled-representation curvature: Lateral path deviation, a share of the path length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanEffort.ts (HumanEffort.modifiers, return); compose/AutoMovieMotionManner.ts (AutoMovieMotionManner.resolve); everyday/approach.ts (approach.to); everyday/gesture.ts (gesture.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanEffort.modifiers.
    */
   export interface IModifiers {
     /** Duration multiplier. */

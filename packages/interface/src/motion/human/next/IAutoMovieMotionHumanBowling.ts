@@ -5,10 +5,6 @@ import type { IAutoMovieMotionHumanPrecisionDeck } from "../sport/IAutoMovieMoti
  * Ten-pin bowling: the final slide of the approach and the credit of the pins a baked delivery knocks down. The delivery itself is the throw with the bowling style (`AutoMovieMotionHumanBowling.DELIVERY`, a preset of `IAutoMovieMotionHumanThrowCatch.IStylePreset`), so the behaviour adds no throw method. `slide` appends an action and returns the chain; `readPinfall` is a reader, so it returns its named result and not the chain.
  *
  * @template Chain The chain the slide returns; the chain implements this interface.
- * @evidence contracts/development/common.md#meaningful-documentation States the behaviour's two methods, what each returns and where the delivery's data is.
- * @evidence contracts/development/design.md#principled-representation One method per law or reader of bowling, each taking its own named parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The bowling slide and the pinfall reader, and nothing the throw or the precision deck own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader takes the deck's own records; nothing is redefined.
  */
 export interface IAutoMovieMotionHumanBowling<Chain> {
   /**
@@ -41,11 +37,6 @@ export interface IAutoMovieMotionHumanBowling<Chain> {
 export namespace IAutoMovieMotionHumanBowling {
   /**
    * The parameters of `readPinfall`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states what the reader takes from the deck.
-   * @evidence contracts/development/design.md#principled-representation The placed pins and the baked deck, both the precision deck's own records.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the pinfall credit reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The pins and the result are the deck's records, not copies.
    */
   export interface IReadPinfall {
     /** The placed pins, each upright on its base with +Y along its axis. */
@@ -57,11 +48,6 @@ export namespace IAutoMovieMotionHumanBowling {
 
   /**
    * The ids of the pins down at the cache end, in rack order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the ids name and their order.
-   * @evidence contracts/development/design.md#principled-representation An array of the pins' own ids, the identity every other record of a pin uses.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The result of `readPinfall` only.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The array carries ids only; no score or frame is inferred.
    */
   export type IPinfall = string[];
 }

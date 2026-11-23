@@ -2,22 +2,12 @@ import type { IAutoMovieConstructionPortField } from "./IAutoMovieConstructionPo
 
 /**
  * The existing radial port chart and angle/length clock correspondence.
- *
- * @evidence contracts/development/design.md#principled-representation Extracts the actual operator's mixed mm/radian chart and admitted monotone clock rules without changing their geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface PortRealize, SplitBand and native shared-root construction consume the same chart and correspondence.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No nearest fitting, new inverse, frame replacement or anatomical interpretation is added.
- * @evidence contracts/development/common.md#meaningful-documentation The chart input uses public metres/radians while emitted stations and surface points use kernel mm.
  */
 export namespace IAutoMovieConstructionPortCurve {
   /**
    * A port curve as one continuous owner of the shared boundary: its chart point at every clock with two derivatives, the band's inward
    * chart direction with two derivatives, the clock of a chart point's radial foot and the inside test, besides the columns' own
    * addresses and directions (`chart`).
-   *
-   * @evidence contracts/development/design.md#principled-representation The port curve is the polar curve `centre + r(c) (a cos c, sense b sin c)` in the host chart with `r` the periodic cubic through the loop's shares, so the host's trim, the band's start edge and the crossing between them read one curve.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The readers every consumer of the boundary needs.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second interpolation of the boundary exists: the columns are this curve's samples.
-   * @evidence contracts/development/common.md#meaningful-documentation States each reader's chart and units.
    */
   export interface ICurve {
     /** The columns' chart points, mm and radians: `AutoMovieConstructionPortAddress` at each clock with its share. */

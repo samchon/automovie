@@ -40,11 +40,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  *   because whether that leaf is shut is movable state this issue does not own.
  *   Proving a closed door would hide more, and proving it belongs to the
  *   openings issue rather than to a guess made here.
- *
- * @evidence contracts/development/design.md#principled-representation A canonical built environment and camera position in world metres supply cell/portal reachability for one building.
- * @evidence contracts/development/design.md#minimal-and-owned-surface autoMovieRoomVisibility reads the environment's own spaces, boundaries, openings and connector graph rather than a parallel visibility scene.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Unknown or ambiguous camera containment keeps all spaces; openable portals remain conservative regardless of movable door state.
- * @evidence contracts/development/common.md#meaningful-documentation Documents leaf-space containment, exterior connectivity and cases that cannot prove hiding.
  */
 export type IAutoMovieRoomVisibilityQuery = {
   /** Building whose spaces are being culled. */

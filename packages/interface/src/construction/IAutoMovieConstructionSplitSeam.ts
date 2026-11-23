@@ -3,20 +3,10 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * Shared world-space seam geometry between split bands.
- *
- * @evidence contracts/development/design.md#principled-representation Fork phases and physical station locate original endpoints; a built seam uses a dimensionless arc-length share.
- * @evidence contracts/development/design.md#minimal-and-owned-surface SplitSeam creates straight or cubic seams that both adjoining SplitBand inputs read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A refusal string reports unusable endpoints, plane or knots; a constructed spline is not a proof of nonintersection or regularity everywhere.
- * @evidence contracts/development/common.md#meaningful-documentation Distinguishes input chart coordinates, world geometry and the normalized reader variable.
  */
 export namespace IAutoMovieConstructionSplitSeam {
   /**
    * One reading of the seam.
-   *
-   * @evidence contracts/development/design.md#principled-representation A point and its unit tangent fix a column's start and the seam's direction there.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface SplitBand reads the point for its loop column and the tangent for the fork's ribbon turn.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer normalizes the spline derivative or uses its chord-direction fallback; this pair does not establish regularity of the whole seam.
-   * @evidence contracts/development/common.md#meaningful-documentation States units and orientation.
    */
   export interface IPoint {
     /** The seam's point, mm. */
@@ -33,11 +23,6 @@ export namespace IAutoMovieConstructionSplitSeam {
    * The built seam. Treat its endpoint, normal and shared tangent vectors as
    * immutable while adjoining bands consume it; these arrays are not frozen,
    * and the reader closes over endpoint data exposed by the record.
-   *
-   * @evidence contracts/development/design.md#principled-representation Its ends, plane normal and arclength reading are all a band needs to place its chord columns and rule them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ends, one normal, one length and one reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Curved length uses eight-point quadrature per span and reading uses 52 bisections; these are numerical arc-length estimates, and a zero tangent falls back to the chord direction.
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's unit and orientation.
    */
   export interface ISeam {
     /** The first end (host phase `a`) and the second (phase `b`), mm. */
@@ -65,11 +50,6 @@ export namespace IAutoMovieConstructionSplitSeam {
    * The builder reads endpoint jets synchronously, copies their positions and
    * retains its solved spline data; it does not mutate the input. A geometric
    * admission failure returns a reason string; source callback throws propagate.
-   *
-   * @evidence contracts/development/design.md#principled-representation Physical station and ordered radian forks locate a world-millimetre chord; interior knot pairs use its orthonormal seam plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface SplitSeam.create consumes each field to construct the clamped planar cubic and its arc-length reader.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Knot finiteness, along-chord bounds and distinct neighbors are checked; an empty knot list is allowed and no global spline topology certificate is produced.
-   * @evidence contracts/development/common.md#meaningful-documentation States coordinate interpretation, input lifetime, empty knots and refusal/throw behavior.
    */
   export type ICreateInput = {
     /** Borrowed host surface supplying both fork positions and endpoint tangent planes in world millimetres. */
@@ -97,11 +77,6 @@ export namespace IAutoMovieConstructionSplitSeam {
   /**
    * The straight chord between the seam's forks read as a seam, in the same plane a curved one stands in, for a split into more than two
    * whose seam declares no profile.
-   *
-   * @evidence contracts/development/design.md#principled-representation A station and ordered fork phases supply the chord; normal fixes its plane without interior spline knots.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface SplitSeam.straight returns the same ISeam reader used by curved fan seams.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Coincident ends or an unusable projected normal return a string; callbacks and numeric source validity retain their original failure behavior.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines borrowed input geometry and the straight-seam refusal cases.
    */
   export type IStraightInput = {
     /** Borrowed host surface supplying the straight seam's fork positions in world millimetres. */

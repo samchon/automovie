@@ -2,11 +2,6 @@
  * A feature's compiled domain course and radial displacement field, shared by sweep evaluation and construction observations.
  *
  * The closures retain the compiled course coefficients and the feature width. Treat the source feature as immutable while they live. compileAutoMovieSweep admits the authored feature before compilation; these query signatures do not enforce finite arguments. Returned domain records are newly allocated and caller-owned.
- *
- * @evidence contracts/development/design.md#principled-representation Separates a dimensionless domain course from a metre displacement; angle arguments use radians while returned v uses turns.
- * @evidence contracts/development/design.md#minimal-and-owned-surface compileAutoMovieSweep reads displacement and exposes point through its feature query; prepareAutoMovieSurfaceConstruction reads that same course.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The two queries share the fitted course instead of substituting a sampled display polyline for the displacement curve.
- * @evidence contracts/development/common.md#meaningful-documentation Gives parameter units, callback lifetime, source retention, returned-record ownership and the feature admission owner.
  */
 export interface IAutoMovieCompileSweepFeatureOutput {
   /**

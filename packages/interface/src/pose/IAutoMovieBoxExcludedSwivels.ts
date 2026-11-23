@@ -6,11 +6,6 @@ import type { IAutoMovieRestFrame } from "./IAutoMovieRestFrame";
 
 /**
  * The swivels a joint's three-angle box provably refuses: for a joint whose bone-local rotation is a fixed rotation turned about a fixed axis by the swivel (the chain root of `hingedArmSwivel.pose`), a test of whether every swivel from `low` to `high` degrees reads past the joint's box in both of the charts `decomposeJointRotationOnBasis` chooses between, so that `jointRomOvershoot` scores each of them above zero.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Explains the fixed-axis rotation premise, clinical frame and conservative refusal behavior.
- * @evidence contracts/development/design.md#principled-representation The rotation callback takes swivel degrees and returns bone-local quaternions; canonical axes, rest frame and ROM describe the decomposition domain.
- * @evidence contracts/development/design.md#minimal-and-owned-surface boxExcludedSwivels supplies certified exclusion arcs to hingedArmArticulation while the caller retains rig-specific scoring.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A null constraint or missing swing-twist frame certifies no exclusion; arbitrary callback rotations outside the fixed-axis premise cannot be safely pruned.
  */
 export namespace IAutoMovieBoxExcludedSwivels {
   /**
@@ -50,11 +45,6 @@ export namespace IAutoMovieBoxExcludedSwivels {
    * (whose refusal is an intersection, not a union, of two arcs) and a middle
    * interval met twice by the half turn the middle angle covers refuse
    * nothing, so the test only ever says less than the box would.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Explains the fixed-axis rotation premise, clinical frame and conservative refusal behavior.
-   * @evidence contracts/development/design.md#principled-representation The rotation callback takes swivel degrees and returns bone-local quaternions; canonical axes, rest frame and ROM describe the decomposition domain.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface boxExcludedSwivels supplies certified exclusion arcs to hingedArmArticulation while the caller retains rig-specific scoring.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A null constraint or missing swing-twist frame certifies no exclusion; arbitrary callback rotations outside the fixed-axis premise cannot be safely pruned.
    */
   export type IProps = {
     /** The joint's clinical basis, admitted and normalized (`normalizeJointAxes`). */

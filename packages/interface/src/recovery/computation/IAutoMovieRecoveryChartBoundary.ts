@@ -3,21 +3,11 @@ import type { AutoMovieVector3Tuple, IAutoMoviePolylineFit } from "../../index";
 
 /**
  * Own one fitted curve and accepted pointwise phase chart per private boundary path. Private incidence words identify equality, including reversed order; equal positions on different words never weld. Public boundary IDs are new sequential identities. Each returned orientation uses the same canonical coefficients and registration. Partial path overlaps remain distinct and require a separate segmentation authority.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Positive finite requested positional discrepancy in millimetres; it is not a continuous-surface certificate. Positive integer ceiling on fitted cubic spans; exhausting it refuses the affected fit.
- * @evidence contracts/development/design.md#principled-representation Positive finite requested positional discrepancy in millimetres; it is not a continuous-surface certificate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationPublish, RecoveryChartBoundary, RecoveryChartBoundaryNetworkBindings share IAutoMovieRecoveryChartBoundary's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Positive finite requested positional discrepancy in millimetres; it is not a continuous-surface certificate.
  */
 
 export namespace IAutoMovieRecoveryChartBoundary {
   /**
    * Own one fitted curve and accepted pointwise phase chart per private boundary path. Private incidence words identify equality, including reversed order; equal positions on different words never weld. Public boundary IDs are new sequential identities. Each returned orientation uses the same canonical coefficients and registration. Partial path overlaps remain distinct and require a separate segmentation authority.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Positive finite requested positional discrepancy in millimetres; it is not a continuous-surface certificate. Positive integer ceiling on fitted cubic spans; exhausting it refuses the affected fit.
-   * @evidence contracts/development/design.md#principled-representation Positive finite requested positional discrepancy in millimetres; it is not a continuous-surface certificate.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationPublish, RecoveryChartBoundary, RecoveryChartBoundaryNetworkBindings share IAutoMovieRecoveryChartBoundary's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Positive finite requested positional discrepancy in millimetres; it is not a continuous-surface certificate.
    */
 
   export type Operation = (policy: {

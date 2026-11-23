@@ -12,11 +12,6 @@ import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
 
 /**
  * Inputs and bake outcome for shot attachments and persistent mounts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Inputs and bake outcome for shot attachments and persistent mounts. Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A cycle or invalid mount reports a violation while other children may still bake; only the caller's stage gate decides whether the partial result is usable.
- * @evidence contracts/development/design.md#principled-representation Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
- * @evidence contracts/development/design.md#minimal-and-owned-surface performShot supplies compiled poses and registry lookups; coupleObjects returns clips/events/violations for that stage's acceptance decision without retaining the callbacks.
  */
 export namespace IAutoMovieCoupleObjects {
   /**
@@ -27,11 +22,6 @@ export namespace IAutoMovieCoupleObjects {
    * Couplings chain (#1140): a parent that is itself a coupled child this shot, such as a rider mounted on an animal and carrying a pole, is baked first, and its riders compose onto its baked frame per sample through any depth. That frame is read from all of the parent's baked clips through {@link bakedTransformFromClipsAt}, the channel authority playback uses, so before the parent's first coupling starts its riders follow its staged placement and across a handoff they follow whichever coupling is in effect. A coupling cycle has no world composition, so its members are reported in one violation and never baked.
    *
    * Returns the baked clips in bake order, parents before riders, with a child's attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the handoff events; and the violations.
-   *
-   * @evidence contracts/development/design.md#principled-representation Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface performShot supplies compiled poses and registry lookups; coupleObjects returns clips/events/violations for that stage's acceptance decision without retaining the callbacks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A cycle or invalid mount reports a violation while other children may still bake; only the caller's stage gate decides whether the partial result is usable.
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs and bake outcome for shot attachments and persistent mounts. Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
    */
   export type IProps = {
     /** Validated `attachTo` jobs of this shot. */
@@ -79,11 +69,6 @@ export namespace IAutoMovieCoupleObjects {
 
   /**
    * Caller-owned coupling artifacts and diagnostics. Parent clips precede their riders; each child's attachment clips are ordered by action start with input order breaking ties. Failed mounts and cycle members are omitted while their violations remain.
-   *
-   * @evidence contracts/development/design.md#principled-representation Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface performShot supplies compiled poses and registry lookups; coupleObjects returns clips/events/violations for that stage's acceptance decision without retaining the callbacks.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A cycle or invalid mount reports a violation while other children may still bake; only the caller's stage gate decides whether the partial result is usable.
-   * @evidence contracts/development/common.md#meaningful-documentation Inputs and bake outcome for shot attachments and persistent mounts. Coupling uses scene-world transforms and shot-local seconds. Inputs require already admitted attach jobs and staged nodes; coupleObjects separately checks mount rigs/bones and coupling cycles.
    */
   export type IResult = {
     /**

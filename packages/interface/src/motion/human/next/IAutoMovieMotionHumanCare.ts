@@ -11,10 +11,6 @@ import type { IAutoMovieMotionHumanHoldInfant } from "../tasks/IAutoMovieMotionH
  * The first-aid methods are helpers over a chain: each takes the chain first and returns it with the actions appended, as the runtime namespace takes it. `holdInfant` is an action law planned by the chain, so it takes the law's parameters and an anchor.
  *
  * @template Chain The chain every method takes and returns.
- * @evidence contracts/development/common.md#meaningful-documentation States the family's shared model, its rhythm and its source.
- * @evidence contracts/development/design.md#principled-representation One method per helper or law of the Care behaviour, each taking one named parameter type.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The compositions the care scenes use and nothing the other families own.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No posture is authored here; the kneel and touch laws fit and refuse each contact.
  */
 export interface IAutoMovieMotionHumanCare<Chain> {
   /**
@@ -77,21 +73,11 @@ export interface IAutoMovieMotionHumanCare<Chain> {
 export namespace IAutoMovieMotionHumanCare {
   /**
    * Where a pulse is felt: the carotid at the neck or the radial at the wrist.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each site and the body part it is felt at.
-   * @evidence contracts/development/design.md#principled-representation The closed set of the two sites the care scenes feel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the sites `pulse` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literals are the two clinical sites.
    */
   export type IPulseSite = "carotid" | "radial";
 
   /**
    * The parameters of `kneelBeside`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation The floor point the right knee comes down on.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the member `kneelBeside` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The point is the shared target type.
    */
   export interface IKneelBeside {
     /** The floor point beside the partner the right knee comes down on. */
@@ -100,11 +86,6 @@ export namespace IAutoMovieMotionHumanCare {
 
   /**
    * The parameters of `compressions`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation The partner whose sternum is pressed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the member `compressions` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The partner is a subject name, never a pose.
    */
   export interface ICompressions {
     /** The partner's subject. */
@@ -113,11 +94,6 @@ export namespace IAutoMovieMotionHumanCare {
 
   /**
    * The parameters of `pulse`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The partner, the site and the feeling hand.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members `pulse` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The site is the closed clinical set.
    */
   export interface IPulse {
     /** The partner's subject. */
@@ -132,11 +108,6 @@ export namespace IAutoMovieMotionHumanCare {
 
   /**
    * The parameters of `pressWound`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and units.
-   * @evidence contracts/development/design.md#principled-representation The partner, the wounded region and the hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members `pressWound` reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The region is the body's own region name.
    */
   export interface IPressWound {
     /** The partner's subject. */

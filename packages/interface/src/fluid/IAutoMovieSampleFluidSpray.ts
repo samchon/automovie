@@ -3,11 +3,6 @@ import type { IAutoMovieFluidState } from "./IAutoMovieFluidState";
 
 /**
  * Inputs to deterministic decorative spray sampling from a fluid snapshot.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes current-state nozzle heights, second-based particle ages, deterministic thinning, caps, ownership and the actual refusal conditions.
- * @evidence contracts/development/design.md#principled-representation Canonical metre-domain and second-based state data feed ballistic positions; cameraDistance is a metre LOD input, with runtime finiteness admission and zero default.
- * @evidence contracts/development/design.md#minimal-and-owned-surface sampleFluidSpray and lowerWaterFeature share domain/state identities; the optional distance is the sampler's only additional input.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No hidden history or renderer handle is represented; state compatibility and representable live-window arithmetic are explicit caller premises.
  */
 export namespace IAutoMovieSampleFluidSpray {
   /**
@@ -24,11 +19,6 @@ export namespace IAutoMovieSampleFluidSpray {
    * Throws for a mismatched state domain id or non-finite camera distance. Negative distance uses the nearest LOD, and omitted distance defaults to zero. Caller-run domain admission remains required; finite authored fields do not prove finite/safe spawn indices, finite stride or ballistic arithmetic, or a finite nonzero jitter norm. Those derived values are not checked here.
    *
    * Sampling mutates neither input and retains no random stream. The returned particle list and position objects are fresh; an empty emitter list produces no particles.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes current-state nozzle heights, second-based particle ages, deterministic thinning, caps, ownership and the actual refusal conditions.
-   * @evidence contracts/development/design.md#principled-representation Canonical metre-domain and second-based state data feed ballistic positions; cameraDistance is a metre LOD input, with runtime finiteness admission and zero default.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface sampleFluidSpray and lowerWaterFeature share domain/state identities; the optional distance is the sampler's only additional input.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hidden history or renderer handle is represented; state compatibility and representable live-window arithmetic are explicit caller premises.
    */
   export type IProps = {
     /** Admitted grid, emitter definitions and gravity; the sampler borrows these without advancing a fluid solve. */

@@ -2,21 +2,11 @@ import type { AutoMovieVector3Tuple } from "../../index";
 
 /**
  * Cut a private oriented annular triangle chart along an observed edge path. Two coherent boundary cycles become bottom/top and the duplicated seam becomes left/right. Original positions and faces stay private observations for fitting. The caller establishes genus zero and exactly two boundary cycles beforehand. A seam touching another boundary vertex is refused rather than changing topology.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Borrowed physical positions in the registered millimetre frame; indices in triangles address this array. Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
- * @evidence contracts/development/design.md#principled-representation Borrowed physical positions in the registered millimetre frame; indices in triangles address this array.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAnnularChart, RecoveryAtlasObservationChart share IAutoMovieRecoveryAnnularChartPreparation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
  */
 
 export namespace IAutoMovieRecoveryAnnularChartPreparation {
   /**
    * Cut a private oriented annular triangle chart along an observed edge path. Two coherent boundary cycles become bottom/top and the duplicated seam becomes left/right. Original positions and faces stay private observations for fitting. The caller establishes genus zero and exactly two boundary cycles beforehand. A seam touching another boundary vertex is refused rather than changing topology.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Borrowed physical positions in the registered millimetre frame; indices in triangles address this array. Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
-   * @evidence contracts/development/design.md#principled-representation Borrowed physical positions in the registered millimetre frame; indices in triangles address this array.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAnnularChart, RecoveryAtlasObservationChart share IAutoMovieRecoveryAnnularChartPreparation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
    */
 
   export type Operation = (input: {
