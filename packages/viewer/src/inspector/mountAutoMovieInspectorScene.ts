@@ -19,7 +19,7 @@ import {
   parseAutoMovieInspectionView,
   resolveAutoMovieInspectionView,
 } from "@automovie/render";
-import type * as THREE from "three";
+import * as THREE from "three";
 
 import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog.js";
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
@@ -51,7 +51,7 @@ interface ILive {
 /**
  * Mount a subject on the inspector's canvas: build an instance, apply the request's inspection, and draw it every animation frame at the playhead's second through the request's first view.
  *
- * The instance is created at once and arrives later. When it arrives the mount checks its clock and raster, seeks it to the request's first second and waits until it is ready there, lists its paths and the marks of its first second, applies the inspection of the newest request (or, when the scene refuses it, of the request that asks for nothing, reported through `refused`), sets the playhead's duration and second, reports `ready` and schedules the first frame. Each frame advances a playing playhead by the wall time since the last frame, follows the host's size, and redraws when the playhead's snapshot or the request changed: seek the instance and, once its promise resolves, update the inspection with the second's marks, resolve the view and render. While a seek is pending no other is started, and the next frame seeks the newest second, so a slow subject drops intermediate seconds instead of queueing them. A drawing error pauses playback and is reported once until a frame draws again.
+ * The instance is created at once and arrives later. When it arrives the mount checks its clock and raster, seeks it to the request's first second and waits until it is ready there, lists its paths and the marks of its first second, applies the inspection of the newest request (or, when the scene refuses it, of the request that asks for nothing, reported through `refused`), sets the playhead's duration and second, reports `ready` and schedules the first frame. Each frame advances a playing playhead by the wall time since the last frame, follows the host's size, and redraws when the playhead's snapshot or the request changed: seek the instance and, once its promise resolves, update the inspection with the second's marks, resolve the view, run the subject's `beforeDraw` on a WebGL renderer, as the draw host does, so its surface feeds show the second, and render. While a seek is pending no other is started, and the next frame seeks the newest second, so a slow subject drops intermediate seconds instead of queueing them. A drawing error pauses playback and is reported once until a frame draws again.
  *
  * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives or is ready disposes the instance then and creates no renderer, and a seek that resolves after dispose draws nothing.
  *
@@ -336,6 +336,9 @@ export function mountAutoMovieInspectorScene(props: {
               ? diagnostics
               : undefined,
           render: (): void => {
+            // A subject's own render-target work, such as surface feeds, comes first, as the draw host runs it; only a WebGL renderer has render targets to draw into.
+            if (now.renderer instanceof THREE.WebGLRenderer)
+              instance.beforeDraw?.(now.renderer, snapshot.seconds);
             // The beauty shade shows the delivered picture: the subject's optics, through the stage delivery draws with.
             if (now.applied.inspection.shade !== "beauty") {
               now.renderer.render(instance.scene, camera);

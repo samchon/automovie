@@ -6,7 +6,7 @@ States the arrival sequence, the fallback on refusal, what a frame does and when
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The scene is changed only through render's inspection, which restores before re-applying; views are resolved by render's view resolver on the inspection's drawn bounds, and the delivery camera takes the raster's aspect as the capture does. Wall time comes from the frame callback's own timestamp, so a frame's advance is the time actually elapsed. The subject's seek promise is the draw contract's readiness signal, so a picture is drawn only once the subject reports it can be.
+The scene is changed only through render's inspection, which restores before re-applying; views are resolved by render's view resolver on the inspection's drawn bounds, and the delivery camera takes the raster's aspect as the capture does. Wall time comes from the frame callback's own timestamp, so a frame's advance is the time actually elapsed. The subject's seek promise is the draw contract's readiness signal, so a picture is drawn only once the subject reports it can be. The subject's `beforeDraw` runs before each picture on a WebGL renderer, as the draw host runs it, so render-target work such as surface feeds reaches the Viewer too; a renderer double without render targets skips it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
