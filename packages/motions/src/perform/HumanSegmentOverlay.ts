@@ -390,6 +390,19 @@ export namespace HumanSegmentOverlay {
         overlay.plan.enteredChannels;
       const release: number =
         entered === undefined ? weight : released(person, overlay, seconds);
+      // A hand that holds a prop on past the overlay's end hands its arm and
+      // fingers on whole at the end to what carries the hold next (the
+      // carrier's carry of it, `HumanSegmentCarry`), captured where the
+      // overlay leaves them: they come in with the overlay but are not
+      // released to the carrier's own arm over the fade, which would carry
+      // the held prop away and back.
+      const coming: number = minimumJerk.share(
+        Math.min(
+          1,
+          Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
+        ),
+      );
+      const holding: Partial<Record<"left" | "right", boolean>> = {};
       for (const bone of owned) {
         const pair: [
           IAutoMovieJointPose | undefined,
@@ -399,14 +412,23 @@ export namespace HumanSegmentOverlay {
         const to: readonly [number, number, number] = angles(pair[1]);
         const channel: ReturnType<typeof AutoMovieMotionHumanChannel.of> =
           AutoMovieMotionHumanChannel.of(bone);
+        const side: "left" | "right" | undefined = bone.startsWith("left")
+          ? "left"
+          : bone.startsWith("right")
+            ? "right"
+            : undefined;
         const share: number =
-          ((bone.startsWith("left") && contacts.leftArm !== undefined) ||
-            (bone.startsWith("right") && contacts.rightArm !== undefined)) &&
+          ((side === "left" && contacts.leftArm !== undefined) ||
+            (side === "right" && contacts.rightArm !== undefined)) &&
           channel.endsWith("Hand")
             ? 1
-            : entered?.includes(channel)
-              ? release
-              : weight;
+            : side !== undefined &&
+                (channel.endsWith("Arm") || channel.endsWith("Hand")) &&
+                (holding[side] ??= holdsOn(person, overlay, side))
+              ? coming
+              : entered?.includes(channel)
+                ? release
+                : weight;
         if (blender === undefined && owned.size > 1 && share > 0 && share < 1)
           blender = blendHumanJoint.prepare(body);
         const [flexion, abduction, twist]: readonly [number, number, number] =
@@ -514,6 +536,27 @@ function handsOn(
       o !== overlay &&
       Math.abs(o.entryTime - overlay.end) <= HANDOFF &&
       shares(o, overlay),
+  );
+}
+
+/**
+ * Whether an overlay's hand on a side holds a prop on past the overlay's end:
+ * the overlay drives that hand, and a hold of it began by the end and lasts
+ * beyond it, so the prop stays in the hand after the overlay is gone.
+ */
+function holdsOn(
+  person: IAutoMovieMotionHumanSegment.IPerson,
+  overlay: IAutoMovieMotionHumanSegment.IOverlay,
+  side: "left" | "right",
+): boolean {
+  return (
+    HumanSegment.drives(overlay.plan, side) &&
+    person.holds.some(
+      (held: IAutoMovieMotionHumanSegment.IHeld): boolean =>
+        held.side === side &&
+        held.from <= overlay.end + HANDOFF &&
+        held.until > overlay.end + HANDOFF,
+    )
   );
 }
 
