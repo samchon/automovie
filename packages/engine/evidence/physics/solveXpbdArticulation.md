@@ -1,21 +1,3 @@
-# src/physics/solveXpbdArticulation.ts#solveXpbdArticulation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the source, the forest rule, the subspace, the motor term, the supports and the cap.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace over the world's joints; impulses in newton seconds and newton metre seconds, velocities in metres and radians per second.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One entry, called by solveXpbdJoints.motors, returning the joints it leaves to the pair solve.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Gains, caps and inertias are the motors' and the bodies'; nothing is tuned here.
-
 # src/physics/solveXpbdArticulation.ts#solveXpbdArticulation.motors
 
 ## @evidence contracts/development/common.md#meaningful-documentation

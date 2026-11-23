@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionProfilePhase.ts#AutoMovieConstructionProfilePhase
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names physical station mm, normalized piece coordinates, immutable source lifetime and the distinction between phase-only and physical total2.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The create operation returns a piece/station/coordinate reader whose IAutoMovieConstructionProfilePhase.IReading distinguishes actual phase derivatives from unavailable derivatives.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime phase evaluation stays here; interface owns the reading shared by prepared profiles and Human source consumers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The reader borrows the canonical source contract and preserves explicit unavailability without inventing station derivatives or another reading shape.
-
 # src/geometry/construction/AutoMovieConstructionProfilePhase.ts#AutoMovieConstructionProfilePhase.create
 
 ## @evidence contracts/development/common.md#meaningful-documentation

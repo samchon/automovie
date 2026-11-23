@@ -1,19 +1,3 @@
-# src/physics/solveXpbdContacts.ts#solveXpbdContacts
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the three phases, the depth beyond the allowed error, the compliance, both frictions and the restitution threshold.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace over the world's colliders with each contact's witnesses in body frames and its multipliers in newton seconds squared.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface `AutoMovieXpbdWorld.step` drives the three phases; the contacts it returns are what the simulation's receipts read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Coefficients are the colliders' and the world's; nothing is tuned here.
-
 # src/physics/solveXpbdContacts.ts#solveXpbdContacts.IContact
 
 ## @evidence contracts/development/common.md#meaningful-documentation

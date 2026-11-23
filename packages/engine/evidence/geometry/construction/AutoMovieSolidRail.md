@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidRail.ts#AutoMovieSolidRail
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the square offset, the normal section, the modes and the kept sides.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The two rails at one intersection point, where each surface is trimmed back on its kept side: companion namespace of 12 members (`IAutoMovieSolidRail.IRail`, `Keep`, `IAutoMovieSolidRail.Mode`, `STEPS`, `ROUNDING`, `SWITCHES`, ...); units and frames named in its text: world, newton, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidRail` in packages/engine/src/geometry/construction/AutoMovieSolidRail.ts; its surface is the 12 members listed and the text shows 13 other files naming it, mostly packages/engine (8), test (5), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidRail.ts#AutoMovieSolidRail.at
 
 ## @evidence contracts/development/implementation.md#principled-implementation

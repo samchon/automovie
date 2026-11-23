@@ -24,14 +24,6 @@ const BORROWABLE: WeakMap<IClamp, IAutoMovieJointConstraint | null | undefined> 
 
 /**
  * Clamp one joint using its skeleton override, otherwise the humanoid default table. Unconstrained joints return by identity. This targeted seam lets derived contact/retarget corrections leave authored neighboring joints alone.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Find the first matching skeleton bone and prefer a nonnull override over the humanoid table, returning the original unconstrained joint or a clamped record; swing-twist uses the skeleton's current axis precedence and canonical rest frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure A one-joint seam permits selective correction; operation factories share the private constraint gate. borrow recognizes only those actual factory callables for query-owned scratch inputs, keeping arbitrary callbacks on their original fresh-input path.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing bones retain named-default fallback; this does not establish skeleton membership, identity or physical convergence.
- * @evidence contracts/development/common.md#meaningful-documentation States precedence, borrowed unconstrained result and targeted use. Companion prose defines genuine callable borrowing, output aliasing and fixed one-joint provenance. ownsConstraint recognizes the borrowed constraint of a genuine one-joint clamp and declines multi-joint or opaque callbacks.
- * @evidence contracts/development/implementation.md#efficient-algorithms First-bone lookup is O(B); only swing-twist needs an O(B) current-axis merge. Full-pose callers share their operation's index/axes before unchanged projection. Factory provenance registration and borrow lookup are constant-time; actual query scratch reuse belongs to the projector, with no measured speedup.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work All consumers share getConstraint precedence; standalone lookup remains live. Exact factory-callable provenance proves only that its closure stores source metadata, never input/output joints: projection still executes per call. Wrappers/proxies/bound/foreign callables have no registration and receive no borrowing capability.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak callable map borrows the same constraint already bound by each one-joint clamp without retaining inputs or results. Closure metadata releases with the caller-owned function. Unconstrained results can alias scratch inputs. No handle or task is retained.
  */
 export function clampJointToSkeleton(
   joint: IAutoMovieJointPose,
@@ -43,11 +35,6 @@ export function clampJointToSkeleton(
 /**
  * Operation-scoped preparation for {@link clampJointToSkeleton}: either
  * resolve a bone from its skeleton or reuse an operation's existing lookup.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the standalone, resolved-bone and multi-joint preparation entries, their shared constraint/frame semantics and the fixed-input operation scope described on each member.
- * @evidence contracts/development/design.md#principled-representation A one-bone clamp closure holds the effective constraint and any needed clinical frame for one unchanged solve; indexed operations retain the actual first-bone lookup without storing projected answers.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Standalone and multi-joint callers share projection owners. borrow lends a genuine callback without candidate retention, and ownsConstraint supplies only a fixed domain identity to projector proofs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No user flag, new ROM representation, global skeleton cache or cached joint answer is introduced. Only actual factory functions are weakly registered, unknown/wrapped callables remain unsupported by borrow, and missing bones retain named-default constraints.
  */
 export namespace clampJointToSkeleton {
   /**

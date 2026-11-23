@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionSeeds.ts#AutoMovieConstructionSeeds
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States both seed kinds, the lines and their order, the walk, its steps, the solve and the failure message.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A join's seed record as the trace's seed (`IAutoMovieSolidIntersection.IInput.seed`), in millimetres: companion namespace of 7 members (`STEPS`, `GRID`, `BACKTRACKINGS`, `DECREASE`, `create`, `meet`, ...); units and frames named in its text: newton, local, metres, metre, world. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConstructionSeeds` in packages/engine/src/geometry/construction/AutoMovieConstructionSeeds.ts; its surface is the 7 members listed and the text shows 4 other files naming it, mostly packages/engine (2), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieConstructionSeeds.ts#AutoMovieConstructionSeeds.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

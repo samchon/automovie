@@ -12,14 +12,6 @@
  * @param count The rig's rooted bones.
  * @param baseline The articulation a row no query writes is selected at, four numbers a row (x, y, z, w); the identity for every row when absent.
  * @returns The tracker.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the query's three phases, last-write precedence, baseline restoration, the exact comparison and what an incomplete query leaves.
- * @evidence contracts/development/implementation.md#principled-implementation A pose's records are sparse and the last record of a bone wins, so the selection is the last write per row and the baseline elsewhere; a frame depends on its row's and its ancestors' selections only, so one version of the whole selection tells a composed pose from a stale one.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three numeric rows (the staged writes, the stamp of each row's last write and the selection) and one version. Admission stays with `preparePoseJointResolution`, composition with `composePoseFrames`.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller flag, pose identity or tolerance decides a change: every component is compared exactly at completion, and a write outside the rig's rows is ignored as an unrooted name's was.
- * @evidence contracts/development/implementation.md#efficient-algorithms A write is four stores; completion is one pass over the rows with four exact comparisons each, no sorting, no per-frame revision and no allocation.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work An unchanged selection keeps its version, so its composed frames are read again without composing.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Owns nine numbers a row and the borrowed baseline until its operation releases it; no record, pose or query history is kept.
  */
 export function preparePoseResolutionChanges(
   count: number,
@@ -72,11 +64,6 @@ export function preparePoseResolutionChanges(
 
 /**
  * The tracker's type.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its phase, its unit and what it leaves unchanged.
- * @evidence contracts/development/design.md#principled-representation The selection is the numeric row `composePoseFrames` reads; the three phases keep an authored scan apart from the completed selection.
- * @evidence contracts/development/design.md#minimal-and-owned-surface begin/write serve the joint admission, complete/selected/version the prepared FK state; nothing else reads it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No raw pose, target or validity flag enters it, and an incomplete scan cannot replace the completed selection.
  */
 export namespace preparePoseResolutionChanges {
   /** The selection of one live operation on an immutable rig. */

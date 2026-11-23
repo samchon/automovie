@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidIntersectionWalk.ts#AutoMovieSolidIntersectionWalk
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents original step controls, local arrays and failure values at create.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Original arc-mode loop preparation, separate from parameterized trace publication: companion namespace of 2 members (`IWalk`, `create`); units and frames named in its text: second, local, world. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidIntersectionWalk` in packages/engine/src/geometry/construction/AutoMovieSolidIntersectionWalk.ts; its surface is the 2 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidIntersectionWalk.ts#AutoMovieSolidIntersectionWalk.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

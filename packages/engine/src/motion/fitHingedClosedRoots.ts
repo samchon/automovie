@@ -47,14 +47,6 @@ import { prepareChainPlant } from "./prepareChainPlant";
  *
  * @param props The prepared chain, the target's prepared swivel geometry, the continuation seed if any, the requested effector rotation in the model frame, the effector joint, the caller's candidate reading and its exact displayed error.
  * @returns The chosen candidate, or null where the general search must answer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the closed roots, the admission that spares the measurement, the order's certainty condition and every case left to the general search.
- * @evidence contracts/development/implementation.md#principled-implementation The roots are the closed form of `immobileAxisSwivels` on the same sampled rotation; the admission is `prepareJointRotationProjection`'s own (its clamp leaves a reading inside the box as it is and it admits a difference of at most 1e-9 degrees); the order is `hingedSwivelAhead`'s exact comparison, taken only where bounds decide it. An explicit end-joint chart returns null so the general solver uses its chart-aware roots.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Stops, roots, one loop over the candidates, one certainty test.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No candidate is assumed met: one outside the margin is measured exactly, and a choice the unmeasured errors could change is not made here.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three sampled rotations a branch for at most two entries, then one reading and one decomposition a root; at most two branches of at most two roots.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the branch stops and swivel poses to the prepared geometry, the sinusoid algebra to `swivelArcs`, the clinical zero to `swivelJointReadings.rig`, the reading to `decomposeJointRotationOnBasis` and the score to the caller.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
  */
 export function fitHingedClosedRoots(
   props: fitHingedClosedRoots.IProps,
@@ -261,11 +253,6 @@ export function fitHingedClosedRoots(
 /**
  * The request, the caller's candidate reading and the answer of a closed-root
  * fit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
- * @evidence contracts/development/design.md#principled-representation The request holds the general search's own operands (prepared chain, prepared swivel geometry, effector joint, requested rotation) and its two readings as callbacks, so a candidate is scored by the one owner of the score; the answer is a candidate of that search, with its seed.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One request, one reading, one answer; the caller owns every record it passes and the answer aliases the swivel pose's and the score's records.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tolerance, range or basis is restated here: they are read from the joint and the engine's range tolerance.
  */
 export namespace fitHingedClosedRoots {
   /** What a closed-root answer reads, each input in the frame the general search holds it in. */

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidMeshTessellate.ts#AutoMovieSolidMeshTessellate
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each population's source/chart premise and the difference from native face arrangement.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Published seam strips, pole fans and explicit external-ring bridges: companion namespace of 3 members (`seam`, `close`, `bridge`); units and frames named in its text: local, world. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidMeshTessellate` in packages/engine/src/geometry/construction/AutoMovieSolidMeshTessellate.ts; its surface is the 3 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieSolidMeshTessellate.ts#AutoMovieSolidMeshTessellate.seam
 
 ## @evidence contracts/development/implementation.md#principled-implementation

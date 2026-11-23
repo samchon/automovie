@@ -1,21 +1,3 @@
-# src/physics/AutoMoviePhysicalJointChart.ts#AutoMoviePhysicalJointChart
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the composition, the decomposition, its source and the aligned case.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace over an axis order and a unit quaternion; angles in radians.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Read by projectPhysicalJointRotation and the articulated solve's axis columns.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The order is the profile's own; nothing is assumed.
-
 # src/physics/AutoMoviePhysicalJointChart.ts#AutoMoviePhysicalJointChart.angles
 
 ## @evidence contracts/development/common.md#meaningful-documentation

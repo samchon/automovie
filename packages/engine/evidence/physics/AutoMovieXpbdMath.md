@@ -1,21 +1,3 @@
-# src/physics/AutoMovieXpbdMath.ts#AutoMovieXpbdMath
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the paper each formula comes from, what is moved and the fixed-world case.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A namespace of correction formulas over the world's bodies, with forces as Lagrange multipliers in newton seconds squared.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Shared by the world's joints, limits, contacts and motors.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No state of its own; every quantity is the bodies'.
-
 # src/physics/AutoMovieXpbdMath.ts#AutoMovieXpbdMath.weight
 
 ## @evidence contracts/development/common.md#meaningful-documentation

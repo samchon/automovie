@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionProfileBody.ts#AutoMovieConstructionProfileBody
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States original versus retained domains, mm grids, shared ownership, complete physical2 requirements and the caller's append-only transaction responsibility.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The append operation publishes source charts and shared mesh boundaries, returning canonical IAutoMovieConstructionProfileBody.IEnd records for actual collapsed ends.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Runtime body assembly stays here; interface owns the end records consumed by profile skin closure.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Canonical prepared-profile, body and end contracts preserve analytic source ownership separately from finite tessellation; ordinary open ends are not reclassified as collapsed tips.
-
 # src/geometry/construction/AutoMovieConstructionProfileBody.ts#AutoMovieConstructionProfileBody.append
 
 ## @evidence contracts/development/common.md#meaningful-documentation

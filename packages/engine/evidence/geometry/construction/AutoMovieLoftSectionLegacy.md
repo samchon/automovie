@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftSectionLegacy.ts#AutoMovieLoftSectionLegacy
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates local phase-only capability, physical source2 and the explicit spline-only mixed-boundary premise.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The actual legacy spline generating field used by a mixed native boundary: companion namespace of 5 members (`IPrepared`, `prepare`, `phase`, `jet`, `extend`); units and frames named in its text: second, local, radian, radians. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftSectionLegacy` in packages/engine/src/geometry/construction/AutoMovieLoftSectionLegacy.ts; its surface is the 5 members listed and the text shows 4 other files naming it, mostly packages/engine (3), test (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftSectionLegacy.ts#AutoMovieLoftSectionLegacy.prepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation

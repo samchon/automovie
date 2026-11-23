@@ -24,14 +24,6 @@ import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArtic
  *
  * @param input The rows' coupling matrix, the motors' velocity change at them and the rows.
  * @returns The rows' impulses, or null when a round's system is singular.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States every row condition, the sliding branch and the round bound.
- * @evidence contracts/development/implementation.md#principled-implementation Mirtich 1996, chapter 6, as an active-set complementarity solve.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Per round: assemble the held and sliding rows into one system, solve, update the states.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A singular system returns null for the caller's fallback.
- * @evidence contracts/development/implementation.md#efficient-algorithms One dense solve over the rows per round, at most twice the rows' count of rounds.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each round's system differs from the last.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh array; retains nothing.
  */
 export function solveXpbdSupportComplementarity(
   input: solveXpbdSupportComplementarity.IInput,
@@ -98,11 +90,6 @@ export function solveXpbdSupportComplementarity(
 
 /**
  * The input of solveXpbdSupportComplementarity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the input's members.
- * @evidence contracts/development/design.md#principled-representation The rows' coupling matrix and velocity changes, and the rows.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Built by solveXpbdArticulationContacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
  */
 export namespace solveXpbdSupportComplementarity {
   /** One tree's rows. */

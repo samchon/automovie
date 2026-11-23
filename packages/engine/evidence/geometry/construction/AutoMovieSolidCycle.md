@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidCycle.ts#AutoMovieSolidCycle
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the four kinds and which side each keeps.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A trim cycle of a face in its own chart: the closed boundary of the face's kept region, a sequence of shared vertices with their charts on this face and, per segment, the neighbour face across it with the segment's ends in the neighbour's chart: companion namespace of 15 exported members (`IAutoMovieSolidCycle.ICycle`, `IAutoMovieSolidCycle.IExactSegment`, `IAutoMovieSolidCycle.IExact`, `piece`, `divide`, `held`, ...); units and frames named in its text: second, world, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidCycle` in packages/engine/src/geometry/construction/AutoMovieSolidCycle.ts; its surface is the 15 members listed and the text shows 17 other files naming it, mostly packages/engine (14), test (3), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidCycle.ts#AutoMovieSolidCycle.piece
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionSplitEdge.ts#AutoMovieConstructionSplitEdge
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the carried band, the weight's flatness and what each edge keeps.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One generating owner for the child's seam: the band's end edge evaluates the child on its rail curve, the curve the child's rail cycle keeps, so the two faces share one edge between columns (construction.md, Connections: Ownership), as a port's exact band does on its rail.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The carried band with its two correspondence readers, and one builder.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Refuses a correspondence that does not advance; nothing is refitted and the cross ribbons are the strip's own.
-
 # src/geometry/construction/AutoMovieConstructionSplitEdge.ts#AutoMovieConstructionSplitEdge.carried
 
 ## @evidence contracts/development/implementation.md#principled-implementation

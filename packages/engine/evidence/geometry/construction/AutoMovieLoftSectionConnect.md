@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftSectionConnect.ts#AutoMovieLoftSectionConnect
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States changed-span ownership, whole generating families, reflected directions and the composed-interior capture limit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Complete generating laws for the one span changed by continuation: companion namespace of 5 members (`ISpan`, `capture`, `finish`, `active`, `bounds`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftSectionConnect` in packages/engine/src/geometry/construction/AutoMovieLoftSectionConnect.ts; its surface is the 5 members listed and the text shows 10 other files naming it, mostly packages/engine (6), test (3), packages/human (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieLoftSectionConnect.ts#AutoMovieLoftSectionConnect.capture
 
 ## @evidence contracts/development/implementation.md#principled-implementation

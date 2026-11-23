@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConicArcField.ts#AutoMovieConicArcField
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Source coordinates are s,p; angular derivatives remain the supplied primal ray reading.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Shared rational-quadratic algebra and fixed-clock source readings: companion namespace of 14 members (`IGeometry`, `IReading`, `IFailure`, `weight`, `curvature`, `norm`, ...); units and frames named in its text: rational, local, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConicArcField` in packages/engine/src/geometry/construction/AutoMovieConicArcField.ts; its surface is the 14 members listed and the text shows 12 other files naming it, mostly packages/engine (7), test (5), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieConicArcField.ts#AutoMovieConicArcField.weight
 
 ## @evidence contracts/development/implementation.md#principled-implementation

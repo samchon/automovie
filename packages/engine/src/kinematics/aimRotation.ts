@@ -31,13 +31,6 @@ import { rotationBetween } from "../math/rotationBetween";
  * @param to Direction to turn onto, any finite length.
  * @returns A unit quaternion.
  * @throws Error naming the vector and component when a component is not finite.
- * @evidence contracts/development/implementation.md#principled-implementation The shortest arc between two unit vectors is the rotation about their cross product by `atan2(|a x b|, a . b)`, which `rotationBetween` computes without a near-parallel deadzone; normalizing first removes the magnitudes the angle does not depend on, and the documented zero-vector identity is `rotationBetween`'s degenerate branch rather than a separate rule.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and prepare entries own named finite refusal and delegate every numerical turn to rotationBetween's same core; the prepared reader adds only lazy successful source admission/normalization for the two-bone workload.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite inputs retain named refusal, every target still validates, and no small angle is snapped. Preparation stores nothing until original source-then-target validation succeeds and requires an unchanged borrowed source; direct calls keep live reads.
- * @evidence contracts/development/common.md#meaningful-documentation States direction frames, unit rotation, collinear behavior and refusal; prepare's child documentation defines unchanged-source lifetime, lazy original-order admission, per-target checks and caller release.
- * @evidence contracts/development/implementation.md#efficient-algorithms Direct aiming checks six components and normalizes both directions. prepare checks/normalizes its fixed source once after successful first target admission; each later target retains three checks and the actual constant shortest-arc solve, with no measured speedup claim.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only prepare's successful normalized source is shared under its explicit unchanged-source premise; target failure before that leaves the reader unprepared and retryable. No target, angle or rotation is cached.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct temporaries end with the call. A prepared closure borrows its source and owns at most one normalized-source reader/vector until caller release, with no global collection, target history or handles.
  */
 export function aimRotation(
   from: IAutoMovieVector3,
@@ -50,11 +43,6 @@ export function aimRotation(
 
 /**
  * Lazy finite-admitted aiming from one unchanged source direction.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States lazy first-use source admission, unchanged-source lifetime and named refusal for every target.
- * @evidence contracts/development/design.md#principled-representation One fixed direction and changing target directions are the actual two-bone candidate workload; the same rotationBetween owner computes every actual shortest arc.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The prepared reader serves twoBoneChainArticulation's source-fixed upper and local fore directions, with no target cache or second aim method.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The direct entry retains all live reads; explicit preparation shares only successful source admission and normalization under the caller's unchanged-source premise.
  */
 export namespace aimRotation {
   /**

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConicHermiteField.ts#AutoMovieConicHermiteField
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Clock is cubic log odds; endpoints are explicit positions, not null-clock guesses.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Shared projective G2 geometry at an already selected numeric clock: companion namespace of 9 members (`IProjective`, `IDirection`, `logSum`, `sumAtMaximum`, `projective`, `direction`, ...); units and frames named in its text: rational, world, local, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConicHermiteField` in packages/engine/src/geometry/construction/AutoMovieConicHermiteField.ts; its surface is the 9 members listed and the text shows 4 other files naming it, mostly packages/engine (2), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieConicHermiteField.ts#AutoMovieConicHermiteField.logSum
 
 ## @evidence contracts/development/implementation.md#principled-implementation

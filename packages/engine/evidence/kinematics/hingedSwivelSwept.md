@@ -1,21 +1,3 @@
-# src/kinematics/hingedSwivelSwept.ts#hingedSwivelSwept
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the sweep scores, refines and keeps, and what shares its certificate; `sweep` and `first` state their rules.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A branch's scorer, its caches and its refusal; the candidate order and the certificate are the caller's.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One record and two functions, all read by `hingedArmArticulation`; split from it unchanged to keep that file within its size.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The caches are the articulation's, shared with its pruned and bounded passes; no score, tolerance or step is this module's.
-
 # src/kinematics/hingedSwivelSwept.ts#hingedSwivelSwept.IBranch
 
 ## @evidence contracts/development/common.md#meaningful-documentation

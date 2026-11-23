@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftSectionNative.ts#AutoMovieLoftSectionNative
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes fixed local-quarter geometry, global polar phase and physical station derivatives, and the chain's G1 joins with their sided second phase derivatives and where that policy is admitted.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The native value, radial, point and jet readers share the same polar chart, in millimetres and radians. The split chain carries its actual contacts, tangent angles and piece shoulders.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The curve, phase, radial, value, chain, point and jet factories expose distinct outputs of the same station geometry to the loft and its consumers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A rejected chain or ray stays rejected, with its original phase and orientation preserved. Value and Point0 require no unavailable derivatives.
-
 # src/geometry/construction/AutoMovieLoftSectionNative.ts#AutoMovieLoftSectionNative.curve
 
 ## @evidence contracts/development/implementation.md#principled-implementation

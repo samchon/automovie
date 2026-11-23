@@ -1,21 +1,3 @@
-# src/kinematics/swingTwistRegion.ts#swingTwistRegion
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the region is, how its table is built from the constraint and what it is widened and raised by.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The region is a radius per great circle, the representation a radial projection needs.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One function, the table of a constraint; the reading and the projection are `swingTwistRange`'s.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No joint is named: the axes, the rest frame and the intervals are the caller's.
-
 # src/kinematics/swingTwistRegion.ts#swingTwistRegion.table
 
 ## @evidence contracts/development/common.md#meaningful-documentation

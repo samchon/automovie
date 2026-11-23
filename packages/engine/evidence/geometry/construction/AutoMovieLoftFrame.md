@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftFrame.ts#AutoMovieLoftFrame
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the frame's axes, the normal convention and both interpolation rules.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Section planes of a chain: where each harmonic section lies in the world: companion namespace of 17 members (`IFrame`, `horizontal`, `place`, `local`, `interpolate`, `rate`, ...); units and frames named in its text: frames, world, frame, local, radians. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftFrame` in packages/engine/src/geometry/construction/AutoMovieLoftFrame.ts; its surface is the 17 members listed and the text shows 77 other files naming it, mostly packages/human (40), packages/engine (22), test (15), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftFrame.ts#AutoMovieLoftFrame.horizontal
 
 ## @evidence contracts/development/implementation.md#principled-implementation

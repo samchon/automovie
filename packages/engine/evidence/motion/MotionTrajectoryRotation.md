@@ -1,21 +1,3 @@
-# src/motion/MotionTrajectoryRotation.ts#MotionTrajectoryRotation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each operation states its frame, units and formula.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Body-frame rotation vectors implement the exponential map and its inverse differential without an integration callback or a shape history.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Fixed and adaptive construction, dense physical admission and numeric playback share exponential, algebra and continuous-polynomial operations.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No second tableau, rotation convention or motion model is introduced.
-
 # src/motion/MotionTrajectoryRotation.ts#MotionTrajectoryRotation.curve
 
 ## @evidence contracts/development/common.md#meaningful-documentation

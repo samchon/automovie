@@ -33,14 +33,6 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  *
  * @param input The world, owner, patch pattern, segment bodies, collider identities, receipts and clock.
  * @returns One support per limb with samples: the limb's declared world point, its sample points and samples, and whether it is loaded.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both sources, the cone and its cosine, the pressing and loaded tests, the friction each sample carries, the receipt window and the merge of equal points.
- * @evidence contracts/development/implementation.md#principled-implementation The manifold points and impulses are those the world's position solve applied (Mueller et al. 2020, sec. 3.5), so a pressing point is a real floor constraint and a positive impulse a real load; the compliant law's receipts carry the impulse each side received. 0.5 is the cone's cosine and 0.7 the binding's floor friction.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Per limb, one pass over the step's manifolds and one over the receipts, with a local patch-owner test and point merge; contact detection is the world's and receipts are recordPhysicalContact's.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only the body's own patch colliders against the floor count; no pattern, scene or shape kind has its own rule. Non-null assertions read receipt samples the loop bounds and the segment body the binding created for the limb's bone.
- * @evidence contracts/development/implementation.md#efficient-algorithms Per limb, linear in the step's manifold points and in the receipts with their samples, plus the material lookups.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call reads one completed step's manifolds, which the next step replaces; nothing is reusable across calls.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the returned supports and their copied points are the caller's.
  */
 export function collectPhysicalSupports(
   input: collectPhysicalSupports.IInput,
@@ -175,11 +167,6 @@ export function collectPhysicalSupports(
 /**
  * The input {@link collectPhysicalSupports} reads: one body's limbs against
  * the world's last step and the run's compliant receipts at one local time.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each input member with its owner, frame, unit and timebase.
- * @evidence contracts/development/design.md#principled-representation The world and segment bodies as the binding built them, scene identities as strings, receipts as the interface records, local seconds and the solver substep in seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Built by trackPhysicalWorld and advancePhysicalBalance; every member is read, the substep widening the receipt window by one step.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member, any, unknown or cast; the profile, pattern and receipts are the interface's own types.
  */
 export namespace collectPhysicalSupports {
   /** What one support reading needs. */

@@ -11,14 +11,6 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * round trip. Values are copied once. Nonfinite entries, nonpositive diagonal values or
  * Cholesky pivots return null, leaving the caller's established admission path.
  * Solves and products use the tensor's frame and units, with fresh outputs.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines authoritative upper-triangle SPD storage, direct division on exactly independent axes, diagonal equilibration otherwise, null admission failure, common-frame solve/apply units and independent vector ownership. IPrepared exposes only those two operations and no writable numerical storage.
- * @evidence contracts/development/implementation.md#principled-implementation Uses exact scalar division on a coordinate whose two actual couplings are zero, and diagonally equilibrated Cholesky for coupled coordinates, solving the same upper-stored SPD system as LAPACK DPOSV. Independent-axis division avoids a square-root round trip that can spoil representable A*w+h cancellation at zero budget. Positive finite pivots admit coupled factors; no regularization repairs a failed pivot.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Captures six tensor entries, factors their dimensionless correlation matrix once and exposes inverse application for airborne rates/seed columns plus direct application for momentum reconstruction.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No determinant cutoff, diagonal adjustment, inverse approximation, fixture branch or physical tolerance changes admission. The unused lower triangle is a documented storage convention, not a symmetry test.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size preparation and each right-hand-side solve take constant arithmetic and storage. The seed consumer solves directly for its three rotated basis columns without materializing an inverse, and ordinary rates allocate no matrix or eigenvectors.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each closure captures the actual six copied tensor coordinates and their factor, shared by physical rates and tangent columns. Changing the source rows cannot alter the owned preparation, and output mutation cannot affect later solves.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One factor owns fixed scalar tensor and Cholesky data without a query population, source rows or callbacks. The shape-history epoch releases it with its issued instants; returned vectors are independent.
  */
 export function physicalInertiaFactor(
   tensor: readonly (readonly number[])[],
@@ -96,11 +88,6 @@ export function physicalInertiaFactor(
 
 /**
  * Operations over one copied symmetric physical tensor in a fixed frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation IPrepared states solve/product units, authoritative triangle and fresh vector ownership.
- * @evidence contracts/development/design.md#principled-representation Represents the standard SPD linear operator and its factor rather than principal axes; tensor-frame vectors retain their caller's units under multiplication or division by inertia.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Airborne rates and the takeoff integrand consume solve; dense momentum reconstruction consumes apply. The factor and copied coordinates remain private to the factory.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller-supplied trusted flag or mutable matrix storage is exposed. Numeric SPD admission remains with the factory and no body or action vocabulary enters the representation.
  */
 export namespace physicalInertiaFactor {
   /**

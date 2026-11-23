@@ -92,14 +92,6 @@ class NativeReader implements IReader {
  * scope their genuine static-input dependency rows; this raw adapter itself
  * never certifies a mutable transform from an identity or resampled tuple.
  * Release the reader when the synchronous evaluation ends.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines raw ordered admission/fresh outputs, pure basis work and immutable-rig operation identity. isNative below states actual factory provenance, unchanged own-data callable checks, no foreign metadata observation and its limited non-admission meaning.
- * @evidence contracts/development/implementation.md#principled-implementation Normalize the current actual axes with undefined-only defaults, then always perform original current clinical/frame admission before sharing exact-angle factors on that admitted basis. Raw bone calls delegate directly to resolvePoseBone, preserving rest rotation, Hamilton products, rest translation, vector arithmetic and final bone-name read order.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure resolvePose owns traversal, mutable OnBasis owns current clinical/frame reads and resolvePoseBone owns raw composition. Immutable rigs own sparse rows under this key. The reader's private fields hold its original callables, so isNative recognizes original factory readers by a brand check without invoking or trusting their methods.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No raw joint name, clinical/frame tuple or transform is sampled to create a cache key. Null coordinates keep unused sign/neutral bypass; used coordinates retain finite/frame failure order. Every overwritten authored record remains visited, raw bones retain original reads and no caller flag, target or time certifies equivalence.
- * @evidence contracts/development/implementation.md#efficient-algorithms Raw joints keep original admission and share pure factors; raw bones retain their full composition. Immutable-rig clients independently retain sparse dependency reuse. isNative costs one brand check and, only for a factory reader, two own-descriptor reads/temporary descriptors; no rig/input scan or numerical callback runs. A reader costs one object with three private slots, sharing one joint method of the class instead of a closure of its own, and its basis map only at its first joint read, no weak-registry entry (a limb fit makes several: 87 ms self of a 3.6 s standing-resolve profile was these constructions with their closures). Speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Basis identity selects pure arithmetic, never mutable frame validity. All current reads remain live. isNative proves only actual factory identity and unchanged own-data joint/bone callables; proxy/wrapped/foreign keys miss before metadata access. It certifies no source admission, pose or solve, and consumers still own their separate source proof.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Weak basis keys own bounded factor workspaces until operation release. The reader's two private fields retain its own original callables and go with it. No raw input, result history or handle is stored; immutable rigs separately own weak-keyed dynamic rows.
  */
 export function preparePoseResolution(): IReader {
   return new NativeReader();
@@ -107,11 +99,6 @@ export function preparePoseResolution(): IReader {
 
 /**
  * Actual factory-reader provenance without claiming any numerical admission.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines unchanged own-data callable checks, unknown/proxy/wrapped refusal without metadata access and no source/pose validity claim.
- * @evidence contracts/development/design.md#principled-representation The factory's reader class keeps its original two callables in private fields; descriptors expose current data-method identity without executing accessor getters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Canonical source preparation uses isNative before issuing reusable source metadata; no caller registration, brand setter or numerical readiness flag is public.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Objects without the factory's private brand return false before descriptor reads. Factory readers must still own the exact original data methods; wrappers/accessors/bound replacements never inherit provenance, while freezing unchanged methods remains valid.
  */
 export namespace preparePoseResolution {
   /**

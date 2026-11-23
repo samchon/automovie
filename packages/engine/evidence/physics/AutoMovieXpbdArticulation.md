@@ -1,21 +1,3 @@
-# src/physics/AutoMovieXpbdArticulation.ts#AutoMovieXpbdArticulation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the source, both sweeps, what the factor holds and what a propagation returns.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Spatial vectors as six numbers (angular, linear), spatial matrices as 36 numbers row-major; impulses in newton seconds and newton metre seconds.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The tree records, `factor` and `propagate` serve solveXpbdArticulation and its contact rows; the spatial helpers are what both read.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Inertias are the bodies', damping and caps the motors'; nothing is tuned here.
-
 # src/physics/AutoMovieXpbdArticulation.ts#AutoMovieXpbdArticulation.ITree
 
 ## @evidence contracts/development/common.md#meaningful-documentation

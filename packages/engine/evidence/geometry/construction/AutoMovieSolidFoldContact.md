@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidFoldContact.ts#AutoMovieSolidFoldContact
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the section, the circles, the ball's equations, the solve, the exactness and the limit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The rolling ball's centre lies on both offsets; in a normal section each offset of a circle of curvature is a concentric circle, so the contact is two circles' meeting, not a wedge's.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One reader of both chords.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A solve that does not settle returns null and the caller keeps the wedge's length; nothing is clamped.
-
 # src/geometry/construction/AutoMovieSolidFoldContact.ts#AutoMovieSolidFoldContact.chords
 
 ## @evidence contracts/development/implementation.md#principled-implementation

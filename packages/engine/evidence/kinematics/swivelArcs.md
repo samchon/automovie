@@ -1,21 +1,3 @@
-# src/kinematics/swivelArcs.ts#swivelArcs
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States why each reading is a sinusoid, how one is fitted, where it exceeds a margin and what a union of arcs answers.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A sinusoid is its three coefficients and an arc its two ends, degrees; a union is disjoint arcs over a turn and the one after it, or every swivel.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two records and the fit, the two combinations, the arc and the least swivel of one sinusoid, the union and its two readings: what `boxExcludedSwivels`, `boxLeastSwivels` and a point's bound share.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Exact roots, never sampling; the margin is the caller's.
-
 # src/kinematics/swivelArcs.ts#swivelArcs.fitted
 
 ## @evidence contracts/development/common.md#meaningful-documentation

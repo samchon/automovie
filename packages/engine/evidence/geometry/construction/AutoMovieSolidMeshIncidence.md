@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidMeshIncidence.ts#AutoMovieSolidMeshIncidence
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States left-side convention, boundary-component meaning, periodic lifts and later ownership of holes/face membership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Native-chart halfedge incidence after shared constraint subdivision: companion namespace of 2 members (`IWalk`, `walks`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidMeshIncidence` in packages/engine/src/geometry/construction/AutoMovieSolidMeshIncidence.ts; its surface is the 2 members listed and the text shows 5 other files naming it, mostly packages/engine (4), test (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidMeshIncidence.ts#AutoMovieSolidMeshIncidence.walks
 
 ## @evidence contracts/development/implementation.md#principled-implementation

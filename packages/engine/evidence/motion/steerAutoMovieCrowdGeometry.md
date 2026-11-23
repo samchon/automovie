@@ -1,21 +1,3 @@
-# src/motion/steerAutoMovieCrowdGeometry.ts#steerAutoMovieCrowdGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what the namespace holds and who reads it.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Pure functions of floor-plan geometry in world metres and seconds, and the two records they exchange.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-What `steerAutoMovieCrowd` reads, split from it by responsibility so the pass holds the law and the integration.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No function reads the pass's state: each takes its inputs.
-
 # src/motion/steerAutoMovieCrowdGeometry.ts#steerAutoMovieCrowdGeometry.IHit
 
 ## @evidence contracts/development/common.md#meaningful-documentation

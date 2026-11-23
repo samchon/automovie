@@ -56,14 +56,6 @@ import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
  *   continued from the instant's, the rate's samples; `sample` when omitted.
  * @param prepared Optional same-rig codec or lazy getter, demanded only after the actual samples and joint-rate indexing.
  * @returns The pose at the instant and its velocity.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both estimators, their sample/order/error premises, absent-angle meaning and units, plus the optional same-rig codec's post-samples demand stage.
- * @evidence contracts/development/implementation.md#principled-implementation Second-order central and one-sided differences on the source function; angular velocity by the quaternion log map.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three samples, then one weighted difference per channel.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A non-positive step throws; a one-sided motion is never sampled across its instant.
- * @evidence contracts/development/implementation.md#efficient-algorithms All original sample callbacks and O(J) indexing/conversions/differences remain; a supplied codec avoids another O(B) setup and module helpers avoid per-bone spin/per-call mapper closures. Every forward rotation still executes; runtime speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One explicit unchanged-rig codec may serve related source/target velocity and offset capture, but no sampled pose, angle rate or articulation result is cached. Fresh pose indexing shares one owner with inertialization.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned state owns its existing pose/rate maps and vectors, with no callback, codec or lazy getter added. A borrowed codec/source remains parent-owned; local samples/indexes end with this call and no global rig cache is consulted.
  */
 export function samplePoseVelocity(
   sample: (seconds: number) => IAutoMoviePose,
@@ -193,11 +185,6 @@ function spinFrom(
 
 /**
  * Companion types and helpers of {@link samplePoseVelocity}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents each member's unit and frame.
- * @evidence contracts/development/design.md#principled-representation Clinical degrees per second per bone and the root's linear and angular velocity in the pose's parent frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What inertialization and the motion audits read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the interface pose.
  */
 export namespace samplePoseVelocity {
   /**

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionLocalScaleMinorant.ts#AutoMovieConstructionLocalScaleMinorant
-
-## @evidence contracts/development/design.md#principled-representation
-
-Dimensionless factors and natural logarithmic upper bounds constrain one constant multiplier; the caller retains geometry and derivative units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owns the attenuation and numerical postconditions consumed by SplitBand; the geometry owner supplies its existing certificate.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Has no scene data, common-factor fallback, scalar geometry predicate or configurable search.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the discrete scope, scalar units and separation from geometric certification.
-
 # src/geometry/construction/AutoMovieConstructionLocalScaleMinorant.ts#AutoMovieConstructionLocalScaleMinorant.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

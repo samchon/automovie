@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewJointedCourse.ts#AutoMovieViewJointedCourse
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States arclength units, angle derivatives, zero derivatives on straight runs and the numerical origin-value boundary.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The admitted jointed course's Rodrigues transport and analytic frame jets: companion namespace of 6 members (`ITurn`, `ICourse`, `prepare`, `create`, `ISample`, `integrate`); units and frames named in its text: frame, radians, local, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewJointedCourse` in packages/engine/src/geometry/construction/AutoMovieViewJointedCourse.ts; its surface is the 6 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewJointedCourse.ts#AutoMovieViewJointedCourse.prepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation

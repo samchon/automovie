@@ -24,14 +24,6 @@ import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
  * @param indices The rig's name lookup.
  * @param admitted The admission's values: each rooted bone's selected articulation (the identity for a bone no record names) as the reading's own copy, and the root, private immutable values kept by reference.
  * @returns The reading: the demanded bones in parent-first order as a fresh map, all reachable bones when no names are given; bound indices replace the names.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the reading holds, that it is a value of the admission and not of the records, the demand rules and the fresh ownership of what it returns.
- * @evidence contracts/development/implementation.md#principled-implementation The frames are `composePoseFrames`' of the admitted articulations and root, the pass the operation's own reads take, so a bone read here has the components a read of the same admission through the operation has.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy composition and one demand selection; admission, conversion and the frame arithmetic stay with their owners.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every returned bone is a fresh record; an unreachable name stays absent as in the operation's reader; nothing is compared or looked up to decide validity, because the reading is made only by a completed admission.
- * @evidence contracts/development/implementation.md#efficient-algorithms One pass over the rig at the first read, then K fresh records a read; live names sort as in the operation's reader and bound indices do not.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The composed frames are shared among the readers of this one reading, whose articulations and root never change.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the articulation row, the root's two values and one workspace of frames until its holder releases it; no pose, record or operation is retained.
  */
 export function preparePoseReading(
   tables: composePoseFrames.ITables,
@@ -71,11 +63,6 @@ export function preparePoseReading(
 
 /**
  * The reading's type.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the one type and its two demand forms.
- * @evidence contracts/development/design.md#principled-representation A reading is a function from a bone demand to fresh world frames in model metres, closed over one admission's values.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The prepared FK state makes it and the rig lends it to pose producers; live names serve ordinary readers and bound indices the rig's own fixed demands.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts It carries no pose, time or validity flag.
  */
 export namespace preparePoseReading {
   /**

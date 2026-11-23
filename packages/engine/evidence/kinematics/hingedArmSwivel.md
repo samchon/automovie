@@ -1,21 +1,3 @@
-# src/kinematics/hingedArmSwivel.ts#hingedArmSwivel
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the branches, the aim and swivel, and what a held swivel means.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The swivel parameterisation of Tolani, Goswami and Badler 2000: a hinge angle per branch and a swivel about the root-to-effector line.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Direct branches, pose and read share their geometric helpers with explicit source/target preparation; hingedArmArticulation consumes those actual readers and owns all scoring/search policy.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reuses `aimRotation`; the scoring and the sweep stay with `hingedArmArticulation`.
-
 # src/kinematics/hingedArmSwivel.ts#hingedArmSwivel.branches
 
 ## @evidence contracts/development/common.md#meaningful-documentation

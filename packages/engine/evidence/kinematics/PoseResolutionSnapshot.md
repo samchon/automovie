@@ -1,21 +1,3 @@
-# src/kinematics/PoseResolutionSnapshot.ts#PoseResolutionSnapshot
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines immutable own-data copying, exact component comparison and their separation from numerical admission.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Copies the exact vector/quaternion scalars, axis placement and optional clinical affine maps that determine prepared FK, preserving absence and malformed non-record values for lazy admission. Exact vector/quaternion comparisons preserve signed-zero distinctions for actual dependency invalidation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Prepared rig owners use four frozen numerical copy forms and effective mapping entries for static inputs; placement/state/change owners use two exact comparisons for private root snapshots and actual articulation changes. Existing interface/ROM types own their quantities.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No input is normalized, repaired, branded admitted or specialized to a body. Actual own-data reads preserve inherited numerical properties and callable structural records instead of assuming enumerable plain-object layout.
-
 # src/kinematics/PoseResolutionSnapshot.ts#PoseResolutionSnapshot.ownsAxes
 
 ## @evidence contracts/development/common.md#meaningful-documentation

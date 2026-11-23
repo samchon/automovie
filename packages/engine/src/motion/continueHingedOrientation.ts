@@ -61,14 +61,6 @@ interface IOutputGuard {
  * @param near The explicit curve's deterministic branch and degree swivel bracket.
  * @param observe Optional actual root-trial/accepted observations; never changes admission and releases with the call.
  * @returns The independently verified current oriented pose/seed, or null for ordinary near/cold fallback.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States explicit policy eligibility, half-angle frames, proposal versus actual acceptance, degree/model-metre units, ambiguity and unsupported fallback.
- * @evidence contracts/development/implementation.md#principled-implementation Eberly's bilinear two-axis quaternion surface intersects the known harmonic swivel family through a scalar sinusoid. Quaternion conjugation is linear, so fixed inverse parent/lower/rest products give its two exact algebraic coefficients up to irrelevant common scale. Existing clamping/orientation and actual prepared FK verify every proposed answer; no sampled global objective certificate is assumed.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure hingedArmSwivel owns branch/harmonic geometry; readHingeRange owns clinical range mapping; the projector owns two-axis coefficients and the shared math helper owns rank-one roots. This dispatcher owns only explicit curve candidate selection and actual feasibility, then the caller owns phase continuity/fallback.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No body, seed name, law, fixture, iteration cap, target substitute or enlarged physical tolerance selects a result. Current point uses the original PLANT_RESIDUAL_EPSILON and rotation/ROM use their existing degree tolerance. Unsupported objectives and uncertain roots decline rather than silently change their semantics; no global cold-score equivalence is claimed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One selected hinge branch and at most two actual roots replace repeated near probes and nested effector projections on eligible curves. Each candidate retains actual orientation plus an O(J) source-prefix/frame scan; no repeated full swivel sweep occurs here. End-to-end speedup remains unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the matching source rig, range, geometry, coefficient basis and fixed inverse are borrowed. The current harmonic family also supplies its original poser from the same completed branch aim. Every current point/rotation, post-clamp FK, changed joint and pole is checked anew. Previous poses are not returned or interpolated; near carries only the deterministic curve candidate.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One call owns a harmonic family, two transformed coefficients and at most two temporary oriented poses/frames. A qualified unique local-root return weakly owns O(J) original own-data output-slot guards and five scalar facts; no result is retained merely by the registry. Other candidates release on return/throw and no target history, result cache, handle or task is created.
  */
 export function continueHingedOrientation(
   props: IAutoMovieFitChainToTargetProps,
@@ -196,11 +188,6 @@ export function continueHingedOrientation(
 
 /**
  * Read-only provenance of the actual uniquely admitted root return.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines actual-return weak identity, finite proposal/trial/physical-pass counts, branch/swivel degrees, unchanged own-data output matching and fresh scalar-only reads. All-root families, two physically admitted local roots, ties and ordinary near/cold results have no entry.
- * @evidence contracts/development/design.md#principled-representation Only the physical root-return branch writes the private WeakMap after the same actual FK/ROM/pole gates. Exactly one physically passing in-bracket candidate gives local uniqueness; a global second root outside the bracket does not invalidate that fact. This does not certify a canonical cell, derivative, global optimum or changed query.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The existing public seeded-workspace owner exposes only this read to its actual result-copying consumer. No registration, ready flag, mutable proof object or callback can manufacture provenance, and the original result shape and physical acceptance remain unchanged.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Observer counts do not establish membership. Source registration is private to the actual accepted return and excludes all-root and multiple-valid-root selection. Own-data guards over result/pose/seed/root and every ordered joint slot reject replaced nodes, accessors and changed scalars before issuing a copy. Reads inspect only original nodes through descriptors, never follow a foreign replacement graph or invoke an installed getter. Consumer-owned copy/mirror transport must read a genuine source before its own transformation.
  */
 export namespace continueHingedOrientation {
   /** Actual local uniqueness and work facts; no trajectory or goal is certified. */

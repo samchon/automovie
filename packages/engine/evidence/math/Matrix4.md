@@ -1,21 +1,3 @@
-# src/math/Matrix4.ts#Matrix4
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the storage order and element formula, why matrices exist internally though the interface carries only transforms, and that every function returns a new value.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Pure 4×4 matrix math in column-major order, element `m[col * 4 + row]`, the storage order of glTF and `three.js`: companion namespace of 9 members (`identity`, `compose`, `multiply`, `position`, `transformPoint`, `AXES`, ...); units and frames named in its text: quaternion, world, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `Matrix4` in packages/engine/src/math/Matrix4.ts; its surface is the 9 members listed and the text shows 98 other files naming it, mostly packages/engine (30), test (26), movies (21), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/math/Matrix4.ts#Matrix4.identity
 
 ## @evidence contracts/development/implementation.md#principled-implementation

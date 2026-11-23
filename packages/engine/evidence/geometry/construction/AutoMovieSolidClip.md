@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidClip.ts#AutoMovieSolidClip
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the crossing search, the two candidates and the side test.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A host rail laid onto the faces of a body: its points with the crossings between faces, and each face it runs over trimmed by it: companion namespace of 6 members (`IAutoMovieSolidClip.IRailPoint`, `BISECTIONS`, `SIDE`, `rail`, `trim`, `clip`); units and frames named in its text: world, local, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidClip` in packages/engine/src/geometry/construction/AutoMovieSolidClip.ts; its surface is the 6 members listed and the text shows 3 other files naming it, mostly packages/engine (3), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidClip.ts#AutoMovieSolidClip.rail
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -74,14 +74,6 @@ function childrenOf(action: IAutoMovieActionCall): string[] {
  * Couplings chain (#1140): a parent that is itself a coupled child this shot, such as a rider mounted on an animal and carrying a pole, is baked first, and its riders compose onto its baked frame per sample through any depth. That frame is read from all of the parent's baked clips through {@link bakedTransformFromClipsAt}, the channel authority playback uses, so before the parent's first coupling starts its riders follow its staged placement and across a handoff they follow whichever coupling is in effect. A coupling cycle has no world composition, so its members are reported in one violation and never baked.
  *
  * Returns the baked clips in bake order, parents before riders, with a child's attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the handoff events; and the violations.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Builds the child-to-parent coupling graph, orders it by a depth-first post-order so every parent bakes before its riders, and reports a back edge as a cycle; a chained parent's frame is sampled by the same per-channel latest-start authority as playback, which keeps a rider attached to the parent the viewer draws, including before a late coupling and across a handoff.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns coupling order, cycle refusal, mount validation and id uniqueness, delegating bakes/events to compileAttach/handoffEvents. One private adapter lends a genuine immutable rig only when the admitted caller explicitly supplies its producer, keeping raw default behavior and existing lookup sites.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No node, bone or clip id is special-cased; chain selection reads what a clip carries and when it starts rather than its id suffix, and a cycle or rig-less mount is refused instead of baked frozen.
- * @evidence contracts/development/common.md#meaningful-documentation States coupling precedence/events, mount admission, chained-parent sampling, cycle refusal, bake order/ids and the optional actual static-rig producer versus raw-default boundary.
- * @evidence contracts/development/implementation.md#efficient-algorithms Graph/order/grouping are linear in nodes/edges; per-child job sorting adds summed O(J log J). Each bake retains S actual motion samples: raw FK spans B bones, while an explicit parent snapshot pays static preparation once and computes only attachment ancestry per sample with ordered pose admission. Chained-parent sampling and recursion remain unchanged; speedup is unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Parent baked clips remain shared by riders. Existing skeleton/axis/frame lookups still run at their original per-job sites; an explicit producer snapshots those actual fixed values only for that synchronous bake, and no callback answer, pose, time sample or target result is cached across jobs or calls.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The graph, order, grouping maps and per-parent clip lists live for one call and are released on return or throw; the returned arrays hold one clip per coupling, the handoff events of each `attachTo`, and one violation per refusal.
  */
 export function coupleObjects(
   props: coupleObjects.IProps,
@@ -317,11 +309,6 @@ function compilePreparedAttach(
 
 /**
  * Companion types of {@link coupleObjects}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents the one engine-owned extension of the interface coupling props and its absence rule.
- * @evidence contracts/development/design.md#principled-representation The canonical coupling props stay in `IAutoMovieCoupleObjects.IProps`; this extension adds only the rig preparer, the engine function `prepareSkeletonPoseResolution`, so it cannot live in the dependency-free interface.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `performShot` passes the preparer so each attachment parent's FK prepares one demanded bone; every other caller keeps the interface props unchanged.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the interface contract instead of copying it; the preparer is typed as the genuine engine function, never a structural stand-in.
  */
 export namespace coupleObjects {
   /** The coupling props with an optional parent-rig preparer. */

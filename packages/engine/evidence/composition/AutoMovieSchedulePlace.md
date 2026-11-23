@@ -1,21 +1,3 @@
-# src/composition/AutoMovieSchedulePlace.ts#AutoMovieSchedulePlace
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the two placements and what each refuses.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An intent becomes an entry with its start, contact, cut, events, outcome and state; an `at` becomes the start its anchor and its alignment give.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Two functions; the sequence and the group are the walk's own joints.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every invalid timing, duplicate, unplaced anchor and absent law is refused with its code.
-
 # src/composition/AutoMovieSchedulePlace.ts#AutoMovieSchedulePlace.intent
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftParameter.ts#AutoMovieLoftParameter
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each rule and what it keeps fixed.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Correspondence rules that assign a phase to each point of a closed section: companion namespace of 5 members (`Rule`, `phases`, `centroid`, `polar`, `anchored`); units and frames named in its text: radians, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftParameter` in packages/engine/src/geometry/construction/AutoMovieLoftParameter.ts; its surface is the 5 members listed and the text shows 9 other files naming it, mostly packages/human (5), packages/engine (3), test (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftParameter.ts#AutoMovieLoftParameter.phases
 
 ## @evidence contracts/development/implementation.md#principled-implementation

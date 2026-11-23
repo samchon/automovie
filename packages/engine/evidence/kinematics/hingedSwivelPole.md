@@ -1,21 +1,3 @@
-# src/kinematics/hingedSwivelPole.ts#hingedSwivelPole
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the start, the refusal fallback, the downhill walk, the refinement and that the search is local.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Degree-valued swivels on each branch, a caller-owned strict ordering and certified interval refusal.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One branch record and one search serve hingedArmArticulation's cold pole path.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scores and ordering stay the caller's; no limb, rig or target is named.
-
 # src/kinematics/hingedSwivelPole.ts#hingedSwivelPole.IBranch
 
 ## @evidence contracts/development/common.md#meaningful-documentation

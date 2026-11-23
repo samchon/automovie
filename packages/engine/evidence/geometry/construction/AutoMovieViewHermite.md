@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewHermite.ts#AutoMovieViewHermite
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States normalized source-jet units, sufficient hull filtering, extension limits and its explicit flattening convention.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Explicit C2 source jets and sufficient scalar-range filtering of shared quintic Hermite knot jets: companion namespace of 8 members (`ICurve`, `create`, `value`, `derivative`, `read`, `critical`, ...); units and frames named in its text: second, degree, local, byte. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewHermite` in packages/engine/src/geometry/construction/AutoMovieViewHermite.ts; its surface is the 8 members listed and the text shows 9 other files naming it, mostly packages/human (6), packages/engine (2), test (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewHermite.ts#AutoMovieViewHermite.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

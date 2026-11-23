@@ -25,14 +25,6 @@ import { Vector3 } from "./Vector3";
  * input (zero vector, exact parallel) degrades to the identity; exact
  * antiparallel takes a deterministic 180° flip about a perpendicular (the
  * `|a.x| < 0.9` axis split).
- *
- * @evidence contracts/development/implementation.md#principled-implementation Normalized directions supply cross-product sine and dot-product cosine to atan2 for a shortest arc; exact collinearity selects identity or a deterministic perpendicular half-turn without an angular deadzone.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct and prepare entries share one normalized-direction turn core, so analytic/iterative callers and repeated two-bone aims have one scaling/collinearity owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact zero sine alone selects collinearity; prepare snapshots only one normalized source and still normalizes every target through the same core, with no new threshold or fallback.
- * @evidence contracts/development/common.md#meaningful-documentation States finite-input premises, shortest-arc/collinear conventions and precision limits; prepare's child documents owned source snapshot, later source mutation behavior and fresh target results.
- * @evidence contracts/development/implementation.md#efficient-algorithms The direct path normalizes two directions; prepare normalizes its source once and omits that work/allocation per target, retaining constant cross/dot/atan2/axis-angle work and no measured speedup claim.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Both angle coordinates share normalized directions; prepare additionally owns a normalized source snapshot independent of later caller edits. No target, angle, quaternion result or object-identity key is cached.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct direction/cross/result records are call-local. One prepared closure owns one normalized vector until caller release; each target/output remains local with no global state, history or handles.
  */
 export function rotationBetween(
   a: IAutoMovieVector3,
@@ -67,11 +59,6 @@ function turn(
 
 /**
  * Fixed-source shortest-arc preparation for repeated target directions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Separates one owned normalized source snapshot from changing target directions and fresh quaternion outputs.
- * @evidence contracts/development/design.md#principled-representation A shortest arc depends only on normalized directions; normalizing one unchanged source once preserves the direct turn's actual arithmetic and collinear convention.
- * @evidence contracts/development/design.md#minimal-and-owned-surface aimRotation.prepare consumes the source reader for upper and lower two-bone candidate aims; no axis, angle or target-result cache is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The direct path keeps live source normalization and the same shared turn core; prepared construction snapshots only one normalized vector and adds no deadzone or alternate fallback.
  */
 export namespace rotationBetween {
   /**

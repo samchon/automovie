@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConicArc.ts#AutoMovieConicArc
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States source weight, endpoints, angle units, derivatives and the difference between exact conic formulas and binary64 observations.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The positive rational quadratic from (a,0) through corner (a,b) to (0,b), with middle weight w=r/(1-r): companion namespace of 13 members (`IRay`, `curvature`, `parameter`, `guide`, `interiorGuide`, `radius`, ...); units and frames named in its text: rational, second, local, radians. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConicArc` in packages/engine/src/geometry/construction/AutoMovieConicArc.ts; its surface is the 13 members listed and the text shows 10 other files naming it, mostly packages/engine (6), test (4), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieConicArc.ts#AutoMovieConicArc.curvature
 
 ## @evidence contracts/development/implementation.md#principled-implementation

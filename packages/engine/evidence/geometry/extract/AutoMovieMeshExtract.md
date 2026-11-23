@@ -1,21 +1,3 @@
-# src/geometry/extract/AutoMovieMeshExtract.ts#AutoMovieMeshExtract
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the units, the frame convention, the flag meanings and the knot removal rule.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Reverse extraction of sparse 2D lines from a dense triangle mesh: exact plane sections at stations along a frame axis, with their chained loops, extreme points in eight in-plane directions and artifact flags, and the fewest cubic Hermite knots (value and slope on a run, point and tangent on a closed loop) that hold a dense sampled line within a tolerance: companion namespace of 40 members (`V3`, `IMesh`, `IFrame`, `IExtreme`, `ILoop`, `ISection`, ...); units and frames named in its text: frame, world, second, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieMeshExtract` in packages/engine/src/geometry/extract/AutoMovieMeshExtract.ts; its surface is the 40 members listed and the text shows 10 other files naming it, mostly packages/human (6), test (3), packages/engine (1), so no member is declared for a presumed future need; members without their own doc: `at`, `add`, `sub`, `scale`.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/extract/AutoMovieMeshExtract.ts#AutoMovieMeshExtract.outline
 
 ## @evidence contracts/development/implementation.md#principled-implementation

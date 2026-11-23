@@ -1,21 +1,3 @@
-# src/geometry/curve/AutoMovieBernsteinAlgebra64.ts#AutoMovieBernsteinAlgebra64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its coefficient/parameter contract and retained arithmetic path.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Bernstein coefficient algebra in binary64 with explicit degree: companion namespace of 17 members (`Vec`, `Poly`, `Grid`, `RecordV`, `RecordS`, `choose`, ...); units and frames named in its text: degree, rational, local, degrees, second. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieBernsteinAlgebra64` in packages/engine/src/geometry/curve/AutoMovieBernsteinAlgebra64.ts; its surface is the 17 members listed and the text shows 16 other files naming it, mostly packages/engine (15), test (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/curve/AutoMovieBernsteinAlgebra64.ts#AutoMovieBernsteinAlgebra64.choose
 
 ## @evidence contracts/development/implementation.md#principled-implementation

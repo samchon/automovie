@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewSectionRange.ts#AutoMovieViewSectionRange
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States numerical reach rather than a continuous geometric or arclength certificate.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Existing finite native shoulder reach and its numerical source preparation: companion namespace of 6 members (`TOLERANCE`, `ITrial`, `IFamily`, `nearby`, `create`, `measure`); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewSectionRange` in packages/engine/src/geometry/construction/AutoMovieViewSectionRange.ts; its surface is the 6 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewSectionRange.ts#AutoMovieViewSectionRange.nearby
 
 ## @evidence contracts/development/implementation.md#principled-implementation

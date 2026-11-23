@@ -37,14 +37,6 @@ import { Vector3 } from "../math/Vector3";
  * @param normal Unit world normal from the first shape toward the second.
  * @param band Depth below a support plane still counted as touching, metres.
  * @returns The patch points in hull order; empty for crossing edges.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the support features, the band, the projection, each intersection case, the lift and the empty case.
- * @evidence contracts/development/implementation.md#principled-implementation The textbook clipping construction: support features along the normal, polygon clipping in the contact plane and the lift onto both features.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Feature, hull, clip, lift; one helper per step.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The band is the caller's; no point count is capped and no case is guessed.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(V log V) for the hulls and O(V^2) clipping in the features' vertex counts, eight at most for a box.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points; retains nothing.
  */
 export function physicalShapeContactManifold(
   poseA: IAutoMovieRigidTransform,
@@ -84,11 +76,6 @@ export function physicalShapeContactManifold(
 
 /**
  * Companion types of {@link physicalShapeContactManifold}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States that a patch point carries one world witness on each shape.
- * @evidence contracts/development/design.md#principled-representation World metres, one witness per shape, the first on the first shape.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the solver's contact detection and the planner's separation rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The point holds only the two witnesses; its gap is derived from them along the caller's normal.
  */
 export namespace physicalShapeContactManifold {
   /** One patch point with its witness on each shape, world metres. */

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidTraceObservation.ts#AutoMovieSolidTraceObservation
-
-## @evidence contracts/development/design.md#principled-representation
-
-Closed rejection reasons and explicit nullable unavailable data distinguish actual solver/trial observations from the accepted walk point, in original mm/radian charts.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The arc walk, its meeting solver and host trial are the runtime consumers. One attempt retains one rejected trial, one failure and borrowed final meeting data; the walk keeps at most two terminal direction snapshots.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No solver option, recovery policy, surface callback, global collector or trajectory is introduced. Existing jet/vector types are reused and absent observations are null, never fabricated derivatives.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States actual-data ownership, bounded retention, source units, nullable availability and the absence of any evaluator or numerical acceptance rule.
-
 # src/geometry/construction/AutoMovieSolidTraceObservation.ts#AutoMovieSolidTraceObservation.Reason
 
 ## @evidence contracts/development/design.md#principled-representation

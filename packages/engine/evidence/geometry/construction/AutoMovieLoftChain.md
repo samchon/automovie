@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftChain.ts#AutoMovieLoftChain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States interpolation modes, mm/radian units, immutable callable sources and unverified pole/phase fidelity.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Read a chain from its immutable principal values and explicit interpolation/source data: companion namespace of 18 members (`coefficients`, `derivative`, `bracket`, `lift`, `Pick`, `sectionArrays`, ...); units and frames named in its text: second, frame, world, radians, radian. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftChain` in packages/engine/src/geometry/construction/AutoMovieLoftChain.ts; its surface is the 18 members listed and the text shows 96 other files naming it, mostly packages/human (61), test (26), packages/engine (9), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftChain.ts#AutoMovieLoftChain.coefficients
 
 ## @evidence contracts/development/implementation.md#principled-implementation

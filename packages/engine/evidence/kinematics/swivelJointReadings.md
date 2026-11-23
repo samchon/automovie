@@ -1,21 +1,3 @@
-# src/kinematics/swivelJointReadings.ts#swivelJointReadings
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the premise on the rotation, why each entry is a sinusoid and how each angle is read from the entries.
-
-## @evidence contracts/development/design.md#principled-representation
-
-An angle is the sinusoid of its sine, or the two sinusoids of its vector with the sign its rest-relative angle takes; a joint is its three angles.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The reading of one joint, the interval a box axis is read by, the sinusoids of its bounds and its swing cone, and the rest-relative form of a clinical interval: what a range's refused arcs, its least-violated swivels and an immobile axis's roots share.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Exact fits from three rotations, never sampling; the composition order is the decomposition's own.
-
 # src/kinematics/swivelJointReadings.ts#swivelJointReadings.Axis
 
 ## @evidence contracts/development/common.md#meaningful-documentation

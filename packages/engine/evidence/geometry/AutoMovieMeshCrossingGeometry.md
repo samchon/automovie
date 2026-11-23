@@ -1,21 +1,3 @@
-# src/geometry/AutoMovieMeshCrossingGeometry.ts#AutoMovieMeshCrossingGeometry
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the internal owner and public consumer, complete-buffer admission, fixed layout, independent snapshots and zero-area retention.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Internal geometry ownership for immutable crossing snapshots and refits: companion namespace of 5 members (`ITriangle`, `ISnapshot`, `index`, `prepare`, `withPositions`); units and frames named in its text: second, metre, frame, world. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieMeshCrossingGeometry` in packages/engine/src/geometry/AutoMovieMeshCrossingGeometry.ts; its surface is the 5 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/AutoMovieMeshCrossingGeometry.ts#AutoMovieMeshCrossingGeometry.index
 
 ## @evidence contracts/development/implementation.md#principled-implementation

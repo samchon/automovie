@@ -29,14 +29,6 @@ import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
  * Missing ancestors/rates and non-finite inputs return undefined so the owner
  * can retain its generic sampled path. Inputs are read without modification;
  * the successful map and every velocity record are fresh and caller-owned.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States native-FK provenance, unchanged-rig and complete-ancestor requirements, local body-frame radian rates, common-frame metre velocities, explicit-zero versus missing semantics, scale/offset limits, fallback and fresh ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Differentiates p_child=p_parent+R_parent*r_fixed and R_child=R_parent*R_local: v_child=v_parent+omega_parent cross (p_child-p_parent), omega_child=omega_parent+R_child*omega_local_body. Actual resolved positions/rotations provide the same frames as native FK, whose fixed rests and ignored scales are explicit premises.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One parent-first traversal uses the existing topology and resolved records; the local derivative producer and centroidal reducer retain their own responsibilities. Finite admission and completeness gate the entire returned map.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No missing local rate becomes zero, no finite difference or guessed clinical derivative is synthesized, and no bone, fixture, tolerance, scaling rule or root default is substituted.
- * @evidence contracts/development/implementation.md#efficient-algorithms Visits each supplied ancestor-complete bone once and checks its children and root siblings in the existing topology, skipping absent subtrees. Work is O(T) for T rig bones in the worst case, fresh map/vector storage is O(B) for B supplied bones, and call stack is O(D) for hierarchy depth; no FK pose is recomputed.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One pure instantaneous propagation coordinates no repeated requests and retains no cross-call state; its supplied topology belongs to the caller's unchanged rig epoch.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The call owns one O(B) result map and O(D) traversal stack. On unavailable data the temporary result is discarded; on success ownership transfers to the caller. No input, output, handle, task or history is retained.
  */
 export function resolveAutoMovieBoneRates(
   topology: IAutoMovieSkeletonTopology,
@@ -99,11 +91,6 @@ export function resolveAutoMovieBoneRates(
 
 /**
  * Rate records exchanged by native derivative producers and mass reduction.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Members state common-frame bone-origin linear metres per second, angular radians per second, and the root reference point in metres. Missing declarations are handled by the owning function rather than optional scalar members.
- * @evidence contracts/development/design.md#principled-representation IRate contains a complete instantaneous rigid-frame velocity; IRoot supplies the point where that frame's linear velocity is defined. Inputs and outputs share one common frame, while local body-frame angular inputs remain separately typed vector maps and documented at the function boundary. Runtime finite admission rejects non-finite rates and positions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The FK derivative owns these two records. Native curve producers supply root rates and the centroidal consumer reads world bone-origin rates; imported vector and existing resolved-bone/topology types retain their original owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Complete required vectors avoid partially declared rates. No optional rate is interpreted as zero, no actor/scene data enters the shape, and unchanged native-rig provenance remains an explicit caller premise rather than an unproved type claim.
  */
 export namespace resolveAutoMovieBoneRates {
   /**

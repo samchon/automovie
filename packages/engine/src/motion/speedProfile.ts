@@ -10,14 +10,6 @@ import type { IAutoMovieSpeedProfile } from "@automovie/interface";
  * @param props The start, the rates and the stretches.
  * @returns The profile.
  * @throws {Error} When the start, a given rate, a speed, a length, a duration or a cap is not finite or not in its range, a stretch that changes speed lacks a rate it needs, a distance stretch's mark lies outside what its length can reach from its entry speed (`speedProfile.reach`), its cap is below its entry or its mark, or a seconds stretch changes speed faster than the rates allow: a caller's defect, since a caller admits its own input with its own refusals.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both kinds of stretch, the cap and the peak, flying starts and ends, the start second, the end-anchored braking and every failure.
- * @evidence contracts/development/implementation.md#principled-implementation Piecewise-constant acceleration integrated in closed form: s = s0 + v0 t + a t squared over 2 and v = v0 + a t. A distance stretch is the trapezoidal profile of motion planning with bounded acceleration and boundary speeds: its peak is the speed at which an accelerating run from the entry and a braking run to the mark together cover the length, the square root of (2 L a b + b v0 squared + a v1 squared) over (a + b), lowered to the cap. Inverting time from distance takes the root that is stable for its sign: the square root of 2 s over a from rest, and 2 s over (v0 + the square root of (v0 squared + 2 a s)) otherwise, which avoids cancellation.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the input, lay each stretch's phases end to end, then two samplers that find the phase and evaluate it.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unreachable marks and rates are thrown, never clamped; a second or distance outside the profile holds the nearer end.
- * @evidence contracts/development/implementation.md#efficient-algorithms Laying is linear in the stretches; a sample scans at most three phases per stretch, a handful for any real path.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One profile serves every sample of its path.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The profile holds one record per phase and per stretch for as long as its caller keeps it.
  */
 export function speedProfile(
   props: IAutoMovieSpeedProfile.IProps,
@@ -270,11 +262,6 @@ export function speedProfile(
 
 /**
  * Companion types and the reach rule of {@link speedProfile}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each type and member states its unit and meaning.
- * @evidence contracts/development/design.md#principled-representation Distances in metres along the path, speeds in metres per second, rates in metres per second squared and times in film seconds; a stretch is a discriminated union of its two ways of ending, and a phase records its anchor so a braking phase ends exactly where it must.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the engine as a universal motion primitive with no vehicle vocabulary; read by the archetypes' course and, per #3503's P13, by a formation's path frame.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A stretch's kind discriminates a length with a cap from a duration, so neither carries the other's fields.
  */
 export namespace speedProfile {
   /**

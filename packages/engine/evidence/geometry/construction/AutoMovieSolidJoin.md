@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidJoin.ts#AutoMovieSolidJoin
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States parameter units, boundary order, sampled acceptance and the supplied-curve diagnostic boundary.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Compose merge or diff from an intersection, kept-side rails and analytic ribbons: companion namespace of 8 members (`IAutoMovieSolidJoin.IJoin`, `IAutoMovieSolidJoin.IColumn`, `IAutoMovieSolidJoin.IInput`, `IAutoMovieSolidJoin.IResult`, `FOLD_SHARES`, `create`, ...); units and frames named in its text: radian, radians, local, second, world. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidJoin` in packages/engine/src/geometry/construction/AutoMovieSolidJoin.ts; its surface is the 8 members listed and the text shows 17 other files naming it, mostly packages/engine (10), test (7), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidJoin.ts#AutoMovieSolidJoin.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

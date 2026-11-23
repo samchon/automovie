@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidVector.ts#AutoMovieSolidVector
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each operation and the singularity tests.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents The vector algebra the solid operators share: world vectors in millimetres as fixed triples, and the 3 by 3 and 2 by 2 linear solves their Newton steps take: companion namespace of 12 members (`Vec3`, `add`, `sub`, `scale`, `combine`, `dot`, ...); units and frames named in its text: world, frame, second, frames, newton. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidVector` in packages/engine/src/geometry/construction/AutoMovieSolidVector.ts; its surface is the 12 members listed and the text shows 54 other files naming it, mostly packages/engine (32), packages/human (13), test (9), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidVector.ts#AutoMovieSolidVector.add
 
 ## @evidence contracts/development/implementation.md#principled-implementation

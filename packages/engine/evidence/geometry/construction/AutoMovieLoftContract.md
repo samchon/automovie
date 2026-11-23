@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftContract.ts#AutoMovieLoftContract
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States each contract, its bound and why the bound has that size.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Checked values chains and seams exchange; failed checks throw a message naming the producer and the violated local premise: companion namespace of 11 members (`IDiagnostic`, `Stations`, `Jet`, `Ring`, `stations`, `jet`, ...); units and frames named in its text: local, second, metre. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftContract` in packages/engine/src/geometry/construction/AutoMovieLoftContract.ts; its surface is the 11 members listed and the text shows 79 other files naming it, mostly packages/human (55), packages/engine (13), test (11), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftContract.ts#AutoMovieLoftContract.stations
 
 ## @evidence contracts/development/implementation.md#principled-implementation

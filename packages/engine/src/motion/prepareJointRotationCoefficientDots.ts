@@ -67,14 +67,6 @@ interface IVariant {
  * remaining cross-dots zero. Two actual half-angle quaternion coefficients
  * therefore map through the structured adjugate to the shared rank-one
  * sinusoid solver. Its roots are proposals, not ROM or objective admission.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines actual numeric-zero versus explicit null-rest meanings, unchanged basis/frame/ranges, original factor order and the returned actual-reference mode selector's pure metadata/output ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Each coefficient is the original ordered product of fixed axis-angle factors and mobile cosine/sine factors. A numeric null-ROM output contributes toRigAngle(0,frame), whereas an actual null output contributes rig0. A reference's fixed null mask therefore selects one of at most two modes for two mobile axes or four modes for one mobile axis, with no target-dependent numerical coefficient.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Owns fixed factors, bounded nullable coefficient variants and their Gram cross term; existing math owns dots and rank-one swivel intersections. Numeric zero-width ranges keep their original minimum/frame conversion. Ordinary projection still owns enumeration/clamp/composition/ties; explicit continuation separately verifies proposed roots.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Canonical factors and the first coefficient set keep the original constructor frame-admission/factor/mask/order arithmetic. Additional modes use only declared null rig0 on a null-ROM axis, never a target quaternion, queried angle, projected joint or previous answer. A canonical exact +0 factor is already the null factor and needs no variant. No range, tolerance, candidate, numerical-rank or normalization policy changes.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most four lazy four-coefficient sets retain one additional Gram scalar each. Ordinary targets keep four dot reads and every score. An explicit two-axis circle uses eight fixed dots and constant rank-one root work before independent physical checks; no target search is cached. Fixed declarations retain at most two angles per axis and gains remain unmeasured.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Only immutable rig factors and coefficients cross queries. Numeric and null rig-angle constants are predeclared for the existing composer, and fixed-mode dots reuse the same factor/mask arithmetic and finite-dot owner. The selector inspects only fixed-coordinate null flags; it never retains the reference or any target/result value.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One operation owns at most two fixed-factor rows/their lazy null factors, one axis lookup, at most four dot-reader arrays and their sixteen coefficient quaternions. Caller-owned fixed-angle declarations hold at most two numbers per axis. The selector retains no incoming reference, target, score, candidate, output, handle or task and releases with the projector.
  */
 export function prepareJointRotationCoefficientDots(
   props: IProps,
@@ -148,11 +140,6 @@ export function prepareJointRotationCoefficientDots(
 
 /**
  * Fixed quaternion coefficient dots and explicit orientation-circle proposals.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines original reference-null mode selection, coefficient order, half-angle circle and degree-valued proposal/fallback meanings.
- * @evidence contracts/development/design.md#principled-representation The unchanged callable reads four fixed-basis dots. swivels passes two actual half-angle coefficients and the basis's structured Gram term to the shared rank-one intersection owner.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The ordinary projector retains the original callable and the explicit two-axis curve dispatcher uses only orientation proposals. No coefficient quaternion, inverse matrix, solver state or fitted answer escapes.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Proposals certify neither ROM nor a global weighted optimum. The actual IK consumer must clamp and verify FK/current goals and fall back for unsupported or undecidable inputs.
  */
 export namespace prepareJointRotationCoefficientDots {
   /** The interface contract (`IAutoMoviePrepareJointRotationCoefficientDots.IReader`). */

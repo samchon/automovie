@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftSection.ts#AutoMovieLoftSection
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Separates local phase-only results, physical station derivatives, changed spans and immutable data ownership.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Local station plans of explicit source and continuation generating fields: companion namespace of 4 members (`present`, `regular`, `phase`, `jet`); units and frames named in its text: local, world, frame, radians. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftSection` in packages/engine/src/geometry/construction/AutoMovieLoftSection.ts; its surface is the 4 members listed and the text shows 8 other files naming it, mostly packages/engine (6), packages/human (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieLoftSection.ts#AutoMovieLoftSection.present
 
 ## @evidence contracts/development/implementation.md#principled-implementation

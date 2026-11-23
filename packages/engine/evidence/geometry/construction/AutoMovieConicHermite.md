@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConicHermite.ts#AutoMovieConicHermite
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the weight derivation, convexity/error premises, vanishing-support C2 argument and numerical representation limit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Convex rational cubic G2 Hermite interpolation of a short conic end: companion namespace of 9 members (`IPatch`, `create`, `prepare`, `jet`, `radius`, `locate`, ...); units and frames named in its text: rational, radians, degree, world, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieConicHermite` in packages/engine/src/geometry/construction/AutoMovieConicHermite.ts; its surface is the 9 members listed and the text shows 11 other files naming it, mostly test (6), packages/engine (5), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieConicHermite.ts#AutoMovieConicHermite.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

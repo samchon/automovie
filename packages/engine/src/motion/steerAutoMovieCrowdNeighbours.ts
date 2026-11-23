@@ -10,14 +10,6 @@
  * @param n The number of agents.
  * @param cell The cell's side, metres: the largest distance any query must reach; finite and positive.
  * @returns The query: it writes the agents other than one that lie in its cell or the eight around it into the caller's buffer of at least `n` entries, in ascending index, and returns how many.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the state layout, the cell, the guarantee and the order of a query's result.
- * @evidence contracts/development/implementation.md#principled-implementation Two points within one cell side of each other differ by at most one in each cell coordinate, so the 3 x 3 block around a cell holds every agent within `cell` of any point in it.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass buckets the agents; a query reads nine buckets into the caller's buffer and sorts it in place.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Returns candidates only; the caller still applies its own exact distance tests, and ascending order keeps every sum the caller forms in the order of a full scan.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(N) to bucket N agents; a query costs its nine buckets' size m and O(m log m) to order them, in place of a scan of all N.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One evaluation's state; the next evaluation's positions differ.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The buckets hold N indices and live as long as the caller keeps the query, one evaluation.
  */
 export function steerAutoMovieCrowdNeighbours(
   x: readonly number[],
@@ -54,11 +46,6 @@ export function steerAutoMovieCrowdNeighbours(
 
 /**
  * Companion types of {@link steerAutoMovieCrowdNeighbours}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states what it returns.
- * @evidence contracts/development/design.md#principled-representation A query by agent index and one integer key per cell.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `steerAutoMovieCrowd` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No option beyond the cell's side.
  */
 export namespace steerAutoMovieCrowdNeighbours {
   /** Write the agents other than agent `k` in its cell and the eight around it into `into`, ascending, and return their count. */

@@ -36,14 +36,6 @@ import { swingConeBlend } from "./swingConeBlend";
  * @param constraint Its resolved range.
  * @param rig The bone's frame as the caller's rig resolves it; the humanoid tables' when absent.
  * @returns A fresh joint record in range.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the projection, its inputs' units and null meaning, and the fresh result.
- * @evidence contracts/development/implementation.md#principled-implementation Per-axis interval projection, the swing cone's blend toward the box point nearest neutral, and the swing-twist range's own projection read back on the joint's basis, as `clampJointRom` states them; each expression is the record form's, on the same operands, so the record is the same.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure `clampJointRom` reads a record's four fields and calls this; the arithmetic has one owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonfinite angles reset to neutral before the box; the edge tolerance `EDGE` only absorbs read-back rounding; unrestricted multi-turn overrides remain outside the cone's bisection guarantee, as on the record form.
- * @evidence contracts/development/implementation.md#efficient-algorithms Three clamps and at most forty fixed cone iterations, or one overshoot test and, outside the range, one projection and one decomposition; one result record and, for a gated joint, one sanitized record.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrows the caller's constraint and prepared frame; nothing is kept.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the fresh record; frame and box metadata stay with their weak owners.
  */
 export function clampJointRomValues(
   bone: AutoMovieHumanoidBone,
@@ -58,11 +50,6 @@ export function clampJointRomValues(
 
 /**
  * The record form's entry.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States when the input record is its own clamp.
- * @evidence contracts/development/design.md#principled-representation A clamp output is a value, as an admitted record is: equal angles are the same value, so the input stands for it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One entry, read by `clampJointRom`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The input is returned only where every projected angle is its own by `Object.is`; it is never edited.
  */
 export namespace clampJointRomValues {
   /**

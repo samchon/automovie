@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieConstructionSkinCut.ts#AutoMovieConstructionSkinCut
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the region, the smooth minimum with its bound and derivatives, the residual and the rail's jets.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One generating curve for a shared boundary: the skin's own intersection with a declared surface, exact with its jets, which the rail cycle, the band's edge and the crossing between them all read (construction.md, Connections: Ownership).
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The plane record, the input, the built cut with one reader and its station bounds, and one builder.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A phase without a crossing, already past the surface or tangent to it is refused with its phase; nothing is clamped to the face's end or refitted.
-
 # src/geometry/construction/AutoMovieConstructionSkinCut.ts#AutoMovieConstructionSkinCut.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

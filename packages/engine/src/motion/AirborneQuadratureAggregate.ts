@@ -10,14 +10,6 @@ import { adjacentAutoMovieFloat64 } from "../math/adjacentAutoMovieFloat64";
  * @param first The first actual Simpson panel.
  * @param components Fixed nonnegative error components, independent of the whole integral.
  * @returns A call-owned tree with fresh integral snapshots and borrowed read-only roundoff totals.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines changing weighted priorities, aggregate sums, safe bounds, earlier-time ties and ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Nonnegative weights make componentwise maxima valid priority bounds and weighted sums equal the sum of panel measures. Error-free TwoSum recovers each new integral-addition residual; outward positive sums enclose that additional aggregation roundoff. Simpson truncation estimates still require smoothness and are not physical certificates.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build a leaf, replace the selected leaf by two children, refresh its ancestors, and search by current component bounds.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stale heap, fixed weights, time grid, tolerance floor or dropped panel is used. Unsupported nonseparable callbacks keep the original generic quadrature path.
- * @evidence contracts/development/implementation.md#efficient-algorithms For n integral coordinates, k error components and tree depth D, replacement refreshes O(D(n+k)) aggregates instead of all P leaves. Best-first bound search can prune subtrees but still has O(Pk) worst-case cost when bounds overlap; no unconditional logarithmic timing claim is made. Storage is O(P(n+k)) plus actual panel data.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each leaf's fixed error components are computed once. Changed whole-integral weights are reevaluated against the same valid component maxima, while exact parent samples remain owned by the Simpson panel producer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The quadrature call owns this tree and its leaf weak index; replacement removes the old leaf from the index and tree. All nodes and callbacks release on return or throw; no global population, handle or physical model is retained.
  */
 export function AirborneQuadratureAggregate<Panel extends AirborneQuadratureAggregate.IPanel>(
   first: Panel,
@@ -161,11 +153,6 @@ function upperSum(a: number, b: number): number {
 
 /**
  * The current quadrature call's numeric aggregation surface.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Types distinguish a panel, borrowed aggregate values and current-weight operations. Companion IPanel: Start seconds order ties; value and absolute error use the integrand's output coordinates. Companion IRead: Values and additional aggregation roundoff retain the original output units; value is a fresh snapshot and roundoff is borrowed until the next replacement. Companion ITree: Each operation states its borrowed result, nonnegative weights or actual panel ownership.
- * @evidence contracts/development/design.md#principled-representation Integral coordinates retain caller units; nonnegative error components and weights express one separable norm-like measure. Companion IPanel: Reuses the actual quadrature panel's numeric estimates without physical or action vocabulary. Companion IRead: Separates numerical accumulation error from the panel truncation estimator instead of hiding it in a physical tolerance. Companion ITree: One tree represents the current live binary partition; replacement keeps actual children and drops their former parent leaf.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The adaptive seed quadrature is the sole owner and consumer of the aggregate tree. Companion IPanel: The aggregate needs only time ordering, values and error components, while the panel producer retains its own sample data. Companion IRead: The quadrature caller uses both arrays only while judging the current integral. Companion ITree: The adaptive quadrature consumes all four members to read, judge, select and refine the current partition.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts This representation exposes no accepted-error flag or fixed priority independent of the current integral. Companion IPanel: No guessed curve, body identity or success marker enters the panel contract. Companion IRead: Neither borrowed array can certify a continuous integrand or final flight error. Companion ITree: A priority query always receives the current weights; there is no stale-score cache or test-only counter.
  */
 export namespace AirborneQuadratureAggregate {
   /**

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidDomain.ts#AutoMovieSolidDomain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Missing domain permits every finite station; phase remains unwrapped and unavailable numeric jets return null.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Pre-evaluation admission of solver trials to an actually owned chart: companion namespace of 2 members (`contains`, `jet`). It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidDomain` in packages/engine/src/geometry/construction/AutoMovieSolidDomain.ts; its surface is the 2 members listed and the text shows 9 other files naming it, mostly packages/engine (9), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieSolidDomain.ts#AutoMovieSolidDomain.contains
 
 ## @evidence contracts/development/implementation.md#principled-implementation

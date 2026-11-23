@@ -1,21 +1,3 @@
-# src/geometry/curve/AutoMovieBernsteinSubdivision64.ts#AutoMovieBernsteinSubdivision64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its parameter contract and the retained arithmetic path.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Exact De Casteljau subdivision of Bernstein coefficient arrays: splitting at one parameter, restricting to an ordered subinterval and partitioning into three consecutive parameter thirds, for vector and scalar polynomials: companion namespace of 6 members (`split`, `splitS`, `restrict`, `restrictS`, `thirds`, `thirdsS`); units and frames named in its text: degree, local, second, rational. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieBernsteinSubdivision64` in packages/engine/src/geometry/curve/AutoMovieBernsteinSubdivision64.ts; its surface is the 6 members listed and the text shows 12 other files naming it, mostly packages/engine (10), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/curve/AutoMovieBernsteinSubdivision64.ts#AutoMovieBernsteinSubdivision64.split
 
 ## @evidence contracts/development/implementation.md#principled-implementation

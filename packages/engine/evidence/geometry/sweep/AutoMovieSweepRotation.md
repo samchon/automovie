@@ -1,21 +1,3 @@
-# src/geometry/sweep/AutoMovieSweepRotation.ts#AutoMovieSweepRotation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the layout, the aliasing rule and the conventions shared with `Quaternion`.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Quaternion operations on caller-owned arrays, `[x, y, z, w]` at an offset, for sweeps posed every frame without allocating: companion namespace of 6 members (`multiply`, `normalize`, `conjugate`, `fromBasis`, `rotate`, `slerp`); units and frames named in its text: quaternion, frame. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSweepRotation` in packages/engine/src/geometry/sweep/AutoMovieSweepRotation.ts; its surface is the 6 members listed and the text shows 3 other files naming it, mostly packages/engine (3), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/sweep/AutoMovieSweepRotation.ts#AutoMovieSweepRotation.multiply
 
 ## @evidence contracts/development/implementation.md#principled-implementation

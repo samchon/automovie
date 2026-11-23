@@ -24,14 +24,6 @@ import { physicalHullFaces } from "./physicalHullFaces";
  * @param point The point of its surface, in the frame `frame` is in.
  * @param fallback The direction returned where the normal has no direction.
  * @returns The outward unit normal.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each kind's normal, edge blend and borrowed fallback. Namespace prepare binds one unchanged admitted frame/shape, prepares only at first actual point and releases its callback with surface resolution; direct calls continue to read mutable current geometry freshly.
- * @evidence contracts/development/implementation.md#principled-implementation A sphere's and a capsule's exact gradient; a polytope's normal as the gradient of the log-sum-exp smooth maximum of its face planes' signed heights, continuous across edges and dominated by the nearest face farther from edges.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One private normal calculation serves direct and prepared calls. Centre composition shares its fresh rotated offset's storage; direct reads preserve centre-then-rotation-then-kind observation. The explicit prepared reader lends only demanded centre/rotation/axis/inverse/planes and may omit a sphere's unused orientation, while radial retains the same current-point threshold/fallback.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The weights are taken relative to the highest plane, so none overflows; a degenerate normal falls back instead of normalising a zero vector. Direct calls still observe raw parent/local rotation getters and their failures after centre construction, including for spheres.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work PhysicalHullFaces, quaternion/vector owners and six fixed box normals remain shared. Direct calls read current transforms/extents anew. An explicit prepare caller holds its frame/shape unchanged, allowing exact centre/rotation/axis/inverse/planes to serve actual changing points without caching a normal, fallback, height or weight.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each polytope query uses two indexed height/weight passes and one weighted-sum vector before existing world rotation/normalization; raw boxes still construct their six planes. Centre and capsule-axis point composition reuse owned offsets; only explicit prepared sphere readers omit unused orientation. Prepared geometry pays demanded frame/axis/inverse/planes once without a wrapper and overwrites one height workspace. Direct calls retain no state; SurfaceRays consumes the prepared normals.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Direct temporaries release on return. A prepared callback owns one numeric frame, optional axis/inverse, O(F) planes and one O(F) height workspace until its operation ends. Every present plane height is overwritten at each point; no point, fallback, normal result or query population is retained. Only six unit normals live for the module; outputs remain fresh except the original borrowed fallback.
  */
 export function physicalShapeNormal(
   frame: IAutoMovieRigidTransform,
@@ -44,11 +36,6 @@ export function physicalShapeNormal(
 
 /**
  * Fixed collider geometry can lend only its invariant normal prerequisites.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The prepared reader keeps frame/shape unchanged, accepts current points/fallbacks and retains the original borrowed degenerate fallback.
- * @evidence contracts/development/design.md#principled-representation The same sphere/capsule gradient or smoothed polytope normal is read in the parent frame; only centre, rotation, axis, inverse and planes are invariant.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanoidSurfaceRays uses prepare for repeated normals on each unchanged rest collider, without exporting a mutable preparation record or another geometric representation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No caller-derived frame, result flag, target point or cached normal enters the API; every current point and plane weight remains evaluated by the same private owner.
  */
 export namespace physicalShapeNormal {
   /**

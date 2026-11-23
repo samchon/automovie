@@ -1,21 +1,3 @@
-# src/kinematics/swingTwistBasis.ts#swingTwistBasis
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the frame, its members and their units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The rest direction, the flexion axis and their cross product span the planes the great circles lie in; angles are degrees.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The frame, the circle of a direction, the direction of a circle and a clamp, each read by both owners of the swing-twist range.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No joint is named; the axes are the caller's.
-
 # src/kinematics/swingTwistBasis.ts#swingTwistBasis.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

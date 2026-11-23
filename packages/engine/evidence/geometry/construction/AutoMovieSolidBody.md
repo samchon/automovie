@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidBody.ts#AutoMovieSolidBody
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the faces, their cycles, the merge's steps and the published form.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A solid built by merges and diffs, as trimmed faces that share their boundaries: the base, every blend and every part, each a surface with its trim cycles in its own chart (`AutoMovieSolidCycle`), the shared boundary vertices held once in the body's mesh: companion namespace of 12 members (`IFace`, `IBody`, `IFaceInput`, `IMerge`, `IMerged`, `create`, ...); units and frames named in its text: local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidBody` in packages/engine/src/geometry/construction/AutoMovieSolidBody.ts; its surface is the 12 members listed and the text shows 26 other files naming it, mostly packages/engine (14), test (7), packages/human (5), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidBody.ts#AutoMovieSolidBody.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

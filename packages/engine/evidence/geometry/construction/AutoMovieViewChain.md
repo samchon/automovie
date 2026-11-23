@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewChain.ts#AutoMovieViewChain
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the chain's inputs and units, the arc construction and its sources, the exact phase-advance rule, the G1 joins and the sided second phase derivatives there, the reported curvatures, the one phase reduction with its precision premise and the native jets' derivation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A section is its control points with tangents and one shoulder per arc; each arc is the rational quadratic those fix, with a named fault when its control triangle or phase advance fails.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Its consumer is the native view reader (`AutoMovieLoftSectionNative`) for a source declaring touch offsets or splits; the four-quarter `AutoMovieViewSection` stays the owner of axis-touch sections.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No arc is replaced by a line or default shoulder when its premise fails, no G2 is claimed, and a join's second phase derivatives are never presented as two-sided.
-
 # src/geometry/construction/AutoMovieViewChain.ts#AutoMovieViewChain.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation

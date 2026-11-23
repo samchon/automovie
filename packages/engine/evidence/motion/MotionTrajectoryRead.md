@@ -1,21 +1,3 @@
-# src/motion/MotionTrajectoryRead.ts#MotionTrajectoryRead
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Fixed Hermite and adaptive quartic or paired-quintic reads share held endpoints, fresh public records and a quaternion-only projection.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A completed trajectory owns numeric states and interpolation coefficients; every returned vector and orientation belongs to its read, and the reader has no right-hand side, model or shape-history input.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The two existing steppers each hand their completed numeric records to their corresponding reader.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The data records reuse the integrator's state/rate types; no motion is approximated anew or reintegrated at playback.
-
 # src/motion/MotionTrajectoryRead.ts#MotionTrajectoryRead.IFixed
 
 ## @evidence contracts/development/common.md#meaningful-documentation

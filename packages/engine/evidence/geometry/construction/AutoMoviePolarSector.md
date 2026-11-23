@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMoviePolarSector.ts#AutoMoviePolarSector
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the guide's jet, the Hermite basis and the angle convention.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents A closed section about an axis point as a radius in the polar angle, built from guides and the sectors between them (rule J2's sector fill): companion namespace of 6 members (`IGuide`, `Jet`, `radius`, `fullnessAt`, `point`, `sector`); units and frames named in its text: second, radians, radian, local. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMoviePolarSector` in packages/engine/src/geometry/construction/AutoMoviePolarSector.ts; its surface is the 6 members listed and the text shows 22 other files naming it, mostly packages/engine (10), packages/human (7), test (5), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMoviePolarSector.ts#AutoMoviePolarSector.radius
 
 ## @evidence contracts/development/implementation.md#principled-implementation

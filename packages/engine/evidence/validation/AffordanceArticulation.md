@@ -1,21 +1,3 @@
-# src/validation/AffordanceArticulation.ts#AffordanceArticulation
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the coordinate operations and their travel units, domain and failure results.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A follows chain relates travel coordinates, independently of spatial rides; an input names one coordinate and resolves to its independent leader in that leader's unit.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Engine owns the kinds, independent leader, admitted input and current travel used by archetype posing and human prop writers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Reads the existing affordance records and coupling functions; no producer or action names enter the calculation.
-
 # src/validation/AffordanceArticulation.ts#AffordanceArticulation.leader
 
 ## @evidence contracts/development/common.md#meaningful-documentation

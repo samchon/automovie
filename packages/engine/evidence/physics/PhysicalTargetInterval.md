@@ -1,21 +1,3 @@
-# src/physics/PhysicalTargetInterval.ts#PhysicalTargetInterval
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Gives the purpose (Shared interval clock and coherent pose/twist sampling for every fitted target owner) and documents 4 documented members as stated in this comment.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Shared interval clock and coherent pose/twist sampling for every fitted target owner: companion namespace of 4 members (`IPlan`, `plan`, `fraction`, `sample`); units and frames named in its text: local, seconds, world. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `PhysicalTargetInterval` in packages/engine/src/physics/PhysicalTargetInterval.ts; its surface is the 4 members listed and the text shows 6 other files naming it, mostly packages/engine (5), test (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/physics/PhysicalTargetInterval.ts#PhysicalTargetInterval.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation

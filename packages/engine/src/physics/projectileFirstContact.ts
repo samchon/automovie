@@ -60,14 +60,6 @@ import { projectileShapeDeparture } from "./projectileShapeDeparture";
  * @param options The projectile's radius and tail, thinnest collider and optional already-resolved initial collider.
  * @returns The first contact, or null when the flight meets nothing in the span.
  * @throws {RangeError} When the span is not finite and forward, thickness is not finite and positive, radius is not finite and non-negative, a tail lacks an attitude, or a departure certificate is invalid.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the projectile's shape, the sweep's owner, the step rule, the blind spot and where the normal comes from.
- * @evidence contracts/development/implementation.md#principled-implementation Continuous collision detection by the resolver's conservative scan and bisection, with the step bounded by the largest point speed so no collider of the stated thickness is stepped over.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, bound the speed, sweep with the one resolver, read the contact's point and normal.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The step derives from the flight and stated thickness. Initial overlap is preserved unless the caller identifies a resolved episode and its collider supplies physical departure knowledge; no tolerance, time push, permanent collider removal or bounce cap masks that episode.
- * @evidence contracts/development/implementation.md#efficient-algorithms One signed separation per eligible pair and scan question. A scalar collider needs no point/normal until the chosen hit. Initial departure retains its existing clearance verification.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One sampled state supplies both weapon endpoints; plane and shape scalar and full queries use the same distance equations, with the unchanged fixed shape frame prepared within a collider's lifetime.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the flight's own memo.
  */
 export function projectileFirstContact(
   projectile: IAutoMovieProjectile,
@@ -234,11 +226,6 @@ export function projectileFirstContact(
 
 /**
  * Companion types and collider builders of {@link projectileFirstContact}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its frame and unit.
- * @evidence contracts/development/design.md#principled-representation A collider is a nearest-point reading of a segment at a second, optionally with physical departure knowledge for a resolved initial episode; a plane and a placed shape are its builders. The resolved collider id is separate from geometry and never removes later entry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What a caller gives and the two builders the engine's own colliders need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A person's colliders are the caller's reading, never a shape the engine guesses.
  */
 export namespace projectileFirstContact {
   /**

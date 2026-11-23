@@ -1,21 +1,3 @@
-# src/geometry/curve/AutoMovieBernsteinRational64.ts#AutoMovieBernsteinRational64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its denominator and parameter contract.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Rational Bernstein quotients N/Q, including the four existing quotient operations preserved by the AutoMovieBernstein64 compatibility facade: companion namespace of 4 members (`thirdsR`, `evaluateR`, `evaluateS`, `positiveScalar`); units and frames named in its text: rational, degrees, local, degree. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieBernsteinRational64` in packages/engine/src/geometry/curve/AutoMovieBernsteinRational64.ts; its surface is the 4 members listed and the text shows 1 other file naming it, mostly packages/engine (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/curve/AutoMovieBernsteinRational64.ts#AutoMovieBernsteinRational64.thirdsR
 
 ## @evidence contracts/development/implementation.md#principled-implementation

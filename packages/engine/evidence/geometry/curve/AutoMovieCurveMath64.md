@@ -1,21 +1,3 @@
-# src/geometry/curve/AutoMovieCurveMath64.ts#AutoMovieCurveMath64
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its chart, coefficient order, ownership and arithmetic path.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Binary64 vector and cubic Bernstein operations for three-component coefficient fields: companion namespace of 18 members (`V`, `Span`, `clone`, `add`, `sub`, `scale`, ...); units and frames named in its text: frame, second, local, degree. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieCurveMath64` in packages/engine/src/geometry/curve/AutoMovieCurveMath64.ts; its surface is the 18 members listed and the text shows 36 other files naming it, mostly packages/engine (30), packages/recovery (4), packages/human (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/curve/AutoMovieCurveMath64.ts#AutoMovieCurveMath64.clone
 
 ## @evidence contracts/development/implementation.md#principled-implementation

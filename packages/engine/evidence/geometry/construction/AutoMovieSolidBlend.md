@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieSolidBlend.ts#AutoMovieSolidBlend
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the basis, the ribbons' roles and their scaling.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents One column of the blend surface between two rails: the quintic Hermite span in the blend's cross parameter `w` from the start ribbon (`w = 0`) to the end ribbon (`w = 1`): companion namespace of 3 members (`IJet`, `jet`, `basis`); units and frames named in its text: second, world, local, degree. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieSolidBlend` in packages/engine/src/geometry/construction/AutoMovieSolidBlend.ts; its surface is the 3 members listed and the text shows 11 other files naming it, mostly packages/engine (7), test (4), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieSolidBlend.ts#AutoMovieSolidBlend.jet
 
 ## @evidence contracts/development/implementation.md#principled-implementation

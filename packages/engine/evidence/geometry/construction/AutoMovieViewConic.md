@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewConic.ts#AutoMovieViewConic
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes source C2/error/admission from final phase fitting, longitudinal coefficient interpolation and pole regularity.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Four rational conics with convex rational cubic G2 end approximations: companion namespace of 16 members (`IRay`, `IQuarter`, `ICurve`, `create`, `prepareGeometry`, `radius`, ...); units and frames named in its text: second, local, radians, rational. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewConic` in packages/engine/src/geometry/construction/AutoMovieViewConic.ts; its surface is the 16 members listed and the text shows 15 other files naming it, mostly test (8), packages/engine (7), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieViewConic.ts#AutoMovieViewConic.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

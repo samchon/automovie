@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewLoft.ts#AutoMovieViewLoft
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the inputs' premises, the poles' domes, the chain stations' continuity with its derivation and the result's fields.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The result carries its actual four-quarter sections and split chains separately, with their source frames, the final field and its continuity.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One create operation owns view-part admission and publication. Station records expose the admitted geometry to inspection and the compatibility layer.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A rejected source keeps its diagnostic, never publishes a replacement shape, and a split chain declares only the continuity of its joins.
-
 # src/geometry/construction/AutoMovieViewLoft.ts#AutoMovieViewLoft.create
 
 ## @evidence contracts/development/implementation.md#principled-implementation

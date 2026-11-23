@@ -29,14 +29,6 @@ import { physicalShapeSupport } from "./physicalShapeSupport";
  * @param poseB The second shape's parent pose, world metres.
  * @param shapeB The second shape.
  * @returns The penetration, or null when the shapes do not overlap.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the algorithms, their sources, the outputs and the null case.
- * @evidence contracts/development/implementation.md#principled-implementation The penetration depth of two convex sets is the distance from the origin to the boundary of their Minkowski difference; EPA converges to it from inside for polytopes exactly and for round shapes within the stated tolerance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure GJK's simplex cases, then EPA's expansion; supports are `physicalShapeSupport`'s.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance is relative to the shapes' scale at float64 and the iteration caps only stop a curved shape's endless refinement; a capped result is the best face found, still inside the true depth.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most 64 GJK and 128 EPA iterations, each one support query and a face scan.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of its arguments.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Builds its polytope per call and returns fresh vectors; retains nothing.
  */
 export function physicalShapePenetration(
   poseA: IAutoMovieRigidTransform,
@@ -133,11 +125,6 @@ export function physicalShapePenetration(
 
 /**
  * Companion types of {@link physicalShapePenetration}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the depth, the separating direction and both deepest points.
- * @evidence contracts/development/design.md#principled-representation World metres; the depth is the shortest separating translation's positive length and the normal its unit direction from the first shape.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the pair contact when a wire core lies inside the other solid.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A separated pair returns null instead of a negative depth.
  */
 export namespace physicalShapePenetration {
   /** A penetration between two convex colliders, world metres. */

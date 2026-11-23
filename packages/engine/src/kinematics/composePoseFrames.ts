@@ -31,14 +31,6 @@ import type {
  * @param from The first row composed; 0 when absent. The rows before it must already hold this pose's frames.
  * @param indices Optional parent-first row selection. When supplied, from and to index this selection, and each selected parent must already be composed or precede its child.
  * @param to The row after the last composed; every row when absent. A prefix of the rows is complete in itself, since every row's ancestors come before it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the recurrence, the row order it relies on, the root, what is not read or admitted, the units and where the result goes.
- * @evidence contracts/development/implementation.md#principled-implementation Forward kinematics of a rooted tree in parent-first order: local = rest x articulation, world = parent x local, position = parent position + parent-rotated offset, each by the Hamilton product and the `v + w t + q x t` rotation with `t = 2 (q x v)` the record forms use, expression for expression.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the rows. Admission, the choice of articulations and the making of public records belong to the callers; the companion builds the tables, the workspace and one bone's record.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bone, side or rig is named; no component is normalized, clamped or repaired; a rig the tables were not built from is not detected, which is the caller's premise.
- * @evidence contracts/development/implementation.md#efficient-algorithms B bones cost B iterations of two quaternion products and one vector rotation on typed arrays: no name lookup, recursion, revision bookkeeping or allocation. A whole humanoid is composed in less time than the dependency rows of a few of its bones were compared in. A caller that reads a few bones composes only the prefix of rows up to the deepest of them and extends it when a later read asks further.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A parent's frame is read from the same workspace by all its children. The rig's tables are built once per node list and kept weakly.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's workspace and retains nothing; the tables live in a weak map keyed by the rig's node list and go with it.
  */
 export function composePoseFrames(
   tables: composePoseFrames.ITables,
@@ -131,11 +123,6 @@ export function composePoseFrames(
 
 /**
  * The tables, the workspace and the record view of {@link composePoseFrames}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each member's content, row order and unit, and who owns what it returns.
- * @evidence contracts/development/design.md#principled-representation A rig as parallel numeric rows in parent-first order (parent index, rest rotation, rest offset, name) and a pose's frames as three numeric rows beside them, the form a single pass reads and writes; a public bone record is made from one row only where a reader asks for it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two types and three makers, read by the prepared FK state and its readings alone.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The tables hold no pose, the workspace no rig and neither a validity flag; no bone or rig is named.
  */
 export namespace composePoseFrames {
   /** One rooted rig as numeric rows, parent first. */

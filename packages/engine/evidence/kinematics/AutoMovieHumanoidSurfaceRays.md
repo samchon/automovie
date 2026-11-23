@@ -1,21 +1,3 @@
-# src/kinematics/AutoMovieHumanoidSurfaceRays.ts#AutoMovieHumanoidSurfaceRays
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the readers and their reader.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Exact ray exits through convex colliders and the exited collider's outward normal (`physicalShapeNormal`).
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-One reader bundle and the exit record.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A missing bone, segment or hit throws rather than inventing a point.
-
 # src/kinematics/AutoMovieHumanoidSurfaceRays.ts#AutoMovieHumanoidSurfaceRays.tools
 
 ## @evidence contracts/development/common.md#meaningful-documentation

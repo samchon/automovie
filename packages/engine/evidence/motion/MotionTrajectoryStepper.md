@@ -1,21 +1,3 @@
-# src/motion/MotionTrajectoryStepper.ts#MotionTrajectoryStepper
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its formula, its order and its source.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The orientation advanced in the Lie algebra of rotations, a rotation vector relative to a step's start, by Runge-Kutta-Munthe-Kaas; the vector state and that vector share one tableau, one error norm and one continuous extension.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The integrator alone calls this adaptive builder; shared rotation algebra and completed numeric playback each have their existing separate owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Adaptive stepping remains opt-in and fixed requests keep their explicit grid; exact endpoint differential matching is shared by both numeric readers without changing generic RMS budgets.
-
 # src/motion/MotionTrajectoryStepper.ts#MotionTrajectoryStepper.dormandPrince
 
 ## @evidence contracts/development/common.md#meaningful-documentation

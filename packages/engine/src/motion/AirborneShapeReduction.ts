@@ -23,14 +23,6 @@ import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
  * @param model The body's mass model, or a prepared token of it that stays unreleased while the reduction is used.
  * @returns The reductions of that one model.
  * @throws {Error} For a released prepared token.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three reductions, their owners for each kind of model, the token's admission and the tensor's.
- * @evidence contracts/development/implementation.md#principled-implementation The mass snapshot and its reductions are selected together, so an unrelated raw model cannot be paired with a prepared token; each reduction is its existing owner's.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One selection by the model's kind; the histories that read shapes own their sampling and memo.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No reduction is restated: every number comes from the existing momentum and tensor owners, and the admission keeps their zero and NaN refusal.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant selection; each reduction keeps its owner's O(S) work over the model's S parts.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the stencil history and the tabulated history; a prepared token's private frame reuse stays inside its own entries.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the model reference only, for as long as its history does; the caller releases a prepared token after its history.
  */
 export function AirborneShapeReduction(
   model: IAutoMovieResolveCenterOfMass.IModel | prepareAutoMovieMassModel.IPrepared,
@@ -75,11 +67,6 @@ function admit(matrix: number[][]): void {
 
 /**
  * The reductions of one mass model and the bone map they read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each member states its input, output, frame and unit.
- * @evidence contracts/development/design.md#principled-representation Posed parts, an interval's momentum and a tensor: the sufficient statistics of a shape for the flight's equation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four operations, each read by a shape history.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The records are the momentum owner's own; nothing is restated.
  */
 export namespace AirborneShapeReduction {
   /** Resolved bones by name, in one common frame: the map a shape callback returns. */

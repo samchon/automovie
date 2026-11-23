@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieLoftStations.ts#AutoMovieLoftStations
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the error measure, the fixed marks and the depth bound.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Tessellation stations of a chain: where a face's grid rings stand: companion namespace of 2 members (`PROBES`, `bisect`). It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieLoftStations` in packages/engine/src/geometry/construction/AutoMovieLoftStations.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly packages/engine (2), test (1), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
-
 # src/geometry/construction/AutoMovieLoftStations.ts#AutoMovieLoftStations.bisect
 
 ## @evidence contracts/development/implementation.md#principled-implementation

@@ -1,21 +1,3 @@
-# src/geometry/construction/AutoMovieViewParameter.ts#AutoMovieViewParameter
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Distinguishes parameter endpoints, scalar values and radial closure, with kernel millimetre units.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Source parameter arithmetic shared by radial outlines and nonzero world-coordinate curves: companion namespace of 6 members (`prepare`, `at`, `station`, `jet`, `inverseJet`, `transferJet`); units and frames named in its text: second, frame. It has no optional member, so no absent-value state combines with another.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieViewParameter` in packages/engine/src/geometry/construction/AutoMovieViewParameter.ts; its surface is the 6 members listed and the text shows 23 other files naming it, mostly packages/human (12), packages/engine (9), test (2), so no member is declared for a presumed future need.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
-
 # src/geometry/construction/AutoMovieViewParameter.ts#AutoMovieViewParameter.prepare
 
 ## @evidence contracts/development/implementation.md#principled-implementation

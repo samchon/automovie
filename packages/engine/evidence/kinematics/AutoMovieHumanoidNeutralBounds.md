@@ -1,21 +1,3 @@
-# src/kinematics/AutoMovieHumanoidNeutralBounds.ts#AutoMovieHumanoidNeutralBounds
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States exact neutral bounds, unchanged-profile scope, live provenance and release.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A private handle binds one unchanged physical profile to its actual segment identities and their six exact neutral bound coordinates.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Measurement and surface rays share read's single numerical union owner; withSurfaces additionally owns prepare/release. No derived geometry can be supplied by callers and no package barrel exposes this internal owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Prepared reads reject unknown, released, unrelated-profile and outside-profile handles/segments. Ordinary reads calculate fresh, and physicalShapeBounds retains every formula and input-admission premise; no geometric answer is accepted from a caller.
-
 # src/kinematics/AutoMovieHumanoidNeutralBounds.ts#AutoMovieHumanoidNeutralBounds.IPrepared
 
 ## @evidence contracts/development/common.md#meaningful-documentation
