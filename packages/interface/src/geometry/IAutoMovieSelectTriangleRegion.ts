@@ -2,11 +2,6 @@
  * Connectivity and an oriented separating boundary for triangle-patch selection.
  *
  * Indices and boundary entries are nonnegative integer vertex identities with no coordinate frame or length unit. The selector checks triangle layout, distinct corners, manifold winding and a unique boundary of at least three vertices; absent edges, nonseparating loops and exterior free edges refuse.
- *
- * @evidence contracts/development/design.md#principled-representation Indices and boundary entries are nonnegative integer vertex identities with no coordinate frame or length unit.
- * @evidence contracts/development/design.md#minimal-and-owned-surface selectAutoMovieTriangleRegion floods across nonboundary edges and returns original triangle ordinals in ascending order.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The selector checks triangle layout, distinct corners, manifold winding and a unique boundary of at least three vertices; absent edges, nonseparating loops and exterior free edges refuse.
- * @evidence contracts/development/common.md#meaningful-documentation Connectivity and an oriented separating boundary for triangle-patch selection. Indices and boundary entries are nonnegative integer vertex identities with no coordinate frame or length unit.
  */
 export namespace IAutoMovieSelectTriangleRegion {
   /**
@@ -23,11 +18,6 @@ export namespace IAutoMovieSelectTriangleRegion {
    * three distinct vertices. A boundary edge missing from the mesh is refused, a
    * loop that does not separate the surface is refused, and on an open surface
    * the patch may not reach a free edge outside the supplied boundary.
-   *
-   * @evidence contracts/development/design.md#principled-representation Indices and boundary entries are nonnegative integer vertex identities with no coordinate frame or length unit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface selectAutoMovieTriangleRegion floods across nonboundary edges and returns original triangle ordinals in ascending order.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The selector checks triangle layout, distinct corners, manifold winding and a unique boundary of at least three vertices; absent edges, nonseparating loops and exterior free edges refuse.
-   * @evidence contracts/development/common.md#meaningful-documentation Connectivity and an oriented separating boundary for triangle-patch selection. Indices and boundary entries are nonnegative integer vertex identities with no coordinate frame or length unit.
    */
   export type IProps = {
     /**

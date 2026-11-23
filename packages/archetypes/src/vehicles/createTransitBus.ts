@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { addTransitBusSeating } from "./addTransitBusSeating";
 
@@ -39,14 +39,14 @@ import { addTransitBusSeating } from "./addTransitBusSeating";
 export function createTransitBus(
   params: { id?: string } | string = {},
   seed?: number | string,
-): Archetype<createTransitBus.Affordance, createTransitBus.Dimension> {
-  const draw: ArchetypeDrawSession<createTransitBus.Dimension> =
-    new ArchetypeDrawSession("transitBus", { aisleWidth: "m" }, seed, {
+): AutoMovieArchetype<createTransitBus.Affordance, createTransitBus.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTransitBus.Dimension> =
+    new AutoMovieArchetypeDrawSession("transitBus", { aisleWidth: "m" }, seed, {
       aisleWidth: seed === undefined ? 0.59 : undefined,
     });
   const { aisleWidth }: Record<createTransitBus.Dimension, number> =
     draw.dimensions({ aisleWidth: AISLE_BAND });
-  const builder: BusBuilder = new ArchetypeBuilder({
+  const builder: BusBuilder = new AutoMovieArchetypeBuilder({
     id: (typeof params === "string" ? params : params.id) ?? "transitBus",
     name: "low-floor transit bus",
     material: "steel",
@@ -142,12 +142,12 @@ export function createTransitBus(
   builder.affordance({
     id: "aisle",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, FLOOR, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, FLOOR, 0)),
     extent: null,
     width: aisleWidth,
     depth: 2 * (END - 0.07),
   });
-  return builder.build(27_750 * ArchetypeUnits.POUND);
+  return builder.build(27_750 * AutoMovieArchetypeUnits.POUND);
 }
 
 /**
@@ -185,7 +185,7 @@ export namespace createTransitBus {
 }
 
 /** Archetype construction with the bus's contact ids and seating fit. */
-type BusBuilder = ArchetypeBuilder<
+type BusBuilder = AutoMovieArchetypeBuilder<
   createTransitBus.Affordance,
   createTransitBus.Dimension
 >;
@@ -286,7 +286,11 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
     builder.affordance({
       id: slider,
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(x, FLOOR, z), v(0, 1, 0), v(0, 0, dir)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, FLOOR, z),
+        v(0, 1, 0),
+        v(0, 0, dir),
+      ),
       extent: null,
       travel: LEAF,
       parts: [panel, pane, cap],
@@ -298,7 +302,7 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
   builder.affordance({
     id: bay.aperture,
     kind: "aperture",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(-HALF_WIDTH, FLOOR, bay.z),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -310,7 +314,9 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
   builder.affordance({
     id: bay.threshold,
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(-HALF_WIDTH + threshold / 2, FLOOR, bay.z)),
+    frame: AutoMovieArchetypeFrame.upright(
+      v(-HALF_WIDTH + threshold / 2, FLOOR, bay.z),
+    ),
     extent: null,
     width: threshold,
     depth: 2 * LEAF,
@@ -319,7 +325,7 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
   // Place the stanchion beyond the doorway's projection into the vestibule.
   const railX: number = -0.63;
   const railZ: number = bay.z + bay.railDirection * (LEAF + 0.18);
-  const diameter: number = 1.375 * ArchetypeUnits.INCH;
+  const diameter: number = 1.375 * AutoMovieArchetypeUnits.INCH;
   builder.rod(
     bay.rail + "-pole",
     diameter / 2,
@@ -331,7 +337,7 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
     id: bay.rail,
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(railX, (CEILING + FLOOR) / 2, railZ),
       v(1, 0, 0),
       v(0, 1, 0),
@@ -411,21 +417,21 @@ function addWall(
 /** Vector constructor for metric bus-local dimensions. */
 const v: typeof Vector3.create = Vector3.create;
 /** Half the 102-inch body width. */
-const HALF_WIDTH: number = 51 * ArchetypeUnits.INCH;
+const HALF_WIDTH: number = 51 * AutoMovieArchetypeUnits.INCH;
 /** End station of the 40 ft 2 in body. */
-const END: number = 241 * ArchetypeUnits.INCH;
+const END: number = 241 * AutoMovieArchetypeUnits.INCH;
 /** Additional length at each end of the 41 ft bumper envelope. */
-const BUMPER: number = 5 * ArchetypeUnits.INCH;
+const BUMPER: number = 5 * AutoMovieArchetypeUnits.INCH;
 /** Height of the passenger deck and thresholds above the road. */
-const FLOOR: number = 14 * ArchetypeUnits.INCH;
+const FLOOR: number = 14 * AutoMovieArchetypeUnits.INCH;
 /** Depth of the deck panels below the common walking surface. */
 const DECK_DEPTH: number = 0.16;
 /** Mid-coach ceiling height, with a scenic level ceiling. */
-const CEILING: number = FLOOR + 95 * ArchetypeUnits.INCH;
+const CEILING: number = FLOOR + 95 * AutoMovieArchetypeUnits.INCH;
 /** Height over the diesel model's air conditioner. */
-const ROOF: number = 126 * ArchetypeUnits.INCH;
+const ROOF: number = 126 * AutoMovieArchetypeUnits.INCH;
 /** Clear aisle width across the offered seat models, using the brochure's metric figures. */
-const AISLE_BAND: IArchetypeBand = ArchetypeBand.metres(
+const AISLE_BAND: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.559,
   0.61,
   "New Flyer Xcelsior brochure, p. 3, 40-foot Aisle Width (varies with seat model): https://www.newflyer.com/site-content/uploads/2025/12/New-Flyer-Xcelsior-Brochure.pdf",
@@ -443,7 +449,7 @@ const TYRE_WIDTH: number = 0.305;
 /** Lateral depth of the floor cutout around each exterior tyre. */
 const WELL_WIDTH: number = TYRE_WIDTH + 0.2;
 /** Nominal unloaded tyre radius, from rim diameter and sidewall height. */
-const RADIUS: number = 11.25 * ArchetypeUnits.INCH + TYRE_WIDTH * 0.7;
+const RADIUS: number = 11.25 * AutoMovieArchetypeUnits.INCH + TYRE_WIDTH * 0.7;
 /** Clearance envelope around a tyre in the side fascia. */
 const ARCH_HALF: number = RADIUS + 0.055;
 /** Upper edge of wheel cutouts and housings. */
@@ -451,7 +457,7 @@ const ARCH_TOP: number = 2 * RADIUS + 0.055;
 /** Axle stations on the 283.75-inch wheelbase. */
 const AXLES: Readonly<{ front: number; rear: number }> = {
   front: 3.5,
-  rear: 3.5 - 283.75 * ArchetypeUnits.INCH,
+  rear: 3.5 - 283.75 * AutoMovieArchetypeUnits.INCH,
 };
 /** Front boarding bay ahead of the front axle. */
 const ENTRY: DoorBay = {
@@ -474,14 +480,17 @@ const EXIT: DoorBay = {
   railDirection: 1,
 };
 /** Painted bus body without operator graphics. */
-const BODY: ArchetypeBuilder.IOptions = { color: "#bfcccf" };
+const BODY: AutoMovieArchetypeBuilder.IOptions = { color: "#bfcccf" };
 /** Tinted window marker. */
-const GLASS: ArchetypeBuilder.IOptions = { color: "#48616d", density: 0.4 };
+const GLASS: AutoMovieArchetypeBuilder.IOptions = {
+  color: "#48616d",
+  density: 0.4,
+};
 /** Floor, tyres and wheel surfaces. */
-const DARK: ArchetypeBuilder.IOptions = { color: "#2d343a" };
+const DARK: AutoMovieArchetypeBuilder.IOptions = { color: "#2d343a" };
 /** Yellow supports visible against the passenger interior. */
-const RAIL: ArchetypeBuilder.IOptions = { color: "#e5b229" };
+const RAIL: AutoMovieArchetypeBuilder.IOptions = { color: "#e5b229" };
 /** Headlamp lens marker. */
-const HEADLAMP: ArchetypeBuilder.IOptions = { color: "#e4e4df" };
+const HEADLAMP: AutoMovieArchetypeBuilder.IOptions = { color: "#e4e4df" };
 /** Rear lamp lens marker. */
-const TAILLAMP: ArchetypeBuilder.IOptions = { color: "#a53f39" };
+const TAILLAMP: AutoMovieArchetypeBuilder.IOptions = { color: "#a53f39" };

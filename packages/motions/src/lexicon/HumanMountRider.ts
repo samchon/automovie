@@ -77,7 +77,7 @@ export namespace HumanMountRider {
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what turns, about what, how far and when nothing changes.
    * @evidence contracts/development/implementation.md#principled-implementation The ball stays where the goal puts it and the ankle moves on its circle about the ball's lateral axis; the least turn that reaches is found by bisection, the distance being monotonic in the turn up to `ANKLING`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rider's bounds handed to the search, which nkleRidePedalFoot owns so this file stays within its size.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The rider's bounds handed to the search, which `ankleRidePedalFoot` owns so this file stays within its size.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pedal beyond even `ANKLING` leaves the foot short of it, which the contact audit reports; a refusal with the saddle height that fits is owed.
    * @evidence contracts/development/implementation.md#efficient-algorithms Four distance trials (none, the two signs and `ANKLING`) and twenty-four bisections, which narrow the `ANKLING` span to about two millionths of a degree; each trial is one rotation about the ball's prepared axis.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The ball, the axis and the contact are read once per call and shared by every trial; the returned goal is placed by the same function the trials measure.
@@ -119,7 +119,7 @@ export namespace HumanMountRider {
     }
     if (material.reinPalm !== undefined)
       return {
-        ...placeRideReinPalm(material.reinPalm, grip, fingers),
+        ...placeRideReinPalm(material.reinPalm, grip, fingers, material.cross),
         fingers,
         contact: material.reinPalm.point,
       };
@@ -166,7 +166,7 @@ export namespace HumanMountRider {
    * @returns The arm's goal and the hand's finger joints.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States where the wrist goes, how the hand turns, how the fingers close and what the first pass leaves out.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture shows, so the hand leaves the place it held.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's frame is built from the grip's own normal and axis, so it turns with the part at every instant; the way there is a straight line and the shortest turn from the hand the posture shows, and the elbow's pole blends from the elbow the posture shows, so the hand leaves the place it held and the arm the pose it held.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The target, the turn, the blend from the joints' hand, the fingers.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A grip out of the arm's reach is not checked here: the limb fit leaves the hand short of it, which the contact audit reports. The closure is the caller's, curled on the real colliders.
    * @evidence contracts/development/implementation.md#efficient-algorithms Holding fully needs no resolution; a partial hold observes the free wrist and its ancestors. A native read omits unrelated simple leg fits through the canonical goal selector; an incoming custom reader keeps the full fit. The fingers blend linearly over the closed joints given.
@@ -213,9 +213,7 @@ export namespace HumanMountRider {
     posture: IAutoMovieMotionHumanPosture,
     share: number,
   ): Taking {
-    let free:
-      | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-      | undefined;
+    let free: ReadonlyMap<AutoMovieHumanoidBone, IFree> | undefined;
     return (side, grip, closed) =>
       held(body, side, posture, grip, share, closed, () => {
         free ??= freeHands(body, posture, BOTH_HANDS);
@@ -238,7 +236,7 @@ export namespace HumanMountRider {
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
     share: number,
     closed: IAutoMovieMotionHumanPosture["joints"],
-    free: () => IAutoMovieResolvedBone,
+    free: () => IFree,
   ): IAutoMovieMotionHumanMountRider.IHoldResult {
     const s: number = Math.min(1, Math.max(0, share));
     const {
@@ -255,10 +253,19 @@ export namespace HumanMountRider {
       });
     let point: IAutoMovieVector3 = target;
     let rotation: IAutoMovieQuaternion = turned;
+    const hang: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      body,
+      posture,
+      side,
+      0.2,
+    );
+    let bend: IAutoMovieVector3 = hang;
     if (s < 1) {
-      const hand: IAutoMovieResolvedBone = free();
-      point = Vector3.lerp(hand.worldPosition, target, s);
-      rotation = Quaternion.slerp(hand.worldRotation, turned, s);
+      const hand: IFree = free();
+      point = Vector3.lerp(hand.position, target, s);
+      rotation = Quaternion.slerp(hand.rotation, turned, s);
+      // The elbow leaves where the posture shows it, so a hand taken from or given back to its rest keeps its elbow's side at the end it is free.
+      if (hand.pole !== undefined) bend = Vector3.lerp(hand.pole, hang, s);
     }
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
       side,
@@ -281,7 +288,7 @@ export namespace HumanMountRider {
       arm: {
         point,
         rotation,
-        bend: AutoMovieMotionHumanBend.hang(body, posture, side, 0.2),
+        bend,
         ...(contact === undefined ? {} : { contact }),
         planted: s >= 1,
       },
@@ -289,31 +296,83 @@ export namespace HumanMountRider {
     };
   }
 
-  /** Resolve the wrists as the posture shows them, before either grip is assigned: an arm the posture already places, such as a hand resting on a thigh, starts from there. */
+  /**
+   * The wrists as the posture shows them, before either grip is assigned: an
+   * arm the posture already places, such as a hand resting on a thigh,
+   * starts from there. A hand whose arm goal the posture gives in the world,
+   * turned, is where that goal puts it, the wrist on its point turned to its
+   * rotation, the arm fit's own closed-form answer, so no read fits that arm
+   * again; the others are read off the posture resolved without those arms.
+   */
   function freeHands(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
     requested: ReadonlySet<AutoMovieHumanoidBone>,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
+  ): ReadonlyMap<AutoMovieHumanoidBone, IFree> {
+    const out: Map<AutoMovieHumanoidBone, IFree> = new Map();
+    const rest: Set<AutoMovieHumanoidBone> = new Set();
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+    for (const bone of requested) {
+      const arm: "leftArm" | "rightArm" = bone.startsWith("left")
+        ? "leftArm"
+        : "rightArm";
+      const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[arm];
+      if (
+        goal !== undefined &&
+        goal.on === undefined &&
+        goal.rotation !== undefined
+      ) {
+        out.set(bone, {
+          position: goal.point,
+          rotation: goal.rotation,
+          pole: goal.bend,
+        });
+        delete limbs[arm];
+      } else rest.add(bone);
+    }
+    if (rest.size === 0) return out;
+    // The elbows the same fit places, read with their wrists: each is an ancestor of its wrist, so the fit computes it anyway.
     const read = prepareHumanPoseResolution(resolution);
-    return poseBones(
-      body,
-      resolveHumanPosture.seeded(
+    const elbows: Set<AutoMovieHumanoidBone> = new Set(rest);
+    for (const bone of rest)
+      elbows.add(bone.startsWith("left") ? "leftLowerArm" : "rightLowerArm");
+    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(
         body,
-        posture,
-        undefined,
-        undefined,
-        read,
-        prepareHumanPoseResolution.isNativeSource(resolution)
-          ? requested
-          : undefined,
-        projection,
-      ).pose,
-      read(),
-      requested,
-    );
+        resolveHumanPosture.seeded(
+          body,
+          { ...posture, limbs },
+          undefined,
+          undefined,
+          read,
+          prepareHumanPoseResolution.isNativeSource(resolution)
+            ? rest
+            : undefined,
+          projection,
+        ).pose,
+        read(),
+        elbows,
+      );
+    for (const bone of rest) {
+      const found: IAutoMovieResolvedBone = bones.get(bone)!;
+      const elbow: IAutoMovieResolvedBone | undefined = bones.get(
+        bone.startsWith("left") ? "leftLowerArm" : "rightLowerArm",
+      );
+      out.set(bone, {
+        position: found.worldPosition,
+        rotation: found.worldRotation,
+        ...(elbow === undefined ? {} : { pole: elbow.worldPosition }),
+      });
+    }
+    return out;
+  }
+
+  /** A free wrist as the posture shows it, and the point its elbow bends toward there: the arm goal's own pole, or the elbow the fit placed. */
+  interface IFree extends IAutoMovieRigidTransform {
+    /** The point the elbow bends toward, world metres; none when the fit did not place the elbow. */
+    pole?: IAutoMovieVector3;
   }
 
   /**

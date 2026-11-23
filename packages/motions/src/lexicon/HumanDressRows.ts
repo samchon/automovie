@@ -17,12 +17,12 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or restates a value of the law.
  */
 export namespace HumanDressRows {
-  /** `dress` putting on a `hat`. */
+  /** `dress` putting on a `hat`. The hand reaches the head in the free-space time of its travel, strokes the hat on, holds it a moment and returns (`dress`; no timing study, provisional); a hat on or off, a greeting. */
   export const dressHat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperDress"]["dressHat"]
   > = HumanActionRow.of("dressHat", dress, { item: "hat" });
 
-  /** `dress` putting on a `glasses`. */
+  /** `dress` putting on a `glasses`. The same phases as the hat without the turn (`dress`, provisional); putting glasses on. */
   export const dressGlasses: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperDress"]["dressGlasses"]
   > = HumanActionRow.of("dressGlasses", dress, {

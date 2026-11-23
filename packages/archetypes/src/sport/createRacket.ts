@@ -2,14 +2,14 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { buildTennisRacketHead } from "./buildTennisRacketHead";
 
@@ -21,7 +21,7 @@ import { buildTennisRacketHead } from "./buildTennisRacketHead";
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The racket.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the racket stands and its three contacts and what reads them.
  * @evidence contracts/development/implementation.md#principled-implementation A handle rod, throat rod and dimensioned head, with an oval padel head or a split tennis frame and 16 by 19 string bed over its original physics.
@@ -34,9 +34,9 @@ import { buildTennisRacketHead } from "./buildTennisRacketHead";
 export function createRacket(
   params: createRacket.IParams,
   seed?: number | string,
-): Archetype<createRacket.Affordance, createRacket.Dimension> {
-  const draw: ArchetypeDrawSession<createRacket.Dimension> =
-    new ArchetypeDrawSession<createRacket.Dimension>(
+): AutoMovieArchetype<createRacket.Affordance, createRacket.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createRacket.Dimension> =
+    new AutoMovieArchetypeDrawSession<createRacket.Dimension>(
       "racket",
       createRacket.UNITS,
       seed,
@@ -51,10 +51,10 @@ export function createRacket(
   const d: Record<createRacket.Dimension, number> = draw.dimensions(
     createRacket.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createRacket.Affordance,
     createRacket.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: createRacket.NAMES[kind],
@@ -114,7 +114,7 @@ export function createRacket(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.handleLength / 2, 0),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -128,7 +128,7 @@ export function createRacket(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, base + d.headLength / 2, thick / 2),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -141,7 +141,7 @@ export function createRacket(
     id: "sweetSpot",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, base + d.headLength / 2, 0),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -234,7 +234,9 @@ export namespace createRacket {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     headWidth: "m",
     headLength: "m",
@@ -258,8 +260,8 @@ export namespace createRacket {
     maximum: number,
     source: string,
     provisional: boolean = false,
-  ): IArchetypeBand =>
-    ArchetypeBand.metres(minimum, maximum, source, provisional);
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.metres(minimum, maximum, source, provisional);
 
   /** A mass band. */
   const kg = (
@@ -267,8 +269,8 @@ export namespace createRacket {
     maximum: number,
     source: string,
     provisional: boolean = false,
-  ): IArchetypeBand =>
-    ArchetypeBand.of("kg", minimum, maximum, source, provisional);
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
   /** ITF, Rules of Tennis 2026, Appendix II. */
   const ITF: string =
@@ -304,7 +306,7 @@ export namespace createRacket {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     tennis: {
       length: m(0.685, 0.737, `${BABOLAT}, to ${ITF}: at most 73.7 cm long`),
@@ -320,8 +322,8 @@ export namespace createRacket {
       ),
       handleLength: m(0.17, 0.2, UNREAD, true),
       gripDiameter: m(
-        (4 * ArchetypeUnits.INCH) / Math.PI,
-        (4.5 * ArchetypeUnits.INCH) / Math.PI,
+        (4 * AutoMovieArchetypeUnits.INCH) / Math.PI,
+        (4.5 * AutoMovieArchetypeUnits.INCH) / Math.PI,
         "grip sizes 4 to 4 1/2 in round, Babolat Pure Drive Lite (https://tennisracquets.com/products/babolat-pure-drive-lite-tennis-racquet), as a diameter",
       ),
       mass: kg(0.293, 0.307, BABOLAT),

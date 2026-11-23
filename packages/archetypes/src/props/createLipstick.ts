@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { GroomingPropDraw } from "./GroomingPropDraw";
 
 /**
@@ -9,7 +9,7 @@ import { GroomingPropDraw } from "./GroomingPropDraw";
  * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lipstick case with a precision grip and an exposed tip along +Z.
  * @evidence contracts/development/implementation.md#principled-implementation The case stops at the start of the colored part, which owns the tip frame.
@@ -25,7 +25,7 @@ export function createLipstick(
     "id" | "length" | "width" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<createLipstick.Affordance, createLipstick.Dimension> {
+): AutoMovieArchetype<createLipstick.Affordance, createLipstick.Dimension> {
   const {
     builder,
     d,
@@ -57,7 +57,7 @@ export function createLipstick(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, width / 2, (length - GroomingPropDraw.BULLET) / 2),
       Vector3.create(0, 1, 0),
       Vector3.create(0, 0, 1),
@@ -71,7 +71,7 @@ export function createLipstick(
     id: "face",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, width / 2, length),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -86,7 +86,7 @@ export function createLipstick(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createLipstick {

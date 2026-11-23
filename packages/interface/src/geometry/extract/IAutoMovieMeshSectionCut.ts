@@ -5,11 +5,6 @@ import type { IAutoMovieMeshSectionChain } from "./IAutoMovieMeshSectionChain";
  * The section at one station.
  *
  * Section arrays transfer to the caller, but extrema may share point tuples and outer boundaries may reuse loop points. Flags also include bridged gap lengths and chains still unclosed after bridging; an empty cut has empty arrays, null extremes and no flags.
- *
- * @evidence contracts/development/design.md#principled-representation Holds the exact cut's crossing count, chained loops, eight extremes and flags.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record per station, in station order.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Flags report artifacts; nothing is excluded on the caller's behalf.
- * @evidence contracts/development/common.md#meaningful-documentation States the direction names and every flag.
  */
 export interface IAutoMovieMeshSectionCut {
   /** The station along the frame axis, millimetres from the origin. */

@@ -13,11 +13,6 @@ const { add, cross, dot, scale, sub } = AutoMovieSolidVector;
  * The parameter laws of an intersection trace (`AutoMovieSolidIntersection`): the fourth equation `g(P, phi, t) = 0` that fixes which point of the curve a parameter `t` names, with the derivatives the trace's Newton step and its second-order prediction read.
  *
  * Phase gives g=phi-t; angle gives g=(P-c).m(t), a rotating plane equation whose branch is selected by the seed/continuation. Requested arc mode uses g=(P-Q(t)).Q'(t), the normal plane of a periodic spline through equal-chord walked points. That guide parameter approximates arclength rather than proving exact constant speed on the realized intersection.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each law, its derivatives and its parameter's meaning.
- * @evidence contracts/development/design.md#principled-representation Represents The parameter laws of an intersection trace (`AutoMovieSolidIntersection`): the fourth equation `g(P, phi, t) = 0` that fixes which point of the curve a parameter `t` names, with the derivatives the trace's Newton step and its second-order prediction read: companion namespace of 3 members (`ILaw`, `arc`, `of`); units and frames named in its text: world, second, newton, local, frame. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `AutoMovieSolidTraceLaw` in packages/engine/src/geometry/construction/AutoMovieSolidTraceLaw.ts; its surface is the 3 members listed and the text shows 6 other files naming it, mostly packages/engine (4), test (2), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, a use of `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows. The widening above is the remaining shortcut and is not justified here.
  */
 export namespace AutoMovieSolidTraceLaw {
   /**
@@ -31,14 +26,6 @@ export namespace AutoMovieSolidTraceLaw {
    *
    * @param points The loop's equal-chord points, mm.
    * @returns The law.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Prepares a periodic cubic reference Q and the normal-plane equation (P-Q).Q'=0, with analytic partials and the stated second-order remainder; a regular transverse local branch is required.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One local reference-jet reader supplies the equation/derivative callbacks without another geometric intersection representation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Equal-chord guide samples and stationary normal planes do not certify exact arclength or a nearest reference foot; this remains an approximation to the public requested arc parameter, not a proof of that requirement.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the spline, equation, derivatives, mm input and requested-arclength limitation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N) fixed-filter preparation stores N reference controls; each callback uses constant four-control work but computes all four reference derivative orders even when fewer are read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reference controls are prepared once, while g/grad/gt/extra independently reevaluate the same parameter's basis/jet; no per-parameter jet sharing is implemented.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned law closures retain O(N) prepared reference controls for their owner's lifetime; callback basis/jet arrays are fixed-size temporaries and no global cache grows.
    */
   export function arc(
     points: readonly AutoMovieVector3Tuple[],
@@ -136,14 +123,6 @@ export namespace AutoMovieSolidTraceLaw {
    *
    * @param parameter The parameter.
    * @returns The law, or null for the arc parameter or a degenerate axis.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Phase uses its direct difference; angle normalizes the supplied axis/projected reference and builds analytic rotating-plane callbacks with an atan2 seed branch.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed parameter dispatch returns phase/angle laws and delegates walked-guide preparation to arc.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Returns null for arc or failed normal/reference normalization; it does not validate every extreme-scale axis, enforce a half-plane inequality or prove transversality of a selected branch.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives supported kinds, nullable failures and the exact phase/angle equations above.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed-size basis preparation and constant callback arithmetic; current angle readings allocate small vectors rather than retaining a query cache.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The angle basis is prepared once for all callbacks; its centre remains the supplied tuple reference, so changing authoring data is not a cache invalidation mechanism.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Phase closures hold no geometry; angle closures retain two basis vectors and the borrowed centre for the law's lifetime, without a growing map or acquired handle.
    */
   export function of(
     parameter: IAutoMovieSolidIntersection.Parameter,

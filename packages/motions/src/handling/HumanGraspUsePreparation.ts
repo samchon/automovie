@@ -26,30 +26,15 @@ import { HumanGraspUse } from "./HumanGraspUse";
  * the tool's contacts, the line it lies on and the line asked, the region or
  * the place ahead it goes to, and the candidate hand turned onto the asked
  * line.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the setup, its world-metre points and rotations, and its refusals.
- * @evidence contracts/development/design.md#principled-representation Canonical context, affordance, point and quaternion types; no solved pose is carried.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `of` supplies exactly what `HumanGraspUse.presented` reads, kept apart so that file stays under the size bound.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool kind is named; every point comes from the prop's affordances and the body's regions.
  */
 export namespace HumanGraspUsePreparation {
   /**
    * The request: `HumanGraspUse.presented`'s props.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The context, prop, handle, hand, use, candidate wrist and optional clearance, in the units `IAutoMovieMotionHumanGraspUse` states.
-   * @evidence contracts/development/design.md#principled-representation The interface's own props type, named here for the setup's signature.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface An alias of the owned type, no copy.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Nothing widened or cast.
    */
   export type IInput = IAutoMovieMotionHumanGraspUse.IPresentedProps;
 
   /**
    * The setup a presented key is built from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
-   * @evidence contracts/development/design.md#principled-representation World points and rotations and the wrist-local socket in canonical types; optional `at` and `site` separate a region use from one ahead of the body.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every member feeds the worn branch or the key builder of `presented`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No fixed pose or sampled frame.
    */
   export interface IPrepared {
     /** The request's context. */
@@ -90,14 +75,6 @@ export namespace HumanGraspUsePreparation {
    * @param closure The prop frame at closure, or the entry frame when absent.
    * @returns The setup.
    * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop lacks the handle or the working point; a `parameter` refusal on `use` for an `along` or `worn` line with no region of the performer's own.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the request, the setup and both refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The tool's line runs from the handle to the working point in the prop's frame at closure; the asked line is forward of the body risen by the use's angle, across toward the other hand, or into the region's surface; the shortest turn between them about their cross product, or about the body's left when they oppose, lays the candidate hand.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Contacts, lines, region, turn and the two socket places, in that order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing contact or region is refused, never substituted; the 1e-9 cross-product length is the floating-point floor below which the lines are parallel.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two affordance scans and one entry FK of the arm and the region's bone.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The asked axis is prepared once for every roll of the search.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The setup lives for one `presented` call.
    */
   export function of(props: IInput, closure?: IAutoMovieRigidTransform): IPrepared {
     const context: (typeof props)["context"] = props.context;

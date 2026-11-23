@@ -1,17 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 
 /** A Full Vision showcase's depth and height, metres, the same for both models: the sheet's "20" deep x 38" high". */
 const CASE: Readonly<{ depth: number; height: number }> = {
-  depth: 20 * ArchetypeUnits.INCH,
-  height: 38 * ArchetypeUnits.INCH,
+  depth: 20 * AutoMovieArchetypeUnits.INCH,
+  height: 38 * AutoMovieArchetypeUnits.INCH,
 };
 
 /**
@@ -22,7 +22,7 @@ const CASE: Readonly<{ depth: number; height: number }> = {
  * @param params The model, if the author fixes it.
  * @param seed The seed that draws the model when it is not given; absent, the first.
  * @returns The showcase.
- * @throws {ArchetypeRefusal} For a model the maker's sheet does not list.
+ * @throws {AutoMovieArchetypeRefusal} For a model the maker's sheet does not list.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, which side is whose, how the model is chosen and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation One read model whole, its length and its mass as the sheet gives them; the depth and height both models share.
@@ -35,9 +35,9 @@ const CASE: Readonly<{ depth: number; height: number }> = {
 export function createShowcase(
   params: createShowcase.IParams = {},
   seed?: number | string,
-): Archetype<createShowcase.Affordance, createShowcase.Dimension> {
-  const draw: ArchetypeDrawSession<createShowcase.Dimension> =
-    new ArchetypeDrawSession<createShowcase.Dimension>(
+): AutoMovieArchetype<createShowcase.Affordance, createShowcase.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createShowcase.Dimension> =
+    new AutoMovieArchetypeDrawSession<createShowcase.Dimension>(
       "showcase",
       createShowcase.UNITS,
       seed,
@@ -50,10 +50,10 @@ export function createShowcase(
     params.model,
     createShowcase.MODELS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createShowcase.Affordance,
     createShowcase.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `glass showcase ${model.name}`,
@@ -68,7 +68,7 @@ export function createShowcase(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
     extent: null,
     width: length,
     depth,
@@ -76,7 +76,7 @@ export function createShowcase(
   builder.affordance({
     id: "edge",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, height, depth / 2),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -103,7 +103,9 @@ export namespace createShowcase {
   export type Dimension = "length" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     mass: "kg",
   };
@@ -113,12 +115,12 @@ export namespace createShowcase {
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {
     "PW/SC482": {
-      length: 48 * ArchetypeUnits.INCH,
-      mass: 170 * ArchetypeUnits.POUND,
+      length: 48 * AutoMovieArchetypeUnits.INCH,
+      mass: 170 * AutoMovieArchetypeUnits.POUND,
     },
     "PW/SC702": {
-      length: 70 * ArchetypeUnits.INCH,
-      mass: 190 * ArchetypeUnits.POUND,
+      length: 70 * AutoMovieArchetypeUnits.INCH,
+      mass: 190 * AutoMovieArchetypeUnits.POUND,
     },
   };
 

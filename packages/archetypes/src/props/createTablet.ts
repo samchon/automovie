@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { HandheldDevice } from "./HandheldDevice";
 
 /**
@@ -8,7 +8,7 @@ import { HandheldDevice } from "./HandheldDevice";
  * @param params The identifier and a choice among this device's measured models.
  * @param seed The seed for the device's remaining choices.
  * @returns The device and its named contacts.
- * @throws {ArchetypeRefusal} For a refused dimension or producer input.
+ * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer input.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the device, its frame and the exposed contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Build the shared upright case with a grip across its thickness and a full-size touchscreen.
@@ -21,7 +21,7 @@ import { HandheldDevice } from "./HandheldDevice";
 export function createTablet(
   params: createTablet.IParams = {},
   seed?: number | string,
-): Archetype<createTablet.Affordance, createTablet.Dimension> {
+): AutoMovieArchetype<createTablet.Affordance, createTablet.Dimension> {
   return HandheldDevice.fullFace("tablet", "tablet", params, seed, "screen");
 }
 

@@ -49,7 +49,7 @@ export const SCENES_DAILY: readonly IScene[] = [
     "rehearsing-reactions",
     [
       person("walker", "m1", -0.75, 0, 0, [
-        act("stand", { seconds: 0.3 }),
+        act("stand", { hold: 0.3 }),
         act(
           "walk",
           { to: to(-0.75, 2) },
@@ -65,18 +65,18 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("look", {
           target: at("partner", "face"),
           cue: "signal",
-          seconds: 1.4,
+          duration: 1.4,
         }),
         act("gesture", { kind: "clap" }),
         act("thumbsUp"),
       ]),
       person("partner", "f1", 0.75, 1, 0, [
-        act("coverFace", { seconds: 0.8 }),
-        act("wipeTears", { side: "right" }),
+        act("coverFace", { hold: 0.8 }),
+        act("wipeTears", { hand: "right" }),
         act("look", { target: at("walker", "face") }),
         act("facepalm"),
-        act("coverFace", { seconds: 0.8 }),
-        act("wipeTears", { side: "left" }),
+        act("coverFace", { hold: 0.8 }),
+        act("wipeTears", { hand: "left" }),
         act("gesture", { kind: "bow" }),
       ]),
     ],
@@ -96,24 +96,24 @@ export const SCENES_DAILY: readonly IScene[] = [
     "cafe",
     [
       person("ana", "f1", -0.66, 1.5, 90, [
-        act("sit", { seat: seat("chairA"), seconds: 1 }),
+        act("sit", { seat: seat("chairA"), hold: 1 }),
         act("pickUp", { prop: "mugA", handle: "handle" }),
         act("toastSip", { prop: "mugA" }),
         act("putDown", {
           prop: "mugA",
-          at: { x: -0.45, y: DINING_TOP, z: 1.62 },
+          to: { x: -0.45, y: DINING_TOP, z: 1.62 },
         }),
         act("gesture", { kind: "nod" }),
         act("handOnHeart"),
       ]),
       person("ben", "m1", 0.66, 1.5, 270, [
-        act("sit", { seat: seat("chairB"), seconds: 1 }),
-        act("checkPhone", { seconds: 2 }),
+        act("sit", { seat: seat("chairB"), hold: 1 }),
+        act("checkPhone", { hold: 2 }),
         act("pickUp", { prop: "mugB", handle: "handle" }),
         act("toastSip", { prop: "mugB" }),
         act("putDown", {
           prop: "mugB",
-          at: { x: 0.45, y: DINING_TOP, z: 1.38 },
+          to: { x: 0.45, y: DINING_TOP, z: 1.38 },
         }),
       ]),
       person("cal", "m2", 3, -1, 0, [
@@ -152,23 +152,23 @@ export const SCENES_DAILY: readonly IScene[] = [
     "office",
     [
       person("dee", "f2", -1.2, 0.3, 0, [
-        act("sit", { seat: seat("chairD"), seconds: 0.5 }),
+        act("sit", { seat: seat("chairD"), hold: 0.5 }),
         act("typeText", { keyboard: "keyboard", text: "the scene opens" }),
         act("rubEyes"),
-        act("thinking", { seconds: 1.5 }),
+        act("thinking", { hold: 1.5 }),
       ]),
       person("eli", "m2", 1, 0.15, 0, [
-        act("sit", { seat: seat("chairE"), seconds: 0.5 }),
+        act("sit", { seat: seat("chairE"), hold: 0.5 }),
         act("checkWatch"),
         act("shift", { by: 0.1 }),
-        act("handToFace", { task: "phone" }),
+        act("handToFace", { kind: "phone" }),
         act("rise"),
         act("approach", {
           target: { kind: "prop", subject: "switch", point: "press" },
           at: 0.15,
         }),
         act("operate", {
-          mechanism: {
+          kind: {
             kind: "button",
             at: { kind: "prop", subject: "switch", point: "press" },
             travel: 0.003,
@@ -249,16 +249,16 @@ export const SCENES_DAILY: readonly IScene[] = [
             frame: "world",
           },
         }),
-        act("scratchNape", { side: "left" }),
+        act("scratchNape", { hand: "left" }),
       ]),
       person("hal", "m1", 1.1, 0.6, 270, [
         act("lightCigarette"),
-        act("handsInPockets", { seconds: 0.9 }),
+        act("handsInPockets", { hold: 0.9 }),
         act("look", { target: at("gus", "face") }),
         act("gesture", { kind: "palmsUp" }),
-        act("armsCrossed", { seconds: 1.1 }),
+        act("armsCrossed", { hold: 1.1 }),
         act("gesture", { kind: "nod" }),
-        act("thinking", { seconds: 1.1 }),
+        act("thinking", { hold: 1.1 }),
         act("gesture", { kind: "shrug" }),
         act("checkWatch"),
       ]),
@@ -297,7 +297,7 @@ export const SCENES_DAILY: readonly IScene[] = [
           use: { tip: "screen", line: "across", at: { region: "noseBridge" } },
         }),
         act("photograph", { prop: "camera" }),
-        act("comeHere", { side: "left" }),
+        act("comeHere", { hand: "left" }),
       ]),
       person("jay", "m1", 0, -0.5, 0, [
         act("stroll", { to: to(0, 1.6) }),
@@ -306,7 +306,7 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
       person("kit", "f1", 1, 0, 0, [
         act("stroll", { to: to(1, 2.2) }),
-        act("checkPhone", { seconds: 2 }),
+        act("checkPhone", { hold: 2 }),
         act("thumbsUp"),
       ]),
     ],
@@ -359,7 +359,7 @@ export const SCENES_DAILY: readonly IScene[] = [
     [
       person("pat", "m2", -1.5, 0, 0, [
         act("walk", { to: to(-1.5, 1.5) }),
-        act("stand", { seconds: 1.5 }),
+        act("stand", { hold: 1.5 }),
         act("startle", {}, { anchor: "fr-bang" }),
         act("takeCover"),
         act("look", { target: at("ray", "face"), cue: "seen" }),
@@ -368,25 +368,25 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("walk", { to: to(-1.5, 2.8) }),
       ]),
       person("quy", "f1", -0.5, 0.5, 0, [
-        act("checkPhone", { seconds: 1 }),
-        act("stand", { seconds: 0.6 }),
+        act("checkPhone", { hold: 1 }),
+        act("stand", { hold: 0.6 }),
         act(
           "wince",
           {},
           { sync: { of: "fr-bang", event: "start", offset: 0.1 } },
         ),
         act("braceForImpact"),
-        act("look", { target: at("ray", "face"), cue: "seen", seconds: 1.2 }),
+        act("look", { target: at("ray", "face"), cue: "seen", duration: 1.2 }),
         act("coverMouth"),
         act("gesture", { kind: "shakeHead" }),
         act("walk", { to: to(-0.5, 3) }),
       ]),
       person("ray", "m1", 0.5, 0, 0, [
         act("checkWatch"),
-        act("stand", { seconds: 3 }),
+        act("stand", { hold: 3 }),
         act(
           "lieDown",
-          { position: "prone", hold: 1 },
+          { kind: "prone", hold: 1 },
           { sync: { of: "fr-bang", event: "start", offset: 0.15 } },
         ),
         act("getUp"),
@@ -395,14 +395,14 @@ export const SCENES_DAILY: readonly IScene[] = [
       ]),
       person("sue", "f2", 1.5, 0.5, 0, [
         act("walk", { to: to(1.5, 1.8) }),
-        act("stand", { seconds: 3 }),
+        act("stand", { hold: 3 }),
         act(
           "stumble",
           {},
           { sync: { of: "fr-bang", event: "start", offset: 0.1 } },
         ),
         act("kneelBriefly"),
-        act("look", { target: at("ray", "face"), cue: "seen", seconds: 1.2 }),
+        act("look", { target: at("ray", "face"), cue: "seen", duration: 1.2 }),
         act("walk", { to: to(1.5, 3.5) }),
       ]),
     ],
@@ -426,12 +426,12 @@ export const SCENES_DAILY: readonly IScene[] = [
         // The planted stance holds each offered surface still.
         act(
           "stand",
-          { seconds: 3.7, sway: 0 },
+          { hold: 3.7, sway: 0 },
           {
             over: [
               act(
                 "headTilt",
-                { degrees: -20, seconds: 3.6 },
+                { degrees: -20, duration: 3.6 },
                 { anchor: "farewell-cheek" },
               ),
             ],
@@ -439,7 +439,7 @@ export const SCENES_DAILY: readonly IScene[] = [
         ),
         act(
           "stand",
-          { seconds: 3.7, sway: 0 },
+          { hold: 3.7, sway: 0 },
           {
             over: [
               act(
@@ -450,8 +450,8 @@ export const SCENES_DAILY: readonly IScene[] = [
                     frame: "world",
                     at: { x: 0, y: 1.25, z: 0.65 },
                   },
-                  with: "head",
-                  seconds: 3.4,
+                  recruit: "head",
+                  duration: 3.4,
                 },
                 { anchor: "farewell-forehead" },
               ),
@@ -467,7 +467,7 @@ export const SCENES_DAILY: readonly IScene[] = [
           pace: "slow",
           armSwing: 0,
         }),
-        act("stand", { seconds: 0.5, sway: 0 }, { anchor: "farewell-apart" }),
+        act("stand", { hold: 0.5, sway: 0 }, { anchor: "farewell-apart" }),
         act("fistBump", { partner: "val", window: { from: 14, to: 14.1 } }),
         act("pinkyPromise", {
           partner: "val",
@@ -478,9 +478,9 @@ export const SCENES_DAILY: readonly IScene[] = [
         act("trudge", { to: to(0, -3) }),
       ]),
       person("uli", "m1", 0.02, 1.08, 180, [
-        act("stand", { seconds: 18.9, sway: 0 }),
-        act("shoulderPat", { side: "left", target: at("val", "shoulderLeft") }),
-        act("comfort", { side: "right", target: at("val", "shoulderRight") }),
+        act("stand", { hold: 18.9, sway: 0 }),
+        act("shoulderPat", { hand: "left", target: at("val", "shoulderLeft") }),
+        act("comfort", { hand: "right", target: at("val", "shoulderRight") }),
       ]),
       person("val", "f2", 0, 0.6, 175, [
         act(

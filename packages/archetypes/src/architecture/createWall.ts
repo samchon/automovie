@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Wall thickness and length, which no act reads. */
@@ -21,7 +21,7 @@ const PICTURE: string = "a piece of wall for the picture, not read at a source";
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The wall.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the wall's plane and what each contact is for.
  * @evidence contracts/development/implementation.md#principled-implementation One box; the face, the top edge and the seat follow the `surface`, `ledge` and `seat` conventions on it.
@@ -34,9 +34,9 @@ const PICTURE: string = "a piece of wall for the picture, not read at a source";
 export function createWall(
   params: createWall.IParams,
   seed?: number | string,
-): Archetype<createWall.Affordance, createWall.Dimension> {
-  const draw: ArchetypeDrawSession<createWall.Dimension> =
-    new ArchetypeDrawSession<createWall.Dimension>(
+): AutoMovieArchetype<createWall.Affordance, createWall.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createWall.Dimension> =
+    new AutoMovieArchetypeDrawSession<createWall.Dimension>(
       "wall",
       createWall.UNITS,
       seed,
@@ -53,13 +53,15 @@ export function createWall(
     createWall.BANDS,
   );
   const { height, length, thickness }: Record<createWall.Dimension, number> = d;
-  const builder: ArchetypeBuilder<createWall.Affordance, createWall.Dimension> =
-    new ArchetypeBuilder({
-      material: "concrete",
-      id: params.id,
-      name: kind === "full" ? "wall" : "low wall",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createWall.Affordance,
+    createWall.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "concrete",
+    id: params.id,
+    name: kind === "full" ? "wall" : "low wall",
+    draw,
+  });
   builder.box(
     "wall",
     Vector3.create(length, height, thickness),
@@ -69,7 +71,7 @@ export function createWall(
   builder.affordance({
     id: "face",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, height / 2, thickness / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -81,7 +83,9 @@ export function createWall(
   builder.affordance({
     id: "top",
     kind: "ledge",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, thickness / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, height, thickness / 2),
+    ),
     extent: null,
     length,
   });
@@ -89,7 +93,9 @@ export function createWall(
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(Vector3.create(0, height, thickness / 2)),
+      frame: AutoMovieArchetypeFrame.upright(
+        Vector3.create(0, height, thickness / 2),
+      ),
       extent: null,
       width: length,
       depth: thickness,
@@ -132,7 +138,9 @@ export namespace createWall {
   export type Dimension = "height" | "length" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     length: "m",
     thickness: "m",
@@ -150,29 +158,41 @@ export namespace createWall {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     full: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         2.286,
         2.7,
         "IBC 2021 1208.2, ceilings at least 7 ft 6 in (2286 mm) (https://up.codes/viewer/illinois/ibc-2021/chapter/12/interior-environment); the upper end is an estimate",
         true,
       ),
-      length: ArchetypeBand.metres(2, 4, PICTURE, true),
-      thickness: ArchetypeBand.metres(0.1, 0.2, PICTURE, true),
-      mass: ArchetypeBand.of("kg", 500, 2000, ArchetypeBand.TYPICAL_MASS, true),
+      length: AutoMovieArchetypeBand.metres(2, 4, PICTURE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.1, 0.2, PICTURE, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        500,
+        2000,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     low: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         0.43,
         1.067,
         "from the 17 in (430 mm) bench seat of 2010 ADA Standards 903.5 (https://www.access-board.gov/ada/) to the 42 in (1067 mm) guard of IBC 2021 1015.3, the latter seen only in search results",
         true,
       ),
-      length: ArchetypeBand.metres(1.5, 3, PICTURE, true),
-      thickness: ArchetypeBand.metres(0.2, 0.4, PICTURE, true),
-      mass: ArchetypeBand.of("kg", 200, 1000, ArchetypeBand.TYPICAL_MASS, true),
+      length: AutoMovieArchetypeBand.metres(1.5, 3, PICTURE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.2, 0.4, PICTURE, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        200,
+        1000,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
   };
 }

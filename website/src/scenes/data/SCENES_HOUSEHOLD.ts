@@ -34,7 +34,7 @@ function washerDoor(
 ): SceneBuild.Action {
   return act("operate", {
     hand,
-    mechanism: { kind: "hinge", at: site("washer", "doorHandle"), swing },
+    kind: { kind: "hinge", at: site("washer", "doorHandle"), swing },
   });
 }
 
@@ -73,11 +73,11 @@ export const SCENES_HOUSEHOLD: readonly IScene[] = [
           tool: "stir",
           prop: "spoon",
           on: site("pan", "inside"),
-          cycles: 2,
+          count: 2,
         }),
         act("putDown", {
           prop: "spoon",
-          at: { x: -0.31, y: TOP + 0.017, z: 0.345 },
+          to: { x: -0.31, y: TOP + 0.017, z: 0.345 },
           yaw: 0,
         }),
         act("wipe", {
@@ -87,9 +87,9 @@ export const SCENES_HOUSEHOLD: readonly IScene[] = [
             at: { x: 0.28, y: TOP, z: 0.35 },
             frame: "world",
           },
-          cycles: 1,
+          count: 1,
         }),
-        act("stand", { seconds: 0.3 }),
+        act("stand", { hold: 0.3 }),
       ]),
     ],
     [
@@ -126,7 +126,7 @@ export const SCENES_HOUSEHOLD: readonly IScene[] = [
           lift: 0.29,
         }),
         act("walk", { to: to(0.02, 0.08), facing: { yaw: 0 }, pace: "slow" }),
-        act("stand", { seconds: 0.2 }),
+        act("stand", { hold: 0.2 }),
         act("putDownAperture", {
           prop: "cloth",
           onto: {
@@ -138,9 +138,9 @@ export const SCENES_HOUSEHOLD: readonly IScene[] = [
           },
         }),
         act("walk", { to: to(0.12, -0.13), facing: { yaw: 0 }, pace: "slow" }),
-        act("stand", { seconds: 0.2 }),
+        act("stand", { hold: 0.2 }),
         washerDoor("right", -94),
-        act("stand", { seconds: 0.3 }),
+        act("stand", { hold: 0.3 }),
       ]),
     ],
     [
@@ -174,7 +174,7 @@ export const SCENES_HOUSEHOLD: readonly IScene[] = [
           load: "light",
           to: to(0, 0.38),
         }),
-        act("stand", { seconds: 0.35 }),
+        act("stand", { hold: 0.35 }),
       ]),
     ],
     [object("mop", "createLongTool", "mop", 0, 0.41)],

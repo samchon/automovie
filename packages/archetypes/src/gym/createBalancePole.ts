@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -19,7 +19,7 @@ import {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The pole.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it lies and the two grips.
  * @evidence contracts/development/implementation.md#principled-implementation One rod and two grips symmetric about its middle.
@@ -32,9 +32,12 @@ import {
 export function createBalancePole(
   params: createBalancePole.IParams = {},
   seed?: number | string,
-): Archetype<createBalancePole.Affordance, createBalancePole.Dimension> {
-  const draw: ArchetypeDrawSession<createBalancePole.Dimension> =
-    new ArchetypeDrawSession<createBalancePole.Dimension>(
+): AutoMovieArchetype<
+  createBalancePole.Affordance,
+  createBalancePole.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createBalancePole.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBalancePole.Dimension>(
       "balancePole",
       createBalancePole.UNITS,
       seed,
@@ -43,10 +46,10 @@ export function createBalancePole(
   const d: Record<createBalancePole.Dimension, number> = draw.dimensions(
     createBalancePole.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBalancePole.Affordance,
     createBalancePole.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: "balancing pole",
@@ -64,7 +67,7 @@ export function createBalancePole(
       id: side === "left" ? "leftGrip" : "rightGrip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(
+      frame: AutoMovieArchetypeFrame.upright(
         Vector3.create(((side === "left" ? 1 : -1) * d.grip) / 2, 0, 0),
       ),
       extent: null,
@@ -97,7 +100,9 @@ export namespace createBalancePole {
   export type Dimension = "length" | "diameter" | "grip" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     grip: "m",
@@ -111,26 +116,26 @@ export namespace createBalancePole {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(
       4,
       10,
       "an estimate: wire walkers' poles run from a few metres to about ten; no maker's sheet was read",
       true,
     ),
-    diameter: ArchetypeBand.metres(
+    diameter: AutoMovieArchetypeBand.metres(
       0.025,
       0.04,
       "an estimate; no maker's sheet was read",
       true,
     ),
-    grip: ArchetypeBand.metres(
+    grip: AutoMovieArchetypeBand.metres(
       0.5,
       0.8,
       "an estimate: the hands about shoulder width or a little wider; no source was read",
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       5,
       15,

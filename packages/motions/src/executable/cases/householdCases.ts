@@ -52,10 +52,10 @@ export function householdCases(
     const centre: IAutoMovieVector3 = { x: -0.15, y: top, z: 0.4 };
     const wiping: IAutoMovieMotionHumanWipe.IParams = {
       on: { kind: "point", at: centre, frame: "world" },
-      cycles: 3,
+      count: 3,
     };
     const drawer: IAutoMovieMotionHumanOperate.IParams = {
-      mechanism: {
+      kind: {
         kind: "slider",
         at: {
           kind: "point",

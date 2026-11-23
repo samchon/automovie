@@ -4,65 +4,62 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { Archetype } from "../core/Archetype";
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
 import { ArchetypePartOwnership } from "../core/ArchetypePartOwnership";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import { AutoMovieArchetype } from "../core/AutoMovieArchetype";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 
 /** The built-in owners that normalized the private neutral source. */
-const REPOSE: typeof Archetype.prototype.reposed = Archetype.prototype.reposed;
+const REPOSE: typeof AutoMovieArchetype.prototype.reposed =
+  AutoMovieArchetype.prototype.reposed;
 const CLONE: typeof structuredClone = structuredClone;
 
 /**
- * Private data-copy admission for the actual neutral preparation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the independent primitive record and its actual native clone owner.
- * @evidence contracts/development/design.md#principled-representation The qualified shape is a tree of ordinary owned data records with scalar leaves.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only native quadruped preparation and ODE hitch emission consume this protocol.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Unsupported graphs or overridden clone functions use the existing generic clone.
+ * Private data-copy admission for the neutral preparation.
  */
 export namespace ApplyQuadrupedCarrierPose {
   /**
-   * Move actual parts and contact frames through their admitted carrier deltas.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the original geometry and complete carrier inputs and fresh normal posed output.
-   * @evidence contracts/development/implementation.md#principled-implementation Apply the same rigid deltas to both kinds of carrier and emit through the original model's reposed method.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One part map and one contact map precede the native model emission.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only an independently owned data copy can substitute for the original structured clone; exact transform, floor consumers and model normalization remain live.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B+P+A+V) work for bones, parts, contacts and copied geometry data. The private primitive path only copies bounded scalar records.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Public skeleton and private prepare share every transform and contact operation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation keeps no completed pose. The new model owns current records.
+   * Move parts and contact frames through their admitted carrier deltas.
    */
   export function emit<Id extends string, D extends string>(
-    animal: Archetype<Id, D>,
-    rest: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-    posed: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
-    parts: Readonly<Record<string, QuadrupedBody.Bone>>,
-    contacts: Readonly<Record<string, QuadrupedBody.Bone>>,
+    animal: AutoMovieArchetype<Id, D>,
+    rest: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
+    posed: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >,
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
     copy?: ApplyQuadrupedCarrierPose.CopyPart,
     neutral?: ApplyQuadrupedCarrierPose.ObserveNeutral,
     expose?: () => void,
-  ): Archetype<Id, D> {
-    const deltas: ReadonlyMap<QuadrupedBody.Bone, ArchetypeFrame.IMotion> =
-      QuadrupedRigDelta.between(rest, posed);
-    const identities: Map<string, QuadrupedBody.Bone> = new Map(
-      [...deltas.keys()].map(
-        (bone: QuadrupedBody.Bone): [string, QuadrupedBody.Bone] => [
-          bone,
-          bone,
-        ],
-      ),
-    );
+  ): AutoMovieArchetype<Id, D> {
+    const deltas: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      AutoMovieArchetypeFrame.IMotion
+    > = QuadrupedRigDelta.between(rest, posed);
+    const identities: Map<string, AutoMovieArchetypeQuadrupedBody.Bone> =
+      new Map(
+        [...deltas.keys()].map(
+          (
+            bone: AutoMovieArchetypeQuadrupedBody.Bone,
+          ): [string, AutoMovieArchetypeQuadrupedBody.Bone] => [bone, bone],
+        ),
+      );
     const original: readonly IAutoMovieModelPart[] = animal.parts;
     let owned: boolean =
       neutral !== undefined && ArchetypePartOwnership.owns(animal, original);
     const moved: IAutoMovieModelPart[] = original.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
-        const bone: QuadrupedBody.Bone | undefined =
+        const bone: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
           identities.get(part.id) ?? parts[part.id];
         const frame: IAutoMovieTransform =
-          part.transform ?? ArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
+          part.transform ??
+          AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
         if (owned) owned = ApplyQuadrupedCarrierPose.nativeClone();
         const current: IAutoMovieModelPart | undefined = copy?.(part);
         if (current === undefined)
@@ -99,47 +96,29 @@ export namespace ApplyQuadrupedCarrierPose {
       expose();
     const reposed: typeof animal.reposed = animal.reposed;
     if (reposed !== REPOSE) expose?.();
-    const construct = (): Archetype<Id, D> =>
+    const construct = (): AutoMovieArchetype<Id, D> =>
       Reflect.apply(reposed, animal, [moved, frames]);
     if (owned && reposed === REPOSE && neutral !== undefined)
       return ArchetypePartOwnership.observe(moved, construct, neutral);
-    const model: Archetype<Id, D> = construct();
+    const model: AutoMovieArchetype<Id, D> = construct();
     neutral?.(false);
     return model;
   }
 
   /**
    * Copy a part before replacing its moved transform.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the ownership of copied part data before the current transform is set.
-   * @evidence contracts/development/design.md#principled-representation Copies independent model records in original key order.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the private carrier emitter needs this operation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No mutable reference from the prior part is published.
    */
   export type CopyPart = (
     part: IAutoMovieModelPart,
   ) => IAutoMovieModelPart | undefined;
 
   /**
-   * Observe whether the actual neutral emission used the native owners.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Reports admission after the actual neutral emission.
-   * @evidence contracts/development/design.md#principled-representation A current built-in clone and native repose give the normalizer's actual private output.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only private neutral preparation observes the result.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A caller flag cannot authenticate an opaque source.
+   * Observe whether the neutral emission used the native owners.
    */
   export type ObserveNeutral = (native: boolean) => void;
 
   /**
    * Check the current structured-clone data binding without evaluating a replacement getter.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the original clone authority and opaque fallback.
-   * @evidence contracts/development/implementation.md#principled-implementation Read the own binding descriptor rather than calling an unknown accessor.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Compare one current descriptor value with the intrinsic.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A replacement method or getter cannot authorize the special copy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and space.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the intrinsic binding permits the proved equivalent data copies.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the original operator identity.
    */
   export function nativeClone(): boolean {
     return (
@@ -150,32 +129,16 @@ export namespace ApplyQuadrupedCarrierPose {
 
   /**
    * Check the currently installed native repose before the private copying path.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the actual native repose binding read by the current private source.
-   * @evidence contracts/development/implementation.md#principled-implementation A descriptor check leaves any changed accessor to the ordinary call.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Match one exact prototype data function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No altered method is made opaque to the original pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One own descriptor check.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The proved source still has its original repose owner.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the canonical method identity.
    */
   export function nativeRepose(): boolean {
     return (
-      Object.getOwnPropertyDescriptor(Archetype.prototype, "reposed")?.value ===
-      REPOSE
+      Object.getOwnPropertyDescriptor(AutoMovieArchetype.prototype, "reposed")
+        ?.value === REPOSE
     );
   }
 
   /**
    * Prepare the bounded layout copier for the owned primitive parts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the native output ownership, supported record tree and declined alternative.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit only own plain enumerable string data and the actual primitive shape's scalar values, with separate records at every mutable node.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One private snapshot admission, followed by ordinary spreads in native key order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither descriptors nor model data from an unproved public receiver establish copying; unsupported part identities keep the original clone.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(P) bounded recipe checks once; each qualified part copy allocates a constant number of fresh records.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The original private neutral part data supplies all current poses, while the original exact mover still computes each current transform.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The copier keeps only admitted neutral identities with its prepared source.
    */
   export function primitiveCopy(
     parts: readonly IAutoMovieModelPart[],
@@ -215,7 +178,7 @@ export namespace ApplyQuadrupedCarrierPose {
     );
   }
 
-  /** Admit only the actual renderer part fields and an independent scalar recipe. */
+  /** Admit only the renderer part fields and an independent scalar recipe. */
   function plainPart(part: IAutoMovieModelPart): boolean {
     if (
       !plainData(part) ||

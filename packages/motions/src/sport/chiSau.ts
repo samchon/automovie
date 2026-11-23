@@ -116,8 +116,8 @@ export namespace chiSau {
       });
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const cycles: number = p.cycles ?? 4;
-    const duration: number = p.seconds ?? cycles * CYCLE;
+    const cycles: number = p.count ?? 4;
+    const duration: number = p.duration ?? cycles * CYCLE;
     const blend: number = Math.min(BLEND, duration / 4);
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
       { name: "joined", seconds: blend },

@@ -3,11 +3,6 @@ import type { IAutoMovieContourLoftCurves64 } from "./IAutoMovieContourLoftCurve
 
 /**
  * Source-curve split point and chord-qualified restrictions on both sides.
- *
- * @evidence contracts/development/design.md#principled-representation Split outputs preserve millimetre positions, original generating-phase coordinates and inherited source depth.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IResult supplies shared slit insertion with the true source point and both repartitioned restrictions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Child chords receive their own qualification instead of inheriting an unrelated parent's distance bound.
- * @evidence contracts/development/common.md#meaningful-documentation The result specifies interior-phase admission, ownership and source versus proxy point identity.
  */
 export namespace IAutoMovieSplitContourLeaf64 {
   /**
@@ -18,11 +13,6 @@ export namespace IAutoMovieSplitContourLeaf64 {
    * Ancestry depth and phase limits are inherited without resetting subdivision.
    * Already qualified explicit children need no additional adaptive work, even if
    * their exact restriction increases ancestry beyond the adaptive depth limit.
-   *
-   * @evidence contracts/development/design.md#principled-representation Millimetre position and ordered leaf restrictions preserve the original generating phase unit and inherited subdivision depth.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface splitAutoMovieContourLeaf64 returns the source point plus both repartitioned sides for shared slit-knot registration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The split uses the Bernstein endpoint rather than the proxy chord and refuses an unrepresentable strict interior phase.
-   * @evidence contracts/development/common.md#meaningful-documentation Describes fresh split-point ownership, phase intervals and the repeated finite-segment chord qualification.
    */
   export type IResult = {
     /** Fresh copy of the Bernstein split endpoint in the source millimetre frame. Equal boundary coordinates in the child nets need not share this tuple object. */

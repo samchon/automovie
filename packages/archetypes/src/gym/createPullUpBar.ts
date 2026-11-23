@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The norm that sizes a gymnastics horizontal bar. */
@@ -25,7 +25,7 @@ const FIG: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bar.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two kinds, how it stands and the contact.
  * @evidence contracts/development/implementation.md#principled-implementation One bar at its height and an upright under each end; the horizontal bar's three sizes are the norm's.
@@ -38,9 +38,9 @@ const FIG: string =
 export function createPullUpBar(
   params: createPullUpBar.IParams,
   seed?: number | string,
-): Archetype<createPullUpBar.Affordance, createPullUpBar.Dimension> {
-  const draw: ArchetypeDrawSession<createPullUpBar.Dimension> =
-    new ArchetypeDrawSession<createPullUpBar.Dimension>(
+): AutoMovieArchetype<createPullUpBar.Affordance, createPullUpBar.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createPullUpBar.Dimension> =
+    new AutoMovieArchetypeDrawSession<createPullUpBar.Dimension>(
       "pullUpBar",
       createPullUpBar.UNITS,
       seed,
@@ -58,10 +58,10 @@ export function createPullUpBar(
   );
   const half: number = d.length! / 2;
   const height: number = d.height!;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createPullUpBar.Affordance,
     createPullUpBar.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: kind === "gym" ? "pull-up bar" : "horizontal bar",
@@ -86,7 +86,7 @@ export function createPullUpBar(
     id: "bar",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
     length: d.length!,
     aperture: d.diameter!,
@@ -126,7 +126,9 @@ export namespace createPullUpBar {
   export type Dimension = "height" | "length" | "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     length: "m",
     diameter: "m",
@@ -144,28 +146,28 @@ export namespace createPullUpBar {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     gym: {
-      height: ArchetypeBand.metres(
+      height: AutoMovieArchetypeBand.metres(
         2.0,
         2.4,
         "an estimate: above a standing adult's reach, under a room's ceiling; no maker's sheet was read",
         true,
       ),
-      length: ArchetypeBand.metres(
+      length: AutoMovieArchetypeBand.metres(
         1.0,
         1.3,
         "an estimate: a power rack's width; no maker's sheet was read",
         true,
       ),
-      diameter: ArchetypeBand.metres(
+      diameter: AutoMovieArchetypeBand.metres(
         0.028,
         0.034,
         "an estimate: from a competition bar's 28 mm to a thick rack bar; no maker's sheet was read",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         15,
         40,
@@ -174,10 +176,10 @@ export namespace createPullUpBar {
       ),
     },
     horizontalBar: {
-      height: ArchetypeBand.metres(2.8, 2.8, FIG),
-      length: ArchetypeBand.metres(2.4, 2.4, FIG),
-      diameter: ArchetypeBand.metres(0.028, 0.028, FIG),
-      mass: ArchetypeBand.of(
+      height: AutoMovieArchetypeBand.metres(2.8, 2.8, FIG),
+      length: AutoMovieArchetypeBand.metres(2.4, 2.4, FIG),
+      diameter: AutoMovieArchetypeBand.metres(0.028, 0.028, FIG),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         40,
         80,

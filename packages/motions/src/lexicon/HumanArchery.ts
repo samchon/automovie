@@ -24,6 +24,7 @@ import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HUMAN_ARCHERY_PRESENT_BOW } from "../next/presets/HUMAN_ARCHERY_PRESENT_BOW";
 import { HumanHand } from "../posture/HumanHand";
 import { release } from "../throwing/release";
 import { HumanArcheryCue } from "./HumanArcheryCue";
@@ -33,6 +34,9 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * Archery under its own names. Shared grasp and placement laws take the
  * same inert prop from its slot to a moving socket. The release rows can
  * hand it off to a scene-authored animation carrier on a film cue (#3713–3714).
+ *
+ * The rows fix no time: the pick up, put down and operate laws time them, and
+ * the release is handed to a scene-authored carrier on a film cue.
  *
  * - `takeArrow`: a pick up of the arrow by its shaft just ahead of the
  *   nock (`nockGrip`), where the fingers hold it to nock it, from where the
@@ -111,14 +115,11 @@ export namespace HumanArchery {
   /** Hold the bow out in one hand on the line from the face to the target. */
   export const presentBow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentBow"]
-  > = HumanActionRow.of("presentBow", HumanWeaponPresent.present, {
-    anchor: "face",
-    hands: 1,
-    from: "nock",
-    tip: "rest",
-    edge: "grip",
-    extended: true,
-  });
+  > = HumanActionRow.of(
+    "presentBow",
+    HumanWeaponPresent.present,
+    HUMAN_ARCHERY_PRESENT_BOW,
+  );
 
   /** The draw as a plain operation row, before the bow is read off the bow arm. */
   const drawRow: IAutoMovieMotionHumanActionLaw<
@@ -242,8 +243,7 @@ function toAnchor(
 ): IAutoMovieMotionHumanActionContext<
   IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
 > {
-  const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
-    context.params.mechanism;
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.kind;
   if (mechanism.kind !== "slider" || mechanism.at.kind !== "prop")
     return context;
   const point: string = mechanism.at.point;
@@ -301,7 +301,7 @@ function toAnchor(
     ...context,
     params: {
       ...context.params,
-      mechanism: { ...mechanism, travel: mechanism.travel * (toChin / run) },
+      kind: { ...mechanism, travel: mechanism.travel * (toChin / run) },
     },
   };
 }
@@ -346,8 +346,7 @@ function onBowArm(
 ): IAutoMovieMotionHumanActionContext<
   IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
 > {
-  const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
-    context.params.mechanism;
+  const mechanism: IAutoMovieMotionHumanOperate.Mechanism = context.params.kind;
   if (mechanism.kind === "insert" || mechanism.at.kind !== "prop")
     return context;
   const bow: string = mechanism.at.subject;

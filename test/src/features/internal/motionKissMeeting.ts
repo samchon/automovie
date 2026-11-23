@@ -9,16 +9,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanAuditPartner,
-  AutoMovieMotionHumanLean,
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanMutual,
-  HumanPerception,
   HumanRefusal,
+} from "@automovie/motions";
+import {
+  AutoMovieMotionHumanAuditPartner,
+  AutoMovieMotionHumanLean,
+  HumanPerception,
   poseBones,
   resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import { MOTION_HUMAN_LAW_STAGES_TOUCH } from "./MOTION_HUMAN_LAW_STAGES_TOUCH";
 import { motionComplaints } from "./motionComplaints";
@@ -235,11 +237,12 @@ function leastForeheadSeparation(scene: motionHumanLawSweep.IScene): number {
         return chain(ground.bone) + Vector3.length(ground.point);
       }),
     );
-  const remained: IAutoMovieMotionHumanPosture = stand.posture(
-    kissed.body,
-    kissed.at,
-    kissed.yaw,
-  );
+  const remained: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(
+      kissed.body,
+      kissed.at,
+      kissed.yaw,
+    );
   const bones: ReturnType<typeof poseBones> = poseBones(
     kissed.body,
     resolveHumanPosture(kissed.body, remained),
@@ -270,11 +273,12 @@ function standingSite(
   region: StandingRegion,
   pitch: number = 0,
 ): IAutoMovieVector3 {
-  const posture: IAutoMovieMotionHumanPosture = stand.posture(
-    person.body,
-    person.at,
-    person.yaw,
-  );
+  const posture: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(
+      person.body,
+      person.at,
+      person.yaw,
+    );
   const bones: ReturnType<typeof poseBones> = poseBones(
     person.body,
     resolveHumanPosture(

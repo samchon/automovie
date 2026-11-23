@@ -2,7 +2,7 @@ import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
 const files: string[] = ["src/**/*.ts"];
 
-/** Every exported declaration answers the shared documentation checklist, types the design checklist and functions the implementation checklist. */
+/** Every exported type answers the shared documentation checklist and the design checklist. */
 export default {
   severity: "error",
   claims: [
@@ -10,7 +10,8 @@ export default {
       name: "interface documentation",
       type: "typescript",
       files,
-      symbol: ["type", "function"],
+      evidenceFiles: ["evidence/**/*.md"],
+      symbol: "type",
       reference: {
         type: "markdown",
         root: "../../.agents/skills",
@@ -23,24 +24,12 @@ export default {
       name: "interface types",
       type: "typescript",
       files,
+      evidenceFiles: ["evidence/**/*.md"],
       symbol: "type",
       reference: {
         type: "markdown",
         root: "../../.agents/skills",
         files: ["contracts/development/design.md"],
-        symbol: "h2",
-        checklist: true,
-      },
-    },
-    {
-      name: "interface functions",
-      type: "typescript",
-      files,
-      symbol: "function",
-      reference: {
-        type: "markdown",
-        root: "../../.agents/skills",
-        files: ["contracts/development/implementation.md"],
         symbol: "h2",
         checklist: true,
       },

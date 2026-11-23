@@ -9,14 +9,6 @@ import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js"
  * Decide the legend text and colour of every mark kind drawn in one picture, and refuse a picture whose colours would be ambiguous.
  *
  * A kind takes the label and colour its marks carry, or the colour of the last `recolor` entry whose pattern matches the kind under the path grammar. Two marks of one kind that disagree on either throw, because one kind is then two things. Two kinds that end up in one colour throw naming both, and so does a kind whose colour is one of `reserved`, such as the flag colour or a shade's surface colour, naming the kind and the reserved use. Kinds come in the order their first mark appears.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where each kind's label and colour come from, the three refusals and what each names, and the order.
- * @evidence contracts/development/implementation.md#principled-implementation A mark is identified in a reduced picture by its colour alone, so a colour may stand for one kind only, and a colour the picture already uses for something else is unavailable.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass collecting each kind's entry, one applying the request's colours, then one pass checking colours against a map from colour to its first owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A clash is refused, never resolved by picking another colour, so the colour a producer documents, or the request names, is the colour drawn; a requested colour obeys the same law.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the marks plus the kinds times the request's colours, with one hashed lookup each.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of one picture's marks.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh map and keeps nothing.
  */
 export function resolveAutoMovieInspectionColors(
   props: IAutoMovieResolveInspectionColorsProps,

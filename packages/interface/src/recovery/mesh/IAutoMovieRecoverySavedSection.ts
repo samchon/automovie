@@ -10,11 +10,6 @@ import type {
  * observation independently recuts the source and verifies contour ordinals,
  * address sets and admitted closure. It does not verify a named curve's shape,
  * parameterization, direction, error, degree, rational weights or material phase.
- *
- * @evidence contracts/development/design.md#principled-representation One normalized frame, alias policy and complete raw-contour lineage population identify the deterministic source cut independently of any fitting basis. Caller identities bind external artifacts without pretending to recompute their hashes from registered arrays.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One public type groups exactly the saved evidence required by slab-only observation; no curve coefficient, fitting budget or reconstruction override is admitted.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Opaque identities do not elevate caller-supplied curves to observed geometry. Broad incidence remains broad; newly recut exact segment provenance supplies ports while original curve references remain caller-attested.
- * @evidence contracts/development/common.md#meaningful-documentation Documents millimetre coordinates, immutable original source ordinals, caller hash/registration/selection responsibilities, complete contour coverage and the limits of raw-cut verification.
  */
 export interface IAutoMovieRecoverySavedSection {
   /** Signed millimetres along the saved frame's normalized n from its origin. */

@@ -11,7 +11,6 @@ import type {
 
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { HumanGrip } from "../handling/HumanGrip";
-import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
@@ -25,11 +24,6 @@ import { poseBones } from "./poseBones";
  * body and of another body in the arm's way, and the arm's own colliders and
  * their probes (the tangle audit's corners) in the frame of the segment each
  * rides on.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the per-base shoulder context, actual colliders and canonical probe provenance.
- * @evidence contracts/development/design.md#principled-representation One resolved body and collider placement supply both obstacle selection and segment-local probe frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One frame builder serves trajectory contexts and the public arm Jacobian reader.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts External part ordering and the audit's original probes, ownership and reach screens remain unchanged.
  */
 export namespace HumanArmFrame {
   /**
@@ -40,14 +34,6 @@ export namespace HumanArmFrame {
    * @param alone Whether the arm is solved alone, so the other arm is in its way; two arms solved together read each other through their own colliders.
    * @param prepared Optional exact FK reader, or its lazy factory, shared only across arms of this same base's synchronous frame construction, then released. A factory is called only when a frame is missing; neither form is stored in a frame or cache.
    * @returns The frame, the same record for the same base, arm and solve, which a refined trajectory and its finer reading share.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States inputs, single/paired-arm selection and the existing per-base frame identity.
-   * @evidence contracts/development/implementation.md#principled-implementation Resolves the source pose and places its physical colliders once for a newly requested frame; the existing obstacle owner selects from that same placement while audit probes retain their exact segment transforms.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Existing base/arm lookup delegates a missing frame to one construction pass, requesting an optional lazy reader only on that miss.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all FK admission, external part indices, related exclusions, probe order and strict shoulder-reach comparison; base, body and external placements remain unchanged for the frame's existing lifetime.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One full ordered pose walk and collider placement per newly built frame plus linear part/probe scans; an optional same-base reader avoids identical completed joint/bone math for the second arm while all outputs remain fresh. Cache hits never invoke a lazy factory or allocate its FK maps.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same-base arm construction shares only the supplied synchronous FK reader's exact dependencies. Obstacle/probe passes share placements, each owner reuses its inverse frame (the hand's already computed for the fingertip), bounds reuse local points, and the completed shoulder origin feeds unchanged-frame chain queries.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Keeps only the existing weakly keyed per-base frames; temporary placement and owner-group arrays are released after construction and no new cross-pose cache is introduced.
    */
   export function of(
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -184,15 +170,35 @@ export namespace HumanArmFrame {
     const shapes: IAutoMovieMotionHumanArmGeometry.IShape[] = [];
     const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
       HumanColliders.placed(body, resolved);
-    for (const segment of [
-      ...HumanArmClearance.obstacles(
-        body,
-        resolved,
-        alone ? [side === "left" ? "right" : "left"] : [],
-        placed,
-      ),
-      ...others,
-    ]) {
+    // The arm's probes are read against every segment of the body the tangle
+    // audit reads them against: all but the arm's own, and the other arm's
+    // where it is solved too. A narrower set (the fit's trunk and thighs,
+    // `HumanArmClearance.obstacles`) let a planned course lay a thumb in a
+    // shank the audit then refused (a small body's hand passing its knee
+    // as it sits onto a chair).
+    const opposite: "left" | "right" = side === "left" ? "right" : "left";
+    const read: IAutoMovieMotionHumanColliders.IPlaced[] = placed.filter(
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => {
+        const group: string = AutoMovieMotionHumanAuditTangleModel.group(
+          segment.bone,
+        );
+        if (
+          segment.bone === bones.upper ||
+          segment.bone === bones.lower ||
+          group === bones.hand
+        )
+          return false;
+        return (
+          alone ||
+          !(
+            segment.bone === `${opposite}UpperArm` ||
+            segment.bone === `${opposite}LowerArm` ||
+            group === `${opposite}Hand`
+          )
+        );
+      },
+    );
+    for (const segment of [...read, ...others]) {
       const part: number = parts.get(segment) ?? own.get(segment.bone) ?? -1;
       for (const shape of segment.shapes)
         shapes.push(S.bounded(segment.bone, part, segment.pose, shape));
@@ -237,6 +243,12 @@ export namespace HumanArmFrame {
     const inverses: Partial<
       Record<"upper" | "lower" | "hand", IAutoMovieQuaternion>
     > = { hand: unturn };
+
+    // The body's segments whose corners the arm is read against, the other
+    // arm's left out where it is solved too: their corners are placed once
+    // the arm's own reach is known (below), so a segment that lies beyond
+    // it places none.
+    const obstacles: number[] = [];
     placed.forEach(
       (segment: IAutoMovieMotionHumanColliders.IPlaced, i: number): void => {
         const owner: "upper" | "lower" | "hand" | null =
@@ -249,27 +261,13 @@ export namespace HumanArmFrame {
                 ? "hand"
                 : null;
         if (owner === null) {
-          // The body's corners, the other arm's left out where it is solved too.
           const arm: boolean =
             segment.bone === `${other}UpperArm` ||
             segment.bone === `${other}LowerArm` ||
             AutoMovieMotionHumanAuditTangleModel.group(segment.bone) ===
               `${other}Hand`;
           if (!alone && arm) return;
-          const part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
-            model.parts[i]!;
-          for (let corner: number = 0; corner < part.surface; corner++) {
-            const probe: IAutoMovieVector3 = part.probes[corner]!;
-            corners.push({
-              point: Vector3.add(
-                segment.pose.position,
-                Quaternion.rotateVector(segment.pose.rotation, probe),
-              ),
-              part: i,
-              corner,
-              bone: segment.bone,
-            });
-          }
+          obstacles.push(i);
           return;
         }
         const by: IAutoMovieResolvedBone = frames[owner];
@@ -312,6 +310,56 @@ export namespace HumanArmFrame {
         }
       },
     );
+    const of: (owner: "upper" | "lower" | "hand") => {
+      centre: IAutoMovieVector3;
+      radius: number;
+    } = (
+      owner: "upper" | "lower" | "hand",
+    ): { centre: IAutoMovieVector3; radius: number } => sphere(byOwner[owner]);
+    const bounds: IAutoMovieMotionHumanArmGeometry.IFrame["bounds"] = {
+      upper: of("upper"),
+      lower: of("lower"),
+      hand: of("hand"),
+    };
+
+    // The body's corners the arm can come near at all: within its own
+    // length, its widest segment and the pairs' reach of the shoulder.
+    const shoulder: IAutoMovieVector3 = frames.upper.worldPosition;
+    const length: number =
+      Vector3.distance(frames.lower.worldPosition, shoulder) +
+      Vector3.distance(hand.worldPosition, frames.lower.worldPosition) +
+      Vector3.distance(end, hand.worldPosition);
+    const around: number =
+      length +
+      Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) +
+      NEAR;
+
+    // Every probe of a segment lies within its extent of the segment's
+    // origin (`AutoMovieMotionHumanAuditTangleModel.IPart.extent`), so a
+    // segment whose origin is farther than that beyond `around` has no
+    // corner the filter below keeps, and none is placed.
+    for (const i of obstacles) {
+      const segment: IAutoMovieMotionHumanColliders.IPlaced = placed[i]!;
+      const part: AutoMovieMotionHumanAuditTangleModel.IModel["parts"][number] =
+        model.parts[i]!;
+      if (
+        Vector3.distance(segment.pose.position, shoulder) - part.extent >=
+        around + MARGIN
+      )
+        continue;
+      for (let corner: number = 0; corner < part.surface; corner++) {
+        const probe: IAutoMovieVector3 = part.probes[corner]!;
+        corners.push({
+          point: Vector3.add(
+            segment.pose.position,
+            Quaternion.rotateVector(segment.pose.rotation, probe),
+          ),
+          part: i,
+          corner,
+          bone: segment.bone,
+        });
+      }
+    }
     externals.forEach(
       (segment: IAutoMovieMotionHumanColliders.IExternal, i: number): void => {
         let corner: number = 0;
@@ -354,29 +402,6 @@ export namespace HumanArmFrame {
             bone: segment.bone,
           });
     }
-    const of: (owner: "upper" | "lower" | "hand") => {
-      centre: IAutoMovieVector3;
-      radius: number;
-    } = (
-      owner: "upper" | "lower" | "hand",
-    ): { centre: IAutoMovieVector3; radius: number } => sphere(byOwner[owner]);
-    const bounds: IAutoMovieMotionHumanArmGeometry.IFrame["bounds"] = {
-      upper: of("upper"),
-      lower: of("lower"),
-      hand: of("hand"),
-    };
-
-    // The body's corners the arm can come near at all: within its own
-    // length, its widest segment and the pairs' reach of the shoulder.
-    const shoulder: IAutoMovieVector3 = frames.upper.worldPosition;
-    const length: number =
-      Vector3.distance(frames.lower.worldPosition, shoulder) +
-      Vector3.distance(hand.worldPosition, frames.lower.worldPosition) +
-      Vector3.distance(end, hand.worldPosition);
-    const around: number =
-      length +
-      Math.max(bounds.upper.radius, bounds.lower.radius, bounds.hand.radius) +
-      NEAR;
     const near: IAutoMovieMotionHumanArmGeometry.IFrame["body"] =
       corners.filter(
         (c: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number]): boolean =>
@@ -405,6 +430,9 @@ export namespace HumanArmFrame {
 
 /** How near a body's corner must come to a segment of the arm to be read against it, metres: the pairs' reach (`HumanArmTrajectoryTerms.REACH`). */
 const NEAR: number = HumanArmTrajectoryTerms.REACH;
+
+/** The slack a segment's sphere test keeps over the corner filter, metres: far below any probe's spacing, far above the rounding of a rotated probe's length, so the test leaves out only segments none of whose corners the filter keeps. */
+const MARGIN: number = 1e-9;
 
 /** A sphere about points: their mean and the farthest one's distance. */
 function sphere(points: readonly IAutoMovieVector3[]): {

@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  type IAutoMovieArchetypeBand,
   createHandgun,
   createLongGun,
 } from "@automovie/archetypes";
@@ -37,15 +37,15 @@ export function test_archetype_weapon_firearm_eras_bands(): void {
   const findings: string[] = [];
   const sweep = <Dimension extends string>(
     label: string,
-    make: (seed: number) => Archetype<string, Dimension>,
+    make: (seed: number) => AutoMovieArchetype<string, Dimension>,
     long: boolean,
   ): void => {
     for (let seed: number = 0; seed < SEEDS; seed++) {
-      const gun: Archetype<string, Dimension> = make(seed);
+      const gun: AutoMovieArchetype<string, Dimension> = make(seed);
       const d: Readonly<Partial<Record<Dimension, number>>> = gun.dimensions;
       for (const [name, band] of Object.entries(gun.provenance.bands) as [
         Dimension,
-        IArchetypeBand,
+        IAutoMovieArchetypeBand,
       ][]) {
         const value: number = d[name]!;
         if (!(value >= band.minimum - 1e-12 && value <= band.maximum + 1e-12))
@@ -53,8 +53,10 @@ export function test_archetype_weapon_firearm_eras_bands(): void {
             `${label}@${seed}: ${name} ${value} outside ${band.minimum} to ${band.maximum}`,
           );
       }
-      const lock: IArchetypeBand | undefined = (
-        gun.provenance.bands as Readonly<Record<string, IArchetypeBand>>
+      const lock: IAutoMovieArchetypeBand | undefined = (
+        gun.provenance.bands as Readonly<
+          Record<string, IAutoMovieArchetypeBand>
+        >
       )["lockTime"];
       if (lock !== undefined && lock.provisional !== true)
         findings.push(
@@ -73,14 +75,14 @@ export function test_archetype_weapon_firearm_eras_bands(): void {
   for (const kind of ["musket", "rifle", "leverAction"] as const)
     sweep(
       kind,
-      (seed: number): Archetype<string, createLongGun.Dimension> =>
+      (seed: number): AutoMovieArchetype<string, createLongGun.Dimension> =>
         createLongGun({ kind }, seed),
       true,
     );
   for (const frame of ["revolver", "flintlock"] as const)
     sweep(
       frame,
-      (seed: number): Archetype<string, createHandgun.Dimension> =>
+      (seed: number): AutoMovieArchetype<string, createHandgun.Dimension> =>
         createHandgun({ frame }, seed),
       false,
     );
@@ -98,9 +100,13 @@ export function test_archetype_weapon_firearm_eras_bands(): void {
           findings.push(`${label}@${seed}: its lock has no ${id}`);
       const spur: { kind: string; rides?: string } | undefined =
         lock.affordances.find((a: { id: string }): boolean => a.id === "spur");
-      if (spur !== undefined && (spur.kind !== "handle" || spur.rides !== "cock"))
+      if (
+        spur !== undefined &&
+        (spur.kind !== "handle" || spur.rides !== "cock")
+      )
         findings.push(`${label}@${seed}: the spur does not ride the cock`);
-    }  TestValidator.equals(
+    }
+  TestValidator.equals(
     "the period and repeating firearms stay in their bands",
     findings,
     [],

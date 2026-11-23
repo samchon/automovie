@@ -13,10 +13,10 @@ import type {
 } from "@automovie/interface";
 
 import {
-  Archetype,
   ArchetypeDraw,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
 import type { createArmour } from "./createArmour";
 
@@ -60,7 +60,7 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  *
  * @param params The performer id and body, and up to one distinct costume model per slot.
  * @returns The models and their initial worn bindings for the scene.
- * @throws {ArchetypeRefusal} For a mismatched slot, reused model id, missing piece, a body without the slot's joints or a trunk piece without its height.
+ * @throws {AutoMovieArchetypeRefusal} For a mismatched slot, reused model id, missing piece, a body without the slot's joints or a trunk piece without its height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the slots, the segment each piece covers and how its centre and axes are placed.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the body's own rest joint positions and anthropometric measure to place each piece's documented wear centre on the segment it covers, then expresses that frame in the slot bone's chained rest rotation.
@@ -97,7 +97,7 @@ export function assembleCostumeArmour(
       slots,
     );
     if (
-      !(model instanceof Archetype) ||
+      !(model instanceof AutoMovieArchetype) ||
       model.archetype !== "armour" ||
       !PIECES[bone].some(
         (kind: createArmour.Kind): boolean => kind === model.name,
@@ -125,8 +125,8 @@ export function assembleCostumeArmour(
         subject: params.subject,
         bone,
         offset: rigid(
-          ArchetypeFrame.compose(
-            ArchetypeFrame.compose(invert(slotFrame), covered),
+          AutoMovieArchetypeFrame.compose(
+            AutoMovieArchetypeFrame.compose(invert(slotFrame), covered),
             invert(wear.frame),
           ),
         ),
@@ -156,7 +156,7 @@ export namespace assembleCostumeArmour {
     | "rightLowerLeg";
 
   /** The shared measured costume model, retaining its wear socket. */
-  export type Model = Archetype<
+  export type Model = AutoMovieArchetype<
     createArmour.Affordance,
     createArmour.Dimension
   >;
@@ -237,7 +237,7 @@ function frameAt(
   at: IAutoMovieVector3,
   up: IAutoMovieVector3,
 ): IAutoMovieTransform {
-  return ArchetypeFrame.facing(at, up, Vector3.cross(up, FORWARD));
+  return AutoMovieArchetypeFrame.facing(at, up, Vector3.cross(up, FORWARD));
 }
 
 /** A bone's rest frame in the world: its rest joint and its rotation chained from the root. */
@@ -262,7 +262,7 @@ function restFrame(
   return {
     translation: restAt(body, bone),
     rotation: Quaternion.normalize(rotation),
-    scale: { ...ArchetypeFrame.UNIT },
+    scale: { ...AutoMovieArchetypeFrame.UNIT },
   };
 }
 
@@ -285,7 +285,7 @@ function invert(frame: IAutoMovieTransform): IAutoMovieTransform {
       Vector3.scale(frame.translation, -1),
     ),
     rotation,
-    scale: { ...ArchetypeFrame.UNIT },
+    scale: { ...AutoMovieArchetypeFrame.UNIT },
   };
 }
 
@@ -295,13 +295,17 @@ function rigid(frame: IAutoMovieTransform): IAutoMovieRigidTransform {
 }
 
 /** Refuse a body that lacks a joint the slot's segment reads. */
-function missing(bone: AutoMovieHumanoidBone): ArchetypeRefusal {
+function missing(bone: AutoMovieHumanoidBone): AutoMovieArchetypeRefusal {
   return refuse("body", bone, "supply the wearer's canonical rigged body");
 }
 
 /** Produce the assembly refusal with its offending option. */
-function refuse(axis: string, value: unknown, fix: string): ArchetypeRefusal {
-  return new ArchetypeRefusal({
+function refuse(
+  axis: string,
+  value: unknown,
+  fix: string,
+): AutoMovieArchetypeRefusal {
+  return new AutoMovieArchetypeRefusal({
     kind: "parameter",
     archetype: "costumeArmour",
     axis,

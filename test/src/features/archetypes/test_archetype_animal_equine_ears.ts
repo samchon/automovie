@@ -1,4 +1,7 @@
-﻿import { EquidEarProfiles, createQuadruped } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeEquineEarProfiles,
+  createQuadruped,
+} from "@automovie/archetypes";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -73,8 +76,8 @@ export function test_archetype_animal_equine_ears(): void {
     },
   ];
   const beforeDonor: string = JSON.stringify([
-    EquidEarProfiles.DONKEY,
-    EquidEarProfiles.MULES,
+    AutoMovieArchetypeEquineEarProfiles.DONKEY,
+    AutoMovieArchetypeEquineEarProfiles.MULES,
   ]);
   for (const row of rows)
     for (const tack of ["saddle", "harness", "both", "pack"] as const) {
@@ -148,8 +151,10 @@ export function test_archetype_animal_equine_ears(): void {
     }
   }
   if (
-    JSON.stringify([EquidEarProfiles.DONKEY, EquidEarProfiles.MULES]) !==
-    beforeDonor
+    JSON.stringify([
+      AutoMovieArchetypeEquineEarProfiles.DONKEY,
+      AutoMovieArchetypeEquineEarProfiles.MULES,
+    ]) !== beforeDonor
   )
     findings.push("Actual construction changed primary donor data");
   TestValidator.equals(

@@ -122,7 +122,12 @@ export function prepareSurfboardPhrase(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISurfboardPhraseParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params }: typeof context = context;
-  const duration: number = HumanBound.above("seconds", params.seconds, 0, "s");
+  const duration: number = HumanBound.above(
+    "duration",
+    params.duration,
+    0,
+    "s",
+  );
   const lead: AutoMovieHumanSide = params.lead;
   const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
   const water: number = params.water ?? 0;

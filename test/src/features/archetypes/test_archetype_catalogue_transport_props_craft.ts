@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  type ArchetypeCourse,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRide,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRide,
   createBoat,
   createCanoe,
   createCarriage,
@@ -28,12 +28,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanSwim,
   HumanChain,
-  HumanFrame,
   HumanObject,
   HumanPerformance,
-  aquatic,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
@@ -41,7 +41,7 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 import { motionHumanLaw } from "../internal/motionHumanLaw";
 
 /** The path used to compare independent wheel, tow and crew readbacks. */
-const COURSE: ArchetypeCourse.ICourse = {
+const COURSE: AutoMovieArchetypeCourse.ICourse = {
   start: { x: 1.6, z: -2, heading: 35 },
   legs: [{ kind: "straight", length: 18 }],
   cruise: 1.5,
@@ -100,7 +100,7 @@ export function test_archetype_catalogue_transport_props_craft(): void {
       wheelbarrow.affordances.map((contact) => contact.id),
     ],
     [
-      ["handle", "load"],
+      ["handle", "leftHandle", "rightHandle", "load"],
       ["leftHandle", "rightHandle", "load"],
     ],
   );
@@ -114,26 +114,37 @@ export function test_archetype_catalogue_transport_props_craft(): void {
       Math.abs(tire.low) <= 1e-8 &&
       Math.abs((tire.high + tire.low) / 2 - left.y) <= 1e-8,
   );
-  const leader: ArchetypeRide.IRide<"hitch", never> = ArchetypeRide.along(
-    new ArchetypeBuilder<"hitch", never>({
-      material: "wood",
-      name: "tow-leader",
-      draw: new ArchetypeDrawSession<never>("tow-leader", {}, undefined),
-    })
-      .box("base", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
-      .affordance({
-        id: "hitch",
-        kind: "hook",
-        frame: ArchetypeFrame.upright(Vector3.create(0, 1, -1)),
-        extent: null,
+  const leader: AutoMovieArchetypeRide.IRide<"hitch", never> =
+    AutoMovieArchetypeRide.along(
+      new AutoMovieArchetypeBuilder<"hitch", never>({
+        material: "wood",
+        name: "tow-leader",
+        draw: new AutoMovieArchetypeDrawSession<never>(
+          "tow-leader",
+          {},
+          undefined,
+        ),
       })
-      .build(50),
-    COURSE,
-  );
+        .box("base", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
+        .affordance({
+          id: "hitch",
+          kind: "hook",
+          frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 1, -1)),
+          extent: null,
+        })
+        .build(50),
+      COURSE,
+    );
   for (const pulled of [cart, oldCart]) {
-    const ride = ArchetypeRide.towed(leader, "hitch", pulled, "coupling", {
-      support: createCart.towing(pulled),
-    });
+    const ride = AutoMovieArchetypeRide.towed(
+      leader,
+      "hitch",
+      pulled,
+      "coupling",
+      {
+        support: createCart.towing(pulled),
+      },
+    );
     for (const seconds of [0, 1, 4]) {
       const hitch: IAutoMovieVector3 = leader.frame(
         "hitch",
@@ -172,9 +183,10 @@ export function test_archetype_catalogue_transport_props_craft(): void {
   );
   TestValidator.predicate(
     "the rower and paddler face opposite ways with distinct oar support",
-    ArchetypeFrame.axis(rowboat.affordance("thwart0").frame, "z").z < -0.99 &&
-      ArchetypeFrame.axis(hulls.canoe.affordance("thwart0").frame, "z").z >
-        0.99 &&
+    AutoMovieArchetypeFrame.axis(rowboat.affordance("thwart0").frame, "z").z <
+      -0.99 &&
+      AutoMovieArchetypeFrame.axis(hulls.canoe.affordance("thwart0").frame, "z")
+        .z > 0.99 &&
       rowboat.affordance("leftOar").rides === "leftOarlock" &&
       !hulls.canoe.affordances.some((contact) => contact.id === "leftOarlock"),
   );
@@ -192,7 +204,7 @@ export function test_archetype_catalogue_transport_props_craft(): void {
     thwarts.length === createBoat.LAUNCH.thwarts &&
       thwarts.every(
         (contact: IAutoMovieAffordance): boolean =>
-          -0.99 > ArchetypeFrame.axis(contact.frame, "z").z,
+          -0.99 > AutoMovieArchetypeFrame.axis(contact.frame, "z").z,
       ) &&
       withoutOarlock,
   );
@@ -206,8 +218,8 @@ export function test_archetype_catalogue_transport_props_craft(): void {
 /** Compare the authored model, its explicit measured dimensions and its provenance. */
 function sameModel(
   label: string,
-  canonical: Archetype,
-  legacy: Archetype,
+  canonical: AutoMovieArchetype,
+  legacy: AutoMovieArchetype,
 ): void {
   TestValidator.equals(
     label,
@@ -247,7 +259,7 @@ function crew(
   );
   const performance: HumanPerformance = new HumanPerformance({
     seed: "canonical-transport-crew",
-    laws: [aquatic],
+    laws: [AutoMovieMotionHumanSwim.aquatic],
     performers: [
       {
         subject: "crew",
@@ -259,8 +271,8 @@ function crew(
     ],
     props: [HumanObject.prop("hull", boat, initial, track.motion, track.point)],
     composition: HumanChain.subject("crew")
-      .stand({ seconds: 0.3, on: { prop: "hull" } })
-      .sit({ seat, seconds: 0.5 })
+      .stand({ hold: 0.3, on: { prop: "hull" } })
+      .sit({ seat, hold: 0.5 })
       .registered("aquatic", { kind: "doubleScull", support: "hull" }).node,
   });
   const film: motionHumanLaw.IFilm = motionHumanLaw.film(performance);

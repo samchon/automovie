@@ -2,10 +2,10 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -35,20 +35,18 @@ import {
 export function createSquashCourt(
   params: createSquashCourt.IParams = {},
   seed?: number | string,
-): Archetype<createSquashCourt.Affordance, never> {
-  const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession(
-    "squashCourt",
-    {},
-    seed,
-    {},
-  );
-  const builder: ArchetypeBuilder<createSquashCourt.Affordance, never> =
-    new ArchetypeBuilder({
-      material: "concrete",
-      id: params.id,
-      name: "squash court",
-      draw,
-    });
+): AutoMovieArchetype<createSquashCourt.Affordance, never> {
+  const draw: AutoMovieArchetypeDrawSession<never> =
+    new AutoMovieArchetypeDrawSession("squashCourt", {}, seed, {});
+  const builder: AutoMovieArchetypeBuilder<
+    createSquashCourt.Affordance,
+    never
+  > = new AutoMovieArchetypeBuilder({
+    material: "concrete",
+    id: params.id,
+    name: "squash court",
+    draw,
+  });
   const { LENGTH, WIDTH, FRONT, BACK, TIN, SHORT } = createSquashCourt;
   const wall: number = 0.1;
   const front: number = LENGTH / 2;
@@ -94,7 +92,7 @@ export function createSquashCourt(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(Vector3.create(0, y, z)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, z)),
       extent: null,
     });
 

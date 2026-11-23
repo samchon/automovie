@@ -1,7 +1,7 @@
 import {
-  ArchetypeCourse,
-  ArchetypeRefusal,
-  type ArchetypeRide,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createCar,
   createMotorcycle,
   driveCar,
@@ -42,7 +42,7 @@ const NEAR: number = 1e-4;
  * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory course and vehicle pose reads through installed package exports.
  */
 export function test_archetype_ride_course_timed_holds(): void {
-  const samples: readonly ArchetypeCourse.ISample[] = [
+  const samples: readonly AutoMovieArchetypeCourse.ISample[] = [
     sample(2, 7, 2),
     sample(3, 7, 2),
     sample(4, 7, 2),
@@ -52,7 +52,7 @@ export function test_archetype_ride_course_timed_holds(): void {
     sample(11, 7, 6),
     sample(12, 7, 6),
   ];
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
     "exhibition",
     samples,
   );
@@ -97,7 +97,7 @@ export function test_archetype_ride_course_timed_holds(): void {
       hold.to - NEAR,
       hold.to,
     ];
-    const forward: ArchetypeCourse.IState[] = times.map(plan.at);
+    const forward: AutoMovieArchetypeCourse.IState[] = times.map(plan.at);
     for (const [index, pose] of forward.entries()) {
       TestValidator.equals(
         "constant authored position at " + times[index],
@@ -129,7 +129,7 @@ export function test_archetype_ride_course_timed_holds(): void {
     [9 + NEAR, holds[1]!],
     [11 - NEAR, holds[2]!],
   ] as const) {
-    const close: ArchetypeCourse.IState = plan.at(seconds);
+    const close: AutoMovieArchetypeCourse.IState = plan.at(seconds);
     TestValidator.predicate(
       "the moving cubic reaches the constant span with continuous position and zero limiting speed at " +
         seconds,
@@ -151,7 +151,7 @@ export function test_archetype_ride_course_timed_holds(): void {
   );
   let turning: unknown;
   try {
-    ArchetypeCourse.timed("perpendicular departure after a hold", [
+    AutoMovieArchetypeCourse.timed("perpendicular departure after a hold", [
       ...samples.slice(0, -2),
       sample(11, 9, 4),
       sample(12, 9, 4),
@@ -161,46 +161,47 @@ export function test_archetype_ride_course_timed_holds(): void {
   }
   TestValidator.predicate(
     "a departure that cannot keep standing facing refuses at its authored sample",
-    turning instanceof ArchetypeRefusal &&
+    turning instanceof AutoMovieArchetypeRefusal &&
       turning.axis === "samples[5]" &&
       turning.reason.includes("9 s"),
   );
 
-  const grade: ArchetypeCourse.IPlan = ArchetypeCourse.timed("sloped course", [
-    { seconds: 0, x: 7, y: 0, z: 0 },
-    { seconds: 1, x: 7, y: 0.5, z: 1 },
-    { seconds: 2, x: 7, y: 0.5, z: 1 },
-    { seconds: 3, x: 7, y: 1, z: 2 },
-  ]);
+  const grade: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
+    "sloped course",
+    [
+      { seconds: 0, x: 7, y: 0, z: 0 },
+      { seconds: 1, x: 7, y: 0.5, z: 1 },
+      { seconds: 2, x: 7, y: 0.5, z: 1 },
+      { seconds: 3, x: 7, y: 1, z: 2 },
+    ],
+  );
   TestValidator.predicate(
     "a sloping approach keeps its displayed orientation during a hold",
     vclose(facing(grade.at(1.5)), facing(grade.at(1 - NEAR)), 1e-9),
   );
-  const vertical: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
-    "height change",
-    [
+  const vertical: AutoMovieArchetypeCourse.IPlan =
+    AutoMovieArchetypeCourse.timed("height change", [
       { seconds: 0, x: 7, z: 4 },
       { seconds: 2, x: 7, y: 2, z: 4 },
-    ],
-  );
+    ]);
   TestValidator.predicate(
     "fixed floor coordinates with changing height still travel",
     vertical.at(1).speed === 1 && vertical.at(1).placement.translation.y === 1,
   );
 
-  const straight: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
-    "straight hold",
-    [
+  const straight: AutoMovieArchetypeCourse.IPlan =
+    AutoMovieArchetypeCourse.timed("straight hold", [
       sample(0, 0, 0),
       sample(2, 0, 2),
       sample(3, 0, 2),
       sample(4, 0, 2),
       sample(6, 0, 4),
-    ],
-  );
-  const car: ArchetypeRide.IRide<createCar.Affordance, createCar.Dimension> =
-    driveCar(createCar({ kind: "sedan" }, 2), straight);
-  const cycle: ArchetypeRide.IRide<
+    ]);
+  const car: AutoMovieArchetypeRide.IRide<
+    createCar.Affordance,
+    createCar.Dimension
+  > = driveCar(createCar({ kind: "sedan" }, 2), straight);
+  const cycle: AutoMovieArchetypeRide.IRide<
     createMotorcycle.Affordance,
     createMotorcycle.Dimension
   > = rideMotorcycle(createMotorcycle({ kind: "motorcycle" }, 2), straight);
@@ -239,11 +240,11 @@ function sample(
   seconds: number,
   x: number,
   z: number,
-): ArchetypeCourse.ISample {
+): AutoMovieArchetypeCourse.ISample {
   return { seconds, x, y: 1, z };
 }
 
 /** Read world forward by rotating the model's conventional forward axis. */
-function facing(state: ArchetypeCourse.IState): IAutoMovieVector3 {
+function facing(state: AutoMovieArchetypeCourse.IState): IAutoMovieVector3 {
   return Quaternion.rotateVector(state.placement.rotation, NORTH);
 }

@@ -1,17 +1,16 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { CarBody } from "./CarBody";
 import { createCar } from "./createCar";
 
 /**
  * A car's cabin: its doors with their windows and openings, its seats with their reclining backs, and the driver's controls, all placed on `CarBody`'s layout.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what it builds and what it reads.
- * @evidence contracts/development/design.md#principled-representation Hinged and sliding leaves, sliding glass and reclining backs as articulations on the layout's planes, the controls at offsets from the seating reference point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three builders `createCar` calls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every door, window and back is one helper over its side and station, not a copy per position.
  */
 export namespace CarCabin {
   /**
@@ -19,17 +18,12 @@ export namespace CarCabin {
    *
    * @param builder The car under construction.
    * @param l The layout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which class has which door and what each carries.
-   * @evidence contracts/development/implementation.md#principled-implementation A hinged door's axis is its front edge with `+Y` pointing so a positive travel swings it outward; its window is a `slider` riding it, running down along `+X` by the glass's height; the window's opening is an `aperture` riding the glass, its threshold the glass's top edge, so the clear opening is the window frame's top less that threshold and grows to `height` as the glass goes down. A van's sliding door runs back along the side by its opening's width.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper per door, called per side.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A sliding door runs inside the side wall's plane, not out and along it as its track does; stated, not hidden.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A few parts per door.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function doors(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: CarBody.ILayout,
   ): void {
     door(builder, l, "driver", l.side, l.door, l.pillar, true);
@@ -59,7 +53,7 @@ export namespace CarCabin {
     builder.affordance({
       id: "slidingDoor",
       kind: "slider",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(x, l.floor + height / 2, middle),
         v(kerb, 0, 0),
         v(0, 0, -1),
@@ -72,7 +66,7 @@ export namespace CarCabin {
     builder.affordance({
       id: "slidingAperture",
       kind: "aperture",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(x, l.floor, middle),
         v(0, 1, 0),
         v(0, 0, -kerb),
@@ -88,17 +82,12 @@ export namespace CarCabin {
    *
    * @param builder The car under construction.
    * @param l The layout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which seats each class has.
-   * @evidence contracts/development/implementation.md#principled-implementation Each seat is a cushion whose `seat` affordance sits on its front edge facing forward, laid out from its seating reference point: the front pair's the layout's, the rear bench's `REAR_SGRP` ahead of the rear doors' trailing edge, which lies `REAR_DOOR` behind the front doors, at the front seats' height (a provisional value, see `HIP`); its back turns about the cushion's rear edge with `+Y` along `-X`, so a positive travel tips its top back toward `-Z`, by up to `recline`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One helper per seat.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None beyond the layout's marked constants.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A few parts per seat.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function seats(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: CarBody.ILayout,
   ): void {
     const reference: IAutoMovieVector3 = l.reference;
@@ -138,23 +127,18 @@ export namespace CarCabin {
    *
    * @param builder The car under construction.
    * @param l The layout.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and what is not.
-   * @evidence contracts/development/implementation.md#principled-implementation The steering wheel's rim on its column's axis tilted back by `steeringAngle`, its centre `WHEEL_AFT` behind the ball of foot and `WHEEL_HEIGHT` above the heel point (SAE J1100's L6 and H17 of a mid-size sedan), turning half the lock-to-lock turn each way with one spoke across it so a turn shows; the accelerator's plate lies on SAE J1516's pedal plane at the ball of foot, facing the sole, `FOOT` to the right of the driver's centre line (ISO 6549).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Wheel, then accelerator.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every offset is a sourced `createCar` constant.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A handful of parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function controls(
-    builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCar.Affordance,
+      createCar.Dimension
+    >,
     l: CarBody.ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const d: Readonly<Partial<Record<createCar.Dimension, number>>> = l.d;
     const sx: number = l.reference.x;
-    const tilt: number = d.steeringAngle! * ArchetypeUnits.DEGREE;
+    const tilt: number = d.steeringAngle! * AutoMovieArchetypeUnits.DEGREE;
     const axis: IAutoMovieVector3 = v(0, Math.sin(tilt), -Math.cos(tilt));
     const hub: IAutoMovieVector3 = l.wheel;
     builder.rod(
@@ -193,7 +177,7 @@ export namespace CarCabin {
     builder.affordance({
       id: "wheel",
       kind: "wheel",
-      frame: ArchetypeFrame.facing(hub, axis, v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(hub, axis, v(1, 0, 0)),
       extent: null,
       grip: "power",
       aperture: 0.03,
@@ -212,7 +196,11 @@ export namespace CarCabin {
       id: "rightSteeringGrip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(rim, axis, Vector3.cross(axis, v(-1, 0, 0))),
+      frame: AutoMovieArchetypeFrame.facing(
+        rim,
+        axis,
+        Vector3.cross(axis, v(-1, 0, 0)),
+      ),
       extent: null,
       grip: "power",
       aperture: 0.03,
@@ -230,22 +218,22 @@ export namespace CarCabin {
       builder.affordance({
         id,
         kind: "surface",
-        frame: ArchetypeFrame.upright(v(x, l.floor, l.heel.z)),
+        frame: AutoMovieArchetypeFrame.upright(v(x, l.floor, l.heel.z)),
         extent: null,
       });
 
     // The accelerator on the pedal plane at the ball of foot under the right foot; its plate faces the sole, out of the plane toward the seat.
-    const slope: number = l.pedal * ArchetypeUnits.DEGREE;
+    const slope: number = l.pedal * AutoMovieArchetypeUnits.DEGREE;
     const sole: IAutoMovieVector3 = v(0, Math.cos(slope), -Math.sin(slope));
     const at: IAutoMovieVector3 = v(sx - createCar.FOOT, l.ball.y, l.ball.z);
     builder.box("pedal-accelerator", v(0.05, 0.01, 0.08), at, {
       color: DARK,
-      rotation: ArchetypeFrame.facing(at, sole, v(1, 0, 0)).rotation,
+      rotation: AutoMovieArchetypeFrame.facing(at, sole, v(1, 0, 0)).rotation,
     });
     builder.affordance({
       id: "accelerator",
       kind: "pedal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.add(at, Vector3.scale(sole, 0.005)),
         sole,
         v(1, 0, 0),
@@ -292,7 +280,7 @@ const BODY: string = "#3f6c8f";
  * @param pillar Whether a middle pillar stands at its rear edge.
  */
 function door(
-  builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+  builder: AutoMovieArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
   l: CarBody.ILayout,
   role: "driver" | "passenger" | "rearLeft" | "rearRight",
   sign: number,
@@ -332,7 +320,7 @@ function door(
   builder.affordance({
     id: `${role}Door`,
     kind: "hinge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(x, (l.belt + l.floor) / 2, hinge),
       v(0, -sign, 0),
       v(0, 0, -1),
@@ -345,7 +333,7 @@ function door(
     id: `${role}DoorHandle`,
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(handle, v(sign, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(handle, v(sign, 0, 0), v(0, 0, 1)),
     extent: null,
     grip: "hook",
     aperture: 0.02,
@@ -355,7 +343,7 @@ function door(
   builder.affordance({
     id: `${role}Aperture`,
     kind: "aperture",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(x, l.floor, (hinge + end) / 2),
       v(0, 1, 0),
       v(0, 0, sign),
@@ -380,7 +368,7 @@ function door(
   builder.affordance({
     id: `${role}Window`,
     kind: "slider",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(x, l.window, middle),
       v(sign, 0, 0),
       v(0, -1, 0),
@@ -393,7 +381,7 @@ function door(
   builder.affordance({
     id: `${role}WindowOpening`,
     kind: "aperture",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(x, l.window, middle),
       v(0, 1, 0),
       v(0, 0, sign),
@@ -416,7 +404,7 @@ function door(
  * @param width The cushion's width.
  */
 function seat(
-  builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+  builder: AutoMovieArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
   l: CarBody.ILayout,
   id: "driverSeat" | "passengerSeat" | "rearSeat",
   name: string,
@@ -440,7 +428,7 @@ function seat(
   builder.affordance({
     id,
     kind: "seat",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create(reference.x, reference.y, rear + depth),
     ),
     extent: null,
@@ -451,7 +439,7 @@ function seat(
   builder.affordance({
     id: `${id}Back`,
     kind: "hinge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(reference.x, reference.y, rear),
       Vector3.create(-1, 0, 0),
       Vector3.create(0, 1, 0),

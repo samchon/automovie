@@ -1,4 +1,4 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 import type { createObstacle } from "./createObstacle";
 
 /**
@@ -35,24 +35,24 @@ export const TIE_SIZES: Readonly<{
   section: {
     crosstie: {
       "7x9in": {
-        height: 7 * ArchetypeUnits.INCH,
-        width: 9 * ArchetypeUnits.INCH,
+        height: 7 * AutoMovieArchetypeUnits.INCH,
+        width: 9 * AutoMovieArchetypeUnits.INCH,
       },
       "6x8in": {
-        height: 6 * ArchetypeUnits.INCH,
-        width: 8 * ArchetypeUnits.INCH,
+        height: 6 * AutoMovieArchetypeUnits.INCH,
+        width: 8 * AutoMovieArchetypeUnits.INCH,
       },
       "7x8in": {
-        height: 7 * ArchetypeUnits.INCH,
-        width: 8 * ArchetypeUnits.INCH,
+        height: 7 * AutoMovieArchetypeUnits.INCH,
+        width: 8 * AutoMovieArchetypeUnits.INCH,
       },
     },
   },
   length: {
     crosstie: {
-      "8ft6in": { length: 8.5 * ArchetypeUnits.FOOT },
-      "8ft": { length: 8 * ArchetypeUnits.FOOT },
-      "9ft": { length: 9 * ArchetypeUnits.FOOT },
+      "8ft6in": { length: 8.5 * AutoMovieArchetypeUnits.FOOT },
+      "8ft": { length: 8 * AutoMovieArchetypeUnits.FOOT },
+      "9ft": { length: 9 * AutoMovieArchetypeUnits.FOOT },
     },
   },
 };

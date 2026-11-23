@@ -1,4 +1,4 @@
-import { ArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeRefusal } from "../core";
 
 /**
  * Turn a pose solver's geometric failure at one sample into the ride's typed refusal, naming the film second.
@@ -10,22 +10,14 @@ import { ArchetypeRefusal } from "../core";
  * @param error The solver's error.
  * @returns The typed refusal for a RangeError.
  * @throws {unknown} Any other error, unchanged.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is converted and what passes through.
- * @evidence contracts/development/implementation.md#principled-implementation A RangeError from the reach and body-floor intersection is a request the fixed limb chains cannot satisfy at that second.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One type test.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is retried or relaxed; the refusal carries the solver's own reason.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one error.
  */
 export function refuseQuadrupedReach(
   archetype: string,
   seconds: number,
   error: unknown,
-): ArchetypeRefusal {
+): AutoMovieArchetypeRefusal {
   if (!(error instanceof RangeError)) throw error;
-  return new ArchetypeRefusal({
+  return new AutoMovieArchetypeRefusal({
     kind: "parameter",
     archetype,
     axis: "course",

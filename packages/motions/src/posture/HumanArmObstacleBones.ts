@@ -1,10 +1,11 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 /**
- * Bone frames whose colliders the original forearm-clearance policy reads:
- * trunk and thighs, plus each already placed arm's three segments.
+ * Bone frames whose colliders the forearm clearance reads: the trunk and
+ * both whole legs, the segments the tangle audit reads an arm against,
+ * plus each already placed arm's three segments.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the shared original six-name TRUNK set, fixed trunk/thigh policy, placed-arm membership and borrowed read-only names used by trunk filtering and obstacle FK demand.
+ * @evidence contracts/development/common.md#meaningful-documentation Defines the shared six-name TRUNK set, the trunk and whole-leg policy the audit reads, placed-arm membership and borrowed read-only names used by trunk filtering and obstacle FK demand.
  * @evidence contracts/development/implementation.md#principled-implementation Converts the existing clearance membership predicate into one canonical bone set, so scoped FK supplies exactly the same collider frames before actual placement/querying.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This owner supplies both the existing obstacle filter and its FK demand; TRUNK separately serves the trunk-only filter without duplicating the name table.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no collider, approximation, result, margin or contact policy; obstacle filtering still preserves original placed segment order.
@@ -42,12 +43,24 @@ export namespace HumanArmObstacleBones {
   ]);
 }
 
+/**
+ * Both legs' segments, whole: the tangle audit reads an arm against every
+ * segment of the body, so a fit that clears only the thighs lays a hand's
+ * digits in a shank or a foot the audit refuses.
+ */
+const LEGS: readonly AutoMovieHumanoidBone[] = [
+  "leftUpperLeg", "rightUpperLeg",
+  "leftLowerLeg", "rightLowerLeg",
+  "leftFoot", "rightFoot",
+  "leftToes", "rightToes",
+];
+
 /** Four fixed membership subsets; actual placement retains profile order. */
 const SETS: readonly ReadonlySet<AutoMovieHumanoidBone>[] = Array.from(
   { length: 4 },
   (_: unknown, mask: number): ReadonlySet<AutoMovieHumanoidBone> => new Set<AutoMovieHumanoidBone>([
     ...HumanArmObstacleBones.TRUNK,
-    "leftUpperLeg", "rightUpperLeg",
+    ...LEGS,
     ...((mask & 1) === 0 ? [] : ["leftUpperArm", "leftLowerArm", "leftHand"] as const),
     ...((mask & 2) === 0 ? [] : ["rightUpperArm", "rightLowerArm", "rightHand"] as const),
   ]),

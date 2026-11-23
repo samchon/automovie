@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A band in kilograms. */
@@ -16,8 +16,8 @@ const kg = (
   maximum: number,
   source: string,
   provisional?: boolean,
-): IArchetypeBand =>
-  ArchetypeBand.of("kg", minimum, maximum, source, provisional);
+): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
 /** Apple's phone specification pages; the smallest and largest rows were read on the comparison page by position. */
 const PHONE: string =
@@ -29,20 +29,10 @@ const REMOTE: string =
 
 /**
  * Shared case construction and the existing records for handheld electronics.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Device dimensions, records and shared case contacts give their units and frames.
- * @evidence contracts/development/design.md#principled-representation The device kind selects one model table or dimension band in metres and kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shared builder owns case dimensions and repeated case contacts. Each producer owns its device-specific controls.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Out-of-kind model choices are refused in the draw and each producer supplies its own contact IDs.
  */
 export namespace HandheldDevice {
   /**
    * The kinds of device.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the five saved device forms.
-   * @evidence contracts/development/design.md#principled-representation A closed selector chooses one device's specification.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the stored device selectors are admitted.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A selector names one form with its own contact contract.
    */
   export type Kind = "phone" | "camera" | "remote" | "tablet" | "walkieTalkie";
 
@@ -65,11 +55,6 @@ export namespace HandheldDevice {
    * - `lens`: the face that looks: a phone's rear lens, a camera's lens front.
    * - `button`: a camera's shutter release on its top, a remote's keys on its face; it states no travel, so its press stays at rest until a source gives one.
    * - `speaker`: a walkie-talkie's front, which the voice meets.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contacts and which forms provide them.
-   * @evidence contracts/development/design.md#principled-representation The closed union contains the IDs of the saved dispatcher result.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The result exposes only contacts constructed by the selected form.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A missing contact cannot be substituted for one a motion requests.
    */
   export type Affordance =
     | "grip"
@@ -87,16 +72,13 @@ export namespace HandheldDevice {
    * - `height`: along `+Y`.
    * - `thickness`: along `+Z`; a camera's body without its lens.
    * - `mass`: kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists the outside dimensions in metres and mass in kilograms.
-   * @evidence contracts/development/design.md#principled-representation Numbers on each axis share the dimension's stated unit.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The model draw owns only the outside dimensions and mass.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The lens never contributes to the camera case's thickness.
    */
   export type Dimension = "width" | "height" | "thickness" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     thickness: "m",
@@ -105,11 +87,6 @@ export namespace HandheldDevice {
 
   /**
    * The parameters: the kind, and any free dimension fixed to a value inside its band.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the saved selector, optional model and model identifier.
-   * @evidence contracts/development/design.md#principled-representation The selector binds the recorded model or the free dimension bands.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface This accepts the original saved dispatcher fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The draw refuses dimensions and model choices that the selected form cannot admit.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which device. */
@@ -124,21 +101,11 @@ export namespace HandheldDevice {
 
   /**
    * A model's read figures, by dimension.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines measurements keyed by physical dimension.
-   * @evidence contracts/development/design.md#principled-representation Each measured value shares the unit of its dimension.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only dimensions reported by a source are present in a partial row.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One row retains its model's reported values.
    */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /**
    * The models read: Ricoh's GR III and Fujifilm's X100VI; Apple's iPad (10th generation) Wi-Fi and cellular; Motorola's CP200d with each of its four batteries.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the camera, tablet and radio records.
-   * @evidence contracts/development/design.md#principled-representation A closed selector keeps each reported profile intact.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The model choices belong to the three devices with complete measured data.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A model key does not apply to a device that does not list it.
    */
   export type Model =
     | "grIII"
@@ -203,19 +170,19 @@ export namespace HandheldDevice {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     phone: {
-      width: ArchetypeBand.metres(0.0642, 0.078, PHONE, true),
-      height: ArchetypeBand.metres(0.1315, 0.1634, PHONE, true),
-      thickness: ArchetypeBand.metres(0.00564, 0.00875, PHONE, true),
+      width: AutoMovieArchetypeBand.metres(0.0642, 0.078, PHONE, true),
+      height: AutoMovieArchetypeBand.metres(0.1315, 0.1634, PHONE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.00564, 0.00875, PHONE, true),
       mass: kg(0.135, 0.249, PHONE, true),
     },
     camera: {},
     remote: {
-      width: ArchetypeBand.metres(0.035, 0.042, REMOTE, true),
-      height: ArchetypeBand.metres(0.136, 0.142, REMOTE, true),
-      thickness: ArchetypeBand.metres(0.00925, 0.02, REMOTE, true),
+      width: AutoMovieArchetypeBand.metres(0.035, 0.042, REMOTE, true),
+      height: AutoMovieArchetypeBand.metres(0.136, 0.142, REMOTE, true),
+      thickness: AutoMovieArchetypeBand.metres(0.00925, 0.02, REMOTE, true),
       mass: kg(0.0434, 0.085, REMOTE, true),
     },
     tablet: {},
@@ -224,15 +191,10 @@ export namespace HandheldDevice {
 
   /**
    * What {@link draw} prepares for its caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
-   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
    */
   export interface IDrawResult<Id extends string> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
     /** The prepared `size` this call returns. */
     size: Record<Dimension, number>;
@@ -240,14 +202,6 @@ export namespace HandheldDevice {
 
   /**
    * Draws original dimensions in metres and mass in kilograms before geometry is built.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the constructed result and its local coordinates or dimensions.
-   * @evidence contracts/development/implementation.md#principled-implementation Draw the selected band's dimensions before choosing the model and applying its measured figures.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The draw owns the dimensions and provenance before the producer builds parts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The selected kind supplies dimensions through bands, measured figures, or both. Inadmissible model and dimension inputs are refused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Draw at most four dimensions and select one model.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Saved and named callers share the draw namespace and records.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.
    */
   export function draw<Id extends string>(
     kind: Kind,
@@ -255,8 +209,13 @@ export namespace HandheldDevice {
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,
   ): IDrawResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("device", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "device",
+        UNITS,
+        seed,
+        params,
+      );
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
@@ -268,7 +227,7 @@ export namespace HandheldDevice {
     ).figures;
     const size: Partial<Record<Dimension, number>> = { ...drawn, ...figures };
     return {
-      builder: new ArchetypeBuilder<Id, Dimension>({
+      builder: new AutoMovieArchetypeBuilder<Id, Dimension>({
         material: "composite",
         id: params.id,
         name,
@@ -285,17 +244,9 @@ export namespace HandheldDevice {
 
   /**
    * Builds a dark rectangular case in metres, centered on its bottom edge.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the constructed result and its local coordinates or dimensions.
-   * @evidence contracts/development/implementation.md#principled-implementation Place one box half its height above the origin.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The case contributes only the shared material geometry.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The breadth and depth are the drawn outside dimensions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Add one box.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The rectangular case serves shallow and tall devices.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.
    */
   export function caseBody<Id extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     width: number,
     height: number,
     depth: number,
@@ -312,20 +263,12 @@ export namespace HandheldDevice {
 
   /**
    * Faces the front of a case at a given height and depth in metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the constructed result and its local coordinates or dimensions.
-   * @evidence contracts/development/implementation.md#principled-implementation Place the translation at half-depth along positive Z.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The case frame is available to both shared and specialized contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The position is local to the upright case.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Build one facing frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The four slab producers use the same front coordinate frame.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.
    */
   export function front(
     y: number,
     depth: number,
-  ): ReturnType<typeof ArchetypeFrame.facing> {
-    return ArchetypeFrame.facing(
+  ): ReturnType<typeof AutoMovieArchetypeFrame.facing> {
+    return AutoMovieArchetypeFrame.facing(
       Vector3.create(0, y, depth / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -334,24 +277,11 @@ export namespace HandheldDevice {
 
   /**
    * The contact ids {@link smallGrips} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of smallGrips.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only smallGrips and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type SmallGripsContact = "grip" | "pinch";
 
   /**
    * Constructs the two grasps of a shallow case.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the constructed result and its local coordinates or dimensions.
-   * @evidence contracts/development/implementation.md#principled-implementation Use the built case thickness for both apertures and preserve the stated local grasp positions.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One function declares both common phone and remote grasps.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The pinch height is the existing estimate and length follows the case width.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Return two contact records.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both producers reuse material dimensions and grasp geometry.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.
    */
   export function smallGrips(
     width: number,
@@ -363,7 +293,7 @@ export namespace HandheldDevice {
         id: "grip",
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create(0, height * 0.4, 0),
           Vector3.create(0, 0, -1),
           Vector3.create(0, 1, 0),
@@ -377,7 +307,7 @@ export namespace HandheldDevice {
         id: "pinch",
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create(0, 0.02, 0),
           Vector3.create(0, 0, -1),
           Vector3.create(1, 0, 0),
@@ -392,44 +322,21 @@ export namespace HandheldDevice {
 
   /**
    * The face contact ids {@link fullFace} can add beside the grip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the face contact ids in the signature of fullFace.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only fullFace and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type FaceContact = "screen" | "speaker";
 
   /**
    * The grip together with the face contact a slab adds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contacts fullFace builds for one face.
-   * @evidence contracts/development/design.md#principled-representation The grip id joined with the generic face id the caller selects.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only fullFace and the tablet and radio producers read it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It adds no contact beyond the grip and the selected face.
    */
   export type FaceAndGrip<Face extends FaceContact> = "grip" | Face;
 
   /**
    * The values {@link fullFace} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of fullFace.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only fullFace and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type FullFaceKind = "tablet" | "walkieTalkie";
 
   /**
    * Builds a full-height grip and front surface on the upright slab.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the constructed result and its local coordinates or dimensions.
-   * @evidence contracts/development/implementation.md#principled-implementation Build the case and place the back grip and front surface on it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The caller identifies the model table and names its front contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The grip and face dimensions use the actual drawn slab dimensions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Build one part and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Tablet and radio share the slab and grip construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.
    */
   export function fullFace<Face extends FaceContact>(
     kind: FullFaceKind,
@@ -437,7 +344,7 @@ export namespace HandheldDevice {
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,
     face: Face,
-  ): Archetype<FaceAndGrip<Face>, Dimension> {
+  ): AutoMovieArchetype<FaceAndGrip<Face>, Dimension> {
     const { builder, size }: ReturnType<typeof draw<FaceAndGrip<Face>>> = draw<
       FaceAndGrip<Face>
     >(kind, name, params, seed);
@@ -447,7 +354,7 @@ export namespace HandheldDevice {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, height / 2, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),

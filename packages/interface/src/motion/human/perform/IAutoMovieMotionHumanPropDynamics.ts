@@ -27,21 +27,11 @@ import type { AutoMovieMotionHumanScheduledInstant } from "../law/AutoMovieMotio
  * producer gives; the push's force profile comes from the caller, since no
  * pushing-strength study has been read for it. `slideProp` installs a
  * world-frame trajectory and `hingeProp` installs an articulation track.
- *
- * @evidence contracts/development/common.md#meaningful-documentation force: The horizontal force along the push at a second, newtons, positive along it. Pure. from: Start, seconds. to: End, seconds.
- * @evidence contracts/development/design.md#principled-representation force: The horizontal force along the push at a second, newtons, positive along it. Pure. from: Start, seconds. to: End, seconds.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPropDynamics.ts (HumanPropDynamics.slide, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanPropDynamics.slide.
  */
 export namespace IAutoMovieMotionHumanPropDynamics {
   /**
    * A torque applied to a named prop hinge from zero travel and speed.
    * The track holds its final angle after the drive ends.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the starting state, hold, torque sign and local clock, scheduling, duration and inertia units.
-   * @evidence contracts/development/design.md#principled-representation A named hinge selects one degree of freedom. The required start uses the canonical scheduled instant and the required torque provider receives elapsed seconds. The planner admits the hinge, positive finite scalars, sampled torque and travel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPropDynamics.hingeProp integrates the specified inertia and local torque, then publishes the selected articulation on the existing prop track clock.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The same fields describe any named hinge with an admitted articulation input. All physical values are authored explicitly.
    */
   export interface IHingeDrive {
     /** The hinge affordance id on the prop. */
@@ -61,14 +51,6 @@ export namespace IAutoMovieMotionHumanPropDynamics {
      *
      * @param seconds Elapsed seconds since the drive started.
      * @returns Signed torque about the hinge axis.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Specifies the units, sign, clock and purity.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature leaves the torque profile to its author.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature specifies the callback boundary. Its author supplies the implementation.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature contains no calculation or constants.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no execution strategy.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no requests and defines no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources or retained state.
      */
     torque(seconds: number): number;
   }
@@ -77,11 +59,6 @@ export namespace IAutoMovieMotionHumanPropDynamics {
    * A straight floor slide authored on the film clock. The prop starts at
    * rest and supplies its own mass and measured or authored friction pair.
    * The interval includes any coasting the author wants to show.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the world direction, film interval, newton input and who supplies the contact coefficients.
-   * @evidence contracts/development/design.md#principled-representation A ground direction and scalar force describe translation along a single axis, with independent film start and end times.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanPropDynamics.slideProp uses the same force profile as the numerical slide while reading mass and friction from the prop model.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts There are no defaults for contact coefficients, applied force or the slide interval.
    */
   export interface ISlideDrive {
     /** Nonzero horizontal world direction, normalized by the planner. */
@@ -99,11 +76,6 @@ export namespace IAutoMovieMotionHumanPropDynamics {
 
   /**
    * A prop pushed or pulled across the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation force: The horizontal force along the push at a second, newtons, positive along it. Pure. from: Start, seconds. to: End, seconds.
-   * @evidence contracts/development/design.md#principled-representation force: The horizontal force along the push at a second, newtons, positive along it. Pure. from: Start, seconds. to: End, seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanPropDynamics.ts (HumanPropDynamics.slide, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanPropDynamics.slide.
    */
   export interface ISlide {
     /** Kilograms. */
@@ -118,14 +90,6 @@ export namespace IAutoMovieMotionHumanPropDynamics {
     /**
      * The horizontal force along the push at a second, newtons, positive
      * along it. Pure.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPropDynamics.ISlide.force: The horizontal force along the push at a second, newtons, positive along it. Pure.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPropDynamics.ISlide.force is used through packages/motions/src/perform/HumanPropDynamics.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanPropDynamics.ISlide.force is used through packages/motions/src/perform/HumanPropDynamics.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPropDynamics.ISlide.force is used through packages/motions/src/perform/HumanPropDynamics.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPropDynamics.ISlide.force is used through packages/motions/src/perform/HumanPropDynamics.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPropDynamics.ISlide.force is used through packages/motions/src/perform/HumanPropDynamics.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPropDynamics.ISlide.force is used through packages/motions/src/perform/HumanPropDynamics.ts.
      */
     force: (seconds: number) => number;
 

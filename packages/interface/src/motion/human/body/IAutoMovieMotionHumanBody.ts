@@ -26,11 +26,6 @@ import type { IAutoMovieMotionHumanLimbReads } from "../posture/IAutoMovieMotion
  * character with a profile, or any other rig in the canonical T-pose frame
  * (+Y up, facing +Z, the left toward +X). Laws scale every distance from the
  * measure, so the same law fits any stature and proportion.
- *
- * @evidence contracts/development/common.md#meaningful-documentation measure: The anthropometric measure, metres and kilograms. topology: The rig's topology, shared by every fit. rest: Rest joint positions, canonical metres.
- * @evidence contracts/development/design.md#principled-representation measure: The anthropometric measure, metres and kilograms. topology: The rig's topology, shared by every fit. rest: Rest joint positions, canonical metres.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/jumpAirborne.ts (jumpAirborne.knee, body); actions/jumpLanding.ts (jumpLanding.of, body); actions/jumpTakeoff.ts (jumpTakeoff, body); actions/runStance.ts (runStance.plan, body); actions/stand.ts (stand.relaxed, body); actions/stand.ts (stand.abduction, body).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieSkeleton, IAutoMoviePhysicalProfile, IAutoMovieBodyMeasure, IAutoMovieHumanoidSurfaces.ISurfaces, IAutoMovieSkeletonTopology identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanBody {
   /** The canonical rig at its T-pose rest. */
@@ -83,14 +78,6 @@ export interface IAutoMovieMotionHumanBody {
    *
    * @param side The arm's side.
    * @returns The shoulder's angles, or null for a rig without an arm chain.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the angles are, what reads them, when they are read and the null.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable member has no algorithm body; `createHumanBody` supplies it from `AutoMovieMotionHumanBend.hanging`.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the provider owns its decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns its cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature defines no cache; the provider owns the once-per-side read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handle; the provider owns what it keeps.
    */
   hanging: (side: AutoMovieHumanSide) => IAutoMovieResolvedJointAngles | null;
 }

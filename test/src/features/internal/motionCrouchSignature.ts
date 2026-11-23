@@ -1,5 +1,8 @@
-import type { AutoMovieHumanSide, IAutoMovieMotionHumanAuditMotion } from "@automovie/interface";
-import { HumanFoot, HumanPhysics } from "@automovie/motions";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanAuditMotion,
+} from "@automovie/interface";
+import { HumanFoot, HumanPhysics } from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import type { motionHumanBody } from "./motionHumanBody";
@@ -41,13 +44,17 @@ export function motionCrouchSignature(
   const raised: boolean = full || row.endsWith("heels=up");
   complaints.check(
     `${label}: no omitted balance enters the balance audit`,
-    !crouch.film.segments("a").some(
-      (span: IAutoMovieMotionHumanAuditMotion.ISpan): boolean => HumanPhysics.judged(span),
-    ),
+    !crouch.film
+      .segments("a")
+      .some((span: IAutoMovieMotionHumanAuditMotion.ISpan): boolean =>
+        HumanPhysics.judged(span),
+      ),
   );
 
   // Distinct sockets preserve toe pivots and the clearance of each heel.
-  const footTimes: number[] = raised ? held : M.times(0, crouch.film.duration, M.HELD);
+  const footTimes: number[] = raised
+    ? held
+    : M.times(0, crouch.film.duration, M.HELD);
   let extreme: number = raised ? Infinity : -Infinity;
   for (const t of footTimes) {
     const bones: ReturnType<typeof M.bones> = M.bones(crouch, t);
@@ -61,7 +68,9 @@ export function motionCrouchSignature(
     raised ? extreme >= 0.03 : extreme <= M.CONTACT,
   );
   for (const side of SIDES) {
-    const knee: number = M.mean(held, (t: number): number => M.knee(crouch, t, side));
+    const knee: number = M.mean(held, (t: number): number =>
+      M.knee(crouch, t, side),
+    );
     complaints.check(
       `${label}: held ${side} knee flexion ${knee.toFixed(1)}°, ${full ? "at least 120°" : "40–110°"}`,
       full ? knee >= 120 : knee >= 40 && knee <= 110,

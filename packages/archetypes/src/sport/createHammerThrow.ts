@@ -1,13 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  type AutoMovieArchetypeBandUnit,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The World Athletics rule as read. */
@@ -22,7 +23,7 @@ const RULE: string =
  * @param params The category and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The hammer.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the hammer stands and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A head sphere of the drawn diameter, a wire rod up from its top and a handle rod across the top, the drawn length from the head's bottom to the handle's inside.
@@ -35,9 +36,12 @@ const RULE: string =
 export function createHammerThrow(
   params: createHammerThrow.IParams,
   seed?: number | string,
-): Archetype<createHammerThrow.Affordance, createHammerThrow.Dimension> {
-  const draw: ArchetypeDrawSession<createHammerThrow.Dimension> =
-    new ArchetypeDrawSession<createHammerThrow.Dimension>(
+): AutoMovieArchetype<
+  createHammerThrow.Affordance,
+  createHammerThrow.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createHammerThrow.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHammerThrow.Dimension>(
       "hammerThrow",
       createHammerThrow.UNITS,
       seed,
@@ -52,10 +56,10 @@ export function createHammerThrow(
   const d: Record<createHammerThrow.Dimension, number> = draw.dimensions(
     createHammerThrow.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHammerThrow.Affordance,
     createHammerThrow.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `${kind}'s hammer`,
@@ -84,7 +88,7 @@ export function createHammerThrow(
     id: "handle",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, top, 0), v(0, 1, 0), v(1, 0, 0)),
     extent: null,
     grip: "two-hand",
     aperture: bar,
@@ -94,7 +98,11 @@ export function createHammerThrow(
     id: "head",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, radius, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, radius, 0),
+      v(0, -1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
   });
   return builder.build(d.mass);
@@ -142,7 +150,9 @@ export namespace createHammerThrow {
   export type Dimension = "length" | "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     mass: "kg",
@@ -159,16 +169,16 @@ export namespace createHammerThrow {
 
   /** A band of the rule. */
   const band = (
-    unit: IArchetypeBand["unit"],
+    unit: AutoMovieArchetypeBandUnit,
     minimum: number,
     maximum: number,
     what: string,
-  ): IArchetypeBand =>
-    ArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.of(unit, minimum, maximum, `${RULE}: ${what}`);
 
   /** The band of each free dimension, by category. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
       length: band(

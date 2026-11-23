@@ -6,12 +6,6 @@ import type { IAutoMovieHumanHandStarField } from "./IAutoMovieHumanHandStarFiel
  * The whole hand in its own axes: the heel and palm skin, the thenar joined to
  * the palm's last ring, the digits' laws and the webs that part them, shared by
  * every person and mapped to each by the hand's scales.
- *
- *
- * @evidence contracts/development/common.md#meaningful-documentation The whole hand in its own axes: the heel and palm skin, the thenar joined to the palm's last ring, the digits' laws and the webs that part them, shared by every person and mapped to each by the hand's scales.
- * @evidence contracts/development/design.md#principled-representation `whole`: Heel and thenar together, from the forearm to the thumb's branch. `palm`: Palm alone, from the thumb's branch to the knuckles. `opening`: The heel's target skin at a station and phase, the palm's run handing over to the thumb's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by AutoMovieHumanHandForm.form, AutoMovieHumanHandForm.make. Read by AutoMovieHumanArmLaw.of, AutoMovieHumanHandFingers.digitsOf, AutoMovieHumanHandJoints.jointsOf. Also types AutoMovieHumanArmConstruction.form, AutoMovieHumanHandConstruction.hand.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `whole`, `palm`, `opening`, `palmRings`, `digits`, `events`, `crests`, `creaseCentre`; callers supply the complete record.
  */
 export interface IAutoMovieHumanHandForm {
   /** Heel and thenar together, from the forearm to the thumb's branch. */
@@ -22,14 +16,6 @@ export interface IAutoMovieHumanHandForm {
 
   /**
    * The heel's target skin at a station and phase, the palm's run handing over to the thumb's.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The heel's target skin at a station and phase, the palm's run handing over to the thumb's.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This opening signature specifies the documented callback contract without an implementation body; AutoMovieHumanHandForm and its supplied callbacks own the numerical method and its premises.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes opening at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanHandForm.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual opening provider is responsible for satisfying the documented semantics.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanHandForm determines the work per opening call.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanHandForm's runtime provider owns reuse and must preserve the documented source identity and effects.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the opening provider and the caller retaining its containing record own the callback and its captured dependencies.
    */
   opening: (a: number, t: number) => AutoMovieVector3Tuple;
 
@@ -52,12 +38,6 @@ export interface IAutoMovieHumanHandForm {
 /** Type contracts exchanged by IAutoMovieHumanHandForm; runtime evaluation remains in Human. */
 export namespace IAutoMovieHumanHandForm {
   /** A branch at a chain's bottom.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A branch at a chain's bottom.
-   * @evidence contracts/development/design.md#principled-representation `parent`: Parent chain name, `{side}` standing for the side. `splits`: The children's shares of the parent's ring.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanHandForm.IEvent is the canonical exchange used by AutoMovieHumanHandEvents.events.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `parent`, `splits`; callers supply the complete record.
    */
   export interface IEvent {
     /** Parent chain name, `{side}` standing for the side. */
@@ -68,12 +48,6 @@ export namespace IAutoMovieHumanHandForm {
   }
 
   /** A child's share of a parent's ring.
-   *
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A child's share of a parent's ring.
-   * @evidence contracts/development/design.md#principled-representation `child`: Child chain name. `arcs`: Its arcs of the parent's ring, as phases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanHandForm.ISplit is the canonical exchange used by AutoMovieHumanHandEvents.events, AutoMovieHumanHandForm.make.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `child`, `arcs`; callers supply the complete record.
    */
   export interface ISplit {
     /** Child chain name. */

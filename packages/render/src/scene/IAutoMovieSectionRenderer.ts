@@ -5,11 +5,6 @@
  * Structural rather than `THREE.WebGLRenderer`, because local clipping is one
  * flag and demanding the whole renderer would put a live WebGL context between
  * this rule and any check of it. The real renderer satisfies it as it stands.
- *
- * @evidence contracts/development/design.md#principled-representation Models Three's actual localClippingEnabled property, which determines whether per-material clipping planes participate in rendering.
- * @evidence contracts/development/design.md#minimal-and-owned-surface A single structural property is the complete renderer capability applyAutoMovieSectionPlanes needs, leaving drawing and context ownership outside clipping application.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The real renderer structurally satisfies this seam without a replacement method, fake context or test-only branch.
- * @evidence contracts/development/common.md#meaningful-documentation Explains the clipping switch's effect and why this boundary does not require full WebGLRenderer capability.
  */
 export interface IAutoMovieSectionRenderer {
   /** Whether per-material clipping planes are in force. */

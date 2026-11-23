@@ -5,11 +5,6 @@ import type { IAutoMoviePhysicalShape } from "./IAutoMoviePhysicalShape";
  * Collision carriers and observed frames for geometric motion audits.
  *
  * admitMotionGeometry checks unique carriers, finite solid shapes, material references, unit rotations and declared joint limits. Independent carriers are permitted: this record supplies neither mass nor a connected articulation. An empty joints list therefore has no joint-limit claims. Omitted witnesses means no extra frames; supplied witness names must be unique and distinct from collider carriers. Geometry uses metres and angular limits use radians.
- *
- * @evidence contracts/development/design.md#principled-representation Separate carrier, joint and material collections express geometric contact and range measurements without pretending that observed frames form a massive native body.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Motion auditing reuses physical shape and rigid-frame contracts but excludes inertia, motors and friction that its geometric measurements do not read.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Disconnected geometry needs no invented joints, and extra witness frames do not acquire a collider or mass merely by being named.
- * @evidence contracts/development/common.md#meaningful-documentation Identifies admission, geometric units, disconnected-carrier meaning and empty or absent collection behavior.
  */
 export interface IAutoMovieMotionGeometry {
   /** Nonempty uniquely named collision carriers; independent carriers are allowed. */

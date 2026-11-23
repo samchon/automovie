@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 const RULES: string =
@@ -15,7 +15,7 @@ const FRAME: string = "#fbf9ef";
 const NET: string = "#d9dde0";
 const v: typeof Vector3.create = Vector3.create;
 
-type Build = ArchetypeBuilder<
+type Build = AutoMovieArchetypeBuilder<
   createWaterPoloGoal.Affordance,
   createWaterPoloGoal.Dimension
 >;
@@ -41,9 +41,12 @@ type Build = ArchetypeBuilder<
 export function createWaterPoloGoal(
   params: createWaterPoloGoal.IParams = {},
   seed?: string | number,
-): Archetype<createWaterPoloGoal.Affordance, createWaterPoloGoal.Dimension> {
-  const draw: ArchetypeDrawSession<createWaterPoloGoal.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createWaterPoloGoal.Affordance,
+  createWaterPoloGoal.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createWaterPoloGoal.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "waterPoloGoal",
       createWaterPoloGoal.UNITS,
       seed,
@@ -52,7 +55,7 @@ export function createWaterPoloGoal(
   const d: Record<createWaterPoloGoal.Dimension, number> = draw.dimensions(
     createWaterPoloGoal.BANDS,
   );
-  const builder: Build = new ArchetypeBuilder({
+  const builder: Build = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "floating water polo goal",
     material: "composite",
@@ -102,7 +105,7 @@ export function createWaterPoloGoal(
   builder.affordance({
     id: "mouth",
     kind: "aperture",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width: d.width,
     height: d.height,
@@ -179,7 +182,9 @@ export namespace createWaterPoloGoal {
     id?: string;
   }
   /** Units of each assembled reference figure. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     bar: "m",
@@ -187,16 +192,22 @@ export namespace createWaterPoloGoal {
     mass: "kg",
   };
   /** The fixed opening and bar section, with a model pocket beyond the required clearance. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(3, 3, RULES),
-    height: ArchetypeBand.metres(0.9, 0.9, RULES),
-    bar: ArchetypeBand.metres(0.075, 0.075, RULES),
-    depth: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.metres(3, 3, RULES),
+    height: AutoMovieArchetypeBand.metres(0.9, 0.9, RULES),
+    bar: AutoMovieArchetypeBand.metres(0.075, 0.075, RULES),
+    depth: AutoMovieArchetypeBand.metres(
       0.55,
       0.55,
       `${RULES}. Film pocket deeper than the 0.30 m minimum.`,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 35, 35, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      35,
+      35,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

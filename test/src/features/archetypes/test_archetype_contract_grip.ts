@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
   createBed,
   createDoor,
   createSeat,
@@ -48,7 +48,7 @@ export function test_archetype_contract_grip(): void {
     for (const seed of [undefined, 1, 2]) {
       const archetype: ReturnType<typeof row.create> = row.create(seed);
       const shapes: IAutoMoviePhysicalShape[] = archetype.shapes();
-      const cells: Archetype["convexCells"] = archetype.convexCells;
+      const cells: AutoMovieArchetype["convexCells"] = archetype.convexCells;
       const expected: string[] = archetype.parts
         .filter(
           ({ id, geometry }: IAutoMovieModelPart): boolean =>
@@ -64,9 +64,18 @@ export function test_archetype_contract_grip(): void {
           `${row.name}: expected ${expected.join(", ")}, found ${shapes.map(({ id }) => id).join(", ")}`,
         );
       for (const affordance of archetype.affordances) {
-        const x: IAutoMovieVector3 = ArchetypeFrame.axis(affordance.frame, "x");
-        const y: IAutoMovieVector3 = ArchetypeFrame.axis(affordance.frame, "y");
-        const z: IAutoMovieVector3 = ArchetypeFrame.axis(affordance.frame, "z");
+        const x: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+          affordance.frame,
+          "x",
+        );
+        const y: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+          affordance.frame,
+          "y",
+        );
+        const z: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+          affordance.frame,
+          "z",
+        );
         if (
           Math.abs(Vector3.length(x) - 1) > 1e-9 ||
           Math.abs(Vector3.length(y) - 1) > 1e-9 ||
@@ -133,11 +142,11 @@ export function test_archetype_contract_grip(): void {
 
   // 4. A surface's and a seat's +Y leaves the solid the contact lies on.
   const solids = (
-    archetype: Archetype,
+    archetype: AutoMovieArchetype,
     frame: IAutoMovieTransform,
     along: number,
   ): string[] => {
-    const at: IAutoMovieVector3 = ArchetypeFrame.point(frame, {
+    const at: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(frame, {
       x: 0,
       y: along,
       z: 0,
@@ -158,22 +167,25 @@ export function test_archetype_contract_grip(): void {
     { hardware: "plate" },
     4,
   );
-  const faces: readonly (readonly [string, Archetype, IAutoMovieTransform])[] =
+  const faces: readonly (readonly [
+    string,
+    AutoMovieArchetype,
+    IAutoMovieTransform,
+  ])[] = [
+    ["a chair's seat", chair, chair.site("seat", 0.5, 0.5)],
+    ["a chair's seat at its front edge", chair, chair.site("seat", 0.5, 0)],
     [
-      ["a chair's seat", chair, chair.site("seat", 0.5, 0.5)],
-      ["a chair's seat at its front edge", chair, chair.site("seat", 0.5, 0)],
-      [
-        "a desk's top",
-        createTable({ kind: "desk" }, 4),
-        createTable({ kind: "desk" }, 4).site("top"),
-      ],
-      [
-        "a bed's surface",
-        createBed({ kind: "single" }, 4),
-        createBed({ kind: "single" }, 4).site("surface"),
-      ],
-      ["a door's push plate", plated, plated.site("push")],
-    ];
+      "a desk's top",
+      createTable({ kind: "desk" }, 4),
+      createTable({ kind: "desk" }, 4).site("top"),
+    ],
+    [
+      "a bed's surface",
+      createBed({ kind: "single" }, 4),
+      createBed({ kind: "single" }, 4).site("surface"),
+    ],
+    ["a door's push plate", plated, plated.site("push")],
+  ];
   for (const [name, archetype, frame] of faces)
     if (
       solids(archetype, frame, 0.01).length !== 0 ||

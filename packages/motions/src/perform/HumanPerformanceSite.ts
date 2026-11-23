@@ -13,7 +13,10 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
- * A named point of a prop as a world frame at a film second: the prop's
+ * A named point of a prop as a world frame at a film second: where the prop
+ * itself places a part it moves (`IAutoMovieMotionHumanProp.point`, a pedal
+ * on its crank, a stirrup on a trotting horse), its rotation the part's own
+ * or else the prop's; otherwise the prop's
  * displayed frame composed with the point's own frame on the posed prop,
  * where an act or a track has moved its parts (a pedal on a turning crank,
  * a step plate on a moving tread), its rest frame otherwise. A contact
@@ -29,7 +32,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * @throws {HumanRefusal} When the prop or its point is unknown.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame composed, when the posed part is read and the frameless case.
- * @evidence contracts/development/implementation.md#principled-implementation A part's world frame is the prop's world frame composed with the part's frame in the prop, posed at the travels the performance gives.
+ * @evidence contracts/development/implementation.md#principled-implementation A part the prop moves is read where the prop places it, the same reading the laws aim the limbs at; otherwise a part's world frame is the prop's world frame composed with the part's frame in the prop, posed at the travels the performance gives.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The prop's frame, the point's local frame, one composition.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown prop or point is refused, never read as the prop's origin.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One prop frame and at most one pose per read.
@@ -51,6 +54,20 @@ export function HumanPerformanceSite(
       reason: `no prop ${subject} is in the performance`,
       fix: "name a prop of the performance",
     });
+  const world: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
+    self,
+    subject,
+    seconds,
+  );
+  // A part the prop itself moves (a pedal on its crank, a stirrup on a
+  // trotting horse) is where the prop places it, in the world.
+  const placed: IAutoMovieMotionHumanProp.IPlacedPoint | undefined =
+    prop.point?.(id, seconds);
+  if (placed !== undefined)
+    return {
+      position: placed.point,
+      rotation: Quaternion.normalize(placed.rotation ?? world.rotation),
+    };
   const posed: readonly IAutoMovieAffordance[] | undefined =
     prop.articulate !== undefined &&
     HumanPerformanceObject.writers(self, prop).length > 0
@@ -75,11 +92,6 @@ export function HumanPerformanceSite(
     z: 0,
     w: 1,
   };
-  const world: IAutoMovieRigidTransform = HumanPerformanceRead.prop(
-    self,
-    subject,
-    seconds,
-  );
   return {
     position: Vector3.add(
       world.position,

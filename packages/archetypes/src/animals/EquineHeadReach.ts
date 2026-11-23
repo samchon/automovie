@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeRefusal } from "../core";
 
 /** Degrees per radian. */
 const DEGREES: number = 180 / Math.PI;
@@ -13,20 +13,10 @@ const DEGREES: number = 180 / Math.PI;
  * The neck and head turns that face a target or bring the muzzle onto it, in closed form.
  *
  * The neck is one bar from its root on the trunk to the poll and the head one bar from the poll to the nose, the shared quadruped's rig. Both are turned in the trunk's own frame by a yaw about its vertical and a pitch in the turned vertical plane, so the head never rolls. A reach is the two-link triangle from the neck's root to the target with the poll bent upward (law of cosines), the head's link running from the poll through the nose to the muzzle's surface plus the held clearance; a target outside the triangle's band is refused with that band, never clamped (the motion skill's reach rule).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two links, the frame, the yaw-then-pitch decomposition, the triangle and the refusal.
- * @evidence contracts/development/design.md#principled-representation World-free model-space points and quaternions in, two rotation deltas out.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the expression layer's head channel; the rig and its carriage stay with their owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No species case, joint table or clamp.
  */
 export namespace EquineHeadReach {
   /**
    * The current neck and head bars and the trunk's turn, in model space.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres and unit quaternions in model space; `body` is the trunk's rotation away from its rest.
-   * @evidence contracts/development/design.md#principled-representation The bars' origins and rotations as the rig emits them, with local +Y along each bar.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the solve reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IBars {
     /** The neck's root, its bar's origin. */
@@ -50,11 +40,6 @@ export namespace EquineHeadReach {
 
   /**
    * Rotation deltas, in model space, to pre-multiply the neck's and head's current rotations by.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and how the deltas apply.
-   * @evidence contracts/development/design.md#principled-representation Two unit quaternions; the poll moves with the neck's delta about the root.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by both solves.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ITurn {
     /** The neck bar's delta, about the neck's root. */
@@ -70,14 +55,6 @@ export namespace EquineHeadReach {
    * @param bars The current bars.
    * @param target The target, model space.
    * @returns The neck's yaw, which the head shares.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is turned and what is kept.
-   * @evidence contracts/development/implementation.md#principled-implementation The bearing from the neck's root to the target in the trunk's frame replaces the neck's current bearing; the head rides the neck unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One bearing, one yaw.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the trunk-frame turn with `reach`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function face(bars: IBars, target: IAutoMovieVector3): ITurn {
     const local: IAutoMovieVector3 = toBody(
@@ -103,15 +80,7 @@ export namespace EquineHeadReach {
    * @param archetype The animal's producer name, for a refusal.
    * @param under Whether the poll bends down under the line from the root to the target, as a foal reaches up to an udder; it bends up otherwise.
    * @returns The neck's and head's turns.
-   * @throws {ArchetypeRefusal} When the target lies outside the two links' band from the neck's root.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the clearance and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation In the trunk's frame, the target's bearing yaws both links and the law of cosines on the neck's length a, the head's link b plus the gap and the root-to-target distance D gives the neck's elevation with the poll bent upward, or downward when `under`; the head then points from the moved poll at the target.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the band, solve the triangle, decompose each bar's change into yaw and pitch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target outside [|a-b|, a+b] is refused with the band, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the trunk-frame turn with `face`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * @throws {AutoMovieArchetypeRefusal} When the target lies outside the two links' band from the neck's root.
    */
   export function reach(
     bars: IBars,
@@ -131,7 +100,7 @@ export namespace EquineHeadReach {
     const minimum: number = Math.abs(a - b);
     const maximum: number = a + b;
     if (!(distance >= minimum && distance <= maximum))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: "target",
@@ -181,14 +150,6 @@ export namespace EquineHeadReach {
    * @param neck Degrees the neck turns about the trunk's lateral axis at its root, positive lowering it.
    * @param head Degrees the head turns further about the same axis at the moved poll, positive lowering the muzzle.
    * @returns The turns.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each angle's axis, pivot and sign.
-   * @evidence contracts/development/implementation.md#principled-implementation Both turns are about the trunk's lateral axis, so the head never rolls or yaws; the head's delta carries the neck's turn plus its own.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two axis-angle turns.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the turn convention of `face` and `reach`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function pitched(bars: IBars, neck: number, head: number): ITurn {
     const lateral: IAutoMovieVector3 = Quaternion.rotateVector(bars.body, {

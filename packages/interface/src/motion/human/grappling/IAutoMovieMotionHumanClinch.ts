@@ -28,22 +28,10 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
  *
  * Not yet: pummelling, underhooks and overhooks, and the turn-in's own
  * footwork (Koshida et al. 2016).
- *
- * @evidence contracts/development/common.md#meaningful-documentation grip: The grip; `plum` when absent. hand: The collar hand of `collarSleeve`; `right` when absent. hold: Seconds the grip is held; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation grip: The grip; `plum` when absent. hand: The collar hand of `collarSleeve`; `right` when absent. hold: Seconds the grip is held; 2 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.clinch, params); grappling/clinch.ts (clinch.plan, context); grappling/clinch.ts (clinch.regions, grip); grappling/clinch.ts (clinch.regions, return); grappling/clinch.ts (clinch.place, return); grappling/clinch.ts (clinch.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, AutoMovieHumanoidRegion, IAutoMovieMotionManner, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanClinch {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its default.
-   * @evidence contracts/development/design.md#principled-representation The partner, a closed grip, a hand and a hold.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No hand place is typed.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /**
@@ -58,15 +46,13 @@ export namespace IAutoMovieMotionHumanClinch {
     /** The partner gripped. */
     partner: string;
 
-    /** The grip; `plum` when absent. */
+    /** The grip; `plum` when absent: `plum`, the two-handed neck tie of Muay Thai clinch fighting; `collarSleeve`, judo's collar and sleeve grip that opens a throw. */
     grip?: IAutoMovieMotionHumanClinch.Grip;
 
     /** The collar hand of `collarSleeve`; `right` when absent. */
     hand?: AutoMovieHumanSide;
 
-    /** Seconds the grip is held; 2 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the grip is held once both hands have closed, before they let go, at least 0; 2 s when absent (`clinch`, provisional: no study of a grip's duration was read). The hands reach in their aimed movement time first (McIntosh et al. 2018), so the whole action is that time, `hold` and the release. 0 closes and lets go at once; a few seconds fits a held neck tie or a grip taken before a throw. */
     hold?: number;
 
     /**
@@ -89,21 +75,11 @@ export namespace IAutoMovieMotionHumanClinch {
 
   /**
    * The partner's region each hand grips and the sideways offset across it, a share of the partner's half shoulder width toward the partner's left. A clinch grip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The partner's region each hand grips and the sideways offset across it, a share of the partner's half shoulder width toward the partner's left. A clinch grip.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "plum", "collarSleeve" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/clinch.ts (clinch.regions, grip); grappling/clinch.ts (clinch.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in clinch.regions.
    */
   export type Grip = "plum" | "collarSleeve";
 
   /**
    * The partner's region each hand grips and the sideways offset across it, a share of the partner's half shoulder width toward the partner's left. Result returned by clinch.regions. The region and offset by hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation region: Partner body region grasped by this hand. across: Lateral offset toward the partner's left, in shares of half the partner's shoulder width.
-   * @evidence contracts/development/design.md#principled-representation region: Partner body region grasped by this hand. across: Lateral offset toward the partner's left, in shares of half the partner's shoulder width.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/clinch.ts (clinch.regions, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IRegionsResult = Record<
     AutoMovieHumanSide,
@@ -117,11 +93,6 @@ export namespace IAutoMovieMotionHumanClinch {
 
   /**
    * A partner's region on displayed bones, moved across by a share of the half shoulder width toward the partner's left. Result returned by clinch.place. The point and outward normal, world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: Clinch contact point on the displayed partner in world metres. normal: Partner's outward surface normal in world coordinates.
-   * @evidence contracts/development/design.md#principled-representation point: Clinch contact point on the displayed partner in world metres. normal: Partner's outward surface normal in world coordinates.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/clinch.ts (clinch.place, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IPlaceResult = {
     /** Clinch contact point on the displayed partner in world metres. */

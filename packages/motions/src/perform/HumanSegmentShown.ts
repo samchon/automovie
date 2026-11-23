@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
@@ -12,6 +13,8 @@ import type { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStill } from "./HumanSegmentStill";
+import { demandedHumanChannels } from "./demandedHumanChannels";
+import { observableHumanSegment } from "./observableHumanSegment";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
@@ -50,20 +53,59 @@ export namespace HumanSegmentShown {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
     retain: boolean = true,
-  ): { pose: IAutoMoviePose; kept?: HumanSegment.IShown } {
+  ): HumanSegmentShown.IRead {
+    // Past the end of the person's last action the body holds that action's
+    // final pose to the film's end: the film can outlast it (another
+    // performer acts on, or the film's length rounds past the action's end),
+    // and no still stretch or plan read past the action's end is its final
+    // pose.
+    const final: IAutoMovieMotionHumanSegment | undefined =
+      person.segments.at(-1);
+    if (final !== undefined && seconds > final.end)
+      return of(person, final.end, requested, prepared, retain);
     const cached: HumanSegment.IShown | undefined = person.resolving
       ? person.planning?.get(seconds)
       : person.cache.get(seconds);
     if (cached !== undefined) return { pose: cached.pose, kept: cached };
+    return evaluated(person, seconds, requested, prepared, retain);
+  }
 
+  /** The displayed pose at a second the person keeps no pose for yet (`of`). */
+  function evaluated(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    seconds: number,
+    requested: ReadonlySet<AutoMovieHumanoidBone> | undefined,
+    prepared: prepareHumanSegmentPose.IPrepared | undefined,
+    retain: boolean,
+  ): HumanSegmentShown.IRead {
     // A transient observation consumes just its demand. Otherwise, where
     // the person keeps poses, a bone demand reads the whole pose and
     // keeps it, so every later reader of this second, whatever bones it asks,
     // takes the pose already produced; no second is resolved twice. Only
     // outside any planning while the schedule is resolved is the demand
-    // evaluated alone, since nothing is kept there.
+    // evaluated alone, since nothing is kept there; and so is a demand that
+    // shows no arm (a trunk, a shoulder, the head or a leg) where the action
+    // honours an observation (`observableHumanSegment`): it reads the plan
+    // on the channels its bones hang from alone (`demandedHumanChannels`),
+    // never running an arm's writers, which may read a partner who reads
+    // this person back (a mutual hold, each read a reaction time earlier
+    // than the one before), the demand-driven evaluation of required bones
+    // (Unreal Engine `FBoneContainer`).
+    const active: IAutoMovieMotionHumanSegment | undefined =
+      HumanSegmentSelection.last(person.segments, seconds);
+    // A segment chosen through the entry allowance is shown from its entry,
+    // where its transition and its holds apply, never raw a hair before it.
+    const at: number =
+      active === undefined ? seconds : Math.max(seconds, active.entryTime);
     const demand: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-      !retain || (person.resolving && person.planning === undefined) ? requested : undefined;
+      !retain ||
+      (person.resolving && person.planning === undefined) ||
+      (requested !== undefined &&
+        active !== undefined &&
+        armless(requested) &&
+        observableHumanSegment(person, active, at))
+        ? requested
+        : undefined;
 
     // Where the pose holds still back to an earlier second
     // (`HumanSegmentStill.representative`), it is that second's pose: read
@@ -79,7 +121,7 @@ export namespace HumanSegmentShown {
         ? person.planning?.get(still)
         : person.cache.get(still);
       if (known !== undefined || demand === undefined) {
-        const at: { pose: IAutoMoviePose; kept?: HumanSegment.IShown } =
+        const at: HumanSegmentShown.IRead =
           known === undefined
             ? of(person, still, undefined, prepared)
             : { pose: known.pose, kept: known };
@@ -88,20 +130,18 @@ export namespace HumanSegmentShown {
         return at;
       }
     }
-    const active: IAutoMovieMotionHumanSegment | undefined =
-      HumanSegmentSelection.last(person.segments, seconds);
     const pose: IAutoMoviePose =
       active === undefined
         ? HumanSegmentPose.initial(person, demand, prepared)
         : active.incumbents === undefined
-          ? HumanSegmentPose.of(person, active, seconds, prepared, demand)
+          ? HumanSegmentPose.of(person, active, at, prepared, demand)
           : // The action's last leaf seeds start every swept fit of this
             // evaluation (leaf, carry, stop and plant fits) from a held seed
             // (`HumanLimbIncumbent`), which cannot change their answers.
             HumanLimbIncumbent.within(
               { body: person.performer.body, seeds: active.incumbents },
               (): IAutoMoviePose =>
-                HumanSegmentPose.of(person, active, seconds, prepared, demand),
+                HumanSegmentPose.of(person, active, at, prepared, demand),
             );
     if (demand !== undefined) return { pose };
     const kept: HumanSegment.IShown = { pose };
@@ -149,6 +189,30 @@ export namespace HumanSegmentShown {
       person.cache = cache;
       if (planning !== undefined) person.planning = planning;
     }
+  }
+
+  /**
+   * A displayed pose read at a second, and the person's record of it where
+   * the person keeps it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the members.
+   * @evidence contracts/development/design.md#principled-representation The pose and its optional kept record, as `of` returns them.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The return of `of` and its evaluation.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The record is the person's own.
+   */
+  export interface IRead {
+    /** The pose. */
+    pose: IAutoMoviePose;
+
+    /** The person's record of it, where the person keeps it. */
+    kept?: HumanSegment.IShown;
+  }
+
+  /** Whether a bone demand needs no arm channel (`demandedHumanChannels`): its bones hang from the root, the trunk, the head and the legs alone. */
+  function armless(requested: ReadonlySet<AutoMovieHumanoidBone>): boolean {
+    const channels: readonly AutoMovieMotionHumanChannel[] =
+      demandedHumanChannels(requested);
+    return !channels.includes("leftArm") && !channels.includes("rightArm");
   }
 
   /** Keep a record at a second where the person keeps poses: in the planning's map while one action is planned (`HumanSegment.planning`, whose placed state is fixed), in the settled map otherwise, none while the schedule is resolved outside a planning. */
@@ -203,7 +267,7 @@ export namespace HumanSegmentShown {
     },
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     const body: IAutoMovieMotionHumanBody = person.performer.body;
-    const entry: { pose: IAutoMoviePose; kept?: HumanSegment.IShown } = of(
+    const entry: HumanSegmentShown.IRead = of(
       person,
       seconds,
       requested,

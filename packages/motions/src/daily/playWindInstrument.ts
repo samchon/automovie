@@ -4,6 +4,7 @@ import {
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -62,14 +63,14 @@ export namespace playWindInstrument {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the grip and mouth, validate the timed phases, fit the pose and compose the carry.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The real mouthpiece socket is required and its rigid frame survives lift, hold and return.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the held-tool point and axis fit, arm trajectory and grip persistence.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The roll and lean search runs once, and a sampled goal reads the mouth's trunk frame.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The roll and lean search runs once, and a sampled goal reads the mouth's trunk frame by forward kinematics of the mouth bone's ancestry only.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the timing, rigid goal and held instrument data.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlayWindInstrument.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const side = params.side ?? "right";
+    const side = params.hand ?? "right";
     const tool = StrikingHeld.of(context, side, params.prop, {
       tip: "mouthpiece",
     });
@@ -86,8 +87,19 @@ export namespace playWindInstrument {
         fix: "use an instrument that declares a mouthpiece socket, such as the bugle",
       });
     const region = body.surfaces.regions.mouth;
+
+    // Every goal read places the mouth only, so the trunk is resolved for
+    // the mouth's bone and its ancestry alone.
+    const lips: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([region.bone]);
     const mouth = (posture: IAutoMovieMotionHumanPosture) => {
-      const bone = HumanTrunk.resolve(body, posture).get(region.bone)!;
+      const bone = HumanTrunk.resolve(
+        body,
+        posture,
+        undefined,
+        undefined,
+        lips,
+      ).get(region.bone)!;
       return {
         ...resolveAutoMovieHumanoidSurfaces.place(region, bone),
         rotation: bone.worldRotation,
@@ -113,8 +125,8 @@ export namespace playWindInstrument {
       "s",
     );
     const seconds = HumanBound.above(
-      "seconds",
-      params.seconds ?? PLAY_SECONDS,
+      "hold",
+      params.hold ?? PLAY_SECONDS,
       0,
       "s",
     );

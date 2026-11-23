@@ -1,4 +1,8 @@
-import { ArchetypeUnits, createHolster, createSword } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeUnits,
+  createHolster,
+  createSword,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -32,8 +36,8 @@ export function test_archetype_weapon_carriers_bands(): void {
   const findings: string[] = archetypeBandSweep([
     row(
       "holster ride",
-      -1.5 * ArchetypeUnits.INCH,
-      1.5 * ArchetypeUnits.INCH,
+      -1.5 * AutoMovieArchetypeUnits.INCH,
+      1.5 * AutoMovieArchetypeUnits.INCH,
       "Safariland ride heights",
       (seed: number): number =>
         createHolster({}, seed).affordance("socket").frame.translation.y,
@@ -56,8 +60,8 @@ export function test_archetype_weapon_carriers_bands(): void {
     ),
     row(
       "quiver depth",
-      18 * ArchetypeUnits.INCH,
-      22.5 * ArchetypeUnits.INCH,
+      18 * AutoMovieArchetypeUnits.INCH,
+      22.5 * AutoMovieArchetypeUnits.INCH,
       "back quivers, 18 to 22.5 in",
       (seed: number): number =>
         createHolster({ kind: "quiver" }, seed).affordance("socket").frame
@@ -66,9 +70,10 @@ export function test_archetype_weapon_carriers_bands(): void {
     row(
       "quiver mass",
       0.62,
-      1.5 * ArchetypeUnits.POUND,
+      1.5 * AutoMovieArchetypeUnits.POUND,
       "20 in back quivers",
-      (seed: number): number => createHolster({ kind: "quiver" }, seed).body.mass,
+      (seed: number): number =>
+        createHolster({ kind: "quiver" }, seed).body.mass,
     ),
   ]);
 
@@ -95,7 +100,12 @@ export function test_archetype_weapon_carriers_bands(): void {
       try {
         fitted = createHolster(
           model === undefined
-            ? { kind: carrier, blade: made, length: length + 0.015, width: width + 0.02 }
+            ? {
+                kind: carrier,
+                blade: made,
+                length: length + 0.015,
+                width: width + 0.02,
+              }
             : { kind: carrier, blade: made },
           seed,
         );

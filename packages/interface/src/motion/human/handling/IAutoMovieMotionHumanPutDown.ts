@@ -26,7 +26,7 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
  * it was entered in.
  *
  * Phases: a transport of the hand to the placing frame, timed by the
- * reach-to-grasp movement time over the travel (`HumanPrehension`), its last
+ * reach-to-grasp movement time over the travel ({@link IAutoMovieMotionHumanPickUp} gives the model: about 0.5 s for a 0.4 m travel), its last
  * 0.05 m straight down so the prop lands rather than slides (provisional
  * setback); the release, the fingers opening flat over 0.2 s (provisional) as
  * the grip ends, which leaves the prop where it was placed; and the hand's
@@ -36,29 +36,17 @@ import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidB
  * Events: `placed` transfers the prop from the grip to its resting frame.
  * `release` marks the end of finger opening. A placing frame beyond the
  * arm's reach is refused, as is a placement without a destination.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes world placement, bone-local wearing and socket custody from `placed`, with movement and refusal rules for a tracked receiver.
- * @evidence contracts/development/design.md#principled-representation The destination is a world point in metres, a bone-local rigid transform or a named receiver socket. The placement law admits each destination and checks the fitted display at transfer.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.putDown, params); handling/putDown.ts (putDown.plan, context); handling/putDown.ts (putDown.demands, ahead); handling/putDownTarget.ts (putDownTarget.of, context); handling/putDown.ts (putDown.plan); handling/putDownTarget.ts (putDownTarget.of).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieRigidTransform, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPutDown {
   /**
    * Parameters.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the held prop, destination frames, socket defaults, hand and heading as well as the supported moving receiver.
-   * @evidence contracts/development/design.md#principled-representation World points and bone offsets use metres. Socket placement selects a source and a receiver affordance by id, with runtime admission of the displayed receiver's authored track and the fitted contact.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.putDown, params); handling/putDown.ts (putDown.plan, context); handling/putDown.ts (putDown.demands, ahead); handling/putDownTarget.ts (putDownTarget.of, context); handling/putDown.ts (putDown.plan); handling/putDownTarget.ts (putDownTarget.of).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieHumanoidBone, IAutoMovieRigidTransform, AutoMovieHumanSide identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The held prop's subject id. */
     prop: string;
 
     /** Where the prop's origin goes, world metres; required unless `on` or `onto` is given. */
-    at?: IAutoMovieVector3;
+    to?: IAutoMovieVector3;
 
     /** The bone of the performer's own body the prop is put on, worn there from `placed` with its frame `offset` in the bone's posed frame (a hat on the head, a pistol in a hip holster); set down at `at` when absent. */
     on?: {

@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The norm that sizes a competition trampoline. */
@@ -24,7 +24,7 @@ const FIG: string =
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The trampoline.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands and its contact.
  * @evidence contracts/development/implementation.md#principled-implementation A bed at its height inside a frame of four rails on four legs, sized by the norm.
@@ -37,9 +37,9 @@ const FIG: string =
 export function createTrampoline(
   params: createTrampoline.IParams = {},
   seed?: number | string,
-): Archetype<createTrampoline.Affordance, createTrampoline.Dimension> {
-  const draw: ArchetypeDrawSession<createTrampoline.Dimension> =
-    new ArchetypeDrawSession<createTrampoline.Dimension>(
+): AutoMovieArchetype<createTrampoline.Affordance, createTrampoline.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTrampoline.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTrampoline.Dimension>(
       "trampoline",
       createTrampoline.UNITS,
       seed,
@@ -48,10 +48,10 @@ export function createTrampoline(
   const d: Record<createTrampoline.Dimension, number> = draw.dimensions(
     createTrampoline.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createTrampoline.Affordance,
     createTrampoline.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "trampoline",
@@ -104,7 +104,7 @@ export function createTrampoline(
   builder.affordance({
     id: "bed",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.height, 0)),
     extent: null,
     width: d.width,
     depth: d.length,
@@ -144,7 +144,9 @@ export namespace createTrampoline {
   export type Dimension = "height" | "width" | "length" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     width: "m",
     length: "m",
@@ -158,16 +160,16 @@ export namespace createTrampoline {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(
       0.6,
       1.155,
       `${FIG}; a backyard bed stands lower (an estimate)`,
       true,
     ),
-    width: ArchetypeBand.metres(2.14, 2.14, FIG),
-    length: ArchetypeBand.metres(4.28, 4.28, FIG),
-    mass: ArchetypeBand.of(
+    width: AutoMovieArchetypeBand.metres(2.14, 2.14, FIG),
+    length: AutoMovieArchetypeBand.metres(4.28, 4.28, FIG),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       80,
       150,

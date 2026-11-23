@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { KeyboardHardware } from "./KeyboardHardware";
 
 /**
@@ -8,7 +8,7 @@ import { KeyboardHardware } from "./KeyboardHardware";
  * @param params The manufacturer's model and optional model identifier.
  * @param seed The seed used to select a model when omitted.
  * @returns The input device and its named contacts.
- * @throws {ArchetypeRefusal} When the requested input is inadmissible.
+ * @throws {AutoMovieArchetypeRefusal} When the requested input is inadmissible.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the input device, its frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Draw the original model figures and place the standard key field and home row.
@@ -21,7 +21,7 @@ import { KeyboardHardware } from "./KeyboardHardware";
 export function createDesktopKeyboard(
   params: createDesktopKeyboard.IParams = {},
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createDesktopKeyboard.Affordance,
   createDesktopKeyboard.Dimension
 > {

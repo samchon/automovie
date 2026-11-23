@@ -1,8 +1,12 @@
-import { Quaternion, Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type {
-  IAutoMovieHumanLimbGoal,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -80,7 +84,7 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
     ): IAutoMovieMotionHumanActionPlan => {
       const p: IAutoMovieMotionHumanHeadRest = context.params;
       const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-      HumanBound.least("seconds", p.seconds, 0, "s");
+      HumanBound.least("hold", p.hold, 0, "s");
       if (p.partner === context.subject)
         throw new HumanRefusal({
           kind: "parameter",
@@ -98,7 +102,8 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
       const at: IAutoMovieVector3 = surface.point;
       const own: AutoMovieHumanoidRegion = p.own ?? side(context, at);
       // The side of the body the partner's region lies on.
-      const near: "left" | "right" = side(context, at) === "templeLeft" ? "left" : "right";
+      const near: "left" | "right" =
+        side(context, at) === "templeLeft" ? "left" : "right";
       const stance: IAutoMovieMotionHumanRise.Stance = {
         left: {
           ankle: context.entry.feet.left.ankle,
@@ -113,7 +118,13 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
         (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
           s.kind === "seat",
       );
-      const aim: headRestAim.IAim = headRestAim.prepare(body, entry, stance, seated, own);
+      const aim: headRestAim.IAim = headRestAim.prepare(
+        body,
+        entry,
+        stance,
+        seated,
+        own,
+      );
       const solved: headRestAim.ISolved = aim.solve(at);
       if (solved.miss > NEAR) {
         // Where the region lies from the head's region at entry, in the performer's frame: left, up, ahead.
@@ -139,7 +150,7 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
         AutoMovieMotionClock.phrase({
           prepare: approach,
           attack: 0,
-          hold: p.seconds,
+          hold: p.hold,
           retract: approach,
         }),
         modifiers,
@@ -160,74 +171,104 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
         aim.follow(solved),
       );
       const duration: number = clock.duration;
-      const plan: IAutoMovieMotionHumanActionPlan = composeAutoMovieMotionHumanAction({
-        base: AutoMovieMotionHumanBase.under(context, duration),
-        clock,
-        primitives: [
-          {
-            channels: ["root", "trunk"],
-            from: 0,
-            to: duration,
-            write: (
-              posture: IAutoMovieMotionHumanPosture,
-              seconds: number,
-            ): IAutoMovieMotionHumanPosture =>
-              kissBody(body, posture, stance, aimed(seconds), share(seconds), seated),
-          },
-          // The arm on the partner's side slides its hand down the thigh
-          // toward the knee as the body leans, carrying that upper arm forward
-          // of the partner's instead of into it.
-          {
-            channels: [near === "left" ? "leftArm" : "rightArm"],
-            from: 0,
-            to: duration,
-            write: (
-              posture: IAutoMovieMotionHumanPosture,
-              seconds: number,
-            ): IAutoMovieMotionHumanPosture => {
-              const limb: "leftArm" | "rightArm" = near === "left" ? "leftArm" : "rightArm";
-              const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[limb];
-              if (goal === undefined) return posture;
-              const ahead: IAutoMovieVector3 = Vector3.scale(
-                Quaternion.rotateVector(Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw), { x: 0, y: 0, z: 1 }),
-                SLIDE * share(seconds),
-              );
-              return {
-                ...posture,
-                limbs: {
-                  ...posture.limbs,
-                  [limb]: { ...goal, point: Vector3.add(goal.point, ahead), bend: Vector3.add(goal.bend, ahead) },
-                },
-              };
+      const plan: IAutoMovieMotionHumanActionPlan =
+        composeAutoMovieMotionHumanAction({
+          base: AutoMovieMotionHumanBase.under(context, duration),
+          clock,
+          primitives: [
+            {
+              channels: ["root", "trunk"],
+              from: 0,
+              to: duration,
+              write: (
+                posture: IAutoMovieMotionHumanPosture,
+                seconds: number,
+              ): IAutoMovieMotionHumanPosture =>
+                kissBody(
+                  body,
+                  posture,
+                  stance,
+                  aimed(seconds),
+                  share(seconds),
+                  seated,
+                ),
             },
-          },
-          {
-            channels: ["head"],
-            from: 0,
-            to: duration,
-            write: (
-              posture: IAutoMovieMotionHumanPosture,
-              seconds: number,
-            ): IAutoMovieMotionHumanPosture => {
-              const s: headRestAim.ISolved = aimed(seconds);
-              const k: number = share(seconds);
-              const flexion: IAutoMovieMotionHumanJoints.Angles = AutoMovieMotionHumanHead.share(0, s.flexion * k);
-              const bend: IAutoMovieMotionHumanJoints.Angles = AutoMovieMotionHumanHead.share(1, s.tilt * k);
-              const added: (bone: "neck" | "head") => readonly [number, number, number] = (
-                bone: "neck" | "head",
-              ): readonly [number, number, number] => {
-                const held: readonly [number, number, number] = posture.joints[bone] ?? [0, 0, 0];
-                return [held[0] + flexion[bone]![0], held[1] + bend[bone]![1], held[2]];
-              };
-              return {
-                ...posture,
-                joints: { ...posture.joints, neck: added("neck"), head: added("head") },
-              };
+            // The arm on the partner's side slides its hand down the thigh
+            // toward the knee as the body leans, carrying that upper arm forward
+            // of the partner's instead of into it.
+            {
+              channels: [near === "left" ? "leftArm" : "rightArm"],
+              from: 0,
+              to: duration,
+              write: (
+                posture: IAutoMovieMotionHumanPosture,
+                seconds: number,
+              ): IAutoMovieMotionHumanPosture => {
+                const limb: "leftArm" | "rightArm" =
+                  near === "left" ? "leftArm" : "rightArm";
+                const goal: IAutoMovieHumanLimbGoal | undefined =
+                  posture.limbs[limb];
+                if (goal === undefined) return posture;
+                const ahead: IAutoMovieVector3 = Vector3.scale(
+                  Quaternion.rotateVector(
+                    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, entry.yaw),
+                    { x: 0, y: 0, z: 1 },
+                  ),
+                  SLIDE * share(seconds),
+                );
+                return {
+                  ...posture,
+                  limbs: {
+                    ...posture.limbs,
+                    [limb]: {
+                      ...goal,
+                      point: Vector3.add(goal.point, ahead),
+                      bend: Vector3.add(goal.bend, ahead),
+                    },
+                  },
+                };
+              },
             },
-          },
-        ],
-        contact: "contact",
-      });
+            {
+              channels: ["head"],
+              from: 0,
+              to: duration,
+              write: (
+                posture: IAutoMovieMotionHumanPosture,
+                seconds: number,
+              ): IAutoMovieMotionHumanPosture => {
+                const s: headRestAim.ISolved = aimed(seconds);
+                const k: number = share(seconds);
+                const flexion: IAutoMovieMotionHumanJoints.Angles =
+                  AutoMovieMotionHumanHead.share(0, s.flexion * k);
+                const bend: IAutoMovieMotionHumanJoints.Angles =
+                  AutoMovieMotionHumanHead.share(1, s.tilt * k);
+                const added: (
+                  bone: "neck" | "head",
+                ) => readonly [number, number, number] = (
+                  bone: "neck" | "head",
+                ): readonly [number, number, number] => {
+                  const held: readonly [number, number, number] = posture
+                    .joints[bone] ?? [0, 0, 0];
+                  return [
+                    held[0] + flexion[bone]![0],
+                    held[1] + bend[bone]![1],
+                    held[2],
+                  ];
+                };
+                return {
+                  ...posture,
+                  joints: {
+                    ...posture.joints,
+                    neck: added("neck"),
+                    head: added("head"),
+                  },
+                };
+              },
+            },
+          ],
+          contact: "contact",
+        });
       return {
         ...plan,
         contacts: [
@@ -248,10 +289,18 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
 
 /** The share of the body's weight a resting head lays on the partner: `RESTING` of the head and neck segments' share of the body's own mass model. */
 function load(body: IAutoMovieMotionHumanActionContext["body"]): number {
-  const model: IAutoMovieResolveCenterOfMass.IModel = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
+  const model: IAutoMovieResolveCenterOfMass.IModel =
+    resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
   const head: number = model.segments
-    .filter((s: IAutoMovieResolveCenterOfMass.ISegment): boolean => s.bone === "head" || s.bone === "neck")
-    .reduce((sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number => sum + s.mass, 0);
+    .filter(
+      (s: IAutoMovieResolveCenterOfMass.ISegment): boolean =>
+        s.bone === "head" || s.bone === "neck",
+    )
+    .reduce(
+      (sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number =>
+        sum + s.mass,
+      0,
+    );
   return (RESTING * head) / model.mass;
 }
 
@@ -261,10 +310,13 @@ function following(
   p: IAutoMovieMotionHumanHeadRest,
   follow: (to: IAutoMovieVector3) => headRestAim.ISolved,
 ): (seconds: number) => headRestAim.ISolved {
-  const partner: IAutoMovieMotionHumanPerformerReader = context.performer(p.partner);
-  const bone: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    partner.body.surfaces.regions[p.region].bone,
-  ]);
+  const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+    p.partner,
+  );
+  const bone: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>([
+      partner.body.surfaces.regions[p.region].bone,
+    ]);
   let last: number | undefined;
   let kept: headRestAim.ISolved | undefined;
   return (seconds: number): headRestAim.ISolved => {

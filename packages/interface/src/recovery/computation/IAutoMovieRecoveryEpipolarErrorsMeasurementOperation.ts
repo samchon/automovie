@@ -1,20 +1,10 @@
 /**
  * Measure signed Sampson distance and mean two-sided point-to-line distance in the supplied integer-pixel-centre charts. Undefined lines or nonfinite residuals remain null observations and cannot be counted as inliers. Invalid matrices or nonrepresentable matrix-vector actions throw in the algebra owner. Sampson distance is a local approximation, not reprojection truth.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Measure signed Sampson distance and mean two-sided point-to-line distance in the supplied integer-pixel-centre charts. Undefined lines or nonfinite
- * @evidence contracts/development/design.md#principled-representation Measure signed Sampson distance and mean two-sided point-to-line distance in the supplied integer-pixel-centre charts. Undefined lines or nonfinite
- * @evidence contracts/development/design.md#minimal-and-owned-surface createRecoveryCameraEstimate, fitRecoveryEpipolarConsensus, measureRecoveryEpipolarErrors share IAutoMovieRecoveryEpipolarErrorsMeasurementOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
  */
 
 export namespace IAutoMovieRecoveryEpipolarErrorsMeasurementOperation {
   /**
    * Measure signed Sampson distance and mean two-sided point-to-line distance in the supplied integer-pixel-centre charts. Undefined lines or nonfinite residuals remain null observations and cannot be counted as inliers. Invalid matrices or nonrepresentable matrix-vector actions throw in the algebra owner. Sampson distance is a local approximation, not reprojection truth.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Measure signed Sampson distance and mean two-sided point-to-line distance in the supplied integer-pixel-centre charts. Undefined lines or nonfinite
-   * @evidence contracts/development/design.md#principled-representation Measure signed Sampson distance and mean two-sided point-to-line distance in the supplied integer-pixel-centre charts. Undefined lines or nonfinite
-   * @evidence contracts/development/design.md#minimal-and-owned-surface createRecoveryCameraEstimate, fitRecoveryEpipolarConsensus, measureRecoveryEpipolarErrors share IAutoMovieRecoveryEpipolarErrorsMeasurementOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The declared observation and coefficient identities remain separate from source coverage and numerical qualification.
    */
 
   export type Operation = (

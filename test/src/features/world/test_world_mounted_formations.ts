@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeCourse,
-  ArchetypeManoeuvre,
-  ArchetypePassage,
-  ArchetypeRefusal,
-  QuadrupedGait,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypePassage,
+  AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
   createHorse,
   createQuadruped,
 } from "@automovie/archetypes";
@@ -13,7 +13,7 @@ import type {
   IAutoMovieMotionHumanFormation,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanFormation } from "@automovie/motions";
+import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/predicates";
@@ -36,20 +36,24 @@ const MARGIN: number = 0.3;
  * 4. In a skirmish screen in open order, alternate files advance, fire on the move and wheel about to retire, each volley fired by the files in front, without contact.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the three stagings and their expectations.
- * @evidence contracts/development/testing.md#behavioral-verification Plans formation slot transitions and manoeuvre arcs through `ArchetypeCourse.timed` and measures them with `ArchetypePassage` on a real horse footprint.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans formation slot transitions and manoeuvre arcs through `AutoMovieArchetypeCourse.timed` and measures them with `AutoMovieArchetypePassage` on a real horse footprint.
  * @evidence contracts/development/testing.md#independent-expectations A line's final clearance is its spacing less a horse's breadth, so 3 m clears the margin and 1 m does not. A horse stopping 3 m before the person's disc keeps it; one at the wall cannot. The front rank is the one nearest the target, read from the riders' positions at each authored shot.
  * @evidence contracts/development/testing.md#distinguishing-cases Admitted and refused lines, an admitted halt and a refused advance, and both ranks' shots.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec; the shots are inert events, the mounted firing acts are #3806's.
  */
 export function test_world_mounted_formations(): void {
-  const horse: Archetype = createHorse({ withersHeight: 1.7 }, "squadron");
-  const footprint: ArchetypePassage.IFootprint =
-    ArchetypePassage.footprint(horse);
-  const trot: ArchetypeManoeuvre.ISpeedRange = QuadrupedGait.range(
-    createQuadruped.species(horse),
-    "trot",
-    1.7,
+  const horse: AutoMovieArchetype = createHorse(
+    { withersHeight: 1.7 },
+    "squadron",
   );
+  const footprint: AutoMovieArchetypePassage.IFootprint =
+    AutoMovieArchetypePassage.footprint(horse);
+  const trot: AutoMovieArchetypeManoeuvre.ISpeedRange =
+    AutoMovieArchetypeQuadrupedGait.range(
+      createQuadruped.species(horse),
+      "trot",
+      1.7,
+    );
   const breadth: number =
     Math.max(...footprint.outline.map((p: IAutoMovieVector3): number => p.x)) -
     Math.min(...footprint.outline.map((p: IAutoMovieVector3): number => p.x));
@@ -59,9 +63,9 @@ export function test_world_mounted_formations(): void {
     { kind: "column", ranks: 4, files: 1, spacing: { lateral: 3, depth: 5 } },
     0,
   );
-  const deploy: (lateral: number) => ArchetypePassage.IConflict[] = (
+  const deploy: (lateral: number) => AutoMovieArchetypePassage.IConflict[] = (
     lateral: number,
-  ): ArchetypePassage.IConflict[] => {
+  ): AutoMovieArchetypePassage.IConflict[] => {
     const line: IAutoMovieMotionHumanFormation = formation(
       { kind: "line", ranks: 1, files: 4, spacing: { lateral, depth: 5 } },
       30,
@@ -71,27 +75,34 @@ export function test_world_mounted_formations(): void {
       80,
     );
     const starts: IAutoMovieVector3[] = [0, 1, 2, 3].map(
-      (k: number): IAutoMovieVector3 => HumanFormation.slot(column, k, 0).at,
+      (k: number): IAutoMovieVector3 =>
+        AutoMovieMotionHumanEnsemble.HumanFormation.slot(column, k, 0).at,
     );
-    const onLine: number[] = HumanFormation.assign(line, starts, "nearest", 0);
-    const lined: IAutoMovieVector3[] = onLine.map(
-      (slot: number): IAutoMovieVector3 =>
-        HumanFormation.slot(line, slot, 0).at,
-    );
-    const onColumn: number[] = HumanFormation.assign(
-      rally,
-      lined,
+    const onLine: number[] = AutoMovieMotionHumanEnsemble.HumanFormation.assign(
+      line,
+      starts,
       "nearest",
       0,
     );
-    return ArchetypePassage.conflicts("deploy", {
+    const lined: IAutoMovieVector3[] = onLine.map(
+      (slot: number): IAutoMovieVector3 =>
+        AutoMovieMotionHumanEnsemble.HumanFormation.slot(line, slot, 0).at,
+    );
+    const onColumn: number[] =
+      AutoMovieMotionHumanEnsemble.HumanFormation.assign(
+        rally,
+        lined,
+        "nearest",
+        0,
+      );
+    return AutoMovieArchetypePassage.conflicts("deploy", {
       participants: starts.map(
         (
           start: IAutoMovieVector3,
           k: number,
-        ): ArchetypePassage.IParticipant => ({
+        ): AutoMovieArchetypePassage.IParticipant => ({
           id: `pair${k}`,
-          plan: ArchetypeCourse.timed(`pair${k}`, [
+          plan: AutoMovieArchetypeCourse.timed(`pair${k}`, [
             sample(0, start),
             sample(8, point(lined[k]!.x, 24)),
             sample(10, point(lined[k]!.x, 27)),
@@ -99,7 +110,14 @@ export function test_world_mounted_formations(): void {
             sample(14, lined[k]!),
             sample(15.5, point(lined[k]!.x, 33)),
             sample(17, point(lined[k]!.x, 36)),
-            sample(30, HumanFormation.slot(rally, onColumn[k]!, 0).at),
+            sample(
+              30,
+              AutoMovieMotionHumanEnsemble.HumanFormation.slot(
+                rally,
+                onColumn[k]!,
+                0,
+              ).at,
+            ),
           ]),
           footprint,
           margin: MARGIN,
@@ -113,19 +131,19 @@ export function test_world_mounted_formations(): void {
     deploy(3),
     [],
   );
-  const tight: ArchetypePassage.IConflict[] = deploy(1);
+  const tight: AutoMovieArchetypePassage.IConflict[] = deploy(1);
   TestValidator.predicate(
     `a line too tight for the margin refuses at its close: ${JSON.stringify(tight)}`,
     1 - breadth < MARGIN &&
       tight.length > 0 &&
       tight.some(
-        (found: ArchetypePassage.IConflict): boolean =>
+        (found: AutoMovieArchetypePassage.IConflict): boolean =>
           found.from <= 12 && found.to >= 14 && found.subject !== found.other,
       ),
   );
 
   // 2. A person before a wall.
-  const wall: ArchetypePassage.IObstacle = {
+  const wall: AutoMovieArchetypePassage.IObstacle = {
     id: "wall",
     footprint: {
       outline: [
@@ -138,13 +156,13 @@ export function test_world_mounted_formations(): void {
     },
     margin: 0,
   };
-  const advance: (stop: number) => ArchetypePassage.IProps = (
+  const advance: (stop: number) => AutoMovieArchetypePassage.IProps = (
     stop: number,
-  ): ArchetypePassage.IProps => ({
+  ): AutoMovieArchetypePassage.IProps => ({
     participants: [
       {
         id: "horse",
-        plan: ArchetypeCourse.timed("horse", [
+        plan: AutoMovieArchetypeCourse.timed("horse", [
           sample(0, point(0, 0)),
           sample(10, point(0, stop)),
         ]),
@@ -153,7 +171,7 @@ export function test_world_mounted_formations(): void {
       },
       {
         id: "person",
-        plan: ArchetypeCourse.timed("person", [
+        plan: AutoMovieArchetypeCourse.timed("person", [
           sample(0, point(0, 19.5)),
           sample(10, point(0, 19.5)),
         ]),
@@ -169,18 +187,21 @@ export function test_world_mounted_formations(): void {
   );
   TestValidator.equals(
     "a line halting short of the person is admitted",
-    ArchetypePassage.conflicts("advance", advance(19.5 - 0.3 - 3 - front)),
+    AutoMovieArchetypePassage.conflicts(
+      "advance",
+      advance(19.5 - 0.3 - 3 - front),
+    ),
     [],
   );
   let refusal: unknown;
   try {
-    ArchetypePassage.admit("advance", advance(19.5 - front));
+    AutoMovieArchetypePassage.admit("advance", advance(19.5 - front));
   } catch (error) {
     refusal = error;
   }
   TestValidator.predicate(
     "an advance onto a person against the wall refuses with both",
-    refusal instanceof ArchetypeRefusal &&
+    refusal instanceof AutoMovieArchetypeRefusal &&
       refusal.reason.startsWith("horse and person come within"),
   );
 
@@ -189,11 +210,11 @@ export function test_world_mounted_formations(): void {
   const turn: number = 3;
   const wheelOff: number = (Math.PI * turn) / speed;
   const shots: readonly number[] = [2, 8];
-  const riders: ArchetypeCourse.IPlan[] = [-1, 1].flatMap(
-    (side: number): ArchetypeCourse.IPlan[] => [
-      ArchetypeCourse.timed("first", [
+  const riders: AutoMovieArchetypeCourse.IPlan[] = [-1, 1].flatMap(
+    (side: number): AutoMovieArchetypeCourse.IPlan[] => [
+      AutoMovieArchetypeCourse.timed("first", [
         sample(0, point(1.5 * side, 10)),
-        ...ArchetypeManoeuvre.arc(
+        ...AutoMovieArchetypeManoeuvre.arc(
           "first",
           {
             centre: point(4.5 * side, 10),
@@ -207,11 +228,11 @@ export function test_world_mounted_formations(): void {
           STEP,
         ),
         ...[1, 2].map(
-          (k: number): ArchetypeCourse.ISample =>
+          (k: number): AutoMovieArchetypeCourse.ISample =>
             sample(2 + wheelOff + k, point(7.5 * side, 10 - speed * k)),
         ),
       ]),
-      ArchetypeCourse.timed("second", [
+      AutoMovieArchetypeCourse.timed("second", [
         sample(0, point(1.5 * side, 5)),
         sample(3, point(1.5 * side, 5)),
         sample(4.5, point(1.5 * side, 7.5)),
@@ -224,7 +245,7 @@ export function test_world_mounted_formations(): void {
     "each rank fires only while it is the front rank",
     shots.every((seconds: number, rank: number): boolean => {
       const ahead: number[] = riders.map(
-        (plan: ArchetypeCourse.IPlan): number =>
+        (plan: AutoMovieArchetypeCourse.IPlan): number =>
           plan.at(seconds).placement.translation.z,
       );
       const firing: number[] = [rank, rank + 2];
@@ -238,12 +259,12 @@ export function test_world_mounted_formations(): void {
   );
   TestValidator.equals(
     "the ranks pass through each other without contact",
-    ArchetypePassage.conflicts("caracole", {
+    AutoMovieArchetypePassage.conflicts("caracole", {
       participants: riders.map(
         (
-          plan: ArchetypeCourse.IPlan,
+          plan: AutoMovieArchetypeCourse.IPlan,
           k: number,
-        ): ArchetypePassage.IParticipant => ({
+        ): AutoMovieArchetypePassage.IParticipant => ({
           id: `rider${k}`,
           plan,
           footprint,
@@ -260,11 +281,11 @@ export function test_world_mounted_formations(): void {
   );
   // 4. The skirmish screen: four files in open order, alternate files advancing to fire and retiring while the others come up.
   const OPEN: number = 6;
-  const screen: ArchetypeCourse.IPlan[] = [0, 1, 2, 3].map(
-    (file: number): ArchetypeCourse.IPlan => {
+  const screen: AutoMovieArchetypeCourse.IPlan[] = [0, 1, 2, 3].map(
+    (file: number): AutoMovieArchetypeCourse.IPlan => {
       const x: number = (file - 1.5) * OPEN;
       const first: boolean = file % 2 === 0;
-      return ArchetypeCourse.timed(
+      return AutoMovieArchetypeCourse.timed(
         `skirmisher${file}`,
         first
           ? [
@@ -305,12 +326,12 @@ export function test_world_mounted_formations(): void {
   );
   TestValidator.equals(
     "the screen's files keep open order without contact",
-    ArchetypePassage.conflicts("screen", {
+    AutoMovieArchetypePassage.conflicts("screen", {
       participants: screen.map(
         (
-          plan: ArchetypeCourse.IPlan,
+          plan: AutoMovieArchetypeCourse.IPlan,
           k: number,
-        ): ArchetypePassage.IParticipant => ({
+        ): AutoMovieArchetypePassage.IParticipant => ({
           id: `skirmisher${k}`,
           plan,
           footprint,
@@ -322,17 +343,19 @@ export function test_world_mounted_formations(): void {
     [],
   );
   // 5. Meeting an opposing line: riders aligned with its gaps pass through, and one whose lane meets a soldier pulls up short of him.
-  const soldiers: ArchetypePassage.IObstacle[] = [-4.5, -1.5, 1.5, 4.5].map(
-    (x: number, k: number): ArchetypePassage.IObstacle => ({
+  const soldiers: AutoMovieArchetypePassage.IObstacle[] = [
+    -4.5, -1.5, 1.5, 4.5,
+  ].map(
+    (x: number, k: number): AutoMovieArchetypePassage.IObstacle => ({
       id: `soldier${k}`,
       footprint: { outline: [point(x, 20)], radius: 0.3 },
       margin: MARGIN,
     }),
   );
-  const charge: ArchetypePassage.IParticipant[] = [-3, 0, 1.5].map(
-    (x: number, k: number): ArchetypePassage.IParticipant => ({
+  const charge: AutoMovieArchetypePassage.IParticipant[] = [-3, 0, 1.5].map(
+    (x: number, k: number): AutoMovieArchetypePassage.IParticipant => ({
       id: `rider${k}`,
-      plan: ArchetypeCourse.timed(
+      plan: AutoMovieArchetypeCourse.timed(
         `rider${k}`,
         x === 1.5
           ? [
@@ -354,11 +377,11 @@ export function test_world_mounted_formations(): void {
   );
   TestValidator.equals(
     "riders pass through the line's gaps and the blocked rider pulls up short of his soldier",
-    ArchetypePassage.conflicts("line", {
+    AutoMovieArchetypePassage.conflicts("line", {
       participants: charge,
       obstacles: soldiers,
       step: STEP,
-    }).filter((found: ArchetypePassage.IConflict): boolean =>
+    }).filter((found: AutoMovieArchetypePassage.IConflict): boolean =>
       found.other.startsWith("soldier"),
     ),
     [],
@@ -375,7 +398,7 @@ function formation(
   layout: IAutoMovieFormationLayout,
   z: number,
 ): IAutoMovieMotionHumanFormation {
-  return HumanFormation.of({
+  return AutoMovieMotionHumanEnsemble.HumanFormation.of({
     blocks: [{ layout, count: 4 }],
     frame: { kind: "fixed", at: point(0, z), heading: 0 },
   });
@@ -385,7 +408,7 @@ function formation(
 function sample(
   seconds: number,
   at: IAutoMovieVector3,
-): ArchetypeCourse.ISample {
+): AutoMovieArchetypeCourse.ISample {
   return { seconds, x: at.x, y: 0, z: at.z };
 }
 

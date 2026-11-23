@@ -1,12 +1,16 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
-import { FlintLock } from "./FlintLock";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
+import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import type { createHandgun } from "./createHandgun";
 
 /** A handgun under construction. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createHandgun.Affordance,
   createHandgun.Dimension
 >;
@@ -17,12 +21,7 @@ type Drawn = Readonly<Partial<Record<createHandgun.Dimension, number>>>;
 /**
  * The revolver's and the flintlock pistol's bodies and mechanisms, the handgun standing as `createHandgun` stands it: on the base of its grip at the origin, its muzzle toward `+Z` and its backstrap at `z = 0`, its lock or loading gate on the right, `-X`.
  *
- * A revolver's `hammer` is cocked back on its pivot at the frame's rear, and its `cylinder` turns one chamber per full cock by following the hammer (`follows`); the `gate` swings out on the right to load, and each chamber is a socket on the cylinder's rear face that rides the cylinder. A flintlock pistol is a stock and a barrel with the musket's lock (`FlintLock.lay`). Every place no source gives is a named estimate in `ESTIMATES`; the searches are recorded in the sources record (records-firearms-revolver.md, records-firearms-flintlock.md).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how each handgun stands, what each mechanism does and where the unread places are.
- * @evidence contracts/development/design.md#principled-representation The parts a hand works and the articulations that move them, the cylinder's turn coupled to the hammer's by a ratio.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The contacts the firearm laws read (`grip`, `trigger`, `sight`, `frontSight`, `muzzle`) and the ones #3488's revolver rows bind to: `hammer`, `cylinder`, `gate` and the chambers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every unread place is a named estimate here; the hammer's angle is derived from Colt's read travel at its spur.
+ * A revolver's `hammer` is cocked back on its pivot at the frame's rear, and its `cylinder` turns one chamber per full cock by following the hammer (`follows`); the `gate` swings out on the right to load, and each chamber is a socket on the cylinder's rear face that rides the cylinder. A flintlock pistol is a stock and a barrel with the musket's lock (`AutoMovieArchetypeFirearm.layFlintlock`). Every place no source gives is a named estimate in `ESTIMATES`; the searches are recorded in the sources record (records-firearms-revolver.md, records-firearms-flintlock.md).
  */
 export namespace HandgunActions {
   /**
@@ -84,8 +83,8 @@ export namespace HandgunActions {
 
   /** A Single Action Army's hammer travel at its spur, metres: half cock "about three quarters inch from Safety position", the safety "about a quarter inch" back, and full cock "FULLY back (about an inch and three quarters)", Colt's Single Action Army instruction manual (1993), Sections 3 and 4 (https://vdoc.pub/documents/colt-single-action-army-6ej6kgerjtg0). */
   export const HAMMER: Readonly<{ half: number; full: number }> = {
-    half: (0.25 + 0.75) * ArchetypeUnits.INCH,
-    full: 1.75 * ArchetypeUnits.INCH,
+    half: (0.25 + 0.75) * AutoMovieArchetypeUnits.INCH,
+    full: 1.75 * AutoMovieArchetypeUnits.INCH,
   };
 
   /** A revolver's chambers: "Check each of six chambers", Colt's manual, Section 4; Ruger's Vaquero 5104 holds 6 (https://ruger.com/products/vaqueroStainless/specSheets/5104.html). */
@@ -96,17 +95,9 @@ export namespace HandgunActions {
    *
    * @param travel The spur's travel, metres.
    * @returns The angle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the conversion.
-   * @evidence contracts/development/implementation.md#principled-implementation An arc's angle is its length over its radius.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One quotient.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one conversion the hammer's travel and the cylinder's ratio share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hammer(travel: number): number {
-    return travel / ESTIMATES.spur / ArchetypeUnits.DEGREE;
+    return travel / ESTIMATES.spur / AutoMovieArchetypeUnits.DEGREE;
   }
 
   /**
@@ -114,14 +105,6 @@ export namespace HandgunActions {
    *
    * @param d The revolver's dimensions, its length and barrel drawn or read.
    * @returns The sight radius, metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two ends.
-   * @evidence contracts/development/implementation.md#principled-implementation The sights stand where `revolver` lays them, so the radius is their distance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One difference.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No case to refuse.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The one owner of the rear sight's place, read by `revolver` and by `createHandgun`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function radius(d: Drawn): number {
     return d.barrel! + ESTIMATES.cylinder;
@@ -132,14 +115,6 @@ export namespace HandgunActions {
    *
    * @param builder The handgun under construction.
    * @param d The handgun's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The cylinder's top chamber lines up with the bore; a full cock of the hammer turns the cylinder by one chamber, a whole turn over the chamber count, so the ratio is that angle over the hammer's full angle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Grip, frame, cylinder, barrel, hammer and gate, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The hand, the bolt and the ejector rod are not modelled; half cock is a travel of the one hinge (`HAMMER.half`).
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one revolver.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function revolver(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -191,7 +166,11 @@ export namespace HandgunActions {
     builder.affordance({
       id: "hammer",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, bore, 0), v(-1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, bore, 0),
+        v(-1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
       travel: full,
       parts: ["hammer"],
@@ -199,7 +178,11 @@ export namespace HandgunActions {
     builder.affordance({
       id: "cylinder",
       kind: "knob",
-      frame: ArchetypeFrame.facing(v(0, axis, back), v(0, 0, -1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, axis, back),
+        v(0, 0, -1),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: 360,
       parts: ["cylinder"],
@@ -208,7 +191,7 @@ export namespace HandgunActions {
     builder.affordance({
       id: "gate",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-d.width! / 2, bore, back),
         v(0, 1, 0),
         v(0, 0, -1),
@@ -222,7 +205,7 @@ export namespace HandgunActions {
       builder.affordance({
         id: `chamber${k + 1}` as createHandgun.Affordance,
         kind: "socket",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(
             e.chamber * Math.sin(angle),
             axis + e.chamber * Math.cos(angle),
@@ -242,14 +225,6 @@ export namespace HandgunActions {
    *
    * @param builder The handgun under construction.
    * @param d The handgun's dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays.
-   * @evidence contracts/development/implementation.md#principled-implementation The barrel ends at the read overall length and runs back its read length to the breech, where the shared flintlock stands; the sight line runs along the barrel, which carries no sights.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stock, barrel and trigger, the lock, then the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ramrod and its pipe are not modelled: no act loads a pistol.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Seven parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one pistol.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function flintlock(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -279,7 +254,7 @@ export namespace HandgunActions {
       color: "#2c2f33",
     });
     trigger(builder, d, bore - e.bore);
-    FlintLock.lay(builder, v(0, bore, breech), {
+    AutoMovieArchetypeFirearm.layFlintlock(builder, v(0, bore, breech), {
       cock: "cock",
       spur: "spur",
       frizzen: "frizzen",
@@ -329,7 +304,7 @@ export namespace HandgunActions {
       id: "grip",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, grip / 2, d.gripDepth! / 2),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -342,7 +317,7 @@ export namespace HandgunActions {
     builder.affordance({
       id: "trigger",
       kind: "trigger",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, grip - ESTIMATES.trigger.drop, d.triggerReach!),
         v(0, 0, 1),
         v(1, 0, 0),
@@ -355,20 +330,26 @@ export namespace HandgunActions {
     builder.affordance({
       id: "sight",
       kind: "surface",
-      frame: ArchetypeFrame.upright(top),
+      frame: AutoMovieArchetypeFrame.upright(top),
       extent: null,
     });
     builder.affordance({
       id: "frontSight",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, top.y, sight + d.sightRadius!)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, top.y, sight + d.sightRadius!),
+      ),
       extent: null,
     });
     builder.affordance({
       id: "muzzle",
       kind: mouth,
       direction: "along",
-      frame: ArchetypeFrame.facing(v(0, bore, muzzle), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, bore, muzzle),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   }

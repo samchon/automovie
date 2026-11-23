@@ -1,23 +1,25 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedLimb } from "./QuadrupedLimb";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedLimb } from "./AutoMovieArchetypeQuadrupedLimb";
 
 /**
  * A fore limb's shoulder blade, turning in the sagittal plane about its upper third so the shoulder joint follows a planted hoof's reach.
  *
  * The scapula bar runs from its rotation centre, one third down the blade from its dorsal border, to the shoulder joint. At rest it is unturned, so every species' rest pose, tack and attachment stay as they were. In a stance the blade turns only as far as the hoof's reach requires, never beyond half the scapula's measured range of motion either way.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the bar, its centre, its rest and the only-as-needed turning law.
- * @evidence contracts/development/design.md#principled-representation A turn about the model X axis through the rotation centre moves the shoulder joint on an arc; the root-height bound and the least turn are closed forms on that arc.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owns the scapula's dimensions and arc; the root interval and the ride pose read it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No prismatic slide or stretched bone; the blade turns rigidly within the cited range.
  */
 export namespace QuadrupedScapula {
-  /** A fore limb, the limbs with a shoulder blade. */
-  export type Fore = Extract<QuadrupedBody.Limb, "leftFore" | "rightFore">;
+  /**
+   * A fore limb, the limbs with a shoulder blade.
+   */
+  export type Fore = Extract<
+    AutoMovieArchetypeQuadrupedBody.Limb,
+    "leftFore" | "rightFore"
+  >;
 
-  /** A shoulder blade's bone, between the trunk and the humerus. */
+  /**
+   * A shoulder blade's bone, between the trunk and the humerus.
+   */
   export type Bone = `${Fore}Scapula`;
 
   /** Each fore limb's shoulder blade, which is also the id of the part that draws it. */
@@ -40,11 +42,6 @@ export namespace QuadrupedScapula {
 
   /**
    * One shoulder blade at rest in model space, before the shared root translation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Both points in metres, model frame, root at zero.
-   * @evidence contracts/development/design.md#principled-representation The arc's centre and the shoulder joint fix its radius and rest direction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read from the actual neutral FK frames.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IJoint {
     /** The rotation centre. */
@@ -59,14 +56,6 @@ export namespace QuadrupedScapula {
    * @param glenoid The shoulder joint at rest, model space.
    * @param withers The height at the withers, metres.
    * @returns The bar's ends; `from` is the rotation centre, the blade's joint origin.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the ends and why the bar stops short of the joint.
-   * @evidence contracts/development/implementation.md#principled-implementation The centre lies two thirds of the blade's length up and back from the shoulder joint along the rest slope.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two points.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The shoulder joint itself never moves at rest.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns two points.
    */
   export function bar(glenoid: IAutoMovieVector3, withers: number): IBar {
     const reach: number = (1 - CENTRE) * LENGTH * withers;
@@ -88,11 +77,6 @@ export namespace QuadrupedScapula {
 
   /**
    * A drawn bar's two ends, model space.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres, model frame.
-   * @evidence contracts/development/design.md#principled-representation Two points.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the body's layout.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IBar {
     /** The upper end, the joint origin. */
@@ -107,14 +91,6 @@ export namespace QuadrupedScapula {
    * @param joint The blade at rest.
    * @param angle The turn, radians, right-handed about +X.
    * @returns The moved shoulder joint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frame and sign.
-   * @evidence contracts/development/implementation.md#principled-implementation A rigid rotation of the rest offset about the centre.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one point.
    */
   export function glenoid(joint: IJoint, angle: number): IAutoMovieVector3 {
     const y: number = joint.glenoid.y - joint.pivot.y;
@@ -136,19 +112,11 @@ export namespace QuadrupedScapula {
    * @param reach The limb's radial reach.
    * @param range The joint's range of motion, degrees, half of it either way; the scapula's when absent, a pelvis's for a hip (`QuadrupedPelvis`).
    * @returns The bound, metres; negative infinity when no turn reaches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bound and the unreachable case.
-   * @evidence contracts/development/implementation.md#principled-implementation Unturned, the bound is the goal height less the joint height plus the vertical leg of the planar reach. Over turns it is unimodal and peaks where the joint lies on the line from the lifted centre to the goal, the centre then at reach plus radius from the goal; the peak's turn is clamped to the range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Peak turn, clamp, one evaluation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No sampling of turns; nothing is padded.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function high(
     joint: IJoint,
     goal: IAutoMovieVector3,
-    reach: QuadrupedLimb.IRange,
+    reach: AutoMovieArchetypeQuadrupedLimb.IRange,
     range: number = RANGE,
   ): number {
     const planar: number = leg(reach.maximum, goal.x - joint.glenoid.x);
@@ -181,19 +149,11 @@ export namespace QuadrupedScapula {
    * @param margin The coordinate roundoff budget, metres: a turned joint is aimed this far inside the reach so the exact limb solve admits it.
    * @param range The joint's range of motion, degrees, half of it either way; the scapula's when absent.
    * @returns The turn, radians; zero when the rest joint already reaches.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the only-as-needed law.
-   * @evidence contracts/development/implementation.md#principled-implementation The joint lies on a circle about the lifted centre; it reaches where its angle to the goal's direction is within the law-of-cosines half-angle, so the least turn is the nearer end of that window, clamped to the range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Rest check, window, nearer end.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The root and the goal never move; the turn is exact.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function least(
     joint: IJoint,
     goal: IAutoMovieVector3,
-    reach: QuadrupedLimb.IRange,
+    reach: AutoMovieArchetypeQuadrupedLimb.IRange,
     height: number,
     margin: number,
     range: number = RANGE,

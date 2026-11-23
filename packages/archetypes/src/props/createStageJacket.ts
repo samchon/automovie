@@ -1,47 +1,49 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The bounds of authored coarse garment dimensions in metres. */
-const BANDS: Readonly<Record<createStageJacket.Dimension, IArchetypeBand>> = {
-  width: ArchetypeBand.metres(
+const BANDS: Readonly<
+  Record<createStageJacket.Dimension, IAutoMovieArchetypeBand>
+> = {
+  width: AutoMovieArchetypeBand.metres(
     0.36,
     0.6,
     "Coarse wardrobe prop across its torso",
     true,
   ),
-  depth: ArchetypeBand.metres(
+  depth: AutoMovieArchetypeBand.metres(
     0.24,
     0.42,
     "Coarse wardrobe prop around its torso",
     true,
   ),
-  length: ArchetypeBand.metres(
+  length: AutoMovieArchetypeBand.metres(
     0.45,
     0.69,
     "Coarse wardrobe prop along its back",
     true,
   ),
-  sleeveWidth: ArchetypeBand.metres(
+  sleeveWidth: AutoMovieArchetypeBand.metres(
     0.12,
     0.2,
     "Clear opening of a loose short sleeve",
     true,
   ),
-  sleeveLength: ArchetypeBand.metres(
+  sleeveLength: AutoMovieArchetypeBand.metres(
     0.04,
     0.08,
     "Coarse length of a short sleeve",
     true,
   ),
-  zipTravel: ArchetypeBand.metres(
+  zipTravel: AutoMovieArchetypeBand.metres(
     0.13,
     0.27,
     "Visible pull distance across the front of the stage garment",
@@ -62,10 +64,10 @@ const WALL: number = 0.012;
  *
  * @param params An optional identity and authored dimensions in metres.
  * @param seed Selects dimensions left unbound by the author.
- * @returns A model with separate hold, wear, sleeve, exit and closure contacts.
- * @throws {ArchetypeRefusal} When an authored dimension is outside its band.
+ * @returns A model with separate front and back collar holds, wear, sleeve, exit and closure contacts.
+ * @throws {AutoMovieArchetypeRefusal} When an authored dimension is outside its band.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names model origin, axes, actual empty sleeve passages, and zipper geometry.
+ * @evidence contracts/development/common.md#meaningful-documentation Names model origin, axes, empty sleeve passages, and zipper geometry.
  * @evidence contracts/development/implementation.md#principled-implementation Builds real wall parts around each sleeve opening and one driven closure that shares its pose with the pull grip.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve dimensions, draw the garment and sleeve walls, then record one articulation.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Empty sleeves use separate wall volumes. The actor's appearance model is independent.
@@ -76,9 +78,12 @@ const WALL: number = 0.012;
 export function createStageJacket(
   params: createStageJacket.IParams = {},
   seed?: number | string,
-): Archetype<createStageJacket.Affordance, createStageJacket.Dimension> {
-  const draw: ArchetypeDrawSession<createStageJacket.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createStageJacket.Affordance,
+  createStageJacket.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createStageJacket.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "stageJacket",
       {
         width: "m",
@@ -93,17 +98,17 @@ export function createStageJacket(
     );
   const d: Record<createStageJacket.Dimension, number> = draw.dimensions(BANDS);
   const v: typeof Vector3.create = Vector3.create;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStageJacket.Affordance,
     createStageJacket.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "short-sleeve stage jacket",
     material: "composite",
     draw,
   });
-  const cloth: ArchetypeBuilder.IOptions = { color: "#437b89" };
-  const seam: ArchetypeBuilder.IOptions = { color: "#30616e" };
+  const cloth: AutoMovieArchetypeBuilder.IOptions = { color: "#437b89" };
+  const seam: AutoMovieArchetypeBuilder.IOptions = { color: "#30616e" };
 
   // Separate back and front panels leave space for the body and a front opening.
   const half: number = d.width / 2;
@@ -164,7 +169,7 @@ export function createStageJacket(
     builder.affordance({
       id: side === "left" ? "leftSleeveOpening" : "rightSleeveOpening",
       kind: "aperture",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(at, 0, sleeveFront + d.sleeveWidth / 2),
         v(0, 0, -1),
         v(1, 0, 0),
@@ -176,7 +181,9 @@ export function createStageJacket(
     builder.affordance({
       id: side === "left" ? "leftSleeveExit" : "rightSleeveExit",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(at, -d.sleeveLength, sleeveFront)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(at, -d.sleeveLength, sleeveFront),
+      ),
       extent: null,
     });
   }
@@ -196,7 +203,7 @@ export function createStageJacket(
   builder.affordance({
     id: "zip",
     kind: "slider",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, zipY, zipZ + WALL),
       v(0, 0, 1),
       v(0, 1, 0),
@@ -215,9 +222,32 @@ export function createStageJacket(
   builder.affordance({
     id: "hold",
     kind: "handle",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, panelTop, front + 0.035),
       v(0, 0, 1),
+      v(1, 0, 0),
+    ),
+    aperture: 0.036,
+    length: 0.07,
+    grip: "power",
+    symmetry: "round",
+    extent: null,
+  });
+
+  // The same handle on the back panel's collar edge, for a dresser standing behind the wearer.
+  builder.rod(
+    "back-collar-stripe",
+    0.018,
+    v(-0.035, panelTop, -(back + 0.035)),
+    v(0.035, panelTop, -(back + 0.035)),
+    { color: "#e4a344" },
+  );
+  builder.affordance({
+    id: "backCollar",
+    kind: "handle",
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, panelTop, -(back + 0.035)),
+      v(0, 0, -1),
       v(1, 0, 0),
     ),
     aperture: 0.036,
@@ -229,7 +259,7 @@ export function createStageJacket(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
   return builder.build(0.46);
@@ -239,18 +269,19 @@ export function createStageJacket(
  * Authorable dimensions and declared contact identities.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names metre dimensions and stable in-model contact ids.
- * @evidence contracts/development/design.md#principled-representation The closed union names the actual apertures, grip, wear site and slider.
+ * @evidence contracts/development/design.md#principled-representation The closed union names the apertures, grip, wear site and slider.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Choices apply only to the coarse jacket geometry.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The wearer is a separate model with an independently resolved skeleton.
  */
 export namespace createStageJacket {
-  /** Distinct sleeve opening/exit sites and the two custody and closure contacts. */
+  /** Distinct sleeve opening/exit sites, the front collar hold, the back collar hold a dresser behind the wearer takes, the wear site and the zip. */
   export type Affordance =
     | "leftSleeveOpening"
     | "leftSleeveExit"
     | "rightSleeveOpening"
     | "rightSleeveExit"
     | "hold"
+    | "backCollar"
     | "wear"
     | "zip";
 

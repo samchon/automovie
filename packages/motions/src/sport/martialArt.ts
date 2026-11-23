@@ -106,9 +106,9 @@ export namespace martialArt {
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
       body.measure;
     const count: number = p.count ?? 4;
-    const hold: number = p.seconds ?? 1;
+    const hold: number = p.hold ?? 1;
     HumanBound.whole("count", count);
-    HumanBound.least("seconds", hold, 0, "s");
+    HumanBound.least("hold", hold, 0, "s");
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     if (

@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { ClubBuild } from "./ClubBuild";
 import type { createClub } from "./createClub";
 
@@ -11,7 +11,7 @@ import type { createClub } from "./createClub";
  * @param params The identifier, existing display profile and any free dimensions set within their bands.
  * @param seed The seed selects an unspecified profile and draws free dimensions. Without a seed, it uses the first profile and band midpoints.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Build the retained straight display shaft and its two named frames in model space.
@@ -24,7 +24,10 @@ import type { createClub } from "./createClub";
 export function createPracticeBaton(
   params: createPracticeBaton.IParams = {},
   seed?: number | string,
-): Archetype<createPracticeBaton.Affordance, createPracticeBaton.Dimension> {
+): AutoMovieArchetype<
+  createPracticeBaton.Affordance,
+  createPracticeBaton.Dimension
+> {
   const { builder, d }: ReturnType<typeof ClubBuild.draw> = ClubBuild.draw(
     "baton",
     params,

@@ -36,11 +36,6 @@ import { poseBones } from "../posture/poseBones";
  *
  * Whether the hand holds the prop is the entry state's fact
  * (`IHumanEntryState.holds`), never a judgment from how near it lies.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read, when, in which frame, why it stays constant and where the fact of holding comes from.
- * @evidence contracts/development/design.md#principled-representation A held thing is a rigid offset in the hand's frame (inverse(hand) times object, captured once), the parent constraint of the motion skill's held-object rule.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The held record, its reading, the record a candidate grip would hold, a declared point and direction in the hand's frame, and the grip window and hold that keep the prop held; read by the hand-to-face and striking families, which add their own effector and tool on top.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No prop kind is named: points are the prop's own affordance ids, and a missing one is refused with the ids the prop has.
  */
 export namespace AutoMovieMotionHumanHeld {
   /**
@@ -51,14 +46,6 @@ export namespace AutoMovieMotionHumanHeld {
    * @param prop The prop's subject id.
    * @returns The prop in the hand's grip frame.
    * @throws {HumanRefusal} An `affordance` refusal when that hand does not hold that prop at the entry, naming what it holds; a `participant` refusal on `side` when the body has no bone for that hand, naming the hands it has.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input, the result's frame and the two refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The prop's displayed frame at the entry second taken into the displayed hand's grip frame (inverse(hand) times prop), the offset the performance itself keeps while the grip holds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The fact of holding, then one change of frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A prop that is not in the hand is refused instead of being carried from where it lies.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One entry FK admits all authored joints and computes only HumanHand.frameBones' actual grip-frame dependencies; unrelated world frames are omitted.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Called once per plan.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
@@ -142,14 +129,6 @@ export namespace AutoMovieMotionHumanHeld {
    * @param affordances The prop's contacts, in its own frame.
    * @param wrist The candidate hand's wrist, world.
    * @returns The prop in that hand's grip frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is read and in which frame.
-   * @evidence contracts/development/implementation.md#principled-implementation The same change of frame as `of` (inverse(hand) times prop, from the grip socket), with the grip socket the candidate wrist puts at its hand's offset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One grip socket and one change of frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Holding is not asserted: the record is what the grip would hold.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The held record `point` and the tool reading (`StrikingHeld.read`) take, so a grasp's use is judged on the frame the hold will keep.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function grasped(
     body: IAutoMovieMotionHumanBody,
@@ -190,14 +169,6 @@ export namespace AutoMovieMotionHumanHeld {
    * @param id The affordance's id.
    * @returns Its point from the grip socket, metres, and the unit direction its `+Y` runs, both in the hand bone's axes.
    * @throws {HumanRefusal} An `affordance` refusal when the prop declares no such contact, listing the ones it has.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the two results with their frame and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation An affordance's translation is its point and its rotated `+Y` its outward direction, the affordance record's own convention, each carried by the held frame's rigid transform.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one rigid transform.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing contact is refused, never replaced by the prop's origin.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the prop's few contacts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function point(
     held: IAutoMovieMotionHumanHeld.IHeld,
@@ -239,14 +210,6 @@ export namespace AutoMovieMotionHumanHeld {
    *
    * @param held The held prop.
    * @returns The contact window.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the window does.
-   * @evidence contracts/development/implementation.md#principled-implementation A held hand may be driven only by an action that declares a grip on its prop, the performance's rule; the window spans the action, so the prop never leaves the hand in it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its input.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function grip(held: IAutoMovieMotionHumanHeld.IHeld): IAutoMovieMotionHumanContactWindow {
     return {
@@ -266,14 +229,6 @@ export namespace AutoMovieMotionHumanHeld {
    * @param context The action's context.
    * @param held The held prop.
    * @returns The hold for the plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is left held and with which fingers.
-   * @evidence contracts/development/implementation.md#principled-implementation The action's grip window ends the earlier hold, so it leaves a hold of its own from its start; the fingers are the displayed ones, which the grip closed until contact.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The fingers are read from the entry pose, never closed again, so the hand does not re-seat what it holds.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One scan of the entry pose's joints.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrip.fingers`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function hold(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,

@@ -1,3 +1,4 @@
+export * from "./abductionRange";
 export * from "./clampJointRom";
 export * from "./clampJointToSkeleton";
 export * from "./clampPose";

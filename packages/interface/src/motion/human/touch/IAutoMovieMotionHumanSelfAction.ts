@@ -30,29 +30,17 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * (unverified); every other time and size is provisional.
  *
  * Events: the phrase instants.
- *
- * @evidence contracts/development/common.md#meaningful-documentation side: The arm of a fist pump; `right` when absent. count: Pumps or rolls; 3 for a pump, 2 for a roll when absent.
- * @evidence contracts/development/design.md#principled-representation side: The arm of a fist pump; `right` when absent. count: Pumps or rolls; 3 for a pump, 2 for a roll when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.selfAction, params); touch/selfAction.ts (selfAction.plan, context); touch/selfAction.ts (selfAction.plan); executable/cases/selfCases.ts (selfCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanSelfAction {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The action by name, the hand of a one-arm action and the repetitions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed kind union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The action. */
     kind: IAutoMovieMotionHumanSelfAction.Kind;
 
     /** The arm of a fist pump; `right` when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** Pumps or rolls; 3 for a pump, 2 for a roll when absent. */
     count?: number;
@@ -63,11 +51,6 @@ export namespace IAutoMovieMotionHumanSelfAction {
 
   /**
    * Capture cases of the self-directed body actions (#3285) on one polygon man standing from quiet standing. The actions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Capture cases of the self-directed body actions (#3285) on one polygon man standing from quiet standing. The actions.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "stretch", "victory", "fistPump", "neckRoll", "shoulderRoll" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: executable/cases/selfCases.ts (selfCases); touch/selfAction.ts (selfAction.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in selfCases.
    */
   export type Kind =
     | "stretch"

@@ -1,9 +1,15 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
 import type { createCareItem } from "./createCareItem";
 
 /** A provisional mass band in kilograms. */
-const kg = (minimum: number, maximum: number): IArchetypeBand =>
-  ArchetypeBand.of("kg", minimum, maximum, ArchetypeBand.TYPICAL_MASS, true);
+const kg = (minimum: number, maximum: number): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.of(
+    "kg",
+    minimum,
+    maximum,
+    AutoMovieArchetypeBand.TYPICAL_MASS,
+    true,
+  );
 
 /** A facial tissue sheet, from distributor listings. */
 const TISSUE: string =
@@ -24,9 +30,9 @@ const LIPSTICK: string =
 /** The band of each free dimension of `createCareItem`, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. */
 export const CARE_ITEM_BANDS: typeof createCareItem.BANDS = {
   tissue: {
-    length: ArchetypeBand.metres(0.198, 0.21, TISSUE, true),
-    width: ArchetypeBand.metres(0.203, 0.213, TISSUE, true),
-    thickness: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(0.198, 0.21, TISSUE, true),
+    width: AutoMovieArchetypeBand.metres(0.203, 0.213, TISSUE, true),
+    thickness: AutoMovieArchetypeBand.metres(
       0.0005,
       0.0005,
       "a soft two-ply sheet, not read at a source",
@@ -35,9 +41,9 @@ export const CARE_ITEM_BANDS: typeof createCareItem.BANDS = {
     mass: kg(0.001, 0.002),
   },
   comb: {
-    length: ArchetypeBand.metres(0.112, 0.154, COMB, true),
-    width: ArchetypeBand.metres(0.025, 0.027, COMB, true),
-    thickness: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(0.112, 0.154, COMB, true),
+    width: AutoMovieArchetypeBand.metres(0.025, 0.027, COMB, true),
+    thickness: AutoMovieArchetypeBand.metres(
       0.003,
       0.004,
       "comb spine thickness, not read at a source",
@@ -46,15 +52,15 @@ export const CARE_ITEM_BANDS: typeof createCareItem.BANDS = {
     mass: kg(0.01, 0.02),
   },
   toothbrush: {
-    length: ArchetypeBand.metres(0.18, 0.197, BRUSH, true),
-    width: ArchetypeBand.metres(0.011, 0.011, BRUSH, true),
+    length: AutoMovieArchetypeBand.metres(0.18, 0.197, BRUSH, true),
+    width: AutoMovieArchetypeBand.metres(0.011, 0.011, BRUSH, true),
     mass: kg(0.015, 0.025),
   },
   tube: {
     mass: kg(0.02, 0.3),
   },
   razor: {
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       0.012,
       0.016,
       "the handle's diameter; the razors' pages read do not give it",
@@ -62,8 +68,8 @@ export const CARE_ITEM_BANDS: typeof createCareItem.BANDS = {
     ),
   },
   lipstick: {
-    length: ArchetypeBand.metres(0.074, 0.074, LIPSTICK),
-    width: ArchetypeBand.metres(0.021, 0.021, LIPSTICK),
+    length: AutoMovieArchetypeBand.metres(0.074, 0.074, LIPSTICK),
+    width: AutoMovieArchetypeBand.metres(0.021, 0.021, LIPSTICK),
     mass: kg(0.01, 0.03),
   },
 };

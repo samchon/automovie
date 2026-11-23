@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { ADA_RANGES } from "./ADA_RANGES";
 
@@ -41,7 +41,7 @@ const ESTIMATES: Readonly<{ wall: number; leaf: number; across: number }> = {
  * @param params The car's and the door's heights and any dimension the author fixes.
  * @param seed The seed that draws each height not given and every dimension left free inside its band; absent, the least heights and the middle of each band.
  * @returns The lift car.
- * @throws {ArchetypeRefusal} For a car height the guide does not list, a door height it does not list or one not below the car's, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a car height the guide does not list, a door height it does not list or one not below the car's, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, how the doors open, the static use with its missing law, and why no button is declared.
  * @evidence contracts/development/implementation.md#principled-implementation The inside sizes of ADA Table 407.4.1's centred row, one of the KONE guide's car heights and one of its door heights below it; each leaf half the clear width, sliding that far.
@@ -54,9 +54,9 @@ const ESTIMATES: Readonly<{ wall: number; leaf: number; across: number }> = {
 export function createElevator(
   params: createElevator.IParams = {},
   seed?: number | string,
-): Archetype<createElevator.Affordance, createElevator.Dimension> {
-  const draw: ArchetypeDrawSession<createElevator.Dimension> =
-    new ArchetypeDrawSession<createElevator.Dimension>(
+): AutoMovieArchetype<createElevator.Affordance, createElevator.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createElevator.Dimension> =
+    new AutoMovieArchetypeDrawSession<createElevator.Dimension>(
       "elevator",
       createElevator.UNITS,
       seed,
@@ -93,10 +93,10 @@ export function createElevator(
     Exclude<createElevator.Dimension, "height" | "doorHeight">,
     number
   > = draw.dimensions(createElevator.BANDS);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createElevator.Affordance,
     createElevator.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `lift car ${car.name} mm, door ${door.name} mm`,
@@ -171,7 +171,7 @@ export function createElevator(
     builder.affordance({
       id,
       kind: "slider",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(x, doorHeight / 2, E.leaf),
         v(0, 0, 1),
         v(sign, 0, 0),
@@ -192,7 +192,7 @@ export function createElevator(
   builder.affordance({
     id: "call",
     kind: "button",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(across, d.callHeight, station + STATION.depth / 2),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -202,7 +202,7 @@ export function createElevator(
   builder.affordance({
     id: "entrance",
     kind: "aperture",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width: clear,
     height: doorHeight,
@@ -210,7 +210,7 @@ export function createElevator(
   builder.affordance({
     id: "floor",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, 0, middle)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, middle)),
     extent: null,
     width,
     depth: d.depth,
@@ -264,7 +264,9 @@ export namespace createElevator {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     returnDepth: "m",
@@ -314,17 +316,23 @@ export namespace createElevator {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "height" | "doorHeight">, IArchetypeBand>
+    Record<Exclude<Dimension, "height" | "doorHeight">, IAutoMovieArchetypeBand>
   > = {
-    width: ArchetypeBand.metres(2.03, 2.03, ADA),
-    depth: ArchetypeBand.metres(1.37, 1.37, ADA),
-    returnDepth: ArchetypeBand.metres(1.295, 1.295, ADA),
-    door: ArchetypeBand.metres(1.049, 1.065, ADA),
-    callHeight: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(2.03, 2.03, ADA),
+    depth: AutoMovieArchetypeBand.metres(1.37, 1.37, ADA),
+    returnDepth: AutoMovieArchetypeBand.metres(1.295, 1.295, ADA),
+    door: AutoMovieArchetypeBand.metres(1.049, 1.065, ADA),
+    callHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.reach.low,
       ADA_RANGES.reach.high,
       CALL,
     ),
-    mass: ArchetypeBand.of("kg", 500, 1000, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      500,
+      1000,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

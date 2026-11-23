@@ -18,12 +18,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * The ball arm's way around the body.
  *
  * The windup carries the hand from where it held the prop to the chamber.
- * A straight line between them may pass through the trunk (a rod held
- * across the body drawn back over the throwing shoulder), so when the line
- * comes nearer the chest than its half breadth and the forearm's and hand's
- * own thickness (twice the forearm's radius), the hand is
- * carried on a quadratic curve through the point that clearance away from
- * the chest, on the side the line passes.
+ * A straight line between them may pass through the trunk or the head (a rod
+ * held across the body drawn back over the throwing shoulder), so when the
+ * line comes nearer the upright column of the trunk and head, measured across
+ * the floor from the chest up to the crown, than the chest's half breadth and
+ * the forearm's and hand's own thickness (twice the forearm's radius), the
+ * hand is carried on a quadratic curve through the point that clearance away
+ * from the chest's axis at the line's height there, around the front of the
+ * body: the side the line passes when it passes ahead of the axis, turning
+ * to straight ahead as the line nears the axis.
  *
  * An underarm bowl swings nearly straight in the plane of the delivery, so
  * its elbow names no side of the line from the shoulder to the wrist and
@@ -79,9 +82,9 @@ export namespace throwObjectSwing {
    * @returns The windup and elbow writers.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the writers.
-   * @evidence contracts/development/implementation.md#principled-implementation The line's nearest approach to the chest decides the detour; the curve passes the clearance point at its middle. The olecranon is the arm's direction crossed with the heading's right.
+   * @evidence contracts/development/implementation.md#principled-implementation The line's nearest approach across the floor to the column of the trunk and head decides the detour; the curve passes the clearance point at its middle, around the front, its side continuous in the line. The olecranon is the arm's direction crossed with the heading's right.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two writers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A line clear of the chest is kept straight; only the bowl's elbow is placed.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A line clear of the trunk and head's column is kept straight; only the bowl's elbow is placed.
    * @evidence contracts/development/implementation.md#efficient-algorithms One chest FK a windup sample, one shoulder FK a bowl sample.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The shared elbow placement and the pose reader.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the body, side and style.
@@ -108,31 +111,64 @@ export namespace throwObjectSwing {
           undefined,
           new Set<AutoMovieHumanoidBone>(["chest"]),
         ).get("chest")!.worldPosition;
+
+        // The trunk and the head above it stand as one upright column about
+        // the chest, up to the crown and the hand's clearance over it: the
+        // line's nearest approach to it is measured across the floor, so a
+        // line drawn over the chest, through the face, is caught as one
+        // through the trunk is.
         const line: IAutoMovieVector3 = Vector3.subtract(to, from);
-        const span: number = Vector3.dot(line, line);
+        const flat: IAutoMovieVector3 = { x: line.x, y: 0, z: line.z };
+        const span: number = Vector3.dot(flat, flat);
         const s: number =
           span > 1e-12
             ? Math.min(
                 1,
                 Math.max(
                   0,
-                  Vector3.dot(Vector3.subtract(chest, from), line) / span,
+                  Vector3.dot(Vector3.subtract(chest, from), flat) / span,
                 ),
               )
             : 0;
-        const away: IAutoMovieVector3 = Vector3.subtract(
-          Vector3.add(from, Vector3.scale(line, s)),
-          chest,
+        const nearest: IAutoMovieVector3 = Vector3.add(
+          from,
+          Vector3.scale(line, s),
         );
-        if (Vector3.length(away) >= radius) return Vector3.lerp(from, to, u);
-        const out: IAutoMovieVector3 =
-          Vector3.length(away) > 1e-9
-            ? Vector3.normalize(away)
-            : { x: 0, y: 1, z: 0 };
-        const clear: IAutoMovieVector3 = Vector3.add(
-          chest,
-          Vector3.scale(out, radius),
+        const away: IAutoMovieVector3 = {
+          x: nearest.x - chest.x,
+          y: 0,
+          z: nearest.z - chest.z,
+        };
+        const crown: number =
+          chest.y +
+          body.measure.stature -
+          body.measure.chestHeight +
+          2 * body.measure.forearmRadius;
+        const depth: number = radius - Vector3.length(away);
+        if (depth <= 0 || nearest.y > crown) return Vector3.lerp(from, to, u);
+
+        // The detour leaves the column across the floor, at the height the
+        // line has there, around the front: an arm carries its hand past the
+        // face, never behind the head. A line passing behind the axis is
+        // mirrored to the front, and the heading is added by how deep the
+        // line enters, so the side turns continuously to straight ahead as
+        // the line nears the axis.
+        const ahead: IAutoMovieVector3 = HumanFrame.point(
+          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+          { x: 0, y: 0, z: 1 },
         );
+        const behind: number = Math.min(0, Vector3.dot(away, ahead));
+        const out: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.add(
+            Vector3.subtract(away, Vector3.scale(ahead, 2 * behind)),
+            Vector3.scale(ahead, depth),
+          ),
+        );
+        const clear: IAutoMovieVector3 = {
+          x: chest.x + out.x * radius,
+          y: nearest.y,
+          z: chest.z + out.z * radius,
+        };
         // A quadratic through `clear` at its middle.
         const control: IAutoMovieVector3 = Vector3.subtract(
           Vector3.scale(clear, 2),

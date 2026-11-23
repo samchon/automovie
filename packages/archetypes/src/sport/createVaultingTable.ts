@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The table's size, from a secondary summary of the apparatus norms. */
@@ -22,7 +22,7 @@ const NORMS: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The table.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the table stands and the contact.
  * @evidence contracts/development/implementation.md#principled-implementation A top block of the drawn length and width whose top stands at the drawn height, on a column and a base plate; the top is the contact.
@@ -35,9 +35,12 @@ const NORMS: string =
 export function createVaultingTable(
   params: createVaultingTable.IParams,
   seed?: number | string,
-): Archetype<createVaultingTable.Affordance, createVaultingTable.Dimension> {
-  const draw: ArchetypeDrawSession<createVaultingTable.Dimension> =
-    new ArchetypeDrawSession<createVaultingTable.Dimension>(
+): AutoMovieArchetype<
+  createVaultingTable.Affordance,
+  createVaultingTable.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createVaultingTable.Dimension> =
+    new AutoMovieArchetypeDrawSession<createVaultingTable.Dimension>(
       "vaultingTable",
       createVaultingTable.UNITS,
       seed,
@@ -52,10 +55,10 @@ export function createVaultingTable(
   const d: Record<createVaultingTable.Dimension, number> = draw.dimensions(
     createVaultingTable.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createVaultingTable.Affordance,
     createVaultingTable.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "vaulting table",
@@ -81,7 +84,7 @@ export function createVaultingTable(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, 0)),
     extent: null,
     width: d.width,
     depth: d.length,
@@ -127,7 +130,9 @@ export namespace createVaultingTable {
   export type Dimension = "height" | "length" | "width" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     length: "m",
     width: "m",
@@ -144,27 +149,31 @@ export namespace createVaultingTable {
   }
 
   /** The bands every table shares. */
-  const SHARED: Readonly<Record<"length" | "width" | "mass", IArchetypeBand>> =
-    {
-      length: ArchetypeBand.metres(1.19, 1.21, NORMS, true),
-      width: ArchetypeBand.metres(0.89, 0.91, NORMS, true),
-      mass: ArchetypeBand.of(
-        "kg",
-        80,
-        120,
-        "an estimate of a steel-based competition table; no maker's figure was read",
-        true,
-      ),
-    };
+  const SHARED: Readonly<
+    Record<"length" | "width" | "mass", IAutoMovieArchetypeBand>
+  > = {
+    length: AutoMovieArchetypeBand.metres(1.19, 1.21, NORMS, true),
+    width: AutoMovieArchetypeBand.metres(0.89, 0.91, NORMS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      80,
+      120,
+      "an estimate of a steel-based competition table; no maker's figure was read",
+      true,
+    ),
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
-    men: { ...SHARED, height: ArchetypeBand.metres(1.34, 1.36, NORMS, true) },
+    men: {
+      ...SHARED,
+      height: AutoMovieArchetypeBand.metres(1.34, 1.36, NORMS, true),
+    },
     women: {
       ...SHARED,
-      height: ArchetypeBand.metres(1.24, 1.26, NORMS, true),
+      height: AutoMovieArchetypeBand.metres(1.24, 1.26, NORMS, true),
     },
   };
 }

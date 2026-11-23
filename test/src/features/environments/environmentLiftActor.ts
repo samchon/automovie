@@ -16,10 +16,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
+  AutoMovieMotionHumanSupport,
   HumanChain,
   HumanPerformance,
-  stand,
-  supportTransfer,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -32,6 +32,7 @@ export function environmentLiftActor(input: {
   environment: IAutoMovieEnvironment;
   id: string;
   lift: ReturnType<typeof createLift>;
+  schedule: readonly createLift.IKey[];
   node?: string;
 }): { film: HumanPerformance; actor: IAutoMovieStageActor } {
   const { environment, id, lift } = input;
@@ -101,9 +102,9 @@ export function environmentLiftActor(input: {
   const node: string = input.node ?? "lift-rider";
   const walkAcross: IAutoMovieMotionHumanActionLaw<Crossing> = {
     name: "liftDockTransfer",
-    interrupts: stand.interrupts,
+    interrupts: AutoMovieMotionHumanStance.stand.interrupts,
     plan: (context) =>
-      supportTransfer({
+      AutoMovieMotionHumanSupport.supportTransfer({
         ...context,
         params: lift.transfer({
           ...context.params,
@@ -112,16 +113,24 @@ export function environmentLiftActor(input: {
         }),
       }),
   };
-  const exitFrom: number = 7.1;
+  // The rider waits in the cab until the lift's schedule has it docked at the
+  // upper stop with its doors open.
+  const opened: createLift.IKey | undefined = input.schedule.find(
+    (key: createLift.IKey): boolean =>
+      key.stop === "upper" && key.doors === "open",
+  );
+  if (opened === undefined)
+    throw new Error(`The lift ${id} never opens at its upper stop.`);
+  const exitFrom: number = opened.seconds;
   const wait: IAutoMovieMotionHumanActionLaw = {
     name: "liftCabWait",
-    interrupts: stand.interrupts,
+    interrupts: AutoMovieMotionHumanStance.stand.interrupts,
     plan: (context) =>
-      stand.plan({
+      AutoMovieMotionHumanStance.stand.plan({
         ...context,
         params: {
           sway: 0,
-          seconds: exitFrom - context.start,
+          hold: exitFrom - context.start,
           on: { prop: cab },
         },
       }),
@@ -166,13 +175,13 @@ export function environmentLiftActor(input: {
       },
     ],
     composition: HumanChain.subject(node)
-      .stand({ seconds: 1.1, sway: 0, on: { prop: lowerPad } })
+      .stand({ hold: 1.1, sway: 0, on: { prop: lowerPad } })
       .over((onPad) =>
         onPad.touch({
           target: { kind: "prop", subject: call, point: "call" },
           kind: "press",
-          side: "right",
-          with: "palm",
+          hand: "right",
+          effector: "palm",
           hold: 0.02,
         }),
       )
@@ -185,7 +194,7 @@ export function environmentLiftActor(input: {
       })
       .registered(wait.name)
       .registered(walkAcross.name, exit)
-      .stand({ seconds: 0.9, sway: 0, on: { prop: upperPad } }).node,
+      .stand({ hold: 0.9, sway: 0, on: { prop: upperPad } }).node,
   });
   return { film, actor: { node, position: at, facingDeg: yaw + 180 } };
 }

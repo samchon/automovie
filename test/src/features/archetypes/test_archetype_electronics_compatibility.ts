@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
   createCamera,
   createDesktopKeyboard,
   createDevice,
@@ -68,8 +68,8 @@ export function test_archetype_electronics_compatibility(): void {
       produce === byFamily,
     );
     for (const seed of [0, "device-parity"]) {
-      const named: Archetype<string, string> = produce({}, seed);
-      const saved: Archetype<string, string> =
+      const named: AutoMovieArchetype<string, string> = produce({}, seed);
+      const saved: AutoMovieArchetype<string, string> =
         kind === "keyboard" || kind === "laptop"
           ? createKeyboard({ kind }, seed)
           : createDevice({ kind }, seed);
@@ -163,7 +163,7 @@ export function test_archetype_electronics_compatibility(): void {
     try {
       legacy();
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal;
+      refused = error instanceof AutoMovieArchetypeRefusal;
     }
     TestValidator.predicate("a stored recipe requires its kind", refused);
   }

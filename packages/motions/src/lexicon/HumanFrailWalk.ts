@@ -34,6 +34,9 @@ import { HumanBound } from "../law/HumanBound";
  *   lengthen their double support (Winter et al. 1990).
  * - Toe clearance: the least clearance of the swinging foot falls to
  *   `CLEARANCE` metres, the low end of older adults' (Begg et al. 2007).
+ * - Turning in place: each step turns by the same share of a hip's usable
+ *   twist as the step keeps of its length, so a frail half turn takes more,
+ *   shorter steps (provisional: the shortened step carried to the turn).
  *
  * The values are provisional where marked.
  *
@@ -104,6 +107,7 @@ export namespace HumanFrailWalk {
           width: toward(walkSteps.WIDTH, WIDTH),
           swing: toward(base.swing, SWING),
           toeClearance: toward(walkFoot.CLEARANCE, CLEARANCE),
+          turn: step,
         };
         const params: IAutoMovieMotionHumanWalkParams = {
           to: context.params.to,

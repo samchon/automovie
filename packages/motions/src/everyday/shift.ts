@@ -60,7 +60,12 @@ export namespace shift {
   /** Cancel table: after setting down a shift may continue sitting. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     rise: [
-      { window: ["seatContact", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["seatContact", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     shift: [{ window: ["seatContact", 1], kind: "inertialize", entry: 0 }],
   };
@@ -113,7 +118,7 @@ export namespace shift {
       { x: context.params.by, y: 0, z: 0 },
     );
     const slide: number = 0.6 + Math.abs(context.params.by);
-    const duration: number = slide + (context.params.seconds ?? 0.5);
+    const duration: number = slide + (context.params.hold ?? 0.5);
     const feet: Record<"left" | "right", IAutoMovieVector3> = stand.feet(
       body,
       context.entry,
@@ -169,15 +174,21 @@ export namespace shift {
       mode: "posture",
       prepare: (): void => {
         // A world digit goal can change the flat hand's local articulation.
-        palms = entry.digits === undefined ? prepareSeatedPalms(body, entry) : undefined;
+        palms =
+          entry.digits === undefined
+            ? prepareSeatedPalms(body, entry)
+            : undefined;
       },
       phases: bounds.slice(0, -1).map((from, index) => ({
         from,
         to: bounds[index + 1]!,
         sample: (seconds, channels, resolution, projection) =>
-          palms !== undefined && entry.digits === undefined &&
+          palms !== undefined &&
+          entry.digits === undefined &&
           prepareHumanPoseResolution.isNativeSource(resolution)
-            ? { posture: read(seconds, channels, resolution, projection, palms) }
+            ? {
+                posture: read(seconds, channels, resolution, projection, palms),
+              }
             : undefined,
       })),
     });
@@ -204,7 +215,14 @@ export namespace shift {
         root,
         limbs: legged(root, feet),
       };
-      return seatedHands.arms(body, posture, 1, resolution, projection, prepared);
+      return seatedHands.arms(
+        body,
+        posture,
+        1,
+        resolution,
+        projection,
+        prepared,
+      );
     }
   }
 }

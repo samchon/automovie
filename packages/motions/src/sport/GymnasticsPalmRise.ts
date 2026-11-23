@@ -15,6 +15,9 @@ const WRIST: number = -DEFAULT_HUMANOID_ROM.leftHand!.flexion!.min;
 /** The knuckles' hyperextension limit, degrees (`DEFAULT_HUMANOID_ROM`, the fingers' proximal joints). */
 const KNUCKLE: number = -DEFAULT_HUMANOID_ROM.leftIndexProximal!.flexion!.min;
 
+/** The thumb's interphalangeal extension limit, degrees (`DEFAULT_HUMANOID_ROM`). */
+const THUMB_IP: number = -DEFAULT_HUMANOID_ROM.leftThumbDistal!.flexion!.min;
+
 /** Degrees the wrist is kept inside its limit. */
 const MARGIN: number = 5;
 
@@ -103,6 +106,14 @@ export namespace GymnasticsPalmRise {
         0,
         0,
       ];
+    // The thumb's tip lies ahead of the knuckle line too; its only joint
+    // that extends is the interphalangeal, which takes back what of the rise
+    // its range allows.
+    joints[`${side}ThumbDistal` as AutoMovieHumanoidBone] = [
+      -Math.min(rise, THUMB_IP),
+      0,
+      0,
+    ];
     return {
       goal: {
         ...goal,

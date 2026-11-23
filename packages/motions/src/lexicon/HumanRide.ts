@@ -6,7 +6,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -30,6 +29,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HeldRideArms } from "./HeldRideArms";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
+import { RideRestingHands } from "./RideRestingHands";
 import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { placeRideFeet } from "./placeRideFeet";
 import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
@@ -66,6 +66,9 @@ export namespace HumanRide {
   /** Seconds a hand takes to reach the point it is to hold (provisional). */
   export const TAKE: number = 0.6;
 
+  /** The sole socket a foot bears on its rest by: the ball, which the seat places on the tread. */
+  const BALL: IAutoMovieMotionHumanContactWindow.Socket = "ball";
+
   /** How far a rising trot lifts the seat off the saddle, thigh lengths (provisional: no rider kinematics were read). */
   export const POST: number = 0.25;
 
@@ -86,10 +89,10 @@ export namespace HumanRide {
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
     ): WorkingSeatRidePlan.IPlan => {
-      const { on, seconds }: IAutoMovieMotionHumanRide.IParams = context.params;
-      HumanBound.above("seconds", seconds, 0, "s");
+      const { on, duration: seconds }: IAutoMovieMotionHumanRide.IParams = context.params;
+      HumanBound.above("duration", seconds, 0, "s");
       const placeFeet: boolean = context.params.placeFeet === true;
-      if (placeFeet) HumanBound.least("seconds", seconds, TAKE, "s");
+      if (placeFeet) HumanBound.least("duration", seconds, TAKE, "s");
 
       // Any seated entry rides: straight from sitting down, from another ride, or from an act taken seated, which keeps the seated base.
       const entered: IAutoMovieMotionHumanBase = context.entry.base;
@@ -116,6 +119,7 @@ export namespace HumanRide {
         from: 0,
         to: 1,
         support: { kind: "prop", subject: on },
+        ...(kind === "plant" ? { socket: BALL } : {}),
       });
 
       // A rising trot stands in the stirrups, so it needs both.
@@ -155,27 +159,36 @@ export namespace HumanRide {
       }
 
       // A foot that hung when the ride began keeps hanging. A foot on a
-      // turning pedal (a `pedal` contact) bears on it: the contact model
-      // names no moving part's frame for a plant to be read in, and in the
-      // bicycle's frame the pedal's own turn reads as the foot slipping. A
-      // foot in a stirrup or on a fixed rest stays planted on it.
+      // part the support moves within itself (a pedal on its crank, a
+      // stirrup on a trotting horse: a point the prop places) is planted on
+      // that point, whose frame moves with it, so the part's own motion
+      // does not read as the foot slipping. A foot on a fixed rest stays
+      // planted on the support.
       const { pedals, placed }: placeRideFeet.ISupports =
         placeRideFeet.supports(context, support);
-      const turning = (side: AutoMovieHumanSide): boolean =>
-        pedals.some(
-          (pedal: (typeof pedals)[number]): boolean =>
-            pedal.side === side &&
-            support.prop.affordances?.find(
-              (item: IAutoMovieAffordance): boolean => item.id === pedal.id,
-            )?.kind === "pedal",
+      const turning = (
+        side: AutoMovieHumanSide,
+      ): (typeof pedals)[number] | undefined =>
+        pedals.find(
+          (pedal: (typeof pedals)[number]): boolean => pedal.side === side,
         );
       const contacts: IAutoMovieMotionHumanContactWindow[] = [...kept.contacts];
-      for (const side of ["left", "right"] as const)
+      for (const side of ["left", "right"] as const) {
         if (
-          context.entry.feet[side].planted &&
-          (!placeFeet || context.params.feet?.[side] === undefined)
+          !context.entry.feet[side].planted ||
+          (placeFeet && context.params.feet?.[side] !== undefined)
         )
-          contacts.push(bears(`${side}Foot`, turning(side) ? "bear" : "plant"));
+          continue;
+        const pedal: (typeof pedals)[number] | undefined = turning(side);
+        contacts.push(
+          pedal === undefined
+            ? bears(`${side}Foot`, "plant")
+            : {
+                ...bears(`${side}Foot`, "plant"),
+                support: { kind: "prop", subject: on, point: pedal.id },
+              },
+        );
+      }
       const post: number = POST * context.body.measure.thigh;
 
       // How far through a stride a second of the ride is, 0 to 1; none outside the strides of a cue track.
@@ -227,6 +240,19 @@ export namespace HumanRide {
           : support.prop.point?.(saddle, context.start)?.point;
       const equestrian: ReturnType<typeof prepareHumanEquestrianRide> =
         prepareHumanEquestrianRide(context, origin, sat);
+      // An arm that takes no grip of the ride keeps where its entry displays it, resting or holding a prop; an articulation bends and tips the trunk over the pelvis, so there it rides the pelvis (`RideRestingHands`).
+      const rests: RideRestingHands.Rests =
+        equestrian === undefined
+          ? {}
+          : RideRestingHands.of(
+              context.body,
+              seated,
+              context.entry.pose,
+              (["left", "right"] as const).filter(
+                (side: AutoMovieHumanSide): boolean =>
+                  context.params.hands?.[side] === undefined,
+              ),
+            );
       if (equestrian?.offSeat !== undefined) {
         const [lift, settle]: readonly [number, number] = equestrian.offSeat;
         contacts.unshift(
@@ -347,6 +373,11 @@ export namespace HumanRide {
           roll: tipped.roll,
         };
         equestrian?.at(film - context.start, out, now, seat, up);
+        for (const [side, rest] of Object.entries(rests) as [
+          AutoMovieHumanSide,
+          RideRestingHands.IRest,
+        ][])
+          limbs[`${side}Arm`] = RideRestingHands.place(rest, out);
 
         // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
         const grasp: IAutoMovieMotionHumanPosture["joints"] = {};

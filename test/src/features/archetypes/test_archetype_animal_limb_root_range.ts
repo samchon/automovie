@@ -1,11 +1,17 @@
-import { type QuadrupedBody, QuadrupedRootRange } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedRootRange,
+} from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
 
 /** Four literal constraints; the test never asks production code to make an oracle. */
-type Constraints = Record<QuadrupedBody.Limb, QuadrupedRootRange.IConstraint>;
+type Constraints = Record<
+  AutoMovieArchetypeQuadrupedBody.Limb,
+  AutoMovieArchetypeQuadrupedRootRange.IConstraint
+>;
 
 /**
  * One whole-body vertical interval must satisfy all four actual limb constraints.
@@ -76,10 +82,10 @@ export function test_archetype_animal_limb_root_range(): void {
   );
   impossible.rightHind.attachment.y = -5;
   refusal("incompatible four-limb intervals", (): unknown =>
-    QuadrupedRootRange.intersect(impossible, -10),
+    AutoMovieArchetypeQuadrupedRootRange.intersect(impossible, -10),
   );
   refusal("actual body floor above limb reach", (): unknown =>
-    QuadrupedRootRange.intersect(base, 3 + 2 ** -48),
+    AutoMovieArchetypeQuadrupedRootRange.intersect(base, 3 + 2 ** -48),
   );
   const outside: Constraints = make(
     { x: 0, y: 1, z: 0 },
@@ -90,14 +96,15 @@ export function test_archetype_animal_limb_root_range(): void {
   outside.rightHind.goal.z = 5 + 2 ** -49;
   refusal(
     "near-outside horizontal target",
-    (): unknown => QuadrupedRootRange.intersect(outside, -10),
+    (): unknown => AutoMovieArchetypeQuadrupedRootRange.intersect(outside, -10),
     "rightHind",
   );
 
-  const huge: QuadrupedRootRange.IRange = QuadrupedRootRange.intersect(
-    make({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 6e307 }, 0, 1e308),
-    0,
-  );
+  const huge: AutoMovieArchetypeQuadrupedRootRange.IRange =
+    AutoMovieArchetypeQuadrupedRootRange.intersect(
+      make({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 6e307 }, 0, 1e308),
+      0,
+    );
   near("large finite lower", huge.minimum, 0, 0);
   near(
     "large finite upper normalized by literal scale",
@@ -109,12 +116,13 @@ export function test_archetype_animal_limb_root_range(): void {
   delete missing.leftHind;
   refusal(
     "missing actual limb",
-    (): unknown => QuadrupedRootRange.intersect(missing as Constraints, 0),
+    (): unknown =>
+      AutoMovieArchetypeQuadrupedRootRange.intersect(missing as Constraints, 0),
     "leftHind",
   );
   for (const floor of [NaN, Infinity, -Infinity])
     refusal("nonfinite actual floor", (): unknown =>
-      QuadrupedRootRange.intersect(base, floor),
+      AutoMovieArchetypeQuadrupedRootRange.intersect(base, floor),
     );
   for (const [minimum, maximum] of [
     [-1, 5],
@@ -132,7 +140,7 @@ export function test_archetype_animal_limb_root_range(): void {
     invalid.leftFore.reach = { minimum, maximum };
     refusal(
       "invalid actual radial band",
-      (): unknown => QuadrupedRootRange.intersect(invalid, 0),
+      (): unknown => AutoMovieArchetypeQuadrupedRootRange.intersect(invalid, 0),
       "leftFore",
     );
   }
@@ -145,7 +153,7 @@ export function test_archetype_animal_limb_root_range(): void {
   nonfinite.rightFore.goal.x = NaN;
   refusal(
     "nonfinite actual goal",
-    (): unknown => QuadrupedRootRange.intersect(nonfinite, 0),
+    (): unknown => AutoMovieArchetypeQuadrupedRootRange.intersect(nonfinite, 0),
     "rightFore",
   );
   const overflow: Constraints = make(
@@ -158,7 +166,7 @@ export function test_archetype_animal_limb_root_range(): void {
   overflow.leftHind.goal.x = -1e308;
   refusal(
     "finite coordinates with overflowing separation",
-    (): unknown => QuadrupedRootRange.intersect(overflow, 0),
+    (): unknown => AutoMovieArchetypeQuadrupedRootRange.intersect(overflow, 0),
     "leftHind",
   );
   const offsetOverflow: Constraints = make(
@@ -171,13 +179,12 @@ export function test_archetype_animal_limb_root_range(): void {
   offsetOverflow.rightHind.goal.y = 1e308;
   refusal(
     "finite coordinates with overflowing vertical interval",
-    (): unknown => QuadrupedRootRange.intersect(offsetOverflow, 0),
+    (): unknown =>
+      AutoMovieArchetypeQuadrupedRootRange.intersect(offsetOverflow, 0),
     "rightHind",
   );
-  const result: QuadrupedRootRange.IRange = QuadrupedRootRange.intersect(
-    base,
-    0,
-  );
+  const result: AutoMovieArchetypeQuadrupedRootRange.IRange =
+    AutoMovieArchetypeQuadrupedRootRange.intersect(base, 0);
   result.minimum = 100;
   band("independent interval replay", base, 0, 0, 3);
   truth(
@@ -229,10 +236,8 @@ export function test_archetype_animal_limb_root_range(): void {
     minimum: number,
     maximum: number,
   ): void {
-    const actual: QuadrupedRootRange.IRange = QuadrupedRootRange.intersect(
-      input,
-      floor,
-    );
+    const actual: AutoMovieArchetypeQuadrupedRootRange.IRange =
+      AutoMovieArchetypeQuadrupedRootRange.intersect(input, floor);
     near(`${label} minimum`, actual.minimum, minimum);
     near(`${label} maximum`, actual.maximum, maximum);
   }
@@ -241,7 +246,7 @@ export function test_archetype_animal_limb_root_range(): void {
   function refusal(
     label: string,
     action: () => unknown,
-    limb?: QuadrupedBody.Limb,
+    limb?: AutoMovieArchetypeQuadrupedBody.Limb,
   ): void {
     let error: unknown;
     try {

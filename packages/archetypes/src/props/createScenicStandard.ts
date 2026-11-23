@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The size bands describe plausible set props rather than measured artifacts. */
@@ -23,7 +23,7 @@ const SCENIC: string =
  * @param params The silhouette and any fixed set dimensions.
  * @param seed The seed for the remaining dimensions.
  * @returns A scenic prop with a shaft grip and a front-facing marker.
- * @throws {ArchetypeRefusal} For an unsupported silhouette or dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported silhouette or dimension.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the two silhouettes, local resting frame, seed and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A single staff and independently declared head size determine both the shape and its graspable clear shaft.
@@ -36,9 +36,12 @@ const SCENIC: string =
 export function createScenicStandard(
   params: createScenicStandard.IParams,
   seed?: string | number,
-): Archetype<createScenicStandard.Affordance, createScenicStandard.Dimension> {
-  const draw: ArchetypeDrawSession<createScenicStandard.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createScenicStandard.Affordance,
+  createScenicStandard.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createScenicStandard.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "scenicStandard",
       createScenicStandard.UNITS,
       seed,
@@ -52,10 +55,10 @@ export function createScenicStandard(
   );
   const dimensions: Record<createScenicStandard.Dimension, number> =
     draw.dimensions(createScenicStandard.BANDS);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createScenicStandard.Affordance,
     createScenicStandard.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: kind === "banner" ? "scenic banner" : "scenic roundel",
@@ -98,7 +101,7 @@ export function createScenicStandard(
   builder.affordance({
     id: "grip",
     kind: "handle",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       vector(0, clearShaft / 2, 0),
       vector(0, 0, -1),
       vector(0, 1, 0),
@@ -112,7 +115,7 @@ export function createScenicStandard(
   builder.affordance({
     id: "face",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       vector(0, faceCenter, front),
       vector(0, 0, 1),
       vector(1, 0, 0),
@@ -159,7 +162,9 @@ export namespace createScenicStandard {
   /**
    * Each dimension uses metres or kilograms.
    */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     shaftDiameter: "m",
     headSpan: "m",
@@ -170,12 +175,12 @@ export namespace createScenicStandard {
   /**
    * Set dimensions sized for a hand-carried silhouette with an exposed shaft.
    */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(1.2, 2.1, SCENIC, true),
-    shaftDiameter: ArchetypeBand.metres(0.026, 0.048, SCENIC, true),
-    headSpan: ArchetypeBand.metres(0.3, 0.7, SCENIC, true),
-    faceDepth: ArchetypeBand.metres(0.008, 0.028, SCENIC, true),
-    mass: ArchetypeBand.of("kg", 0.3, 1.5, SCENIC, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(1.2, 2.1, SCENIC, true),
+    shaftDiameter: AutoMovieArchetypeBand.metres(0.026, 0.048, SCENIC, true),
+    headSpan: AutoMovieArchetypeBand.metres(0.3, 0.7, SCENIC, true),
+    faceDepth: AutoMovieArchetypeBand.metres(0.008, 0.028, SCENIC, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.3, 1.5, SCENIC, true),
   };
 
   /**

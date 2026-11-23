@@ -4,8 +4,11 @@ import {
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -14,13 +17,17 @@ import type {
   IAutoMovieMotionHumanMounted,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
+  IAutoMoviePose,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanMountedAids } from "./HumanMountedAids";
 import { HumanMountedBank } from "./HumanMountedBank";
@@ -36,6 +43,17 @@ import { admitHumanMountedFigure } from "./admitHumanMountedFigure";
 
 /** The mounted law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>;
+
+/** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
+type Joints = IAutoMovieMotionHumanPosture["joints"];
+
+/** The four limbs a key may move by a goal. */
+const LIMBS: readonly AutoMovieHumanLimb[] = [
+  "leftArm",
+  "rightArm",
+  "leftLeg",
+  "rightLeg",
+];
 
 /** A supporting part a figure can name. */
 type Part = HumanMountedSeats.Part;
@@ -73,10 +91,10 @@ export const HumanMounted: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanM
      * Admit the figures, solve each seat once in the carrier contact's frame, then sample the carried key postures and the hands' holds.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals the plan raises: a non-seated entry, no figure or a final bench, a bad transfer or hold, a support the seat kind lacks or does not read, a hand that changes contact, and a transfer that holds no support through it.
-     * @evidence contracts/development/implementation.md#principled-implementation Each figure's key posture is solved once by `HumanMountedSeats` in the carrier contact's frame at the start; a second blends the keys by the minimum-jerk transfer share, swings a foot over the carrier where its straight way would pass through it, and is carried by the contact's moving frame (`HumanMountedFrame`); hands hold their contacts by `HumanMountRider.hold` with the ride's grip reader and closure.
+     * @evidence contracts/development/implementation.md#principled-implementation Each figure's key posture is solved once by `HumanMountedSeats` in the carrier contact's frame at the start; a second blends the keys by the minimum-jerk transfer share, each limb end's turn slerped by the same share and a foot kept on its rest turned about its ball, swings a foot over the carrier where its straight way would pass through it, and is carried by the contact's moving frame (`HumanMountedFrame`); hands hold their contacts by `HumanMountRider.hold` with the ride's grip reader and closure.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, arcs, clock and windows, hands, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Supports out of reach are refused by the seats; nothing is clamped onto a contact.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Planning solves one key per figure and four clearance queries per leg per transfer; a sample blends two keys, reads one carrier frame and fits each holding hand once.
+     * @evidence contracts/development/implementation.md#efficient-algorithms Planning solves one key per figure, four clearance queries per leg per transfer and one fit of a transfer's end whose limb a goal moves at that end alone; a sample blends two keys, reads one carrier frame and fits each holding hand once.
      * @evidence contracts/development/implementation.md#reuse-equivalent-work Keys, arcs, windows and finger closures are prepared once per plan and shared by every sample.
      * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its keys, arcs, clock and the carrier reader for its life; samples keep nothing.
      */
@@ -241,6 +259,65 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const middles: IAutoMovieVector3[] = keys.map(hipsOf);
   const arcs: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>[] =
     HumanMountedPaths.arcs(seats, entry, keys, figures, planted);
+  // The ball each foot kept on its rest pivots about through each transfer.
+  const pivots: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>[] =
+    keys.map(
+      (
+        key: IAutoMovieMotionHumanPosture,
+        i: number,
+      ): Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> => {
+        const out: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+        for (const side of ["left", "right"] as const) {
+          const ball: IAutoMovieVector3 | undefined = HumanMountedPaths.rested(
+            i === 0 ? entry : keys[i - 1]!,
+            key,
+            side,
+          );
+          if (ball !== undefined) out[side] = ball;
+        }
+        return out;
+      },
+    );
+  // A limb a goal moves at one end of a transfer and its joints at the other: the goal's end fitted once here, so the transfer blends joints to joints instead of holding the goal and dropping it at an end.
+  const handoff = (
+    index: number,
+  ): Partial<Record<AutoMovieHumanLimb, Joints>> => {
+    const before: IAutoMovieMotionHumanPosture =
+      index === 0 ? entry : keys[index - 1]!;
+    const after: IAutoMovieMotionHumanPosture = keys[index]!;
+    const out: Partial<Record<AutoMovieHumanLimb, Joints>> = {};
+    const fitted: Map<IAutoMovieMotionHumanPosture, IAutoMoviePose> = new Map();
+    for (const limb of LIMBS) {
+      const a: IAutoMovieHumanLimbGoal | undefined = before.limbs[limb];
+      const b: IAutoMovieHumanLimbGoal | undefined = after.limbs[limb];
+      if ((a === undefined) === (b === undefined)) continue;
+      const end: IAutoMovieMotionHumanPosture =
+        a === undefined ? after : before;
+      let pose: IAutoMoviePose | undefined = fitted.get(end);
+      if (pose === undefined) {
+        pose = resolveHumanPosture(context.body, end);
+        fitted.set(end, pose);
+      }
+      const chain: HumanLimbFit.IChain = HumanLimbFit.chain(limb);
+      const joints: Joints = {};
+      for (const joint of pose.joints)
+        if (
+          joint.bone === chain.upper ||
+          joint.bone === chain.lower ||
+          joint.bone === chain.effector
+        )
+          joints[joint.bone] = [
+            joint.flexion ?? 0,
+            joint.abduction ?? 0,
+            joint.twist ?? 0,
+          ];
+      out[limb] = joints;
+    }
+    return out;
+  };
+  const handoffs: Partial<Record<AutoMovieHumanLimb, Joints>>[] = keys.map(
+    (_: IAutoMovieMotionHumanPosture, i: number) => handoff(i),
+  );
 
   // The windows each support holds.
   // The entry's planted feet are held on the stirrups the first figure names, or on whatever they rest on.
@@ -250,9 +327,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const kept: Map<string, IAutoMovieMotionHumanContactWindow> = new Map();
   for (const side of ["left", "right"] as const)
     if (context.entry.feet[side].planted) {
-      const key: string = `${side}Foot:${figures[0]!.supports?.[`${side}Foot`] ?? "entry"}`;
+      const named: string | undefined = figures[0]!.supports?.[`${side}Foot`];
+      const key: string = `${side}Foot:${named ?? "entry"}`;
       held.add(key);
-      kept.set(key, HumanMountedPaths.window(`${side}Foot`, on));
+      kept.set(key, HumanMountedPaths.window(`${side}Foot`, on, named));
     }
   const members: Map<string, IAutoMovieMotionHumanContactWindow>[] =
     figures.map(
@@ -274,7 +352,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         for (const part of PARTS) {
           const id: string | undefined = figure.supports?.[part];
           if (id !== undefined)
-            member.set(`${part}:${id}`, HumanMountedPaths.window(part, on));
+            member.set(`${part}:${id}`, HumanMountedPaths.window(part, on, id));
         }
         return member;
       },
@@ -306,12 +384,19 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     holding.length === 0
       ? undefined
       : HumanRideHands.of(
-          { ...context, params: { on, seconds: clock.duration, hands } },
+          { ...context, params: { on, duration: clock.duration, hands } },
           on,
           support,
-          context.entry.posture,
+          // The hands take and close on their holds in the first figure's key posture, where the transfer brings them, not in the entry's.
+          HumanMountedFrame.move(keys[0]!, HumanMountedFrame.LOCAL, origin),
           placed,
           figures[0]!.transfer,
+          // A hand that enters holding keeps the crossing its rein is displayed with.
+          {
+            pose: context.entry.pose,
+            holding: gripped,
+            posture: context.entry.posture,
+          },
         );
   return {
     duration: clock.duration,
@@ -351,6 +436,82 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
         keys[index]!,
         share,
       );
+      // A transfer between two keys turns each limb's end the same share as it moves it, rather than holding the earlier key's turn until it snaps at the arrival; a foot kept on its rest turns about the ball on it, so the ball stays on the rest.
+      if (share > 0 && share < 1)
+        for (const limb of [
+          "leftArm",
+          "rightArm",
+          "leftLeg",
+          "rightLeg",
+        ] as const) {
+          const a: IAutoMovieHumanLimbGoal | undefined = from.limbs[limb];
+          const b: IAutoMovieHumanLimbGoal | undefined =
+            keys[index]!.limbs[limb];
+          const goal: IAutoMovieHumanLimbGoal | undefined = local.limbs[limb];
+          if (
+            goal === undefined ||
+            a?.rotation === undefined ||
+            b?.rotation === undefined
+          )
+            continue;
+          const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+            a.rotation,
+            b.rotation,
+            share,
+          );
+          const ball: IAutoMovieVector3 | undefined =
+            limb === "leftLeg"
+              ? pivots[index]!.left
+              : limb === "rightLeg"
+                ? pivots[index]!.right
+                : undefined;
+          local.limbs = {
+            ...local.limbs,
+            [limb]: {
+              ...goal,
+              rotation,
+              ...(ball === undefined || goal.contact === undefined
+                ? {}
+                : {
+                    point: Vector3.subtract(
+                      ball,
+                      Quaternion.rotateVector(rotation, goal.contact),
+                    ),
+                  }),
+            },
+          };
+        }
+      if (share > 0 && share < 1)
+        for (const [limb, fitted] of Object.entries(handoffs[index]!) as [
+          AutoMovieHumanLimb,
+          Joints,
+        ][]) {
+          const goalFirst: boolean = from.limbs[limb] !== undefined;
+          const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+            ...local.limbs,
+          };
+          delete limbs[limb];
+          const joints: IAutoMovieMotionHumanPosture["joints"] = {
+            ...local.joints,
+          };
+          for (const [bone, angles] of Object.entries(fitted) as [
+            AutoMovieHumanoidBone,
+            readonly [number, number, number],
+          ][]) {
+            const other: readonly [number, number, number] = (goalFirst
+              ? keys[index]!
+              : from
+            ).joints[bone] ?? [0, 0, 0];
+            const [a, b] = goalFirst ? [angles, other] : [other, angles];
+            joints[bone] = [
+              a[0] + (b[0] - a[0]) * share,
+              a[1] + (b[1] - a[1]) * share,
+              a[2] + (b[2] - a[2]) * share,
+            ];
+          }
+          local.limbs = limbs;
+          local.joints = joints;
+        }
       // The hips travel between the keys while the pelvis turns about them, swinging about feet kept on their stirrups so no leg is stretched or folded past both ends.
       if (share > 0 && share < 1)
         local.root = Vector3.add(

@@ -19,9 +19,10 @@ import { prepareHingedChainAt } from "./prepareHingedChainAt";
  * no search, score or continuation: the closed-form articulation a caller
  * that chooses its own swivel (an arm course) evaluates.
  *
- * The request is the fit's own (`IFitChainToTargetProps`); its `near`,
- * `strain`, reference and bend hint are not read, since the swivel is
- * given. Its `obstruction` is read once, at the placed mid and end joints,
+ * The request is the fit's own (`IFitChainToTargetProps`); its `near`'s
+ * swivel and branch, `strain`, reference and bend hint are not read, since
+ * the swivel is given, while the `near`'s twist is continued by the final
+ * orientation (`IAutoMovieSwivelSeed.twist`). Its `obstruction` is read once, at the placed mid and end joints,
  * exactly as the hinged fit reads a candidate (`fitHingedChainCandidate`),
  * so a caller can tell a placement that passes through what the fit keeps
  * clear of. The hinge angle of the chosen branch comes from the span
@@ -127,16 +128,16 @@ export function fitHingedChainAt(
   };
 }
 
-/** Companion types of `fitHingedChainAt`. */
+/**
+ * Companion types of `fitHingedChainAt`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The placed record states each member's meaning and unit.
+ * @evidence contracts/development/design.md#principled-representation The fit's own result with the facts that tell whether the end joint reached the target, cleared the obstruction and stayed off the range's clamp.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by its callers to decide whether the placement stands.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the seeded fit record rather than restating it.
+ */
 export namespace fitHingedChainAt {
-  /**
-   * A chain placed at a swivel.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The fit's own result with the two facts that tell whether the end joint reached the target.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by its callers to decide whether the placement stands.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Extends the seeded fit record.
-   */
+  /** A chain placed at a swivel. */
   export interface IPlaced extends IAutoMovieSeededChainFit {
     /** How far the target lies beyond the branch's legal shell, metres. */
     shortfall: number;

@@ -15,11 +15,6 @@
  * stage's own inputs: when the upstream recomputes to the same bytes its
  * digest is unchanged, so this key is unchanged and the stage is not rerun
  * (early cutoff, Mokhov et al. 2018 "Build Systems a la Carte").
- *
- * @evidence contracts/development/design.md#principled-representation Represents the constructive-trace key of one stage: stage name and implementation version (Unreal DDC version GUID, Unity importer version), toolchain identities and declared input digests, all as strings so the key text is exact. Records are unordered, so two callers listing the same pairs in another order compose the same key; empty strings and duplicate meaning across records remain the caller's responsibility.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Engine owns the generic key because every stage cache (Render's frame capture, a production's figure or bake cache) shares it; the four members are exactly what composeAutoMovieArtifactKey hashes and none is consumer-specific.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No stage, film or tool is named in the type; consumers enter their variation as record data.
- * @evidence contracts/development/common.md#meaningful-documentation States what belongs in each member, why the toolchain is separate, and how upstream digests give early cutoff.
  */
 export interface IAutoMovieArtifactKey {
   /** Stable stage name, such as `render.viewer-frame`; two stages never share keys. */

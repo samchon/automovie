@@ -1,9 +1,9 @@
 import {
-  Archetype,
   ArchetypeDraw,
-  type ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  type AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { HOLSTER_BANDS } from "./HOLSTER_BANDS";
 import { HOLSTER_BLADES } from "./HOLSTER_BLADES";
@@ -25,7 +25,7 @@ import { createStageQuiver } from "./createStageQuiver";
  * @param params The kind, a holster's ride, the blade a scabbard or a sheath is made to, the number of slots of a quiver, and any dimension the author fixes.
  * @param seed The seed that picks the ride and the blade left free and draws every dimension left free inside its band; absent, the first ride, the first blade and the middle of each band.
  * @returns The container.
- * @throws {ArchetypeRefusal} For a ride or a blade not of the kind, a fixed dimension outside its band or one the ride gives, or a number of slots that is not a whole number from 1 to the kind's capacity.
+ * @throws {AutoMovieArchetypeRefusal} For a ride or a blade not of the kind, a fixed dimension outside its band or one the ride gives, or a number of slots that is not a whole number from 1 to the kind's capacity.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind hangs and stands, what each contact is and where a carried item sits.
  * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
@@ -38,7 +38,7 @@ import { createStageQuiver } from "./createStageQuiver";
 export function createHolster(
   params: createHolster.IParams = {},
   seed?: number | string,
-): Archetype<createHolster.Affordance, createHolster.Dimension> {
+): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension> {
   const kind: createHolster.Kind = ArchetypeDraw.choice(
     "holster",
     "kind",
@@ -50,7 +50,7 @@ export function createHolster(
     build(
       params: createHolster.IParams,
       seed?: number | string,
-    ): Archetype<createHolster.Affordance, createHolster.Dimension>;
+    ): AutoMovieArchetype<createHolster.Affordance, createHolster.Dimension>;
   }["build"];
   // The selected producer validates its options from the saved parameter union.
   const produce: Producer = createHolster.PRODUCERS[kind] as Producer;
@@ -159,7 +159,9 @@ export namespace createHolster {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     ride: "m",
     depth: "m",
     length: "m",
@@ -183,8 +185,8 @@ export namespace createHolster {
   > = {
     holster: {
       midRide: { ride: 0 },
-      lowRide: { ride: -1.5 * ArchetypeUnits.INCH },
-      highRide: { ride: 1.5 * ArchetypeUnits.INCH },
+      lowRide: { ride: -1.5 * AutoMovieArchetypeUnits.INCH },
+      highRide: { ride: 1.5 * AutoMovieArchetypeUnits.INCH },
     },
   };
 
@@ -205,7 +207,9 @@ export namespace createHolster {
   export type Blade = ScabbardBlade | SheathBlade;
 
   /** A scabbard's or a sheath's two bands made to one blade, both always given: `length` from the tip to the mouth and `width` across the blade from edge to back, each the blade's with the fit. */
-  export type Fitted = Readonly<Record<"length" | "width", IArchetypeBand>>;
+  export type Fitted = Readonly<
+    Record<"length" | "width", IAutoMovieArchetypeBand>
+  >;
 
   /** The blades by kind, the default first, each made with Wulflund's fit: a read sword's figures whole, or a kind's blade bands moved out, provisional where the blade's are. */
   export const BLADES: Readonly<{
@@ -233,6 +237,6 @@ export namespace createHolster {
 
   /** The band of each free dimension a ride or a blade leaves, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = HOLSTER_BANDS;
 }

@@ -1,15 +1,19 @@
 import {
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  EquineEncounter,
-  type EquineEncounterCue,
-  QuadrupedBody,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeEquineEncounter,
+  type AutoMovieArchetypeEquineEncounterCue,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
   type rideQuadruped,
 } from "@automovie/archetypes";
 import { Vector3, closestPointsBetweenSegments } from "@automovie/engine";
-import type { IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieModelPart,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { equineExpressionObservation as Look } from "../internal/equineExpressionObservation";
@@ -18,12 +22,15 @@ import { equineExpressionObservation as Look } from "../internal/equineExpressio
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
-  createHorse.Affordance,
-  createHorse.Dimension
+type Sample = AutoMovieArchetypeRide.ISample<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /** Two of a kind. */
@@ -89,7 +96,7 @@ export function test_archetype_equine_reaction_encounter(): void {
     },
     "trot",
   );
-  const acts: readonly EquineEncounterCue.Act[] = [
+  const acts: readonly AutoMovieArchetypeEquineEncounterCue.Act[] = [
     { kind: "threat", horse: 1, from: t, to: t + 2, ease: 0.3 },
     {
       kind: "strike",
@@ -111,7 +118,7 @@ export function test_archetype_equine_reaction_encounter(): void {
     },
   ];
   const stage = (): Pair<Ride> =>
-    EquineEncounter.stage(
+    AutoMovieArchetypeEquineEncounter.stage(
       horses,
       [
         { ride: first },
@@ -151,12 +158,12 @@ export function test_archetype_equine_reaction_encounter(): void {
   // How far a hoof's endpoint stands off the other horse's barrel surface.
   const sole = (
     sample: Sample,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     other: Sample,
   ): number => {
     const end: IAutoMovieVector3 = Look.bar(
       sample,
-      QuadrupedBody.BONES[limb][3],
+      AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
     ).to;
     const barrel: Look.IBar = Look.bar(other, "trunk");
     return (
@@ -173,13 +180,13 @@ export function test_archetype_equine_reaction_encounter(): void {
   const planted = (
     sample: Sample,
     rest: Sample,
-    limbs: readonly QuadrupedBody.Limb[],
+    limbs: readonly AutoMovieArchetypeQuadrupedBody.Limb[],
   ): boolean =>
     limbs.every(
-      (limb: QuadrupedBody.Limb): boolean =>
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
         Vector3.distance(
-          Look.bar(sample, QuadrupedBody.BONES[limb][3]).to,
-          Look.bar(rest, QuadrupedBody.BONES[limb][3]).to,
+          Look.bar(sample, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]).to,
+          Look.bar(rest, AutoMovieArchetypeQuadrupedBody.BONES[limb][3]).to,
         ) <= 1e-6,
     );
 
@@ -221,7 +228,7 @@ export function test_archetype_equine_reaction_encounter(): void {
   // 2. A double-barrel kick, tail to head.
   const behind: Ride = walk(horses[1], 0.9, 1.7, 0);
   const kicker: Sample = behind.at(behind.duration);
-  const kicked: Pair<Ride> = EquineEncounter.stage(
+  const kicked: Pair<Ride> = AutoMovieArchetypeEquineEncounter.stage(
     horses,
     [{ ride: first }, { ride: behind }],
     [
@@ -282,7 +289,7 @@ export function test_archetype_equine_reaction_encounter(): void {
     );
   let caught: unknown = null;
   try {
-    EquineEncounter.stage(
+    AutoMovieArchetypeEquineEncounter.stage(
       horses,
       [{ ride: first }, { ride: walk(horses[1], 1, 12, 180) }],
       [
@@ -303,6 +310,6 @@ export function test_archetype_equine_reaction_encounter(): void {
   }
   TestValidator.predicate(
     "a strike out of reach refuses",
-    caught instanceof ArchetypeRefusal && caught.axis === "strike",
+    caught instanceof AutoMovieArchetypeRefusal && caught.axis === "strike",
   );
 }

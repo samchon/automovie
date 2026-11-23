@@ -17,10 +17,13 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -40,8 +43,10 @@ import { StrikingSupport } from "./StrikingSupport";
  * clock is a phrase with the standard instants: the tool leaves the entry
  * hold for the ready pose by `ready`, runs its path from `strokeStart`, is at
  * its decisive pose at `stroke`, follows through to `strokeEnd`, stays until
- * `relax` and is back in the entry hold at `end`, or stays where the stroke
- * left it for an action that ends in its pose (a guard, a levelled aim).
+ * `relax` and is back in the entry hold at `end`, or, recovered to its guard
+ * (`coursed`), back at the path's start along the path it came, or stays
+ * where the stroke left it for an action that ends in its pose (a guard, a
+ * levelled aim).
  *
  * An advance carries the body with the stroke: the leading foot leaves the
  * floor at `strokeStart` and lands at `stroke`, the pelvis travels a share of
@@ -133,6 +138,7 @@ export namespace StrikingBlade {
    *
    * @param context The action's context.
    * @param stroke The stroke.
+   * @param along Whether the recovery draws the tool back along its path to the path's start, its guard, and keeps it there, for a stroke whose path keeps one basin of the arm; back to the entry hold when absent.
    * @returns The plan, whose decisive instant is `stroke`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input and the plan's decisive instant; the namespace states the time course.
@@ -146,6 +152,7 @@ export namespace StrikingBlade {
   export function plan(
     context: IAutoMovieMotionHumanActionContext,
     stroke: IAutoMovieMotionHumanStrikingBlade.IStroke,
+    along?: boolean,
   ): IAutoMovieMotionHumanActionPlan {
     const { tool, clock }: IAutoMovieMotionHumanStrikingBlade.IStroke = stroke;
     const body: IAutoMovieMotionHumanBody = context.body;
@@ -228,18 +235,56 @@ export namespace StrikingBlade {
         shoulderOf(base.posture(0)),
         shoulderOf(turned(base.posture(clock.at("stroke")), stroke.turn ?? 0)),
       ]);
+    const progressAt = (seconds: number): number =>
+      stroke.stop *
+      AutoMovieMotionClock.through(
+        clock,
+        ["strokeStart", "stroke", "strokeEnd"],
+        seconds,
+      );
     const frame = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       read?: () => ReturnType<typeof HumanTrunk.resolve>,
     ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
-      const progress: number =
-        stroke.stop *
-        AutoMovieMotionClock.through(
-          clock,
-          ["strokeStart", "stroke", "strokeEnd"],
+      const weight: number = present(seconds);
+
+      // A stroke recovered to its guard draws the tool back the way it came,
+      // from where the stroke left it to the path's start, the on-guard
+      // line it attacked from, and keeps it there: the recovery of a fencing
+      // attack ends on guard, not in the hold the blade was taken up in.
+      if (along === true && weight < 1 && seconds > clock.at("relax"))
+        return onPath(
+          posture,
           seconds,
+          read,
+          progressAt(clock.at("relax")) * weight,
         );
+      const at: IAutoMovieMotionHumanStrikingHeld.IHandFrame = onPath(
+        posture,
+        seconds,
+        read,
+        progressAt(seconds),
+      );
+      if (weight >= 1) return at;
+      return {
+        point: Vector3.lerp(
+          Vector3.add(posture.root, held.point),
+          at.point,
+          weight,
+        ),
+        rotation: Quaternion.slerp(held.rotation, at.rotation, weight),
+      };
+    };
+
+    // The tool's frame at a progress along its path at a second, carried
+    // with the advance and a followed target.
+    const onPath = (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+      read: (() => ReturnType<typeof HumanTrunk.resolve>) | undefined,
+      progress: number,
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
       const laid: IAutoMovieMotionHumanStrikingHeld.IHandFrame = stroke.path(
         stroke.stop < 1 ? Math.min(stroke.stop, progress) : progress,
         seconds,
@@ -274,16 +319,7 @@ export namespace StrikingBlade {
                 ),
               ),
             };
-      const weight: number = present(seconds);
-      if (weight >= 1) return at;
-      return {
-        point: Vector3.lerp(
-          Vector3.add(posture.root, held.point),
-          at.point,
-          weight,
-        ),
-        rotation: Quaternion.slerp(held.rotation, at.rotation, weight),
-      };
+      return at;
     };
 
     // The holding arm's own solution at the decisive pose, the reference of
@@ -453,5 +489,61 @@ export namespace StrikingBlade {
         };
       },
     };
+  }
+
+  /**
+   * Plan a one-handed stroke whose path stays in one basin of the arm (a
+   * thrust drawn back from its landing, recovered to its guard) with the arm
+   * laid as one admitted course (`courseArmGoal`) instead of a fit per
+   * sample: the reach from the entry hold to the guard, the path's start,
+   * free, as the planner lays it; from there the attack, its follow-through
+   * and the recovery to the guard held to the end, instant by instant on the
+   * branch and swivel the instant before chose. The course is admitted
+   * against the stroke's own speed (`precisionStrokePeak`) and the reach's
+   * minimum-jerk peak, 15/8 of its mean speed over the arm's own travel to
+   * the guard. A supported stroke is the fitted plan unchanged.
+   *
+   * @param context The action's context.
+   * @param stroke The stroke.
+   * @param travel The arm's own travel from the entry hold to the guard, metres: the greater of the hand's and the elbow's, which the caller measured on the two fitted arms.
+   * @returns The plan, whose decisive instant is `stroke`, its arm coursed.
+   * @throws {HumanRefusal} When no arm course meets the trajectory's constraints, as the plan is composed.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when it applies, what is reached and what is held, and the pace.
+   * @evidence contracts/development/implementation.md#principled-implementation A moving effector goal is one trajectory problem solved once with branch continuity and clearance; the held span keeps one basin of the arm, so no held instant asks the arm to cross between basins, and the reach that does cross is the planner's own at the pace of the arm's own travel.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The guarded plan, the span from its clock, one pace, one course.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals are `plan`'s own; the planner's refusal stands.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One course per plan; the pace is read once, on first use, over the stroke at 240 Hz.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates the goals to `plan`, the pace to `precisionStrokePeak` and the solve to `courseArmGoal`.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the goal plan, the course and one pace number for the plan's life.
+   */
+  export function coursed(
+    context: IAutoMovieMotionHumanActionContext,
+    stroke: IAutoMovieMotionHumanStrikingBlade.IStroke,
+    travel: number,
+  ): IAutoMovieMotionHumanActionPlan {
+    if (stroke.support !== null) return plan(context, stroke);
+    const goals: IAutoMovieMotionHumanActionPlan = plan(
+      context,
+      stroke,
+      !stroke.stay,
+    );
+    const { tool, clock }: IAutoMovieMotionHumanStrikingBlade.IStroke = stroke;
+    const duration: number = clock.duration;
+    const ready: number = clock.at("strokeStart");
+    const reach: number = ready > 0 ? ((15 / 8) * travel) / ready : 0;
+    let fastest: number | undefined;
+    return courseArmGoal({
+      body: context.body,
+      side: tool.side,
+      plan: goals,
+      rest: AutoMovieMotionHumanArm.angles(context.entry.pose, tool.side),
+      span: { start: 0, ready, relax: duration, end: duration },
+      pace: (): number =>
+        (fastest ??= Math.max(
+          precisionStrokePeak(goals.posture, `${tool.side}Arm`, duration),
+          reach,
+        )),
+    });
   }
 }

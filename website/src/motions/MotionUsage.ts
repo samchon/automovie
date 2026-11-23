@@ -3,7 +3,6 @@ import type { IPlaygroundComposition } from "../playground/structures/IPlaygroun
 import { SCENES } from "../scenes/SCENES";
 import { SceneStatus } from "../scenes/package/SceneStatus";
 import type { IScene } from "../scenes/structures/IScene";
-import type { IMotionReference } from "./structures/IMotionReference";
 
 /**
  * Where the site's scenes use each action or row: the reverse index the
@@ -90,20 +89,15 @@ export namespace MotionUsage {
 
   /**
    * What a "Try it" link opens. A primary action is tried alone when its
-   * first use supplies every required parameter and needs no other person,
-   * object or authored force. An unused action can be tried alone when it
-   * has no required parameters. A use that needs its scene, including an
-   * overlay on a carrier or a mutual action, opens the first playing scene
-   * that performs it.
+   * first use needs no other person, object or authored force. An unused
+   * action is tried alone with no parameters. A use that needs its scene,
+   * including an overlay on a carrier or a mutual action, opens the first
+   * playing scene that performs it.
    *
    * @param name The action's or row's name.
-   * @param parameters Its parameters from its schema; null when the release ships no schema, when nothing is known to be required.
    * @returns The link's text and composition, or null when no trial would play.
    */
-  export function trial(
-    name: string,
-    parameters: IMotionReference.IParameter[] | null,
-  ): ITrial | null {
+  export function trial(name: string): ITrial | null {
     const use: IUse = of(name);
     const params: Record<string, unknown> | null =
       use.first === null ? {} : use.first.params;
@@ -116,11 +110,7 @@ export namespace MotionUsage {
       (scene?.composition?.forces?.length ?? 0) === 0 &&
       (scene === undefined ||
         scene.composition === null ||
-        !names(scene.composition, params)) &&
-      (parameters ?? []).every(
-        (p: IMotionReference.IParameter): boolean =>
-          !p.required || Object.hasOwn(params, p.name),
-      )
+        !names(scene.composition, params))
     )
       return {
         label: "Try it alone",

@@ -11,20 +11,10 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * residual is `F(u, v) = G(S(u, v))`; the rail's station at a phase is the first root of `F` in `u` from the end that faces the band,
  * and by the implicit function theorem `rho' = -F_v / F_u` and `rho'' = -(F_vv + 2 F_uv rho' + F_uu rho'^2) / F_u`, every term the chain
  * rule on the skin's own 2-jet, so no derivative is differenced.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the region, the smooth minimum with its bound and derivatives, the residual and the rail's jets.
- * @evidence contracts/development/design.md#principled-representation One generating curve for a shared boundary: the skin's own intersection with a declared surface, exact with its jets, which the rail cycle, the band's edge and the crossing between them all read (construction.md, Connections: Ownership).
- * @evidence contracts/development/design.md#minimal-and-owned-surface The plane record, the input, the built cut with one reader and its station bounds, and one builder.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A phase without a crossing, already past the surface or tangent to it is refused with its phase; nothing is clamped to the face's end or refitted.
  */
 export namespace IAutoMovieConstructionSkinCut {
   /**
    * A plane in kernel coordinates with its kept side.
-   *
-   * @evidence contracts/development/design.md#principled-representation A point and a unit normal toward the kept half space.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two vectors.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; the caller resolves the declared frame and normalizes.
-   * @evidence contracts/development/common.md#meaningful-documentation States the units and the kept side.
    */
   export interface IPlane {
     /** A point of the plane, mm. */
@@ -36,11 +26,6 @@ export namespace IAutoMovieConstructionSkinCut {
 
   /**
    * What a cut is built from.
-   *
-   * @evidence contracts/development/design.md#principled-representation The skin, the planes with their rounding, the side the band stands on and the face's own stations determine the curve.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Six fields; the stations and the sample count are sampling inputs the caller already owns.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; admission of the declaration belongs to the caller.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's unit and role.
    */
   export interface IInput {
     /** The face's skin, chart `(station mm, phase rad)`. */
@@ -64,25 +49,12 @@ export namespace IAutoMovieConstructionSkinCut {
 
   /**
    * A built cut.
-   *
-   * @evidence contracts/development/design.md#principled-representation The curve's station with two derivatives at any phase, and the stations it spans at its admitted phases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One reader and one interval.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The reader solves the residual on the skin at the phase asked; it interpolates no stored station.
-   * @evidence contracts/development/common.md#meaningful-documentation States the reader's result and the interval's source.
    */
   export interface ICut {
     /**
      * The rail's station at a phase with its first and second phase derivatives, mm and mm per radian. The same phase always returns the
      * same numbers. It throws `AutoMovieLoftAdmissionError` at a phase between the admitted ones where the skin does not cross the
      * surface or is tangent to it.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the result, its determinism and its failure.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     at: (psi: number) => [number, number, number];
 

@@ -2,13 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeConvexCell,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeConvexCell,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The capsule's blunt taper and distinct hatch inform the silhouette. */
@@ -41,7 +41,7 @@ const ALUMINIUM_DENSITY: number = 2700;
  * @param seed A number or string that draws the remaining dimensions. With
  * no seed, dimensions take the middle of their bands.
  * @returns The set and its local boarding, handrail, seated crew and console contacts.
- * @throws {ArchetypeRefusal} For a dimension outside its authored band.
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its authored band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the cabin frame, boarding direction, hinge and dimension controls.
  * @evidence contracts/development/implementation.md#principled-implementation Shared station sections generate a hollow tapered shell; the rear wall and deck meet at one threshold, and the hinge owns the leaf and handle. Mass is the nominal scenic material density times the drawn solids' volume.
@@ -54,9 +54,9 @@ const ALUMINIUM_DENSITY: number = 2700;
 export function createSpacecraft(
   params: createSpacecraft.IParams = {},
   seed?: string | number,
-): Archetype<createSpacecraft.Affordance, createSpacecraft.Dimension> {
-  const draw: ArchetypeDrawSession<createSpacecraft.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<createSpacecraft.Affordance, createSpacecraft.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSpacecraft.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "spacecraft",
       createSpacecraft.UNITS,
       seed,
@@ -65,10 +65,10 @@ export function createSpacecraft(
   const d: Record<createSpacecraft.DrawnDimension, number> = draw.dimensions(
     createSpacecraft.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSpacecraft.Affordance,
     createSpacecraft.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "spacecraft",
     material: "aluminium",
@@ -111,7 +111,8 @@ export function createSpacecraft(
       for (const x of edges[index])
         corners.push(v(x, low, stations[index]), v(x, high, stations[index]));
 
-    const cell: ArchetypeConvexCell.ICell = ArchetypeConvexCell.of(corners);
+    const cell: AutoMovieArchetypeConvexCell.ICell =
+      AutoMovieArchetypeConvexCell.of(corners);
     builder.convex(id, cell, undefined, { color });
     volume += cell.volume;
   }
@@ -322,7 +323,7 @@ export function createSpacecraft(
       id,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(rail, v(1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(rail, v(1, 0, 0), v(0, 0, 1)),
       extent: null,
       grip: "power",
       aperture: 2 * gripRadius,
@@ -333,7 +334,7 @@ export function createSpacecraft(
   builder.affordance({
     id: "boardingWalkway",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, 0, walkwayZ)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, walkwayZ)),
     extent: null,
     width: d.hatchWidth,
     depth: d.walkwayLength,
@@ -341,7 +342,7 @@ export function createSpacecraft(
   builder.affordance({
     id: "boardingOpening",
     kind: "aperture",
-    frame: ArchetypeFrame.upright(v(0, 0, rear)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, rear)),
     extent: null,
     width: d.hatchWidth,
     height: d.hatchHeight,
@@ -349,7 +350,9 @@ export function createSpacecraft(
   builder.affordance({
     id: "boardingHatch",
     kind: "hinge",
-    frame: ArchetypeFrame.upright(v(-openingHalf, d.hatchHeight / 2, rear)),
+    frame: AutoMovieArchetypeFrame.upright(
+      v(-openingHalf, d.hatchHeight / 2, rear),
+    ),
     extent: null,
     travel: 90,
     parts: ["hatch-leaf", "hatch-grip", "hatch-grip-bottom", "hatch-grip-top"],
@@ -358,7 +361,7 @@ export function createSpacecraft(
     id: "boardingHandle",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(grip, v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(grip, v(0, 0, -1), v(0, 1, 0)),
     extent: null,
     grip: "power",
     aperture: 2 * gripRadius,
@@ -368,7 +371,7 @@ export function createSpacecraft(
   builder.affordance({
     id: "cabinFloor",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, 0, (rear + shoulder) / 2)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, (rear + shoulder) / 2)),
     extent: null,
     width: d.hatchWidth,
     depth: shoulder - rear,
@@ -376,7 +379,7 @@ export function createSpacecraft(
   builder.affordance({
     id: "crewSeat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(v(stationX, seatHeight, seatEdge)),
+    frame: AutoMovieArchetypeFrame.upright(v(stationX, seatHeight, seatEdge)),
     extent: null,
     width: seatWidth,
     depth: seatDepth,
@@ -385,7 +388,9 @@ export function createSpacecraft(
   builder.affordance({
     id: "controlConsole",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(stationX, consoleHeight, consoleZ)),
+    frame: AutoMovieArchetypeFrame.upright(
+      v(stationX, consoleHeight, consoleZ),
+    ),
     extent: null,
     width: consoleWidth,
     depth: consoleDepth,
@@ -440,7 +445,9 @@ export namespace createSpacecraft {
   /**
    * Units of the controlled dimensions and derived mass.
    */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     cabinHeight: "m",
@@ -453,33 +460,35 @@ export namespace createSpacecraft {
   /**
    * Set design bounds. The references identify the visual cue each dimension supports.
    */
-  export const BANDS: Readonly<Record<DrawnDimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(
+  export const BANDS: Readonly<
+    Record<DrawnDimension, IAutoMovieArchetypeBand>
+  > = {
+    length: AutoMovieArchetypeBand.metres(
       6,
       9,
       `Fictional set length for a blunt tapered silhouette. Analogy: ${CAPSULE}`,
     ),
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       3.4,
       5,
       `Fictional cabin width for the central route beside the crew station. Analogy: ${CREW_COMPARTMENT}`,
     ),
-    cabinHeight: ArchetypeBand.metres(
+    cabinHeight: AutoMovieArchetypeBand.metres(
       2.45,
       3.25,
       `Fictional standing floor-to-ceiling height for cabin scenes. Analogy: ${CREW_COMPARTMENT}`,
     ),
-    hatchWidth: ArchetypeBand.metres(
+    hatchWidth: AutoMovieArchetypeBand.metres(
       1.25,
       1.6,
       `Fictional clear opening sized for an upright performer. Analogy: ${CAPSULE}`,
     ),
-    hatchHeight: ArchetypeBand.metres(
+    hatchHeight: AutoMovieArchetypeBand.metres(
       1.95,
       2.2,
       `Fictional clearance for the boarding performer. Analogy: ${CAPSULE}`,
     ),
-    walkwayLength: ArchetypeBand.metres(
+    walkwayLength: AutoMovieArchetypeBand.metres(
       2,
       4,
       `Fictional run for a full boarding stride before the threshold. Analogy: ${PASSAGE}`,

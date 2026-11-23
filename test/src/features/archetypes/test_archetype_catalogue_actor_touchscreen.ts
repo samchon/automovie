@@ -9,17 +9,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanOperate,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  swipeTouchscreen,
 } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
 import { motionHumanBody } from "../internal/motionHumanBody";
+
+const { swipeTouchscreen } = AutoMovieMotionHumanOperate;
 
 /** One measured case dimension and its stated source bounds, metres. */
 interface IBand {
@@ -145,7 +147,7 @@ export function test_archetype_catalogue_actor_touchscreen(): void {
           ],
           props: [prop],
           composition: Chain.subject("a")
-            .stand({ seconds: 0.6, sway: 0 })
+            .stand({ hold: 0.6, sway: 0 })
             .swipeTouchscreen({
               prop: "phone",
               screen: "screen",

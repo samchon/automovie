@@ -33,6 +33,17 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * (`HumanSword.SPEED`). Parameters, the advance and the parried outcome are
  * `HumanSword`'s.
  *
+ * What the row fixes: the point lands at the decisive instant (`stroke`) on
+ * a line that may leave the shoulder-to-target line by at most 40 degrees
+ * (`HumanSword.CONE`); the chamber holds the upper arm 25 degrees out from
+ * the trunk (`CHAMBER`); a target nearer than 0.3 of the arm from the
+ * shoulder in a pose the arm cannot hold is refused (`NEAR`); a target
+ * beyond 0.9 of the arm less the blade takes an advance (`HumanSword.REACH`).
+ * The duration is the sword timing model's (`IAutoMovieMotionHumanSword`):
+ * 1.875 times the path over a point speed of 2.6 m/s at novice to 3.2 m/s
+ * at elite, so a 0.8 m thrust takes 0.47 s at elite. The row fixes no
+ * duration of its own; all its values are provisional but the speeds.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States what a thrust fixes, what is chosen for it and where its timing comes from.
  * @evidence contracts/development/design.md#principled-representation One law record over the held-tool stroke planner, sharing the cut's aim, clock and parameters.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law alone.
@@ -139,20 +150,6 @@ export namespace HumanSwordThrust {
           ),
         );
 
-        // The chamber's turn about the blade is chosen for the chamber itself,
-        // as the landing's is: with the landing's turn carried back, the arm
-        // of a small body could not hold the chamber (the hand 35 degrees off
-        // what was asked, the wrist at its limits) and the fit jumped there.
-        const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-          StrikingRoll.hand(
-            context,
-            s.tool,
-            s.tool.length,
-            hilt,
-            Vector3.subtract(a.target, hilt),
-            0,
-            context.entry.posture,
-          );
         // What the advance carries the shoulder by the decisive instant: the
         // displayed shoulder of the advanced body there against the entry's,
         // each read on the whole fitted posture, since the trunk-only read
@@ -166,20 +163,59 @@ export namespace HumanSwordThrust {
             undefined,
             new Set<AutoMovieHumanoidBone>([`${s.tool.side}UpperArm`]),
           ).get(`${s.tool.side}UpperArm`)!.worldPosition;
-        const carried: number =
+        const travel: IAutoMovieVector3 =
           a.advance === "none"
-            ? 0
-            : Vector3.length(
-                Vector3.subtract(
-                  shoulderOf(a.posture),
-                  shoulderOf(context.entry.posture),
-                ),
+            ? { x: 0, y: 0, z: 0 }
+            : Vector3.subtract(
+                shoulderOf(a.posture),
+                shoulderOf(context.entry.posture),
               );
+        const carried: number = Vector3.length(travel);
 
-        // The hand sets from its entry hold to the chamber and returns to it
-        // from where the point lands.
+        // The chamber is the landing drawn back along the stroke's line, the
+        // hand's attitude kept: the arm the landing chose, its elbow and its
+        // forearm's turn, only less extended, so the attack is one basin of
+        // the arm from the chamber to the landing. A chamber turned for
+        // itself lay in the other basin of the elbow (out by the side, the
+        // landing's ahead and up), and no arm joins them along the straight
+        // hilt line: the fit let the hand go 0.30 m soft and jumped between
+        // the basins within a frame. The hand draws back, from where it
+        // lands as the entry's shoulder stands, as deep along the line as the
+        // hilt's chamber by the side lies.
+        const line: IAutoMovieVector3 = Vector3.normalize(
+          Vector3.subtract(a.target, a.reach),
+        );
+        const reached: IAutoMovieVector3 = Vector3.subtract(
+          landed.point,
+          travel,
+        );
+        const drawn: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
+          point: Vector3.subtract(
+            reached,
+            Vector3.scale(
+              line,
+              Math.max(0, Vector3.dot(Vector3.subtract(reached, hilt), line)),
+            ),
+          ),
+          rotation: landed.rotation,
+        };
+
+        // The arm sets from its entry hold to the guard, the chamber, over
+        // its own travel there, the hand's or the elbow's
+        // (`HumanSwordTiming.setting`).
         const entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
           HumanSword.held(context, s.tool.side);
+        const armTravel: number = HumanSwordTiming.setting(
+          context,
+          s.tool,
+          entered,
+          drawn,
+          landed,
+          a.posture,
+        );
+
+        // A one-handed thrust recovers along its line to the guard
+        // (`StrikingBlade.coursed`); a supported one back to the entry hold.
         const clock: IAutoMovieMotionClock = HumanSword.timed(
           context,
           Vector3.length(
@@ -188,8 +224,14 @@ export namespace HumanSwordThrust {
           s.skill(HumanSword.SPEED.thrust),
           0,
           carried,
-          HumanSwordTiming.travel(s.tool, entered, drawn),
-          HumanSwordTiming.travel(s.tool, landed, entered),
+          armTravel,
+          HumanSword.taken(context.params)
+            ? 0
+            : HumanSwordTiming.travel(
+                s.tool,
+                landed,
+                s.support === null ? drawn : entered,
+              ),
         );
 
         // The landing follows a target that moves after the start.
@@ -198,7 +240,7 @@ export namespace HumanSwordThrust {
           a.target,
           clock.at("stroke"),
         );
-        const planned: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
+        const planned: IAutoMovieMotionHumanActionPlan = StrikingBlade.coursed(
           context,
           {
             tool: s.tool,
@@ -219,9 +261,16 @@ export namespace HumanSwordThrust {
             advance: a.advance,
             travel: a.travel,
             line: a.line,
-            stay: false,
-            stop: HumanSword.stopped(context.params),
+            stay: HumanSword.taken(context.params),
+            stop: HumanSword.stopped(
+              context,
+              HumanSword.weak(s.tool, drawn),
+              HumanSword.weak(s.tool, landed),
+              a.target,
+              a.line,
+            ),
           },
+          armTravel,
         );
 
         // Observations read while the schedule was being resolved are

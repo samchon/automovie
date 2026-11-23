@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -41,7 +41,7 @@ const MASS_PER_HEIGHT: number = 0.5;
  *
  * @param params The piece's kind, side and optional scene id.
  * @returns The inert piece and its contact frames, metres.
- * @throws {ArchetypeRefusal} For a kind or side outside the set.
+ * @throws {AutoMovieArchetypeRefusal} For a kind or side outside the set.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the source heights and base, the frame and the two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A base disc, a body and a head at the kind's FIDE height, the base at 45 percent of it.
@@ -53,7 +53,7 @@ const MASS_PER_HEIGHT: number = 0.5;
  */
 export function createChessPiece(
   params: createChessPiece.IParams,
-): Archetype<createChessPiece.Affordance, createChessPiece.Dimension> {
+): AutoMovieArchetype<createChessPiece.Affordance, createChessPiece.Dimension> {
   const kind: createChessPiece.Kind = ArchetypeDraw.choice(
     "chessPiece",
     "kind",
@@ -69,8 +69,8 @@ export function createChessPiece(
   const v: typeof Vector3.create = Vector3.create;
   const height: number = HEIGHTS[kind];
   const base: number = BASE * height;
-  const draw: ArchetypeDrawSession<createChessPiece.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createChessPiece.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "chessPiece",
       { height: "m", base: "m", mass: "kg" },
       undefined,
@@ -78,10 +78,10 @@ export function createChessPiece(
   draw.derive("height", height);
   draw.derive("base", base);
   draw.derive("mass", MASS_PER_HEIGHT * height);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createChessPiece.Affordance,
     createChessPiece.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "chessPiece",
     name: `${side} ${kind}`,
     material: "wood",
@@ -97,7 +97,7 @@ export function createChessPiece(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0.85 * height, 0),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -110,7 +110,7 @@ export function createChessPiece(
   builder.affordance({
     id: "base",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
   return builder.build(MASS_PER_HEIGHT * height);

@@ -7,7 +7,7 @@ import type {
   IAutoMovieAffordanceArticulation,
 } from "@automovie/interface";
 
-import { ArchetypeRefusal } from "./ArchetypeRefusal";
+import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
 /**
  * Resolves authored articulation inputs to independent leaders, reversing only couplings that explicitly permit it.
@@ -17,15 +17,7 @@ import { ArchetypeRefusal } from "./ArchetypeRefusal";
  * @param articulations The model's articulation ids.
  * @param state The authored travels, in each named articulation's unit.
  * @returns One travel per independently driven leader. The authored state is unchanged.
- * @throws {ArchetypeRefusal} For an unknown articulation, an out-of-range travel, a non-reversible follower, a non-invertible or unresolved coupling, a follows cycle, or two inputs driving the same leader. Redundant inputs are refused too, so input order never decides the state.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the units, permitted reversal, result, immutability and refusals including duplicate inputs.
- * @evidence contracts/development/implementation.md#principled-implementation The engine's AffordanceArticulation.input admits each named input through explicitly reversible maps and exact forward endpoint images. An independent degree of freedom receives exactly one authored input, including when redundant authored coordinates agree.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One engine admission per authored input, a producer-specific structured refusal on failure, then the independent leader map consumed by forward articulation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No producer names, clamping, duplicate-input precedence or inversion of an unmarked follower.
- * @evidence contracts/development/implementation.md#efficient-algorithms O(S times (D plus T)) for S authored inputs, follows depth D and table rows T along each path; state and visited maps are bounded by the model's articulations.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares input admission and travel coordinates with engine and motion consumers; independent inputs are normalized once per pose.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The leader map lives for one pose; the engine releases each temporary chain before the next input.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown articulation, an out-of-range travel, a non-reversible follower, a non-invertible or unresolved coupling, a follows cycle, or two inputs driving the same leader. Redundant inputs are refused too, so input order never decides the state.
  */
 export function ArchetypeArticulationState(
   archetype: string,
@@ -42,7 +34,7 @@ export function ArchetypeArticulationState(
       const at: IAutoMovieAffordance | undefined = byId.get(resolved.id);
       if (resolved.kind === "range" && at !== undefined) {
         const { minimum, maximum } = affordanceTravelRange(at);
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: "articulation",
           archetype,
           axis: at.id,
@@ -59,7 +51,7 @@ export function ArchetypeArticulationState(
           fix: "set the travel inside the articulation's range",
         });
       }
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "articulation",
         archetype,
         axis: resolved.kind === "reference" ? "articulation" : resolved.id,
@@ -84,7 +76,7 @@ export function ArchetypeArticulationState(
       });
     }
     if (inputs.has(resolved.id))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "articulation",
         archetype,
         axis: id,

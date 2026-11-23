@@ -4,11 +4,6 @@ import type {
 } from "../../index";
 
 /** Source-only distal topology observed above one existing closed-loop seed. The maximum and PL critical positions are measurements in the registered millimetre frame, not source mesh payloads. Multiple extrema, open incidence, plateaus and unqualified links remain explicit; they never authorize a single fabricated cap.
- *
- * @evidence contracts/development/design.md#principled-representation Clipped indexed-source connectivity associates the seed with private vertex-incidence probes; actual projection extrema and existing lower/upper-link classification determine terminal observations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One source-free record carries the seed, observed critical relations and additional physical stations separately from generated skin.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No source topology, normals, copied specimen surface, nearest-point identity, clamped coordinate or invented terminal is returned.
- * @evidence contracts/development/common.md#meaningful-documentation States measurement units, one-tip qualification, multiple-branch limits, critical brackets and additional-station meaning.
  */
 export interface IAutoMovieRecoverySourceTerminal {
   /** Published source loop followed toward increasing scalar coordinates. */

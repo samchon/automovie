@@ -4,6 +4,11 @@
  * planted end with the pole, lets go as the pole stands upright, and flies
  * on to come down lying on the landing surface.
  *
+ * No duration is authored: the swing follows the energy of a pendulum from
+ * the run's speed (at least 1 m/s, `poleVault.RUN`; the take-off rises at 20
+ * degrees, `poleVault.ANGLE`, Linthorne and Weetman 2012) and the flight is
+ * the ballistic fall under gravity 9.80665 m/s2 to the landing surface.
+ *
  * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before,
  * typically by a pick up with a use, and rigid in the hand. Its planted end
  * is the prop's `tip` affordance, or the one named.
@@ -35,22 +40,10 @@
  * other hand keeps the jump's arm swing; the released pole is not planned.
  *
  * Events: `takeoff` (the plant), `release`, `touchdown`, `settled`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation end: The pole's affordance planted on the floor; `tip` when absent. on: The prop landed on, its subject id, whose `surface` is the landing's height; the floor when absent.
- * @evidence contracts/development/design.md#principled-representation end: The pole's affordance planted on the floor; `tip` when absent. on: The prop landed on, its subject id, whose `surface` is the landing's height; the floor when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/poleVault.ts (poleVault.plan, context); sport/poleVault.ts (poleVault.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in poleVault.plan.
  */
 export namespace IAutoMovieMotionHumanPoleVault {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The pole and its planted end, and the landing surface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Subject and affordance ids.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The pole, its subject id; a hand holds it at the entry. */

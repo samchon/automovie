@@ -2,10 +2,10 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createScenicContainer } from "./createScenicContainer";
 
@@ -35,7 +35,7 @@ const v: typeof Vector3.create = Vector3.create;
 
 /** A selected scenic support construction, with all dimensions in the saved units. */
 type Builder<Id extends createScenicContainer.Affordance | "mount"> =
-  ArchetypeBuilder<Id, createScenicContainer.Dimension>;
+  AutoMovieArchetypeBuilder<Id, createScenicContainer.Dimension>;
 
 /** Shape writers consume their contact IDs without exposing a fluent builder result. */
 type ShapeWriter<Id extends createScenicContainer.Affordance> = {
@@ -62,8 +62,8 @@ function draw<Id extends DrawContact>(
   params: Omit<createScenicContainer.IParams, "kind">,
   seed?: number | string,
 ): IDrawResult<Id> {
-  const session: ArchetypeDrawSession<createScenicContainer.Dimension> =
-    new ArchetypeDrawSession(
+  const session: AutoMovieArchetypeDrawSession<createScenicContainer.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "scenicContainer",
       createScenicContainer.UNITS,
       seed,
@@ -71,7 +71,7 @@ function draw<Id extends DrawContact>(
     );
   const dimensions: Record<createScenicContainer.Dimension, number> =
     session.dimensions(createScenicContainer.BANDS[kind]);
-  const builder: Builder<Id> = new ArchetypeBuilder({
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: NAMES[kind],
@@ -100,7 +100,7 @@ function surface<Id extends createScenicContainer.Affordance>(
   builder.affordance({
     id,
     kind: "stack-top",
-    frame: ArchetypeFrame.upright(v(0, y, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, y, 0)),
     extent: [
       v(-width / 2, 0, -depth / 2),
       v(width / 2, 0, -depth / 2),
@@ -343,49 +343,26 @@ function pod(
 
 /**
  * Scenic container shells and their supported placement surfaces or cargo mounting frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Scenic container shells and their supported placement surfaces or cargo mounting frame.
- * @evidence contracts/development/design.md#principled-representation Each construction applies the selected variant's coordinate frame and dimensions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Used by the named producers and the legacy selector.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace ScenicContainerConstruction {
   /**
    * The values {@link baskets} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of baskets.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only baskets and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type BasketsKind = "coilBasket" | "woodenFishBasket";
 
   /**
    * The contact ids {@link baskets} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of baskets.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only baskets and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type BasketsContact = "top" | "inside";
 
   /**
    * Build a lidded coil basket or an open fish basket.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a lidded coil basket or an open fish basket.
-   * @evidence contracts/development/implementation.md#principled-implementation The coil basket's closed lid and the fish basket's clear floor each supply the footprint supported by their own geometry.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The two documented coarse silhouettes retain their covered-top or open-bottom contracts.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each basket uses a fixed number of cells.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function baskets(
     kind: BasketsKind,
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<BasketsContact, createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<BasketsContact, createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<BasketsContact>> =
       draw<BasketsContact>(kind, params, seed);
     const {
@@ -401,19 +378,11 @@ export namespace ScenicContainerConstruction {
 
   /**
    * Build a closed plank coffer with a stacking footprint on its lid.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a closed plank coffer with a stacking footprint on its lid.
-   * @evidence contracts/development/implementation.md#principled-implementation The lid's supported top spans the measured rectangular outline.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The coarse closed construction retains the same supported footprint and geometry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four boxes and one contact.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function closedCoffer(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"top", createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<"top", createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<"top">> = draw<"top">(
       "plankCoffer",
       params,
@@ -431,19 +400,11 @@ export namespace ScenicContainerConstruction {
 
   /**
    * Build an open molded crate with a stacking footprint inside the rim.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build an open molded crate with a stacking footprint inside the rim.
-   * @evidence contracts/development/implementation.md#principled-implementation The ribbed walls surround a clear interior over the physical floor. The placement rectangle ends before the walls.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The earlier illustrative molded crate dimensions and sparse rails are reused.
-   * @evidence contracts/development/implementation.md#efficient-algorithms A fixed number of ribs and rails.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function openCrate(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"inside", createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<"inside", createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<"inside">> =
       draw<"inside">("moldedCrate", params, seed);
     const {
@@ -458,19 +419,11 @@ export namespace ScenicContainerConstruction {
 
   /**
    * Replay the scenic cargo pod with its cap stacking footprint.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Replay the scenic cargo pod with its cap stacking footprint.
-   * @evidence contracts/development/implementation.md#principled-implementation Three faceted sections taper to the cap. The footprint is entirely on that cap.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The legacy appearance and single stacking contact replay exactly.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three solids with at most sixteen corners each.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the historical selector calls this construction. It shares the pod geometry and draw namespace with mountedPod.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function scenicPod(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<"top", createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<"top", createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<"top">> = draw<"top">(
       "cargoPod",
       params,
@@ -488,29 +441,16 @@ export namespace ScenicContainerConstruction {
 
   /**
    * The contact ids {@link mountedPod} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of mountedPod.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only mountedPod and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type MountedPodContact = "top" | "mount";
 
   /**
    * Build a cargo pod with both a stacking cap and a lower mounting socket.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a cargo pod with both a stacking cap and a lower mounting socket.
-   * @evidence contracts/development/implementation.md#principled-implementation Three faceted sections follow the saved size. The mounting origin lies on the base face and its +Y axis is up.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The added socket is an authoring frame only. No fastener or extra shape is drawn.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three solids and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only the named producer calls this construction. It shares the pod geometry and draw namespace with scenicPod, so both paths give the same parts at a seed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function mountedPod(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<MountedPodContact, createScenicContainer.Dimension> {
+  ): AutoMovieArchetype<MountedPodContact, createScenicContainer.Dimension> {
     const { builder, dimensions }: ReturnType<typeof draw<MountedPodContact>> =
       draw<MountedPodContact>("cargoPod", params, seed);
     const {
@@ -525,7 +465,7 @@ export namespace ScenicContainerConstruction {
       id: "mount",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
       extent: null,
     });
     return builder.build(mass);

@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createBoxingGlove,
   createHeavyBag,
 } from "@automovie/archetypes";
@@ -85,16 +85,16 @@ export function test_archetype_boxing_equipment(): void {
       ),
       row(
         "bag height",
-        46 * ArchetypeUnits.INCH,
-        59 * ArchetypeUnits.INCH,
+        46 * AutoMovieArchetypeUnits.INCH,
+        59 * AutoMovieArchetypeUnits.INCH,
         "listings",
         (s: number): number =>
           archetypeExtent(createHeavyBag({}, s), "y", ["bag"]).size,
       ),
       row(
         "bag diameter",
-        13 * ArchetypeUnits.INCH,
-        14.5 * ArchetypeUnits.INCH,
+        13 * AutoMovieArchetypeUnits.INCH,
+        14.5 * AutoMovieArchetypeUnits.INCH,
         "listings",
         (s: number): number =>
           archetypeExtent(createHeavyBag({}, s), "x", ["bag"]).size,
@@ -107,7 +107,7 @@ export function test_archetype_boxing_equipment(): void {
           createBoxingGlove({}, s).body.mass,
         ],
         models: [[8], [10], [12]].map((oz: number[]): number[] => [
-          oz[0]! * ArchetypeUnits.OUNCE,
+          oz[0]! * AutoMovieArchetypeUnits.OUNCE,
         ]),
         source: `${IBA}, rule 45.6`,
       },
@@ -121,7 +121,7 @@ export function test_archetype_boxing_equipment(): void {
   const fist: { low: number; high: number } = archetypeExtent(glove, "z", [
     "fist",
   ]);
-  const out: IAutoMovieVector3 = ArchetypeFrame.axis(wear.frame, "y");
+  const out: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(wear.frame, "y");
   if (
     !(
       wear.frame.translation.z > fist.low &&
@@ -134,7 +134,7 @@ export function test_archetype_boxing_equipment(): void {
     );
   if (
     Math.abs(face.frame.translation.z - fist.high) > 1e-9 ||
-    ArchetypeFrame.axis(face.frame, "y").z < 0.999 ||
+    AutoMovieArchetypeFrame.axis(face.frame, "y").z < 0.999 ||
     face.direction !== "normal"
   )
     findings.push(
@@ -150,7 +150,7 @@ export function test_archetype_boxing_equipment(): void {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
   const inside = (along: number): boolean => {
-    const at: IAutoMovieVector3 = ArchetypeFrame.point(
+    const at: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(
       bag.affordance("target").frame,
       { x: 0, y: along, z: 0 },
     );

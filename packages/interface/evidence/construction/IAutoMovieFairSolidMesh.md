@@ -1,0 +1,35 @@
+# src/construction/IAutoMovieFairSolidMesh.ts#IAutoMovieFairSolidMesh
+
+## @evidence contracts/development/design.md#principled-representation
+
+Vertex IDs and edge-path radii identify regions in the mesh's millimetre frame.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+fairAutoMovieSolidMesh consumes these regions after construction draws and closes the skin.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Fairing moves positions while retaining original owner/chart addresses; a region is not a new analytic surface.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States selection units and the source-ownership consequence of movement.
+
+# src/construction/IAutoMovieFairSolidMesh.ts#IAutoMovieFairSolidMesh.IRegions
+
+## @evidence contracts/development/design.md#principled-representation
+
+Seeds and positive millimetre radii specify path neighborhoods rather than world-space balls or chart distances.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Construction resolves surface/datum seeds to vertex IDs before invoking this common mesh operation.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+Runtime checks admit descriptors and the fixed rim; the result does not become an analytic surface with certified continuity.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Documents empty behavior, validation, overlap, position mutation and retained source addresses.

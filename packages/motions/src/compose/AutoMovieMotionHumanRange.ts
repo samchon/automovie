@@ -34,11 +34,6 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  *
  * An amount has three rungs: a level, a level with a scale in [0.5, 1.5], or
  * explicit degrees (a magnitude, signed by the motion) with their source.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what a level is a share of, which limit each motion reads, the sign of the result and the three rungs.
- * @evidence contracts/development/design.md#principled-representation A share of the joint's own range, the normalisation joint-discomfort posture prediction uses, so a level means the same effort at every joint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One table of five levels and five functions; the only owner of amounts by level.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Levels and motions are closed unions; the ranges are the engine's and are not copied here.
  */
 export namespace AutoMovieMotionHumanRange {
   /** The levels of {@link IAutoMovieMotionHumanRange.Level}, as data. */
@@ -81,14 +76,6 @@ export namespace AutoMovieMotionHumanRange {
    * @param amount A level, or a level with a scale.
    * @returns The share, in (0, 1].
    * @throws {Error} When the scale lies outside [0.5, 1.5] or the scaled share exceeds 1.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the result's range and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The level's share times the scale.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup and one product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped: a scale past its bound throws and names the neighbouring level.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function share(
     amount:
@@ -126,14 +113,6 @@ export namespace AutoMovieMotionHumanRange {
    * @param amount The amount, on any rung.
    * @returns Signed degrees, as the posture's clinical angles are.
    * @throws {Error} When the joint has no range, the motion's axis is locked or has no room, explicit degrees are negative or past the limit, or an explicit source is empty.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result's sign and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The share times the motion's limit in `DEFAULT_HUMANOID_ROM`, measured from the joint's rest at 0; explicit degrees take the limit's sign.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One limit lookup, then one branch per rung.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped: a locked axis and degrees past the limit throw.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the engine's range table and delegates the share to `share`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function degrees(
     bone: AutoMovieHumanoidBone,
@@ -154,14 +133,6 @@ export namespace AutoMovieMotionHumanRange {
    * @param bone The joint.
    * @param motion The motion.
    * @returns Signed degrees, or null when the joint has no range, the motion's axis is locked or the limit is 0.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result's sign and what null means.
-   * @evidence contracts/development/implementation.md#principled-implementation The end of the motion's axis in `DEFAULT_HUMANOID_ROM`, as the namespace's table maps motions to limits.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis choice and one end choice.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A motion with no room reads as null, never as 0 degrees.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the engine's range table; `degrees` and the resolve table both read limits here.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function limit(
     bone: AutoMovieHumanoidBone,
@@ -190,14 +161,6 @@ export namespace AutoMovieMotionHumanRange {
    * @param amount The amount, on any rung.
    * @returns Degrees, not negative.
    * @throws {Error} When explicit degrees are negative or past the limit, or an explicit source is empty.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the limit the share is of, and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The trunk's lean is a root pitch and roll and not one joint, so its range is the limit the reach leans to, `AutoMovieMotionHumanReach.LEAN_LIMIT`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per rung.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is clamped.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the reach's limit and `share`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function lean(amount: IAutoMovieMotionHumanRange.Amount): number {
     const end: number = AutoMovieMotionHumanReach.LEAN_LIMIT;
@@ -213,14 +176,6 @@ export namespace AutoMovieMotionHumanRange {
    * @param body The body.
    * @param share The share of the stature.
    * @returns Metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result's unit.
-   * @evidence contracts/development/implementation.md#principled-implementation A small whole-body displacement scales with the body's height, so the same share is the same movement on a short and a tall body.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No metres are typed by the caller.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One product with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function shift(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,

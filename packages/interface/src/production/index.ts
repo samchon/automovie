@@ -236,7 +236,6 @@ export type { IAutoMovieSubjectBounds } from "./IAutoMovieSubjectBounds";
 export type { IAutoMovieSubjectBox } from "./IAutoMovieSubjectBox";
 export type { IAutoMovieSubjectChange } from "./IAutoMovieSubjectChange";
 export type { IAutoMovieSubjectContribution } from "./IAutoMovieSubjectContribution";
-export type { IAutoMovieSubjectDescriber } from "./IAutoMovieSubjectDescriber";
 export type { IAutoMovieSubjectDescription } from "./IAutoMovieSubjectDescription";
 export type { IAutoMovieSubjectDiff } from "./IAutoMovieSubjectDiff";
 export type { IAutoMovieSubjectDiffFanout } from "./IAutoMovieSubjectDiffFanout";

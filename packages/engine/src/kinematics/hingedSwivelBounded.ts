@@ -9,20 +9,10 @@ const STEP: number = hingedArmSwivel.STEP;
  * bound (Land and Doig 1960): the same candidates, local minima,
  * refinements and choice as the full sweep, with a step scored only when its
  * value can still matter.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the method, its source and what stays the sweep's; `sweep` states the premise and the proof.
- * @evidence contracts/development/design.md#principled-representation A branch's scorer, caches, refusal and certified bound; a candidate's comparator keys.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two records and the search, all read by `hingedArmArticulation`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The score keys are the comparator's own (`hingedSwivelAhead`) and the caches the articulation's, shared with its full pass.
  */
 export namespace hingedSwivelBounded {
   /**
    * A candidate's comparator keys.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning.
-   * @evidence contracts/development/design.md#principled-representation The keys `hingedSwivelAhead` compares.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The members the comparator and this search read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None added.
    */
   export interface IScore {
     /** ROM overshoot plus obstruction, degrees; zero is legal. */
@@ -33,14 +23,6 @@ export namespace hingedSwivelBounded {
 
     /**
      * The exact deviation.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns and when it is read.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     exact?: () => number;
 
@@ -49,14 +31,6 @@ export namespace hingedSwivelBounded {
 
     /**
      * A second key, unused by this search's policy.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States what the reader returns and when it is read.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     tiebreak?: () => number;
 
@@ -66,23 +40,10 @@ export namespace hingedSwivelBounded {
 
   /**
    * One bend branch of the sweep.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and owner.
-   * @evidence contracts/development/design.md#principled-representation The branch's scorer, its completed work, its refusal and its certified bound.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Five members, all read by the search.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caches are the articulation's, shared with its full pass.
    */
   export interface IBranch<T> {
     /**
      * The actual scorer at a swivel, degrees.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the argument's unit and the candidate returned.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     probe: (angle: number) => T;
 
@@ -97,14 +58,6 @@ export namespace hingedSwivelBounded {
 
     /**
      * A certified lower bound of the exact deviation of every candidate at a swivel from `low` to `high` degrees.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation States the interval's unit and what the bound is of.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A slot its caller fills; the interface declares it and implements nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A slot its caller fills; the interface declares it and implements nothing.
      */
     bound: (low: number, high: number) => number;
   }
@@ -139,14 +92,6 @@ export namespace hingedSwivelBounded {
    *
    * @param props The branches with their scorers, caches, refusals and bounds; the candidate order; the refinement; the comparator's tie width when it has one; and the exact deviation of a legal candidate the caller read (`incumbent`), which starts the visit's stop: kept where the choice is legal and no worse than it, every unvisited bracket then holding only candidates strictly behind the choice, and dropped otherwise for the visit without it.
    * @returns The chosen candidate, none when every step is refused, and whether any step was refused.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order, the stop, why skipped candidates cannot change the choice or a minimum, the fold and the premise.
-   * @evidence contracts/development/implementation.md#principled-implementation Branch and bound with a certified lower bound: a candidate whose bound's key (the deviation, or its bucket under a tie width) exceeds an actual legal candidate's exact key is strictly behind it in the lexicographic order (legality first, the deviation's key second), so it is never the sweep's choice and never decides another step's refinement differently. A caller's incumbent stops the visit the same way and is kept only where the choice is legal and no worse than it, so the pruned brackets are strictly behind the choice; otherwise the visit runs without it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Per branch: the refusals, the bounded visit with its exact local-minimum tests, then the sweep-ordered fold.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No step, tolerance, refinement count or score changes; a bound that cannot decide scores the candidate, and a sweep with no legal candidate visits every unrefused step.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One bracket-bound read per step admitted by the branch refusal, one more for each neighbour of a visited step, and one sort of at most 360 steps per branch; scoring, refinement and obstruction work run only for the steps the bound cannot exclude. Unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Scored steps and refinements land in the branch's caches, which the articulation's full fallback pass reads again under the same unchanged score.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Per-branch bound and order arrays and one set of minima live until return; candidates go to the caller's caches.
    */
   export function sweep<T extends IScore>(props: {
     branches: readonly IBranch<T>[];

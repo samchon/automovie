@@ -23,7 +23,6 @@ export type { IAutoMovieMotionHumanStickBall } from "./IAutoMovieMotionHumanStic
 export type { IAutoMovieMotionHumanRoundOff } from "./IAutoMovieMotionHumanRoundOff";
 export type { IAutoMovieMotionHumanSalto } from "./IAutoMovieMotionHumanSalto";
 export type { IAutoMovieMotionHumanSquatVault } from "./IAutoMovieMotionHumanSquatVault";
-export type { IAutoMovieMotionHumanSwim } from "./IAutoMovieMotionHumanSwim";
 export type { IAutoMovieMotionHumanSwimImmersed } from "./IAutoMovieMotionHumanSwimImmersed";
 export type { IAutoMovieMotionHumanSwimStroke } from "./IAutoMovieMotionHumanSwimStroke";
 export type { IAutoMovieMotionHumanVault } from "./IAutoMovieMotionHumanVault";

@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeDraw, ArchetypeFrame } from "../core";
+import {
+  ArchetypeDraw,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { StageTokenConstruction } from "./StageTokenConstruction";
 import { createProjectile } from "./createProjectile";
 
@@ -12,10 +16,10 @@ import { createProjectile } from "./createProjectile";
  * @param params The scene id and this digital form's catalogue or sizing options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the inert display form and its actor contact.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the existing stage form's actual visible silhouette and model-space contact.
+ * @evidence contracts/development/implementation.md#principled-implementation Uses the existing stage form's visible silhouette and model-space contact.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds the selected mesh and contact once with the shared draw.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
@@ -25,7 +29,7 @@ import { createProjectile } from "./createProjectile";
 export function createStageShaftToken(
   params: createStageShaftToken.IParams,
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStageShaftToken.Affordance,
   createStageShaftToken.Dimension
 > {
@@ -60,7 +64,7 @@ export function createStageShaftToken(
       id: "shaft",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, (length - head) / 2, 0),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -76,7 +80,11 @@ export function createStageShaftToken(
       id: "nockGrip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, PINCH, 0), v(0, 0, -1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, PINCH, 0),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "precision",
       aperture: 2 * r,
@@ -85,14 +93,18 @@ export function createStageShaftToken(
     builder.affordance({
       id: "nock",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, 0, 0),
+        v(0, -1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
     builder.affordance({
       id: "tip",
       kind: "surface",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, length, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, length, 0)),
       extent: null,
     });
     return builder.build(d.mass!, {

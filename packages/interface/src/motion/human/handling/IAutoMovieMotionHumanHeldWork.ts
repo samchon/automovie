@@ -8,27 +8,17 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * and the prop may take another prop onto one of its sockets (a morsel
  * pinched between chopstick tips). The grip never opens, so the prop stays
  * in the palm's frame throughout.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the three things a held work does and the kept grip.
- * @evidence contracts/development/design.md#principled-representation Articulation travel in its own unit, places in the body's floor frame and sockets by id.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `workHeld` reads, and the drive and mount records `write` shares.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The prop is read through its declared articulations and sockets; no prop kind is named.
  */
 export namespace IAutoMovieMotionHumanHeldWork {
   /**
    * The parameters of `workHeld`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the held prop, the hand, the drives, the place, the take and the duration.
-   * @evidence contracts/development/design.md#principled-representation Seconds, metres in the floor frame and articulation units.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs the law reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A work that neither drives, moves nor takes is refused.
    */
   export interface IParams {
     /** The held prop's subject id. */
     prop: string;
 
     /** The holding hand; the one holding `prop` at entry when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** Articulations the holding hand's fingers drive, all over the same span. */
     drive?: readonly IDrive[];
@@ -42,17 +32,12 @@ export namespace IAutoMovieMotionHumanHeldWork {
     /** The other hand's grip kept on a contact riding a driven articulation, moving it: the free hand pushing an umbrella's runner up the shaft. Not with `at`: the holding hand stays still while the other works. */
     push?: string;
 
-    /** Seconds of the work before tempo scaling; positive. */
-    seconds: number;
+    /** Seconds of the work before tempo scaling; positive. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
+    duration: number;
   }
 
   /**
    * One articulation driven to a travel.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the articulation and its target travel with its unit.
-   * @evidence contracts/development/design.md#principled-representation Degrees for a turning articulation, metres otherwise, as the engine's articulation map has them.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a drive reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The travel must lie in the articulation's declared range.
    */
   export interface IDrive {
     /** The articulation affordance id on the held prop. */
@@ -67,11 +52,6 @@ export namespace IAutoMovieMotionHumanHeldWork {
 
   /**
    * A digit of the holding hand kept on a moving contact of the held prop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the digit and the contact it stays on.
-   * @evidence contracts/development/design.md#principled-representation A digit name and an affordance id riding the driven articulation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a drive's digit goal reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The contact must ride the driven articulation.
    */
   export interface IDigit {
     /** Which digit, on the holding hand. */
@@ -81,16 +61,13 @@ export namespace IAutoMovieMotionHumanHeldWork {
     site: string;
   }
 
-  /** A digit of one hand. */
+  /**
+   * A digit of one hand.
+   */
   export type Digit = "thumb" | "index" | "middle" | "ring" | "little";
 
   /**
    * A prop set on a socket, riding it from the instant it is set.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the prop and the socket.
-   * @evidence contracts/development/design.md#principled-representation Subject and affordance ids.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a take or a leave reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The socket must exist on its prop.
    */
   export interface IMount {
     /** The prop's subject id. */
@@ -103,11 +80,6 @@ export namespace IAutoMovieMotionHumanHeldWork {
   /**
    * A hand place in the performer's floor frame: the frame at the pelvis'
    * floor point, turned to the performer's heading.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the three offsets and their frame.
-   * @evidence contracts/development/design.md#principled-representation Metres along the heading's right, up and forward.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `workHeld` places the held prop's origin at.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A place beyond the arm is refused.
    */
   export interface IPlace {
     /** Metres toward the holding hand's side. */
@@ -126,11 +98,6 @@ export namespace IAutoMovieMotionHumanHeldWork {
   /**
    * A second held tool kept still on the work through a stroke: a fork's
    * tines pinning the food the knife saws.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the steadying tool, its working point and where on the surface it stays.
-   * @evidence contracts/development/design.md#principled-representation A subject, an affordance id and a planar point on the stroke's surface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `write` reads for its steadying hand.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The tool must be held by the other hand.
    */
   export interface ISteady {
     /** The other hand's held tool. */

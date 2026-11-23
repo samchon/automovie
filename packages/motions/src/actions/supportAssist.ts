@@ -1,7 +1,12 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces, resolveAutoMovieMutualGoal } from "@automovie/engine";
+import {
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+  resolveAutoMovieMutualGoal,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
@@ -9,7 +14,6 @@ import type {
   IAutoMovieMotionMeetingKind,
   IAutoMovieMotionMeetingRole,
   IAutoMovieMotionMeetingTiming,
-  IAutoMovieHumanoidSurfaces,
   IAutoMovieResolveMutualGoal,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,8 +23,8 @@ import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { getUp } from "../floor/getUp";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { supportKey } from "./supportKey";
 import { supportContact } from "./supportContact";
+import { supportKey } from "./supportKey";
 
 /**
  * The common hand course of two supports during an assisted rise. First
@@ -35,7 +39,10 @@ import { supportContact } from "./supportContact";
  */
 export namespace supportAssist {
   /** Contacts and instants of a paired support. */
-  const ROLES: readonly IAutoMovieMotionHumanSupport.AssistRole[] = ["helper", "helped"];
+  const ROLES: readonly IAutoMovieMotionHumanSupport.AssistRole[] = [
+    "helper",
+    "helped",
+  ];
 
   /** Taking the lying palm, sitting under it, and transferring to the squat. */
   const CONTACTS: readonly ["take", "seat", "lift"] = ["take", "seat", "lift"];
@@ -60,7 +67,10 @@ export namespace supportAssist {
   type GripPoint = IAutoMovieVector3 | undefined;
 
   /** Find a partner's grip at a whole or fractional phase index. */
-  type GripReader = (contact: IAutoMovieMotionHumanSupport.IContact, phase: number) => GripPoint;
+  type GripReader = (
+    contact: IAutoMovieMotionHumanSupport.IContact,
+    phase: number,
+  ) => GripPoint;
 
   /** Ordinary support has no shared grip reader. */
   type OptionalGripReader = GripReader | undefined;
@@ -84,20 +94,35 @@ export namespace supportAssist {
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
   ): OptionalGripReader {
-    const assist: IAutoMovieMotionHumanSupport.IAssist | undefined = context.params.assist;
+    const assist: IAutoMovieMotionHumanSupport.IAssist | undefined =
+      context.params.assist;
     if (assist === undefined) return undefined;
     const meeting: IAutoMovieMotionMeeting = context.meeting(
-      kind(assist.side),
+      kind(assist.hand),
       assist.role,
-      { role: assist.role === "helper" ? "helped" : "helper", subject: assist.partner },
+      {
+        role: assist.role === "helper" ? "helped" : "helper",
+        subject: assist.partner,
+      },
     );
-    const hand: IAutoMovieMotionHumanSupport.Part = `${assist.side}Hand`;
-    const keys: readonly IAutoMovieVector3[] = CONTACTS.map((phase: Phase): IAutoMovieVector3 =>
-      AutoMovieMotionMeeting.place(meeting, phase, context.entry.posture).point);
-    return (contact: IAutoMovieMotionHumanSupport.IContact, phase: number): GripPoint => {
-      if (contact.part !== hand || contact.kind !== "grip" ||
-        contact.target === "on" || contact.target?.kind !== "person" ||
-        contact.target.subject !== assist.partner) return undefined;
+    const hand: IAutoMovieMotionHumanSupport.Part = `${assist.hand}Hand`;
+    const keys: readonly IAutoMovieVector3[] = CONTACTS.map(
+      (phase: Phase): IAutoMovieVector3 =>
+        AutoMovieMotionMeeting.place(meeting, phase, context.entry.posture)
+          .point,
+    );
+    return (
+      contact: IAutoMovieMotionHumanSupport.IContact,
+      phase: number,
+    ): GripPoint => {
+      if (
+        contact.part !== hand ||
+        contact.kind !== "grip" ||
+        contact.target === "on" ||
+        contact.target?.kind !== "person" ||
+        contact.target.subject !== assist.partner
+      )
+        return undefined;
       const before: number = Math.floor(phase);
       const a: GripPoint = keys[before];
       const b: GripPoint = keys[before + 1];
@@ -118,51 +143,130 @@ export namespace supportAssist {
         seat: AutoMovieMotionHumanTarget.DEFAULTS.ahead,
         lift: AutoMovieMotionHumanTarget.DEFAULTS.ahead,
       },
-      timing: (): IAutoMovieMotionMeetingTiming => ({ ready: seconds, stroke: 2 * seconds, relax: CONTACTS.length * seconds }),
-      place: (roles: readonly IAutoMovieMotionMeetingRole[]): Record<Phase, IAutoMovieVector3> => {
-        const helped: IAutoMovieMotionMeetingRole = roles.find((r: IAutoMovieMotionMeetingRole): boolean => r.name === "helped")!;
-        const helper: IAutoMovieMotionMeetingRole = roles.find((r: IAutoMovieMotionMeetingRole): boolean => r.name === "helper")!;
+      timing: (): IAutoMovieMotionMeetingTiming => ({
+        ready: seconds,
+        stroke: 2 * seconds,
+        relax: CONTACTS.length * seconds,
+      }),
+      place: (
+        roles: readonly IAutoMovieMotionMeetingRole[],
+      ): Record<Phase, IAutoMovieVector3> => {
+        const helped: IAutoMovieMotionMeetingRole = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === "helped",
+        )!;
+        const helper: IAutoMovieMotionMeetingRole = roles.find(
+          (r: IAutoMovieMotionMeetingRole): boolean => r.name === "helper",
+        )!;
         const entry: IAutoMovieMotionHumanPosture = posture(helped);
         const hip: IAutoMovieVector3 = helped.bones.get("hips")!.worldPosition;
         const seat: IAutoMovieVector3 = { x: hip.x, y: 0, z: hip.z };
         const sitting: IAutoMovieMotionHumanPosture = supportKey.preferred(
-          helped.body, entry, { contacts: [{ part: "seat", kind: "bear" }], prefer: getUp.POSES.sit },
-          entry, (): IAutoMovieVector3 => seat,
+          helped.body,
+          entry,
+          {
+            contacts: [{ part: "seat", kind: "bear" }],
+            prefer: getUp.POSES.sit,
+          },
+          entry,
+          (): IAutoMovieVector3 => seat,
         );
 
         // The helper stays on the same planted feet through both keys.
-        const hold: IAutoMovieResolveMutualGoal.ISide = shoulder(helper, side, squat(helper, posture(helper)));
-        const frame: IAutoMovieHumanoidSurfaces.IFrame = helped.body.surfaces.regions[side === "left" ? "palmLeft" : "palmRight"];
+        const hold: IAutoMovieResolveMutualGoal.ISide = shoulder(
+          helper,
+          side,
+          squat(helper, posture(helper)),
+        );
+        const frame: IAutoMovieHumanoidSurfaces.IFrame =
+          helped.body.surfaces.regions[
+            side === "left" ? "palmLeft" : "palmRight"
+          ];
         return {
-          take: resolveAutoMovieHumanoidSurfaces.point(frame, helped.bones.get(frame.bone)!),
-          seat: resolveAutoMovieMutualGoal({ a: shoulder(helped, side, sitting), b: hold }).point,
-          lift: resolveAutoMovieMutualGoal({ a: shoulder(helped, side, squat(helped, sitting)), b: hold }).point,
+          take: resolveAutoMovieHumanoidSurfaces.point(
+            frame,
+            helped.bones.get(frame.bone)!,
+          ),
+          seat: resolveAutoMovieMutualGoal({
+            a: shoulder(helped, side, sitting),
+            b: hold,
+          }).point,
+          lift: resolveAutoMovieMutualGoal({
+            a: shoulder(helped, side, squat(helped, sitting)),
+            b: hold,
+          }).point,
         };
       },
     };
   }
 
   /** A role's actual entry or its neutral stance when no full posture was supplied. */
-  function posture(role: IAutoMovieMotionMeetingRole): IAutoMovieMotionHumanPosture {
-    return role.entry?.posture ?? { ...role.posture, pitch: 0, roll: 0, joints: {}, limbs: {} };
+  function posture(
+    role: IAutoMovieMotionMeetingRole,
+  ): IAutoMovieMotionHumanPosture {
+    return (
+      role.entry?.posture ?? {
+        ...role.posture,
+        pitch: 0,
+        roll: 0,
+        joints: {},
+        limbs: {},
+      }
+    );
   }
 
   /** Lower or rise about the foot locations established in the preceding stance. */
-  function squat(role: IAutoMovieMotionMeetingRole, from: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture {
-    const feet: readonly IAutoMovieMotionHumanSupport.Part[] = ["leftFoot", "rightFoot"];
-    const floor: readonly IAutoMovieVector3[] = supportContact.onFloors(role.body, from, feet);
+  function squat(
+    role: IAutoMovieMotionMeetingRole,
+    from: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
+    const feet: readonly IAutoMovieMotionHumanSupport.Part[] = [
+      "leftFoot",
+      "rightFoot",
+    ];
+    const floor: readonly IAutoMovieVector3[] = supportContact.onFloors(
+      role.body,
+      from,
+      feet,
+    );
     return supportKey.preferred(
-      role.body, posture(role),
-      { contacts: feet.map((part: IAutoMovieMotionHumanSupport.Part): IAutoMovieMotionHumanSupport.IContact => ({ part, kind: "bear" })), prefer: getUp.POSES.squat },
-      from, (contact: IAutoMovieMotionHumanSupport.IContact): IAutoMovieVector3 | null => floor[feet.indexOf(contact.part)] ?? null,
+      role.body,
+      posture(role),
+      {
+        contacts: feet.map(
+          (
+            part: IAutoMovieMotionHumanSupport.Part,
+          ): IAutoMovieMotionHumanSupport.IContact => ({ part, kind: "bear" }),
+        ),
+        prefer: getUp.POSES.squat,
+      },
+      from,
+      (
+        contact: IAutoMovieMotionHumanSupport.IContact,
+      ): IAutoMovieVector3 | null => floor[feet.indexOf(contact.part)] ?? null,
     );
   }
 
   /** One posed shoulder, its right-angle working reach and its full arm length in metres. */
-  function shoulder(role: IAutoMovieMotionMeetingRole, side: AutoMovieHumanSide, at: IAutoMovieMotionHumanPosture): IAutoMovieResolveMutualGoal.ISide {
+  function shoulder(
+    role: IAutoMovieMotionMeetingRole,
+    side: AutoMovieHumanSide,
+    at: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieResolveMutualGoal.ISide {
     const bone: AutoMovieHumanoidBone = `${side}UpperArm`;
-    const position: IAutoMovieVector3 = poseBones(role.body, resolveHumanPosture(role.body, at), undefined, new Set<AutoMovieHumanoidBone>([bone])).get(bone)!.worldPosition;
-    const { upperArm, forearm }: IAutoMovieMotionMeetingRole["body"]["measure"] = role.body.measure;
-    return { shoulder: position, reach: Math.hypot(upperArm, forearm), limit: upperArm + forearm };
+    const position: IAutoMovieVector3 = poseBones(
+      role.body,
+      resolveHumanPosture(role.body, at),
+      undefined,
+      new Set<AutoMovieHumanoidBone>([bone]),
+    ).get(bone)!.worldPosition;
+    const {
+      upperArm,
+      forearm,
+    }: IAutoMovieMotionMeetingRole["body"]["measure"] = role.body.measure;
+    return {
+      shoulder: position,
+      reach: Math.hypot(upperArm, forearm),
+      limit: upperArm + forearm,
+    };
   }
 }

@@ -1,6 +1,6 @@
 import type {
-  AutoMovieHumanSide,
   IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanGetDressed,
 } from "@automovie/interface";
 
 /**
@@ -9,7 +9,7 @@ import type {
  * brief hold. The wrist serves as the garment landmark.
  *
  * @param chain The performer's entry chain.
- * @param cuff The side of the sleeve being adjusted.
+ * @param params The `cuff` side of the sleeve being adjusted.
  * @param anchor A stable cue id for the adjustment.
  * @returns The same kind of chain with one touch appended.
  *
@@ -23,7 +23,12 @@ import type {
  */
 export function composeHumanAdjustCuff<
   Chain extends IAutoMovieMotionHumanChainCore,
->(chain: Chain, cuff: AutoMovieHumanSide, anchor?: string): Chain {
+>(
+  chain: Chain,
+  params: IAutoMovieMotionHumanGetDressed.IAdjustCuff,
+  anchor?: string,
+): Chain {
+  const cuff = params.cuff;
   return chain.act(
     "touch",
     {
@@ -31,9 +36,9 @@ export function composeHumanAdjustCuff<
         kind: "self",
         region: cuff === "left" ? "wristLeft" : "wristRight",
       },
-      side: cuff === "left" ? "right" : "left",
+      hand: cuff === "left" ? "right" : "left",
       kind: "squeeze",
-      with: "fingertips",
+      effector: "fingertips",
       hold: 0.2,
     },
     anchor,

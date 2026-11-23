@@ -46,22 +46,10 @@ import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHuman
  * (`AutoMovieMotionHumanTiming.transport`) and holds there; the place follows the body,
  * so breathing and sway carry the hands with it. A hand at `side` is not
  * moved.
- *
- * @evidence contracts/development/common.md#meaningful-documentation left: The left hand's place; `side` when absent. right: The right hand's place; `side` when absent. seconds: How long, seconds; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation left: The left hand's place; `side` when absent. right: The right hand's place; `side` when absent. seconds: How long, seconds; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.rest, params); everyday/rest.ts (rest.plan, context); everyday/rest.ts (rest.goals, places); everyday/restGoals.ts (restGoals, places); everyday/rest.ts (rest.goals, return); everyday/restClasped.ts (restClasped.front, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Surface, IAutoMovieMotionHumanHand.Shape, IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanRest {
   /**
    * Parameters.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation left: The left hand's place; `side` when absent. right: The right hand's place; `side` when absent. seconds: How long, seconds; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   * @evidence contracts/development/design.md#principled-representation left: The left hand's place; `side` when absent. right: The right hand's place; `side` when absent. seconds: How long, seconds; 2 when absent. Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainManual.ts (HumanChainManual.rest, params); everyday/rest.ts (rest.plan, context).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanRest.Place identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The left hand's place; `side` when absent. */
@@ -70,19 +58,12 @@ export namespace IAutoMovieMotionHumanRest {
     /** The right hand's place; `side` when absent. */
     right?: IAutoMovieMotionHumanRest.Place;
 
-    /** How long, seconds; 2 when absent.
-     * Exclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
-    seconds?: number;
+    /** How long, seconds, positive; 2 when absent. */
+    hold?: number;
   }
 
   /**
    * Both hands' rest goals on a posture ({@link restGoals}). A rest place.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Both hands' rest goals on a posture ({@link restGoals}). A rest place.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "side", "pocket", "hip", "crossed", "claspedFront", "claspedBehind", "behindHead", "chinRest", "elbowSupport" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/rest.ts (rest.goals, places); everyday/restGoals.ts (restGoals, places); everyday/rest.ts (rest.PAIRED); everyday/rest.ts (rest.plan); everyday/restGoals.ts (restGoals).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in rest.goals.
    */
   export type Place =
     | "side"
@@ -97,11 +78,6 @@ export namespace IAutoMovieMotionHumanRest {
 
   /**
    * A hand's rest goal in world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: Where the surface goes, world metres. elbow: The elbow's bend hint, world metres.
-   * @evidence contracts/development/design.md#principled-representation point: Where the surface goes, world metres. elbow: The elbow's bend hint, world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/rest.ts (rest.goals, return); everyday/restClasped.ts (restClasped.front, return); everyday/restClasped.ts (restClasped.front.goals, return); everyday/restClasped.ts (restClasped.behind, return); everyday/restClasped.ts (laid, return); everyday/restClasped.ts (stacked, left).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanHand.Surface, IAutoMovieMotionHumanHand.Shape, IAutoMovieVector3, IAutoMovieQuaternion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IGoal {
     /** The surface laid on the place. */

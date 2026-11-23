@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanPropReader,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
-import { HumanRefusal, supportTransfer } from "@automovie/motions";
+import { AutoMovieMotionHumanSupport, HumanRefusal } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -27,8 +27,8 @@ export namespace supportTransferFixture {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The variants are local to this specification and no hosts are opened.
    */
   export function checkRefusals(
-    context: Parameters<typeof supportTransfer>[0],
-    movingProps: Parameters<typeof supportTransfer>[0]["prop"],
+    context: Parameters<typeof AutoMovieMotionHumanSupport.supportTransfer>[0],
+    movingProps: Parameters<typeof AutoMovieMotionHumanSupport.supportTransfer>[0]["prop"],
     newEdge: number,
   ): void {
     const { start, params } = context;
@@ -40,12 +40,12 @@ export namespace supportTransferFixture {
     const movingParams: typeof params = { ...params, docking: "co-moving" };
     /** Check the failed admission axis using the admitted dock fixture. */
     const reject = (
-      changes: Partial<Parameters<typeof supportTransfer>[0]>,
+      changes: Partial<Parameters<typeof AutoMovieMotionHumanSupport.supportTransfer>[0]>,
       axis: string,
       scenario: string = axis,
     ): void => {
       try {
-        supportTransfer({ ...context, ...changes });
+        AutoMovieMotionHumanSupport.supportTransfer({ ...context, ...changes });
       } catch (error) {
         TestValidator.predicate(
           "The transfer refuses " + scenario + " on " + axis,
@@ -132,7 +132,7 @@ export namespace supportTransferFixture {
       ...movingParams,
       landing: { ...movingParams.landing!, x: -50 },
     };
-    supportTransfer({
+    AutoMovieMotionHumanSupport.supportTransfer({
       ...context,
       params: offCentre,
       prop: (id: string): IAutoMovieMotionHumanPropReader =>

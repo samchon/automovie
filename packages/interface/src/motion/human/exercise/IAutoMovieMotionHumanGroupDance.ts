@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
 
 /**
  * Social group dances on one shared beat (#4010), each member dancing the
@@ -15,48 +15,30 @@ import type { IAutoMovieMotionHumanDance } from "./IAutoMovieMotionHumanDance";
  *
  * Each member's timing strays from the beat within `vary`, drawn from its
  * own seed, so a crowd does not dance cloned.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three dances and the seeded variation.
- * @evidence contracts/development/design.md#principled-representation A dance kind with the group geometry it needs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/groupDance.ts (groupDance.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
  */
 export namespace IAutoMovieMotionHumanGroupDance {
   /**
    * The dances.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The dances' names.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "line", "circle", "conga".
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: exercise/groupDance.ts (groupDance.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly.
    */
   export type Kind = "line" | "circle" | "conga";
 
   /**
    * Parameters.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The dance. */
     kind: Kind;
 
-    /** Beats per minute; the dance law's `BPM` when absent.
-     * Exclusive minimum: 0. Unit: "beats/min". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Beats per minute, positive; the dance law's `BPM` when absent. */
     bpm?: number;
 
-    /** How many times the eight-count pattern is danced; 1 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many times the eight-count pattern is danced, a whole number of at least 1; 1 when absent. */
     repeats?: number;
 
     /** A circle's centre on the floor, world metres. */
     centre?: IAutoMovieVector3;
 
-    /** How many dance in the circle, so each member knows its neighbours.
-     * Numeric representation: "uint32". Inclusive minimum: 3. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** How many dance in the circle, a whole number of at least 3, so each member knows its neighbours. */
     members?: number;
 
     /** A circle member's neighbour on the left, whose right hand this one's left hand joins; open when absent. */
@@ -68,9 +50,7 @@ export namespace IAutoMovieMotionHumanGroupDance {
     /** The conga member ahead, whose shoulders this one holds; the head of the line when absent. */
     ahead?: string;
 
-    /** The most a member's timing strays from the beat, seconds, drawn from its seed; 0.02 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** The most a member's timing strays from the beat, seconds, at least 0, drawn from its seed; 0.02 when absent. */
     vary?: number;
 
     /** A cue track to lock the beats to, as the dance law's. */

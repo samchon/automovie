@@ -1,5 +1,9 @@
 import { ADA_RANGES } from "../architecture/ADA_RANGES";
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createStorage } from "./createStorage";
 
 /** The UK furniture schedule. */
@@ -24,97 +28,121 @@ const BILLY: string =
 export const STORAGE_BANDS: Readonly<
   Record<
     createStorage.Kind,
-    Readonly<Partial<Record<createStorage.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createStorage.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   wardrobe: {
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       1.2,
       1.2,
       `${ADM}: double wardrobe 600 x 1200 mm`,
     ),
-    depth: ArchetypeBand.metres(
+    depth: AutoMovieArchetypeBand.metres(
       0.6,
       0.6,
       `${ADM}: double wardrobe 600 x 1200 mm`,
     ),
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       1.8,
       2.1,
       "wardrobe height, not read at a source",
       true,
     ),
-    pullHeight: ArchetypeBand.metres(
+    pullHeight: AutoMovieArchetypeBand.metres(
       ADA_RANGES.hardware.low,
       ADA_RANGES.hardware.high,
       `${ADA_RANGES.hardware.source}; a cabinet's pulls share door hardware's range within ${ADA_RANGES.reach.source}`,
     ),
-    mass: ArchetypeBand.of("kg", 50, 90, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      50,
+      90,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   chest: {
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       0.75,
       0.75,
       `${ADM}: chest of drawers 450 x 750 mm`,
     ),
-    depth: ArchetypeBand.metres(
+    depth: AutoMovieArchetypeBand.metres(
       0.45,
       0.45,
       `${ADM}: chest of drawers 450 x 750 mm`,
     ),
-    height: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
       0.75,
       1.1,
       "chest of drawers height, not read at a source",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 25, 50, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      25,
+      50,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   filingCabinet: {
-    width: ArchetypeBand.metres(
-      15 * ArchetypeUnits.INCH,
-      15 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      15 * AutoMovieArchetypeUnits.INCH,
+      15 * AutoMovieArchetypeUnits.INCH,
       HON,
       true,
     ),
-    depth: ArchetypeBand.metres(
-      25 * ArchetypeUnits.INCH,
-      25 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(
+      25 * AutoMovieArchetypeUnits.INCH,
+      25 * AutoMovieArchetypeUnits.INCH,
       HON,
       true,
     ),
-    height: ArchetypeBand.metres(
-      52 * ArchetypeUnits.INCH,
-      52 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      52 * AutoMovieArchetypeUnits.INCH,
+      52 * AutoMovieArchetypeUnits.INCH,
       HON,
       true,
     ),
-    travel: ArchetypeBand.metres(
-      (23 + 1 / 2) * ArchetypeUnits.INCH,
-      (23 + 1 / 2) * ArchetypeUnits.INCH,
+    travel: AutoMovieArchetypeBand.metres(
+      (23 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
+      (23 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
       `${HON}: a full-suspension drawer drawn its whole filing length`,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 40, 60, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      60,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   locker: {
-    height: ArchetypeBand.metres(
-      72 * ArchetypeUnits.INCH,
-      72 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      72 * AutoMovieArchetypeUnits.INCH,
+      72 * AutoMovieArchetypeUnits.INCH,
       `${LYON}: the 72 in opening`,
     ),
-    legs: ArchetypeBand.metres(
-      6 * ArchetypeUnits.INCH,
-      6 * ArchetypeUnits.INCH,
+    legs: AutoMovieArchetypeBand.metres(
+      6 * AutoMovieArchetypeUnits.INCH,
+      6 * AutoMovieArchetypeUnits.INCH,
       `${LYON}: 6 in legs`,
     ),
-    mass: ArchetypeBand.of("kg", 25, 45, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      25,
+      45,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   bookcase: {
-    width: ArchetypeBand.metres(0.8, 0.8, BILLY),
-    depth: ArchetypeBand.metres(0.28, 0.28, BILLY),
-    height: ArchetypeBand.metres(2.02, 2.02, BILLY),
-    mass: ArchetypeBand.of(
+    width: AutoMovieArchetypeBand.metres(0.8, 0.8, BILLY),
+    depth: AutoMovieArchetypeBand.metres(0.28, 0.28, BILLY),
+    height: AutoMovieArchetypeBand.metres(2.02, 2.02, BILLY),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       30,
       38,

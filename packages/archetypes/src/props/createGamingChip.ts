@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "../core";
 import { TabletopStack } from "./TabletopStack";
 
@@ -40,9 +40,9 @@ const CHIP: Readonly<createGamingChip.IChip> = {
  */
 export function createGamingChip(
   params: createGamingChip.IParams = {},
-): Archetype<createGamingChip.Affordance, createGamingChip.Dimension> {
-  const draw: ArchetypeDrawSession<createGamingChip.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<createGamingChip.Affordance, createGamingChip.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createGamingChip.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "gamingChip",
       { diameter: "m", thickness: "m", mass: "kg" },
       undefined,
@@ -50,10 +50,10 @@ export function createGamingChip(
   draw.derive("diameter", CHIP.diameter);
   draw.derive("thickness", CHIP.thickness);
   draw.derive("mass", CHIP.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createGamingChip.Affordance,
     createGamingChip.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "gamingChip",
     name: "gaming chip",
     material: "plastic",

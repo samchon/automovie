@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
 
 /**
@@ -12,7 +12,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The measured dimensions set the foot clearance and positions of the three bar contacts. The rope stays straight as in the saved design.
@@ -25,7 +25,10 @@ import { ObstacleDraw } from "./ObstacleDraw";
 export function createRopeStanchions(
   params: createRopeStanchions.IParams = {},
   seed?: number | string,
-): Archetype<createRopeStanchions.Affordance, createRopeStanchions.Dimension> {
+): AutoMovieArchetype<
+  createRopeStanchions.Affordance,
+  createRopeStanchions.Dimension
+> {
   const {
     builder,
     d,
@@ -70,7 +73,11 @@ export function createRopeStanchions(
       id,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(x, height / 2, z), v(0, 0, 1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, height / 2, z),
+        v(0, 0, 1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: d.post!,
@@ -90,7 +97,11 @@ export function createRopeStanchions(
     id: "rope",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, hang, z), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, hang, z),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: d.ropeDiameter!,

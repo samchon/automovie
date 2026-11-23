@@ -1,4 +1,9 @@
-import { ArchetypeUnits, type Archetype, ArchetypeCourse, ArchetypeRide } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import type { createCar } from "./createCar";
 
 /**
@@ -9,20 +14,12 @@ import type { createCar } from "./createCar";
  * @param car The car.
  * @param course The course its root follows, or its plan, such as a timed course's.
  * @returns The ride, with the course's instants.
- * @throws {ArchetypeRefusal} When the path bends tighter than the car's steering lock allows, giving the least radius at the leg or, on a timed course, the sample, or the course is malformed.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steering relation, which point follows the path, the signs forward and reversing, the road wheels, and the refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Low-speed Ackermann geometry: the road wheel angle is the arctangent of the wheelbase over the rear axle's path radius, and the hand wheel turns by the overall ratio times it. Reversing, the heading's rate is the speed over the wheelbase times the tangent of the angle with the speed's sign flipped, so a path bending the same way needs the opposite angle. Tyre slip at speed is left out, which holds for the walking-to-town speeds a staged scene uses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan unless planned, admit every bend at the lock, then one pose function from curvature to the wheel's travel.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wheel steps to its angle at a turn's start because the course's curvature steps there; easing it in is a spiral leg the course does not have, stated here rather than hidden.
- * @evidence contracts/development/implementation.md#efficient-algorithms One arctangent per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The ride's plan is shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the car and the plan for as long as the caller keeps the ride.
+ * @throws {AutoMovieArchetypeRefusal} When the path bends tighter than the car's steering lock allows, giving the least radius at the leg or, on a timed course, the sample, or the course is malformed.
  */
 export function driveCar(
-  car: Archetype<createCar.Affordance, createCar.Dimension>,
-  course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-): ArchetypeRide.IRide<createCar.Affordance, createCar.Dimension> {
+  car: AutoMovieArchetype<createCar.Affordance, createCar.Dimension>,
+  course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
+): AutoMovieArchetypeRide.IRide<createCar.Affordance, createCar.Dimension> {
   const wheelbase: number = car.dimensions.wheelbase!;
   const ratio: number = car.dimensions.steeringRatio!;
   const lock: number = car.dimensions.lockTurns! * 180;
@@ -38,27 +35,32 @@ export function driveCar(
     return (
       Math.sign(curvature) *
       ratio *
-      (Math.atan2(wheelbase, axle) / ArchetypeUnits.DEGREE)
+      (Math.atan2(wheelbase, axle) / AutoMovieArchetypeUnits.DEGREE)
     );
   };
 
   // The tightest turn the lock allows: the road wheels at lock over ratio.
-  const plan: ArchetypeCourse.IPlan =
-    course.kind === "plan" ? course : ArchetypeCourse.plan("car", course);
-  const most: number = (lock / ratio) * ArchetypeUnits.DEGREE;
+  const plan: AutoMovieArchetypeCourse.IPlan =
+    course.kind === "plan"
+      ? course
+      : AutoMovieArchetypeCourse.plan("car", course);
+  const most: number = (lock / ratio) * AutoMovieArchetypeUnits.DEGREE;
   const least: number = Math.hypot(wheelbase / Math.tan(most), wheelbase / 2);
-  ArchetypeCourse.admitRadius(
+  AutoMovieArchetypeCourse.admitRadius(
     "car",
     plan,
     least,
     "needs more steering than the car's lock gives",
   );
-  return ArchetypeRide.along(
+  return AutoMovieArchetypeRide.along(
     car,
     plan,
     (
-      state: ArchetypeCourse.IState,
-    ): ArchetypeRide.IPose<createCar.Affordance, createCar.Dimension> => {
+      state: AutoMovieArchetypeCourse.IState,
+    ): AutoMovieArchetypeRide.IPose<
+      createCar.Affordance,
+      createCar.Dimension
+    > => {
       // Each road wheel rolls its circumference per turn, forward or back with the signed distance.
       const turns: number = state.progress / (Math.PI * diameter);
       const spin: number = (((turns * 360) % 360) + 360) % 360;

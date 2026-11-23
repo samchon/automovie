@@ -8,11 +8,6 @@ import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
  * Each band is the engine's join strip between two ribbons (each side's own 2-jet across its rail, spanned by the quintic Hermite blend): on the arc the host face's own surface leaving its end, on the chord the end section's normal line out of the host (a declared ruling, so the two bands meet back to back along the chord, the seam's declared crease), and on the child its own surface leaving the rail toward its kept side, both ribbons scaled by one factor at which no column turns back along its chord. A band is G2 to the host along the arc and G2 to the child along its rail, except where `crease` declares the child-side meeting C0. With the straight chord the loop corners at the seam's ends are declared creases; a `profile` curves the seam so that it leaves both ends along the host's surface (`IProfile`). A failed premise leaves both children, both bands and the host's end as they were, with one diagnostic naming the split.
  *
  * Engine admission: `hostFace` a view part of the host's subtree; each `partFace` a view part of its child's subtree; the two `band` names unique in the tree; `a < b < a + 2 pi`, both finite; `count` a multiple of 4 of at least 8; `rows` a positive integer; `rail` positive and finite; a crease's bounds finite, `start <= end < start + 2 pi`, and its transition positive.
- *
- * @evidence contracts/development/design.md#principled-representation An open end divided by one chord into two loops gives each child a closed port on the parent's own boundary (construction.md, Connections: end the parent open and split that end into the children's loops along a shared chord), and the bands are the existing join strip between each side's 2-jet across its rail (Hartmann 2001, parametric G^n blending), so the children meet the parent G2 without a Taylor continuation of the parent's field. The members distinguish metre rail and seam geometry from radian loop windows and dimensionless reach shares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One host end, a two-phase seam and two child records with their bands and rails are the whole declaration; column count and rows are the strip's existing sampling inputs. Split realization reads the shared seam and per-child correspondence records without separate schemas for each child count.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares geometry only: no person, fixture or fitted coefficient; the crease is an authored window, and a refusal leaves the whole split out rather than one child with an open chord. Authored forks and child rails remain explicit; absent profile or crease has the documented geometric meaning.
- * @evidence contracts/development/common.md#meaningful-documentation States both loops and their clocks, the band's sides and continuity, the declared creases, the failure effect, the metre and radian units and the admission rules. Child bands, seam curves and declared crease windows at a split end. Member documentation specifies their units, references and absence behavior.
  */
 export interface IAutoMovieConstructionSplit {
   /** Discriminator. */
@@ -79,11 +74,6 @@ export namespace IAutoMovieConstructionSplit {
    * A plane with a kept side: the points `x` with `normal . (x - point) >= 0` are kept.
    *
    * Engine admission: every coordinate finite and the normal not zero; the normal need not be unit.
-   *
-   * @evidence contracts/development/design.md#principled-representation A point and a normal are the plane's whole definition in any orthonormal frame, and the normal's sense names the kept half space, so a rigid motion of the frame carries the plane with it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two vectors; the frame they are written in belongs to the record that holds the plane.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values only; a zero normal is refused, never replaced by a default direction.
-   * @evidence contracts/development/common.md#meaningful-documentation States the kept side, the unit and the admission rule.
    */
   export interface IPlane {
     /** A point of the plane, metres, in the holding record's frame. */
@@ -103,11 +93,6 @@ export namespace IAutoMovieConstructionSplit {
    * Frames: `tree`, the construction's own coordinates; `host`, the host end section's frame, its origin the section's planar origin and its axes the section's first and second axes and its normal out of the host; `part`, the child's facing end section's frame likewise, its third axis into the child. A plane written in a section's frame follows that section when the part moves.
    *
    * Engine admission: at least one plane, each as `IPlane` states; `round`, when given, finite and positive; `frame` one of the three. The realization refuses, naming the child and the phase: a phase whose skin never enters the region inside the child's domain (two children that do not part, a plane beyond the child's far end); a phase already inside the region at the facing end (the cut lies before the child's end); a phase where the skin is tangent to the surface.
-   *
-   * @evidence contracts/development/design.md#principled-representation A rail generated as the part's skin cut by a surface fixed in a frame is the one curve both faces consume (construction.md, Connections: Ownership and Ports), exact with its jets by the implicit function theorem; half spaces intersected, with Ricci's smooth blend of implicit primitives in its exponential form for the rounded edge (Ricci 1973, A constructive geometry for computer graphics; Blinn 1982), express an end plane and the planes between neighbours as one surface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A frame name, the planes and one optional rounding length; the station, its derivatives and the correspondence come from the child's own skin.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Declares planes only: nothing is fitted, searched from a mesh or stored from one pose; a phase without a crossing is refused, never clamped to the child's end.
-   * @evidence contracts/development/common.md#meaningful-documentation States the surface, the rail's station rule and jets, the rounding law and its bound, the three frames, the units and every refusal.
    */
   export interface ICut {
     /** The frame the planes are written in. */
@@ -137,11 +122,6 @@ export namespace IAutoMovieConstructionSplit {
    * The plane is written in `frame`: `tree`, the construction's coordinates, or `host`, the host end section's frame (`ICut`). Its normal points out of the host, into the children.
    *
    * Engine admission: the plane as `IPlane` states; `round`, when given, finite and positive. The realization refuses, naming the children: a child whose skin does not cross the end plane all round inside its domain (its section is not admitted in the plane); two neighbours whose sections do not cross exactly twice (lobes apart, or one inside the other); two children that are not neighbours whose sections overlap; a pair whose bisector runs along the chord between its forks; a seam plane that does not cross the host's end ring exactly twice, or whose forks do not enclose the seam before it; a host end ring farther from the composed outline than the shortest `rail`; a profile with knots or a heading; a valley that leaves the chord between the host's forks; and every refusal of a child's rail (`ICut`).
-   *
-   * @evidence contracts/development/design.md#principled-representation A branch node's surface is made of its children's root sections (Ji, Liu and Wang 2010, B-Mesh; sweep-based binding of a child's first section to its parent, Yoon and Kim 2006), and the planes between neighbours follow the bisectors of their axes, so the end, its forks and its seams are functions of the children's frames and are re-evaluated when a child moves instead of being stored from one pose.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One plane, its frame and one optional rounding length; sections, forks, seam planes, host fork phases and rails are derived.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No web depth, fork phase or chord is tabulated; a composition whose premises fail is refused by name and leaves the whole split out, never repaired by a fill or a clamp.
-   * @evidence contracts/development/common.md#meaningful-documentation States every derived quantity with its rule, which authored members are not read, the frames, the units and every refusal.
    */
   export interface ICompose {
     /** The frame the end plane is written in. */
@@ -162,11 +142,6 @@ export namespace IAutoMovieConstructionSplit {
    * Within `corner` of clock on each side of a fork, the cross ribbons turn by the quintic smoothstep through the inward diagonal at the fork. On the arc they turn from the host's own ribbon toward the ruling, inside the host's tangent plane. On the seam they turn from the ruling toward the seam's direction away from the fork. The corner column then leaves the fork between both boundaries instead of along either one. The bands are G1 to the host there, not G2. The forks are G1 when the host's normal at each fork lies in the seam plane, as on the midline of a mirror-symmetric host. Otherwise the remaining angle stays measurable and is not hidden.
    *
    * Engine admission: at least one knot; every knot finite, `along` not negative, and apart from the knot before it (the first from the seam's first end, `[0, 0]`); the realization refuses a knot whose `along` exceeds the chord's length, which needs the host's geometry; `corner` finite, positive and below `pi / 2`; `reach`, when given, finite in `(0, 1]`.
-   *
-   * @evidence contracts/development/design.md#principled-representation A seam tangent to the host at the forks lies in the host's tangent plane there, so the arc's ribbons (the host's own 2-jet), the seam and its lateral ruling share one tangent plane at each fork, the G1 condition a straight chord in the end plane cannot meet; the clamped cubic spline is the C2 interpolant of authored knots with prescribed end tangents (de Boor 1978), and the corner turn keeps every ribbon in its side's tangent plane while giving the corner column a direction transverse to both boundaries.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A knot list and one corner width; the seam's ends, tangents and ruling come from the host and the chord, and its parameter from its own knots.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored knots only, nothing fitted or searched; a seam whose knots leave the chord's span is refused, never clamped.
-   * @evidence contracts/development/common.md#meaningful-documentation States the plane, the curve, its end tangents, the ruling, the corner turn, the continuity it keeps and the admission rules, in metres and radians.
    */
   export interface IProfile {
     /** Interior knots in the seam plane, metres, in the seam's own order: `[along, depth]`, `along` the distance from the seam's first end toward its second along the chord, in `[0, chord]` and not necessarily increasing, `depth` along the host end's outward normal (positive out of the host). */
@@ -219,11 +194,6 @@ export namespace IAutoMovieConstructionSplit {
    * One further seam of a split into more than two children (`outer`): its two forks as host phases and its curve.
    *
    * Engine admission: as the split's own `seam` and `profile`, and each seam encloses the one before it.
-   *
-   * @evidence contracts/development/design.md#principled-representation A seam is the same two forks and curve as the split's own, so every seam of an end is read and ruled alike and shared by the two bands beside it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two phases and an optional profile, the split's own seam fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored forks and knots only; seams that do not nest are refused, never reordered.
-   * @evidence contracts/development/common.md#meaningful-documentation States the fields, their units and the admission rule.
    */
   export interface ISeam {
     /** The seam's two ends as host phases `[a, b]` on the end's ring, radians. */
@@ -235,11 +205,6 @@ export namespace IAutoMovieConstructionSplit {
 
   /**
    * One child of a split: its subtree, the face that meets the host's end, its rail and its band.
-   *
-   * @evidence contracts/development/design.md#principled-representation The child's own face supplies the band's far ribbon at a declared station, so the band reaches the child's actual surface where the child keeps it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A band name, the child's subtree and face, the end that faces the host, one rail depth and an optional crease window.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The rail is an authored depth, not searched; a rail outside the child's realized domain is a diagnostic, never clamped.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field's role, its unit and which side of the rail the child keeps.
    */
   export interface IChild {
     /** The band's face and chain name, unique in the tree. */
@@ -280,11 +245,6 @@ export namespace IAutoMovieConstructionSplit {
    * A crease window on a band's loop clock where the band meets its child C0 instead of G2.
    *
    * Inside `[start, end]` the band arrives at the child's rail along the straight chord from its loop (its child-side ribbon's first derivative is that chord, its second zero), so it meets the child at an angle; outside the window, over `transition` on each side, the child-side ribbon returns to the child's own 2-jet by the quintic smoothstep `10 x^3 - 15 x^4 + 6 x^5`, whose first and second derivatives vanish at both ends, so the band stays C2 along its loop. The band remains G2 to the host everywhere.
-   *
-   * @evidence contracts/development/design.md#principled-representation The child side is a C0 meeting by its own contract (a skin fold such as the gluteal sulcus), and the smoothstep's flat ends keep the ribbon fields C2 in the clock, as the strip requires.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two clock bounds and one transition width; the crease's shape is the chord arrival, with no further option.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An authored window; nothing is detected from the surfaces.
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock, the window's effect on both ribbons and the transition's law.
    */
   export interface ICrease {
     /** The window's first clock, radians on the band's loop clock. */

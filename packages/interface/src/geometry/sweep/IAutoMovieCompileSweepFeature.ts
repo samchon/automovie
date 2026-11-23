@@ -1,10 +1,5 @@
 /**
  * Compile-time length scales for fitting a feature course in the sweep's cylindrical domain.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Metre spine length and mean metre radius define knot spacing in normalized u and radian angle. The compile-time and query metrics remain distinct; this helper assumes admitted scales and does not guarantee a global nearest course point.
- * @evidence contracts/development/design.md#principled-representation Metre spine length and mean metre radius define knot spacing in normalized u and radian angle.
- * @evidence contracts/development/design.md#minimal-and-owned-surface compileAutoMovieSweep supplies IScale to compileAutoMovieSweepFeature; displacement queries use their own local radius metric.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The compile-time and query metrics remain distinct; this helper assumes admitted scales and does not guarantee a global nearest course point.
  */
 export namespace IAutoMovieCompileSweepFeature {
   /**
@@ -33,11 +28,6 @@ export namespace IAutoMovieCompileSweepFeature {
    * the surface's radius at the curve or the declared offset, times
    * `(1 - (d / width)^2)^3` within `width`, a falloff with continuous curvature
    * at the band's edge.
-   *
-   * @evidence contracts/development/design.md#principled-representation Both scales are metres: length converts normalized u and radius converts radians to cylindrical distance; positivity and finiteness are caller preconditions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface compileAutoMovieSweep supplies path length and mean station radius to compileAutoMovieSweepFeature; query-local radius remains a separate displacement argument.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The metric is explicitly approximate for noncircular sections and contains no world-frame coordinates or pose state.
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes compile-time knot spacing from query distance and states units, producer and lack of local validation.
    */
   export type IScale = {
     /** Spine polygon length in metres, multiplying differences in normalized spine u when spacing the feature's centripetal knots. compileAutoMovieSweep supplies path.length; this helper does not validate it. */

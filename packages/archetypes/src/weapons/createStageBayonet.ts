@@ -2,11 +2,11 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
 import { createLongGun } from "./createLongGun";
 
@@ -33,7 +33,7 @@ const MASS: number = 0.12;
  *
  * The blade runs along `+Y` from its shoulder at the origin to the `tip`.
  * The socket tube lies one crank toward `-Z`, behind the shoulder, with its
- * bore sized from the musket's actual barrel. Its `socket` frame shares the
+ * bore sized from the musket's barrel. Its `socket` frame shares the
  * blade's axes and sits on the tube's axis at its front end, so placing it
  * on the musket's `bayonet` frame slides the tube over the muzzle and hangs
  * the blade below the barrel, parallel to it. The `handle` is the tube a hand
@@ -41,7 +41,7 @@ const MASS: number = 0.12;
  *
  * @param params A generated musket and an optional bayonet id.
  * @returns The bayonet and its model-space contact frames, in metres.
- * @throws {ArchetypeRefusal} If the gun is not a generated musket with a barrel, or the ids coincide.
+ * @throws {AutoMovieArchetypeRefusal} If the gun is not a generated musket with a barrel, or the ids coincide.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the blade axis, the socket's place and the three contact frames, and marks the unread proportions.
  * @evidence contracts/development/implementation.md#principled-implementation Sizes the socket bore from the musket's barrel collider plus a fitting gap, so the tube clears the muzzle it slides over. The socket frame shares the blade's axes, so mating it with the musket's bayonet frame keeps the blade parallel to the bore.
@@ -53,10 +53,13 @@ const MASS: number = 0.12;
  */
 export function createStageBayonet(
   params: createStageBayonet.IParams,
-): Archetype<createStageBayonet.Affordance, createStageBayonet.Dimension> {
+): AutoMovieArchetype<
+  createStageBayonet.Affordance,
+  createStageBayonet.Dimension
+> {
   const { gun, id = "stageBayonet" }: createStageBayonet.IParams = params;
   if (
-    !(gun instanceof Archetype) ||
+    !(gun instanceof AutoMovieArchetype) ||
     gun.archetype !== "longGun" ||
     gun.name !== createLongGun.NAMES.musket ||
     id === gun.id
@@ -77,8 +80,8 @@ export function createStageBayonet(
   const bore: number = shape.shape.radius + e.gap;
   const outer: number = bore + e.wall;
   const v: typeof Vector3.create = Vector3.create;
-  const draw: ArchetypeDrawSession<createStageBayonet.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createStageBayonet.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "stageBayonet",
       { blade: "m", socket: "m", bore: "m" },
       undefined,
@@ -86,10 +89,10 @@ export function createStageBayonet(
   draw.derive("blade", e.blade);
   draw.derive("socket", e.socket);
   draw.derive("bore", 2 * bore);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStageBayonet.Affordance,
     createStageBayonet.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id,
     name: "socket bayonet stage prop",
     material: "foam",
@@ -132,14 +135,14 @@ export function createStageBayonet(
   builder.affordance({
     id: "socket",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, 0, -e.crank)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, -e.crank)),
     extent: null,
   });
   builder.affordance({
     id: "handle",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, -e.socket / 2, -e.crank),
       v(0, 0, 1),
       v(0, 1, 0),
@@ -153,7 +156,7 @@ export function createStageBayonet(
     id: "tip",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.upright(v(0, e.blade, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, e.blade, 0)),
     extent: null,
   });
   return builder.build(MASS);
@@ -217,8 +220,8 @@ export namespace createStageBayonet {
 }
 
 /** Describe a gun the bayonet cannot fit. */
-function refuse(gunId: string | undefined): ArchetypeRefusal {
-  return new ArchetypeRefusal({
+function refuse(gunId: string | undefined): AutoMovieArchetypeRefusal {
+  return new AutoMovieArchetypeRefusal({
     kind: "parameter",
     archetype: "stageBayonet",
     axis: "gun",

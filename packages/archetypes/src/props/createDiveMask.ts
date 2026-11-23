@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** No maker's page was read. */
@@ -30,16 +30,21 @@ const STAGED: string =
 export function createDiveMask(
   params: createDiveMask.IParams = {},
   seed?: number | string,
-): Archetype<createDiveMask.Affordance, createDiveMask.Dimension> {
-  const draw: ArchetypeDrawSession<createDiveMask.Dimension> =
-    new ArchetypeDrawSession("diveMask", createDiveMask.UNITS, seed, params);
+): AutoMovieArchetype<createDiveMask.Affordance, createDiveMask.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createDiveMask.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "diveMask",
+      createDiveMask.UNITS,
+      seed,
+      params,
+    );
   const d: Record<createDiveMask.Dimension, number> = draw.dimensions(
     createDiveMask.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createDiveMask.Affordance,
     createDiveMask.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "a diving mask",
     material: "rubber",
@@ -55,13 +60,17 @@ export function createDiveMask(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, 0, -0.02), v(0, 0, -1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, -0.02),
+      v(0, 0, -1),
+      v(1, 0, 0),
+    ),
     extent: null,
   });
   builder.affordance({
     id: "nose",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, -d.height / 2, 0.01)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, -d.height / 2, 0.01)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -89,16 +98,18 @@ export namespace createDiveMask {
   }
 
   /** Units of each dimension. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     mass: "kg",
   };
 
   /** Staged bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.metres(0.14, 0.17, STAGED, true),
-    height: ArchetypeBand.metres(0.07, 0.09, STAGED, true),
-    mass: ArchetypeBand.of("kg", 0.15, 0.25, STAGED, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.metres(0.14, 0.17, STAGED, true),
+    height: AutoMovieArchetypeBand.metres(0.07, 0.09, STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.15, 0.25, STAGED, true),
   };
 }

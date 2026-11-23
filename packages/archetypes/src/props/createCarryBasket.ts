@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { TrayConstruction } from "./TrayConstruction";
 import type { createTray } from "./createTray";
 
@@ -8,7 +8,7 @@ import type { createTray } from "./createTray";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A carry basket with an open floor and a raised bar grip.
  * @evidence contracts/development/implementation.md#principled-implementation The two posts support the bar, which lies along Z and stays clear above the rim.
@@ -21,7 +21,10 @@ import type { createTray } from "./createTray";
 export function createCarryBasket(
   params: createCarryBasket.IParams = {},
   seed?: number | string,
-): Archetype<createCarryBasket.Affordance, createCarryBasket.Dimension> {
+): AutoMovieArchetype<
+  createCarryBasket.Affordance,
+  createCarryBasket.Dimension
+> {
   return TrayConstruction.basket(params, seed);
 }
 

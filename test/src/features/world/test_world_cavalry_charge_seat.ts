@@ -1,7 +1,7 @@
 import {
-  ArchetypeCourse,
-  type ArchetypeManoeuvre,
-  QuadrupedGait,
+  AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypeQuadrupedGait,
   createHorse,
   createQuadruped,
   rideQuadruped,
@@ -13,12 +13,12 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
-  HumanFrame,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -55,19 +55,13 @@ export function test_world_cavalry_charge_seat(): void {
   );
   const species: ReturnType<typeof createQuadruped.species> =
     createQuadruped.species(horse);
-  const canter: ArchetypeManoeuvre.ISpeedRange = QuadrupedGait.range(
-    species,
-    "canter",
-    1.65,
-  );
-  const gallop: ArchetypeManoeuvre.ISpeedRange = QuadrupedGait.range(
-    species,
-    "gallop",
-    1.65,
-  );
+  const canter: AutoMovieArchetypeManoeuvre.ISpeedRange =
+    AutoMovieArchetypeQuadrupedGait.range(species, "canter", 1.65);
+  const gallop: AutoMovieArchetypeManoeuvre.ISpeedRange =
+    AutoMovieArchetypeQuadrupedGait.range(species, "gallop", 1.65);
   const cruise: number = (canter.minimum + canter.maximum) / 2;
   const charge: number = (gallop.minimum + gallop.maximum) / 2;
-  const samples: ArchetypeCourse.ISample[] = [];
+  const samples: AutoMovieArchetypeCourse.ISample[] = [];
   let z: number = 0;
   for (let i: number = 0; i <= 80; ++i) {
     const seconds: number = i * 0.1;
@@ -81,7 +75,7 @@ export function test_world_cavalry_charge_seat(): void {
           : charge);
   }
   const ride: Ride = rideQuadruped(horse, {
-    plan: ArchetypeCourse.timed("charger", samples),
+    plan: AutoMovieArchetypeCourse.timed("charger", samples),
     cues: [
       { from: 0, to: 3, gait: "canter" },
       { from: 3, to: 8, gait: "gallop" },
@@ -118,13 +112,13 @@ export function test_world_cavalry_charge_seat(): void {
         proficiency: { level: "trained" },
       },
     ],
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     props: [HumanObject.prop("charger", horse, place(0), place, part)],
     composition: HumanChain.subject("trooper")
-      .sit({ seat: saddle, seconds: 0.5 })
+      .sit({ seat: saddle, hold: 0.5 })
       .registered("ride", {
         on: "charger",
-        seconds: MOUNT + ride.duration,
+        duration: MOUNT + ride.duration,
         seat: "seat",
         feet: { left: "leftStirrup", right: "rightStirrup" },
       }).node,

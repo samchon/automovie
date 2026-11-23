@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { InstrumentBuild } from "./InstrumentBuild";
 import { StringedConstruction } from "./StringedConstruction";
 import type { createInstrument } from "./createInstrument";
@@ -10,7 +10,7 @@ import type { createInstrument } from "./createInstrument";
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Build the rib and neck from the drawn widths, and place the four strings from nut to bridge.
@@ -23,7 +23,7 @@ import type { createInstrument } from "./createInstrument";
 export function createViolin(
   params: createViolin.IParams = {},
   seed?: number | string,
-): Archetype<createViolin.Affordance, createViolin.Dimension> {
+): AutoMovieArchetype<createViolin.Affordance, createViolin.Dimension> {
   return InstrumentBuild.create<createViolin.Affordance>(
     "violin",
     "violin",

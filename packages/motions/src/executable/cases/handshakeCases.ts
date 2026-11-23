@@ -93,8 +93,8 @@ export function handshakeCases(): IMotionCaptureCase[] {
         },
       ],
       composition: HumanChain.pair(
-        HumanChain.subject("a").stand({ seconds: 0.4 }),
-        HumanChain.subject("b").stand({ seconds: 0.4 }),
+        HumanChain.subject("a").stand({ hold: 0.4 }),
+        HumanChain.subject("b").stand({ hold: 0.4 }),
       ).handshake().node,
     });
     const segment = performance

@@ -1,10 +1,10 @@
 import {
-  Archetype,
-  ArchetypeAssembly,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type ArchetypeFriction,
+  AutoMovieArchetype,
+  AutoMovieArchetypeAssembly,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeFriction,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
@@ -35,25 +35,24 @@ import { nclose } from "../internal/nclose";
  */
 export function test_archetype_assembly_friction_numeric(): void {
   const findings: string[] = [];
-  const origin: ArchetypeAssembly.IMember["placement"] = ArchetypeFrame.upright(
-    { x: 0, y: 0, z: 0 },
-  );
+  const origin: AutoMovieArchetypeAssembly.IMember["placement"] =
+    AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
   const scales: readonly number[] = [Number.MIN_VALUE, 1, Number.MAX_VALUE / 8];
 
   /** The builder selects an existing measured pair without changing its table. */
   const build: (
     mass: number,
-    rests?: ArchetypeFriction.Material,
-    ground?: ArchetypeFriction.Material,
-  ) => Archetype = (
+    rests?: AutoMovieArchetypeFriction.Material,
+    ground?: AutoMovieArchetypeFriction.Material,
+  ) => AutoMovieArchetype = (
     mass: number,
-    rests?: ArchetypeFriction.Material,
-    ground?: ArchetypeFriction.Material,
-  ): Archetype =>
-    new ArchetypeBuilder<never, never>({
+    rests?: AutoMovieArchetypeFriction.Material,
+    ground?: AutoMovieArchetypeFriction.Material,
+  ): AutoMovieArchetype =>
+    new AutoMovieArchetypeBuilder<never, never>({
       material: "composite",
       name: "assembly contact fixture",
-      draw: new ArchetypeDrawSession<never>(
+      draw: new AutoMovieArchetypeDrawSession<never>(
         "assembly contact fixture",
         {},
         undefined,
@@ -63,28 +62,31 @@ export function test_archetype_assembly_friction_numeric(): void {
       .build(mass, { rests, ground });
 
   /** A second nonoverlapping member retains a separately placed local solid. */
-  const combine: (a: Archetype, b: Archetype) => Archetype = (
-    a: Archetype,
-    b: Archetype,
-  ): Archetype =>
-    ArchetypeAssembly.of("contact pair", "assembly contact fixture", {
+  const combine: (
+    a: AutoMovieArchetype,
+    b: AutoMovieArchetype,
+  ) => AutoMovieArchetype = (
+    a: AutoMovieArchetype,
+    b: AutoMovieArchetype,
+  ): AutoMovieArchetype =>
+    AutoMovieArchetypeAssembly.of("contact pair", "assembly contact fixture", {
       a: { archetype: a, placement: origin },
       b: {
         archetype: b,
-        placement: ArchetypeFrame.upright({ x: 2, y: 0, z: 0 }),
+        placement: AutoMovieArchetypeFrame.upright({ x: 2, y: 0, z: 0 }),
       },
     });
 
   for (const mass of scales) {
-    const wood: Archetype = build(mass, "wood", "wood");
-    const single: Archetype = ArchetypeAssembly.of(
+    const wood: AutoMovieArchetype = build(mass, "wood", "wood");
+    const single: AutoMovieArchetype = AutoMovieArchetypeAssembly.of(
       "single",
       "assembly contact fixture",
       {
         a: { archetype: wood, placement: origin },
       },
     );
-    const weighted: Archetype = combine(
+    const weighted: AutoMovieArchetype = combine(
       wood,
       build(3 * mass, "rubber", "concrete"),
     );
@@ -111,13 +113,13 @@ export function test_archetype_assembly_friction_numeric(): void {
       );
   }
 
-  const known: Archetype = build(Number.MIN_VALUE, "wood", "wood");
-  const unknown: Archetype = build(Number.MIN_VALUE);
+  const known: AutoMovieArchetype = build(Number.MIN_VALUE, "wood", "wood");
+  const unknown: AutoMovieArchetype = build(Number.MIN_VALUE);
   for (const members of [
     [known, unknown],
     [unknown, known],
   ] as const) {
-    const assembled: Archetype = combine(members[0], members[1]);
+    const assembled: AutoMovieArchetype = combine(members[0], members[1]);
     if (
       assembled.body.friction !== undefined ||
       assembled.body.kineticFriction !== undefined
@@ -126,7 +128,7 @@ export function test_archetype_assembly_friction_numeric(): void {
         "an unknown member acquired aggregate contact coefficients",
       );
   }
-  const staticOnly: Archetype = combine(
+  const staticOnly: AutoMovieArchetype = combine(
     known,
     build(Number.MIN_VALUE, "wood", "brick"),
   );
@@ -143,18 +145,18 @@ export function test_archetype_assembly_friction_numeric(): void {
     mass: number,
     friction: number,
     kinetic: number,
-  ) => Archetype = (
+  ) => AutoMovieArchetype = (
     mass: number,
     friction: number,
     kinetic: number,
-  ): Archetype => {
-    const solid: Archetype = build(mass);
+  ): AutoMovieArchetype => {
+    const solid: AutoMovieArchetype = build(mass);
     const name: string | null = solid.name;
     if (name === null)
       throw new Error(
         "the authored contact fixture needs its builder's named solid",
       );
-    return new Archetype<never, never>({
+    return new AutoMovieArchetype<never, never>({
       archetype: solid.archetype,
       id: solid.id,
       name,
@@ -177,13 +179,13 @@ export function test_archetype_assembly_friction_numeric(): void {
     });
   };
   for (const scale of [1, 2 ** 200]) {
-    const a: Archetype = authored(scale, 0.04, 0.04);
-    const b: Archetype = authored(scale * 2 ** -200, 73 / 128, 0.5);
+    const a: AutoMovieArchetype = authored(scale, 0.04, 0.04);
+    const b: AutoMovieArchetype = authored(scale * 2 ** -200, 73 / 128, 0.5);
     for (const pair of [
       [a, b],
       [b, a],
     ] as const) {
-      const assembled: Archetype = combine(pair[0], pair[1]);
+      const assembled: AutoMovieArchetype = combine(pair[0], pair[1]);
       if (
         !nclose(assembled.body.friction ?? NaN, 0.04, 0) ||
         !nclose(assembled.body.kineticFriction ?? NaN, 0.04, 0) ||

@@ -43,7 +43,7 @@ export const stageDeflect: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
     ): IAutoMovieMotionHumanCatchObject.IPlan => {
       const caught: IAutoMovieMotionHumanCatchObject.IPlan =
         stageCatch.plan(context);
-      const { ball, from }: IAutoMovieMotionHumanCatchObject.IStageParams =
+      const { ball, partner: from }: IAutoMovieMotionHumanCatchObject.IStageParams =
         context.params;
       const contact: number = caught.contact!;
       const reader: IAutoMovieMotionHumanPropReader = context.prop(ball);
@@ -83,7 +83,7 @@ export const stageDeflect: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
       );
       const hands: readonly AutoMovieHumanSide[] =
         context.params.hands === "one"
-          ? [context.params.side ?? "right"]
+          ? [context.params.hand ?? "right"]
           : ["left", "right"];
       const launch: IAutoMovieMotionPropLaunch = {
         prop: ball,

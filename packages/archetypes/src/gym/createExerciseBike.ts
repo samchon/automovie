@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The maker's bike read. */
@@ -26,7 +26,7 @@ const UNREAD: string =
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bike.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the bike stands, the crank's rest and sense and its contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A floor base, a seat post up to the drawn saddle height behind the bracket, a stem up to the drawn handlebar height ahead of it, the handlebar of the drawn width, and the crank of the drawn length with a level pedal on each arm, as `createBicycle` builds them.
@@ -39,9 +39,12 @@ const UNREAD: string =
 export function createExerciseBike(
   params: createExerciseBike.IParams = {},
   seed?: number | string,
-): Archetype<createExerciseBike.Affordance, createExerciseBike.Dimension> {
-  const draw: ArchetypeDrawSession<createExerciseBike.Dimension> =
-    new ArchetypeDrawSession<createExerciseBike.Dimension>(
+): AutoMovieArchetype<
+  createExerciseBike.Affordance,
+  createExerciseBike.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createExerciseBike.Dimension> =
+    new AutoMovieArchetypeDrawSession<createExerciseBike.Dimension>(
       "exerciseBike",
       createExerciseBike.UNITS,
       seed,
@@ -50,10 +53,10 @@ export function createExerciseBike(
   const d: Record<createExerciseBike.Dimension, number> = draw.dimensions(
     createExerciseBike.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createExerciseBike.Affordance,
     createExerciseBike.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "exercise bike",
@@ -107,7 +110,7 @@ export function createExerciseBike(
   builder.affordance({
     id: "saddle",
     kind: "seat",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       v(0, saddle.y, saddle.z + createExerciseBike.SADDLE / 2),
     ),
     extent: null,
@@ -133,7 +136,7 @@ export function createExerciseBike(
       id,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(
+      frame: AutoMovieArchetypeFrame.upright(
         v(sign * (d.handlebarWidth / 2 - 0.06), bars.y, bars.z),
       ),
       extent: null,
@@ -159,7 +162,11 @@ export function createExerciseBike(
   builder.affordance({
     id: "crank",
     kind: "crank",
-    frame: ArchetypeFrame.facing(v(half, bracket, 0), v(1, 0, 0), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(half, bracket, 0),
+      v(1, 0, 0),
+      v(0, 1, 0),
+    ),
     extent: null,
     radius: d.crank,
     parts: ["crank-left", "crank-right"],
@@ -186,7 +193,7 @@ export function createExerciseBike(
     builder.affordance({
       id,
       kind: "pedal",
-      frame: ArchetypeFrame.upright(at),
+      frame: AutoMovieArchetypeFrame.upright(at),
       extent: null,
       width: pedal.width,
       depth: pedal.depth,
@@ -274,7 +281,9 @@ export namespace createExerciseBike {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     saddleHeight: "m",
     handlebarHeight: "m",
     handlebarWidth: "m",
@@ -290,17 +299,17 @@ export namespace createExerciseBike {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    saddleHeight: ArchetypeBand.metres(0.8, 1.05, UNREAD, true),
-    handlebarHeight: ArchetypeBand.metres(0.95, 1.2, UNREAD, true),
-    handlebarWidth: ArchetypeBand.metres(0.45, 0.55, UNREAD, true),
-    saddleWidth: ArchetypeBand.metres(0.14, 0.18, UNREAD, true),
-    crank: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    saddleHeight: AutoMovieArchetypeBand.metres(0.8, 1.05, UNREAD, true),
+    handlebarHeight: AutoMovieArchetypeBand.metres(0.95, 1.2, UNREAD, true),
+    handlebarWidth: AutoMovieArchetypeBand.metres(0.45, 0.55, UNREAD, true),
+    saddleWidth: AutoMovieArchetypeBand.metres(0.14, 0.18, UNREAD, true),
+    crank: AutoMovieArchetypeBand.metres(
       0.165,
       0.175,
       "the common 165 to 175 mm crank arms; the Peloton manual read gives no crank length",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 61, 61, PELOTON),
+    mass: AutoMovieArchetypeBand.of("kg", 61, 61, PELOTON),
   };
 }

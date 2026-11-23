@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { APPLIANCE_BANDS } from "./APPLIANCE_BANDS";
 import { ApplianceConstruction } from "./ApplianceConstruction";
 import { FixtureDraw } from "./FixtureDraw";
@@ -13,7 +13,7 @@ import type { createAppliance } from "./createAppliance";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The hob and its four load surfaces remain in `ApplianceConstruction.cooker`; the visible oven door and knobs carry no motion contacts.
@@ -26,7 +26,7 @@ import type { createAppliance } from "./createAppliance";
 export function createRange(
   params: createRange.IParams = {},
   seed?: number | string,
-): Archetype<createRange.Affordance, createRange.Dimension> {
+): AutoMovieArchetype<createRange.Affordance, createRange.Dimension> {
   return FixtureDraw.installed<
     createRange.Affordance,
     createAppliance.Dimension

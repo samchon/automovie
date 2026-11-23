@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandheldDevice } from "./HandheldDevice";
 
 /**
@@ -10,7 +10,7 @@ import { HandheldDevice } from "./HandheldDevice";
  * @param params The identifier and a choice among this device's measured models.
  * @param seed The seed for the device's remaining choices.
  * @returns The device and its named contacts.
- * @throws {ArchetypeRefusal} For a refused dimension or producer input.
+ * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer input.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the device, its frame and the exposed contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Keep the camera's case, grip bar and lens barrel with the grasp, support, viewing and shutter contacts.
@@ -23,7 +23,7 @@ import { HandheldDevice } from "./HandheldDevice";
 export function createCamera(
   params: createCamera.IParams = {},
   seed?: number | string,
-): Archetype<createCamera.Affordance, createCamera.Dimension> {
+): AutoMovieArchetype<createCamera.Affordance, createCamera.Dimension> {
   const {
     builder,
     size,
@@ -65,7 +65,7 @@ export function createCamera(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(-width / 2 + grip, height / 2, 0),
       Vector3.create(-1, 0, 0),
       Vector3.create(0, 1, 0),
@@ -84,7 +84,7 @@ export function createCamera(
     id: "support",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(width / 2, height / 2, grip / 2),
       Vector3.create(0, -1, 0),
       Vector3.create(0, 0, 1),
@@ -98,7 +98,7 @@ export function createCamera(
     id: "lens",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(grip, height / 2, depth / 2 + 0.02),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -109,7 +109,7 @@ export function createCamera(
     id: "screen",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(grip, height / 2, -depth / 2),
       Vector3.create(0, 0, -1),
       Vector3.create(-1, 0, 0),
@@ -121,7 +121,9 @@ export function createCamera(
   builder.affordance({
     id: "button",
     kind: "button",
-    frame: ArchetypeFrame.upright(Vector3.create(-width / 2 + grip, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(-width / 2 + grip, height, 0),
+    ),
     extent: null,
   });
   return builder.build(size.mass);

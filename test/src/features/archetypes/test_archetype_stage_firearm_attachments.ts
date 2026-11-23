@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createLongGun,
   createStageBayonet,
   createStageCasing,
@@ -17,11 +17,11 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
-  HumanCarrierCustody,
+  AutoMovieMotionHumanPrehension,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  putDownAperture,
+  AutoMovieMotionHumanDress,
 } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,19 +29,21 @@ import { archetypeExtent } from "../internal/archetypeExtent";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
+const { putDownAperture } = AutoMovieMotionHumanPrehension;
+
 /** The two laws the bayonet take installs, by name. */
 interface IFixLaws {
   /** Return the bayonet through the musket's entry onto its seat. */
   putDownAperture: typeof putDownAperture;
 
   /** Take the bayonet off the musket's seat. */
-  takeFromCarrier: typeof HumanCarrierCustody;
+  takeFromCarrier: typeof AutoMovieMotionHumanDress.HumanCarrierCustody;
 }
 
 /** One museum silhouette and the figures its record reads. */
 interface IRecord {
   /** The silhouette under test. */
-  model: Archetype;
+  model: AutoMovieArchetype;
 
   /** The record's overall length, metres. */
   overall: number;
@@ -114,8 +116,12 @@ export function test_archetype_stage_firearm_attachments(): void {
     createStageMatchlock();
   const rifle: ReturnType<typeof createStagePercussionRifle> =
     createStagePercussionRifle();
-  const parts: (model: Archetype) => string[] = (model: Archetype): string[] =>
-    model.parts.map((part: Archetype["parts"][number]): string => part.id);
+  const parts: (model: AutoMovieArchetype) => string[] = (
+    model: AutoMovieArchetype,
+  ): string[] =>
+    model.parts.map(
+      (part: AutoMovieArchetype["parts"][number]): string => part.id,
+    );
   TestValidator.predicate(
     "each silhouette carries only its own lock",
     ["serpentine", "match", "pan"].every((id: string): boolean =>
@@ -141,7 +147,7 @@ export function test_archetype_stage_firearm_attachments(): void {
   });
   const ahead: number = Vector3.dot(
     Vector3.subtract(entry.translation, seat.translation),
-    ArchetypeFrame.axis(seat, "y"),
+    AutoMovieArchetypeFrame.axis(seat, "y"),
   );
   TestValidator.predicate(
     "the musket's entry shares the seat's attitude farther out along the bore than a socket",
@@ -150,7 +156,7 @@ export function test_archetype_stage_firearm_attachments(): void {
         Vector3.distance(
           Vector3.add(
             seat.translation,
-            Vector3.scale(ArchetypeFrame.axis(seat, "y"), ahead),
+            Vector3.scale(AutoMovieArchetypeFrame.axis(seat, "y"), ahead),
           ),
           entry.translation,
         ),
@@ -162,18 +168,18 @@ export function test_archetype_stage_firearm_attachments(): void {
         (kind: createLongGun.Kind): boolean =>
           kind !== "musket" &&
           createLongGun({ kind }).affordances.some(
-            (contact: Archetype["affordances"][number]): boolean =>
+            (contact: AutoMovieArchetype["affordances"][number]): boolean =>
               contact.id === "bayonet" || contact.id === "bayonetEntry",
           ),
       ).length === 0,
   );
   const radius: number = archetypeExtent(musket, "x", ["barrel"]).high;
   const bore: number = bayonet.dimensions.bore! / 2;
-  const seated: IAutoMovieTransform = ArchetypeFrame.compose(
+  const seated: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     seat,
     invert(bayonet.affordance("socket").frame),
   );
-  const tip: IAutoMovieTransform = ArchetypeFrame.compose(
+  const tip: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     seated,
     bayonet.affordance("tip").frame,
   );
@@ -233,12 +239,12 @@ function fixTake(
   const laws: IAutoMovieMotionHumanChain.IExtension<IFixLaws> =
     HumanChain.extend({
       putDownAperture,
-      takeFromCarrier: HumanCarrierCustody,
+      takeFromCarrier: AutoMovieMotionHumanDress.HumanCarrierCustody,
     });
   const chain: IAutoMovieMotionHumanChain = laws
     .subject("drill")
     .takeFromCarrier({ prop: "bayonet", handle: "handle", lift: 0.18 })
-    .stand({ seconds: 0.5, sway: 0 })
+    .stand({ hold: 0.5, sway: 0 })
     .putDownAperture({
       prop: "bayonet",
       onto: {
@@ -251,7 +257,7 @@ function fixTake(
   const performance: HumanPerformance = new HumanPerformance({
     seed: "stage-bayonet-fix",
     props,
-    laws: [putDownAperture, HumanCarrierCustody],
+    laws: [putDownAperture, AutoMovieMotionHumanDress.HumanCarrierCustody],
     performers: [
       {
         subject: "drill",
@@ -334,7 +340,7 @@ function refused(label: string, build: () => unknown): void {
   }
   TestValidator.predicate(
     label,
-    error instanceof ArchetypeRefusal && error.axis === "gun",
+    error instanceof AutoMovieArchetypeRefusal && error.axis === "gun",
   );
 }
 

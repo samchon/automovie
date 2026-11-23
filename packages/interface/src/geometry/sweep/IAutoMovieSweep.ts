@@ -33,11 +33,6 @@ import type { IAutoMovieSweepSpine } from "./IAutoMovieSweepSpine";
  * rotation-minimizing frame, or under the `fixed` orientation the spine's
  * start frame carried along without turning, in either case turned by the
  * stations' rotations where they give one.
- *
- * @evidence contracts/development/design.md#principled-representation A generalized cylinder whose section radii are interpolated per direction with a C2 spline and sampled overshoot policy, as sweep-based modelling interpolates key sections, with silhouette guides and compact feature fields as lofting controls; the Gordon correction is sampled on the angular grid.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One record holds the spine, stations, guides and features of one surface; evaluation and every constraint's rule live in `compileAutoMovieSweep`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Stations, guides and features are applied in a fixed order with stated rules; nothing is tuned per consumer.
- * @evidence contracts/development/common.md#meaningful-documentation States the two parameters, the four evaluation layers and what each guarantees, the frame, and the unit.
  */
 export interface IAutoMovieSweep {
   /** The path the sections travel along. */
@@ -70,11 +65,6 @@ export interface IAutoMovieSweep {
 export namespace IAutoMovieSweep {
   /**
    * One key section and where it sits on the spine.
-   *
-   * @evidence contracts/development/design.md#principled-representation A key section placed at a spine parameter with an optional plane rotation, the key-section form of sweep-based modelling.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Parameter, section, holes and rotation in one record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Unordered or out-of-range stations are refused by the compiler.
-   * @evidence contracts/development/common.md#meaningful-documentation States the parameter, the section plane, holes and the rotation rule.
    */
   export interface IStation {
     /** Chord-length parameter of the station on the spine, from 0 to 1. */
@@ -96,11 +86,6 @@ export namespace IAutoMovieSweep {
    * A guide curve: the radius the surface has in one direction of the section plane along the whole spine, a curve on the surface across the stations.
    *
    * Guides and stations form a curve network, and the surface is its Gordon surface: it passes exactly through every guide, and between guide directions the guides' corrections to the stations are interpolated round the turn. A guide at a direction where sections are symmetric, such as the front, back or sides of a rounded section, is that view's silhouette.
-   *
-   * @evidence contracts/development/design.md#principled-representation A silhouette curve at one direction, joined to the stations as a Gordon surface.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A direction and a profile.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Guides sharing a direction are refused.
-   * @evidence contracts/development/common.md#meaningful-documentation States the Gordon role and the silhouette reading.
    */
   export interface IGuide {
     /** Direction in the section plane, radians counterclockwise from the first axis; guides of one sweep have distinct directions. */
@@ -112,11 +97,6 @@ export namespace IAutoMovieSweep {
 
   /**
    * One knot of a guide's profile.
-   *
-   * @evidence contracts/development/design.md#principled-representation One sample of a spline profile along the spine.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Parameter and value.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Values must be positive.
-   * @evidence contracts/development/common.md#meaningful-documentation States both fields.
    */
   export interface IKnot {
     /** Chord-length parameter on the spine. */
@@ -130,11 +110,6 @@ export namespace IAutoMovieSweep {
    * A feature curve: a line on the surface the section family must pass through, such as a ridge or a groove, with the radius it has along it or its offset from the surface the other layers make.
    *
    * The course is the centripetal Catmull-Rom spline through its points in the `(u, angle)` domain, with knots spaced in the sweep's mean cylindrical scale; its radius or offset follows `interpolateAutoMovieSpline` over those same knots. The field uses a dense-seeded local Newton search in a cylindrical metric approximation, not a guaranteed global nearest point or an exact noncircular surface metric. A nearest-branch change inside a tight bend can still crease the band. The surface moves by the difference between that radius and its own, or by the offset at full weight on the curve and fading over `width` metres across it by the cube of `1 - (d / width)^2`, distances approximated with `u` scaled by spine length and angle by the query's local radius before scale. Features apply after guides, before the scale profile, and add up where their bands overlap.
-   *
-   * @evidence contracts/development/design.md#principled-representation A pass-through constraint along a smooth curve in the domain, applied as a compactly supported C2 bump.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Points and a band width.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Overlapping bands add; the limitation is stated on the compiler.
-   * @evidence contracts/development/common.md#meaningful-documentation States the curve, its values, the falloff and the order of layers.
    */
   export interface IFeature {
     /** Points of the curve, at least two, each with the radius the surface takes there. */
@@ -146,11 +121,6 @@ export namespace IAutoMovieSweep {
 
   /**
    * One point of a feature curve.
-   *
-   * @evidence contracts/development/design.md#principled-representation One point a feature curve passes through, with its radius or offset.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Domain point plus one of two values.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Mixing radius and offset in one feature is refused.
-   * @evidence contracts/development/common.md#meaningful-documentation States each field and the shorter-way rule.
    */
   export interface IFeaturePoint {
     /** Chord-length parameter on the spine, from 0 to 1. */

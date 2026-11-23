@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createLight,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -47,8 +47,8 @@ export function test_archetype_props_light_bands(): void {
     ),
     row(
       "torch length",
-      16 * ArchetypeUnits.INCH,
-      24 * ArchetypeUnits.INCH,
+      16 * AutoMovieArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
       "fire-performance torches, 16 to 24 in",
       (seed: number): number =>
         archetypeExtent(createLight({ kind: "fireTorch" }, seed), "y").size,
@@ -71,16 +71,18 @@ export function test_archetype_props_light_bands(): void {
     ),
     row(
       "pendant drop",
-      4 * ArchetypeUnits.FOOT + (11 + 11) * ArchetypeUnits.INCH,
-      4 * ArchetypeUnits.FOOT + (11 + 11) * ArchetypeUnits.INCH,
+      4 * AutoMovieArchetypeUnits.FOOT +
+        (11 + 11) * AutoMovieArchetypeUnits.INCH,
+      4 * AutoMovieArchetypeUnits.FOOT +
+        (11 + 11) * AutoMovieArchetypeUnits.INCH,
       "IKEA SKURUP, cord and shade",
       (seed: number): number =>
         -archetypeExtent(createLight({ kind: "pendant" }, seed), "y").low,
     ),
     row(
       "pendant shade",
-      15 * ArchetypeUnits.INCH,
-      15 * ArchetypeUnits.INCH,
+      15 * AutoMovieArchetypeUnits.INCH,
+      15 * AutoMovieArchetypeUnits.INCH,
       "IKEA SKURUP",
       (seed: number): number =>
         archetypeExtent(createLight({ kind: "pendant" }, seed), "x", ["shade"])
@@ -163,8 +165,8 @@ export function test_archetype_props_light_bands(): void {
       ([name, axis, parts, end, inches]): archetypeBandSweep.IRow =>
         row(
           name,
-          inches * ArchetypeUnits.INCH,
-          inches * ArchetypeUnits.INCH,
+          inches * AutoMovieArchetypeUnits.INCH,
+          inches * AutoMovieArchetypeUnits.INCH,
           LANTERN,
           (seed: number): number =>
             archetypeExtent(
@@ -176,8 +178,8 @@ export function test_archetype_props_light_bands(): void {
     ),
     row(
       "lantern mass",
-      2 * ArchetypeUnits.POUND,
-      2 * ArchetypeUnits.POUND,
+      2 * AutoMovieArchetypeUnits.POUND,
+      2 * AutoMovieArchetypeUnits.POUND,
       LANTERN,
       (seed: number): number =>
         createLight({ kind: "lantern" }, seed).body.mass,
@@ -192,7 +194,7 @@ export function test_archetype_props_light_bands(): void {
       if (
         Math.abs(flame.frame.translation.y - archetypeExtent(light, "y").high) >
           1e-9 ||
-        Math.abs(ArchetypeFrame.axis(flame.frame, "y").y - 1) > 1e-12
+        Math.abs(AutoMovieArchetypeFrame.axis(flame.frame, "y").y - 1) > 1e-12
       )
         findings.push(`${kind}@${seed}: the flame is not on top, upright`);
     }
@@ -208,7 +210,7 @@ export function test_archetype_props_light_bands(): void {
       Math.abs(
         beam.frame.translation.y - archetypeExtent(pendant, "y", ["shade"]).low,
       ) > 1e-9 ||
-      Math.abs(ArchetypeFrame.axis(beam.frame, "y").y + 1) > 1e-12 ||
+      Math.abs(AutoMovieArchetypeFrame.axis(beam.frame, "y").y + 1) > 1e-12 ||
       Math.abs(
         pendant.affordance("hook").frame.translation.y -
           archetypeExtent(pendant, "y").high,
@@ -232,7 +234,7 @@ export function test_archetype_props_light_bands(): void {
         Math.abs(bulb.frame.translation.y - stem) > 1e-9 ||
         bulb.frame.translation.y < shade.low ||
         bulb.frame.translation.y > shade.high ||
-        Math.abs(ArchetypeFrame.axis(bulb.frame, "y").y - 1) > 1e-12 ||
+        Math.abs(AutoMovieArchetypeFrame.axis(bulb.frame, "y").y - 1) > 1e-12 ||
         lamp.body.centerOfMass === null ||
         lamp.body.centerOfMass.y > stem / 2
       )
@@ -259,11 +261,12 @@ export function test_archetype_props_light_bands(): void {
         flame.frame.translation.y -
           archetypeExtent(lantern, "y", ["globe"]).low,
       ) > 1e-9 ||
-      Math.abs(ArchetypeFrame.axis(flame.frame, "y").y - 1) > 1e-12 ||
+      Math.abs(AutoMovieArchetypeFrame.axis(flame.frame, "y").y - 1) > 1e-12 ||
       Math.abs(lantern.affordance("hook").frame.translation.y - top) > 1e-9 ||
       Math.abs(grip.frame.translation.y - top) > 1e-9 ||
       grip.grip !== "hook" ||
-      Math.abs(Math.abs(ArchetypeFrame.axis(grip.frame, "x").x) - 1) > 1e-12 ||
+      Math.abs(Math.abs(AutoMovieArchetypeFrame.axis(grip.frame, "x").x) - 1) >
+        1e-12 ||
       Math.abs(grip.length! - archetypeExtent(lantern, "x", ["fount"]).size) >
         1e-9
     )

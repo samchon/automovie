@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createBed,
   createSki,
 } from "@automovie/archetypes";
@@ -86,7 +86,10 @@ export function test_archetype_ski_gurney(): void {
     ["rightEdge", -1],
   ] as const) {
     const edge: IAutoMovieAffordance = ski.affordance(id);
-    const tangent: IAutoMovieVector3 = ArchetypeFrame.axis(edge.frame, "x");
+    const tangent: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+      edge.frame,
+      "x",
+    );
     near(
       `${id} lies across from the boot on the afterbody boundary`,
       edge.frame.translation.x,
@@ -117,27 +120,27 @@ export function test_archetype_ski_gurney(): void {
   near(
     "the patient surface's width",
     gurney.affordance("surface").width!,
-    26 * ArchetypeUnits.INCH,
+    26 * AutoMovieArchetypeUnits.INCH,
   );
   near(
     "the patient surface's length",
     gurney.affordance("surface").depth!,
-    75.25 * ArchetypeUnits.INCH,
+    75.25 * AutoMovieArchetypeUnits.INCH,
   );
   near(
     "the frame's length",
     archetypeExtent(gurney, "z").size,
-    85 * ArchetypeUnits.INCH,
+    85 * AutoMovieArchetypeUnits.INCH,
   );
   near(
     "a caster's outer side",
     archetypeExtent(gurney, "x", ["caster-1"]).high,
-    (26 * ArchetypeUnits.INCH) / 2,
+    (26 * AutoMovieArchetypeUnits.INCH) / 2,
   );
   near(
     "a caster's outer end",
     archetypeExtent(gurney, "z", ["caster-1"]).high,
-    (85 * ArchetypeUnits.INCH) / 2,
+    (85 * AutoMovieArchetypeUnits.INCH) / 2,
   );
   near(
     "the casters' 8 in (20 cm)",

@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createStreetFixture } from "./createStreetFixture";
 
 /** The cone heights read. */
@@ -43,99 +47,119 @@ const POST: string =
 export const STREET_FIXTURE_BANDS: Readonly<
   Record<
     createStreetFixture.Kind,
-    Readonly<Partial<Record<createStreetFixture.Dimension, IArchetypeBand>>>
+    Readonly<
+      Partial<Record<createStreetFixture.Dimension, IAutoMovieArchetypeBand>>
+    >
   >
 > = {
   trafficCone: {
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       1.5,
-      7 * ArchetypeUnits.POUND,
-      `${ArchetypeBand.TYPICAL_MASS}; the Brimar 28 in cone weighs 7 lb; heights by ${MUTCD}, each cone in the proportions of ${BRIMAR}`,
+      7 * AutoMovieArchetypeUnits.POUND,
+      `${AutoMovieArchetypeBand.TYPICAL_MASS}; the Brimar 28 in cone weighs 7 lb; heights by ${MUTCD}, each cone in the proportions of ${BRIMAR}`,
       true,
     ),
   },
   bollard: {
-    height: ArchetypeBand.metres(
-      36 * ArchetypeUnits.INCH,
-      36 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      36 * AutoMovieArchetypeUnits.INCH,
+      36 * AutoMovieArchetypeUnits.INCH,
       BOLLARD,
     ),
   },
   hydrant: {
-    height: ArchetypeBand.metres(
-      30.5 * ArchetypeUnits.INCH,
-      30.5 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      30.5 * AutoMovieArchetypeUnits.INCH,
+      30.5 * AutoMovieArchetypeUnits.INCH,
       DARLING,
     ),
-    nozzleHeight: ArchetypeBand.metres(
-      18 * ArchetypeUnits.INCH,
-      18 * ArchetypeUnits.INCH,
+    nozzleHeight: AutoMovieArchetypeBand.metres(
+      18 * AutoMovieArchetypeUnits.INCH,
+      18 * AutoMovieArchetypeUnits.INCH,
       DARLING,
     ),
-    pumperReach: ArchetypeBand.metres(
-      8.84 * ArchetypeUnits.INCH,
-      8.84 * ArchetypeUnits.INCH,
+    pumperReach: AutoMovieArchetypeBand.metres(
+      8.84 * AutoMovieArchetypeUnits.INCH,
+      8.84 * AutoMovieArchetypeUnits.INCH,
       DARLING,
     ),
-    hoseReach: ArchetypeBand.metres(
-      8.48 * ArchetypeUnits.INCH,
-      8.48 * ArchetypeUnits.INCH,
+    hoseReach: AutoMovieArchetypeBand.metres(
+      8.48 * AutoMovieArchetypeUnits.INCH,
+      8.48 * AutoMovieArchetypeUnits.INCH,
       DARLING,
     ),
-    diameter: ArchetypeBand.metres(
-      8.66 * ArchetypeUnits.INCH,
-      8.66 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      8.66 * AutoMovieArchetypeUnits.INCH,
+      8.66 * AutoMovieArchetypeUnits.INCH,
       `${MUELLER}: the 8.66 in is unlabelled and taken as the barrel's`,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 90, 150, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      90,
+      150,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   lampPost: {
-    height: ArchetypeBand.metres(
-      12 * ArchetypeUnits.FOOT,
-      12 * ArchetypeUnits.FOOT,
+    height: AutoMovieArchetypeBand.metres(
+      12 * AutoMovieArchetypeUnits.FOOT,
+      12 * AutoMovieArchetypeUnits.FOOT,
       WAVE,
     ),
-    diameter: ArchetypeBand.metres(
-      3 * ArchetypeUnits.INCH,
-      3 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      3 * AutoMovieArchetypeUnits.INCH,
+      3 * AutoMovieArchetypeUnits.INCH,
       `${WAVE}: the butt`,
     ),
-    base: ArchetypeBand.metres(
-      (9 + 1 / 4) * ArchetypeUnits.INCH,
-      (9 + 1 / 4) * ArchetypeUnits.INCH,
+    base: AutoMovieArchetypeBand.metres(
+      (9 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
+      (9 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
       WAVE,
     ),
-    baseHeight: ArchetypeBand.metres(
-      (11 + 7 / 8) * ArchetypeUnits.INCH,
-      (11 + 7 / 8) * ArchetypeUnits.INCH,
+    baseHeight: AutoMovieArchetypeBand.metres(
+      (11 + 7 / 8) * AutoMovieArchetypeUnits.INCH,
+      (11 + 7 / 8) * AutoMovieArchetypeUnits.INCH,
       `${WAVE}: the 11 7/8 in is unlabelled and taken as the base's`,
       true,
     ),
-    head: ArchetypeBand.metres(
-      21 * ArchetypeUnits.INCH,
-      21 * ArchetypeUnits.INCH,
+    head: AutoMovieArchetypeBand.metres(
+      21 * AutoMovieArchetypeUnits.INCH,
+      21 * AutoMovieArchetypeUnits.INCH,
       STERNBERG,
     ),
-    headHeight: ArchetypeBand.metres(
-      40 * ArchetypeUnits.INCH,
-      40 * ArchetypeUnits.INCH,
+    headHeight: AutoMovieArchetypeBand.metres(
+      40 * AutoMovieArchetypeUnits.INCH,
+      40 * AutoMovieArchetypeUnits.INCH,
       STERNBERG,
     ),
-    mass: ArchetypeBand.of("kg", 20, 40, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      20,
+      40,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   signPost: {
-    height: ArchetypeBand.metres(
-      7 * ArchetypeUnits.FOOT,
-      7 * ArchetypeUnits.FOOT,
+    height: AutoMovieArchetypeBand.metres(
+      7 * AutoMovieArchetypeUnits.FOOT,
+      7 * AutoMovieArchetypeUnits.FOOT,
       SIGN,
     ),
-    diameter: ArchetypeBand.metres(
-      2 * ArchetypeUnits.INCH,
-      2 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      2 * AutoMovieArchetypeUnits.INCH,
+      2 * AutoMovieArchetypeUnits.INCH,
       POST,
     ),
-    mass: ArchetypeBand.of("kg", 8, 15, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      8,
+      15,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
 };

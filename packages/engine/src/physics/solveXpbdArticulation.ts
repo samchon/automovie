@@ -6,11 +6,12 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
 import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
-import { solveXpbdArticulationContacts } from "./solveXpbdArticulationContacts";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { solveXpbdArticulationContacts } from "./solveXpbdArticulationContacts";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
@@ -19,45 +20,33 @@ import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
  * articulated-body algorithm (Featherstone 2008, "Rigid Body Dynamics
  * Algorithms", chapter 7) in its impulse form (`AutoMovieXpbdArticulation`).
  *
- * The world's joints form a forest: a joint is a tree edge when its child
- * is dynamic, has no parent edge yet and lies in another tree than its
- * parent; a kinematic parent is a fixed base. Each edge's motion subspace
- * `S` is the rotation about its anchor along its profile's free axes. A
- * motor on axis `k` is the backward-Euler damper `mu_k = h c_k (s_k - qd_k')`
- * on the axis's relative angular velocity after the pass, which enters the
- * algorithm as the joint-space term `D = S^T I^A S + diag(h c)` with the
- * joint impulse `h c (s - qd)`, so each motor meets the inertia of
- * everything it really moves and every attachment's velocity is kept. A
- * tree pressed onto something that is not dynamic is held at those
- * supports in the same solve (`solveXpbdArticulationContacts`). A motor
- * whose impulse exceeds its cap `tau h` is held at the cap and the tree
- * solved again, at most once more per motor.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the source, the forest rule, the subspace, the motor term, the supports and the cap.
- * @evidence contracts/development/design.md#principled-representation A namespace over the world's joints; impulses in newton seconds and newton metre seconds, velocities in metres and radians per second.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One entry, called by solveXpbdJoints.motors, returning the joints it leaves to the pair solve.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Gains, caps and inertias are the motors' and the bodies'; nothing is tuned here.
+ * The world's joints form a forest: a joint is a tree edge when its child is
+ * dynamic, has no parent edge yet and lies in another tree than its parent; a
+ * kinematic parent is a fixed base. Each edge's motion subspace `S` is the
+ * rotation about its anchor along its profile's free axes. A motor on axis `k`
+ * is the backward-Euler damper `mu_k = h c_k (s_k - qd_k')` on the axis's
+ * relative angular velocity after the pass, which enters the algorithm as the
+ * joint-space term `D = S^T I^A S + diag(h c)` with the joint impulse `h c (s -
+ * qd)`, so each motor meets the inertia of everything it really moves and every
+ * attachment's velocity is kept. A tree pressed onto something that is not
+ * dynamic is held at those supports in the same solve
+ * (`solveXpbdArticulationContacts`). A motor whose impulse exceeds its cap `tau
+ * h` is held at the cap and the tree solved again, at most once more per
+ * motor.
  */
 export namespace solveXpbdArticulation {
   /**
    * Solve every motor-driven tree's motors at once and return the joints
-   * outside the forest (closing a loop or with a kinematic child), which
-   * the caller solves pair by pair.
+   * outside the forest (closing a loop or with a kinematic child), which the
+   * caller solves pair by pair.
    *
    * @param joints The world's joints, in creation order.
    * @param h The substep, seconds.
    * @param contacts The step's contacts, for the trees' supports.
    * @param tasks The root tasks the trees' supports should meet, by root body.
-   * @param warm Each tree's warm start for its supports' cascade, by root body; a tree's entry is created on its first task.
+   * @param warm Each tree's warm start for its supports' cascade, by root body;
+   *   a tree's entry is created on its first task.
    * @returns The joints outside the forest, in creation order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is solved and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation Featherstone 2008, chapter 7: factor the inward sweep, propagate the motors' joint impulses, add the supports' impulses (Mirtich 1996), hold capped motors and solve again.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the forest, then per tree: axes, factor, propagate, supports, caps, apply.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A tree without an active motor is skipped; a singular joint or root inertia leaves its tree untouched instead of dividing.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each solve is linear in the tree's bodies plus the supports' rows, with one more solve per capped motor; the forest is built in joints times tree depth.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The motors' and every support row's propagation share one factor per solve.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Mutates only the bodies' velocities; the forest and its rows are released at return.
    */
   export function motors(
     joints: readonly AutoMovieXpbdJoint[],
@@ -195,7 +184,10 @@ export namespace solveXpbdArticulation {
     );
   }
 
-  /** A tree's states and edges, depth-first from its root so every edge follows its parent's. */
+  /**
+   * A tree's states and edges, depth-first from its root so every edge follows
+   * its parent's.
+   */
   function build(top: INode): AutoMovieXpbdArticulation.ITree {
     const origin: IAutoMovieVector3 = top.body.center;
     const tree: AutoMovieXpbdArticulation.ITree = {
@@ -258,11 +250,36 @@ export namespace solveXpbdArticulation {
       joint.child.angularVelocity,
       joint.parent.angularVelocity,
     );
+    // A sequential chart moves each axis with the rotations composed before
+    // it, so the motion subspace is the chart's axes at the joint's present
+    // configuration (`AutoMoviePhysicalJointChart.directions`).
+    const order: readonly IAutoMoviePhysicalJointAxis["axis"][] | undefined =
+      joint.joint.order;
+    const chart: IAutoMovieVector3[] | undefined =
+      order === undefined
+        ? undefined
+        : AutoMoviePhysicalJointChart.directions(
+            order,
+            AutoMoviePhysicalJointChart.nearest(
+              joint.joint,
+              Quaternion.multiply(
+                Quaternion.inverse(frame),
+                Quaternion.multiply(
+                  joint.child.orientation,
+                  joint.childFrame().rotation,
+                ),
+              ),
+            ),
+          );
     return joint.joint.axes.map(
-      (declared: IAutoMoviePhysicalJointAxis): AutoMovieXpbdArticulation.IAxis => {
+      (
+        declared: IAutoMoviePhysicalJointAxis,
+      ): AutoMovieXpbdArticulation.IAxis => {
         const e: IAutoMovieVector3 = Quaternion.rotateVector(
           frame,
-          UNIT[declared.axis]!,
+          chart === undefined
+            ? UNIT[declared.axis]!
+            : chart[order!.indexOf(declared.axis)]!,
         );
         const moment: IAutoMovieVector3 = Vector3.cross(anchor, e);
         const motor: AutoMovieXpbdJoint.IMotor | undefined = joint.motors.get(
@@ -272,11 +289,7 @@ export namespace solveXpbdArticulation {
           column: [e.x, e.y, e.z, moment.x, moment.y, moment.z],
           present: Vector3.dot(relative, e),
         };
-        if (
-          motor !== undefined &&
-          motor.damping > 0 &&
-          motor.maximumTorque > 0
-        )
+        if (motor !== undefined && motor.damping > 0 && motor.maximumTorque > 0)
           axis.motor = motor;
         return axis;
       },
@@ -284,8 +297,8 @@ export namespace solveXpbdArticulation {
   }
 
   /**
-   * Hold every free motor whose impulse `b - h c qd'` exceeds its cap at
-   * the cap; true when any was newly held.
+   * Hold every free motor whose impulse `b - h c qd'` exceeds its cap at the
+   * cap; true when any was newly held.
    */
   function clamp(
     tree: AutoMovieXpbdArticulation.ITree,

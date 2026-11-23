@@ -1,15 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createTray } from "./createTray";
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createTray.Affordance> = ArchetypeBuilder<
+type Builder<Id extends createTray.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   createTray.Dimension
 >;
@@ -32,8 +32,8 @@ function draw<Id extends createTray.Affordance>(
   params: Omit<createTray.IParams, "kind">,
   seed?: number | string,
 ): IDrawResult<Id> {
-  const session: ArchetypeDrawSession<createTray.Dimension> =
-    new ArchetypeDrawSession<createTray.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createTray.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTray.Dimension>(
       "tray",
       createTray.UNITS,
       seed,
@@ -60,7 +60,7 @@ function draw<Id extends createTray.Affordance>(
     height: read.height!,
     mass: read.mass!,
   };
-  const builder: Builder<Id | "inside"> = new ArchetypeBuilder({
+  const builder: Builder<Id | "inside"> = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind,
@@ -83,7 +83,7 @@ function draw<Id extends createTray.Affordance>(
   builder.affordance({
     id: "inside",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, wall, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
     extent: null,
     width: d.width - 2 * wall,
     depth: d.depth - 2 * wall,
@@ -93,20 +93,10 @@ function draw<Id extends createTray.Affordance>(
 
 /**
  * Open hand carriers with shared floor and wall geometry and separate gripping arrangements.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Open hand carriers with shared floor and wall geometry and separate gripping arrangements.
- * @evidence contracts/development/design.md#principled-representation Each construction applies the selected variant's coordinate frame and dimensions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Used by the named producers and the legacy selector.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace TrayConstruction {
   /**
    * The contact ids {@link servingTray} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of servingTray.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only servingTray and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type ServingTrayContact =
     | "inside"
@@ -118,19 +108,11 @@ export namespace TrayConstruction {
   /**
    * Build a low serving tray with opposing end grips, a flat-hand hold under
    * its floor's centre for a waiter's carry and a socket there for a glass.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a low serving tray with opposing end grips.
-   * @evidence contracts/development/implementation.md#principled-implementation Use the side wall thickness and location to define each hook grip, and floor height for the interior placement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Recorded models own the overall sizes. The decorative rim retains its documented wall estimate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Five boxes and five contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function servingTray(
     params: Omit<createTray.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<ServingTrayContact, createTray.Dimension> {
+  ): AutoMovieArchetype<ServingTrayContact, createTray.Dimension> {
     const { builder, d }: ReturnType<typeof draw<ServingTrayContact>> =
       draw<ServingTrayContact>("tray", params, seed);
     const wall: number = createTray.WALL;
@@ -144,7 +126,7 @@ export namespace TrayConstruction {
         id,
         kind: "handle",
         symmetry: "none",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(sign * (hx - wall / 2), up, 0),
           v(sign, 0, 0),
           v(0, 0, 1),
@@ -160,7 +142,11 @@ export namespace TrayConstruction {
       id: "palm",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, 0, 0),
+        v(0, -1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "hook",
       aperture: wall,
@@ -169,7 +155,7 @@ export namespace TrayConstruction {
     builder.affordance({
       id: "rest",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, wall, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, wall, 0)),
       extent: null,
     });
     return builder.build(d.mass);
@@ -177,29 +163,16 @@ export namespace TrayConstruction {
 
   /**
    * The contact ids {@link basket} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of basket.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only basket and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type BasketContact = "inside" | "handle";
 
   /**
    * Build a deep carry basket with an overhead grip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a deep carry basket with an overhead grip.
-   * @evidence contracts/development/implementation.md#principled-implementation The floor placement stays below the walls. The hanging hand closes around the straight bar along its long interior axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original two posts and straight bar represent the handle at the documented clearance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Eight solids and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function basket(
     params: Omit<createTray.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<BasketContact, createTray.Dimension> {
+  ): AutoMovieArchetype<BasketContact, createTray.Dimension> {
     const { builder, d }: ReturnType<typeof draw<BasketContact>> =
       draw<BasketContact>("basket", params, seed);
     const wall: number = createTray.WALL;
@@ -228,7 +201,11 @@ export namespace TrayConstruction {
       id: "handle",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, bar, 0), v(0, 1, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, bar, 0),
+        v(0, 1, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       grip: "power",
       aperture: grip,

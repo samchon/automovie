@@ -1,5 +1,5 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
-import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHumanDance";
+import type { IAutoMovieMotionHumanDance } from "../next/IAutoMovieMotionHumanDance";
 
 /**
  * Conducting with a held baton: its tip beats the standard figure of the
@@ -8,23 +8,15 @@ import type { IAutoMovieMotionHumanDance } from "../exercise/IAutoMovieMotionHum
  * Grammar of Conducting* (3rd ed., Schirmer, 1995): 2/4 down and up, 3/4
  * down, out and up, 4/4 down, in, out and up, "in" toward the body's
  * midline and "out" away from it for the baton hand.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the figures, the ictus rule and their source.
- * @evidence contracts/development/design.md#principled-representation A closed meter union, a bar count and the shared beat clock's tempo or cue-track lock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What `conduct` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The figure is the meter's; no free path is authorable.
  */
 export namespace IAutoMovieMotionHumanConduct {
-  /** The meter whose figure the baton beats. */
+  /**
+   * The meter whose figure the baton beats.
+   */
   export type Meter = "2/4" | "3/4" | "4/4";
 
   /**
    * The parameters of `conduct`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the baton, the meter, the bars, the tempo, the lock and the hand.
-   * @evidence contracts/development/design.md#principled-representation Beats per minute, a whole bar count and the dance beat clock's lock.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The inputs the law reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The baton must be held at entry.
    */
   export interface IParams {
     /** The held baton's subject id; its `tip` is the beating point. */
@@ -43,6 +35,6 @@ export namespace IAutoMovieMotionHumanConduct {
     lock?: IAutoMovieMotionHumanDance.IParams["lock"];
 
     /** The baton hand; the one holding the baton at entry when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
   }
 }

@@ -8,11 +8,6 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * reel's crank turns). A line shorter than the distance between its ends
  * pulls the far prop toward the near one along the line while no hand
  * holds the far prop; a slack line hangs as a catenary.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the ends, the two lengths, the pull and the hang.
- * @evidence contracts/development/design.md#principled-representation Two named prop points and a length that is either a constant or an articulation's travel times a rate.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The id, the far end and the length a line needs; the near end is the declaring prop.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A length of no line or a missing point is refused when the performance reads the line.
  */
 export interface IAutoMovieMotionHumanTether {
   /** The line's id on its prop. */
@@ -32,7 +27,9 @@ export interface IAutoMovieMotionHumanTether {
  * Companion types of {@link IAutoMovieMotionHumanTether}.
  */
 export namespace IAutoMovieMotionHumanTether {
-  /** A prop's named point. */
+  /**
+   * A prop's named point.
+   */
   export interface IEnd {
     /** The prop's subject. */
     prop: string;
@@ -41,10 +38,14 @@ export namespace IAutoMovieMotionHumanTether {
     point: string;
   }
 
-  /** A fixed or a driven length. */
+  /**
+   * A fixed or a driven length.
+   */
   export type Length = IFree | IDriven;
 
-  /** A fixed length of line out. */
+  /**
+   * A fixed length of line out.
+   */
   export interface IFree {
     /** The discriminant. */
     kind: "free";
@@ -53,7 +54,9 @@ export namespace IAutoMovieMotionHumanTether {
     metres: number;
   }
 
-  /** A length paid in by an articulation's travel: `metres - per × travel`, never below zero. */
+  /**
+   * A length paid in by an articulation's travel: `metres - per × travel`, never below zero.
+   */
   export interface IDriven {
     /** The discriminant. */
     kind: "driven";
@@ -68,7 +71,9 @@ export namespace IAutoMovieMotionHumanTether {
     per: number;
   }
 
-  /** The line as it lies at a second. */
+  /**
+   * The line as it lies at a second.
+   */
   export interface ISpan {
     /** The near end, world metres. */
     from: IAutoMovieVector3;

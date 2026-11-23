@@ -2,10 +2,10 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  type ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { StageShaftConstruction } from "./StageShaftConstruction";
 import type { createStageWeaponProp } from "./createStageWeaponProp";
@@ -81,7 +81,7 @@ const SIDE_BLADE: readonly Section[] = [
  * @param params The scene identity and optional total display height in metres, with a choice of profile.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names this inert form's silhouette and actor-facing display contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Uses this form's authored ornament, grip and any articulated or fixed display contacts.
@@ -94,7 +94,7 @@ const SIDE_BLADE: readonly Section[] = [
 export function createStagePoleBladeProp(
   params: createStagePoleBladeProp.IParams,
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStagePoleBladeProp.Affordance,
   createStagePoleBladeProp.Dimension
 > {
@@ -118,7 +118,7 @@ export function createStagePoleBladeProp(
         id: "tip",
         kind: "surface",
         direction: "along",
-        frame: ArchetypeFrame.upright(
+        frame: AutoMovieArchetypeFrame.upright(
           v(((tip[1] + tip[2]) / 2) * height, height, 0),
         ),
         extent: null,
@@ -144,7 +144,7 @@ export function createStagePoleBladeProp(
         id: "shaft",
         kind: "bar",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(0, shaftTop / 2, 0),
           v(0, 0, -1),
           v(0, 1, 0),
@@ -162,7 +162,7 @@ export function createStagePoleBladeProp(
           id,
           kind: "handle",
           symmetry: "round",
-          frame: ArchetypeFrame.facing(
+          frame: AutoMovieArchetypeFrame.facing(
             v(0, shaftTop * fraction, 0),
             v(0, 0, -1),
             v(0, 1, 0),
@@ -219,7 +219,7 @@ type BladeEdge = "edge" | "side-edge";
 
 /** Extrude one small convex cell between each pair of adjacent outline sections. */
 function addOutline(
-  builder: ArchetypeBuilder<
+  builder: AutoMovieArchetypeBuilder<
     createStageWeaponProp.Affordance,
     createStageWeaponProp.Dimension
   >,
@@ -244,7 +244,7 @@ function addOutline(
  * tell the cutting side from the spine.
  */
 function addRear(
-  builder: ArchetypeBuilder<
+  builder: AutoMovieArchetypeBuilder<
     createStageWeaponProp.Affordance,
     createStageWeaponProp.Dimension
   >,
@@ -257,7 +257,7 @@ function addRear(
     id: "rear",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(
         ((lower[1] + upper[1]) / 2) * height,
         ((lower[0] + upper[0]) / 2) * height,
@@ -272,7 +272,7 @@ function addRear(
 
 /** Record the midpoint and outward normal of the right edge of a silhouette cell. */
 function addEdge(
-  builder: ArchetypeBuilder<
+  builder: AutoMovieArchetypeBuilder<
     createStageWeaponProp.Affordance,
     createStageWeaponProp.Dimension
   >,
@@ -286,7 +286,7 @@ function addEdge(
     id,
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(
         ((lower[2] + upper[2]) / 2) * height,
         ((lower[0] + upper[0]) / 2) * height,

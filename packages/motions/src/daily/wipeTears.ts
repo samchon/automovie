@@ -1,9 +1,10 @@
 import type {
   IAutoMovieMotionHumanActionLaw,
-  IAutoMovieMotionHumanHandToFace,
+  IAutoMovieMotionHumanHandToBody,
 } from "@automovie/interface";
 
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_HAND_TO_BODY_WIPE_TEARS } from "../next/presets/HUMAN_HAND_TO_BODY_WIPE_TEARS";
 import { handToFace } from "./handToFace";
 
 /**
@@ -21,18 +22,5 @@ import { handToFace } from "./handToFace";
  * @evidence contracts/development/design.md#minimal-and-owned-surface Fixes the task and excludes a second hand while inheriting the timing, one-hand controls and cuts.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The cheek and timing are row data, and the planner handles mirroring, contact and return.
  */
-export const wipeTears: IAutoMovieMotionHumanActionLaw<
-  Omit<IAutoMovieMotionHumanHandToFace.IParams, "task" | "other">
-> = HumanActionRow.of("wipeTears", handToFace, {
-  other: undefined,
-  task: {
-    region: "cheekRight",
-    effector: { surface: "palm", shape: "flat" },
-    kind: "rub",
-    count: 1,
-    hold: 0,
-    tangent: "up",
-    head: 0,
-    at: "atCheek",
-  },
-});
+export const wipeTears: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.IWipeTears> =
+  HumanActionRow.of("wipeTears", handToFace, HUMAN_HAND_TO_BODY_WIPE_TEARS);

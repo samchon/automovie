@@ -1,7 +1,8 @@
 import {
-  type ArchetypeRide,
-  QuadrupedDatumRide,
-  type QuadrupedFooting,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeQuadrupedDatumRide,
+  type AutoMovieArchetypeQuadrupedFooting,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -16,7 +17,7 @@ import type { HumanPerformance } from "@automovie/motions";
 import { equineFordRider } from "./equineFordRider";
 
 /**
- * Leading a horse on foot in the equestrian specs: where a handler stands at the horse's head, the trapezoidal course matched to a handler's rehearsed walk so that the horse's progress follows the handler's hips, and the far-bank exit of `test_archetype_equine_ford_leadout`, where a rider climbs out mounted, dismounts and leads the horse out.
+ * Leading a horse on foot in the equestrian specs: where a handler stands at the horse's head, the trapezoidal course matched to a handler's rehearsed walk so that the horse's progress follows the handler's hips, and the far-bank exit of `test_motion_mount_equine_ford_leadout`, where a rider climbs out mounted, dismounts and leads the horse out.
  *
  * A handler keeping station on the horse's moving lead would trail it by the cruise speed over the station gain (`walkStation`, 1.2 m/s over 1.87 per second, 0.64 m), beyond the arm's slack on the rope, so the led horse follows its handler instead, as a led horse does.
  *
@@ -194,7 +195,7 @@ export namespace equineLeadOut {
    * @returns The mount.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the stage and its input.
-   * @evidence contracts/development/implementation.md#principled-implementation The climb rides the authored step, exit and top (`QuadrupedDatumRide` lifts the course to the step's height); the led walk starts where the climb halts on the top at zero.
+   * @evidence contracts/development/implementation.md#principled-implementation The climb rides the authored step, exit and top (`AutoMovieArchetypeQuadrupedDatumRide` lifts the course to the step's height); the led walk starts where the climb halts on the top at zero.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Footing, climb, clip, mount.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms One climb is planned; sampling is the caller's.
@@ -213,17 +214,17 @@ export namespace equineLeadOut {
       from: number,
       to: number,
       slope: number,
-    ): QuadrupedFooting.IPlane => ({
+    ): AutoMovieArchetypeQuadrupedFooting.IPlane => ({
       id,
       origin: { x: 0, y, z: from },
       x: [-6, 6],
       z: [from, to],
       slope: { x: 0, z: slope },
     });
-    const ride: ArchetypeRide.IRide<
-      createHorse.Affordance,
-      createHorse.Dimension
-    > = QuadrupedDatumRide(
+    const ride: AutoMovieArchetypeRide.IRide<
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
+    > = AutoMovieArchetypeQuadrupedDatumRide(
       horse,
       {
         start: { x: 0, z: 0, heading: 0 },

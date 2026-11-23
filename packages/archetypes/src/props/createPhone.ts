@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandheldDevice } from "./HandheldDevice";
 
 /**
@@ -10,7 +10,7 @@ import { HandheldDevice } from "./HandheldDevice";
  * @param params The identifier, fixed outside dimensions and mass.
  * @param seed The seed for the device's remaining choices.
  * @returns The device and its named contacts.
- * @throws {ArchetypeRefusal} For a refused dimension or producer input.
+ * @throws {AutoMovieArchetypeRefusal} For a refused dimension or producer input.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the device, its frame and the exposed contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Add the shared shallow case and two grips, then place the touchscreen and rear lens.
@@ -23,7 +23,7 @@ import { HandheldDevice } from "./HandheldDevice";
 export function createPhone(
   params: createPhone.IParams = {},
   seed?: number | string,
-): Archetype<createPhone.Affordance, createPhone.Dimension> {
+): AutoMovieArchetype<createPhone.Affordance, createPhone.Dimension> {
   const {
     builder,
     size,
@@ -56,7 +56,7 @@ export function createPhone(
     id: "lens",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, height * 0.9, -depth / 2),
       Vector3.create(0, 0, -1),
       Vector3.create(-1, 0, 0),

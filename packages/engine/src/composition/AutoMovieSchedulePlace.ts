@@ -19,11 +19,6 @@ import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
  * The two placements of a composition's leaves and joints that the walk does
  * not do itself: an intent placed on the film clock, and a part placed at an
  * anchor's instant.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two placements and what each refuses.
- * @evidence contracts/development/design.md#principled-representation An intent becomes an entry with its start, contact, cut, events, outcome and state; an `at` becomes the start its anchor and its alignment give.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Two functions; the sequence and the group are the walk's own joints.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every invalid timing, duplicate, unplaced anchor and absent law is refused with its code.
  */
 export namespace AutoMovieSchedulePlace {
   /**
@@ -35,14 +30,6 @@ export namespace AutoMovieSchedulePlace {
    * @param start Where it starts, film seconds.
    * @returns Where it ends, film seconds.
    * @throws {AutoMovieScheduleError} When its timing is invalid, its cut is, or its anchor is already placed.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the end and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The laws time the intent, the cut shortens it, then `outcome` and `state` read the entries placed so far and the draft, so an outcome may depend on earlier state.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate the timing, cut, build the draft, push the entry, name the anchor.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A duration, a contact or an anchor name that is not valid is refused.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the intent's events.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reuses the cut and the walk's readings.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The entry joins the walk's list and nothing else is kept.
    */
   export function intent(
     walk: IAutoMovieScheduleWalk.IWalk,
@@ -52,6 +39,10 @@ export namespace AutoMovieSchedulePlace {
     const context: IAutoMovieScheduleContext = {
       start,
       entries: walk.entries,
+      ...(walk.demand === undefined ? {} : { demand: walk.demand }),
+      ...(walk.horizon === undefined ? {} : { horizon: walk.horizon }),
+      ...(walk.meeting === undefined ? {} : { meeting: walk.meeting }),
+      ...(walk.demandAnchor === undefined ? {} : { demandAnchor: walk.demandAnchor }),
     };
     const timing: IAutoMovieIntentTiming = walk.laws.timing(intent, context);
     const who: Pick<IAutoMovieScheduleError.IProps, "subject" | "capability"> =
@@ -83,6 +74,8 @@ export namespace AutoMovieSchedulePlace {
     );
     const length: number =
       cut === undefined ? timing.duration : cut.share * timing.duration;
+    // The index is read after the timing, since a law's demand may have
+    // placed another part's entries meanwhile (`IAutoMovieScheduleContext.demand`).
     const draft: IAutoMovieScheduleEntry = {
       index: walk.entries.length,
       subject: intent.subject,
@@ -113,6 +106,7 @@ export namespace AutoMovieSchedulePlace {
       ...(outcome === undefined ? {} : { outcome }),
       ...(state === undefined ? {} : { state }),
     });
+    walk.last = draft.index;
     if (intent.anchor !== undefined) {
       if (walk.anchors.has(intent.anchor) || walk.tracks.has(intent.anchor))
         throw new AutoMovieScheduleError(
@@ -141,14 +135,6 @@ export namespace AutoMovieSchedulePlace {
    * @param place The walk's placement of a node, for the part.
    * @returns The later of the cursor and the part's end, film seconds.
    * @throws {AutoMovieScheduleError} When the anchor or its event is not placed, an occurrence index names no event, the part has no intent to align, or the laws cannot align.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the end and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The anchor's contact instant (its start when it has none) or its named event, plus the offset, is the target; an aligned part asks `laws.align` for the start that puts its own instant on it and is then timed again there.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the target, then place directly or through the alignment.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cue track named without an event, an occurrence index named without an event, an unplaced anchor, a part with no intent to align and laws without `align` are refused.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work besides the part and the anchor's instants.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the walk's instants.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function at(
     walk: IAutoMovieScheduleWalk.IWalk,
@@ -174,6 +160,14 @@ export namespace AutoMovieSchedulePlace {
           value: node.index,
         },
       );
+    // An anchor a waiting part of an open group holds is placed first
+    // (`IAutoMovieScheduleContext.demandAnchor`), as a law's read of it is.
+    if (
+      node.event === undefined &&
+      !walk.anchors.has(node.anchor) &&
+      walk.demandAnchor !== undefined
+    )
+      walk.demandAnchor(node.anchor);
     const anchor: number | undefined =
       node.event === undefined
         ? walk.anchors.get(node.anchor)

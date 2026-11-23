@@ -1,10 +1,9 @@
 /**
  * The motion vocabulary as the reference pages list it: the actions and the
- * lexicon's families, each action and row with its parameters, and the
- * grammar.
+ * lexicon's families, and the grammar.
  */
 export interface IMotionReference {
-  /** The actions of `HUMAN_ACTIONS`, in the package's order, each with its parameters from the action's schema. */
+  /** The actions of `HUMAN_ACTIONS`, in the package's order. */
   actions: IMotionReference.IRow[];
 
   /** The lexicon's families, in the package's order; empty when the release has no lexicon. */
@@ -30,24 +29,6 @@ export namespace IMotionReference {
 
     /** The exported namespace a lexicon row is taken from, such as `HumanStrike`; null for an action, or a row no namespace exports. */
     namespace: string | null;
-
-    /** Its parameters from its schema; null when the release ships no schema for it. */
-    parameters: IParameter[] | null;
-  }
-
-  /** One parameter of an action or a row. */
-  export interface IParameter {
-    /** Its name. */
-    name: string;
-
-    /** Whether the action or row needs it. */
-    required: boolean;
-
-    /** Its type in short: a set of values, a number's bounds, an object's members. */
-    type: string;
-
-    /** What it means, from the law's own documentation. */
-    description: string;
   }
 
   /** The grammar as data. */

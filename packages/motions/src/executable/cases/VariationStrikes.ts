@@ -133,7 +133,7 @@ const ABDOMEN: IAutoMovieMotionTarget = {
 /** The partner's standing guard. */
 function waits(seconds: number): IAutoMovieMotionHumanChain {
   return HumanChain.subject("b").guard({
-    seconds,
+    duration: seconds,
     facing: { kind: "person", subject: "a", region: "face" },
   });
 }
@@ -141,7 +141,7 @@ function waits(seconds: number): IAutoMovieMotionHumanChain {
 /** The striker's guard before a punch. */
 function ready(seconds: number = 0.8): IAutoMovieMotionHumanChain {
   return HumanChain.subject("a").guard({
-    seconds,
+    duration: seconds,
     facing: { kind: "person", subject: "b", region: "face" },
   });
 }
@@ -178,7 +178,7 @@ function aimed(
           index,
         }),
       },
-      { variation: 1, proficiency },
+      { variation: 1, consistency: proficiency },
     ),
     "point",
     { radius: StrikingBody.radius(struck, "abdomen"), scatter: 0 },

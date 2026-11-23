@@ -34,10 +34,7 @@ import { furnishRoom } from "./furnishRoom";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The module captures the room parameters only. Model prototypes and planner allocations belong to one call and survive only where the emitted stage records use them.
  */
 export function createCafeKit(
-  params: IAutoMovieFurnishingLayout & {
-    /** Positive integer count of dining groups. */
-    readonly tables: number;
-  },
+  params: createCafeKit.IParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -92,4 +89,20 @@ export function createCafeKit(
       },
     });
   };
+}
+
+/**
+ * Types of the cafe kit producer.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the room layout it extends and the count of dining groups it adds.
+ * @evidence contracts/development/design.md#principled-representation The furnishing layout of the interface plus one positive integer count.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface What the kit's producer takes and nothing else.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The layout's own members are not restated.
+ */
+export namespace createCafeKit {
+  /** The room layout and the positive integer count of the kit's repeated group. */
+  export interface IParams extends IAutoMovieFurnishingLayout {
+    /** Positive integer count of dining groups. */
+    readonly tables: number;
+  }
 }

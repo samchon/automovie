@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { CartConstruction } from "./CartConstruction";
 import { CartLimber } from "./CartLimber";
 import type { createCart } from "./createCart";
@@ -11,7 +11,7 @@ import type { createCart } from "./createCart";
  * @param params The scene identity and the dimensions and catalogue choices this carrier admits.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the carrier's orientation and working contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The carrier's geometry and actor-facing supports use CartLimber.build with the shared cart draw.
@@ -24,7 +24,7 @@ import type { createCart } from "./createCart";
 export function createLimber(
   params: createLimber.IParams = {},
   seed?: number | string,
-): Archetype<createLimber.Affordance, createLimber.Dimension> {
+): AutoMovieArchetype<createLimber.Affordance, createLimber.Dimension> {
   return CartConstruction("limber", params, seed, CartLimber.build);
 }
 

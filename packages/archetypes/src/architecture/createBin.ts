@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 
 /**
@@ -49,20 +49,20 @@ const BIN_MODELS: Readonly<
   },
   dumpster: {
     "2yd": {
-      width: (81 + 7 / 8) * ArchetypeUnits.INCH,
-      depth: (39 + 3 / 4) * ArchetypeUnits.INCH,
-      height: (40 + 15 / 16) * ArchetypeUnits.INCH,
-      top: (45 + 1 / 4) * ArchetypeUnits.INCH,
-      reach: 34 * ArchetypeUnits.INCH,
-      mass: 505 * ArchetypeUnits.POUND,
+      width: (81 + 7 / 8) * AutoMovieArchetypeUnits.INCH,
+      depth: (39 + 3 / 4) * AutoMovieArchetypeUnits.INCH,
+      height: (40 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
+      top: (45 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
+      reach: 34 * AutoMovieArchetypeUnits.INCH,
+      mass: 505 * AutoMovieArchetypeUnits.POUND,
     },
     "3yd": {
-      width: (82 + 7 / 16) * ArchetypeUnits.INCH,
-      depth: (46 + 3 / 4) * ArchetypeUnits.INCH,
-      height: (48 + 1 / 2) * ArchetypeUnits.INCH,
-      top: (52 + 11 / 16) * ArchetypeUnits.INCH,
-      reach: 42 * ArchetypeUnits.INCH,
-      mass: 602 * ArchetypeUnits.POUND,
+      width: (82 + 7 / 16) * AutoMovieArchetypeUnits.INCH,
+      depth: (46 + 3 / 4) * AutoMovieArchetypeUnits.INCH,
+      height: (48 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
+      top: (52 + 11 / 16) * AutoMovieArchetypeUnits.INCH,
+      reach: 42 * AutoMovieArchetypeUnits.INCH,
+      mass: 602 * AutoMovieArchetypeUnits.POUND,
     },
   },
 };
@@ -78,12 +78,12 @@ const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
  *
  * Each stands on `y = 0` with its front toward `+Z` and its lid hinged along its back top edge. It is one of its maker's two models read, whole: the model given, or one drawn from the seed. A wheeled bin is its body, its lid and two wheels at its back's foot; `handle` is the bar behind its body by the sheet's difference of total and bin depth, at the bin's height, where it is gripped to tip the bin onto its wheels and haul it. A dumpster is its body, narrower at the base than at the lid, under a lid level at its mean height. `lid` is the lid's hinge on both; it states no travel, since no source read gives how far a lid opens. `front` is the front face a person pushes.
  *
- * A dumpster rests on its steel body: steel on concrete (`ArchetypeFriction`).
+ * A dumpster rests on its steel body: steel on concrete (`AutoMovieArchetypeFriction`).
  *
  * @param params The kind, and the model if the author fixes it.
  * @param seed The seed that draws the model when it is not given; absent, the kind's first.
  * @returns The container.
- * @throws {ArchetypeRefusal} For a model the kind's maker does not list.
+ * @throws {AutoMovieArchetypeRefusal} For a model the kind's maker does not list.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, how its model is chosen, its contacts and why its lid does not open.
  * @evidence contracts/development/implementation.md#principled-implementation One read model whole, every size and the mass as its maker gives them; the handle where the total depth passes the body.
@@ -96,9 +96,13 @@ const ESTIMATES: Readonly<{ lid: number; bar: number }> = {
 export function createBin(
   params: createBin.IParams,
   seed?: number | string,
-): Archetype<createBin.Affordance, createBin.Dimension> {
-  const draw: ArchetypeDrawSession<createBin.Dimension> =
-    new ArchetypeDrawSession<createBin.Dimension>("bin", createBin.UNITS, seed);
+): AutoMovieArchetype<createBin.Affordance, createBin.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBin.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBin.Dimension>(
+      "bin",
+      createBin.UNITS,
+      seed,
+    );
   const kind: createBin.Kind = ArchetypeDraw.choice(
     "bin",
     "kind",
@@ -115,13 +119,15 @@ export function createBin(
   );
   const read: Readonly<Partial<Record<createBin.Dimension, number>>> =
     model.figures;
-  const builder: ArchetypeBuilder<createBin.Affordance, createBin.Dimension> =
-    new ArchetypeBuilder({
-      material: kind === "wheelieBin" ? "plastic" : "steel",
-      id: params.id,
-      name: `${kind === "wheelieBin" ? "wheelie bin" : "dumpster"} ${model.name}`,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createBin.Affordance,
+    createBin.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: kind === "wheelieBin" ? "plastic" : "steel",
+    id: params.id,
+    name: `${kind === "wheelieBin" ? "wheelie bin" : "dumpster"} ${model.name}`,
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const E: typeof ESTIMATES = ESTIMATES;
   const width: number = read.width!;
@@ -167,7 +173,7 @@ export function createBin(
       id: "handle",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, height, behind),
         v(0, 0, -1),
         v(1, 0, 0),
@@ -198,14 +204,18 @@ export function createBin(
   builder.affordance({
     id: "lid",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(v(0, hinge, back), v(0, 1, 0), v(-1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, hinge, back),
+      v(0, 1, 0),
+      v(-1, 0, 0),
+    ),
     extent: null,
     parts: ["lid"],
   });
   builder.affordance({
     id: "front",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, height / 2, front),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -261,7 +271,9 @@ export namespace createBin {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",

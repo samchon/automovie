@@ -1,10 +1,5 @@
 /**
  * Working particle data for a position-based contact-friction correction.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives metre-buffer roles, the aggregate projection push, mutation scope and still-collider friction premise.
- * @evidence contracts/development/design.md#principled-representation Positions and the before snapshot are world-metre coordinates, while friction is dimensionless; no velocity or force buffer is substituted for displacement.
- * @evidence contracts/development/design.md#minimal-and-owned-surface simulateSoftBodyCore supplies only one particle index, start/current positions, preprojection snapshot and the admitted coefficient consumed by applySoftBodyFriction.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The fixed tuple expresses one xyz snapshot; numeric ranges, storage separation and valid indexing remain caller obligations instead of a claimed local validator.
  */
 export namespace IAutoMovieApplySoftBodyFriction {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieApplySoftBodyFriction {
    * moving limb drags the cloth toward rest rather than along with the limb.
    *
    * The engine core calls this after its complete collider projection, so before records the position preceding that whole projection. Only the selected predicted triple is modified. The buffers must be distinct, correctly sized and finite; this helper performs no index or coefficient admission and retains no input.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Gives metre-buffer roles, the aggregate projection push, mutation scope and still-collider friction premise.
-   * @evidence contracts/development/design.md#principled-representation Positions and the before snapshot are world-metre coordinates, while friction is dimensionless; no velocity or force buffer is substituted for displacement.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface simulateSoftBodyCore supplies only one particle index, start/current positions, preprojection snapshot and the admitted coefficient consumed by applySoftBodyFriction.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The fixed tuple expresses one xyz snapshot; numeric ranges, storage separation and valid indexing remain caller obligations instead of a claimed local validator.
    */
   export type IProps = {
     /** Zero-based particle index selecting xyz at 3 * particle; must be an integer inside both position buffers. */

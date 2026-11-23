@@ -1,5 +1,5 @@
 import {
-  QuadrupedBody,
+  AutoMovieArchetypeQuadrupedBody,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -72,15 +72,15 @@ export function test_archetype_equine_footwork(): void {
   )
     failures.push("rein-back must alternate paired opposite hooves");
   for (let time: number = 2; time < stopped - 1.5; time += 0.15) {
-    const supported: number = QuadrupedBody.LIMBS.filter(
-      (limb: QuadrupedBody.Limb): boolean =>
+    const supported: number = AutoMovieArchetypeQuadrupedBody.LIMBS.filter(
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean =>
         Math.abs(sole(backing, limb, time)) < 1e-9,
     ).length;
     if (supported < 2)
       failures.push("rein-back must retain a grounded diagonal");
   }
   for (const boundary of [stopped, resumed]) {
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const a: ReturnType<typeof archetypeHorseRide.hoof> =
         archetypeHorseRide.hoof(backing, limb, boundary - 1e-6);
       const b: ReturnType<typeof archetypeHorseRide.hoof> =
@@ -178,13 +178,13 @@ export function test_archetype_equine_footwork(): void {
   /** Measure each actually emitted sole against the floor independently of the ride. */
   function sole(
     ride: ReturnType<typeof rideHorse>,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     time: number,
   ): number {
     const sample: ReturnType<typeof ride.at> = ride.at(time);
     const terminal: IAutoMovieModelPart = sample.archetype.parts.find(
       (part: IAutoMovieModelPart): boolean =>
-        part.id === QuadrupedBody.BONES[limb][3],
+        part.id === AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
     )!;
     return animalTerminalSole(terminal, sample.placement);
   }

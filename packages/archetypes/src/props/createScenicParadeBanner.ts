@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The parade contract establishes the shared carry. Dimensions are authored for staging. */
@@ -26,7 +26,7 @@ type Dimension =
 type Affordance = "leftGrip" | "rightGrip" | "face";
 
 /** Units paired with the banner's authorable dimensions for draw provenance. */
-const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
   width: "m",
   panelHeight: "m",
   depth: "m",
@@ -36,13 +36,13 @@ const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
 };
 
 /** Independent set dimensions keep the panel above an exposed grip on each pole. */
-const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-  width: ArchetypeBand.metres(1.2, 2.2, SCENIC, true),
-  panelHeight: ArchetypeBand.metres(0.35, 0.7, SCENIC, true),
-  depth: ArchetypeBand.metres(0.008, 0.02, SCENIC, true),
-  poleHeight: ArchetypeBand.metres(1.1, 1.6, SCENIC, true),
-  poleDiameter: ArchetypeBand.metres(0.026, 0.048, SCENIC, true),
-  mass: ArchetypeBand.of("kg", 0.6, 1.8, SCENIC, true),
+const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+  width: AutoMovieArchetypeBand.metres(1.2, 2.2, SCENIC, true),
+  panelHeight: AutoMovieArchetypeBand.metres(0.35, 0.7, SCENIC, true),
+  depth: AutoMovieArchetypeBand.metres(0.008, 0.02, SCENIC, true),
+  poleHeight: AutoMovieArchetypeBand.metres(1.1, 1.6, SCENIC, true),
+  poleDiameter: AutoMovieArchetypeBand.metres(0.026, 0.048, SCENIC, true),
+  mass: AutoMovieArchetypeBand.of("kg", 0.6, 1.8, SCENIC, true),
 };
 
 /**
@@ -54,7 +54,7 @@ const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
  * @param params Fixed set dimensions in metres and kilograms, and an optional scene-unique id.
  * @param seed Draws any omitted dimensions. Without a seed, use each band's midpoint.
  * @returns One framed panel with two pole grips and a front surface site.
- * @throws {ArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the shared prop, local axes, units, seed and motion sites.
  * @evidence contracts/development/implementation.md#principled-implementation Each pole shares an axis with the corresponding panel edge and grip.
@@ -67,13 +67,14 @@ const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
 export function createScenicParadeBanner(
   params: createScenicParadeBanner.IParams = {},
   seed?: string | number,
-): Archetype<Affordance, Dimension> {
-  const draw: ArchetypeDrawSession<Dimension> = new ArchetypeDrawSession(
-    "scenicParadeBanner",
-    UNITS,
-    seed,
-    params,
-  );
+): AutoMovieArchetype<Affordance, Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "scenicParadeBanner",
+      UNITS,
+      seed,
+      params,
+    );
   const {
     width,
     panelHeight,
@@ -82,14 +83,13 @@ export function createScenicParadeBanner(
     poleDiameter,
     mass,
   }: Record<Dimension, number> = draw.dimensions(BANDS);
-  const builder: ArchetypeBuilder<Affordance, Dimension> = new ArchetypeBuilder(
-    {
+  const builder: AutoMovieArchetypeBuilder<Affordance, Dimension> =
+    new AutoMovieArchetypeBuilder({
       material: "wood",
       id: params.id,
       name: "scenic parade banner",
       draw,
-    },
-  );
+    });
 
   const panelBottom: number = poleHeight - panelHeight;
   const panelCenter: number = poleHeight - panelHeight / 2;
@@ -112,7 +112,7 @@ export function createScenicParadeBanner(
     builder.affordance({
       id: grip,
       kind: "handle",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(x, panelBottom / 2, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),
@@ -128,7 +128,7 @@ export function createScenicParadeBanner(
   builder.affordance({
     id: "face",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, panelCenter, depth / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),

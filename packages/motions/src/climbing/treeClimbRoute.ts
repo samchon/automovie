@@ -14,14 +14,36 @@ import { treeLimbs } from "./treeLimbs";
 /** Seconds per single hand or foot move (provisional). */
 const BEAT: number = 0.6;
 
+/** The names of the change groups a step expands into, by rank: holds taken, feet moved, hands moved, holds let go. */
+const GROUPS: readonly string[] = ["Take", "Feet", "Hands", "Release"];
+
 /** The near and far hold on a branch, metres out from the trunk face (provisional: two hands' widths apart, near the strong root). */
 const HOLDS: readonly [number, number] = [0.15, 0.45];
 
 /** The near and far foot on a branch's top, metres out from the trunk face (provisional). */
 const STEPS: readonly [number, number] = [0.25, 0.5];
 
-/** The feet's heights walking up the bole, metres above its foot (provisional: a knee-high and a hip-high step). */
-const WALK: readonly [number, number] = [0.45, 0.9];
+/**
+ * The feet's heights walking up the bole, metres above its foot: a knee-high
+ * and a hip-high step, at the body's own knee (the ankle's height and the
+ * shank) and hip heights, so a small body's steps are its own.
+ *
+ * @param measure The body's measure.
+ * @returns The two heights, lower first.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States both heights and the measures they are read from.
+ * @evidence contracts/development/implementation.md#principled-implementation A step at the knee's and the hip's height is reached by the body's own legs, where fixed metres outgrow a small body's.
+ * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Two sums.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The heights are the body's measure, not tuned values.
+ * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+ * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the measure.
+ * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+ */
+function walkHeights(
+  measure: IAutoMovieMotionHumanBody["measure"],
+): readonly [number, number] {
+  return [measure.ankleHeight + measure.shank, measure.hipHeight];
+}
 
 /** A foot's slide either side of the line facing the bole, metres (provisional: the feet hip width apart). */
 const SPLAY: number = 0.12;
@@ -192,6 +214,7 @@ export namespace treeClimbRoute {
         `the tree has branches 0 to ${tree.branches.length - 1}`,
       );
     const measure: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const WALK: readonly [number, number] = walkHeights(measure);
     const lowest: treeLimbs.IBranch = tree.branches[0]!;
     const reach: number =
       measure.shoulderHeight + measure.upperArm + measure.forearm;
@@ -203,7 +226,16 @@ export namespace treeClimbRoute {
         `the lowest branch is ${height.toFixed(3)} m up, beyond the ${reach.toFixed(3)} m standing reach`,
       );
     // The climber faces the bole: their right is to the right of -toward.
-    const right: IAutoMovieVector3 = { x: toward.z, y: 0, z: -toward.x };
+    // A lowest branch that runs more along that facing than across it (one
+    // pointing at the climber) is climbed facing across it, as a horizontal
+    // bar orthogonal to the body is (`across`): the climber's right then
+    // runs along the branch, so every hold is sided by that facing.
+    const facing: IAutoMovieVector3 = { x: toward.z, y: 0, z: -toward.x };
+    const along: boolean =
+      Math.abs(Vector3.dot(lowest.direction, facing)) < Math.SQRT1_2;
+    const right: IAutoMovieVector3 = along
+      ? Vector3.scale(lowest.direction, -1)
+      : facing;
     const sided = (
       branch: treeLimbs.IBranch,
       pair: readonly [number, number],
@@ -294,37 +326,154 @@ export namespace treeClimbRoute {
     const rightFoot: IHold = ground.find(
       (hold: IHold): boolean => hold.part === "rightFoot",
     )!;
-    const stances: IStance[] = [
-      { holds: [left, rightFoot], event: "floor", prefer: getUp.POSES.stood },
-      {
-        holds: [left, rightFoot, grip(lowest, "left"), grip(lowest, "right")],
-        event: "grip",
-      },
-      {
-        holds: [
-          bole("left", WALK[0], false),
-          bole("right", WALK[1], false),
-          grip(lowest, "left"),
-          grip(lowest, "right"),
-        ],
-        event: "walkUp",
-      },
-      {
-        holds: [
-          stand(lowest, "left"),
-          bole("right", WALK[1], false),
-          grip(lowest, "left"),
-          grip(lowest, "right"),
-        ],
-        event: "hook",
-        prefer: HOOK,
-      },
-      {
-        holds: [stand(lowest, "left"), stand(lowest, "right"), ...hands(0)],
-        event: "stand0",
-        prefer: getUp.POSES.stood,
-      },
-    ];
+    // The route onto a branch climbed facing across it: the feet step one at
+    // a time from where they stand to under the branch beside its root, the
+    // bar a hand's length ahead of the shoulders' plane (provisional: a
+    // pull-up's bar just ahead of the face), the hands take it side by side,
+    // the left heel hooks over it with the right foot still on the floor, so
+    // three contacts bear throughout, and the body stands on it. No step on
+    // the bole: it stands to the climber's side.
+    const across: (from: IHold, to: IHold) => IStance[] = (
+      from: IHold,
+      to: IHold,
+    ): IStance[] => {
+      const ahead: IAutoMovieVector3 = { x: -right.z, y: 0, z: right.x };
+      const under: IAutoMovieVector3 = treeLimbs.on(
+        lowest,
+        (HOLDS[0] + HOLDS[1]) / 2,
+        0,
+      );
+      const centre: IAutoMovieVector3 = Vector3.addScaled(
+        { x: under.x, y: from.point.y, z: under.z },
+        ahead,
+        -measure.hand,
+      );
+      const placed: (hold: IHold, side: AutoMovieHumanSide) => IHold = (
+        hold: IHold,
+        side: AutoMovieHumanSide,
+      ): IHold => ({
+        ...hold,
+        key: `${hold.key}@across`,
+        point: Vector3.addScaled(
+          centre,
+          right,
+          (side === "right" ? 1 : -1) * SPLAY,
+        ),
+      });
+      const leftFloor: IHold = placed(from, "left");
+      const rightFloor: IHold = placed(to, "right");
+      const grips: IHold[] = [grip(lowest, "left"), grip(lowest, "right")];
+      // The steps on the bole are on its face toward where the climber now
+      // stands, under the grip.
+      const facingBole: IAutoMovieVector3 = Vector3.normalize({
+        x: centre.x - tree.bole.foot.x,
+        y: 0,
+        z: centre.z - tree.bole.foot.z,
+      });
+      const step: (side: AutoMovieHumanSide, height: number) => IHold = (
+        side: AutoMovieHumanSide,
+        height: number,
+      ): IHold => {
+        const point: IAutoMovieVector3 = treeLimbs.face(
+          tree,
+          height,
+          facingBole,
+          (side === "right" ? 1 : -1) * SPLAY,
+        );
+        return {
+          part: `${side}Foot`,
+          kind: "bear",
+          key: `${side}Foot@bole${height.toFixed(3)}@across`,
+          point,
+          normal: Vector3.normalize({
+            x: point.x - tree.bole.foot.x,
+            y: 0,
+            z: point.z - tree.bole.foot.z,
+          }),
+        };
+      };
+      return [
+        { holds: [from, to], event: "floor", prefer: getUp.POSES.stood },
+        { holds: [leftFloor, to], event: "stepLeft", prefer: getUp.POSES.stood },
+        {
+          holds: [leftFloor, rightFloor],
+          event: "stepRight",
+          prefer: getUp.POSES.stood,
+        },
+        { holds: [leftFloor, rightFloor, ...grips], event: "grip" },
+        {
+          holds: [step("left", WALK[0]), step("right", WALK[1]), ...grips],
+          event: "walkUp",
+        },
+        // The heel hooks at the near foothold, by the root and the hands,
+        // the nearest of the branch's top a heel lifted from the bole reaches.
+        {
+          holds: [
+            {
+              ...stand(lowest, "left"),
+              key: `leftFoot@b${lowest.index}@hook`,
+              point: treeLimbs.on(lowest, STEPS[0], 1),
+              branch: { index: lowest.index, out: STEPS[0] },
+            },
+            step("right", WALK[1]),
+            ...grips,
+          ],
+          event: "hook",
+          prefer: HOOK,
+        },
+        {
+          holds: [stand(lowest, "left"), stand(lowest, "right"), ...hands(0)],
+          event: "stand0",
+          prefer: getUp.POSES.stood,
+        },
+      ];
+    };
+    const stances: IStance[] = along
+      ? across(left, rightFoot)
+      : [
+          {
+            holds: [left, rightFoot],
+            event: "floor",
+            prefer: getUp.POSES.stood,
+          },
+          {
+            holds: [
+              left,
+              rightFoot,
+              grip(lowest, "left"),
+              grip(lowest, "right"),
+            ],
+            event: "grip",
+          },
+          {
+            holds: [
+              bole("left", WALK[0], false),
+              bole("right", WALK[1], false),
+              grip(lowest, "left"),
+              grip(lowest, "right"),
+            ],
+            event: "walkUp",
+          },
+          {
+            holds: [
+              stand(lowest, "left"),
+              bole("right", WALK[1], false),
+              grip(lowest, "left"),
+              grip(lowest, "right"),
+            ],
+            event: "hook",
+            prefer: HOOK,
+          },
+          {
+            holds: [
+              stand(lowest, "left"),
+              stand(lowest, "right"),
+              ...hands(0),
+            ],
+            event: "stand0",
+            prefer: getUp.POSES.stood,
+          },
+        ];
     for (let k: number = 1; k <= top; k++) {
       const branch: treeLimbs.IBranch = tree.branches[k]!;
       const below: treeLimbs.IBranch = tree.branches[k - 1]!;
@@ -392,7 +541,7 @@ export namespace treeClimbRoute {
     ];
   }
   /**
-   * Expand stances so one hold changes at a time, and check every one against the branches' loads.
+   * Expand stances so the holds change a group at a time (taken, feet, hands, let go), and check every one against the branches' loads.
    *
    * @param body The canonical motion body.
    * @param tree The tree.
@@ -401,7 +550,7 @@ export namespace treeClimbRoute {
    * @throws {HumanRefusal} If a stance loads a branch past its limit, naming the branch and the load.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the expansion, the load share and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Additions first, then moves with the feet before the hands, then removals, so the contact count stays at its highest between stances; each contact bears the weight over the count.
+   * @evidence contracts/development/implementation.md#principled-implementation Additions first, then the feet's moves, then the hands', then removals, each group one stance, so the contact count stays at its highest between stances; each contact bears the weight over the count.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the stances, one over each change.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An overloaded branch refuses; no hold is dropped to pass.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the stances times the parts.
@@ -477,14 +626,20 @@ export namespace treeClimbRoute {
             of(current, part)?.key !== of(stance.holds, part)?.key,
         )
         .sort((a: string, b: string): number => rank(a) - rank(b));
-      changes.forEach((part: string, i: number): void => {
-        const next: IHold | undefined = of(stance.holds, part);
-        current = current.filter((hold: IHold): boolean => hold.part !== part);
-        if (next !== undefined) current.push(next);
-        const last: boolean = i === changes.length - 1;
+      // The changes of one rank go together: the new holds, then the feet,
+      // then the hands, then the holds let go, each group one stance, so a
+      // step costs at most four keys whatever the number of limbs it moves.
+      const ranks: number[] = [...new Set(changes.map(rank))];
+      ranks.forEach((r: number, i: number): void => {
+        for (const part of changes.filter((p: string): boolean => rank(p) === r)) {
+          const next: IHold | undefined = of(stance.holds, part);
+          current = current.filter((hold: IHold): boolean => hold.part !== part);
+          if (next !== undefined) current.push(next);
+        }
+        const last: boolean = i === ranks.length - 1;
         emit(
           current,
-          last ? stance.event : `${stance.event}${part}`,
+          last ? stance.event : `${stance.event}${GROUPS[r]}`,
           last ? stance.prefer : undefined,
         );
       });

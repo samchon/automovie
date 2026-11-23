@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import type { createClub } from "./createClub";
 
@@ -20,21 +20,16 @@ const BATON: string =
 
 /**
  * The measured club recipes, seed draw and model contacts retained by the bat and screen practice prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the original club draw namespace and the model record it preserves.
- * @evidence contracts/development/design.md#principled-representation Keeps dimensions in metres and mass in kilograms with the original per-kind bands and provenance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One draw and its tables serve the public producers and the saved-recipe dispatcher.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The same draw records bands, fixed figures and model choices.
  */
 export namespace ClubBuild {
   /** The retained barrel length in metres. */
-  export const BARREL: number = 10 * ArchetypeUnits.INCH;
+  export const BARREL: number = 10 * AutoMovieArchetypeUnits.INCH;
 
   /** The retained strike distance from the tip in metres. */
-  export const SWEET: number = 5.5 * ArchetypeUnits.INCH;
+  export const SWEET: number = 5.5 * AutoMovieArchetypeUnits.INCH;
 
   /** The retained knob diameter in metres. */
-  export const KNOB: number = 2 * ArchetypeUnits.INCH;
+  export const KNOB: number = 2 * AutoMovieArchetypeUnits.INCH;
 
   /** The retained knob length in metres. */
   export const KNOB_LENGTH: number = 0.02;
@@ -44,7 +39,7 @@ export namespace ClubBuild {
 
   /** The retained dimension units. */
   export const UNITS: Readonly<
-    Record<createClub.Dimension, ArchetypeDrawSession.Unit>
+    Record<createClub.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     length: "m",
     diameter: "m",
@@ -68,25 +63,25 @@ export namespace ClubBuild {
   > = {
     bat: {
       s154: {
-        length: 35.2 * ArchetypeUnits.INCH,
-        mass: 33.9 * ArchetypeUnits.OUNCE,
+        length: 35.2 * AutoMovieArchetypeUnits.INCH,
+        mass: 33.9 * AutoMovieArchetypeUnits.OUNCE,
       },
       s155: {
-        length: 35.1 * ArchetypeUnits.INCH,
-        mass: 34 * ArchetypeUnits.OUNCE,
+        length: 35.1 * AutoMovieArchetypeUnits.INCH,
+        mass: 34 * AutoMovieArchetypeUnits.OUNCE,
       },
       t153: {
-        length: 35.2 * ArchetypeUnits.INCH,
-        mass: 34 * ArchetypeUnits.OUNCE,
+        length: 35.2 * AutoMovieArchetypeUnits.INCH,
+        mass: 34 * AutoMovieArchetypeUnits.OUNCE,
       },
       t156: {
-        length: 35.1 * ArchetypeUnits.INCH,
-        mass: 34.5 * ArchetypeUnits.OUNCE,
+        length: 35.1 * AutoMovieArchetypeUnits.INCH,
+        mass: 34.5 * AutoMovieArchetypeUnits.OUNCE,
       },
     },
     baton: {
-      mp24: { length: 24 * ArchetypeUnits.INCH },
-      mp26: { length: 26 * ArchetypeUnits.INCH },
+      mp24: { length: 24 * AutoMovieArchetypeUnits.INCH },
+      mp26: { length: 26 * AutoMovieArchetypeUnits.INCH },
     },
   };
 
@@ -94,33 +89,33 @@ export namespace ClubBuild {
   export const BANDS: Readonly<
     Record<
       createClub.Kind,
-      Readonly<Partial<Record<createClub.Dimension, IArchetypeBand>>>
+      Readonly<Partial<Record<createClub.Dimension, IAutoMovieArchetypeBand>>>
     >
   > = {
     bat: {
-      diameter: ArchetypeBand.metres(
-        2.5 * ArchetypeUnits.INCH,
-        2.61 * ArchetypeUnits.INCH,
+      diameter: AutoMovieArchetypeBand.metres(
+        2.5 * AutoMovieArchetypeUnits.INCH,
+        2.61 * AutoMovieArchetypeUnits.INCH,
         `${RULE}; the lower end, 2.5 in, is an estimate`,
         true,
       ),
-      handleDiameter: ArchetypeBand.metres(
-        0.9 * ArchetypeUnits.INCH,
+      handleDiameter: AutoMovieArchetypeBand.metres(
+        0.9 * AutoMovieArchetypeUnits.INCH,
         0.025,
         "about 0.9 in at the handle's thinnest, read off the profile plotted in Nathan, Smith and Russell 2026, Figure 2 (https://baseball.physics.illinois.edu/ISEA2026-Torpedo-v7.pdf), not a stated number",
         true,
       ),
     },
     baton: {
-      diameter: ArchetypeBand.metres(
-        1.25 * ArchetypeUnits.INCH,
-        1.25 * ArchetypeUnits.INCH,
+      diameter: AutoMovieArchetypeBand.metres(
+        1.25 * AutoMovieArchetypeUnits.INCH,
+        1.25 * AutoMovieArchetypeUnits.INCH,
         BATON,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
-        13 * ArchetypeUnits.OUNCE,
-        21.6 * ArchetypeUnits.OUNCE,
+        13 * AutoMovieArchetypeUnits.OUNCE,
+        21.6 * AutoMovieArchetypeUnits.OUNCE,
         "Monadnock 26 in wood baton, 13 oz, and MP26 polycarbonate baton, 21.6 oz, retailer listings",
         true,
       ),
@@ -129,25 +124,18 @@ export namespace ClubBuild {
 
   /**
    * The values {@link draw} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of draw.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only draw and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type DrawMaterial = "wood" | "plastic";
 
   /**
    * What {@link draw} prepares for its caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
-   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
    */
   export interface IDrawResult {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<createClub.Affordance, createClub.Dimension>;
+    builder: AutoMovieArchetypeBuilder<
+      createClub.Affordance,
+      createClub.Dimension
+    >;
 
     /** The prepared `d` this call returns. */
     d: Partial<Record<createClub.Dimension, number>>;
@@ -155,14 +143,6 @@ export namespace ClubBuild {
 
   /**
    * Draw the bat or screen practice profile under its original club namespace.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the compatibility draw and the local model it fills.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit one model and its fixed dimensions, then draw the dimensions left free and preserve the provenance.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keep draw and model assembly together, separate from shape construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserve the published parameter checks and contact conventions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One draw pass over the profile's bands and one construction pass.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both independently constructed models share the former club draw.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function draw(
     kind: createClub.Kind,
@@ -171,9 +151,9 @@ export namespace ClubBuild {
     name: string,
     material: DrawMaterial,
   ): IDrawResult {
-    const draw: ArchetypeDrawSession<createClub.Dimension> =
-      new ArchetypeDrawSession("club", UNITS, seed, params);
-    const model: ArchetypeDrawSession.IModel<
+    const draw: AutoMovieArchetypeDrawSession<createClub.Dimension> =
+      new AutoMovieArchetypeDrawSession("club", UNITS, seed, params);
+    const model: AutoMovieArchetypeDrawSession.IModel<
       createClub.Model,
       createClub.Dimension
     > = draw.model("model", params.model, MODELS[kind]);
@@ -181,20 +161,15 @@ export namespace ClubBuild {
       ...draw.dimensions(BANDS[kind], BANDS),
       ...model.figures,
     };
-    const builder: ArchetypeBuilder<
+    const builder: AutoMovieArchetypeBuilder<
       createClub.Affordance,
       createClub.Dimension
-    > = new ArchetypeBuilder({ material, id: params.id, name, draw });
+    > = new AutoMovieArchetypeBuilder({ material, id: params.id, name, draw });
     return { builder, d };
   }
 
   /**
    * The values {@link contacts} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of contacts.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only contacts and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type ContactsGrip = "two-hand" | "power";
 
@@ -208,17 +183,12 @@ export namespace ClubBuild {
    * @param middle The grip midpoint along local Y, in metres.
    * @param span The extent of the grip along local Y, in metres.
    * @param grip The grip convention used by the stored prop shape.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the original model coordinates and the location of the two scene contacts.
-   * @evidence contracts/development/implementation.md#principled-implementation The grip frame uses the centre and thickness of the held portion, and the facing surface stays on the positive Z side.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Add the shared grasp and positive-Z surface after the producer emits its model parts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retain contact coordinates in the model's published resting frame.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The fixed surface pair requires two frame constructions.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The bat and the inert replica share the saved contact convention.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function contacts(
-    builder: ArchetypeBuilder<createClub.Affordance, createClub.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createClub.Affordance,
+      createClub.Dimension
+    >,
     length: number,
     thick: number,
     held: number,
@@ -230,7 +200,7 @@ export namespace ClubBuild {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, middle, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),
@@ -244,7 +214,7 @@ export namespace ClubBuild {
       id: "strike",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, length - SWEET, thick),
         Vector3.create(0, 0, 1),
         Vector3.create(1, 0, 0),

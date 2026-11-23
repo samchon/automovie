@@ -1,6 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createGoal } from "./createGoal";
 
 /** Point shorthand in the goal's model frame. */
@@ -17,17 +20,12 @@ const RING_RODS: number = 16;
  *
  * @param builder The goal builder to fill with the ring and board.
  * @param d Dimensions in metres drawn from the basketball hoop bands.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the board and ring arrangement, drawn dimensions and contact affordances.
- * @evidence contracts/development/implementation.md#principled-implementation The board bottom, ring height and radius come from the drawn dimensions in the shared goal frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Place the board and bracket, draw the ring, then declare its bar and board surface.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The rod tangents place the ring at the drawn radius, and the board and rim affordances follow the constructed parts.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The sixteen ring rods, bracket and board are fixed in count.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the goal builder's parts and affordances and the shared frame constructor.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The helper retains no data after writing the construction.
  */
 export function buildBasketballHoop(
-  builder: ArchetypeBuilder<createGoal.Affordance, createGoal.Dimension>,
+  builder: AutoMovieArchetypeBuilder<
+    createGoal.Affordance,
+    createGoal.Dimension
+  >,
   d: Partial<Record<createGoal.Dimension, number>>,
 ): void {
   const bottom: number = d.height! - BOARD_BELOW_RING;
@@ -64,7 +62,7 @@ export function buildBasketballHoop(
     id: "rim",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, y, centre + radius),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -77,7 +75,7 @@ export function buildBasketballHoop(
   builder.affordance({
     id: "board",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, bottom + d.board! / 2, 0),
       v(0, 0, 1),
       v(1, 0, 0),

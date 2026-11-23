@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createLongTool,
   createTool,
 } from "@automovie/archetypes";
@@ -24,8 +24,8 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
  */
 export function test_archetype_props_field_implements(): void {
-  const inch: number = ArchetypeUnits.INCH;
-  const pound: number = ArchetypeUnits.POUND;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
+  const pound: number = AutoMovieArchetypeUnits.POUND;
   const findings: string[] = [];
   const near: (
     name: string,
@@ -46,7 +46,12 @@ export function test_archetype_props_field_implements(): void {
   const sponge: ReturnType<typeof createLongTool> = createLongTool({
     kind: "spongeRammer",
   });
-  near("sponge and rammer length", archetypeExtent(sponge, "y").size, 77 * inch, 1e-9);
+  near(
+    "sponge and rammer length",
+    archetypeExtent(sponge, "y").size,
+    77 * inch,
+    1e-9,
+  );
   near("sponge and rammer mass", sponge.body.mass, 4.5 * pound, 1e-9);
   near(
     "sponge across its loops",
@@ -63,16 +68,33 @@ export function test_archetype_props_field_implements(): void {
       wood * staff * (4 + (77 - 4 - 7.5) / 2) +
       (wood * head + 0.25) * (77 - 7.5 / 2)) /
     4.5;
-  near("sponge and rammer balance", sponge.body.centerOfMass!.y, balance * inch, 1e-9);
+  near(
+    "sponge and rammer balance",
+    sponge.body.centerOfMass!.y,
+    balance * inch,
+    1e-9,
+  );
   const face: ReturnType<typeof sponge.affordance> = sponge.affordance("face");
   const tip: ReturnType<typeof sponge.affordance> = sponge.affordance("tip");
   near("rammer face height", face.frame.translation.y, 0, 1e-12);
-  near("rammer face looks down", ArchetypeFrame.axis(face.frame, "y").y, -1, 1e-12);
+  near(
+    "rammer face looks down",
+    AutoMovieArchetypeFrame.axis(face.frame, "y").y,
+    -1,
+    1e-12,
+  );
   near("sponge tip height", tip.frame.translation.y, 77 * inch, 1e-9);
-  near("sponge tip runs up", ArchetypeFrame.axis(tip.frame, "y").y, 1, 1e-12);
+  near(
+    "sponge tip runs up",
+    AutoMovieArchetypeFrame.axis(tip.frame, "y").y,
+    1,
+    1e-12,
+  );
 
   // 2. The worm.
-  const worm: ReturnType<typeof createLongTool> = createLongTool({ kind: "worm" });
+  const worm: ReturnType<typeof createLongTool> = createLongTool({
+    kind: "worm",
+  });
   near("worm length", archetypeExtent(worm, "y").size, 72 * inch, 1e-9);
   near("worm mass", worm.body.mass, 3.6 * pound, 1e-9);
   near("worm circle", archetypeExtent(worm, "x").size, 3 * inch, 1e-9);
@@ -83,20 +105,32 @@ export function test_archetype_props_field_implements(): void {
     findings.push(`worm iron's balance at ${iron} m, outside its 9 in`);
   const point: ReturnType<typeof worm.affordance> = worm.affordance("face");
   near("worm point height", point.frame.translation.y, 0, 1e-12);
-  near("worm point runs down", ArchetypeFrame.axis(point.frame, "y").y, -1, 1e-12);
+  near(
+    "worm point runs down",
+    AutoMovieArchetypeFrame.axis(point.frame, "y").y,
+    -1,
+    1e-12,
+  );
 
   // 3. The trail handspike.
   const handspike: ReturnType<typeof createLongTool> = createLongTool({
     kind: "trailHandspike",
   });
-  near("handspike length", archetypeExtent(handspike, "y").size, 53 * inch, 1e-9);
+  near(
+    "handspike length",
+    archetypeExtent(handspike, "y").size,
+    53 * inch,
+    1e-9,
+  );
   near("handspike mass", handspike.body.mass, 7.25 * pound, 1e-9);
   const held: number = handspike.affordance("shaft").aperture!;
   if (held < 1.5 * inch || held > 3 * inch)
     findings.push(`handspike shaft ${held} m across, outside 1.5 to 3 in`);
 
   // 4. The priming wire.
-  const wire: ReturnType<typeof createTool> = createTool({ kind: "primingWire" });
+  const wire: ReturnType<typeof createTool> = createTool({
+    kind: "primingWire",
+  });
   near("priming wire length", archetypeExtent(wire, "y").size, 10 * inch, 1e-9);
   near("priming wire ring", archetypeExtent(wire, "z").size, 2 * inch, 1e-9);
   const ring: number = Math.PI * (2 - 0.175);
@@ -106,10 +140,20 @@ export function test_archetype_props_field_implements(): void {
     (0.08 * pound * (8 + ring)) / (14 + ring),
     1e-12,
   );
-  near("priming wire pinch", wire.affordance("grip").aperture!, 0.175 * inch, 1e-12);
+  near(
+    "priming wire pinch",
+    wire.affordance("grip").aperture!,
+    0.175 * inch,
+    1e-12,
+  );
   const end: ReturnType<typeof wire.affordance> = wire.affordance("face");
   near("priming wire point", end.frame.translation.y, 10 * inch, 1e-9);
-  near("priming wire point runs up", ArchetypeFrame.axis(end.frame, "y").y, 1, 1e-12);
+  near(
+    "priming wire point runs up",
+    AutoMovieArchetypeFrame.axis(end.frame, "y").y,
+    1,
+    1e-12,
+  );
 
   TestValidator.equals(
     "the field gun's implements are the 1862 Ordnance Manual's",

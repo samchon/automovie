@@ -54,7 +54,9 @@ const LEVEL: number = 10;
  * asked), and the prop may take another prop onto one of its sockets at
  * the end (a morsel pinched between chopstick tips). The free hand may push
  * a part the drive moves while the holding hand keeps still (an umbrella's
- * runner pushed up its shaft, workHeldPush). Register as
+ * runner pushed up its shaft), the holder first bringing the prop before the
+ * body when the free arm cannot reach the part (an extinguisher's pin
+ * pulled, workHeldPush). Register as
  * `workHeld`.
  *
  * The grip never opens, so the prop rides the palm's frame throughout and
@@ -104,11 +106,11 @@ function plan(
         "a held work drives an articulation, moves the prop or takes a prop",
       fix: "give `drive`, `at` or `take`",
     });
-  if (!(Number.isFinite(p.seconds) && p.seconds > 0))
+  if (!(Number.isFinite(p.duration) && p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
-      value: p.seconds,
+      axis: "duration",
+      value: p.duration,
       feasible: {
         kind: "range",
         minimum: 0,
@@ -119,7 +121,7 @@ function plan(
       fix: "give the work's duration in seconds",
     });
   const side: AutoMovieHumanSide =
-    p.side ?? (context.entry.holds.left === p.prop ? "left" : "right");
+    p.hand ?? (context.entry.holds.left === p.prop ? "left" : "right");
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
     context,
     side,
@@ -152,7 +154,7 @@ function plan(
       AutoMovieMotionHumanTiming.transport(
         Math.max(goal?.travel ?? 0, push?.travel ?? 0),
       ),
-    attack: tempo * p.seconds,
+    attack: tempo * p.duration,
     retract:
       push === undefined
         ? 0
@@ -170,7 +172,9 @@ function plan(
   );
   const primitives: IAutoMovieMotionHumanPrimitive[] = [
     ...(goal === undefined ? [] : [arm(context, side, clock, ready, goal)]),
-    ...(push === undefined ? [] : [push.arm(clock, toolDrives)]),
+    ...(push === undefined
+      ? []
+      : [push.arm(clock, toolDrives), ...push.holder(clock)]),
   ];
   const digits: (
     seconds: number,
@@ -349,7 +353,6 @@ function arm(
       context.tempo,
     ),
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    disc: 0,
     weight: (seconds: number): number => {
       const u: number =
         ready > 0 ? Math.min(1, Math.max(0, seconds / ready)) : 1;

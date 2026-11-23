@@ -13,7 +13,10 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance, wardrobe } from "@automovie/motions";
+import {
+  AutoMovieMotionHumanDress,
+  HumanPerformance,
+} from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -45,7 +48,9 @@ export namespace wardrobeFilm {
   ): HumanPerformance {
     return new HumanPerformance({
       seed: "native-wardrobe",
-      laws: [wardrobe as IAutoMovieMotionHumanActionLaw],
+      laws: [
+        AutoMovieMotionHumanDress.wardrobe as IAutoMovieMotionHumanActionLaw,
+      ],
       props,
       composition,
       performers: [

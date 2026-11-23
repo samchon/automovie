@@ -10,7 +10,7 @@ import {
   AutoMovieMotionHumanAuditRange,
   AutoMovieMotionHumanAuditSpin,
   AutoMovieMotionHumanAuditTiming,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 
 import type { motionHumanLaw } from "./motionHumanLaw";
 import type { motionHumanLawSweep } from "./motionHumanLawSweep";

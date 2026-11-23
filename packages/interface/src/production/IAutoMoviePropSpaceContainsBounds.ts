@@ -3,11 +3,6 @@ import type { IAutoMoviePropBox } from "../harness/IAutoMoviePropBox";
 
 /**
  * Corner-containment query for a world box and a logical building subtree.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Corner-containment query for a world box and a logical building subtree. bounds corners are in world metres and each is tested against the union of declared subtree volumes. Corner inclusion does not prove full inclusion in a nonconvex union.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An unknown space throws, while a subtree with no stated volume accepts every box because it supplies no geometric restriction.
- * @evidence contracts/development/design.md#principled-representation bounds corners are in world metres and each is tested against the union of declared subtree volumes. Corner inclusion does not prove full inclusion in a nonconvex union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface propSpaceContainsBounds is shared by prop-placement and service-network in-space gates; the environment owns logical space membership and volume declarations.
  */
 export namespace IAutoMoviePropSpaceContainsBounds {
   /**
@@ -16,11 +11,6 @@ export namespace IAutoMoviePropSpaceContainsBounds {
    * Each of the box's eight corners must lie in some space of the subtree, read through `builtSpaceContainsPoint`, the same per-space rule `builtEnvironmentContainsPoint` folds. The corners may lie in different child spaces, and because only corners are tested, a box whose corners are inside a non-convex space while its middle crosses a notch is accepted.
    *
    * A subtree that states no volume at all locates nothing, so it excludes nothing and the answer is `true`: a purely semantic container such as "the west wing" is a name, not a boundary, and refusing props inside it would invent a geometric claim the author never made. An undeclared space throws the `Error` of `requireBuiltSpace`. The prop placement gate and the service network gate judge `in-space` containment with it.
-   *
-   * @evidence contracts/development/design.md#principled-representation bounds corners are in world metres and each is tested against the union of declared subtree volumes. Corner inclusion does not prove full inclusion in a nonconvex union.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface propSpaceContainsBounds is shared by prop-placement and service-network in-space gates; the environment owns logical space membership and volume declarations.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts An unknown space throws, while a subtree with no stated volume accepts every box because it supplies no geometric restriction.
-   * @evidence contracts/development/common.md#meaningful-documentation Corner-containment query for a world box and a logical building subtree. bounds corners are in world metres and each is tested against the union of declared subtree volumes. Corner inclusion does not prove full inclusion in a nonconvex union.
    */
   export type IProps = {
     /**

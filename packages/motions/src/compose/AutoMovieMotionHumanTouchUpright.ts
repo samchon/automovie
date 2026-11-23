@@ -29,11 +29,6 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
  * about that axis is not counted, since it is free. A lean toward the face
  * is a turn of the axis about the level line across the region (`tip`);
  * the least lean that lets the arm drink is `AutoMovieMotionHumanTouchDrink`'s.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the free turn, why it matters, the candidates, the choice, the tie, the lean's turn and who seeks the lean.
- * @evidence contracts/development/design.md#principled-representation The vessel's constraint is its axis alone, so the answer is a level direction and the tilt the arm leaves at it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The candidates' bounds, the answer, the search, its candidates, the tilt and the lean's turn; read by the touch stroke's `lie` and held rotation, by the high five, by the drinking search and by the hand-to-face law, which compares the tilts of a held prop's candidate sides.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No turn is assumed for any region or hand; every candidate is solved by the resolver, which owns the ranges.
  */
 export namespace AutoMovieMotionHumanTouchUpright {
   /** The turn either way of head on a held vessel's facing is sought within, degrees (provisional: past it the palm faces away from the region). */
@@ -58,14 +53,6 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @param place The region.
    * @param hint The elbow's hint, world.
    * @returns The facing, a lean of 0 and the tilt.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the choice and the tie; the namespace states the candidates.
-   * @evidence contracts/development/implementation.md#principled-implementation Every candidate is solved by the resolver and the reached hand's tilt decides.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop of goal, solve and compare.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every candidate that could still win is solved; head on is tried first, so a tie keeps it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve per candidate, at most thirteen per call: a tilt is never below 0, so the search stops at the first facing that holds the vessel exactly upright, a bound that returns what the whole search would.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One fixed body/side observation reader shares genuine FK/ROM metadata through the actual facing loop; tilt retains every distinct raw goal and actual fit.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The synchronous facing search releases its reader on return or throw; the returned facing/lean/tilt holds only original numeric payloads and no workspace or pose history.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -111,14 +98,6 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @param normal The region's outward normal, world.
    * @param lean The lean, degrees.
    * @returns The turn, world; none when the lean is 0 or the normal has no level part.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the axis, the sense and the case of no turn.
-   * @evidence contracts/development/implementation.md#principled-implementation A lean toward the face is a turn about the horizontal line across the way the region faces, which keeps the vessel's turn about its own axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One level direction, one cross product and one turn.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A normal with no level part gives no turn instead of normalizing a zero vector.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `AutoMovieMotionHumanTouchLaid.lie`, the touch stroke's held rotation and `AutoMovieMotionHumanTouchDrink.held`, so a laid and a held vessel lean alike.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tip(
     normal: IAutoMovieVector3,
@@ -148,14 +127,6 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @param hint The elbow's hint, world.
    * @param facing The level world direction the effector faces against.
    * @returns The tilt of the reached hand's vessel axis from the world's up.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what is measured.
-   * @evidence contracts/development/implementation.md#principled-implementation The asked rotation lays the effector's along axis on the world's up, so that axis at rest is the up turned back by it; the tilt is how far the rotation the resolver reaches carries it off the up.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One goal and one read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reached rotation is the resolver's, within the joints' ranges, never the asked one.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One posture solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses rest and the actual drinking-arm observation; solve may lend its genuine same-body fixed-side reader across candidate calls while each current goal still receives its own native fit. Omitted preparation keeps the original cold read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function tilt(
     body: IAutoMovieMotionHumanBody,
@@ -197,14 +168,6 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * @param span The turn either way of head on, degrees, a multiple of `STEP`; `SPAN` when absent. A search whose vessel's side about its own axis is free as well (`handToFaceVessel`) needs only the turn between two sides.
    * @param side The hand the vessel is in; the right when absent.
    * @returns The level unit directions, world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the candidates, their span and their order.
-   * @evidence contracts/development/implementation.md#principled-implementation A turn about the world's up of the level normal, by the step either way; a mirror across the sagittal plane reverses a turn about the up axis, so the left hand's first turn is the reverse of the right's.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller passes a level part it has checked is not zero.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `solve` and by the drinking search (`AutoMovieMotionHumanTouchDrink`).
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function facings(
     normal: IAutoMovieVector3,

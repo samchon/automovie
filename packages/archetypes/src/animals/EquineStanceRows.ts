@@ -4,15 +4,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineAirs } from "./EquineAirs";
 import { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineExpressionCue } from "./EquineExpressionCue";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import { EquineStanceExtras } from "./EquineStanceExtras";
 import { EquineStanceMoves } from "./EquineStanceMoves";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import { QuadrupedBody } from "./QuadrupedBody";
 
 /** The startle's drop and draw over the planted hooves, metres in the stance's frame: authored. */
 const STARTLE: IAutoMovieVector3 = { x: 0, y: -0.05, z: -0.06 };
@@ -36,7 +36,9 @@ type Fold = "foreLift" | "hindLift" | "rear" | "kick";
 type End = "Fore" | "Hind";
 
 /** A response that pitches the trunk. */
-type Pitched = EquineStanceCue.IRear | EquineStanceCue.IBuck;
+type Pitched =
+  | AutoMovieArchetypeEquineStanceCue.IRear
+  | AutoMovieArchetypeEquineStanceCue.IBuck;
 
 /** Folded limbs' joint turns, degrees, shoulder or hip first, positive swinging the distal end back: authored poses. */
 const FOLDS: Readonly<Record<Fold, readonly [number, number, number, number]>> =
@@ -51,36 +53,23 @@ const FOLDS: Readonly<Record<Fold, readonly [number, number, number, number]>> =
  * The rows of the stance: for each response, the whole-body pose at each share of its performance.
  *
  * A row's share runs from 0 at its entry to 1 at its hold. A response that returns plays the same shares back through its exit; a step aside goes on from 1 to 2 through its exit, settling its weight over the hooves it stepped to. Before a hoof leaves the floor the trunk first carries the proxy centre of mass inside the triangle of the hooves that stay (`EquineStanceSupport.transfer`), and a rear or a buck first lowers the haunches or the forehand onto the supports that stay; the released limb then folds from where it was released, so the pose is continuous there.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the share convention, the weight transfer before each release and the continuity at release.
- * @evidence contracts/development/design.md#principled-representation A start state, an end state and a pose as a function of share.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineStance`; each response is one row.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every amplitude is a named authored value.
  */
 export namespace EquineStanceRows {
   /**
    * Where the stance stands: the trunk's motion and the four hoof anchors.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The trunk's rigid motion from the rest model and the anchors in the base model's space, metres.
-   * @evidence contracts/development/design.md#principled-representation A motion and four points.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each row's start and end.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IState {
     /** The trunk's motion. */
-    trunk: ArchetypeFrame.IMotion;
+    trunk: AutoMovieArchetypeFrame.IMotion;
 
     /** Each hoof's terminal endpoint. */
-    anchors: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>;
+    anchors: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >;
   }
 
   /**
    * A support event: a hoof leaving or meeting the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The label, which phase it falls in and its fraction of that phase's time.
-   * @evidence contracts/development/design.md#principled-representation A label, a phase flag and a time fraction.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Turned into instants by the stance.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IEvent {
     /** The instant's label. */
@@ -95,15 +84,10 @@ export namespace EquineStanceRows {
 
   /**
    * One response planned from a state.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The cue, its start and end states, its pose by share, the shares admitted and its support events.
-   * @evidence contracts/development/design.md#principled-representation A record with a pose function.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IPlan {
     /** The response. */
-    cue: EquineStanceCue.Cue;
+    cue: AutoMovieArchetypeEquineStanceCue.Cue;
 
     /** The state it starts from. */
     start: IState;
@@ -119,27 +103,11 @@ export namespace EquineStanceRows {
 
     /**
      * The pose at a share.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Share 0 to 1, or to 2 for a step aside.
-     * @evidence contracts/development/implementation.md#principled-implementation The row's interpolation of trunk motion and limb states.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose per share.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Release chains are computed once when planned.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     goal(share: number): EquineBodyPose.IGoal;
 
     /**
      * The pose at a second into the hold, for a response that moves while held, such as an air's leaps; absent, the hold keeps the pose at share 1.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Seconds from the hold's start.
-     * @evidence contracts/development/implementation.md#principled-implementation The row's own motion through its hold.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose per second.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the row's planned chains.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     hold?(seconds: number): EquineBodyPose.IGoal;
   }
@@ -149,14 +117,6 @@ export namespace EquineStanceRows {
    *
    * @param state The state.
    * @returns Every hoof on its anchor under the state's trunk.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation Four placed limbs at zero fold.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by every row.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function still(state: IState): EquineBodyPose.IGoal {
     return {
@@ -172,19 +132,11 @@ export namespace EquineStanceRows {
    * @param start The state it starts from.
    * @param cue The response.
    * @returns Its plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and output.
-   * @evidence contracts/development/implementation.md#principled-implementation Shifts translate the trunk over planted hooves; a lift first carries the proxy centre of mass inside the remaining supports, then folds the released limb from its release chain; a step aside does that for each hoof in turn and swings it on a lifted minimum-jerk path; a rear or a buck pitches about the shoulders or hips to gather, then about the hips or shoulders to lift.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per response kind.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pitch outside (0, 90) degrees is not planned: the stance refuses it as unreachable.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Release chains are solved once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states and chains.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: IState,
-    cue: EquineStanceCue.Cue,
+    cue: AutoMovieArchetypeEquineStanceCue.Cue,
   ): IPlan {
     const base: Pick<IPlan, "cue" | "start" | "end"> = {
       cue,
@@ -216,7 +168,7 @@ export namespace EquineStanceRows {
       };
     }
     if (cue.kind === "hoof") {
-      const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+      const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
         start.trunk,
         EquineStanceSupport.transfer(body, start, cue.limb),
       );
@@ -266,8 +218,11 @@ export namespace EquineStanceRows {
       return EquineStanceMoves.setBack(body, start, cue);
     if (cue.kind === "capriole") return EquineAirs.capriole(body, start, cue);
     if (cue.kind === "air" || cue.kind === "courbette")
-      return EquineAirs.held(body, cue, (rear: EquineStanceCue.IRear) =>
-        pitch(body, start, rear),
+      return EquineAirs.held(
+        body,
+        cue,
+        (rear: AutoMovieArchetypeEquineStanceCue.IRear) =>
+          pitch(body, start, rear),
       );
     if (EquineStanceExtras.owns(cue))
       return EquineStanceExtras.plan(body, start, cue);
@@ -278,7 +233,7 @@ export namespace EquineStanceRows {
   function step<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: IState,
-    cue: EquineStanceCue.IStepAside,
+    cue: AutoMovieArchetypeEquineStanceCue.IStepAside,
   ): IPlan {
     const sign: number = cue.side === "left" ? 1 : -1;
     const offset: IAutoMovieVector3 = EquineStanceSupport.along(start.trunk, {
@@ -286,20 +241,20 @@ export namespace EquineStanceRows {
       y: 0,
       z: 0,
     });
-    const near: EquineExpressionCue.Side = cue.side;
-    const far: EquineExpressionCue.Side =
+    const near: AutoMovieArchetypeEquineExpressionCue.Side = cue.side;
+    const far: AutoMovieArchetypeEquineExpressionCue.Side =
       cue.side === "left" ? "right" : "left";
-    const order: readonly QuadrupedBody.Limb[] = [
+    const order: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
       `${near}Fore`,
       `${near}Hind`,
       `${far}Fore`,
       `${far}Hind`,
     ];
     const states: IState[] = [start];
-    const loads: ArchetypeFrame.IMotion[] = [];
+    const loads: AutoMovieArchetypeFrame.IMotion[] = [];
     for (const limb of order) {
       const before: IState = states.at(-1)!;
-      const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+      const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
         before.trunk,
         EquineStanceSupport.transfer(body, before, limb),
       );
@@ -318,7 +273,7 @@ export namespace EquineStanceRows {
     };
     const quarter: number = 1 / order.length;
     const events: IEvent[] = order.flatMap(
-      (limb: QuadrupedBody.Limb, k: number): IEvent[] => [
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb, k: number): IEvent[] => [
         {
           label: `${limb}Off`,
           entry: true,
@@ -336,10 +291,12 @@ export namespace EquineStanceRows {
       start,
       end,
       keys: order
-        .flatMap((_: QuadrupedBody.Limb, k: number): number[] => [
-          (k + LOAD) * quarter,
-          (k + (1 + LOAD) / 2) * quarter,
-        ])
+        .flatMap(
+          (_: AutoMovieArchetypeQuadrupedBody.Limb, k: number): number[] => [
+            (k + LOAD) * quarter,
+            (k + (1 + LOAD) / 2) * quarter,
+          ],
+        )
         .concat([1, 2]),
       events,
       goal: (share: number): EquineBodyPose.IGoal => {
@@ -358,7 +315,7 @@ export namespace EquineStanceRows {
         );
         const local: number = share / quarter - k;
         const before: IState = states[k]!;
-        const limb: QuadrupedBody.Limb = order[k]!;
+        const limb: AutoMovieArchetypeQuadrupedBody.Limb = order[k]!;
         if (local <= LOAD)
           return {
             trunk: EquineStanceSupport.blend(
@@ -413,34 +370,40 @@ export namespace EquineStanceRows {
     // The gather pitches about the pair that stays at rest, lowering the other end by GATHER.
     const gather: number = (Math.asin(GATHER / span) * 180) / Math.PI;
     const signed: number = rear ? gather : -gather;
-    const gathered: ArchetypeFrame.IMotion = ArchetypeFrame.chain(
-      EquineBodyPose.turn(
-        signed,
-        0,
-        EquineBodyPose.point(start.trunk, rear ? shoulders : hips),
-        { x: 0, y: 0, z: 0 },
-        heading,
-      ),
-      start.trunk,
-    );
-    const released: readonly QuadrupedBody.Limb[] = rear
+    const gathered: AutoMovieArchetypeFrame.IMotion =
+      AutoMovieArchetypeFrame.chain(
+        EquineBodyPose.turn(
+          signed,
+          0,
+          EquineBodyPose.point(start.trunk, rear ? shoulders : hips),
+          { x: 0, y: 0, z: 0 },
+          heading,
+        ),
+        start.trunk,
+      );
+    const released: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = rear
       ? ["leftFore", "rightFore"]
       : ["leftHind", "rightHind"];
-    const chains: Map<QuadrupedBody.Limb, readonly IAutoMovieVector3[]> =
-      new Map(
-        released.map(
-          (
-            limb: QuadrupedBody.Limb,
-          ): [QuadrupedBody.Limb, readonly IAutoMovieVector3[]] => [
-            limb,
-            body.chain(limb, gathered, {
-              kind: "placed",
-              anchor: start.anchors[limb],
-              fold: 0,
-            }),
-          ],
-        ),
-      );
+    const chains: Map<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      readonly IAutoMovieVector3[]
+    > = new Map(
+      released.map(
+        (
+          limb: AutoMovieArchetypeQuadrupedBody.Limb,
+        ): [
+          AutoMovieArchetypeQuadrupedBody.Limb,
+          readonly IAutoMovieVector3[],
+        ] => [
+          limb,
+          body.chain(limb, gathered, {
+            kind: "placed",
+            anchor: start.anchors[limb],
+            fold: 0,
+          }),
+        ],
+      ),
+    );
     const pivot: IAutoMovieVector3 = EquineBodyPose.point(
       gathered,
       rear ? hips : shoulders,
@@ -452,14 +415,16 @@ export namespace EquineStanceRows {
       start,
       end: start,
       keys: [LOAD, 1],
-      events: released.flatMap((limb: QuadrupedBody.Limb): IEvent[] => [
-        { label: `${limb}Off`, entry: true, time },
-        { label: `${limb}On`, entry: false, time },
-      ]),
+      events: released.flatMap(
+        (limb: AutoMovieArchetypeQuadrupedBody.Limb): IEvent[] => [
+          { label: `${limb}Off`, entry: true, time },
+          { label: `${limb}On`, entry: false, time },
+        ],
+      ),
       goal: (share: number): EquineBodyPose.IGoal => {
         if (share <= LOAD)
           return {
-            trunk: ArchetypeFrame.chain(
+            trunk: AutoMovieArchetypeFrame.chain(
               EquineBodyPose.turn(
                 (signed * share) / LOAD,
                 0,
@@ -472,8 +437,10 @@ export namespace EquineStanceRows {
             limbs: EquineStanceSupport.placed(start.anchors),
           };
         const lift: number = (share - LOAD) / (1 - LOAD);
-        const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> =
-          EquineStanceSupport.placed(start.anchors);
+        const limbs: Record<
+          AutoMovieArchetypeQuadrupedBody.Limb,
+          EquineBodyPose.Limb
+        > = EquineStanceSupport.placed(start.anchors);
         for (const limb of released)
           limbs[limb] = EquineStanceSupport.folded(
             chains.get(limb)!,
@@ -481,7 +448,7 @@ export namespace EquineStanceRows {
             lift,
           );
         return {
-          trunk: ArchetypeFrame.chain(
+          trunk: AutoMovieArchetypeFrame.chain(
             EquineBodyPose.turn(
               (target - signed) * lift,
               0,

@@ -17,20 +17,10 @@
  * civilian pairs lock step frequency, Nessler and Gilliland 2009; drilled
  * troops all do); one who does not keeps its own tempo. After the track's
  * last beat the steps keep the plan's own times.
- *
- * @evidence contracts/development/common.md#meaningful-documentation foot: The foot that strikes on beat `index`; the left when absent, by drill custom. index: The beat the `foot`'s first strike answers; the beat nearest it when absent.
- * @evidence contracts/development/design.md#principled-representation foot: The foot that strikes on beat `index`; the left when absent, by drill custom. index: The beat the `foot`'s first strike answers; the beat nearest it when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkCadence.ts (walkCadence.strikes, cadence); actions/walkCadence.ts (walkCadence.beats, cadence); actions/walkCadence.ts (walkCadence.strikes, strikes).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in walkCadence.strikes.
  */
 export namespace IAutoMovieMotionHumanWalkCadence {
   /**
    * A walk's cadence: the beat track it keeps step to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation foot: The foot that strikes on beat `index`; the left when absent, by drill custom. index: The beat the `foot`'s first strike answers; the beat nearest it when absent.
-   * @evidence contracts/development/design.md#principled-representation foot: The foot that strikes on beat `index`; the left when absent, by drill custom. index: The beat the `foot`'s first strike answers; the beat nearest it when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkCadence.ts (walkCadence.strikes, cadence); actions/walkCadence.ts (walkCadence.beats, cadence).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in walkCadence.strikes.
    */
   export interface ICadence {
     /** The cue track's name (`HumanCue.beats`), each `beat` a step. */
@@ -45,11 +35,6 @@ export namespace IAutoMovieMotionHumanWalkCadence {
 
   /**
    * The film seconds a walker's heel strikes land at, entrained to a beat track, or null when the walker does not lock. Input strikes of walkCadence.strikes. The plan's heel strikes, seconds of the plan, in order, with the foot of each.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation seconds: Heel-strike instant in action-local seconds, in chronological order. side: Foot making this heel strike.
-   * @evidence contracts/development/design.md#principled-representation seconds: Heel-strike instant in action-local seconds, in chronological order. side: Foot making this heel strike.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/walkCadence.ts (walkCadence.strikes, strikes).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in walkCadence.strikes.
    */
   export type IStrikesStrikes = readonly {
     /** Heel-strike instant in action-local seconds, in chronological order. */

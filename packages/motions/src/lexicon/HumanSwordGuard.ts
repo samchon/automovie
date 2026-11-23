@@ -24,7 +24,9 @@ import { HumanSword } from "./HumanSword";
  * of the swordplay campaign (#3202, decision 8). Its pose is a row of
  * `GUARDS`: the hilt's place from the blade hand's shoulder in arm lengths,
  * the way the blade points and the way its true edge faces, so one row fits
- * every body and every blade. The action ends in the guard: what follows is
+ * every body and every blade. The guard takes at least 0.5 s to set
+ * (provisional) and is held `seconds`, 1 s by default
+ * (`IAutoMovieMotionHumanSwordGuard.IParams.seconds`). The action ends in the guard: what follows is
  * entered from it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a guard is, how it is named, what a row holds and how the action ends.
@@ -107,8 +109,8 @@ export namespace HumanSwordGuard {
       ): IAutoMovieMotionHumanActionPlan => {
         const s: IAutoMovieMotionHumanSword.ISetup = HumanSword.setup(context);
         const set: number = 0.5 * StrikingSkill.recovery(context.skill);
-        const seconds: number = Math.max(set, context.params.seconds ?? 1);
-        HumanBound.least("seconds", context.params.seconds ?? 1, 0, "s");
+        const seconds: number = Math.max(set, context.params.duration ?? 1);
+        HumanBound.least("duration", context.params.duration ?? 1, 0, "s");
         const row: (typeof GUARDS)[IAutoMovieMotionHumanSwordGuard.Guard] =
           GUARDS[context.params.guard ?? "middle"];
         const pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame =

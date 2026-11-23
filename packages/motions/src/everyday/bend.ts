@@ -129,12 +129,12 @@ export namespace bend {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBend.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const target: IAutoMovieVector3 = context.aim(
-      context.params.toward,
+      context.params.target,
       context.start,
     ).point;
     const requested: IAutoMovieMotionHumanBend.Strategy =
       context.params.strategy ?? "auto";
-    if (context.params.toward.kind !== "self")
+    if (context.params.target.kind !== "self")
       return planBendStrategy(context, requested, target);
     // A surface on the moving body can be occluded by the lowered thigh
     // even when the shoulder lies within reach. Admit the complete arm
@@ -150,7 +150,7 @@ export namespace bend {
           ? [nominal, "stoop", "semiSquat", "squat"]
           : [nominal],
       );
-    const side: AutoMovieHumanSide = context.params.side ?? "right";
+    const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const elbow: number =
       ((stand.relaxed(context.body)[`${side}LowerArm`]?.[0] ?? 0) * Math.PI) /
       180;
@@ -181,12 +181,12 @@ export namespace bend {
           } catch (error) {
             if (
               !(error instanceof HumanRefusal) ||
-              (error.axis !== "toward" && error.axis !== "region")
+              (error.axis !== "target" && error.axis !== "region")
             )
               throw error;
             if (
               failure === undefined ||
-              (error.axis === "region" && failure.axis === "toward")
+              (error.axis === "region" && failure.axis === "target")
             )
               failure = error;
           }

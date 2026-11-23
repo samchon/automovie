@@ -83,7 +83,7 @@ const EXTENDED: number = 15;
 export function HumanSwingPump(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): Plan {
-  const { on, seat, hands, seconds, lean }: Params = context.params;
+  const { on, seat, hands, duration: seconds, lean }: Params = context.params;
   HumanBound.within("lean", lean, 0, 45, "deg");
 
   // A rider wider across the seated thighs than the seat is refused.
@@ -105,7 +105,7 @@ export function HumanSwingPump(
     });
   const ride: Plan = HumanRide.ride.plan({
     ...context,
-    params: { on, seconds, seat, hands },
+    params: { on, duration: seconds, seat, hands },
   });
   const facing: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.fromAxisAngle(UP, context.entry.posture.yaw),

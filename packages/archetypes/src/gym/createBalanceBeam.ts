@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** World Gymnastics Apparatus Norms, WAG 3, balance beam measurements. */
@@ -22,7 +22,7 @@ const NORMS: string =
  * @param params Fixed dimensions within the admitted model bands and its id.
  * @param seed Draws any unspecified size inside its band; absent selects the midpoint.
  * @returns A beam whose collision hull and bearing surface share the same corners.
- * @throws {ArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the floor and beam frames, the shape and the admitted dimensions.
  * @evidence contracts/development/implementation.md#principled-implementation The six section corners extrude into one convex volume. Its top edge and length define the same rectangular support that the feet and palms read.
@@ -35,9 +35,12 @@ const NORMS: string =
 export function createBalanceBeam(
   params: createBalanceBeam.IParams = {},
   seed?: string | number,
-): Archetype<createBalanceBeam.Affordance, createBalanceBeam.Dimension> {
-  const draw: ArchetypeDrawSession<createBalanceBeam.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createBalanceBeam.Affordance,
+  createBalanceBeam.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createBalanceBeam.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "balanceBeam",
       createBalanceBeam.UNITS,
       seed,
@@ -67,10 +70,10 @@ export function createBalanceBeam(
           Vector3.create(x, y, z),
       ),
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBalanceBeam.Affordance,
     createBalanceBeam.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "balance beam",
@@ -105,7 +108,7 @@ export function createBalanceBeam(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
     width,
     depth: length,
@@ -125,7 +128,7 @@ export namespace createBalanceBeam {
   /** The flat top where hands and feet contact the beam. */
   export type Affordance = "surface";
 
-  /** Length along Z, top height, top width, actual section width and depth, and total mass. */
+  /** Length along Z, top height, top width, section width and depth, and total mass. */
   export type Dimension =
     | "length"
     | "height"
@@ -141,7 +144,9 @@ export namespace createBalanceBeam {
   }
 
   /** Metres for geometry and kilograms for model mass. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     height: "m",
     width: "m",
@@ -151,13 +156,13 @@ export namespace createBalanceBeam {
   };
 
   /** Competition tolerances and a provisional mass for the coarse model. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(4.99, 5.01, NORMS),
-    height: ArchetypeBand.metres(1.24, 1.26, NORMS),
-    width: ArchetypeBand.metres(0.095, 0.105, NORMS),
-    sectionWidth: ArchetypeBand.metres(0.125, 0.135, NORMS),
-    sectionDepth: ArchetypeBand.metres(0.155, 0.165, NORMS),
-    mass: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(4.99, 5.01, NORMS),
+    height: AutoMovieArchetypeBand.metres(1.24, 1.26, NORMS),
+    width: AutoMovieArchetypeBand.metres(0.095, 0.105, NORMS),
+    sectionWidth: AutoMovieArchetypeBand.metres(0.125, 0.135, NORMS),
+    sectionDepth: AutoMovieArchetypeBand.metres(0.155, 0.165, NORMS),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       75,
       95,

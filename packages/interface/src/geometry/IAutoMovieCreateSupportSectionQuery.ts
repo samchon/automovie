@@ -4,11 +4,6 @@ import type { IAutoMovieSupportSectionVertex } from "./IAutoMovieSupportSectionV
  * Prepared half-plane intersection queries with fixed section directions.
  *
  * The inequality is nx X + nz Z <= offset in a common XZ metre chart; tight plane indices identify corners independently of coordinate proximity. Dense finite unit normals, matching finite offsets, bounded directions and a finite sine threshold in (0,1) are caller admission premises; the query checks finite intersections, feasible weak pairs and positive area.
- *
- * @evidence contracts/development/design.md#principled-representation The inequality is nx X + nz Z <= offset in a common XZ metre chart; tight plane indices identify corners independently of coordinate proximity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface createAutoMovieSupportSectionQuery supplies repeated offset queries to support-loft planning and recovery fitting.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Dense finite unit normals, matching finite offsets, bounded directions and a finite sine threshold in (0,1) are caller admission premises; the query checks finite intersections, feasible weak pairs and positive area.
- * @evidence contracts/development/common.md#meaningful-documentation Prepared half-plane intersection queries with fixed section directions. The inequality is nx X + nz Z <= offset in a common XZ metre chart; tight plane indices identify corners independently of coordinate proximity.
  */
 export namespace IAutoMovieCreateSupportSectionQuery {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieCreateSupportSectionQuery {
    * Callers bound the plane population and supply bounded section charts.
    *
    * These are admitted inputs, not a runtime validator: preparation copies directions but does not check their unit length or boundedness. realizeAutoMovieConvexSupportLoft owns those checks on the loft path; direct and recovery callers must establish equivalent premises.
-   *
-   * @evidence contracts/development/design.md#principled-representation The inequality is nx X + nz Z <= offset in a common XZ metre chart; tight plane indices identify corners independently of coordinate proximity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface createAutoMovieSupportSectionQuery supplies repeated offset queries to support-loft planning and recovery fitting.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Dense finite unit normals, matching finite offsets, bounded directions and a finite sine threshold in (0,1) are caller admission premises; the query checks finite intersections, feasible weak pairs and positive area.
-   * @evidence contracts/development/common.md#meaningful-documentation Prepared half-plane intersection queries with fixed section directions. The inequality is nx X + nz Z <= offset in a common XZ metre chart; tight plane indices identify corners independently of coordinate proximity.
    */
   export type IInput = {
     /**
@@ -47,11 +37,6 @@ export namespace IAutoMovieCreateSupportSectionQuery {
    * A caller-owned prepared section query for changing offsets over fixed copied directions.
    *
    * The synchronous closure accepts one finite metre offset per prepared normal, in the same order. It retains copied direction-pair data and only a successful polygon's combinatorial seed until released. Each result owns fresh arrays and tuples; offsets and previous outputs are not retained. Numerical refusal throws synchronously without a partial polygon.
-   *
-   * @evidence contracts/development/design.md#principled-representation The inequality is nx X + nz Z <= offset in a common XZ metre chart; tight plane indices identify corners independently of coordinate proximity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface createAutoMovieSupportSectionQuery supplies repeated offset queries to support-loft planning and recovery fitting.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Dense finite unit normals, matching finite offsets, bounded directions and a finite sine threshold in (0,1) are caller admission premises; the query checks finite intersections, feasible weak pairs and positive area.
-   * @evidence contracts/development/common.md#meaningful-documentation Prepared half-plane intersection queries with fixed section directions. The inequality is nx X + nz Z <= offset in a common XZ metre chart; tight plane indices identify corners independently of coordinate proximity.
    */
   export type IResult = (
     offsets: readonly number[],

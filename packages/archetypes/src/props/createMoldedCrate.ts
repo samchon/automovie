@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
 import type { createScenicContainer } from "./createScenicContainer";
 
@@ -8,7 +8,7 @@ import type { createScenicContainer } from "./createScenicContainer";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation An open molded crate with a floor suitable for receiving arranged loads.
  * @evidence contracts/development/implementation.md#principled-implementation The placement footprint lies inside the walls, on the modeled floor.
@@ -21,7 +21,10 @@ import type { createScenicContainer } from "./createScenicContainer";
 export function createMoldedCrate(
   params: createMoldedCrate.IParams = {},
   seed?: number | string,
-): Archetype<createMoldedCrate.Affordance, createMoldedCrate.Dimension> {
+): AutoMovieArchetype<
+  createMoldedCrate.Affordance,
+  createMoldedCrate.Dimension
+> {
   return ScenicContainerConstruction.openCrate(params, seed);
 }
 

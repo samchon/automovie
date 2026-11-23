@@ -2,13 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The serving vessels' dimensions, in metres and kilograms. */
@@ -30,24 +30,27 @@ const CUP: string =
 const JUG: string =
   "La Poterie de Taizé Cruche 08 (170 mm, 110 mm, 680 g, https://www.lapoteriedetaize.com/en/products/wasserkrug-cruche-08-1-l) and Form & Refine Alcoa Pitcher (210 mm, 110 mm, 900 g, https://formandrefine.com/product/alcoa-pitcher-1l/)";
 /** The units written into each archetype's provenance. */
-const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
   height: "m",
   diameter: "m",
   mass: "kg",
 };
 /** The size and empty mass of each vessel, bracketed by the cited makers. */
 const BANDS: Readonly<
-  Record<createPourVessel.Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+  Record<
+    createPourVessel.Kind,
+    Readonly<Record<Dimension, IAutoMovieArchetypeBand>>
+  >
 > = {
   cup: {
-    height: ArchetypeBand.metres(0.055, 0.055, CUP),
-    diameter: ArchetypeBand.metres(0.082, 0.09, CUP),
-    mass: ArchetypeBand.of("kg", 0.165, 0.18, CUP),
+    height: AutoMovieArchetypeBand.metres(0.055, 0.055, CUP),
+    diameter: AutoMovieArchetypeBand.metres(0.082, 0.09, CUP),
+    mass: AutoMovieArchetypeBand.of("kg", 0.165, 0.18, CUP),
   },
   pitcher: {
-    height: ArchetypeBand.metres(0.17, 0.21, JUG),
-    diameter: ArchetypeBand.metres(0.11, 0.11, JUG),
-    mass: ArchetypeBand.of("kg", 0.68, 0.9, JUG),
+    height: AutoMovieArchetypeBand.metres(0.17, 0.21, JUG),
+    diameter: AutoMovieArchetypeBand.metres(0.11, 0.11, JUG),
+    mass: AutoMovieArchetypeBand.of("kg", 0.68, 0.9, JUG),
   },
 };
 
@@ -69,7 +72,7 @@ const SIDES: number = 16;
  * @param params Vessel kind, scene id and any fixed dimensions.
  * @param seed Draws remaining dimensions. Omit it to use the band midpoints.
  * @returns The model and its three rigid contact sites.
- * @throws {ArchetypeRefusal} For an unknown kind or out-of-band fixed dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or out-of-band fixed dimension.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies both catalogue variants, the open dimensions and units, and each vessel's rest frame and contact sites.
  * @evidence contracts/development/implementation.md#principled-implementation Two polygonal sections on the same radial planes bound per-sector convex wall cells. Their same ring locates the lip and closes against a solid floor. Three rods form the handle and share its bar axis with the hook affordance.
@@ -82,31 +85,26 @@ const SIDES: number = 16;
 export function createPourVessel(
   params: createPourVessel.IParams,
   seed?: number | string,
-): Archetype<Affordance, Dimension> {
+): AutoMovieArchetype<Affordance, Dimension> {
   const kind: createPourVessel.Kind = ArchetypeDraw.choice(
     "pourVessel",
     "kind",
     params.kind,
     createPourVessel.KINDS,
   );
-  const draw: ArchetypeDrawSession<Dimension> = new ArchetypeDrawSession(
-    "pourVessel",
-    UNITS,
-    seed,
-    params,
-  );
+  const draw: AutoMovieArchetypeDrawSession<Dimension> =
+    new AutoMovieArchetypeDrawSession("pourVessel", UNITS, seed, params);
   const { height, diameter, mass }: Record<Dimension, number> = draw.dimensions(
     BANDS[kind],
   );
   const pitcher: boolean = kind === "pitcher";
-  const builder: ArchetypeBuilder<Affordance, Dimension> = new ArchetypeBuilder(
-    {
+  const builder: AutoMovieArchetypeBuilder<Affordance, Dimension> =
+    new AutoMovieArchetypeBuilder({
       material: "ceramic",
       id: params.id,
       name: pitcher ? "pouring pitcher" : "serving cup",
       draw,
-    },
-  );
+    });
 
   // The same lower outline makes the floor perimeter and the join with the wall.
   const radius: number = diameter / 2;
@@ -190,7 +188,7 @@ export function createPourVessel(
     id: "handle",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, center, -reach),
       Vector3.create(0, 0, -1),
       Vector3.create(0, 1, 0),
@@ -204,14 +202,16 @@ export function createPourVessel(
     id: "mouth",
     kind: "socket",
     direction: "along",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
   });
   builder.affordance({
     id: "lip",
     kind: "ledge",
     direction: "along",
-    frame: ArchetypeFrame.upright((pitcher ? rim.outer : rim.inner)[0]!),
+    frame: AutoMovieArchetypeFrame.upright(
+      (pitcher ? rim.outer : rim.inner)[0]!,
+    ),
     extent: null,
   });
   return builder.build(mass);

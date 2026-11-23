@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createSeat } from "./createSeat";
 import { createTable } from "./createTable";
 
@@ -8,12 +12,18 @@ const band = (
   maximum: number,
   source: string,
   provisional?: boolean,
-): IArchetypeBand =>
-  ArchetypeBand.of("m", minimum, maximum, source, provisional);
+): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.of("m", minimum, maximum, source, provisional);
 
 /** A provisional mass band in kilograms per place. */
-const mass = (minimum: number, maximum: number): IArchetypeBand =>
-  ArchetypeBand.of("kg", minimum, maximum, ArchetypeBand.TYPICAL_MASS, true);
+const mass = (minimum: number, maximum: number): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.of(
+    "kg",
+    minimum,
+    maximum,
+    AutoMovieArchetypeBand.TYPICAL_MASS,
+    true,
+  );
 
 /** Seat heights of chairs and lounge chairs reviewed by Blackler et al. 2018. */
 const LOUNGE: string =
@@ -44,13 +54,13 @@ const STOOL: string = "typical round stool seat, not read at a source";
 export const SEAT_BANDS: Readonly<
   Record<
     createSeat.Kind,
-    Readonly<Partial<Record<createSeat.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createSeat.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   dining: {
     seatHeight: band(0.43, 0.457, LOUNGE),
     seatDepth: band(0.38, 0.48, DEPTH),
-    seatWidth: band(0.409, 17.7 * ArchetypeUnits.INCH, WIDTH),
+    seatWidth: band(0.409, 17.7 * AutoMovieArchetypeUnits.INCH, WIDTH),
     backHeight: band(0.36, 0.455, BACK),
     mass: mass(4, 7),
   },
@@ -66,7 +76,7 @@ export const SEAT_BANDS: Readonly<
       "EN 1335-1:2020 Table 2, fixed seat depth of type B, 425 to 485 mm (https://www.bureaustoel.nl/wp-content/uploads/2022/01/NEN-EN-1335-1-april-2020.pdf)",
     ),
     seatWidth: band(
-      17.7 * ArchetypeUnits.INCH,
+      17.7 * AutoMovieArchetypeUnits.INCH,
       0.51,
       "ANSI/HFES 100-2007 p. 87, seat at least 17.7 in wide, as quoted by the UC task chair checklist (https://uhs.berkeley.edu/sites/default/files/uc_task_chair_requirements_1.pdf), up to EN 1335-1:2020 Table 2's 510 mm clear distance between armrests",
       true,
@@ -99,8 +109,8 @@ export const SEAT_BANDS: Readonly<
   },
   barStool: {
     seatHeight: band(
-      createTable.BANDS.bar.height.maximum - 12 * ArchetypeUnits.INCH,
-      createTable.BANDS.bar.height.maximum - 10 * ArchetypeUnits.INCH,
+      createTable.BANDS.bar.height.maximum - 12 * AutoMovieArchetypeUnits.INCH,
+      createTable.BANDS.bar.height.maximum - 10 * AutoMovieArchetypeUnits.INCH,
       "a seat 10 to 12 in below the 42 in (1067 mm) bar counter of NKBA Kitchen Planning Guideline 9 (https://kb.nkba.org/uploads/2022/05/Kitchen-Planning-Guidelines.pdf); the gap is trade convention, not read at a source",
       true,
     ),

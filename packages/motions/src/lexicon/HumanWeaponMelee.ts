@@ -4,12 +4,17 @@ import type {
 } from "@automovie/interface";
 
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_BLADE_CLUB_STRIKE } from "../next/presets/HUMAN_BLADE_CLUB_STRIKE";
+import { HUMAN_BLADE_CLUB_SWING } from "../next/presets/HUMAN_BLADE_CLUB_SWING";
+import { HUMAN_BLADE_RELOAD } from "../next/presets/HUMAN_BLADE_RELOAD";
 import { touch } from "../touch/touch";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordThrust } from "./HumanSwordThrust";
 
 /**
  * One-handed melee weapons and the firearm's reload under film names, each
+ * a blade row with the blade timing of `IAutoMovieMotionHumanSword` (a cut's
+ * edge at 6 to 10 m/s, a thrust's point at 2.6 to 3.2 m/s, by skill), and each
  * a row of a blade law or of the touch. The composition gives the weapon
  * the hand holds (`blade`; a club's striking contact is `tip: "strike"`,
  * fixed here) and the target; with neither, the row is a shadow stroke of
@@ -29,18 +34,12 @@ export namespace HumanWeaponMelee {
   /** A club or a bat swung level at a person or a thing. */
   export const clubSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubSwing"]
-  > = HumanActionRow.of("clubSwing", HumanSword.cut, {
-    from: "forehand",
-    tip: "strike",
-  });
+  > = HumanActionRow.of("clubSwing", HumanSword.cut, HUMAN_BLADE_CLUB_SWING);
 
   /** A club or a baton brought down from overhead. */
   export const clubStrike: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubStrike"]
-  > = HumanActionRow.of("clubStrike", HumanSword.cut, {
-    from: "above",
-    tip: "strike",
-  });
+  > = HumanActionRow.of("clubStrike", HumanSword.cut, HUMAN_BLADE_CLUB_STRIKE);
 
   /** A knife slashed across from the knife hand's side. */
   export const knifeSlash: IAutoMovieMotionHumanActionLaw<
@@ -67,10 +66,5 @@ export namespace HumanWeaponMelee {
   /** A reload: the support hand's palm pressed once to the magazine well the composition names. */
   export const reload: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["reload"]
-  > = HumanActionRow.of("reloadFirearm", touch, {
-    with: "palm",
-    kind: "press",
-    count: 1,
-    side: "left",
-  });
+  > = HumanActionRow.of("reloadFirearm", touch, HUMAN_BLADE_RELOAD);
 }

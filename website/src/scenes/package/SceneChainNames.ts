@@ -1,6 +1,7 @@
 import * as archetypes from "@automovie/archetypes";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS } from "@automovie/motions";
+import * as internal from "@automovie/motions/internal";
 
 import { PLAYGROUND_BODIES } from "../../playground/data/PLAYGROUND_BODIES";
 import { PlaygroundChain } from "../../playground/package/PlaygroundChain";
@@ -15,9 +16,10 @@ import { SceneArchetype } from "./SceneArchetype";
  */
 export namespace SceneChainNames {
   /** The packages' exports by name. */
-  const MOTIONS: Readonly<Record<string, unknown>> = motions as Readonly<
-    Record<string, unknown>
-  >;
+  const MOTIONS: Readonly<Record<string, unknown>> = {
+    ...(motions as Readonly<Record<string, unknown>>),
+    ...(internal as Readonly<Record<string, unknown>>),
+  };
 
   /**
    * The names a scene's code needs: every row, law, mutual and variant

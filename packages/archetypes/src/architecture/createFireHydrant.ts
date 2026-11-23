@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /** The shape of {@link HYDRANT}. */
@@ -17,9 +21,9 @@ interface IHydrant {
 
 /** The Mueller hydrant's nozzle bores, metres: the 4 1/2 in pumper and the 2 1/2 in hose nozzles; its 1 1/2 in operating nut. */
 const HYDRANT: Readonly<IHydrant> = {
-  pumper: 4.5 * ArchetypeUnits.INCH,
-  hose: 2.5 * ArchetypeUnits.INCH,
-  nut: 1.5 * ArchetypeUnits.INCH,
+  pumper: 4.5 * AutoMovieArchetypeUnits.INCH,
+  hose: 2.5 * AutoMovieArchetypeUnits.INCH,
+  nut: 1.5 * AutoMovieArchetypeUnits.INCH,
 };
 
 /**
@@ -31,7 +35,7 @@ const HYDRANT: Readonly<IHydrant> = {
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The pumper points toward +Z and the hose sockets toward each side. All three sockets sit on their corresponding nozzle faces.
@@ -44,7 +48,10 @@ const HYDRANT: Readonly<IHydrant> = {
 export function createFireHydrant(
   params: createFireHydrant.IParams = {},
   seed?: number | string,
-): Archetype<createFireHydrant.Affordance, createFireHydrant.Dimension> {
+): AutoMovieArchetype<
+  createFireHydrant.Affordance,
+  createFireHydrant.Dimension
+> {
   const {
     builder,
     d,
@@ -86,7 +93,7 @@ export function createFireHydrant(
   builder.affordance({
     id: "pumper",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, y, out), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, y, out), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
   });
   for (const [id, sign] of [
@@ -96,7 +103,7 @@ export function createFireHydrant(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(sign * hose, y, 0),
         v(sign, 0, 0),
         v(0, 0, 1),
@@ -106,7 +113,7 @@ export function createFireHydrant(
   builder.affordance({
     id: "nut",
     kind: "knob",
-    frame: ArchetypeFrame.upright(v(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
     extent: null,
   });
   return builder.build(d.mass!);

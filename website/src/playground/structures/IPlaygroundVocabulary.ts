@@ -35,41 +35,8 @@ export namespace IPlaygroundVocabulary {
     /** The name a chain appends it by. */
     name: string;
 
-    /** Its parameters from its schema in `HUMAN_LEXICON_SCHEMAS`, or null when the release ships none; the editor then takes them as JSON. */
-    parameters: IParameter[] | null;
-
     /** Whether it can be performed over a carrier; null when the package does not say. */
     overlay: boolean | null;
-  }
-
-  /** One parameter of an action. */
-  export interface IParameter {
-    /** The parameter's name. */
-    name: string;
-
-    /** Whether the action needs it. */
-    required: boolean;
-
-    /**
-     * How the editor takes it: one of a closed set, a number, a text, a
-     * switch, or JSON for a structured value.
-     */
-    kind: "choice" | "number" | "text" | "switch" | "json";
-
-    /** The accepted values of a choice; empty otherwise. */
-    values: string[];
-
-    /** A number's least value, when it has one. */
-    minimum?: number;
-
-    /** A number's greatest value, when it has one. */
-    maximum?: number;
-
-    /** Whether a number is whole. */
-    integer?: boolean;
-
-    /** What it means, from the law's documentation; empty when undocumented. */
-    description: string;
   }
 
   /** One family of the lexicon. */
@@ -79,9 +46,6 @@ export namespace IPlaygroundVocabulary {
 
     /** The rows it holds, each appended by its name like an action. */
     rows: string[];
-
-    /** Each row's parameters from its schema, by row name; a row without a schema is absent and edited as JSON. */
-    parameters: Record<string, IParameter[]>;
   }
 
   /** One mutual action. */

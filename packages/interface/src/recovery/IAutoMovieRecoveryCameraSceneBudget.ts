@@ -4,11 +4,6 @@ import type { IAutoMovieRecoveryCameraMapBudget } from "./IAutoMovieRecoveryCame
  * Additional positive safe-integer ceilings for incremental camera registration.
  * Inherited map limits bound one fit and aggregate observations; these limits
  * bound the number and combined work of repeated scene transactions.
- *
- * @evidence contracts/development/design.md#principled-representation View count, camera attempts, original point designs, consensus proposals, joint fits and dimension-sweep work are separate admitted populations. Scalar-slot retention is distinguished from bytes, host RSS and actual arithmetic operations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Inheritance reuses unchanged geometric fit limits while these members own the extra repeated-scene work.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Work ceilings neither add observations nor prove convergence; no failed camera raises a declared limit.
- * @evidence contracts/development/common.md#meaningful-documentation Members define aggregate versus per-fit units and distinguish logical scalar retention from process-memory measurement.
  */
 export interface IAutoMovieRecoveryCameraSceneBudget extends IAutoMovieRecoveryCameraMapBudget {
   /** Maximum supplied images, at least three; the actual active set fixes joint width 6N-7. */

@@ -1,4 +1,4 @@
-import type { ArchetypeRide } from "@automovie/archetypes";
+import type { AutoMovieArchetypeRide } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -25,7 +25,7 @@ export namespace equineFloorObservation {
    * @returns Its lowest point's height, metres.
    */
   export function part(
-    sample: ArchetypeRide.IPose<string, string>,
+    sample: AutoMovieArchetypeRide.IPose<string, string>,
     id: string,
   ): number {
     const found: IAutoMovieModelPart = sample.archetype.parts.find(
@@ -40,7 +40,9 @@ export namespace equineFloorObservation {
    * @param sample The displayed sample.
    * @returns The lowest point's height, metres.
    */
-  export function body(sample: ArchetypeRide.IPose<string, string>): number {
+  export function body(
+    sample: AutoMovieArchetypeRide.IPose<string, string>,
+  ): number {
     return Math.min(
       ...sample.archetype.parts.map((each: IAutoMovieModelPart): number =>
         lowest(sample.placement, each),
@@ -75,9 +77,7 @@ export namespace equineFloorObservation {
     });
     if (shape.type === "sphere") return centre.y - shape.radius;
     if (shape.type === "capsule")
-      return (
-        centre.y - Math.abs(axis.y) * (shape.height / 2) - shape.radius
-      );
+      return centre.y - Math.abs(axis.y) * (shape.height / 2) - shape.radius;
     if (shape.type === "cylinder")
       return (
         centre.y -

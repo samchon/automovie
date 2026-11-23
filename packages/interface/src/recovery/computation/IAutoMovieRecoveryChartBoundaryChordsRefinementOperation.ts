@@ -2,21 +2,11 @@ import type { AutoMovieVector3Tuple } from "../../index";
 
 /**
  * Subdivide private interior edges whose fixed endpoints share one square side. Such a chord has zero transverse UV extent under square Dirichlet data and can collapse an incident ear even for a valid PL disk. Its source-PL midpoint is a new free map vertex, and both incident triangles retain coherent orientation. Original coordinates, boundary observations and physical identities are copied; paired cut occurrences receive equal midpoint keys without ordinal welding. This removes the specific fixed chord obstruction, not all harmonic degeneracy. The consumer must still check every actual signed UV area before fitting.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Borrowed physical positions in the registered millimetre frame; indices in triangles address this array. Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
- * @evidence contracts/development/design.md#principled-representation Borrowed physical positions in the registered millimetre frame; indices in triangles address this array.
- * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationChart, RecoveryChartBatch, refineRecoveryChartBoundaryChords share IAutoMovieRecoveryChartBoundaryChordsRefinementOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
  */
 
 export namespace IAutoMovieRecoveryChartBoundaryChordsRefinementOperation {
   /**
    * Subdivide private interior edges whose fixed endpoints share one square side. Such a chord has zero transverse UV extent under square Dirichlet data and can collapse an incident ear even for a valid PL disk. Its source-PL midpoint is a new free map vertex, and both incident triangles retain coherent orientation. Original coordinates, boundary observations and physical identities are copied; paired cut occurrences receive equal midpoint keys without ordinal welding. This removes the specific fixed chord obstruction, not all harmonic degeneracy. The consumer must still check every actual signed UV area before fitting.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Borrowed physical positions in the registered millimetre frame; indices in triangles address this array. Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
-   * @evidence contracts/development/design.md#principled-representation Borrowed physical positions in the registered millimetre frame; indices in triangles address this array.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface RecoveryAtlasObservationChart, RecoveryChartBatch, refineRecoveryChartBoundaryChords share IAutoMovieRecoveryChartBoundaryChordsRefinementOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
    */
 
   export type Operation = (input: {

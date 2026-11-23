@@ -1,12 +1,15 @@
 import {
   type Canvas,
+  GlobalFonts,
   type Image,
   ImageData,
   type SKRSContext2D,
   createCanvas,
   loadImage,
 } from "@napi-rs/canvas";
+import path from "node:path";
 
+import { repositoryRoot } from "../../features/internal/repositoryRoot";
 import { NodeCanvasCamera } from "./NodeCanvasCamera";
 import type { NodeCanvasTypes } from "./NodeCanvasTypes";
 
@@ -15,8 +18,39 @@ import type { NodeCanvasTypes } from "./NodeCanvasTypes";
  * Uses original display triangles only for rasterization; never generates or judges a shape.
  * Flat two-sided Lambert clay has no PBR, shadows, transparency or GPU/Three parity.
  * Original curves can explicitly use xray; depth curves use a 10 micrometre display bias.
+ *
+ * Annotation text is drawn in DejaVu Sans, shipped beside this file in `fonts/` with its
+ * licence and registered once before the first draw, never in a system font such as Arial:
+ * a runner without that font would draw no glyphs, so the same frame would differ between
+ * machines and a diagnostic caption would vanish. The bundled face makes glyphs, and so
+ * the annotated PNG bytes, deterministic across runners.
  */
 export namespace NodeCanvasRaster {
+  /** The family the bundled caption font is registered under. */
+  const CAPTION: string = "AutoMovie Caption";
+
+  /** Whether the bundled caption font has been registered with Skia in this process. */
+  let registered: boolean = false;
+
+  /** Register the bundled caption font once and return its family; a font that cannot be read stops the frame instead of drawing none. */
+  function family(): string {
+    if (!registered) {
+      const file: string = path.join(
+        repositoryRoot(),
+        "test",
+        "src",
+        "reference-conics",
+        "render",
+        "fonts",
+        "DejaVuSans.ttf",
+      );
+      if (GlobalFonts.registerFromPath(file, CAPTION) === null)
+        throw new Error(`The caption font ${file} could not be registered`);
+      registered = true;
+    }
+    return CAPTION;
+  }
+
   /** Unlabelled raster state of immutable reference meshes, before any dynamic mesh or curve is drawn. */
   export interface IBackground {
     /** Original opaque lossless RGBA bytes in row-major viewport order. */
@@ -204,13 +238,13 @@ export namespace NodeCanvasRaster {
     );
     if (camera.annotations !== false) {
       context.fillStyle = "#172337";
-      context.font = "17px Arial";
+      context.font = "17px " + family();
       context.fillText(
         subject + " | CPU SOFTWARE DIAGNOSTIC | " + camera.name,
         18,
         26,
       );
-      context.font = "13px Arial";
+      context.font = "13px " + family();
       context.fillText(label, 18, 49);
       const evidence: string = observation === undefined
         ? ""

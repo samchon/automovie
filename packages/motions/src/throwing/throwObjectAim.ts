@@ -100,7 +100,7 @@ export function throwObjectAim(
   const probe: IAutoMovieMotionHumanPosture =
     style === "gridironSnap"
       ? (context.carrier?.posture(0) ?? context.entry.posture)
-      : stand.plan({ ...context, params: { seconds: 1 } }).posture(0);
+      : stand.plan({ ...context, params: { hold: 1 } }).posture(0);
   const yaw: number = probe.yaw;
   const frame: IAutoMovieMotionHumanFrame = { origin: probe.root, yaw };
   const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> =
@@ -134,7 +134,7 @@ export function throwObjectAim(
   );
   const finish: IAutoMovieVector3 = place(throwObjectForm.PLACES[style].finish);
   const target: IAutoMovieVector3 = context.aim(
-    context.params.at,
+    context.params.target,
     context.start,
   ).point;
 
@@ -185,7 +185,7 @@ export function throwObjectAim(
   if (lever === undefined)
     throw new HumanRefusal({
       kind: "reach",
-      axis: "at",
+      axis: "target",
       value: d,
       reason: `a ${style} throw at ${degrees} degrees cannot reach a target ${delta.y.toFixed(2)} m above and ${d.toFixed(2)} m from its release`,
       fix: "aim at a nearer or lower target, or choose a style with a steeper release",

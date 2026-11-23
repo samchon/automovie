@@ -67,7 +67,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     _pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
-    S.solo(a, S.chain().act("stand", { seconds: 2 })),
+    S.solo(a, S.chain().act("stand", { hold: 2 })),
   walk: (
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
@@ -109,9 +109,9 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
       S.chain().act("approach", {
         target: S.person("b", "sternum"),
         at: pick("at") ?? "personal",
-        ...S.set(pick, "side"),
+        ...S.set(pick, "from"),
       }),
-      S.chain("b").act("stand", { seconds: 8, sway: 0 }),
+      S.chain("b").act("stand", { hold: 8, sway: 0 }),
     ]),
   stepOver: (
     pick: motionHumanLawSweep.Pick,
@@ -153,7 +153,7 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
     _pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
-    S.solo(a, S.chain().act("crawl", { cycles: 2 })),
+    S.solo(a, S.chain().act("crawl", { count: 2 })),
   carry: (
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
@@ -162,9 +162,9 @@ export const MOTION_HUMAN_LAW_STAGES_LOCOMOTION: Readonly<
       a,
       S.chain().act("carry", {
         to: { x: 0, y: 0, z: 2.5 },
-        how: pick("how") ?? "oneHand",
+        kind: pick("kind") ?? "oneHand",
         load: 0.15,
-        ...S.set(pick, "side"),
+        ...S.set(pick, "hand"),
       }),
     ),
   pushPull: (

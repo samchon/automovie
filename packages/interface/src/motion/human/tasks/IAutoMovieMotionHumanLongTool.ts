@@ -11,11 +11,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * up before, as `pickUp` does), rigid in that hand, so its `face` is a fixed
  * offset in the hand's frame; the lead hand closes on the shaft between the
  * trailing hand and the face and slides along it as the stroke needs.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the held tool, the two hands and each stroke.
- * @evidence contracts/development/design.md#principled-representation A closed union of strokes over one held tool and a world work point.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The long-tool law reads these inputs; the tool's reach is its own contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No tool length or hand place is typed.
  */
 export namespace IAutoMovieMotionHumanLongTool {
   /**
@@ -25,21 +20,11 @@ export namespace IAutoMovieMotionHumanLongTool {
    * ground, `dig` drives a shovel's blade in, levers, lifts and throws the
    * load toward `to`, and `rake` pulls the tines along the ground toward the
    * performer and lifts them back.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each stroke's path.
-   * @evidence contracts/development/design.md#principled-representation Closed choices, one per stroke path.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The long-tool law dispatches on it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Names the stroke, not its geometry.
    */
   export type Stroke = "chop" | "side" | "swing" | "dig" | "rake";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and default.
-   * @evidence contracts/development/design.md#principled-representation The stroke, the held tool, the work point and where a dug load goes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the long-tool law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts World points in metres.
    */
   export interface IParams {
     /** The stroke. */
@@ -57,9 +42,7 @@ export namespace IAutoMovieMotionHumanLongTool {
     /** The trailing hand, which holds the tool near its end; the hand that holds `prop` when absent. */
     hand?: AutoMovieHumanSide;
 
-    /** How many strokes; 3 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless.
-     */
-    cycles?: number;
+    /** How many strokes, a whole number of at least 1; 3 when absent. */
+    count?: number;
   }
 }

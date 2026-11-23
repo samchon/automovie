@@ -2,13 +2,13 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeConvexCell,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeConvexCell,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** World Gymnastics apparatus norms for the rings, MAG 3. */
@@ -23,7 +23,7 @@ const NORMS: string =
  * @param params Fixed dimensions within the admitted bands and its model id.
  * @param seed Draws unspecified dimensions within their bands; absent selects their midpoints.
  * @returns The framed apparatus with two independently posed suspensions.
- * @throws {ArchetypeRefusal} When a fixed dimension lies outside its band.
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the floor frame, the separate grips and the swing axes.
  * @evidence contracts/development/implementation.md#principled-implementation Identical convex sections rotated around the ring centres share the visible and physical boundary with an open middle. The hangers and contacts share their own attachment transforms.
@@ -36,9 +36,9 @@ const NORMS: string =
 export function createStillRings(
   params: createStillRings.IParams = {},
   seed?: string | number,
-): Archetype<createStillRings.Affordance, createStillRings.Dimension> {
-  const draw: ArchetypeDrawSession<createStillRings.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<createStillRings.Affordance, createStillRings.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createStillRings.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "stillRings",
       createStillRings.UNITS,
       seed,
@@ -47,10 +47,10 @@ export function createStillRings(
   const values: Record<createStillRings.Dimension, number> = draw.dimensions(
     createStillRings.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStillRings.Affordance,
     createStillRings.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "still rings",
@@ -112,16 +112,17 @@ export function createStillRings(
   ];
   // The radii describe the flat face of a section. Extend its corners to the
   // two radial seams so neighbouring sections touch around the open bore.
-  const cell: ArchetypeConvexCell.ICell = ArchetypeConvexCell.of(
-    [-1, 1].flatMap((side: number): IAutoMovieVector3[] =>
-      profile.map(
-        ([offset, z]: readonly [number, number]): IAutoMovieVector3 => {
-          const radial: number = radius + offset;
-          return point(radial, side * radial * Math.tan(angle), z);
-        },
+  const cell: AutoMovieArchetypeConvexCell.ICell =
+    AutoMovieArchetypeConvexCell.of(
+      [-1, 1].flatMap((side: number): IAutoMovieVector3[] =>
+        profile.map(
+          ([offset, z]: readonly [number, number]): IAutoMovieVector3 => {
+            const radial: number = radius + offset;
+            return point(radial, side * radial * Math.tan(angle), z);
+          },
+        ),
       ),
-    ),
-  );
+    );
   for (const side of ["left", "right"] as const) {
     const x: number = (values.spacing / 2) * (side === "left" ? 1 : -1);
     const pivot = `${side}Pivot` as const;
@@ -153,7 +154,10 @@ export function createStillRings(
       id: pivot,
       kind: "hinge",
       extent: null,
-      frame: ArchetypeFrame.facing(point(x, pivotHeight, 0), point(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        point(x, pivotHeight, 0),
+        point(1, 0, 0),
+      ),
       travel: 80,
       reverse: 80,
       parts,
@@ -162,7 +166,7 @@ export function createStillRings(
       id: `${side}Grip`,
       kind: "handle",
       extent: null,
-      frame: ArchetypeFrame.upright(point(x, ringHeight - radius, 0)),
+      frame: AutoMovieArchetypeFrame.upright(point(x, ringHeight - radius, 0)),
       aperture: values.diameter,
       length: 2 * radius * Math.tan(angle),
       symmetry: "round",
@@ -206,7 +210,9 @@ export namespace createStillRings {
   }
 
   /** Metres for geometry and kilograms for model mass. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     opening: "m",
     diameter: "m",
     innerHeight: "m",
@@ -218,16 +224,16 @@ export namespace createStillRings {
   };
 
   /** Official dimensional bands and a provisional mass for the coarse frame. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    opening: ArchetypeBand.metres(0.179, 0.181, NORMS),
-    diameter: ArchetypeBand.metres(0.027, 0.029, NORMS),
-    innerHeight: ArchetypeBand.metres(2.895, 2.905, NORMS),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    opening: AutoMovieArchetypeBand.metres(0.179, 0.181, NORMS),
+    diameter: AutoMovieArchetypeBand.metres(0.027, 0.029, NORMS),
+    innerHeight: AutoMovieArchetypeBand.metres(2.895, 2.905, NORMS),
     // Retain the official pivot-height tolerance for every permitted inner height.
-    suspension: ArchetypeBand.metres(2.995, 3.005, NORMS),
-    spacing: ArchetypeBand.metres(0.495, 0.505, NORMS),
-    strapLength: ArchetypeBand.metres(0.69, 0.71, NORMS),
-    strapWidth: ArchetypeBand.metres(0.03, 0.05, NORMS),
-    mass: ArchetypeBand.of(
+    suspension: AutoMovieArchetypeBand.metres(2.995, 3.005, NORMS),
+    spacing: AutoMovieArchetypeBand.metres(0.495, 0.505, NORMS),
+    strapLength: AutoMovieArchetypeBand.metres(0.69, 0.71, NORMS),
+    strapWidth: AutoMovieArchetypeBand.metres(0.03, 0.05, NORMS),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       135,
       159,

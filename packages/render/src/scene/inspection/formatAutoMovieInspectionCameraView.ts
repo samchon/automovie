@@ -9,14 +9,6 @@ const SAME: number = 1e-9;
  * Write the view text that draws a resolved camera again: a fixed view at its eye looking at its target, with `@ortho=<metres per pixel>` for an orthographic camera and `@up=` when world `+Y` would roll the picture otherwise, written by `formatAutoMovieInspectionView`.
  *
  * A record keeps this text beside each cell's camera, so a later round copies it as is and draws through the same camera even when what is drawn changes, as when a surface is hidden and a fitted view would frame a smaller box. The up is written only when needed: when the line of sight is vertical, so `+Y` cannot orient the picture, or when the recorded up differs from the one `+Y` gives. A perspective camera repeats with the subject's own lens and clips; an orthographic one repeats its scale exactly, and its clips by the fixed view's rule of a quarter and three and a half times the eye's distance to the target, which are a fitted orthographic view's own clips.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the text produced, why the record keeps it, when the up is written, and what of the camera a repeat reproduces.
- * @evidence contracts/development/implementation.md#principled-implementation `lookAt` with an up direction keeps the up's component across the line of sight, so the up `+Y` gives is `Y` minus its projection on the line of sight, normalised; when that equals the recorded up the default reproduces the roll, and when the line of sight is vertical it is undefined and the recorded up must be written.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the fixed view from the record, then the shared view writer.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tolerance only decides whether a written default would reproduce the record; it never rounds a written number.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure conversion of one record.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh string and keeps nothing.
  */
 export function formatAutoMovieInspectionCameraView(
   camera: IAutoMovieInspectionCamera,

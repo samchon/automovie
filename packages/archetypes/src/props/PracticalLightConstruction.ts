@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { createLight } from "./createLight";
 
@@ -19,7 +19,7 @@ const NAMES: Readonly<Record<createLight.Kind, string>> = {
 };
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createLight.Affordance> = ArchetypeBuilder<
+type Builder<Id extends createLight.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   createLight.Dimension
 >;
@@ -45,8 +45,8 @@ function draw<Id extends createLight.Affordance>(
   params: Omit<createLight.IParams, "kind">,
   seed?: number | string,
 ): IDrawn<Id> {
-  const session: ArchetypeDrawSession<createLight.Dimension> =
-    new ArchetypeDrawSession<createLight.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createLight.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLight.Dimension>(
       "light",
       createLight.UNITS,
       seed,
@@ -56,7 +56,7 @@ function draw<Id extends createLight.Affordance>(
     createLight.BANDS[kind],
     createLight.BANDS,
   );
-  const builder: Builder<Id> = new ArchetypeBuilder({
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: kind === "candle" ? "wax" : "composite",
     id: params.id,
     name: NAMES[kind],
@@ -67,38 +67,20 @@ function draw<Id extends createLight.Affordance>(
 
 /**
  * Static practical-light bodies with authored grip, hanging and render-light bindings.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Static practical-light bodies with authored grip, hanging and render-light bindings.
- * @evidence contracts/development/design.md#principled-representation Each construction applies the selected variant's coordinate frame and dimensions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Used by the named producers and the legacy selector.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace PracticalLightConstruction {
   /**
    * The contact ids {@link pendant} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of pendant.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only pendant and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type PendantContact = "grip" | "light" | "hook";
 
   /**
    * Build a suspended lamp with a downward light frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a suspended lamp with a downward light frame.
-   * @evidence contracts/development/implementation.md#principled-implementation Hang the cord from the origin and place the light along the shade's downward axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The published shade and cord dimensions are retained. The socket locates a renderer-owned light.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two solids and three contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function pendant(
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<PendantContact, createLight.Dimension> {
+  ): AutoMovieArchetype<PendantContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<PendantContact>> =
       draw<PendantContact>("pendant", params, seed);
     // A shade whose mouth faces down, hanging on its cord from the hook at the origin.
@@ -115,7 +97,7 @@ export namespace PracticalLightConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, mouth + d.height! / 2, 0),
         v(-1, 0, 0),
         v(0, 1, 0),
@@ -128,13 +110,17 @@ export namespace PracticalLightConstruction {
       id: "light",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(0, mouth, 0), v(0, -1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, mouth, 0),
+        v(0, -1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
     builder.affordance({
       id: "hook",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -142,40 +128,22 @@ export namespace PracticalLightConstruction {
 
   /**
    * The values {@link standing} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of standing.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only standing and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type StandingKind = "tableLamp" | "floorLamp";
 
   /**
    * The contact ids {@link standing} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of standing.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only standing and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type StandingContact = "grip" | "light";
 
   /**
    * Build a standing lamp with its source inside the shade.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a standing lamp with its source inside the shade.
-   * @evidence contracts/development/implementation.md#principled-implementation Calculate the stem upward from the base, place the elected shade around the holder and distribute the two measured masses.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The base and stem dimensions describe model geometry. The socket locates a renderer-owned light.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Three solids and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function standing(
     kind: StandingKind,
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<StandingContact, createLight.Dimension> {
+  ): AutoMovieArchetype<StandingContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<StandingContact>> =
       draw<StandingContact>(kind, params, seed);
     // A round base on the floor, a stem up to the lampholder, and the shade round it below the lamp's top.
@@ -204,7 +172,7 @@ export namespace PracticalLightConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, bottom + d.height! / 2, 0),
         v(-1, 0, 0),
         v(0, 1, 0),
@@ -217,7 +185,7 @@ export namespace PracticalLightConstruction {
       id: "light",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, d.stem!, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, d.stem!, 0)),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -225,29 +193,16 @@ export namespace PracticalLightConstruction {
 
   /**
    * The contact ids {@link lantern} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of lantern.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only lantern and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type LanternContact = "grip" | "light" | "hook";
 
   /**
    * Build a raised-bail lantern with a standing base, grip and hanging hook.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a raised-bail lantern with a standing base, grip and hanging hook.
-   * @evidence contracts/development/implementation.md#principled-implementation The base supports the burner and globe. The handle and hook share the bail top.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The documented fount and wire estimates fit the measured body, globe and extended height.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Six solids and three contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function lantern(
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<LanternContact, createLight.Dimension> {
+  ): AutoMovieArchetype<LanternContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<LanternContact>> =
       draw<LanternContact>("lantern", params, seed);
     // The fount up to the burner, the globe over it, the cap to the body's top, and the bail raised over all along X.
@@ -287,7 +242,11 @@ export namespace PracticalLightConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, hang, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, hang, 0),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "hook",
       aperture: wire,
@@ -296,14 +255,14 @@ export namespace PracticalLightConstruction {
     builder.affordance({
       id: "hook",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, hang, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, hang, 0)),
       extent: null,
     });
     builder.affordance({
       id: "light",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, foot, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, foot, 0)),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -311,40 +270,22 @@ export namespace PracticalLightConstruction {
 
   /**
    * The values {@link wick} accepts at this place in its signature.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the admitted values of one place in the signature of wick.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal values the construction handles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only wick and its callers read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It admits no value the construction does not handle.
    */
   export type WickKind = "candle" | "fireTorch";
 
   /**
    * The contact ids {@link wick} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of wick.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only wick and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type WickContact = "grip" | "light";
 
   /**
    * Build a candle or a fictional torch body with a light frame at the wick or animated tip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a candle or a fictional torch body with a light frame at the wick or animated tip.
-   * @evidence contracts/development/implementation.md#principled-implementation Match the shaft diameter and tip frame to the admitted dimensions. Keep the employed grip below the light.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wick and illuminated effect remain renderer bindings. Part colors apply only to the modeled body.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most two solids and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function wick(
     kind: WickKind,
     params: Omit<createLight.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<WickContact, createLight.Dimension> {
+  ): AutoMovieArchetype<WickContact, createLight.Dimension> {
     const { builder, d }: ReturnType<typeof draw<WickContact>> =
       draw<WickContact>(kind, params, seed);
     // A candle's taper, or a torch's shaft with its wick head at the top: the grip runs below the head.
@@ -362,7 +303,7 @@ export namespace PracticalLightConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, length / 2, 0),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -376,7 +317,7 @@ export namespace PracticalLightConstruction {
       id: "light",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(v(0, length, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, length, 0)),
       extent: null,
     });
     return builder.build(d.mass!);

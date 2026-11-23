@@ -7,11 +7,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * stationary bracing to its casing. Its lip articulations follow the slider.
  * Positive travel opens the pouch. The shift is in metres from the current
  * travel, so the same action can reverse a partially opened zipper.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the three contacts, model binding, sign, origin and timing.
- * @evidence contracts/development/design.md#principled-representation One signed scalar addresses a straight slider while model-owned followers determine the open side.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law reads the prop, opposing tab sites, stationary support, signed travel, duration and working side.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Authored model contacts and stop limits determine the fingertip goals and final state.
  */
 export interface IAutoMovieMotionHumanZip {
   /** Subject of the fixed pouch prop. */
@@ -29,9 +24,9 @@ export interface IAutoMovieMotionHumanZip {
   /** Nonzero signed displacement of the tab relative to its current position, metres. */
   travel: number;
 
-  /** Positive stroke duration at unit tempo, seconds. */
-  seconds: number;
+  /** Positive stroke duration at unit tempo, seconds. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
+  duration: number;
 
   /** Hand pulling the tab. Defaults to the right. */
-  side?: AutoMovieHumanSide;
+  hand?: AutoMovieHumanSide;
 }

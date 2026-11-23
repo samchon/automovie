@@ -22,14 +22,6 @@ import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
  * Under `cell`, two cells pair when their selection, second, view and pass agree; when both state a resolved camera and the cameras differ, the cells stay unmatched, because a view that fits itself to its subject can resolve to another camera. Under `time`, cells pair by second alone, as an encoded file against the source drawn at the same seconds. A pair whose stills name the same backend is measured by `compareAutoMovieRasters` at `tolerance`, and a changed pair gets `diff-<name>.png`, the newer picture dimmed with every changed pixel in magenta. A pair drawn by different or unstated backends is laid side by side without a difference image. A cell either capture failed to draw, a cell only one capture holds and a measured pair whose rasters differ are unmatched, each with the cause.
  *
  * Each entry takes three consecutive cells of the comparison sheets, the earlier still, this capture's still and the difference image, with a marked cell where a side or the difference is missing; rows and sheets hold whole entries, laid out for `budget` and named `comparison-001.png` onwards.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both matching rules and why the camera matters, when a pair is measured or laid side by side, every unmatched cause, what a sheet row holds and what files are written.
- * @evidence contracts/development/implementation.md#principled-implementation `.agents/skills/visual-debugging/comparison.md`: pair two cells only when everything but the compared thing agrees, and report a cell one capture lacks as unmatched with its cause; the campaign's renderer decision compares pixels only within one backend, since bit identity across backends is not documented.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Index the earlier rows by their key, decide every entry, claim the files, then read, measure and lay out each entry in order.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No picture is resampled to force a comparison, and an unmatched cell is never counted as unchanged.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the cells of both captures for the pairing, plus each pair's pixels once for decoding and measuring.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each pair is read and measured once.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One pair of decoded stills, one difference image and the comparison sheet being filled are held at a time.
  */
 export async function compareAutoMovieCaptureRounds(
   props: IAutoMovieCaptureComparisonProps,

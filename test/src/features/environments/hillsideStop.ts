@@ -20,10 +20,10 @@ import type {
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanRide,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanTravelLeaf,
   createHumanBody,
 } from "@automovie/motions";
 
@@ -216,7 +216,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   const opening: IAutoMovieMotion = bakeEnvironmentPerformance(
     new HumanPerformance({
       seed: "hillside-door",
-      laws: [HumanTravelLeaf.openDoor],
+      laws: [AutoMovieMotionHumanRide.travelLeaf.openDoor],
       props: [HumanObject.prop(doorId, door, doorAt(0), doorAt)],
       performers: [
         {
@@ -230,7 +230,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       composition: HumanChain.subject(opener.node).registered("openDoor", {
         door: doorId,
         handle: "pull",
-        seconds: swing.to + 0.2,
+        duration: swing.to + 0.2,
       }).node,
     }),
     opener,

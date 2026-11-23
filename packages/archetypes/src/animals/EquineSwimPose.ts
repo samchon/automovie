@@ -5,9 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineSwimStroke } from "./EquineSwimStroke";
-import { QuadrupedBody } from "./QuadrupedBody";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import type { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 
@@ -17,7 +17,7 @@ const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 /**
  * A floating horse's world pose at one second: the trunk carried level under a placement, the neck raised by an authored angle with the head riding it, and each limb at its own phase of its end's measured stroke (`EquineSwimStroke`).
  *
- * Each shoulder blade stays at rest, so the fore limb's stroke turns from the shoulder joint as before the blade existed. Each limb keeps its actual bar lengths and attachments. Its upper bone takes the stroke's slope, degrees from straight down toward the front; each lower bone then takes the included angle the stroke gives at the joint above it, in the source's landmark convention measured in the side view: the fore elbow on its dorsal side, the carpus and fetlock on their palmar side; the stifle on its caudal side, the tarsus on its dorsal side and the hind fetlock on its plantar side. A bar is turned only about the model's lateral axis, so a limb's lateral offset and the bar's own twist are unchanged.
+ * Each shoulder blade stays at rest, so the fore limb's stroke turns from the shoulder joint as before the blade existed. Each limb keeps its bar lengths and attachments. Its upper bone takes the stroke's slope, degrees from straight down toward the front; each lower bone then takes the included angle the stroke gives at the joint above it, in the source's landmark convention measured in the side view: the fore elbow on its dorsal side, the carpus and fetlock on their palmar side; the stifle on its caudal side, the tarsus on its dorsal side and the hind fetlock on its plantar side. A bar is turned only about the model's lateral axis, so a limb's lateral offset and the bar's own twist are unchanged.
  *
  * @param neutral The source's neutral model-space bone frames (`QuadrupedWorldPose`).
  * @param placement The trunk's carriage in the world: the neutral trunk frame placed by it.
@@ -25,24 +25,20 @@ const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @param neck The neck's raise above its neutral carriage about its root, degrees, positive up.
  * @returns The world pose.
  * @throws {RangeError} For a nonfinite phase or raise.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the carriage, the angle conventions of each joint, what is preserved and the units.
- * @evidence contracts/development/implementation.md#principled-implementation Planar forward kinematics in the sagittal view: each bar's side-view direction is its parent's turned by the supplement of the included angle, and each actual bar is rotated about the lateral axis by the difference from its neutral direction, so lengths, attachments and twist are exact.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Copy the neutral frames, raise the neck, pose four limbs proximal to distal, then express parent-local rotations.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No bar is stretched and no angle is clamped; the measured angles and authored slopes come from the stroke owner.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per bone, O(B) for the 23 bones.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of its inputs.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one fresh pose and retains nothing.
  */
 export function EquineSwimPose(
-  neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>,
+  neutral: ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    IAutoMovieTransform
+  >,
   placement: IAutoMovieTransform,
-  phases: Readonly<Record<QuadrupedBody.Limb, number>>,
+  phases: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>>,
   neck: number,
 ): QuadrupedWorldPose.IPose {
   if (!Number.isFinite(neck))
     throw new RangeError("A swimming neck raise must be finite degrees");
-  const frames: Map<QuadrupedBody.Bone, IAutoMovieTransform> = new Map(neutral);
+  const frames: Map<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> =
+    new Map(neutral);
 
   // The neck turns about its root and the head rides it.
   const raise: IAutoMovieQuaternion = Quaternion.fromAxisAngle(LATERAL, -neck);
@@ -62,7 +58,7 @@ export function EquineSwimPose(
     });
   }
 
-  for (const limb of QuadrupedBody.LIMBS) {
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
     const fore: boolean = limb.endsWith("Fore");
     const angles: EquineSwimStroke.IAngles = EquineSwimStroke(
       fore ? "fore" : "hind",
@@ -73,7 +69,8 @@ export function EquineSwimPose(
     const fronts: readonly number[] = fore
       ? [angles.upper, 360 - angles.middle, 360 - angles.lower]
       : [360 - angles.upper, angles.middle, 360 - angles.lower];
-    const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+    const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+      AutoMovieArchetypeQuadrupedBody.BONES[limb];
     let polar: number = angles.swing - 90;
     let origin: IAutoMovieVector3 = neutral.get(chain[0]!)!.translation;
     for (let k: number = 0; k < chain.length; k++) {
@@ -106,9 +103,10 @@ export function EquineSwimPose(
   }
 
   // Parent-local rotations of the posed model frames, the trunk placed in the world.
-  const local: Map<QuadrupedBody.Bone, IAutoMovieQuaternion> = new Map();
+  const local: Map<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieQuaternion> =
+    new Map();
   for (const [bone, frame] of frames) {
-    const parent: QuadrupedBody.Bone | null = PARENTS(bone);
+    const parent: AutoMovieArchetypeQuadrupedBody.Bone | null = PARENTS(bone);
     if (parent !== null)
       local.set(
         bone,
@@ -119,20 +117,23 @@ export function EquineSwimPose(
       );
   }
   return {
-    root: ArchetypeFrame.compose(placement, frames.get("trunk")!),
+    root: AutoMovieArchetypeFrame.compose(placement, frames.get("trunk")!),
     local,
   };
 }
 
-/** The shared quadruped tree's parent of a bone, as `QuadrupedSkeleton.of` builds it. */
-function PARENTS(bone: QuadrupedBody.Bone): QuadrupedBody.Bone | null {
+/** The shared quadruped tree's parent of a bone, as `AutoMovieArchetypeQuadrupedSkeleton.of` builds it. */
+function PARENTS(
+  bone: AutoMovieArchetypeQuadrupedBody.Bone,
+): AutoMovieArchetypeQuadrupedBody.Bone | null {
   if (bone === "trunk") return null;
   if (bone === "hindquarters" || bone === "neck") return "trunk";
   if (bone === "head") return "neck";
   if (bone === "tail") return "hindquarters";
   if (bone === "leftForeScapula" || bone === "rightForeScapula") return "trunk";
-  for (const limb of QuadrupedBody.LIMBS) {
-    const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+    const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+      AutoMovieArchetypeQuadrupedBody.BONES[limb];
     const index: number = chain.indexOf(bone);
     if (index > 0) return chain[index - 1]!;
     if (index === 0)

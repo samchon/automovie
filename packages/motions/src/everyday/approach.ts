@@ -107,7 +107,7 @@ export namespace approach {
    * @evidence contracts/development/common.md#meaningful-documentation States what is planned, the arrival correction, the returned plan and both refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The stop is the proxemic gap (Hall) measured from the sternum region along the line to the target, the partner's own measure for the handing gap; the walk law places whole footprints to it, and one correction moves the stop by the arriving sternum's measured gap error, since the walk's arrival lean shifts the chest off the standing estimate.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Computes the stop, then the waypoints through `abeam`, then delegates stepping to the walk law; the gap arithmetic lives in HumanProxemics and the chest lead in `chest`.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.002 m acceptance of the arrival error and the single correction are the law's precision policy, not a tuned case; the 0.5 m clearance is the cited personal space (`CLEARANCE`); Effort modifiers are clamped to the walk's own parameter ranges (`walk.STRIDE_RANGE`, `walk.ARM_SWING_RANGE`, `walk.ELBOWS_RANGE`). Limitation: the elbow modifier, in upper-arm lengths, is read as degrees by a factor of 100 that no source gives.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The 0.002 m acceptance of the arrival error and the single correction are the law's precision policy, not a tuned case; the 0.5 m clearance is the cited personal space (`CLEARANCE`); Effort modifiers are clamped to the walk's own parameter ranges (`walk.STRIDE_RANGE`, `walk.ARM_SWING_RANGE`, `walk.ELBOWS_RANGE`). The elbow modifier, an outward offset in upper-arm lengths, becomes the walk's added shoulder abduction by the arm's geometry: an upper arm abducted by an angle carries the elbow out by its length times the angle's sine, so the abduction is the arcsine of the offset over the upper arm, clamped to [-1, 1] (8.6 degrees for free flow's 0.15).
    * @evidence contracts/development/implementation.md#efficient-algorithms At most two walk plans and one posture evaluation for the arrival check, plus one aim per avoided person, linear in the avoid list; a tracked person adds `HORIZON / REST_STEP` (120) reads of their placed root and four more for their way.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns the first walk plan when its arrival is within tolerance instead of planning again; nothing is shared across instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only the returned walk plan, whose closures hold this instance's inputs and are released with the performance; the first plan is dropped when a corrected one replaces it.
@@ -179,7 +179,9 @@ export namespace approach {
       last.position.x - began.position.x,
       last.position.z - began.position.z,
     );
-    const off: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
+    const off: (p: IAutoMovieVector3) => number = (
+      p: IAutoMovieVector3,
+    ): number =>
       line < 1e-6
         ? Math.hypot(p.x - began.position.x, p.z - began.position.z)
         : Math.abs(
@@ -280,7 +282,7 @@ export namespace approach {
 
     // The stop: along the line from the start, or on a named side of a person.
     let stop: { at: IAutoMovieVector3; yaw: number };
-    if (p.side === undefined) {
+    if (p.from === undefined) {
       const now: number = Math.hypot(point.x - feet.x, point.z - feet.z) - lead;
       if (now < gap - 1e-9)
         throw new HumanRefusal({
@@ -296,15 +298,15 @@ export namespace approach {
       if (target.kind !== "person")
         throw new HumanRefusal({
           kind: "parameter",
-          axis: "side",
-          value: context.params.side,
+          axis: "from",
+          value: context.params.from,
           reason: `a side is a person's side; this target is a ${target.kind}`,
           fix: "leave side out for a target that is not a person",
         });
       const facing: number =
         (Math.atan2(aimed.normal.x, aimed.normal.z) * 180) / Math.PI;
       const turn: number = { front: 0, left: 90, right: -90, behind: 180 }[
-        p.side
+        p.from
       ];
       const out: IAutoMovieVector3 = HumanFrame.point(
         { origin: { x: 0, y: 0, z: 0 }, yaw: facing + turn },
@@ -326,7 +328,7 @@ export namespace approach {
     // Walk round people in the way: a waypoint abeam each one the straight leg would pass nearer than the clearance plus their half breadth, on the side that deviates least. The person approached is walked round too when the stop lies on a side of them the straight leg would reach through them.
     const round: string[] = [...(p.avoid ?? [])];
     if (
-      p.side !== undefined &&
+      p.from !== undefined &&
       target.kind === "person" &&
       !round.includes(target.subject)
     )
@@ -363,9 +365,26 @@ export namespace approach {
           ...(p.effort === undefined
             ? {}
             : {
-                stride: Math.min(walk.STRIDE_RANGE.maximum, Math.max(walk.STRIDE_RANGE.minimum, mods.step)),
-                armSwing: Math.min(walk.ARM_SWING_RANGE.maximum, Math.max(walk.ARM_SWING_RANGE.minimum, mods.swing)),
-                elbows: Math.min(walk.ELBOWS_RANGE.maximum, Math.max(walk.ELBOWS_RANGE.minimum, 100 * mods.elbow)),
+                stride: Math.min(
+                  walk.STRIDE_RANGE.maximum,
+                  Math.max(walk.STRIDE_RANGE.minimum, mods.step),
+                ),
+                armSwing: Math.min(
+                  walk.ARM_SWING_RANGE.maximum,
+                  Math.max(walk.ARM_SWING_RANGE.minimum, mods.swing),
+                ),
+                // The elbow modifier is an outward offset in upper-arm
+                // lengths, and an upper arm abducted by an angle carries the
+                // elbow out by its length times the angle's sine, so the
+                // offset over the upper arm is that sine.
+                elbows: Math.min(
+                  walk.ELBOWS_RANGE.maximum,
+                  Math.max(
+                    walk.ELBOWS_RANGE.minimum,
+                    (Math.asin(Math.min(1, Math.max(-1, mods.elbow))) * 180) /
+                      Math.PI,
+                  ),
+                ),
               }),
         },
       });

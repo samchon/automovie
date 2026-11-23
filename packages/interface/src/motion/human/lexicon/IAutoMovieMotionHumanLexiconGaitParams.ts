@@ -1,31 +1,24 @@
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
-import type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
-import type { IAutoMovieMotionHumanCover } from "./IAutoMovieMotionHumanCover";
-import type { IAutoMovieMotionHumanFrailWalk } from "./IAutoMovieMotionHumanFrailWalk";
-import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
-import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
-import type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
-import type { IAutoMovieMotionHumanTreeClimb } from "./IAutoMovieMotionHumanTreeClimb";
-import type { IAutoMovieMotionHumanSkydive } from "./IAutoMovieMotionHumanSkydive";
+import type { IAutoMovieMotionHumanCrabWalk } from "../floor/IAutoMovieMotionHumanCrabWalk";
+import type { IAutoMovieMotionHumanCover } from "../next/IAutoMovieMotionHumanCover";
+import type { IAutoMovieMotionHumanCrossing } from "../next/IAutoMovieMotionHumanCrossing";
+import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanEdgeRescue } from "./IAutoMovieMotionHumanEdgeRescue";
 import type { IAutoMovieMotionHumanEnvironmentRecovery } from "./IAutoMovieMotionHumanEnvironmentRecovery";
-import type { IAutoMovieMotionHumanGait } from "./IAutoMovieMotionHumanGait";
-import type { IAutoMovieMotionHumanCrabWalk } from "../floor/IAutoMovieMotionHumanCrabWalk";
+import type { IAutoMovieMotionHumanFrailWalk } from "./IAutoMovieMotionHumanFrailWalk";
+import type { IAutoMovieMotionHumanRope } from "./IAutoMovieMotionHumanRope";
+import type { IAutoMovieMotionHumanSkydive } from "./IAutoMovieMotionHumanSkydive";
+import type { IAutoMovieMotionHumanStuntFall } from "./IAutoMovieMotionHumanStuntFall";
 import type { IAutoMovieMotionHumanTravelCar } from "./IAutoMovieMotionHumanTravelCar";
 import type { IAutoMovieMotionHumanTravelCarExit } from "./IAutoMovieMotionHumanTravelCarExit";
 import type { IAutoMovieMotionHumanTravelDoor } from "./IAutoMovieMotionHumanTravelDoor";
 import type { IAutoMovieMotionHumanTravelLeaf } from "./IAutoMovieMotionHumanTravelLeaf";
+import type { IAutoMovieMotionHumanTreeClimb } from "./IAutoMovieMotionHumanTreeClimb";
+import type { IAutoMovieMotionHumanWallRun } from "./IAutoMovieMotionHumanWallRun";
 
 /**
  * Open parameters of the gait lexicon family, keyed by each runtime export name.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The gait family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the gait row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconGaitParams {
   /** A stroll: slow, the stride a little short, the arms easy. */

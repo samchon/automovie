@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -11,12 +11,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanPrehension,
   HumanObject,
   HumanPerformance,
-  putDownAperture,
 } from "@automovie/motions";
 
 import { motionHumanLaw } from "./motionHumanLaw";
+
+const { putDownAperture } = AutoMovieMotionHumanPrehension;
 
 /**
  * Shared staging and readers for the household workflow specifications: one
@@ -102,7 +104,7 @@ export namespace householdFilm {
    */
   export function fixed(
     id: string,
-    model: Archetype,
+    model: AutoMovieArchetype,
     at: IAutoMovieVector3,
     yaw: number = 0,
   ): IAutoMovieMotionHumanProp {

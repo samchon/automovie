@@ -80,6 +80,8 @@ const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
  * @evidence contracts/development/design.md#principled-representation One base action owning the whole body over the horse's moving frame; the near hand's grip is declared over the whole action.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Reuses the aquatic posture keys, the water's trim, the rider's grip resolver and arm hold; no horse course is planned here.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The float follows the horse's actual held part each second; a blocked side, an unreachable part and a missed grip are refused.
+ *
+ * The author gives the total `seconds` and the `transition` into the float; a flutter kick cycle is provisional (missing a measured swimmer's kick rate).
  */
 export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFloatBeside> =
   {
@@ -105,7 +107,7 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         hold = "mane",
         water,
         blocked = [],
-        seconds,
+        duration: seconds,
         transition,
       } = context.params;
       const body: IAutoMovieMotionHumanBody = context.body;
@@ -160,7 +162,10 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
       const first: IAutoMovieRigidTransform = support.frame(context.start);
       const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
-        { ...context, params: { on, seconds, hands: { [near]: hold } } },
+        {
+          ...context,
+          params: { on, duration: seconds, hands: { [near]: hold } },
+        },
         on,
         support,
         entry,
@@ -372,11 +377,13 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
             grip.axis === undefined
               ? undefined
               : Vector3.cross(grip.axis, grip.normal);
+          // The fingers keep the side the hold was taken on (`sideRideGrips`, chosen once where it begins): a side re-taken against the floating torso's heading at every second would turn the hand over on the part.
           const turn: NonNullable<HumanRideHands.IMaterialGrip["across"]> =
-            across !== undefined &&
+            grip.across ??
+            (across !== undefined &&
             Vector3.dot(across, HumanFrame.forward(torso.yaw)) < 0
               ? -1
-              : 1;
+              : 1);
           const seated: HumanRideHands.IMaterialGrip =
             across === undefined || Vector3.length(across) < 1e-6
               ? { ...grip, palmDepth: depth }

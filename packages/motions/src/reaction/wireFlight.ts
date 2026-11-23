@@ -1,12 +1,10 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  AutoMovieHumanLimb,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanLean,
   IAutoMovieMotionHumanPosture,
@@ -15,6 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { stand } from "../actions/stand";
+import { standUpright } from "../actions/standUpright";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoints";
@@ -23,16 +23,24 @@ import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { ReactionFeet } from "./ReactionFeet";
+import { wireFlightTouches } from "./wireFlightTouches";
 
 /**
  * A wire flight along an authored path (`IAutoMovieMotionHumanWireFlight`).
  * The root moves along the polyline from the entry root through the
  * waypoints to the end by arc length on one minimum-jerk profile (Flash and
- * Hogan 1985), so it starts and ends at rest, and the shape blends in over
- * the first quarter of the flight and out over the last. The heading turns
- * to the horizontal travel of the whole path. No gravity is checked: the
+ * Hogan 1985), so it starts and ends at rest; the feet stay planted over
+ * `LIFT`, a heel rising about its ball once its leg has straightened under
+ * the rising body, and the shape blends in over
+ * the first quarter of the flight and out over the last, from and back to
+ * the quiet stance's joints: the column upright and the arms hanging
+ * relaxed with their digits clear of the thighs (`stand.relaxed`), so a
+ * flight lands in the stance the stand law holds. The heading turns
+ * the body's front-back line onto the horizontal travel of the whole path
+ * by the shorter turn (a travel behind is flown backward), once the wire has taken the
+ * weight and the feet have left the floor, by the end of the first quarter:
+ * planted feet hold the heading, which the hips cannot turn far. No gravity is checked: the
  * flight is staged on wires.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the path, the profile, the shape blend and the heading.
@@ -55,7 +63,7 @@ export namespace wireFlight {
    * @throws {HumanRefusal} On `seconds` when not positive and finite, and on `to` when the path has no length.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The arc length s(t) = L * minimumJerk(t / T) placed on the polyline's segments; the shape blends by the same profile at each end.
+   * @evidence contracts/development/implementation.md#principled-implementation The arc length s(t) = L * minimumJerk(t / T) placed on the polyline's segments; the planted feet are held over `LIFT`, a heel rising about its ball once its leg is straight (`ReactionFeet.hold`); the shape blends from the quiet stance's joints by a minimum-jerk weight at each end.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, build the polyline, then evaluate each posture in closed form.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A flight with no length or time is refused, never stretched.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the waypoints at plan time; a scan of the segments per sample.
@@ -65,11 +73,11 @@ export namespace wireFlight {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const seconds: number = context.params.seconds;
+    const seconds: number = context.params.duration;
     if (!(seconds > 0) || !Number.isFinite(seconds))
       throw new HumanRefusal({
         kind: "parameter",
-        axis: "seconds",
+        axis: "duration",
         value: seconds,
         feasible: {
           kind: "range",
@@ -112,8 +120,23 @@ export namespace wireFlight {
       Math.hypot(travel.x, travel.z) > 1e-6
         ? (Math.atan2(travel.x, travel.z) * 180) / Math.PI
         : entry.yaw;
-    const turn: number = wrap(heading - entry.yaw);
+    // The body's front-back line is laid on the travel by the shorter turn:
+    // a travel behind the body is flown backward, facing as it stood, as a
+    // performer yanked back on a wire is, never turned about on the spot. A
+    // lift whose end lies a few centimetres behind the stance's root (the
+    // stand holds its root ahead of the feet) is thus no half turn.
+    const facing: number = wrap(heading - entry.yaw);
+    const turn: number =
+      Math.abs(facing) > 90 ? wrap(facing - 180) : facing;
     const shape: IShape = SHAPES[context.params.shape ?? "hover"];
+    // The quiet stance the flight leaves and lands in: the column upright
+    // and the arms hanging relaxed, digits clear of the thighs
+    // (`stand.relaxed`). The shape's authored angles are blended toward from
+    // it, so a bone the shape does not name keeps its hanging angle.
+    const quiet: IAutoMovieMotionHumanPosture["joints"] = {
+      ...stand.relaxed(context.body),
+      ...standUpright.of(context.body).joints,
+    };
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(seconds, [
       { name: "takeoff", seconds: 0 },
       { name: "land", seconds },
@@ -130,6 +153,13 @@ export namespace wireFlight {
         Vector3.scale(Vector3.subtract(points[k]!, points[k - 1]!), u),
       );
     };
+    // The arc length gone at a second, on one minimum-jerk profile.
+    const gone = (t: number): number =>
+      total * minimumJerk.share(t / seconds);
+    // The feet stay planted while the wire takes the weight (`LIFT`), the
+    // heels rising as the body rises past the straightened legs, then leave
+    // the floor.
+    const release: number = LIFT * seconds;
     // The shape's weight: in over the first quarter, out over the last.
     const weight = (t: number): number => {
       const u: number = t / seconds;
@@ -149,7 +179,7 @@ export namespace wireFlight {
             yaw: entry.yaw,
             pitch: 0,
             roll: 0,
-            joints: {},
+            joints: quiet,
             limbs: {},
           },
           [],
@@ -166,9 +196,7 @@ export namespace wireFlight {
               t: number,
               _before?: IAutoMovieMotionHumanPrimitive.Reader,
             ): IAutoMovieMotionHumanPosture => {
-              const at: IAutoMovieVector3 = along(
-                total * minimumJerk(Math.min(1, Math.max(0, t / seconds))).s,
-              );
+              const at: IAutoMovieVector3 = along(gone(t));
               const offset: IAutoMovieVector3 = Vector3.subtract(
                 at,
                 entry.root,
@@ -181,7 +209,13 @@ export namespace wireFlight {
                   ),
                   y: offset.y,
                 },
-                yaw: turn * Math.min(1, (4 * t) / seconds),
+                // The planted feet hold the heading until they leave the
+                // floor (`release`): a turn under planted feet would twist
+                // the hips past their range. Released, the body turns by
+                // the end of the flight's first quarter.
+                yaw:
+                  turn *
+                  minimumJerk.share((t - release) / (0.25 * seconds - release)),
               });
             },
           },
@@ -198,14 +232,19 @@ export namespace wireFlight {
             from: 0,
             to: seconds,
             delta: (t: number): IAutoMovieMotionHumanJoints.Angles => {
+              // The part of the way from the quiet angle to the shape's.
               const w: number = weight(t);
               const out: IAutoMovieMotionHumanJoints.Angles = {};
-              for (const [bone, angles] of Object.entries(shape.joints))
+              for (const [bone, angles] of Object.entries(shape.joints)) {
+                const from: readonly [number, number, number] = quiet[
+                  bone as keyof IAutoMovieMotionHumanPosture["joints"]
+                ] ?? [0, 0, 0];
                 out[bone as keyof IAutoMovieMotionHumanJoints.Angles] = [
-                  angles![0] * w,
-                  angles![1] * w,
-                  angles![2] * w,
+                  (angles![0] - from[0]) * w,
+                  (angles![1] - from[1]) * w,
+                  (angles![2] - from[2]) * w,
                 ];
+              }
               return out;
             },
           }),
@@ -213,8 +252,9 @@ export namespace wireFlight {
       });
     const touches: readonly IAutoMovieMotionHumanWireFlight.ITouch[] =
       context.params.touches ?? [];
-    // The feet stay flat where they stood while the wire takes the weight,
-    // the flight's first `LIFT` share, then rise with the body.
+    // The feet stay where they stood while the wire takes the weight, until
+    // `release`, a heel rising once its leg has straightened under the rising
+    // body (`ReactionFeet.hold`'s heels), then rise with the body.
     const held: IAutoMovieMotionHumanActionPlan = ReactionFeet.hold(
       {
         ...plan,
@@ -223,163 +263,36 @@ export namespace wireFlight {
       },
       context.entry,
       context.body,
-      LIFT * seconds,
+      release,
       0.5 * context.body.measure.hipHeight,
+      true,
     );
     if (touches.length === 0) return held;
-
-    // Each touch: the hand or the foot meets its surface around its share,
-    // coming in and going out over `TOUCH` on either side.
-    const window: number = Math.min(TOUCH, seconds / 4);
-    const root: (t: number) => IAutoMovieVector3 = (
-      t: number,
-    ): IAutoMovieVector3 =>
-      along(total * minimumJerk(Math.min(1, Math.max(0, t / seconds))).s);
-    const placed: readonly IPlaced[] = touches.map(
-      (touch: IAutoMovieMotionHumanWireFlight.ITouch, k: number): IPlaced => {
-        if (!(touch.at >= 0 && touch.at <= 1))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: `touches.${k}.at`,
-            value: touch.at,
-            feasible: { kind: "range", unit: "share", minimum: 0, maximum: 1 },
-            reason: "a touch happens at a share of the flight",
-            fix: "give a share between 0 and 1",
-          });
-        const at: number = touch.at * seconds;
-        const leg: boolean =
-          touch.part === "leftFoot" || touch.part === "rightFoot";
-        const aim: ReturnType<typeof context.aim> = context.aim(
-          touch.target,
-          context.start + at,
-        );
-        // The hip or the shoulder, from the root along the body's axis.
-        const base: IAutoMovieVector3 = Vector3.add(root(at), {
-          x: 0,
-          y: leg
-            ? context.body.measure.hipHeight
-            : SHOULDER * context.body.measure.stature,
-          z: 0,
-        });
-        const reach: number = leg
-          ? context.body.measure.hipHeight
-          : context.body.measure.upperArm + context.body.measure.forearm;
-        const gap: number = Vector3.distance(base, aim.point);
-        if (gap > reach)
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: `touches.${k}.target`,
-            value: gap,
-            feasible: { kind: "range", unit: "m", minimum: 0, maximum: reach },
-            reason: `the ${touch.part} would meet its surface ${gap.toFixed(2)} m from its joint on the path; it reaches ${reach.toFixed(2)} m`,
-            fix: "bring the path closer to the surface at that share",
-          });
-        return {
-          touch,
-          at,
-          leg,
-          point: Vector3.add(
-            aim.point,
-            Vector3.scale(
-              aim.normal,
-              leg ? ANKLE * context.body.measure.stature : PALM,
-            ),
-          ),
-        };
-      },
+    // Each touch: the hand or the foot meets its surface around its share
+    // (`wireFlightTouches`).
+    return wireFlightTouches.apply(
+      context,
+      held,
+      seconds,
+      (t: number): IAutoMovieVector3 => along(gone(t)),
+      touches,
     );
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      ...held.contacts,
-      ...placed.flatMap((p: IPlaced): IAutoMovieMotionHumanContactWindow[] =>
-        p.touch.target.kind === "prop"
-          ? [
-              {
-                part: p.touch.part,
-                kind: "plant",
-                from: Math.max(0, p.at - window / 4) / seconds,
-                to: Math.min(seconds, p.at + window / 4) / seconds,
-                support: { kind: "prop", subject: p.touch.target.subject },
-              },
-            ]
-          : [],
-      ),
-    ];
-    return {
-      ...held,
-      contacts,
-      physicalWindow: null,
-      posture: (
-        seconds_: number,
-        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-      ): IAutoMovieMotionHumanPosture => {
-        let posture: IAutoMovieMotionHumanPosture = held.posture(
-          seconds_,
-          channels,
-          resolution,
-          projection,
-        );
-        for (const p of placed) {
-          // Full on its surface for the plateau the contact spans, ramping in
-          // and out over `window` on either side of it.
-          const w: number = Math.min(
-            1,
-            Math.max(0, 1 - (Math.abs(seconds_ - p.at) - window / 4) / window),
-          );
-          if (w <= 0) continue;
-          const limb: AutoMovieHumanLimb = `${p.touch.part.startsWith("left") ? "left" : "right"}${p.leg ? "Leg" : "Arm"}`;
-          posture = mixHumanPosture(
-            posture,
-            {
-              ...posture,
-              limbs: {
-                ...posture.limbs,
-                [limb]: {
-                  point: p.point,
-                  bend: Vector3.add(p.point, {
-                    x: 0,
-                    y: p.leg ? 0.3 : -0.2,
-                    z: 0,
-                  }),
-                  planted: w >= 1,
-                },
-              },
-            },
-            minimumJerk.share(w),
-          );
-        }
-        return posture;
-      },
-    };
   }
 
-  /** The share of the flight the feet stay planted for while the wire takes the weight: authored. */
+  /** The share of the flight the feet stay planted for while the wire takes the weight: authored; a foot whose leg straightens before it raises its heel. */
   export const LIFT: number = 0.08;
 
-  /** How long a touch comes in before its share and goes out after, seconds: authored. */
-  export const TOUCH: number = 0.3;
+  /** How long a touch comes in before its share and goes out after, seconds (`wireFlightTouches.TOUCH`). */
+  export const TOUCH: number = wireFlightTouches.TOUCH;
 
-  /** The shoulder's height on a standing body, in statures (Drillis and Contini 1966: 0.818). */
-  export const SHOULDER: number = 0.818;
+  /** The shoulder's height on a standing body, in statures (`wireFlightTouches.SHOULDER`). */
+  export const SHOULDER: number = wireFlightTouches.SHOULDER;
 
-  /** The ankle's height above the sole, in statures (Drillis and Contini 1966: 0.039). */
-  export const ANKLE: number = 0.039;
+  /** The ankle's height above the sole, in statures (`wireFlightTouches.ANKLE`). */
+  export const ANKLE: number = wireFlightTouches.ANKLE;
 
-  /** How far the wrist stands off a surface the palm lies on, metres: a palm's half thickness. */
-  export const PALM: number = 0.015;
-
-  /** One touch placed on the flight. */
-  interface IPlaced {
-    /** The authored touch. */
-    touch: IAutoMovieMotionHumanWireFlight.ITouch;
-    /** Its second in the flight. */
-    at: number;
-    /** Whether a foot touches. */
-    leg: boolean;
-    /** The wrist's or the ankle's goal there, world metres. */
-    point: IAutoMovieVector3;
-  }
+  /** How far the wrist stands off a surface the palm lies on, metres (`wireFlightTouches.PALM`). */
+  export const PALM: number = wireFlightTouches.PALM;
 
   /** One flight shape: the body's pitch and joint angles, degrees (provisional stage readings). */
   interface IShape {

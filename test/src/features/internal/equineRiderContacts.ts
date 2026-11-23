@@ -13,7 +13,7 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanHand } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 
 /**
  * How far a rider's displayed palm is from a horse's held contact: a round bar such as the mane, or a rein-kind line.

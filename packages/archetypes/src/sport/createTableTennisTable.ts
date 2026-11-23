@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -33,20 +33,18 @@ import {
 export function createTableTennisTable(
   params: createTableTennisTable.IParams = {},
   seed?: number | string,
-): Archetype<createTableTennisTable.Affordance, never> {
-  const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession(
-    "tableTennisTable",
-    {},
-    seed,
-    {},
-  );
-  const builder: ArchetypeBuilder<createTableTennisTable.Affordance, never> =
-    new ArchetypeBuilder({
-      material: "wood",
-      id: params.id,
-      name: "table tennis table",
-      draw,
-    });
+): AutoMovieArchetype<createTableTennisTable.Affordance, never> {
+  const draw: AutoMovieArchetypeDrawSession<never> =
+    new AutoMovieArchetypeDrawSession("tableTennisTable", {}, seed, {});
+  const builder: AutoMovieArchetypeBuilder<
+    createTableTennisTable.Affordance,
+    never
+  > = new AutoMovieArchetypeBuilder({
+    material: "wood",
+    id: params.id,
+    name: "table tennis table",
+    draw,
+  });
   const { LENGTH, WIDTH, HEIGHT, NET } = createTableTennisTable;
   const top: number = 0.025;
   const leg: number = 0.05;
@@ -77,7 +75,7 @@ export function createTableTennisTable(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, HEIGHT, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, HEIGHT, 0)),
     extent: null,
     width: WIDTH,
     depth: LENGTH,
@@ -85,7 +83,7 @@ export function createTableTennisTable(
   builder.affordance({
     id: "net",
     kind: "socket",
-    frame: ArchetypeFrame.upright(Vector3.create(0, HEIGHT + NET, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, HEIGHT + NET, 0)),
     extent: null,
   });
   for (const [id, z] of [
@@ -95,7 +93,7 @@ export function createTableTennisTable(
     builder.affordance({
       id,
       kind: "socket",
-      frame: ArchetypeFrame.upright(Vector3.create(0, HEIGHT, z)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, HEIGHT, z)),
       extent: null,
     });
 

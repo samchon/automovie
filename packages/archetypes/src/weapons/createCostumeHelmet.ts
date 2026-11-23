@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { ArmourHelmet } from "./ArmourHelmet";
 import { CostumeConstruction } from "./CostumeConstruction";
 import type { createArmour } from "./createArmour";
@@ -11,7 +11,7 @@ import type { createArmour } from "./createArmour";
  * @param params The scene id and optional measurements and model choice of this costume.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names this independent costume form and what supports it.
  * @evidence contracts/development/implementation.md#principled-implementation Separates this costume cell generator from the common museum record and optional body fit.
@@ -24,7 +24,10 @@ import type { createArmour } from "./createArmour";
 export function createCostumeHelmet(
   params: createCostumeHelmet.IParams,
   seed?: number | string,
-): Archetype<createCostumeHelmet.Affordance, createCostumeHelmet.Dimension> {
+): AutoMovieArchetype<
+  createCostumeHelmet.Affordance,
+  createCostumeHelmet.Dimension
+> {
   const kind: createCostumeHelmet.Kind = ArchetypeDraw.choice(
     "armour",
     "kind",

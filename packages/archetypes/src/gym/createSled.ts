@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** What no source read gives. */
@@ -22,7 +22,7 @@ const UNREAD: string =
  * @param params The sled model and any dimension the author fixes.
  * @param seed The seed that draws the model when it is not given and every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The sled.
- * @throws {ArchetypeRefusal} For a model Rogue does not list or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a model Rogue does not list or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the sled stands, which way it is pushed and its three contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A base box of one Rogue sled's length and width, and two pole rods from its back corners up to that sled's handle height, the drawn spacing apart; each handle is the pole's top, a hand's breadth below its end.
@@ -35,9 +35,9 @@ const UNREAD: string =
 export function createSled(
   params: createSled.IParams = {},
   seed?: number | string,
-): Archetype<createSled.Affordance, createSled.Dimension> {
-  const draw: ArchetypeDrawSession<createSled.Dimension> =
-    new ArchetypeDrawSession<createSled.Dimension>(
+): AutoMovieArchetype<createSled.Affordance, createSled.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSled.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSled.Dimension>(
       "sled",
       createSled.UNITS,
       seed,
@@ -54,13 +54,15 @@ export function createSled(
   const width: number = d.width!;
   const length: number = d.length!;
   const height: number = d.height!;
-  const builder: ArchetypeBuilder<createSled.Affordance, createSled.Dimension> =
-    new ArchetypeBuilder({
-      material: "steel",
-      id: params.id,
-      name: `push sled ${model.name}`,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createSled.Affordance,
+    createSled.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "steel",
+    id: params.id,
+    name: `push sled ${model.name}`,
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const base: number = createSled.BASE;
   const pole: number = createSled.POLE;
@@ -80,7 +82,7 @@ export function createSled(
       id,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(x, height - createSled.HAND, pole),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -94,7 +96,7 @@ export function createSled(
   builder.affordance({
     id: "deck",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, base, length / 2)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, base, length / 2)),
     extent: null,
     width,
     depth: length,
@@ -139,7 +141,9 @@ export namespace createSled {
   export type Dimension = "height" | "spacing" | "length" | "width" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     spacing: "m",
     length: "m",
@@ -155,16 +159,16 @@ export namespace createSled {
     Record<Model, Readonly<Partial<Record<Dimension, number>>>>
   > = {
     Slice: {
-      length: 27.5 * ArchetypeUnits.INCH,
-      width: 22.75 * ArchetypeUnits.INCH,
-      height: 37.25 * ArchetypeUnits.INCH,
-      mass: 65 * ArchetypeUnits.POUND,
+      length: 27.5 * AutoMovieArchetypeUnits.INCH,
+      width: 22.75 * AutoMovieArchetypeUnits.INCH,
+      height: 37.25 * AutoMovieArchetypeUnits.INCH,
+      mass: 65 * AutoMovieArchetypeUnits.POUND,
     },
     "Echo Dog": {
-      length: 36.5 * ArchetypeUnits.INCH,
-      width: 25 * ArchetypeUnits.INCH,
-      height: 37.5 * ArchetypeUnits.INCH,
-      mass: 87 * ArchetypeUnits.POUND,
+      length: 36.5 * AutoMovieArchetypeUnits.INCH,
+      width: 25 * AutoMovieArchetypeUnits.INCH,
+      height: 37.5 * AutoMovieArchetypeUnits.INCH,
+      mass: 87 * AutoMovieArchetypeUnits.POUND,
     },
   };
 
@@ -178,8 +182,8 @@ export namespace createSled {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<"spacing", IArchetypeBand>> = {
+  export const BANDS: Readonly<Record<"spacing", IAutoMovieArchetypeBand>> = {
     // Inside the narrowest base less a pole, so both poles stand on it.
-    spacing: ArchetypeBand.metres(0.45, 0.53, UNREAD, true),
+    spacing: AutoMovieArchetypeBand.metres(0.45, 0.53, UNREAD, true),
   };
 }

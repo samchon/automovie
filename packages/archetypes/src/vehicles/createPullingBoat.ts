@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { BoatConstruction } from "./BoatConstruction";
 import { BoatHull } from "./BoatHull";
 import { createBoat } from "./createBoat";
@@ -11,10 +11,10 @@ import { createBoat } from "./createBoat";
  * @param params The scene identity and this hull's accepted dimensions and catalogue choices.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the waterline frame and its working seats.
- * @evidence contracts/development/implementation.md#principled-implementation Builds the shared hull before fitting this boat's actual thwarts and model-space working contacts.
+ * @evidence contracts/development/implementation.md#principled-implementation Builds the shared hull before fitting this boat's thwarts and model-space working contacts.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Keeps the hull shared and assembles this boat's interior in its own function.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserves the measured or explicitly provisional figures recorded by the geometry owner.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds the selected profile once.
@@ -24,7 +24,10 @@ import { createBoat } from "./createBoat";
 export function createPullingBoat(
   params: createPullingBoat.IParams = {},
   seed?: number | string,
-): Archetype<createPullingBoat.Affordance, createPullingBoat.Dimension> {
+): AutoMovieArchetype<
+  createPullingBoat.Affordance,
+  createPullingBoat.Dimension
+> {
   return BoatConstruction("launch", params, seed, outfit);
 }
 

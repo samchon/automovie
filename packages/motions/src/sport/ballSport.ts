@@ -238,7 +238,7 @@ export namespace ballSport {
     let thrown: ReturnType<typeof throwInRelease> = undefined;
     switch (p.kind) {
       case "dribble": {
-        const side: "left" | "right" = p.side ?? "right";
+        const side: "left" | "right" = p.hand ?? "right";
         primitives.push(
           crouch(0.05, 15),
           ...AutoMovieMotionHumanPlaced.arm({

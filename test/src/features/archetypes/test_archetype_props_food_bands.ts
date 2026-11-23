@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createFood,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -46,16 +46,16 @@ export function test_archetype_props_food_bands(): void {
   const findings: string[] = archetypeBandSweep([
     row(
       "apple diameter",
-      2.5 * ArchetypeUnits.INCH,
-      3.25 * ArchetypeUnits.INCH,
+      2.5 * AutoMovieArchetypeUnits.INCH,
+      3.25 * AutoMovieArchetypeUnits.INCH,
       APPLE,
       (seed: number): number =>
         archetypeExtent(createFood({ kind: "apple" }, seed), "x").size,
     ),
     row(
       "apple grip",
-      2.5 * ArchetypeUnits.INCH,
-      3.25 * ArchetypeUnits.INCH,
+      2.5 * AutoMovieArchetypeUnits.INCH,
+      3.25 * AutoMovieArchetypeUnits.INCH,
       APPLE,
       (seed: number): number =>
         createFood({ kind: "apple" }, seed).affordance("grip").aperture!,
@@ -69,32 +69,32 @@ export function test_archetype_props_food_bands(): void {
     ),
     row(
       "loaf length",
-      8.5 * ArchetypeUnits.INCH,
-      14.75 * ArchetypeUnits.INCH,
+      8.5 * AutoMovieArchetypeUnits.INCH,
+      14.75 * AutoMovieArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
         archetypeExtent(createFood({ kind: "bread" }, seed), "x").size,
     ),
     row(
       "loaf width",
-      4.25 * ArchetypeUnits.INCH,
-      4.5 * ArchetypeUnits.INCH,
+      4.25 * AutoMovieArchetypeUnits.INCH,
+      4.5 * AutoMovieArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
         archetypeExtent(createFood({ kind: "bread" }, seed), "z").size,
     ),
     row(
       "loaf height",
-      2.75 * ArchetypeUnits.INCH,
-      4.25 * ArchetypeUnits.INCH,
+      2.75 * AutoMovieArchetypeUnits.INCH,
+      4.25 * AutoMovieArchetypeUnits.INCH,
       BREAD,
       (seed: number): number =>
         archetypeExtent(createFood({ kind: "bread" }, seed), "y").size,
     ),
     row(
       "loaf mass",
-      ArchetypeUnits.POUND,
-      32 * ArchetypeUnits.OUNCE,
+      AutoMovieArchetypeUnits.POUND,
+      32 * AutoMovieArchetypeUnits.OUNCE,
       BREAD,
       (seed: number): number => createFood({ kind: "bread" }, seed).body.mass,
     ),
@@ -144,7 +144,7 @@ export function test_archetype_props_food_bands(): void {
       if (
         Math.abs(bite.frame.translation.x - archetypeExtent(end, "x").low) >
           1e-9 ||
-        Math.abs(ArchetypeFrame.axis(bite.frame, "y").x + 1) > 1e-12
+        Math.abs(AutoMovieArchetypeFrame.axis(bite.frame, "y").x + 1) > 1e-12
       )
         findings.push(`${end.name}@${seed}: the bite is off its -X end`);
     }
@@ -152,7 +152,7 @@ export function test_archetype_props_food_bands(): void {
     if (
       Math.abs(side.frame.translation.z - archetypeExtent(apple, "z").high) >
         1e-9 ||
-      Math.abs(ArchetypeFrame.axis(side.frame, "y").z - 1) > 1e-12
+      Math.abs(AutoMovieArchetypeFrame.axis(side.frame, "y").z - 1) > 1e-12
     )
       findings.push(`apple@${seed}: the bite is off its +Z side`);
 
@@ -168,7 +168,7 @@ export function test_archetype_props_food_bands(): void {
       Math.abs(knuckle.high - archetypeExtent(drumstick, "x").high) > 1e-9 ||
       grip.frame.translation.x < knuckle.low ||
       grip.frame.translation.x > knuckle.high ||
-      Math.abs(ArchetypeFrame.axis(grip.frame, "x").x - 1) > 1e-12 ||
+      Math.abs(AutoMovieArchetypeFrame.axis(grip.frame, "x").x - 1) > 1e-12 ||
       Math.abs(
         grip.aperture! - archetypeExtent(drumstick, "y", ["knuckle"]).size,
       ) > 1e-9
@@ -216,7 +216,7 @@ export function test_archetype_props_food_bands(): void {
       findings.push(`loaf@${seed}: the halves or their holds are off`);
     if (
       !(travel > 0) ||
-      Math.abs(ArchetypeFrame.axis(tear.frame, "x").x - 1) > 1e-12 ||
+      Math.abs(AutoMovieArchetypeFrame.axis(tear.frame, "x").x - 1) > 1e-12 ||
       Math.abs(moved.low - travel) > 1e-9 ||
       Math.abs(kept.low - half.low) > 1e-9 ||
       Math.abs(kept.high - half.high) > 1e-9 ||

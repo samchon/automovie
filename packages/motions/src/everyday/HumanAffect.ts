@@ -326,7 +326,7 @@ export namespace HumanAffect {
   export function layer(
     displays: readonly IAutoMovieMotionHumanAffect.IDisplay[],
   ): IAutoMovieMotionHumanLayer {
-    for (const d of displays) admit(d.kind, d.seconds ?? LENGTH[d.kind]);
+    for (const d of displays) admit(d.kind, d.duration ?? LENGTH[d.kind]);
     return {
       name: "affect",
 
@@ -343,10 +343,10 @@ export namespace HumanAffect {
         };
         let active: boolean = false;
         for (const d of displays) {
-          const length: number = d.seconds ?? LENGTH[d.kind];
+          const length: number = d.duration ?? LENGTH[d.kind];
           const kind: IAutoMovieMotionHumanAffect.Kind = d.kind;
           const elapsed: number = seconds - d.at;
-          const intensity: number = d.intensity ?? 1;
+          const intensity: number = d.amplitude ?? 1;
           if (!(elapsed > 0 && elapsed < length)) continue;
           active = true;
           pattern(

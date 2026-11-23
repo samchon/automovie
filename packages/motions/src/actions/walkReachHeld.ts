@@ -10,11 +10,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 /**
  * The pelvis tilted with the trunk about the hips, the tilt a walk's ground
  * solve settles its lowering on (`walkReach.ground`'s `tilt`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read and who reads it.
- * @evidence contracts/development/design.md#principled-representation The pelvis's tilt apart from the walk's own settling.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One tilt, read by `StaggerFeet`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pivot is the body's own hips bone.
  */
 export namespace walkReachHeld {
   /**
@@ -28,14 +23,6 @@ export namespace walkReachHeld {
    * @param joints The upright hip joints under that root, world metres.
    * @param trunk The posture's added pitch and roll, degrees.
    * @returns The pelvis's world rotation and the tilted hip joints.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the hips pivot, world-metre geometry and added trunk angles.
-   * @evidence contracts/development/implementation.md#principled-implementation The rigid turn from the upright heading to the tilted one, rotation times the upright's inverse, applied to each hip joint about the hips bone at the root plus its rotated rest offset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One turn and one pivot serve both hip joints.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the body's rest hips bone and the posture's heading convention without a changed angle or position.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work: two heading quaternions, one inverse and two joint rotations.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the posture's heading owner; each call evaluates its own root, joints and trunk.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh records and retains nothing.
    */
   export function tilt(
     body: IAutoMovieMotionHumanBody,

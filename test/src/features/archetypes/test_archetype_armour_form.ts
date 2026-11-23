@@ -1,6 +1,6 @@
 import {
-  ArchetypeDensity,
-  ArchetypeRefusal,
+  AutoMovieArchetypeDensity,
+  AutoMovieArchetypeRefusal,
   createArmour,
 } from "@automovie/archetypes";
 import { physicalHullMass, physicalShapeNearest } from "@automovie/engine";
@@ -132,8 +132,9 @@ export function test_archetype_armour_form(): void {
             findings.push(model + " has no actual sleeve walls");
           if (
             !(
-              Math.abs(volume * ArchetypeDensity.STEEL - grams / 1000) <=
-              EPSILON
+              Math.abs(
+                volume * AutoMovieArchetypeDensity.STEEL - grams / 1000,
+              ) <= EPSILON
             )
           )
             findings.push(
@@ -195,7 +196,9 @@ export function test_archetype_armour_form(): void {
     });
     findings.push("an impossible shirt silently loses its sleeves or wall");
   } catch (error) {
-    if (!(error instanceof ArchetypeRefusal && error.axis === "measure"))
+    if (
+      !(error instanceof AutoMovieArchetypeRefusal && error.axis === "measure")
+    )
       findings.push("an impossible shirt has no structured geometric refusal");
   }
   TestValidator.equals(

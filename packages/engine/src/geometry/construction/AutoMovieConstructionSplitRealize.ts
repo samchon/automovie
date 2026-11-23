@@ -36,14 +36,6 @@ type Vec3 = AutoMovieVector3Tuple;
  * Steps: walk the host and admit its end (realized, no pole there, not already cut); take the checkpoint; build the curved seam once when a profile is declared (`AutoMovieConstructionSplitSeam`, refused with the split's diagnostic before either child is lofted); walk both children and admit each face and rail (realized after the checkpoint, the rail inside its domain, the rail's side not already cut); build both bands; then add to the body, in one step, the ring vertices on the host's end (both arcs, the seam's two corners shared), the chord's inner vertices (evaluated on band 0, shared by band 1), each child's rail vertices, both band faces with their two station-end cycles, the host's end cycle and each child's rail cycle, every segment naming the face across it. The bands' chains and surfaces join the realization's chains and surfaces, so every consumer of a chain (the skin, a later join or trim naming a band) reads them as any face.
  *
  * A broken premise restores the checkpoint and records one diagnostic under the split's name: both children, both bands and the host's end stand as they were, since one child alone would leave the shared chord open. A foreign error restores the checkpoint and propagates unchanged.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The host's ring, the chord and the rails are evaluated once and handed to every face that bounds them, as a continuation's ring and a join's rails are (`AutoMovieConstructionRing`, `AutoMovieSolidBodyMerge`), so the faces meet vertex for vertex; rollback is the realization's checkpoint.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, band construction, then one mutation block of vertices and cycles.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No vertex is welded by distance and no child is kept without its sibling; a rail outside the child's domain is refused, not clamped.
- * @evidence contracts/development/common.md#meaningful-documentation States the steps, the shared vertices, the published chains and the failure effects.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in columns for vertices and cycles after both bands; the checkpoint costs O(F+C) as for a join.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each shared vertex is created once and referenced by every cycle that bounds it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The body retains 2n ring and chord vertices, 2n rail vertices, two band faces and six cycles; the checkpoint is released when the node settles.
  */
 export function AutoMovieConstructionSplitRealize(
   node: IAutoMovieConstructionSplit,

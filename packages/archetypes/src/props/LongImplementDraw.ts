@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { FIELD_IMPLEMENTS } from "./FIELD_IMPLEMENTS";
 import { ForestAxe } from "./ForestAxe";
@@ -22,20 +22,10 @@ const SHOVEL: string =
 
 /**
  * The seeded recipes originally published as `createLongTool`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The seeded recipes originally published as `createLongTool`.
- * @evidence contracts/development/design.md#principled-representation The original dimension order, units, bands and model choices define the saved seed streams.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The named producers read their recipes here and own their geometry and contacts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Makes no alternate draws for a named producer.
  */
 export namespace LongImplementDraw {
   /**
    * The kinds of tool.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The saved recipe's closed selector.
-   * @evidence contracts/development/design.md#principled-representation One literal identifies each saved prop recipe, including stored selections.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The dispatcher and seeded preparation consume the same names.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second producer or geometry is drawn for a saved alias.
    */
   export type Kind =
     | "broom"
@@ -86,11 +76,6 @@ export namespace LongImplementDraw {
    * - `pouch`: a sling's pouch a stone sits in, facing up.
    * - `spur`: an atlatl's hook, whose groove takes the dart's butt, facing back along the shaft (`Throwers.atlatl`); its `grip` is the handle at the butt.
    * - `rammer`, `sponge`: a sponge and rammer's two heads by name, each facing out of its end: the rammer head at the lower end (as its `face`) and the sponge at the upper (as its `tip`), which a gun crew's drill reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The saved contact identifiers for these props.
-   * @evidence contracts/development/design.md#principled-representation A closed union covers the contacts built by every shape in this family.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The compatibility surface keeps existing contact names while named producers declare the contacts they own.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The saved union does not manufacture contact frames absent from a shape.
    */
   export type Affordance =
     | "shaft"
@@ -118,11 +103,6 @@ export namespace LongImplementDraw {
    * - `spurSetback`: an atlatl's spur from its far end; `gripSetback`: where its handle proper begins from the butt.
    * - `launchSpeed`: a thrower's measured projectile speed, metres per second.
    * - `mass`: kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The saved axis names for drawn dimensions.
-   * @evidence contracts/development/design.md#principled-representation Each member records a length, mass, or documented quantity in the associated unit table.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seeded preparation records values under the names that existing callers inspect.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The variant and model tables determine which values can be overridden.
    */
   export type Dimension =
     | "length"
@@ -139,7 +119,9 @@ export namespace LongImplementDraw {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     shaftDiameter: "m",
     edge: "m",
@@ -156,11 +138,6 @@ export namespace LongImplementDraw {
 
   /**
    * The parameters: the kind, and any free dimension fixed to a value inside its band.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The input to the prop recipe.
-   * @evidence contracts/development/design.md#principled-representation The optional identifier and dimensions use the existing declared units and per-variant bounds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The input carries the selection fields and has no separate copied geometry.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Runtime admission rejects refused values and dependent overrides.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which tool. */
@@ -175,21 +152,11 @@ export namespace LongImplementDraw {
 
   /**
    * A model's read figures, by dimension.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Read figures of a manufacturer model.
-   * @evidence contracts/development/design.md#principled-representation The optional per-dimension entries describe the figures a model fixes.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Seeded preparation records figures on the chosen model axis.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Fields fixed by a model remain fixed by that choice.
    */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /**
    * The fishing rods read: Daiwa's seven Ninja X two-piece spinning rods, by length and casting weight.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The admitted manufacturer model names.
-   * @evidence contracts/development/design.md#principled-representation A closed union identifies each named set of recorded manufacturer dimensions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Used by the saved selector and by the relevant named producer.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Model choice retains its original table and selection order.
    */
   export type Model =
     | "NJX602MLFS"
@@ -217,7 +184,7 @@ export namespace LongImplementDraw {
 
   /** The band of each free dimension, by kind; an axe and a handspike have no drawn shaft diameter, a broom, a mop, a shovel, a fishing rod and a field gun's implements no head of their own sizes. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     sling: Throwers.BANDS.sling,
     atlatl: Throwers.BANDS.atlatl,
@@ -226,7 +193,7 @@ export namespace LongImplementDraw {
     trailHandspike: FIELD_IMPLEMENTS.BANDS.trailHandspike,
     forestAxe: ForestAxe.BANDS,
     fishingRod: {
-      shaftDiameter: ArchetypeBand.metres(
+      shaftDiameter: AutoMovieArchetypeBand.metres(
         0.032,
         0.038,
         "no rod grip diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a rod's grip",
@@ -234,52 +201,64 @@ export namespace LongImplementDraw {
       ),
     },
     broom: {
-      length: ArchetypeBand.metres(
-        60 * ArchetypeUnits.INCH,
-        60 * ArchetypeUnits.INCH + 0.08,
+      length: AutoMovieArchetypeBand.metres(
+        60 * AutoMovieArchetypeUnits.INCH,
+        60 * AutoMovieArchetypeUnits.INCH + 0.08,
         `${HANDLES}; the head adds 8 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(
-        (15 / 16) * ArchetypeUnits.INCH,
-        ArchetypeUnits.INCH,
+      shaftDiameter: AutoMovieArchetypeBand.metres(
+        (15 / 16) * AutoMovieArchetypeUnits.INCH,
+        AutoMovieArchetypeUnits.INCH,
         HANDLES,
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        0.5,
+        0.9,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     mop: {
-      length: ArchetypeBand.metres(
-        54 * ArchetypeUnits.INCH,
-        54 * ArchetypeUnits.INCH + 0.03,
+      length: AutoMovieArchetypeBand.metres(
+        54 * AutoMovieArchetypeUnits.INCH,
+        54 * AutoMovieArchetypeUnits.INCH + 0.03,
         `${HANDLES}; the head adds 3 cm`,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(
-        (15 / 16) * ArchetypeUnits.INCH,
-        ArchetypeUnits.INCH,
+      shaftDiameter: AutoMovieArchetypeBand.metres(
+        (15 / 16) * AutoMovieArchetypeUnits.INCH,
+        AutoMovieArchetypeUnits.INCH,
         HANDLES,
         true,
       ),
-      mass: ArchetypeBand.of("kg", 0.5, 0.9, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        0.5,
+        0.9,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     shovel: {
-      length: ArchetypeBand.metres(
-        41.5 * ArchetypeUnits.INCH,
-        46 * ArchetypeUnits.INCH,
+      length: AutoMovieArchetypeBand.metres(
+        41.5 * AutoMovieArchetypeUnits.INCH,
+        46 * AutoMovieArchetypeUnits.INCH,
         SHOVEL,
         true,
       ),
-      shaftDiameter: ArchetypeBand.metres(
+      shaftDiameter: AutoMovieArchetypeBand.metres(
         0.032,
         0.038,
         "no shovel shaft diameter was found; the lower end of the 32 to 51 mm power grip band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf)",
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
-        4.5 * ArchetypeUnits.POUND,
-        5.6 * ArchetypeUnits.POUND,
+        4.5 * AutoMovieArchetypeUnits.POUND,
+        5.6 * AutoMovieArchetypeUnits.POUND,
         SHOVEL,
         true,
       ),
@@ -288,15 +267,10 @@ export namespace LongImplementDraw {
 
   /**
    * What {@link prepare} prepares for its caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions prepare returns, in the family's recorded units.
-   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after prepare.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
    */
   export interface IPrepareResult<Id extends Affordance> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Partial<Record<Dimension, number>>;
@@ -309,23 +283,20 @@ export namespace LongImplementDraw {
    * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
    * @param kind The saved kind whose recipe is used.
    * @returns The builder and dimensions the named producer reads.
-   * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Prepare an empty builder and the previously recorded longTool dimensions.
-   * @evidence contracts/development/implementation.md#principled-implementation The `longTool` draw session uses the original seeds, model table, and bands in their original order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The named producer chooses a kind. This helper handles admission, provenance, and identity before geometry is added.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The session rejects inadmissible overrides or model names and records the values that a producer consumes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Draws a bounded list of dimensions and prepares one builder.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producers and the saved dispatcher share their exact recipe preparation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
+   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
     params: Omit<IParams, "kind">,
     seed?: number | string,
   ): IPrepareResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("longTool", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "longTool",
+        UNITS,
+        seed,
+        params,
+      );
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(
       BANDS[kind],
       BANDS,
@@ -339,35 +310,28 @@ export namespace LongImplementDraw {
       ...drawn,
       ...model.figures,
     };
-    const builder: ArchetypeBuilder<Id, Dimension> = new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind,
-      draw,
-    });
+    const builder: AutoMovieArchetypeBuilder<Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
+        material: "composite",
+        id: params.id,
+        name: kind,
+        draw,
+      });
     return { builder, d };
   }
 
   /**
    * The contact ids {@link groundTool} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of groundTool.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only groundTool and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type GroundToolContact = "face" | "shaft" | "grip";
 
-  /** The contacts `groundTool` itself builds, which a tool's own contacts join: one grip, or an upper and a lower grip for a two-handed push. */
+  /**
+   * The contacts `groundTool` itself builds, which a tool's own contacts join: one grip, or an upper and a lower grip for a two-handed push.
+   */
   export type GroundToolBuilt = "face" | "shaft";
 
   /**
    * A ground implement's head block.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the head block groundTool builds, in metres.
-   * @evidence contracts/development/design.md#principled-representation The block size, finish and relative density the construction reads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members groundTool reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
    */
   export interface IGroundHead {
     /** Across the head, metres. */
@@ -388,11 +352,6 @@ export namespace LongImplementDraw {
 
   /**
    * A ground implement's shaft.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the shaft groundTool builds, in metres.
-   * @evidence contracts/development/design.md#principled-representation The radius and top height the construction reads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members groundTool reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
    */
   export interface IGroundShaft {
     /** The shaft radius, metres. */
@@ -408,17 +367,9 @@ export namespace LongImplementDraw {
    * @param builder The implement under construction.
    * @param head The head dimensions in metres, its finish and its relative density.
    * @param shaft The shaft radius and end height, in metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build the head and two-hand shaft of a ground-contact implement.
-   * @evidence contracts/development/implementation.md#principled-implementation Place the bottom face at the origin and the shaft above the head. The long grip spans exactly the clear shaft.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The owning producer supplies the head and the top of the shaft in the object frame.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Heads remain coarse blocks. The broom, mop and shovel own their distinct dimensions and mass proportions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Adds two parts and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The three producers share the same shaft and face construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The call retains no inputs.
    */
   export function groundTool<Contact extends string>(
-    builder: ArchetypeBuilder<Contact | GroundToolBuilt, Dimension>,
+    builder: AutoMovieArchetypeBuilder<Contact | GroundToolBuilt, Dimension>,
     head: IGroundHead,
     shaft: IGroundShaft,
   ): void {
@@ -435,7 +386,7 @@ export namespace LongImplementDraw {
       id: "face",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, 0, 0),
         Vector3.create(0, -1, 0),
         Vector3.create(1, 0, 0),
@@ -454,7 +405,7 @@ export namespace LongImplementDraw {
       id: "shaft",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, (height + top) / 2, 0),
         Vector3.create(0, 0, -1),
         Vector3.create(0, 1, 0),

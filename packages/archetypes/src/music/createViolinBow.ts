@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -18,18 +18,10 @@ import {
  *
  * @param params The model id, supplied as an option or as a positional string.
  * @returns A bow with grip, hairFrog and hairTip affordances.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives axes, named contacts, measured dimensions, estimates and rigid construction.
- * @evidence contracts/development/implementation.md#principled-implementation The ribbon spans the documented hair length and its end frames are located on the underside of the same part.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the stick, its ends and ribbon, then declare their three sites.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stated physical measures come from the cited bow; coarse geometry is labelled as estimated.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Fixed parts and contacts.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call builds an independent model.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function createViolinBow(
   params: { id?: string } | string = {},
-): Archetype<"grip" | "hairFrog" | "hairTip", never> {
+): AutoMovieArchetype<"grip" | "hairFrog" | "hairTip", never> {
   const v: typeof Vector3.create = Vector3.create;
   const overall: number = 0.745;
   const hair: number = 0.649;
@@ -39,13 +31,15 @@ export function createViolinBow(
   const stickRadius: number = 0.004;
   const gripLength: number = 0.042;
   const wood: string = "#744426";
-  const builder: ArchetypeBuilder<"grip" | "hairFrog" | "hairTip", never> =
-    new ArchetypeBuilder({
-      id: typeof params === "string" ? params : params.id,
-      name: "violin bow",
-      material: "composite",
-      draw: new ArchetypeDrawSession<never>("violin bow", {}, undefined),
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    "grip" | "hairFrog" | "hairTip",
+    never
+  > = new AutoMovieArchetypeBuilder({
+    id: typeof params === "string" ? params : params.id,
+    name: "violin bow",
+    material: "composite",
+    draw: new AutoMovieArchetypeDrawSession<never>("violin bow", {}, undefined),
+  });
   builder.rod(
     "stick",
     stickRadius,
@@ -71,7 +65,7 @@ export function createViolinBow(
     id: "grip",
     kind: "bar",
     symmetry: "half",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       v(frog + gripLength / 2, head - stickRadius, 0),
     ),
     extent: null,
@@ -87,7 +81,11 @@ export function createViolinBow(
       id: site,
       kind: "surface",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(x, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(x, 0, 0),
+        v(0, -1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
     });
   return builder.build(0.061);

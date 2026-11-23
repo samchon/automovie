@@ -2,11 +2,6 @@ import type { IAutoMovieServiceNetwork } from "./IAutoMovieServiceNetwork";
 
 /**
  * System selection for a world-XZ plan report with unprojected run lengths and declared loads.
- *
- * @evidence contracts/development/common.md#meaningful-documentation System selection for a world-XZ plan report with unprojected run lengths and declared loads. system is an exact id in the borrowed network; serviceNetworkSchematic throws for an unknown id and projects world X/Z metres while retaining three-dimensional developed lengths.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Network validity is assumed; unresolved endpoint owners remain authored port ids and the report is neither geometric nor hydraulic admission.
- * @evidence contracts/development/design.md#principled-representation system is an exact id in the borrowed network; serviceNetworkSchematic throws for an unknown id and projects world X/Z metres while retaining three-dimensional developed lengths.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The report delegates reach and load to their shared operations rather than accept a second topology or quantity model.
  */
 export namespace IAutoMovieServiceNetworkSchematic {
   /**
@@ -19,11 +14,6 @@ export namespace IAutoMovieServiceNetworkSchematic {
    * than the zero a supply-shaped reading would give it.
    * This report has no current product caller. An unknown system throws and a
    * missing endpoint owner remains the authored port id; validation is separate.
-   *
-   * @evidence contracts/development/design.md#principled-representation system is an exact id in the borrowed network; serviceNetworkSchematic throws for an unknown id and projects world X/Z metres while retaining three-dimensional developed lengths.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The report delegates reach and load to their shared operations rather than accept a second topology or quantity model.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Network validity is assumed; unresolved endpoint owners remain authored port ids and the report is neither geometric nor hydraulic admission.
-   * @evidence contracts/development/common.md#meaningful-documentation System selection for a world-XZ plan report with unprojected run lengths and declared loads. system is an exact id in the borrowed network; serviceNetworkSchematic throws for an unknown id and projects world X/Z metres while retaining three-dimensional developed lengths.
    */
   export type IProps = {
     /** Borrowed admitted service graph; the producer creates new mutable report rows and XZ point records. */

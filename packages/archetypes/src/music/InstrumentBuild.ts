@@ -1,23 +1,18 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "../core";
 import { INSTRUMENT_BANDS } from "./INSTRUMENT_BANDS";
 import type { createInstrument } from "./createInstrument";
 
 /**
  * The bands and build session shared by the musical instrument producers.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the original instrument draw namespace and the model record it preserves.
- * @evidence contracts/development/design.md#principled-representation Keeps dimensions in metres and mass in kilograms with the original per-kind bands and provenance.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One draw and its tables serve the public producers and the saved-recipe dispatcher.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The same draw records bands, fixed figures and model choices.
  */
 export namespace InstrumentBuild {
   /** The original units of the instrument dimensions. */
   export const UNITS: Readonly<
-    Record<createInstrument.Dimension, ArchetypeDrawSession.Unit>
+    Record<createInstrument.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
     height: "m",
     width: "m",
@@ -55,14 +50,6 @@ export namespace InstrumentBuild {
 
   /**
    * Build one instrument in the original seed namespace and return its local parts and contacts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the compatibility draw and the local model it fills.
-   * @evidence contracts/development/implementation.md#principled-implementation Draw one value per dimension from the instrument's bands. One construction consumes those dimensions and records the mass.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Keep draw and model assembly together, separate from shape construction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preserve the published parameter checks and contact conventions.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One draw pass over the profile's bands and one construction pass.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work All five named instruments share the draw and checks for dimensions belonging to other instrument profiles.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or draw state between calls.
    */
   export function create<Id extends createInstrument.Affordance>(
     kind: createInstrument.Kind,
@@ -70,16 +57,16 @@ export namespace InstrumentBuild {
     params: Readonly<Partial<Omit<createInstrument.IParams, "kind">>>,
     seed: number | string | undefined,
     construct: (
-      builder: ArchetypeBuilder<Id, createInstrument.Dimension>,
+      builder: AutoMovieArchetypeBuilder<Id, createInstrument.Dimension>,
       dimensions: Partial<Record<createInstrument.Dimension, number>>,
     ) => void,
-  ): Archetype<Id, createInstrument.Dimension> {
-    const draw: ArchetypeDrawSession<createInstrument.Dimension> =
-      new ArchetypeDrawSession("instrument", UNITS, seed, params);
+  ): AutoMovieArchetype<Id, createInstrument.Dimension> {
+    const draw: AutoMovieArchetypeDrawSession<createInstrument.Dimension> =
+      new AutoMovieArchetypeDrawSession("instrument", UNITS, seed, params);
     const dimensions: Partial<Record<createInstrument.Dimension, number>> =
       draw.dimensions(BANDS[kind], BANDS);
-    const builder: ArchetypeBuilder<Id, createInstrument.Dimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<Id, createInstrument.Dimension> =
+      new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
         name,

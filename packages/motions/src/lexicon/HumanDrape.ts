@@ -35,6 +35,8 @@ const HANGING: IAutoMovieMotionHumanPosture["joints"] = {
  * @evidence contracts/development/design.md#principled-representation One law; the lie as one posture in the carrier contact's frame.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat is the carrier's own moving contact.
+ *
+ * The author gives `seconds` of the drape after the laying movement; no natural value is defined (provisional).
  */
 export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDrape> =
   {
@@ -54,7 +56,7 @@ export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDra
     plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const params: IAutoMovieMotionHumanDrape = context.params;
       const lay: number = params.lay ?? 0.6;
-      HumanBound.above("seconds", params.seconds, 0, "s");
+      HumanBound.above("duration", params.duration, 0, "s");
       HumanBound.least("lay", lay, 0, "s");
       const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
         context.prop(params.on),
@@ -77,7 +79,7 @@ export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDra
         joints: { ...HANGING },
         limbs: {},
       };
-      const duration: number = lay + params.seconds;
+      const duration: number = lay + params.duration;
       return {
         duration,
         events: [{ name: "laid", share: lay / duration }],

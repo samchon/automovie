@@ -1,5 +1,5 @@
 import {
-  ArchetypeRefusal,
+  AutoMovieArchetypeRefusal,
   createJavelin,
   createPolearm,
 } from "@automovie/archetypes";
@@ -72,7 +72,9 @@ export function test_archetype_weapon_javelin(): void {
           createJavelin({ kind, [axis]: value });
         } catch (error) {
           refused =
-            error instanceof ArchetypeRefusal ? error.axis : String(error);
+            error instanceof AutoMovieArchetypeRefusal
+              ? error.axis
+              : String(error);
         }
         if (refused !== axis)
           findings.push(

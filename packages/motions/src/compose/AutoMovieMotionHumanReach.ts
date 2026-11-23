@@ -35,11 +35,6 @@ import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
  * - `clamp`: the goal moves along its line from the root onto the sphere of
  *   the limb's reach; the choice for a goal with no contact (a point in the
  *   air, a gesture, a drill without a target).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what reach is measured between, the reachable set, the three policies and when a law takes each.
- * @evidence contracts/development/design.md#principled-representation The reachable set of a two-segment limb is the ball about its root joint with the radius of both segments, the workspace of two-bone inverse kinematics; a policy is the answer outside it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One measurement, three policies and their combination; the only owner of reach checks, so no law compares a distance with an arm length itself.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Policies are a closed union; the lean limit is a named provisional constant; an unreachable contact throws with its numbers and is never bent to fit silently.
  */
 export namespace AutoMovieMotionHumanReach {
 
@@ -63,14 +58,6 @@ export namespace AutoMovieMotionHumanReach {
    * @param length The limb's two segments laid straight, metres.
    * @param point The point the limb's end is asked to take, world metres.
    * @returns The check.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's frame and unit and what is returned.
-   * @evidence contracts/development/implementation.md#principled-implementation The distance from the ball's centre compared with its radius; the shortfall is their positive difference.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One distance and one subtraction.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is added to the length: a point exactly at full length is within reach and one beyond it is not.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function measure(
     root: IAutoMovieVector3,
@@ -92,14 +79,6 @@ export namespace AutoMovieMotionHumanReach {
    * @param check The reach toward the point.
    * @param point The point, world metres.
    * @returns The point itself when within reach; else the point of the sphere on the line from the root to it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and both outcomes.
-   * @evidence contracts/development/implementation.md#principled-implementation The nearest reachable point to an outside point is its radial projection on the sphere, so the limb still points at the goal.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One condition and one scaling.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A point within reach is returned unchanged, never pushed out to the sphere.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function clamp(
     check: IAutoMovieMotionHumanReach.ICheck,
@@ -122,14 +101,6 @@ export namespace AutoMovieMotionHumanReach {
    * @param check The reach toward the point.
    * @param point The point, world metres.
    * @throws {Error} When the point is beyond reach, with the limb, the point and the shortfall in millimetres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and what the error carries.
-   * @evidence contracts/development/implementation.md#principled-implementation An unreachable contact cannot be performed, so the plan stops with the numbers an author needs to move the target or the performer.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One condition and one message.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Throws instead of returning a flag a caller could ignore.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function refuse(
     limb: IAutoMovieMotionHumanReach.Limb,
@@ -157,14 +128,6 @@ export namespace AutoMovieMotionHumanReach {
    * @param point The point the limb's end (the wrist or the ankle) is asked to take, world metres.
    * @param resolution Optional exact FK source borrowed only by this current same-body observation.
    * @returns The check.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what of the posture is read, which joint the end is and the frame of the point.
-   * @evidence contracts/development/implementation.md#principled-implementation The shoulder is read from the trunk's forward kinematics and the hip from the root and the pelvis joint, the places the limb fits start from; the length is the body's own two segments.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One root lookup by limb kind, then `measure`.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A rig without the shoulder bone throws instead of measuring from the origin.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Admits all original raw authored joints but emits only the actual arm shoulder and its ancestry, or the original two-hip observation for a leg; no limb fit runs. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares checkOn with prepareCheck, HumanTrunk/hipJoints retain raw FK ownership, and an optional current-person reader shares only exact prerequisites rather than a root or reach answer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no input or reader; the optional borrowed workspace is used only through the actual current root observation and fresh check output.
    */
   export function check(
     body: IAutoMovieMotionHumanBody,
@@ -178,14 +141,6 @@ export namespace AutoMovieMotionHumanReach {
 
   /**
    * Bind only unchanged body/limb demand for varying raw root observations.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Fixes body/limb metadata; each query takes actual authored posture, world-metre end point and optional synchronous same-person FK source, returning the original reach check.
-   * @evidence contracts/development/implementation.md#principled-implementation The genuine HumanTrunk.prepareResolve binds the actual arm shoulder name once; every query still constructs and admits the current raw posture and uses checkOn's original root/length/distance equations. Legs retain hipJoints and its authored pelvis-only policy.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lazy fixed arm-demand reader feeds the same root observation and measure owner as cold check, without a separate solver or limb representation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No posture, root point, reach result or limb fit is stored; all original authored admission, missing-root error, body lengths and exact reach boundary remain, without adding ROM projection.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Q arm probes bind shoulder name/indices once and emit only its ancestor closure; current authored-joint admission and actual FK remain per query. No measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Unchanged body and fixed limb prove static name-demand equivalence. A query's explicit FK source is borrowed only at that query, so plan-owned static demand never retains an operation workspace or dynamic answer.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation or plan owns one body/name metadata reader until release; current posture, point and optional reader do not enter it, and every output check is fresh without time/pose history or handles.
    */
   export function prepareCheck(body: IAutoMovieMotionHumanBody, limb: IAutoMovieMotionHumanReach.Limb):
     (posture: IAutoMovieMotionHumanPosture, point: IAutoMovieVector3,
@@ -210,14 +165,6 @@ export namespace AutoMovieMotionHumanReach {
    * @param limit The most pitch to add, degrees; {@link LEAN_LIMIT} by default.
    * @returns Degrees to add to the posture's pitch, to a hundredth; 0 when the point is within reach already.
    * @throws {Error} When the point stays beyond reach at the limit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the unit and resolution of the result and when it throws.
-   * @evidence contracts/development/implementation.md#principled-implementation The shortfall is zero at the limit and positive at none, so bisection on the pitch finds the boundary; it keeps the reachable end, so the returned pitch always reaches.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two end checks and one bisection loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A lean that does not reach at the limit refuses with the shortfall there; the hips are not moved back here, since balance belongs to the lean primitive a law writes the pitch with.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Retains the original endpoint checks and bounded bisection to a hundredth of a degree; one fixed shoulder demand and exact FK getter serve every actual tipped-pose probe instead of full bone output and repeated name preparation. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses original Lean.tip and prepareCheck's native raw shoulder/measure owner; one synchronous reader shares only exactly unchanged prerequisites across the actual current roots/joints.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This call releases its fixed name reader and lazy operation workspace on return or throw; only a numeric pitch escapes, without poses, target results or history.
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,
@@ -256,14 +203,6 @@ export namespace AutoMovieMotionHumanReach {
    * @param policy What to do when the point is out of reach.
    * @returns The posture and the point after the policy; both unchanged when the point is within reach.
    * @throws {Error} When the policy refuses, when a lean is not enough, and when a leg is asked to lean beyond its reach.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, what each policy may change and every refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Each policy is its definition: `refuse` throws, `clamp` projects the point on the reach sphere, `lean` tips the posture by the smallest pitch that reaches.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check, then one branch per policy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A leg that cannot lean refuses instead of falling back to a clamp the law did not ask for.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One check when within reach; the lean's bisection only when it is needed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `check`, `refuse`, `clamp` and `lean`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,

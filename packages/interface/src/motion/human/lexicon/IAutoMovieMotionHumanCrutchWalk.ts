@@ -1,4 +1,5 @@
 import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanActionLaw } from "../law/IAutoMovieMotionHumanActionLaw";
 import type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWalk";
@@ -18,11 +19,6 @@ import type { IAutoMovieMotionHumanAidWalk } from "./IAutoMovieMotionHumanAidWal
  *
  * Through each swing the hands bear the body's weight on the handgrips; the
  * underarm pads press the chest's side, never the axillae.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three gaits, their orders and where the weight goes.
- * @evidence contracts/development/design.md#principled-representation Two staged crutch props, the body's floor stations and a closed gait choice.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The members `HumanCrutchWalk` reads, with the aided walk's own station record.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No crutch or foot place is typed; each follows the stations and the crutches' own staged frames.
  */
 export interface IAutoMovieMotionHumanCrutchWalk {
   /** The crutch staged at the left side, a prop with a `grip` and a `tip`. */
@@ -34,6 +30,15 @@ export interface IAutoMovieMotionHumanCrutchWalk {
   /** Consecutive floor stations of the body, from its standing pose between the crutches. */
   stations: readonly IAutoMovieMotionHumanAidWalk.IStation[];
 
+  /**
+   * The entry station's world floor point, metres: where the body stands at
+   * entry, from which every station's `x` and `z` are measured and about
+   * which its `turn` carries the body, its feet and both crutches as one
+   * rigid whole. Absent, the feet turn about the crutch tips' midpoint and
+   * each crutch about its own tip, which matches only a walk that never turns.
+   */
+  origin?: IAutoMovieVector3;
+
   /** The crutch gait; `threePoint` when absent. */
   pattern?: IAutoMovieMotionHumanCrutchWalk.Pattern;
 
@@ -42,19 +47,18 @@ export interface IAutoMovieMotionHumanCrutchWalk {
 }
 
 export namespace IAutoMovieMotionHumanCrutchWalk {
-  /** The clinical crutch gaits. */
+  /**
+   * The clinical crutch gaits.
+   */
   export type Pattern = "threePoint" | "swingTo" | "swingThrough";
 
   /**
    * The crutch walk's law and the track that moves each crutch on its clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the law and the track reader's inputs, frame and timebase.
-   * @evidence contracts/development/design.md#principled-representation The track maps a film second to one crutch's world rigid frame, from its staged frame, the walk's parameters and its side.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The law the vocabulary registers and the track the scene's two props read, so both share one course.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every crutch frame derives from the same stations the law plans.
    */
   export interface ILaw extends IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrutchWalk> {
-    /** From one crutch's staged floor frame, the walk's parameters, the crutch's side and the walk's first film second (zero when absent), the crutch's world frame at each film second. */
+    /**
+     * From one crutch's staged floor frame, the walk's parameters, the crutch's side and the walk's first film second (zero when absent), the crutch's world frame at each film second.
+     */
     track: (
       start: IAutoMovieRigidTransform,
       params: IAutoMovieMotionHumanCrutchWalk,

@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { HandToolDraw } from "./HandToolDraw";
 import { createFork } from "./createFork";
 import { createHammer } from "./createHammer";
@@ -15,7 +15,7 @@ import { createTableKnife } from "./createTableKnife";
  * @param params The saved kind, fixed values, optional identifier and model when applicable.
  * @param seed The seed that draws the saved dimensions and model, or undefined for the original defaults.
  * @returns The selected prop in its original frame.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Read a saved tool recipe and call the producer for its kind.
  * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects the named producer that owns its geometry and contacts.
@@ -28,7 +28,7 @@ import { createTableKnife } from "./createTableKnife";
 export function createTool(
   params: createTool.IParams,
   seed?: number | string,
-): Archetype<createTool.Affordance, createTool.Dimension> {
+): AutoMovieArchetype<createTool.Affordance, createTool.Dimension> {
   const kind: createTool.Kind = ArchetypeDraw.choice(
     "tool",
     "kind",
@@ -40,8 +40,8 @@ export function createTool(
   const produce: (
     params: createTool.IParams,
     seed?: number | string,
-  ) => Archetype<createTool.Affordance, createTool.Dimension> = createTool
-    .PRODUCERS[kind] as typeof produce;
+  ) => AutoMovieArchetype<createTool.Affordance, createTool.Dimension> =
+    createTool.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);
 }
 
@@ -51,7 +51,7 @@ export function createTool(
  * @evidence contracts/development/common.md#meaningful-documentation Compatibility tables and types for saved tool recipes.
  * @evidence contracts/development/design.md#principled-representation The kind union retains the saved spelling and order. Each kind selects the named producer with the same geometry.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps the existing recipe tables and names for authored and saved callers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the actual sizes and model figures from the saved bands.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The named producers draw the sizes and model figures from the saved bands.
  */
 export namespace createTool {
   /** The original kind for the saved tool recipe. */

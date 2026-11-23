@@ -1,27 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeBuilder } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
+import type { AutoMovieArchetypeBuilder } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
- * Two coarse nostrils laid inside the actual head capsule's nose cap, one to each side, so breathing can flare them.
+ * Two coarse nostrils laid inside the head capsule's nose cap, one to each side, so breathing can flare them.
  *
  * Each nostril is a sphere centred on the nose cap's lateral side, inset so that it is internally tangent to the cap: at rest it lies wholly inside the head and the closed silhouette and every head contact are unchanged; widening its radius pushes it out of the muzzle, the flare. Its radius and how far it sits back from the nose are authored coarse construction, not measured anatomy, and it carries no mass of its own: a share of zero under the head's source share.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the place on the nose cap, the tangency, the flare, the authored fractions and the zero share.
- * @evidence contracts/development/design.md#principled-representation Two fractions of the actual head determine the pair.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Optional body data, one geometry reader and one lay operation serve the head assembler and the breathing layer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No species case or measured-looking constant.
  */
 export namespace QuadrupedNostrils {
   /**
-   * Authored nostril construction as fractions of the actual head.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Both members are dimensionless fractions with their admitted ranges.
-   * @evidence contracts/development/design.md#principled-representation Fractions of the head keep the pair proportional to it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two values the geometry reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
+   * Authored nostril construction as fractions of the head.
    */
   export interface IProfile {
     /** Each nostril's radius over the head capsule's, in (0, 1). */
@@ -33,11 +23,6 @@ export namespace QuadrupedNostrils {
 
   /**
    * The nostrils' neutral centres and radius in the model's space.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres in model space.
-   * @evidence contracts/development/design.md#principled-representation Two centres and one radius.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `lay`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IGeometry {
     /** The left nostril's centre. */
@@ -51,23 +36,18 @@ export namespace QuadrupedNostrils {
   }
 
   /**
-   * The nostrils inside an actual head capsule.
+   * The nostrils inside a head capsule.
    *
-   * @param head The actual neutral head capsule: poll, nose and radius.
+   * @param head The neutral head capsule: poll, nose and radius.
    * @param profile The authored construction.
    * @returns Their neutral geometry.
    * @throws {RangeError} For fractions outside their ranges or a degenerate head.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation From the nose cap's centre, step back along the head by the authored fraction and out sideways so the sphere is internally tangent to the cap: the centre lies R minus r from the nose along the direction blended from the head's axis and its lateral axis.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit, build the head's axes, place the pair.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Out-of-range fractions refuse.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `lay`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh points and retains nothing.
    */
   export function geometry(
-    head: Pick<QuadrupedBody.IRig, "poll" | "nose" | "headRadius">,
+    head: Pick<
+      AutoMovieArchetypeQuadrupedBody.IRig,
+      "poll" | "nose" | "headRadius"
+    >,
     profile: IProfile,
   ): IGeometry {
     if (
@@ -105,22 +85,17 @@ export namespace QuadrupedNostrils {
    * Lay the nostrils as the parts `leftNostril` and `rightNostril`.
    *
    * @param builder The body under construction.
-   * @param head The actual neutral head capsule.
+   * @param head The neutral head capsule.
    * @param profile The authored construction.
    * @param color The coat's colour.
    * @throws {RangeError} As `geometry` refuses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the parts laid and their zero share.
-   * @evidence contracts/development/implementation.md#principled-implementation Two spheres at the geometry's centres; zero share since their volume is the head's own.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One geometry read, two balls.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No change to the head capsule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `geometry`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The builder owns the parts.
    */
   export function lay<Id extends string, Dimension extends string>(
-    builder: ArchetypeBuilder<Id, Dimension>,
-    head: Pick<QuadrupedBody.IRig, "poll" | "nose" | "headRadius">,
+    builder: AutoMovieArchetypeBuilder<Id, Dimension>,
+    head: Pick<
+      AutoMovieArchetypeQuadrupedBody.IRig,
+      "poll" | "nose" | "headRadius"
+    >,
     profile: IProfile,
     color: string,
   ): void {

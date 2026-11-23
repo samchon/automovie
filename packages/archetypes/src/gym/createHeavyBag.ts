@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The bags, from a search only. */
@@ -24,7 +24,7 @@ const EVERLAST: string =
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The heavy bag.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States where the origin is, which side is struck, its two contacts and that a swing is not modelled.
  * @evidence contracts/development/implementation.md#principled-implementation A rod of the drawn diameter and height below its hook, the target's frame on the bag's surface at mid-height.
@@ -37,9 +37,9 @@ const EVERLAST: string =
 export function createHeavyBag(
   params: createHeavyBag.IParams = {},
   seed?: number | string,
-): Archetype<createHeavyBag.Affordance, createHeavyBag.Dimension> {
-  const draw: ArchetypeDrawSession<createHeavyBag.Dimension> =
-    new ArchetypeDrawSession<createHeavyBag.Dimension>(
+): AutoMovieArchetype<createHeavyBag.Affordance, createHeavyBag.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHeavyBag.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHeavyBag.Dimension>(
       "heavyBag",
       createHeavyBag.UNITS,
       seed,
@@ -48,10 +48,10 @@ export function createHeavyBag(
   const d: Record<createHeavyBag.Dimension, number> = draw.dimensions(
     createHeavyBag.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHeavyBag.Affordance,
     createHeavyBag.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "heavy bag",
@@ -66,7 +66,7 @@ export function createHeavyBag(
   builder.affordance({
     id: "target",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, top - d.height / 2, radius),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -78,7 +78,7 @@ export function createHeavyBag(
   builder.affordance({
     id: "hook",
     kind: "hook",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -111,7 +111,9 @@ export namespace createHeavyBag {
   export type Dimension = "height" | "diameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     mass: "kg",
@@ -124,23 +126,23 @@ export namespace createHeavyBag {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(
-      46 * ArchetypeUnits.INCH,
-      59 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(
+      46 * AutoMovieArchetypeUnits.INCH,
+      59 * AutoMovieArchetypeUnits.INCH,
       EVERLAST,
       true,
     ),
-    diameter: ArchetypeBand.metres(
-      13 * ArchetypeUnits.INCH,
-      14.5 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      13 * AutoMovieArchetypeUnits.INCH,
+      14.5 * AutoMovieArchetypeUnits.INCH,
       EVERLAST,
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      100 * ArchetypeUnits.POUND,
-      100 * ArchetypeUnits.POUND,
+      100 * AutoMovieArchetypeUnits.POUND,
+      100 * AutoMovieArchetypeUnits.POUND,
       `${EVERLAST}: 100 lb`,
       true,
     ),

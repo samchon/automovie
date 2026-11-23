@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The café doors read. */
@@ -29,7 +29,7 @@ const SWING: number = 125;
  * @param params The opening and any dimension the author fixes.
  * @param seed The seed that draws the opening when it is not given and every dimension left free inside its band; absent, the first opening and the middle of each band.
  * @returns The doors.
- * @throws {ArchetypeRefusal} For an opening the maker does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For an opening the maker does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the doors hang, which ways they swing and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation The maker's leaf height and thickness, and one of its three openings whole; each leaf half the opening, a derivation from two leaves meeting at the middle, no meeting gap being read; the hinge's 125 degrees each way, its travel and its reverse.
@@ -42,9 +42,9 @@ const SWING: number = 125;
 export function createSaloonDoor(
   params: createSaloonDoor.IParams = {},
   seed?: number | string,
-): Archetype<createSaloonDoor.Affordance, createSaloonDoor.Dimension> {
-  const draw: ArchetypeDrawSession<createSaloonDoor.Dimension> =
-    new ArchetypeDrawSession<createSaloonDoor.Dimension>(
+): AutoMovieArchetype<createSaloonDoor.Affordance, createSaloonDoor.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSaloonDoor.Dimension> =
+    new AutoMovieArchetypeDrawSession<createSaloonDoor.Dimension>(
       "saloonDoor",
       createSaloonDoor.UNITS,
       seed,
@@ -62,10 +62,10 @@ export function createSaloonDoor(
     ...draw.dimensions(createSaloonDoor.BANDS),
     opening: opening.figures.opening!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSaloonDoor.Affordance,
     createSaloonDoor.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `saloon doors for a ${opening.name} opening`,
@@ -89,7 +89,7 @@ export function createSaloonDoor(
     builder.affordance({
       id: hinge,
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(sign * half, middle, d.thickness / 2),
         v(0, sign, 0),
         v(-sign, 0, 0),
@@ -102,7 +102,7 @@ export function createSaloonDoor(
     builder.affordance({
       id: push,
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((sign * half) / 2, middle, d.thickness / 2),
         v(0, 0, 1),
         v(1, 0, 0),
@@ -116,7 +116,7 @@ export function createSaloonDoor(
   builder.affordance({
     id: "passage",
     kind: "aperture",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width: d.opening,
     height: d.gap + d.height,
@@ -158,7 +158,9 @@ export namespace createSaloonDoor {
   export type Dimension = "opening" | "height" | "thickness" | "gap" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     opening: "m",
     height: "m",
     thickness: "m",
@@ -173,9 +175,9 @@ export namespace createSaloonDoor {
   export const OPENINGS: Readonly<
     Record<Opening, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "30in": { opening: 30 * ArchetypeUnits.INCH },
-    "32in": { opening: 32 * ArchetypeUnits.INCH },
-    "36in": { opening: 36 * ArchetypeUnits.INCH },
+    "30in": { opening: 30 * AutoMovieArchetypeUnits.INCH },
+    "32in": { opening: 32 * AutoMovieArchetypeUnits.INCH },
+    "36in": { opening: 36 * AutoMovieArchetypeUnits.INCH },
   };
 
   /** The parameters: the opening, and any free dimension fixed to a value inside its band. */
@@ -191,24 +193,30 @@ export namespace createSaloonDoor {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "opening">, IArchetypeBand>
+    Record<Exclude<Dimension, "opening">, IAutoMovieArchetypeBand>
   > = {
-    height: ArchetypeBand.metres(
-      40 * ArchetypeUnits.INCH,
-      40 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      40 * AutoMovieArchetypeUnits.INCH,
+      40 * AutoMovieArchetypeUnits.INCH,
       DOORS,
     ),
-    thickness: ArchetypeBand.metres(
-      0.75 * ArchetypeUnits.INCH,
-      0.75 * ArchetypeUnits.INCH,
+    thickness: AutoMovieArchetypeBand.metres(
+      0.75 * AutoMovieArchetypeUnits.INCH,
+      0.75 * AutoMovieArchetypeUnits.INCH,
       DOORS,
     ),
-    gap: ArchetypeBand.metres(
-      18 * ArchetypeUnits.INCH,
-      24 * ArchetypeUnits.INCH,
+    gap: AutoMovieArchetypeBand.metres(
+      18 * AutoMovieArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
       GAP,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 8, 16, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      8,
+      16,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

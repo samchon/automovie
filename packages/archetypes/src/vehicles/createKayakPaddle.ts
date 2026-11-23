@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { PaddleBlade } from "./PaddleBlade";
 
@@ -23,7 +23,7 @@ const v: typeof Vector3.create = Vector3.create;
  * @returns The shaft, two blades and corresponding hand and tip sites.
  * @evidence contracts/development/common.md#meaningful-documentation Defines the axes, two grips, adjustable length and reference.
  * @evidence contracts/development/implementation.md#principled-implementation The opposed dihedral blades flank one real shaft. The rigid prop can roll and dip either end.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the published dimensions and repeat the actual blade and grip construction once per end.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the published dimensions and repeat the blade and grip construction once per end.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Grip and blade-tip contacts are on the visible shaft and blade. The grip span and dihedral are stated staging choices.
  * @evidence contracts/development/implementation.md#efficient-algorithms One shaft and a fixed number of convex blade cells.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the blade panel and handle construction, reflected at its two ends.
@@ -32,9 +32,12 @@ const v: typeof Vector3.create = Vector3.create;
 export function createKayakPaddle(
   params: createKayakPaddle.IParams = {},
   seed?: number | string,
-): Archetype<createKayakPaddle.Affordance, createKayakPaddle.Dimension> {
-  const draw: ArchetypeDrawSession<createKayakPaddle.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createKayakPaddle.Affordance,
+  createKayakPaddle.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createKayakPaddle.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "kayakPaddle",
       createKayakPaddle.UNITS,
       seed,
@@ -43,10 +46,10 @@ export function createKayakPaddle(
   const d: Record<createKayakPaddle.Dimension, number> = draw.dimensions(
     createKayakPaddle.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createKayakPaddle.Affordance,
     createKayakPaddle.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     name: "kayak paddle",
     material: "composite",
     id: params.id,
@@ -54,6 +57,8 @@ export function createKayakPaddle(
   });
   const half: number = d.length / 2;
   const shoulder: number = half - d.bladeLength;
+
+  // The shaft's 29 mm diameter is authored.
   const diameter: number = 0.029;
   builder.rod("shaft", diameter / 2, v(-shoulder, 0, 0), v(shoulder, 0, 0), {
     color: "#353b40",
@@ -104,17 +109,19 @@ export namespace createKayakPaddle {
     id?: string;
   }
   /** Units of the manufacturer's specifications. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     bladeLength: "m",
     bladeWidth: "m",
     mass: "kg",
   };
   /** Manufacturer figures for the adjustable straight-shaft model. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(2.2, 2.6, SOURCE),
-    bladeLength: ArchetypeBand.metres(0.49, 0.49, SOURCE),
-    bladeWidth: ArchetypeBand.metres(0.156, 0.156, SOURCE),
-    mass: ArchetypeBand.of("kg", 1.042, 1.042, SOURCE),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(2.2, 2.6, SOURCE),
+    bladeLength: AutoMovieArchetypeBand.metres(0.49, 0.49, SOURCE),
+    bladeWidth: AutoMovieArchetypeBand.metres(0.156, 0.156, SOURCE),
+    mass: AutoMovieArchetypeBand.of("kg", 1.042, 1.042, SOURCE),
   };
 }

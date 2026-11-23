@@ -96,11 +96,11 @@ export function throwCases(
         parts: [
           HumanChain.subject("a").act(
             "throwObject",
-            { at: { kind: "point", at: target, frame: "world" }, style },
+            { target: { kind: "point", at: target, frame: "world" }, style },
             "t1",
           ).node,
           HumanChain.subject("b").act("catchObject", {
-            from: "t1",
+            partner: "t1",
             ball: "ball",
           }).node,
         ],

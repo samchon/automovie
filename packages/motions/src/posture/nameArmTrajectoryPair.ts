@@ -8,8 +8,9 @@ const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 
 /**
  * A probe and the shape it enters, named for a refusal: the arm segment the
- * probe rides and the bone the shape rides, with its collider part, so a law
- * can fix the path at its cause.
+ * probe rides (a digit's own bone for a probe on a digit) with the bone of a
+ * collider probe off the digits, and the bone the shape rides, with its
+ * collider part, so a law can fix the path at its cause.
  *
  * @param c The context.
  * @param a The arm.
@@ -64,5 +65,9 @@ export function nameArmTrajectoryPair(
           : owner;
   const target: IAutoMovieMotionHumanArmGeometry.IShape | undefined =
     frame.shapes[shape];
-  return `the ${segment}'s probe ${probe} inside ${target === undefined ? `shape ${shape}` : `the obstacle ${target.bone} (shape ${shape}, collider part ${target.part})`}`;
+  // A collider probe off a digit names the bone it rides too, so the words
+  // tell a palm's probe from an arm's.
+  const on: string =
+    bone === undefined || bone === segment ? "" : ` (on ${bone})`;
+  return `the ${segment}'s probe ${probe}${on} inside ${target === undefined ? `shape ${shape}` : `the obstacle ${target.bone} (shape ${shape}, collider part ${target.part})`}`;
 }

@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The federal handrail rule read. */
@@ -20,7 +20,7 @@ const DULUTH: string =
   "Duluth Transit Authority heavy-duty bus technical specifications (28 August 2020), 1.21 Passenger Assists: assists 1 1/4 inch in diameter, the overhead assist no less than 70 inches above the floor (https://www.duluthtransit.com/wp-content/uploads/2020/08/Heavy-Duty-Buses-Technical-Specifications.pdf)";
 
 /** A strap's loop, metres: HAPPICH's 200 mm drawing label, the grip at its foot. */
-const LOOP: number = 200 * ArchetypeUnits.MILLIMETRE;
+const LOOP: number = 200 * AutoMovieArchetypeUnits.MILLIMETRE;
 
 /** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `run`, the overhead rail's length a strap hangs from; `tape`, a strap's tape width and thickness. */
 const ESTIMATES: Readonly<{ run: number; tape: number }> = {
@@ -36,7 +36,7 @@ const ESTIMATES: Readonly<{ run: number; tape: number }> = {
  * @param params The kind, a strap's model and any dimension the author fixes.
  * @param seed The seed that draws a strap's model when it is not given and every dimension left free inside its band; absent, the first strap and the middle of each band.
  * @returns The handhold.
- * @throws {ArchetypeRefusal} For a strap HAPPICH does not list or one named for a pole, a fixed dimension outside its band, or one only another kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a strap HAPPICH does not list or one named for a pole, a fixed dimension outside its band, or one only another kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each kind's place, its contacts and its static use with the missing law.
  * @evidence contracts/development/implementation.md#principled-implementation The federal rule's handrail diameter, the bus specification's overhead height, one of HAPPICH's straps whole, its length and its mass with its clamping piece, and its loop.
@@ -49,9 +49,9 @@ const ESTIMATES: Readonly<{ run: number; tape: number }> = {
 export function createHandhold(
   params: createHandhold.IParams,
   seed?: number | string,
-): Archetype<createHandhold.Affordance, createHandhold.Dimension> {
-  const draw: ArchetypeDrawSession<createHandhold.Dimension> =
-    new ArchetypeDrawSession<createHandhold.Dimension>(
+): AutoMovieArchetype<createHandhold.Affordance, createHandhold.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createHandhold.Dimension> =
+    new AutoMovieArchetypeDrawSession<createHandhold.Dimension>(
       "handhold",
       createHandhold.UNITS,
       seed,
@@ -75,10 +75,10 @@ export function createHandhold(
     ...draw.dimensions(createHandhold.BANDS[kind], createHandhold.BANDS),
     ...strap.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHandhold.Affordance,
     createHandhold.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: kind === "pole" ? "steel" : "composite",
     id: params.id,
     name:
@@ -97,7 +97,11 @@ export function createHandhold(
       id: "pole",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, height / 2, 0), v(0, 0, 1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, height / 2, 0),
+        v(0, 0, 1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: diameter,
@@ -124,7 +128,11 @@ export function createHandhold(
       id: "rail",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, height, 0), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, height, 0),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: diameter,
@@ -134,7 +142,11 @@ export function createHandhold(
       id: "strap",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(v(0, foot, 0), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, foot, 0),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "hook",
     });
@@ -177,7 +189,9 @@ export namespace createHandhold {
   export type Dimension = "height" | "diameter" | "length" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     length: "m",
@@ -229,26 +243,33 @@ export namespace createHandhold {
   }
 
   /** The bands every handhold shares. */
-  const SHARED: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
-    height: ArchetypeBand.metres(
-      70 * ArchetypeUnits.INCH,
-      70 * ArchetypeUnits.INCH,
-      `${DULUTH}; the model takes the least`,
-    ),
-    diameter: ArchetypeBand.metres(
-      1.25 * ArchetypeUnits.INCH,
-      1.5 * ArchetypeUnits.INCH,
-      CFR,
-    ),
-  };
+  const SHARED: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> =
+    {
+      height: AutoMovieArchetypeBand.metres(
+        70 * AutoMovieArchetypeUnits.INCH,
+        70 * AutoMovieArchetypeUnits.INCH,
+        `${DULUTH}; the model takes the least`,
+      ),
+      diameter: AutoMovieArchetypeBand.metres(
+        1.25 * AutoMovieArchetypeUnits.INCH,
+        1.5 * AutoMovieArchetypeUnits.INCH,
+        CFR,
+      ),
+    };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     pole: {
       ...SHARED,
-      mass: ArchetypeBand.of("kg", 3, 6, ArchetypeBand.TYPICAL_MASS, true),
+      mass: AutoMovieArchetypeBand.of(
+        "kg",
+        3,
+        6,
+        AutoMovieArchetypeBand.TYPICAL_MASS,
+        true,
+      ),
     },
     strap: SHARED,
   };

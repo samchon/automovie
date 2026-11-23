@@ -1,11 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import type { createSanitary } from "./createSanitary";
 import { createTap } from "./createTap";
 
 /** The builder every kind's construction fills. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createSanitary.Affordance,
   createSanitary.Dimension
 >;
@@ -26,11 +29,6 @@ const v: typeof Vector3.create = Vector3.create;
  * The parts and contacts the named plumbing fixture producers build from their drawn dimensions, with the estimated construction sizes.
  *
  * Every function places its fixture with its back against the wall at the origin's `Z`, centred on `X`, on the floor. Every contact's place and every articulation's range comes from a cited band or is derived from one; the estimates below size only parts no act reads.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the namespace holds, the frame every construction shares and what the estimates may size.
- * @evidence contracts/development/design.md#principled-representation Code CAD over the builder's primitives from named dimensions, one construction per kind of the producer's closed union.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Each named plumbing fixture producer reads its own construction and its geometry's estimates.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No construction reads another kind's dimension; the estimates are named here, not hidden in the arithmetic, and none places a contact.
  */
 export namespace SanitaryConstruction {
   /**
@@ -64,14 +62,6 @@ export namespace SanitaryConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the mixer stands and how its lever turns and lifts.
-   * @evidence contracts/development/implementation.md#principled-implementation A block of the maker's plan size and basin depth under the rim, on a pedestal a sixth of the basin's width in radius, a construction proportion; the mixer from the basin mixer's drawn bands in the middle of the deck strip between the wall and the opening's back edge, so its spout of the maker's reach ends over the opening, and the `spout` socket at the maker's outlet height and reach.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Basin, pedestal, mixer, then the four contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The basin is not hollowed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `createTap`'s bands, so a basin's mixer is the tap's.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function washbasin(builder: Builder, d: Drawn): void {
     const rim: number = d.rim!;
@@ -113,14 +103,18 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "rim",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(0, rim, depth), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, rim, depth),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       length: width,
     });
     builder.affordance({
       id: "bowl",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, rim, depth / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, rim, depth / 2)),
       extent: null,
       width: d.bowlWidth!,
       depth: d.bowlDepth!,
@@ -128,7 +122,11 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "tap",
       kind: "knob",
-      frame: ArchetypeFrame.facing(v(0, top, deck), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, top, deck),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       grip: "precision",
       travel: MIXER.turn,
@@ -137,7 +135,11 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "lift",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, top, deck), v(-1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, top, deck),
+        v(-1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
       travel: MIXER.lift,
       parts: ["tap-lever"],
@@ -146,7 +148,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "spout",
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, outlet, deck + d.tapReach!),
         v(0, -1, 0),
         v(1, 0, 0),
@@ -162,14 +164,6 @@ export namespace SanitaryConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, which way the lid moves and why there is no lever.
-   * @evidence contracts/development/implementation.md#principled-implementation Blocks from the seat height and the maker's plan: the ring's top at the drawn seat height, the hinge line the seat's depth behind the bowl's front, the tank between its sheet's offset and depth up to its top.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Bowl, ring, lid, tank, then the two contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The bowl is a block, not a rim; the ring's and lid's thickness are this namespace's construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Four parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one fixture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function toilet(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -209,7 +203,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, seat, front)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, seat, front)),
       extent: null,
       width,
       depth: d.seatDepth!,
@@ -217,7 +211,11 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "lid",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, seat, hinge), v(1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, seat, hinge),
+        v(1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
       travel: LIFT,
       parts: ["lid"],
@@ -231,14 +229,6 @@ export namespace SanitaryConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, its orientation and how the well's floor is placed.
-   * @evidence contracts/development/implementation.md#principled-implementation A slab and four walls whose inner faces bound the maker's well bottom, so the `bottom` surface is the sheet's basin area; the floor the sheet's water depth under the rim.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Slab, back and apron, two ends, then the contacts: the rim, the apron's edge and top a step over clears, the well's floor, the seat and the backrest.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The well's sloped back and rounded corners are not drawn; the overflow's depth stands for the well's, said above.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Five parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one fixture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bathtub(builder: Builder, d: Drawn): void {
     const rim: number = d.rim!;
@@ -275,7 +265,11 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "rim",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(0, rim, width), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, rim, width),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       length,
     });
@@ -285,14 +279,18 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "edge",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(0, rim, width), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, rim, width),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       length,
     });
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, rim, width - side / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, rim, width - side / 2)),
       extent: null,
       width: length,
       depth: side,
@@ -300,7 +298,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "bottom",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, width / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, floor, width / 2)),
       extent: null,
       width: wellX,
       depth: wellZ,
@@ -312,7 +310,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, floor, width / 2),
         v(1, 0, 0),
         v(0, 1, 0),
@@ -325,7 +323,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "backrest",
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-wellX / 2, (rim + floor) / 2, width / 2),
         v(1, 0, 0),
         v(0, 1, 0),
@@ -343,14 +341,6 @@ export namespace SanitaryConstruction {
    *
    * @param builder The builder to fill.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built, where the seat and the valve stand and why the valve does not turn.
-   * @evidence contracts/development/implementation.md#principled-implementation Boxes whose inner faces bound the clause's inside square; the seat's front edge its drawn depth from its wall, its run from the back wall to the clause's 3 in from the entry; the valve on the `-X` wall's inner face at its drawn height opposite the seat's middle, as ADA 608.5.1 places it within 15 in of the seat's centreline.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Tray, walls, seat, valve, then the five contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No shower head or hose: their heights are not given by a source read; the wall and seat thickness are this namespace's construction estimates.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Six parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one fixture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function shower(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -401,7 +391,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "tray",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, step, wall + half)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, step, wall + half)),
       extent: null,
       width: inside,
       depth: inside,
@@ -409,14 +399,22 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "threshold",
       kind: "ledge",
-      frame: ArchetypeFrame.facing(v(0, step, depth), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, step, depth),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       length: inside,
     });
     builder.affordance({
       id: "entry",
       kind: "aperture",
-      frame: ArchetypeFrame.facing(v(0, step, depth), v(0, 1, 0), v(-1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, step, depth),
+        v(0, 1, 0),
+        v(-1, 0, 0),
+      ),
       extent: null,
       width: inside,
       height: height - step,
@@ -424,7 +422,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(out, seat, wall + run / 2),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -436,7 +434,7 @@ export namespace SanitaryConstruction {
     builder.affordance({
       id: "control",
       kind: "knob",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(-half, d.control!, wall + run / 2),
         v(1, 0, 0),
         v(0, 0, 1),

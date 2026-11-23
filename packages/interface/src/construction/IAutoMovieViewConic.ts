@@ -3,20 +3,10 @@ import type { IAutoMovieConicHermite } from "./IAutoMovieConicHermite";
 
 /**
  * Data and callback contracts shared by the ViewConic operations.
- *
- * @evidence contracts/development/design.md#principled-representation Quarter records retain mm extents, scalar shoulders and optional G2 end patches; rays preserve the original quarter and selected native clock.
- * @evidence contracts/development/design.md#minimal-and-owned-surface ViewConic and differentiated/native section readers use these interface records and the existing ConicArc/ConicHermite contracts.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A failed curve keeps its explicit failure and empty quarters; generic T does not certify finite positive source values.
- * @evidence contracts/development/common.md#meaningful-documentation Defines quarter orientation, support ownership, derivative meanings and admission failure.
  */
 export namespace IAutoMovieViewConic {
   /**
    * Selected quarter location, preserving the source's actual numeric clock.
-   *
-   * @evidence contracts/development/design.md#principled-representation Extends the shared numeric ray with the exact quarter and raw/G2 selection.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One descriptor is consumed by fixed-clock field readers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second inverse, implicit fallback or invented endpoint clock is hidden.
-   * @evidence contracts/development/common.md#meaningful-documentation Angle is original-quarter local; distance is selected-end local; point and tangent are already restored to the original chart.
    */
   export interface IRay extends IAutoMovieConicArc.IRay {
     /** Original quarter index in[0,3]. */
@@ -34,11 +24,6 @@ export namespace IAutoMovieViewConic {
 
   /**
    * One source quarter and its disjoint initial/final C2 supports.
-   *
-   * @evidence contracts/development/design.md#principled-representation The positive extents/shoulder identify the original conic; each optional end holds its distinct convex G2 approximation and native boundary.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Two extents, one shoulder, two optional ends and one native partition expose the complete prepared quarter.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Holds no sampled replacement curve or emitted mesh data.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state length, shoulder, optional-end and native-partition meanings.
    */
   export interface IQuarter<T = number> {
     /** First and second positive half extents, millimetres. */
@@ -65,11 +50,6 @@ export namespace IAutoMovieViewConic {
 
   /**
    * Prepared closed source with an explicit admission failure state.
-   *
-   * @evidence contracts/development/design.md#principled-representation Keeps four admitted quarter functions or the exact reason their positive-curvature/finite arithmetic premise failed.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One discriminating nullable failure keeps source admission separate from radius reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A failure does not select a fallback shape, hidden quarter or sampled polygon.
-   * @evidence contracts/development/common.md#meaningful-documentation States successful quarter count and failure meaning.
    */
   export interface ICurve<T = number> {
     /** Four source quarters on success; empty on admission failure. */

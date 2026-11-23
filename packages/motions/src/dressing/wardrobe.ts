@@ -14,8 +14,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { wardrobeFoot } from "./wardrobeFoot";
@@ -257,7 +259,10 @@ function thread(
     model,
     wardrobeHands.frame(wear),
   );
-  if (!held && Vector3.distance(mounted.position, collar(context).position) > 0.12)
+  if (
+    !held &&
+    Vector3.distance(mounted.position, collar(context).position) > 0.12
+  )
     throw wardrobeHands.refusal(
       "prop",
       params.prop,
@@ -280,16 +285,36 @@ function thread(
   const across: number = wardrobeHands.duration(first, last);
   const finish: number = prepare + across;
   const total: number = finish + 0.18;
-  const posture: (t: number) => IAutoMovieMotionHumanPosture = (
+  // Through a jacket a partner holds open, the threaded arm has no further
+  // part in the dressing (the partner's release puts the jacket on), so it
+  // returns to the arm it entered with: a free-space transfer as long as the
+  // reach (the retraction that closes a reach, McNeill 1992), on the same
+  // planned course, so it comes down clear of the body instead of being
+  // blended back in joint space by the next action. A wearer dressing alone
+  // keeps the threaded arm where it is for the next garment act (a zip, a
+  // sleeve pulled out), which reaches on from there.
+  const back: number = held ? wardrobeHands.duration(last, home) : 0;
+  const end: number = total + back;
+  // A demand that leaves the arm out (`courseArmGoal`, the arm on its
+  // course) takes no goal of it (`wardrobeHands.arm`). After the hold the
+  // plan's goal is the entry grip, the course's return's end.
+  const posture: (
     t: number,
+    channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+  ) => IAutoMovieMotionHumanPosture = (
+    t: number,
+    channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
   ): IAutoMovieMotionHumanPosture =>
     wardrobeHands.arm(
       body,
       entry.posture,
       side,
-      t <= prepare
-        ? wardrobeHands.path(home, first, t / prepare)
-        : wardrobeHands.path(first, last, (t - prepare) / across),
+      t > total
+        ? home
+        : t <= prepare
+          ? wardrobeHands.path(home, first, t / prepare)
+          : wardrobeHands.path(first, last, (t - prepare) / across),
+      channels,
     );
   wardrobeHands.verify(
     context,
@@ -305,20 +330,31 @@ function thread(
     last,
     wardrobeHands.MISS,
   );
-  return {
-    ...AutoMovieMotionHumanBase.under(context, total),
-    events: [
-      { name: "sleeveReady", share: prepare / total },
-      {
-        name: "sleeveOpening",
-        share: (prepare + across * (reverse ? 1 - passage : passage)) / total,
-      },
-      { name: "sleeveClear", share: finish / total },
-      { name: "relax", share: 1 },
-    ],
-    hands: [side],
-    posture,
-  };
+  // The threading arm is laid as one course over the hand's goal
+  // (`courseArmGoal`): the planner's reach to the sleeve's near end, then
+  // the passage read at every second with branch and swivel continuity, in
+  // place of a fresh fit at each second, where two nearly tied solutions
+  // let one frame turn the hand over. The checks above read the goal.
+  return courseArmGoal({
+    body,
+    side,
+    rest: AutoMovieMotionHumanArm.angles(entry.pose, side),
+    span: { start: 0, ready: prepare, relax: total, end },
+    plan: {
+      ...AutoMovieMotionHumanBase.under(context, end),
+      events: [
+        { name: "sleeveReady", share: prepare / end },
+        {
+          name: "sleeveOpening",
+          share: (prepare + across * (reverse ? 1 - passage : passage)) / end,
+        },
+        { name: "sleeveClear", share: finish / end },
+        { name: "relax", share: total / end },
+      ],
+      hands: [side],
+      posture,
+    },
+  });
 }
 
 /** The torso origin set by the wearer's actual left and right shoulders. */
@@ -429,19 +465,21 @@ function sleeve(
         ),
       }),
   );
+  // One roll serves both ends: the hand keeps its turn about the sleeve's
+  // axis while it passes down the sleeve, as the zipper's hand keeps its own
+  // along the slider. Rolling between two separately chosen ends would turn
+  // the wrist inside the sleeve and pull the hand off the axis between them.
+  const rotation: IAutoMovieQuaternion = wardrobeHands.fittedGrip(
+    context,
+    side,
+    before,
+    after,
+    rotations,
+    "the hand cannot pass this sleeve within its posed reach",
+  );
   const endpoint: (position: IAutoMovieVector3) => IAutoMovieRigidTransform = (
     position: IAutoMovieVector3,
-  ): IAutoMovieRigidTransform => ({
-    position,
-    rotation: wardrobeHands.fittedGrip(
-      context,
-      side,
-      position,
-      position,
-      rotations,
-      "the hand cannot pass this sleeve within its posed reach",
-    ),
-  });
+  ): IAutoMovieRigidTransform => ({ position, rotation });
   const crossing: number = CLEAR / (2 * CLEAR + depth);
   let earlier: number = 0;
   let later: number = 1;

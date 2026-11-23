@@ -7,11 +7,8 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanTouchEffector,
-  HumanFoot,
-  touchEffectors,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanTouch } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -19,6 +16,9 @@ import type { IPlaygroundComposition } from "../src/playground/structures/IPlayg
 import { SCENES } from "../src/scenes/SCENES";
 import { SceneTake } from "../src/scenes/SceneTake";
 import type { IScene } from "../src/scenes/structures/IScene";
+
+const { AutoMovieMotionHumanTouchEffector, touchEffectors } =
+  AutoMovieMotionHumanTouch;
 
 /** Where and when one athlete's displayed right palm arrives at the low five. */
 interface IArrival {

@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { GoalBuild } from "./GoalBuild";
 import { createBasketballHoop } from "./createBasketballHoop";
 import { createFieldGoal } from "./createFieldGoal";
@@ -11,7 +11,7 @@ import { createVolleyballNet } from "./createVolleyballNet";
  * @param params The saved kind, optional identifier and any dimensions or choices the author supplied.
  * @param seed The seed used by the selected producer.
  * @returns The original model and its contacts.
- * @throws {ArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When the saved kind, choice or dimension cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the saved input and selected model.
  * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and use its producer's bands and original seed domain.
@@ -24,7 +24,7 @@ import { createVolleyballNet } from "./createVolleyballNet";
 export function createGoal(
   params: createGoal.IParams,
   seed?: number | string,
-): Archetype<createGoal.Affordance, createGoal.Dimension> {
+): AutoMovieArchetype<createGoal.Affordance, createGoal.Dimension> {
   const kind: createGoal.Kind = ArchetypeDraw.choice(
     "goal",
     "kind",
@@ -36,8 +36,8 @@ export function createGoal(
   const produce: (
     params: createGoal.IParams,
     seed?: number | string,
-  ) => Archetype<createGoal.Affordance, createGoal.Dimension> = createGoal
-    .PRODUCERS[kind] as typeof produce;
+  ) => AutoMovieArchetype<createGoal.Affordance, createGoal.Dimension> =
+    createGoal.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);
 }
 

@@ -2,18 +2,22 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A provisional band in metres from a secondary source. */
-const m = (minimum: number, maximum: number, source: string): IArchetypeBand =>
-  ArchetypeBand.of("m", minimum, maximum, source, true);
+const m = (
+  minimum: number,
+  maximum: number,
+  source: string,
+): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.of("m", minimum, maximum, source, true);
 
 /** Frame geometry no source gave. */
 const GEOMETRY: string =
@@ -29,7 +33,7 @@ const GEOMETRY: string =
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The bicycle.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bicycle's origin and front, the crank's zero and turning sense, and how the saddle height is measured.
  * @evidence contracts/development/implementation.md#principled-implementation Rods for the frame's tubes from the bottom bracket, the two axles and the saddle; the saddle's top lies `saddleHeight` up the seat tube from the bottom bracket's centre, the point LeMond's 0.883 of the inseam is measured to (Bini, Hume and Croft 2011, Sports Med 41:463, section 3.1.1). The crank's frame points out of the left side so that a right-handed turn about it carries the top of the stroke forward.
@@ -42,9 +46,9 @@ const GEOMETRY: string =
 export function createBicycle(
   params: createBicycle.IParams = {},
   seed?: number | string,
-): Archetype<createBicycle.Affordance, createBicycle.Dimension> {
-  const draw: ArchetypeDrawSession<createBicycle.Dimension> =
-    new ArchetypeDrawSession<createBicycle.Dimension>(
+): AutoMovieArchetype<createBicycle.Affordance, createBicycle.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBicycle.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBicycle.Dimension>(
       "bicycle",
       createBicycle.UNITS,
       seed,
@@ -53,10 +57,10 @@ export function createBicycle(
   const d: Record<createBicycle.Dimension, number> = draw.dimensions(
     createBicycle.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createBicycle.Affordance,
     createBicycle.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: "bicycle",
@@ -76,7 +80,7 @@ export function createBicycle(
     -Math.sqrt(stay * stay - (radius - d.bottomBracket) ** 2),
   );
   const fore: IAutoMovieVector3 = v(0, radius, rear.z + d.wheelbase);
-  const angle: number = d.seatAngle * ArchetypeUnits.DEGREE;
+  const angle: number = d.seatAngle * AutoMovieArchetypeUnits.DEGREE;
   const saddle: IAutoMovieVector3 = v(
     0,
     d.bottomBracket + d.saddleHeight * Math.sin(angle),
@@ -107,7 +111,7 @@ export function createBicycle(
     builder.affordance({
       id: `${end}Spin`,
       kind: "knob",
-      frame: ArchetypeFrame.facing(at, v(1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(at, v(1, 0, 0), v(0, 1, 0)),
       extent: null,
       travel: 360,
       parts: [wheel, marker],
@@ -132,7 +136,7 @@ export function createBicycle(
   builder.affordance({
     id: "saddle",
     kind: "seat",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       v(0, saddle.y, saddle.z + createBicycle.SADDLE / 2),
     ),
     extent: null,
@@ -158,7 +162,7 @@ export function createBicycle(
       id,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(
+      frame: AutoMovieArchetypeFrame.upright(
         v(sign * (d.handlebarWidth / 2 - 0.06), bars.y, bars.z),
       ),
       extent: null,
@@ -186,7 +190,11 @@ export function createBicycle(
   builder.affordance({
     id: "crank",
     kind: "crank",
-    frame: ArchetypeFrame.facing(v(half, bracket.y, 0), v(1, 0, 0), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(half, bracket.y, 0),
+      v(1, 0, 0),
+      v(0, 1, 0),
+    ),
     extent: null,
     radius: d.crank,
     parts: ["crank-left", "crank-right"],
@@ -209,7 +217,7 @@ export function createBicycle(
     builder.affordance({
       id,
       kind: "pedal",
-      frame: ArchetypeFrame.upright(at),
+      frame: AutoMovieArchetypeFrame.upright(at),
       extent: null,
       width: createBicycle.PEDAL.width,
       depth: createBicycle.PEDAL.depth,
@@ -291,7 +299,9 @@ export namespace createBicycle {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     wheelDiameter: "m",
     wheelbase: "m",
     bottomBracket: "m",
@@ -313,7 +323,7 @@ export namespace createBicycle {
   }
 
   /** The band of each free dimension; every one is provisional, read at secondary sources or not at all. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     wheelDiameter: m(
       0.672,
       0.702,
@@ -332,7 +342,7 @@ export namespace createBicycle {
       0.8,
       "0.883 of an inseam of about 0.70 to 0.90 m, LeMond's rule as given by Bini, Hume and Croft 2011, Sports Med 41:463 (https://paulogentil.com/pdf/Effects%20of%20Bicycle%20Saddle%20Height%20on%20Knee%20Injury%20Risk%20and%20Cycling%20Performance.pdf); the inseam range is an estimate",
     ),
-    seatAngle: ArchetypeBand.of("degrees", 72, 74, GEOMETRY, true),
+    seatAngle: AutoMovieArchetypeBand.of("degrees", 72, 74, GEOMETRY, true),
     saddleWidth: m(0.13, 0.16, "saddle width, not read at a source"),
     reach: m(0.48, 0.56, GEOMETRY),
     handlebarWidth: m(
@@ -345,6 +355,12 @@ export namespace createBicycle {
       0.0238,
       "22.2 mm flat bar and 23.8 mm drop bar grip areas (Wikipedia, Bicycle handlebar, https://en.wikipedia.org/wiki/Bicycle_handlebar)",
     ),
-    mass: ArchetypeBand.of("kg", 8, 14, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      8,
+      14,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** No maker's page was read. */
@@ -33,9 +33,12 @@ const STAGED: string =
 export function createSledgehammer(
   params: createSledgehammer.IParams = {},
   seed?: number | string,
-): Archetype<createSledgehammer.Affordance, createSledgehammer.Dimension> {
-  const draw: ArchetypeDrawSession<createSledgehammer.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createSledgehammer.Affordance,
+  createSledgehammer.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createSledgehammer.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "sledgehammer",
       createSledgehammer.UNITS,
       seed,
@@ -45,10 +48,10 @@ export function createSledgehammer(
     createSledgehammer.BANDS,
   );
   const pick: boolean = params.kind === "pickaxe";
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSledgehammer.Affordance,
     createSledgehammer.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: pick ? "a pickaxe" : "a sledgehammer",
     material: "steel",
@@ -67,7 +70,11 @@ export function createSledgehammer(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(v(0, 0.04, reach), v(0, 0, 1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0.04, reach),
+      v(0, 0, 1),
+      v(0, 1, 0),
+    ),
     extent: null,
     width: pick ? 0.02 : 0.08,
   });
@@ -79,7 +86,7 @@ export function createSledgehammer(
     id: "shaft",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, (0.08 + d.length) / 2, 0),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -120,7 +127,9 @@ export namespace createSledgehammer {
   }
 
   /** Units of each dimension. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     head: "m",
     headMass: "kg",
@@ -128,10 +137,10 @@ export namespace createSledgehammer {
   };
 
   /** Staged bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(0.8, 0.95, STAGED, true),
-    head: ArchetypeBand.metres(0.16, 0.22, STAGED, true),
-    headMass: ArchetypeBand.of("kg", 2.5, 4.5, STAGED, true),
-    mass: ArchetypeBand.of("kg", 3.5, 5.5, STAGED, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(0.8, 0.95, STAGED, true),
+    head: AutoMovieArchetypeBand.metres(0.16, 0.22, STAGED, true),
+    headMass: AutoMovieArchetypeBand.of("kg", 2.5, 4.5, STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 3.5, 5.5, STAGED, true),
   };
 }

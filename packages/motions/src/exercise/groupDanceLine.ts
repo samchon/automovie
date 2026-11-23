@@ -84,7 +84,7 @@ export namespace groupDanceLine {
       (entry.feet.left.ankle.y + entry.feet.right.ankle.y) / 2;
     const lift: number = LIFT * body.measure.stature;
     const travel: number = TRAVEL * beats.period;
-    const end: number = beats.at(beats.beats) + beats.period;
+    const end: number = beats.at(beats.count) + beats.period;
     const keys: Record<
       AutoMovieHumanSide,
       IAutoMovieMotionHumanDanceFootKey[]

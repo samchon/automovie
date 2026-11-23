@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -50,12 +50,12 @@ const SIZE: Readonly<createHoseLine.ISize> = {
  */
 export function createHoseLine(
   params: createHoseLine.IParams = {},
-): Archetype<createHoseLine.Affordance, createHoseLine.Dimension> {
+): AutoMovieArchetype<createHoseLine.Affordance, createHoseLine.Dimension> {
   const v: typeof Vector3.create = Vector3.create;
   const tip: number = SIZE.length;
   const start: number = tip - SIZE.nozzle;
-  const draw: ArchetypeDrawSession<createHoseLine.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createHoseLine.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "hoseLine",
       { bore: "m", length: "m", mass: "kg" },
       undefined,
@@ -63,10 +63,10 @@ export function createHoseLine(
   draw.derive("bore", SIZE.bore);
   draw.derive("length", SIZE.length);
   draw.derive("mass", SIZE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createHoseLine.Affordance,
     createHoseLine.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "hose",
     name: "hose line",
     material: "rubber",
@@ -92,7 +92,7 @@ export function createHoseLine(
     extent: null,
     travel: SIZE.flex,
     parts: ["knuckle"],
-    frame: ArchetypeFrame.upright(v(0, 0, bend)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, bend)),
   });
   builder.affordance({
     id: "flexPitch",
@@ -101,7 +101,11 @@ export function createHoseLine(
     travel: SIZE.flex,
     rides: "flex",
     parts: ["hose"],
-    frame: ArchetypeFrame.facing(v(0, 0, bend), v(1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, bend),
+      v(1, 0, 0),
+      v(0, 0, 1),
+    ),
   });
   builder.rod("nozzle", 0.035, v(0, 0, start), v(0, 0, tip), {
     color: "#3d3d3d",
@@ -113,7 +117,11 @@ export function createHoseLine(
     id: "nozzle",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, 0, tip - 0.15), v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 0, tip - 0.15),
+      v(0, 1, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     grip: "power",
     aperture: 0.07,
@@ -125,7 +133,7 @@ export function createHoseLine(
     extent: null,
     travel: SIZE.bail,
     parts: ["bailBar"],
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0.035, tip - 0.08),
       v(1, 0, 0),
       v(0, 0, 1),
@@ -136,7 +144,7 @@ export function createHoseLine(
     kind: "handle",
     symmetry: "none",
     rides: "bail",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0.06, tip - 0.08),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -151,7 +159,7 @@ export function createHoseLine(
     kind: "handle",
     symmetry: "round",
     rides: "flexPitch",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0, tip - SIZE.nozzle - SIZE.spacing),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -164,7 +172,7 @@ export function createHoseLine(
   builder.affordance({
     id: "tip",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, 0, tip), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, tip), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
   });
   return builder.build(SIZE.mass);

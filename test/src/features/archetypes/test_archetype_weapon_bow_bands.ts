@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createBow,
 } from "@automovie/archetypes";
 import { AutoMovieGravity } from "@automovie/engine";
@@ -56,7 +56,7 @@ export function test_archetype_weapon_bow_bands(): void {
     row(
       "length",
       1.67,
-      66 * ArchetypeUnits.INCH,
+      66 * AutoMovieArchetypeUnits.INCH,
       (s: number): number => archetypeExtent(bow(s), "y", STRING_PARTS).size,
     ),
     row(
@@ -68,8 +68,8 @@ export function test_archetype_weapon_bow_bands(): void {
     row("mass", 0.785, 0.905, (s: number): number => bow(s).body.mass),
     row(
       "horse bow length",
-      48 * ArchetypeUnits.INCH,
-      53 * ArchetypeUnits.INCH,
+      48 * AutoMovieArchetypeUnits.INCH,
+      53 * AutoMovieArchetypeUnits.INCH,
       (s: number): number => archetypeExtent(horse(s), "y", STRING_PARTS).size,
     ),
     row(
@@ -86,8 +86,8 @@ export function test_archetype_weapon_bow_bands(): void {
     ),
     row(
       "horse bow draw",
-      15 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
-      60 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      15 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      60 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       (s: number): number => horse(s).dimensions.draw!,
     ),
     row("horse bow brace", 0.14, 0.15, (s: number): number => {
@@ -100,8 +100,8 @@ export function test_archetype_weapon_bow_bands(): void {
     }),
     row(
       "recurve length",
-      68 * ArchetypeUnits.INCH,
-      70 * ArchetypeUnits.INCH,
+      68 * AutoMovieArchetypeUnits.INCH,
+      70 * AutoMovieArchetypeUnits.INCH,
       (s: number): number =>
         archetypeExtent(recurve(s), "y", STRING_PARTS).size,
     ),
@@ -119,14 +119,14 @@ export function test_archetype_weapon_bow_bands(): void {
     ),
     row(
       "recurve draw",
-      49 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
-      54 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      49 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      54 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       (s: number): number => recurve(s).dimensions.draw!,
     ),
     row(
       "recurve brace",
-      8.5 * ArchetypeUnits.INCH,
-      9.5 * ArchetypeUnits.INCH,
+      8.5 * AutoMovieArchetypeUnits.INCH,
+      9.5 * AutoMovieArchetypeUnits.INCH,
       (s: number): number => {
         const made: ReturnType<typeof createBow> = recurve(s);
         return (
@@ -138,21 +138,21 @@ export function test_archetype_weapon_bow_bands(): void {
     ),
     row(
       "crossbow mass",
-      10 * ArchetypeUnits.POUND,
-      12 * ArchetypeUnits.POUND,
+      10 * AutoMovieArchetypeUnits.POUND,
+      12 * AutoMovieArchetypeUnits.POUND,
       (s: number): number => createBow({ kind: "crossbow" }, s).body.mass,
     ),
     row(
       "crossbow bow",
-      30 * ArchetypeUnits.INCH,
-      30 * ArchetypeUnits.INCH,
+      30 * AutoMovieArchetypeUnits.INCH,
+      30 * AutoMovieArchetypeUnits.INCH,
       (s: number): number =>
         createBow({ kind: "crossbow" }, s).dimensions.length!,
     ),
     row(
       "draw",
-      101 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
-      141 * ArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      101 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
+      141 * AutoMovieArchetypeUnits.POUND * AutoMovieGravity.STANDARD,
       (s: number): number => bow(s).dimensions.draw!,
     ),
   ]);
@@ -174,7 +174,7 @@ export function test_archetype_weapon_bow_bands(): void {
       !(
         Math.abs(nock.frame.translation.z - (string + createBow.STRING)) <= 1e-9
       ) ||
-      !(Math.abs(ArchetypeFrame.axis(nock.frame, "y").z - 1) <= 1e-12)
+      !(Math.abs(AutoMovieArchetypeFrame.axis(nock.frame, "y").z - 1) <= 1e-12)
     )
       findings.push(`longbow@${seed}: the nock is off the string at the grip`);
     if (!(Math.abs(archetypeExtent(longbow, "y").low) <= 1e-9))

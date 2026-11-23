@@ -138,6 +138,8 @@ export function edgeRescueFaller(
     root: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture => ({ ...hang, root });
 
+  // The landed body's hips offset from its root, read once.
+  let landedHips: IAutoMovieVector3 | undefined;
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
@@ -158,10 +160,20 @@ export function edgeRescueFaller(
         { ...landed.root, y: ground + 0.12 },
         { x: 0, y: 0, z: 0 },
       );
-      return stuntFallPose.blend(
-        landed,
-        lying,
-        minimumJerk.share(Math.min(1, (s - missFall) / COLLAPSE)),
+      // The collapse rests its own lowest collider on the floor at every
+      // instant, so no part passes under it on the way down.
+      return stuntFallPose.rest(
+        body,
+        stuntFallPose.blend(
+          landed,
+          lying,
+          minimumJerk.share(Math.min(1, (s - missFall) / COLLAPSE)),
+        ),
+        {
+          x: landed.root.x + (landedHips ??= stuntFallPose.offset(body, landed)).x,
+          y: ground,
+          z: landed.root.z + landedHips.z,
+        },
       );
     }
     if (t <= scene.caught) {

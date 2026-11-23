@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -9,6 +9,8 @@ import type {
 
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { HumanTrunk } from "../everyday/HumanTrunk";
+import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The deepest address hinge, degrees. Golf address trunk flexion is about
@@ -26,7 +28,9 @@ const LEG: number = 0.98;
 /**
  * Address a ball below the standing hand's reach: hinge the trunk forward
  * at the hips, move the pelvis back so the shoulders stay over their
- * standing place, and lower the pelvis as far as the planted legs need.
+ * standing place and on by the centre of mass's remaining travel, read once
+ * at the full hinge, so the centre of mass stays where it stood over the
+ * base, and lower the pelvis as far as the planted legs need.
  *
  * The hinge is the smallest one, not below `least`, that brings the
  * striking shoulder within reach of the grip's impact point, and the other
@@ -48,10 +52,10 @@ const LEG: number = 0.98;
  * @returns The address applied to a posture at a share from 0 to 1 of its full depth.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three address movements, the hinge rule, its monotone search, the limits and the refusal hand-off.
- * @evidence contracts/development/implementation.md#principled-implementation A golf address flexes the trunk at the hips with the pelvis behind the feet and slightly flexed knees, keeping the centre of mass over the base; the hinge is solved from reach, the pelvis shift from the shoulders' forward travel and the drop from the leg's reach to each planted ankle.
+ * @evidence contracts/development/implementation.md#principled-implementation A golf address flexes the trunk at the hips with the pelvis behind the feet and slightly flexed knees, keeping the centre of mass over the base; the hinge is solved from reach, the pelvis shift from the shoulders' forward travel and the centre of mass's remaining travel (the segmental centre of mass, `resolveAutoMovieCenterOfMass.place`), and the drop from the leg's reach to each planted ankle.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The stroke law keeps its path and contact check; this function owns only the stance that makes the path reachable.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No per-sport stance: one reach rule serves every row. The provisional shares and cap are named with their basis.
- * @evidence contracts/development/implementation.md#efficient-algorithms About two dozen forward-kinematic shoulder reads during preparation; the returned function is constant time per sample.
+ * @evidence contracts/development/implementation.md#efficient-algorithms About two dozen forward-kinematic shoulder reads and two whole-body resolves for the centre of mass during preparation; the returned function is constant time per sample.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Solves once per planned stroke and reuses the result at every sampled time.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains only the solved hinge and two vectors.
  */
@@ -153,9 +157,31 @@ export function addressPrecisionStroke(
       posture: IAutoMovieMotionHumanPosture,
     ): IAutoMovieMotionHumanPosture => posture;
 
+  // The shoulders kept over the standing base still leave the hinged
+  // trunk's mass ahead of where it stood: the pelvis moves back further by
+  // the centre of mass's horizontal travel, read once at the full hinge, so
+  // the centre of mass stays over the base it balanced on standing (the hip
+  // strategy: the pelvis shifts against the trunk's lean, Horak and Nashner
+  // 1986).
+  const centre = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+    resolveAutoMovieCenterOfMass.place(
+      body.massModel,
+      poseBones(body, resolveHumanPosture(body, posture)),
+    );
+  const kept: IAutoMovieVector3 = back(hinge);
+  const stood: IAutoMovieVector3 = centre(entry);
+  const leaned: IAutoMovieVector3 = centre({
+    ...inclined(hinge),
+    root: Vector3.add(entry.root, kept),
+  });
+  const shift: IAutoMovieVector3 = {
+    x: kept.x + stood.x - leaned.x,
+    y: 0,
+    z: kept.z + stood.z - leaned.z,
+  };
+
   // Lower the pelvis until each planted ankle is within the leg's reach of
   // its hip, read after the hinge and the shift back.
-  const shift: IAutoMovieVector3 = back(hinge);
   const legReach: number = LEG * (body.measure.thigh + body.measure.shank);
   let drop: number = 0;
   for (const leg of ["left", "right"] as const) {

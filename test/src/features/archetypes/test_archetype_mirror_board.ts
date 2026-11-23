@@ -1,5 +1,5 @@
 import {
-  ArchetypeUnits,
+  AutoMovieArchetypeUnits,
   createBoard,
   createMirror,
 } from "@automovie/archetypes";
@@ -32,7 +32,7 @@ export function test_archetype_mirror_board(): void {
     if (!(Math.abs(got - wanted) <= MM))
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
-  const inch: number = ArchetypeUnits.INCH;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
 
   // 1. The wall mirror.
   findings.push(

@@ -191,6 +191,36 @@ export namespace HumanUnseatPose {
   }
 
   /**
+   * Where a hand holding nothing hangs: beside the hip, a quarter metre out
+   * and a tenth below the root, turned by the posture's heading.
+   *
+   * @param posture The posture.
+   * @param side The hand.
+   * @returns The hand's place, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the place and its frame.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand's rest offset from the hips turned by the posture's heading, the place `reach` starts a free hand from.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One offset.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts None.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure read.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a new point.
+   */
+  export function hang(
+    posture: IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 {
+    return Vector3.add(
+      posture.root,
+      Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
+        x: (side === "left" ? 1 : -1) * 0.25,
+        y: -0.1,
+        z: 0,
+      }),
+    );
+  }
+
+  /**
    * A hand reaching for a point by a share: its arm goal moves from where the hand hangs to the point.
    *
    * @param posture The posture.
@@ -218,11 +248,7 @@ export namespace HumanUnseatPose {
     const sign: number = side === "left" ? 1 : -1;
     // From where the hand is held now, or where it hangs by the hip.
     const hanging: IAutoMovieVector3 =
-      posture.limbs[`${side}Arm`]?.point ??
-      Vector3.add(
-        posture.root,
-        Quaternion.rotateVector(turn, { x: sign * 0.25, y: -0.1, z: 0 }),
-      );
+      posture.limbs[`${side}Arm`]?.point ?? hang(posture, side);
     return {
       ...posture,
       limbs: {

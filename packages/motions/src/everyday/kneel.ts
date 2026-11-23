@@ -35,10 +35,10 @@ import { bendFloorHand } from "./bendFloorHand";
 import { braceOnThigh } from "./braceOnThigh";
 import { kneelContacts } from "./kneelContacts";
 import { kneelKeys } from "./kneelKeys";
+import { kneelLiftedFoot } from "./kneelLiftedFoot";
 import { prepareKneelBalance } from "./prepareKneelBalance";
 import { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelFoot } from "./prepareKneelFoot";
-import { kneelLiftedFoot } from "./kneelLiftedFoot";
 import { prepareKneelPhases } from "./prepareKneelPhases";
 
 /**
@@ -164,7 +164,7 @@ export namespace kneel {
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, context.params.manner);
     const probe: IAutoMovieMotionHumanActionPlan = stand.plan(
-      { ...context, params: { seconds: 1 } },
+      { ...context, params: { hold: 1 } },
       k,
     );
     const standing: IAutoMovieMotionHumanPosture = probe.posture(0);
@@ -174,7 +174,9 @@ export namespace kneel {
       standing,
       kind,
       k,
-      context.params.at === undefined ? undefined : context.aim(context.params.at, 0).point,
+      context.params.at === undefined
+        ? undefined
+        : context.aim(context.params.at, 0).point,
     );
     const keys: kneelKeys.IKey[] = solved.keys;
     const length: number = m.thigh + m.shank;
@@ -285,7 +287,6 @@ export namespace kneel {
       clock,
       phases,
     );
-
 
     // A foot between two keys: pivoting on its toes' joint when that stays,
     // swinging on an arc when it moves.
@@ -456,7 +457,11 @@ export namespace kneel {
           goal,
           feet[side].toes,
           weight,
-          Quaternion.rotateVector(resolveHumanPosture.heading(placed), { x: 0, y: 0, z: 1 }),
+          Quaternion.rotateVector(resolveHumanPosture.heading(placed), {
+            x: 0,
+            y: 0,
+            z: 1,
+          }),
         );
         limbs[`${side}Leg`] = turned.goal;
         joints[`${side}Toes`] = [turned.toes, 0, 0];
@@ -603,7 +608,7 @@ export namespace kneel {
       k,
     );
     const base: IAutoMovieMotionHumanActionPlan = stand.plan(
-      { ...context, params: { seconds: duration } },
+      { ...context, params: { hold: duration } },
       k,
     );
     // A kneel that rises leaves the body standing; one that stays down

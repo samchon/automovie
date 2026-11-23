@@ -8,7 +8,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanHand } from "@automovie/motions";
+import { HumanHand } from "@automovie/motions/internal";
 
 /**
  * A prop's frame in the hand bone's frame when the hand holds its handle as

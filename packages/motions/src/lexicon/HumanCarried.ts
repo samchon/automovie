@@ -70,7 +70,7 @@ function straddled(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The carrier's motion is read from the performance, never restated in the carried person's parameters.
  */
 export namespace HumanCarried {
-  /** Be carried by another person. */
+  /** Be carried by another person. It lasts `seconds`, with no lift or set-down (a rigid ride on one bone); a child on a back, a passenger carried through a scene. */
   export const carried: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IParams> =
     {
       name: "carried",
@@ -81,13 +81,13 @@ export namespace HumanCarried {
       plan: (
         context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IParams>,
       ): IAutoMovieMotionHumanActionPlan => {
-        const { by, seconds } = context.params;
+        const { partner: by, hold: seconds } = context.params;
         const bone: AutoMovieHumanoidBone = context.params.on ?? "upperChest";
         HumanCarriedBorne.lasting(seconds);
         if (by === context.subject)
           throw new HumanRefusal({
             kind: "participant",
-            axis: "by",
+            axis: "partner",
             value: by,
             reason: "a person is carried by someone else",
             fix: "name the carrier",
@@ -268,7 +268,7 @@ export namespace HumanCarried {
   };
 
   /**
-   * Be carried in a named carry: the body takes the carry's posture and rests on the carrier by every contact of the carry's coupled meeting (#3437, `HumanCarriedCoupling`): its resting region on the carrier's region and its held regions on the carrier's palms, each window with its load share, its clinging hands on the carrier's regions. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are the `lift` and `setDown` seconds (`HumanCarriedLift`). A second helper named by `with` takes the other side of a carry that has one (`HumanCarriedCoupling.PAIRED`), and the body rests on both. A person named as their own carrier is refused on `by`, a second helper on a carry with no other side on `with`, and a borne mass no lean of a carrier balances on `mass` with the feasible mass.
+   * Be carried in a named carry: the body takes the carry's posture and rests on the carrier by every contact of the carry's coupled meeting (#3437, `HumanCarriedCoupling`): its resting region on the carrier's region and its held regions on the carrier's palms, each window with its load share, its clinging hands on the carrier's regions. The carrier performs `bearing` over their own action. The lift into the carry and the set-down are the `lift` and `setDown` seconds (`HumanCarriedLift`): the lift `TAKE` and no set-down when absent, the body rising before it crosses onto the carrier. A second helper named by `with` takes the other side of a carry that has one (`HumanCarriedCoupling.PAIRED`), and the body rests on both. A person named as their own carrier is refused on `by`, a second helper on a carry with no other side on `with`, and a borne mass no lean of a carrier balances on `mass` with the feasible mass.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is kept, who does what, the phases and both refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The coupling is read from the meeting, computed once whichever role plans first; at each second the carrier's displayed bones are read and the carry's key posture rides the carrier's displayed bone its resting region lies on, at the coupling's key offset (`HumanCarriedCouplingPose.posture`). A meeting that is not solid falls back to the single-region placement on the carrier's region, found by one forward kinematics of the trunk.
@@ -277,6 +277,8 @@ export namespace HumanCarried {
    * @evidence contracts/development/implementation.md#efficient-algorithms One key resolution, one read of the carrier's bones and one frame composition per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+ *
+   * It lasts 2 s when `seconds` is absent, the lift and set-down inside it (`HumanCarriedBorne`, provisional).
    */
   export const borne: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBorne> =
     {
@@ -300,6 +302,8 @@ export namespace HumanCarried {
    * @evidence contracts/development/implementation.md#efficient-algorithms One trunk resolution per holding arm per posture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Planned once per instance; nothing is shared between instances.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over its constants and the entry state, released with the plan.
+ *
+   * It lasts 2 s when `seconds` is absent; the carrier's hands take their hold in 0.4 s (`HumanCarried.TAKE`, provisional).
    */
   export const bearing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCarried.IBearing> =
     {

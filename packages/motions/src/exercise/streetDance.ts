@@ -111,7 +111,7 @@ export namespace streetDance {
     const clock: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
       context,
       p.bpm ?? dance.BPM,
-      p.beats ?? 8,
+      p.count ?? 8,
       p.lock,
     );
     // The member's own offset from the beat, drawn once from its seed.
@@ -122,11 +122,11 @@ export namespace streetDance {
       lead: clock.lead + offset,
       at: (k: number): number => clock.at(k) + offset,
     };
-    const end: number = beats.at(beats.beats) + beats.period;
+    const end: number = beats.at(beats.count) + beats.period;
     const instants: IAutoMovieMotionClockInstant[] = [];
-    for (let k: number = 1; k <= beats.beats; k++)
+    for (let k: number = 1; k <= beats.count; k++)
       instants.push({ name: `beat${k}`, seconds: beats.at(k) });
-    instants.push({ name: "relax", seconds: beats.at(beats.beats) });
+    instants.push({ name: "relax", seconds: beats.at(beats.count) });
     const standing: IAutoMovieVector3 = balletPositions.hips(body, entry);
     const stood: (
       side: AutoMovieHumanSide,
@@ -147,7 +147,7 @@ export namespace streetDance {
       const hits: readonly number[] =
         p.hits ??
         Array.from(
-          { length: beats.beats },
+          { length: beats.count },
           (_: unknown, k: number): number => 4 * k + 2,
         );
       const peaks: number[] = hits.map((h: number): number =>
@@ -296,10 +296,10 @@ export namespace streetDance {
 
     // Each beat: the slider's heel drops, it slides back flat past the
     // standing ball, and it rises onto its own ball by the next beat.
-    for (let k: number = 1; k <= beats.beats; k++) {
+    for (let k: number = 1; k <= beats.count; k++) {
       const slider: AutoMovieHumanSide = k % 2 === 1 ? first : second;
       const from: number = beats.at(k);
-      const last: boolean = k === beats.beats;
+      const last: boolean = k === beats.count;
       const to: number = last ? end - 0.3 * beats.period : beats.at(k + 1);
       const list: IAutoMovieMotionHumanDanceFootKey[] = keys[slider];
       list[list.length - 1]!.leave = from;
@@ -336,7 +336,7 @@ export namespace streetDance {
     }
     // The last standing foot lowers its heel.
     const standingLast: AutoMovieHumanSide =
-      beats.beats % 2 === 1 ? second : first;
+      beats.count % 2 === 1 ? second : first;
     const held: IAutoMovieMotionHumanDanceFootKey[] = keys[standingLast];
     held[held.length - 1]!.leave = end - 0.3 * beats.period;
     held.push({
@@ -383,9 +383,14 @@ export namespace streetDance {
             context.entry.feet.right.ankle,
             0.5,
           );
+          // The hips sink to the crouch by the first beat and rise after the
+          // last, on the groove's envelope, as the rock's bounce does: sunk
+          // at once, the knees jumped as the groove began.
           return {
             x: standing.x + mid.x - start.x,
-            y: standing.y - CROUCH * body.measure.stature,
+            y:
+              standing.y -
+              CROUCH * body.measure.stature * settle(t, beats, end),
             z: standing.z + mid.z - start.z,
           };
         },
@@ -404,7 +409,7 @@ export namespace streetDance {
     end: number,
   ): number {
     const first: number = beats.at(1);
-    const last: number = beats.at(beats.beats);
+    const last: number = beats.at(beats.count);
     if (t <= first)
       return minimumJerk.share(Math.max(0, t) / Math.max(1e-9, first));
     if (t >= last)

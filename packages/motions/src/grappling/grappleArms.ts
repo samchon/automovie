@@ -35,10 +35,19 @@ import { clinch } from "./clinch";
  * course (`courseArmGoal`): the reach from the entry's arm angles to the
  * grip, the grip held on the partner's named moving surface, and the
  * return, planned as one trajectory clear of the partner's other segments,
- * both hands together. The partner is read as perceived: a reaction time
- * behind the reach's start for the plan, and a feedback delay behind each
- * second on the hold, which the arm follows within the follower's bound
- * (`tracked`); the hand lies on the segments of the gripped region's bone
+ * both hands together. Both performers play one authored scene on one clock
+ * (`HumanCoupled.grappling`), so the initiator's plan reads the partner
+ * where the scene puts the partner at each second, a reaction time behind it
+ * on the reach and a feedback delay behind it on the hold: an interception
+ * is aimed at where the target will be, by an internal model of its motion
+ * (Zago, McIntyre, Senot and Lacquaniti 2009, Exp Brain Res 192:571), and
+ * a rehearsed scene's partner is known in advance, as
+ * the sumo tachiai's mutual start is. A reach planned on the partner frozen
+ * as it was when the reach started kept the hold on a charging or driven
+ * partner's old place, a belt grip at the tachiai 0.29 m beyond the place
+ * the partner had charged to, which no bounded follower can close; the
+ * plan reads the scene's partner (`perceived`), so no follower corrects
+ * it. The hand lies on the segments of the gripped region's bone
  * and its neighbours (`touchHold.others`). The fingers take the grip's shape
  * on the same envelope. A course per sample was what let an arm flip its
  * branch from one instant to the next (the staged takes' 180-degree upper
@@ -49,7 +58,7 @@ import { clinch } from "./clinch";
  * @throws {HumanRefusal} When a gripping wrist would stand beyond the arm's reach on the hold, or no course meets the trajectory's constraints.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is laid, on what, how the partner is read and why the course replaces the per-sample move.
- * @evidence contracts/development/implementation.md#principled-implementation A hand on a moving partner is one trajectory problem with branch continuity and clearance, planned from what is perceived and corrected by feedback within a bound.
+ * @evidence contracts/development/implementation.md#principled-implementation A hand on a moving partner is one trajectory problem with branch continuity and clearance, planned on the scene's own partner at each second through the shared perception delays.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The grip clock, the hand forms on the floor plan, the goals, then one course.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is the partner's own surface frame; the perception delays are the shared ones; a wrist beyond reach is refused.
  * @evidence contracts/development/implementation.md#efficient-algorithms One course for both hands; one partner read per goal sample.
@@ -169,10 +178,12 @@ export function grappleArms(
         // The palm lies open on the region: curled fingers folded the thumb
         // and tips into the partner's thigh or chest. On a shoulder its
         // fingers point up. On a thigh they wrap around it, so the thumb
-        // lies along the cylinder, up the thigh, instead of across it.
+        // lies along the cylinder, up the thigh, instead of across it; on the
+        // side of the chest likewise, the push's hazu grip with the thumb up
+        // under the armpit and the fingers round the side.
         ...(shoulder(side)
           ? { forward: { x: 0, y: 1, z: 0 } }
-          : region.startsWith("thigh")
+          : region.startsWith("thigh") || region.startsWith("ribs")
             ? { forward: around(side, contact.normal) }
             : {}),
       }),
@@ -227,11 +238,26 @@ export function grappleArms(
       return { ...posture, limbs };
     },
   };
-  // The plan's goals as perceived when the reach starts.
-  const perceived =
+  // The plan's goals as the scene places the partner at each second, under
+  // the perception delays `seen` reads them through. This is the one
+  // exception to planning on the partner as perceived when the reach starts
+  // (`IAutoMovieMotionHumanArmCarry.ICarry.perceived`): a staged grapple is
+  // one rehearsed scene both performers play on one clock
+  // (`HumanCoupled.grappling`), so each knows the other's part before it is
+  // played, as a choreography is known, and a tachiai's charge starts with
+  // the reach itself, so no perception at the reach's start could foresee
+  // it. A reach to a moving target is aimed at where the target will be
+  // (Zago et al. 2009); here that is the scene's own partner. Nothing reads
+  // a performer the scene does not hold for both, and the reaction and
+  // feedback delays still apply. The plan already holds the partner's
+  // motion, so no follower corrects toward it.
+  const scene =
     (side: AutoMovieHumanSide) =>
-    (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal =>
-      goal(side, posture, reach);
+    (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieHumanLimbGoal =>
+      goal(side, posture, seconds);
 
   // The arms leave the floor's own arms as the reach starts, the angles
   // shown before it; the entry's were not, and the reach jumped from them.
@@ -246,8 +272,7 @@ export function grappleArms(
       side: sides[0]!,
       rest: AutoMovieMotionHumanArm.angles(start(), sides[0]!),
       span: { start: reach, ready: take, relax: release, end },
-      perceived: perceived(sides[0]!),
-      tracked: true,
+      perceived: scene(sides[0]!),
       ...(sides.length < 2
         ? {}
         : {
@@ -255,8 +280,7 @@ export function grappleArms(
               {
                 side: sides[1]!,
                 rest: AutoMovieMotionHumanArm.angles(start(), sides[1]!),
-                perceived: perceived(sides[1]!),
-                tracked: true,
+                perceived: scene(sides[1]!),
               },
             ],
           }),

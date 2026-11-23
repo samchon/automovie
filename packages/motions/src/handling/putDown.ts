@@ -4,6 +4,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
+  IAutoMovieHumanEffectorPointLimit,
   IAutoMovieHumanLimbGoal,
   IAutoMovieHumanLimbReference,
   IAutoMovieMotionHumanActionContext,
@@ -11,6 +12,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPutDown,
@@ -21,9 +23,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -31,11 +36,11 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
+import { HumanCarriedHand } from "./HumanCarriedHand";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
-import { HumanCarriedHand } from "./HumanCarriedHand";
 import { putDownTarget } from "./putDownTarget";
 import { putDownTravel } from "./putDownTravel";
 
@@ -121,11 +126,11 @@ export namespace putDown {
    * @throws {HumanRefusal} When no destination is named, the placing wrist lies beyond the arm's reach, or a socket placement's grasp cannot lay its socket on the receiver.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals; the law's doc gives the phases.
-   * @evidence contracts/development/implementation.md#principled-implementation The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation, and a socket placement holds the source socket as the arm's contact.
+   * @evidence contracts/development/implementation.md#principled-implementation The hand-to-prop offset is read from the displayed frames at the start and inverted at the resting frame; a free heading is chosen by the grasp search over turns of the prop's own rest rotation, and a socket placement holds the source socket as the arm's contact. A placement that stays put is one admitted arm course (courseArmGoal): joint-space carry and return between arms the body takes, the hold on the placing frame, so no world-attitude path switches the forearm's twist between its range's ends.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The offset, the resting frame, the wrist, the reach check, the timing, the posture.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A wrist beyond the arm is refused, never clamped; the tilt the carry gives the prop is discarded for its rest rotation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two demanded hand readings, at most one heading search and one posture solve for the hanging hand at plan time; constant work per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrasp.reachable`, `putDownTarget`, the held-tool goal, `HumanPrehension` and the pick up's reach.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Two demanded hand readings, at most one heading search and one posture solve for the hanging hand at plan time; a placement that stays put adds one arm course solved when composed, then constant work per frame.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `HumanGrasp.reachable`, `putDownTarget`, the held-tool goal, `HumanPrehension` and the pick up's reach and the planner's course (courseArmGoal).
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the transports, the shapes, the reference and the wrist.
    */
   export function plan(
@@ -186,7 +191,7 @@ export namespace putDown {
       );
       return {
         point: Vector3.subtract(
-          context.params.at!,
+          context.params.to!,
           Quaternion.rotateVector(r, offset.position),
         ),
         rotation: r,
@@ -207,10 +212,10 @@ export namespace putDown {
       context,
       context.entry.pose,
     );
-    if (wearing === undefined && context.params.at === undefined)
+    if (wearing === undefined && context.params.to === undefined)
       throw new HumanRefusal({
         kind: "parameter",
-        axis: "at",
+        axis: "to",
         value: "absent",
         feasible: { kind: "alternatives", values: ["at", "on", "onto"] },
         reason:
@@ -223,16 +228,36 @@ export namespace putDown {
     const chosen: IAutoMovieMotionHumanHand.IWrist =
       attitude !== undefined
         ? ((): IAutoMovieMotionHumanHand.IWrist => {
-            const r: IAutoMovieQuaternion = Quaternion.normalize(
+            const asked: IAutoMovieQuaternion = Quaternion.normalize(
               Quaternion.multiply(Quaternion.normalize(attitude), unhold),
             );
-            return {
-              point: Vector3.subtract(
-                context.params.at!,
+            const at: (r: IAutoMovieQuaternion) => IAutoMovieVector3 = (
+              r: IAutoMovieQuaternion,
+            ): IAutoMovieVector3 =>
+              Vector3.subtract(
+                context.params.to!,
                 Quaternion.rotateVector(r, offset.position),
-              ),
-              rotation: r,
-            };
+              );
+            // An authored resting attitude with no authored heading rests
+            // alike at any heading about the vertical (a card face up): the
+            // hand takes the heading nearest the asked one at which the arm
+            // meets the attitude, or the placement is refused
+            // (`AutoMovieMotionHumanArmReach`). An authored heading is laid
+            // exactly.
+            const r: IAutoMovieQuaternion =
+              context.params.yaw !== undefined
+                ? asked
+                : AutoMovieMotionHumanArmReach.attitude({
+                    body,
+                    posture: held,
+                    side,
+                    bend: AutoMovieMotionHumanBend.hang(body, held, side),
+                    requested: asked,
+                    axis: { x: 0, y: 1, z: 0 },
+                    wrist: at,
+                    name: "rotation",
+                  }).rotation;
+            return { point: at(r), rotation: r };
           })()
         : wearing !== undefined
           ? ((): IAutoMovieMotionHumanHand.IWrist => {
@@ -299,6 +324,34 @@ export namespace putDown {
       tool === undefined
         ? undefined
         : StrikingHeld.goal(context, tool, frame, 0, bend);
+    // An authored resting attitude (a card laid face up) is the placement's
+    // outcome, so the hand holds it as hard task limits over the placement
+    // and the opening: the prop's origin and a point a hand's length along
+    // its up axis, each in the hand's frame, kept within the held-tool bound
+    // (`StrikingRoll.MISS`) of where the asked attitude puts them. A planned
+    // hold treats a bare attitude as an objective it may trade away; a task
+    // limit it may not.
+    const authoredLimits: IAutoMovieHumanEffectorPointLimit[] | undefined =
+      attitude === undefined || constraint !== undefined
+        ? undefined
+        : [
+            offset.position,
+            Vector3.add(
+              offset.position,
+              Quaternion.rotateVector(offset.rotation, {
+                x: 0,
+                y: body.measure.hand,
+                z: 0,
+              }),
+            ),
+          ].map(
+            (
+              contact: IAutoMovieVector3,
+            ): IAutoMovieHumanEffectorPointLimit => ({
+              contact,
+              bound: StrikingRoll.MISS,
+            }),
+          );
     const mouth: IAutoMovieVector3 | undefined =
       aperture === undefined ? undefined : Vector3.add(place, aperture);
     if (aperture !== undefined) {
@@ -420,20 +473,24 @@ export namespace putDown {
         { name: "release", share: (down + OPEN) / duration },
       ],
       contacts: [
-        {
-          part: "leftFoot",
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        },
-        {
-          part: "rightFoot",
-          kind: "plant",
-          from: 0,
-          to: 1,
-          support: { kind: "ground" },
-        },
+        // Each foot keeps the contact the entry has it in, on the frame it
+        // bears on: a seated body's hanging foot is planted on no floor.
+        ...context.entry.supports
+          .filter(
+            (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+              s.part === "leftFoot" || s.part === "rightFoot",
+          )
+          .map(
+            (
+              s: IAutoMovieMotionHumanEntryState.ISupport,
+            ): IAutoMovieMotionHumanContactWindow => ({
+              part: s.part,
+              kind: "plant",
+              from: 0,
+              to: 1,
+              support: s.support,
+            }),
+          ),
         {
           part,
           kind: "grip",
@@ -451,6 +508,9 @@ export namespace putDown {
                 onto: onto.prop,
                 point: onto.point,
                 from: down / duration,
+                // Set exactly on its seat, its own `via` socket on the
+                // receiving one; the hand brings it there.
+                offset: putDownTarget.seated(context),
               },
             ],
           }),
@@ -512,7 +572,9 @@ export namespace putDown {
               reference,
               ...(constraint === undefined ||
               (displacement === undefined && t > down)
-                ? {}
+                ? authoredLimits === undefined || t < down || t > down + OPEN
+                  ? {}
+                  : { limits: authoredLimits }
                 : {
                     contact: constraint.contact,
                     limits: constraint.limits,
@@ -533,6 +595,32 @@ export namespace putDown {
         offset,
         down,
       );
+    // A placement that stays where it is laid is planned as one admitted
+    // course of the arm (`courseArmGoal`), as the pick up's reach is: the
+    // carry from the arm the entry shows to the placing arm, the hold on the
+    // placing frame while the fingers open, and the return to the hanging
+    // arm. The carry and the return are the planner's joint-space
+    // transports, so the forearm's twist and the wrist go continuously
+    // between two arms the body can take, never through a world attitude
+    // the forearm's twist range cannot follow (a slerped attitude switched
+    // the twist between its range's ends), and never through a goal with no
+    // attitude, which the limb fit reads as an untwisted forearm. A receiver
+    // that moves and an aperture's insertion keep their tracked goals.
+    if (
+      context.carrier === undefined &&
+      displacement === undefined &&
+      mouth === undefined
+    )
+      return courseArmGoal({
+        body,
+        plan,
+        side,
+        rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+        span: { start: 0, ready: down, relax: down + OPEN, end: duration },
+        // Read past its end, the arm keeps the angles its return ended
+        // with, never a fresh fit of the hanging goal on another branch.
+        after: "angles",
+      });
     // Over a carrier the carrier keeps the body: the hand's work alone, its
     // goal riding the bone the target rides (a holster on the hips).
     if (context.carrier !== undefined)

@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { SANITARY_BANDS } from "./SANITARY_BANDS";
 import { SanitaryConstruction } from "./SanitaryConstruction";
@@ -13,7 +13,7 @@ import type { createSanitary } from "./createSanitary";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The mixer tap and lift retain their shared lever and parented articulation in `SanitaryConstruction.washbasin`.
@@ -26,7 +26,7 @@ import type { createSanitary } from "./createSanitary";
 export function createWashbasin(
   params: createWashbasin.IParams = {},
   seed?: number | string,
-): Archetype<createWashbasin.Affordance, createWashbasin.Dimension> {
+): AutoMovieArchetype<createWashbasin.Affordance, createWashbasin.Dimension> {
   return FixtureDraw.installed<
     createWashbasin.Affordance,
     createSanitary.Dimension

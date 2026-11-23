@@ -62,12 +62,6 @@ export namespace MotionIndex {
 
     /** The still a card shows: the motion's own, a scene's that performs it, or none. */
     poster: { kind: "motion" | "scene"; id: string } | null;
-
-    /** How many parameters it takes. */
-    parameters: number;
-
-    /** How many of them are required. */
-    required: number;
   }
 
   /** One motion's page. */
@@ -86,9 +80,6 @@ export namespace MotionIndex {
 
     /** Its entry in the API reference, a path under the site such as `/api/classes/_automovie_motions.HumanChain.html#walk`. */
     api: string;
-
-    /** Its parameters from its schema; null when the release ships no schema for it. */
-    parameters: IMotionReference.IParameter[] | null;
 
     /** The scenes that compose it. */
     uses: { id: string; title: string }[];
@@ -254,10 +245,6 @@ export namespace MotionIndex {
                     play === null || play.baked === null
                       ? null
                       : { kind: play.baked, id: play.record.id },
-                  parameters: row.parameters?.length ?? 0,
-                  required: (row.parameters ?? []).filter(
-                    (p: IMotionReference.IParameter): boolean => p.required,
-                  ).length,
                 };
               }),
             };
@@ -285,10 +272,7 @@ export namespace MotionIndex {
     next: string | null,
   ): IDetail {
     const uses: MotionUsage.IUse = MotionUsage.of(row.name);
-    const trial: MotionUsage.ITrial | null = MotionUsage.trial(
-      row.name,
-      row.parameters,
-    );
+    const trial: MotionUsage.ITrial | null = MotionUsage.trial(row.name);
     let play: IDetail["play"] = null;
 
     // A trial alone that was baked plays alone; one the bake refused, or a
@@ -337,7 +321,6 @@ export namespace MotionIndex {
             ? `/api/classes/_automovie_motions.HumanChain.html#${row.name}`
             : "/api/variables/_automovie_motions.HUMAN_LEXICON.html"
           : `/api/variables/_automovie_motions.${row.namespace}.${row.name}.html`,
-      parameters: row.parameters,
       uses: uses.scenes,
       play,
       playground:

@@ -31,20 +31,10 @@ import type { strikingStepSupport } from "./strikingStepSupport";
  * contact to the replant. A step of the support foot (up toward a target out
  * of reach, back from one too close) slides on its own clock between the
  * launch and the chamber key, and the root rides it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States support pivots, root/hip geometry, distinct local clocks, planted contacts and synchronous FK/ROM metadata lifetime.
- * @evidence contracts/development/design.md#principled-representation Canonical body/feet/posture and existing carriage inputs describe physical kinematics without a parallel rig or solved-state flag.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The actual kick planner needs carriage posture and measured hip; native trunk/foot/lowering owners retain the numerical responsibilities.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No target, pose, clamp result, success label or sampled time is retained; optional loans share only existing same-body operations.
  */
 export namespace KickCarriage {
   /**
    * What a kick's carriage is built from.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members define canonical body, entry/feet, side/line, timing and metre/angle parameters for the actual carriage.
-   * @evidence contracts/development/design.md#principled-representation Existing authored posture, foot placements, local clocks and measured scalar geometry define the carriage without numerical solver state.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every field is read by posture's root/support-foot/turn/tilt/lowering geometry; candidate goals and fit results stay with the contact planner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Inputs contain actual physical parameters rather than pre-resolved pose flags, baked endpoints or scene-specific identifiers.
    */
   export interface IProps {
     /** The kicking body. */
@@ -93,14 +83,6 @@ export namespace KickCarriage {
    * @param resolution Optional exact FK workspace borrowed from this synchronous person's evaluation.
    * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The posture, lowered until the planted support leg reaches its foot; the kicking leg holds its entry foot, unplanted.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States local support/turn clocks, actual carriage, planted support and current-body metadata lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation Preserves the original minimum-jerk pelvis/support step, support-foot pivot, support-hip-preserving lean and two-leg lowering geometry.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Root/support-foot geometry feeds flat pose, optional tilt and unchanged lower owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All original coefficients, authored joints, body motion, foot plants/MTP offsets and raw lowering operations remain.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Original kinematic and native hip work remains; a caller's genuine current ROM mapper avoids repeated index setup across the two actual tilt hip reads.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Only exact FK prerequisites and genuine same-body unchanged-table metadata are borrowed; each flat/tilted pose still runs every original native joint projection.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The current reader/projector and temporary frames end on return or throw; the fresh posture stores no supplier, map, projector or history.
    */
   export function posture(
     props: IProps,
@@ -176,13 +158,18 @@ export namespace KickCarriage {
       yaw: entry.yaw + carriage.turn * w,
       pitch: entry.pitch + carriage.pitch * w,
       roll: entry.roll,
-      joints: StrikingStance.facing(
-        props.joints ?? {
-          ...entry.joints,
-          ...StrikingStance.joints(entry.joints),
-        },
-        carriage.turn * w,
-      ),
+      joints: {
+        ...StrikingStance.facing(
+          props.joints ?? {
+            ...entry.joints,
+            ...StrikingStance.joints(entry.joints),
+          },
+          carriage.turn * w,
+        ),
+        // The support heel rises about the ball and the toes extend by the
+        // same angle, so they stay flat on the floor (the forefoot rocker).
+        [`${support}Toes`]: [KickForm.PIVOT.raise * w, 0, 0],
+      },
       limbs: {},
     };
     const tilted: IAutoMovieMotionHumanPosture =
@@ -232,14 +219,6 @@ export namespace KickCarriage {
    * @param resolution Optional exact FK workspace borrowed from this synchronous evaluation.
    * @param projection Optional genuine same-body ROM metadata borrowed only within this synchronous unchanged-table operation.
    * @returns The hip joint, world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines actual body/posture/side, ignored limb goals, world-metre output and synchronous metadata scope.
-   * @evidence contracts/development/implementation.md#principled-implementation The canonical trunk owner assembles/clamps all authored joints and digits before actual requested hip FK.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One demanded trunk read returns the actual upper-leg origin.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No native projection, authored joint or actual hip computation is skipped; a projector remains a checked metadata loan.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The fixed hip-name demand limits only output ancestry; a same-operation projector shares index setup while all original admission/projection remains.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Search/course callers explicitly fix body and ROM tables within their synchronous operation, while every changed posture/hip is evaluated normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources No pose/map/reader/projector is retained here; only the actual fresh hip vector escapes its temporary trunk map.
    */
   export function hip(
     body: IAutoMovieMotionHumanBody,

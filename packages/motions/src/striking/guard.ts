@@ -101,7 +101,7 @@ export namespace guard {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
-    const duration: number = Math.max(SET, context.params.seconds ?? 1);
+    const duration: number = Math.max(SET, context.params.duration ?? 1);
     let built: IGeometry | undefined;
     const geometry = (): IGeometry => (built ??= build(context, duration));
     const events: IAutoMovieMotionEvent[] = [

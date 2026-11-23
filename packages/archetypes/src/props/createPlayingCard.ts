@@ -1,9 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "../core";
 import { TabletopStack } from "./TabletopStack";
 
@@ -42,9 +42,12 @@ const CARD: Readonly<createPlayingCard.ICard> = {
  */
 export function createPlayingCard(
   params: createPlayingCard.IParams = {},
-): Archetype<createPlayingCard.Affordance, createPlayingCard.Dimension> {
-  const draw: ArchetypeDrawSession<createPlayingCard.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createPlayingCard.Affordance,
+  createPlayingCard.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createPlayingCard.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "playingCard",
       { width: "m", length: "m", thickness: "m", mass: "kg" },
       undefined,
@@ -53,10 +56,10 @@ export function createPlayingCard(
   draw.derive("length", CARD.length);
   draw.derive("thickness", CARD.thickness);
   draw.derive("mass", CARD.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createPlayingCard.Affordance,
     createPlayingCard.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "playingCard",
     name: "playing card",
     material: "paper",

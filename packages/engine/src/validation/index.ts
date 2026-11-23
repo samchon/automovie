@@ -11,7 +11,6 @@ export * from "./appendMeshTopology";
 export * from "./appendShotCoverageArtifact";
 export * from "./appendShotEventsArtifact";
 export * from "./appendShotMetadataArtifact";
-export * from "./appendValidation";
 export * from "./asArray";
 export * from "./autoMovieModelColumns";
 export * from "./channelValueWidth";

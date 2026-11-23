@@ -37,7 +37,9 @@ import type { supportPlan } from "./supportPlan";
  * never travels within the floor band. Its heel leaves first, risen as far
  * as keeps the ankle within a weightless ankle's dorsiflexion, and comes
  * down above where the set-down key lays it, so the foot does not turn on
- * the floor. A swing that only rose over the
+ * the floor; a foot stepping to a named floor place comes down over that
+ * place, its heel levelled beneath the raised toe, and the set-down is
+ * solved from there. A swing that only rose over the
  * middle of the step carried the sole across the floor at lift-off and
  * set-down (the staged clinch's 1.3 m/s skates). Any other step keeps the
  * single mid-step lift.
@@ -68,16 +70,19 @@ export function supportStep(props: supportStep.IProps): number {
       };
     },
   );
-  // A foot stepping across the floor with no course clears it at both ends.
+  // A foot stepping across the floor with no course clears it at both ends,
+  // whether its new place is named on the floor (a crutch walk's footfall)
+  // or left to the set-down's solve.
   const cleared: supportCourse.ICrossing[] = crossings.filter(
     (crossing: supportCourse.ICrossing): boolean => {
       const old: IAutoMovieVector3 | null = oldPlace(crossing.previous);
+      const onto: IAutoMovieVector3 | null = place(crossing.contact);
       return (
         crossing.waypoints.length === 0 &&
         crossing.contact.part.endsWith("Foot") &&
         old !== null &&
         supportContact.onFloorTarget(old) &&
-        place(crossing.contact) === null
+        (onto === null || supportContact.onFloorTarget(onto))
       );
     },
   );
@@ -91,9 +96,30 @@ export function supportStep(props: supportStep.IProps): number {
   );
   const interval: number =
     steps === 1 ? props.move / 3 : (2 * props.move) / (3 * (steps + 1));
+  // A stepping foot's course keeps the heading it leaves with (turned out
+  // from the body's), read once from the key it leaves.
+  const headings: Partial<Record<AutoMovieHumanSide, number>> = {};
+  const first: IAutoMovieMotionHumanPosture = keys.at(-1)!.posture;
+  const leaving: (foot: AutoMovieHumanSide) => number = (
+    foot: AutoMovieHumanSide,
+  ): number =>
+    (headings[foot] ??= supportCourse.footHeading(body, first, foot));
+  // A stance that names its shoulders' height holds both shoulder joints
+  // there in the step's lift keys, the body hanging on its hands.
+  const height: number | undefined = props.stance.shoulders;
+  const shoulders: IAutoMovieMotionHumanBodyFitTypes.ITarget[] =
+    height === undefined
+      ? []
+      : (["leftUpperArm", "rightUpperArm"] as const).map(
+          (bone: AutoMovieHumanoidBone): IAutoMovieMotionHumanBodyFitTypes.ITarget => ({
+            bone,
+            goal: { x: 0, y: height, z: 0 },
+            axes: ["y"],
+          }),
+        );
   const route = (stretch: number): void => {
     const legs: supportCourse.ILeg[] = supportCourse.swings(
-      props.yaw,
+      leaving,
       crossings,
       stretch,
       steps,
@@ -131,6 +157,10 @@ export function supportStep(props: supportStep.IProps): number {
       return crossing.waypoints[Math.min(l, crossing.waypoints.length - 1)];
     if (!cleared.includes(crossing)) return undefined;
     if (l === 0) return up(oldPlace(crossing.previous)!);
+    // A named place is its own new end; the set-down is then solved from
+    // the lift over it, which already stands nearest to it.
+    const onto: IAutoMovieVector3 | null = place(crossing.contact);
+    if (onto !== null) return up(onto);
     if (above === undefined) {
       landed = setDown(keys.at(-1)!.posture);
       const ends: IAutoMovieVector3[] = supportContact.points(
@@ -214,14 +244,15 @@ export function supportStep(props: supportStep.IProps): number {
     push({
       posture: supportKey.solved(
         body,
-        // Over the old place the body still stands in the stance it leaves;
-        // over a cleared foot's new place it already takes the one it
-        // arrives at, as the set-down does.
-        props.preference(
-          l > 0 && cleared.length > 0 ? props.stance : props.leaving,
-          start,
-          oldPlace,
-        ),
+        // The lift shifts the body onto the supports it keeps. Until the
+        // stepping limb sets down those supports alone bear, so each later
+        // key of the swing prefers the body as the key before it bore and
+        // only the stepping limb travels: in single support the centre of
+        // mass stays over the base of support that bears (Winter 1995, Gait
+        // Posture 3:193). Preferring a stance's own posture mid-swing swung
+        // the trunk back toward the middle in the air (f-small's wall step,
+        // 0.11 m of eye out and back within 0.1 s).
+        l === 0 ? props.preference(props.leaving, start, oldPlace) : start,
         start,
         kept,
         oldPlace,
@@ -229,6 +260,7 @@ export function supportStep(props: supportStep.IProps): number {
         props.miss,
         [
           ...props.heels(kept, oldPlace),
+          ...shoulders,
           ...crossings.flatMap(
             (
               crossing: supportCourse.ICrossing,
@@ -243,7 +275,9 @@ export function supportStep(props: supportStep.IProps): number {
                   over(crossing, l),
                 );
               if (top === null) return [];
-              if (cleared.includes(crossing))
+              // Over a named place no set-down is solved yet to lay the heel
+              // above, so it is levelled beneath the raised toe instead.
+              if (cleared.includes(crossing) && (l === 0 || landed !== undefined))
                 return [top, heelOver(crossing, l, start)];
               if (!crossing.contact.part.endsWith("Foot")) return [top];
               // The toe joint's elevation alone leaves the ankle free to
@@ -309,9 +343,6 @@ export namespace supportStep {
 
     /** Appends a key. */
     push: (key: supportPlan.IKey) => void;
-
-    /** The heading a course's foot keeps, degrees. */
-    yaw: number;
 
     /** The staged route, if any. */
     course: supportCourse.ICourse | undefined;

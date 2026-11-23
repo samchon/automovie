@@ -11,11 +11,6 @@ import type { IAutoMovieRenderTotals } from "./IAutoMovieRenderTotals";
  * The inventory is separate from budget verdict and live renderer observations. Some metrics count exact populations, while others bound submissions or estimate device allocation under their stated input premises. auditAutoMovieRenderObservation can compare available observations with report bounds, but currently has only test callers in this repository; it is not a wired capture audit.
  *
  * The three per-kind arrays below are not a complete decomposition of the totals. A cloth panel, a planting cluster and a water surface are none of a model, a texture or an instance set, so their cost reaches a reader through {@link totals}, {@link owners} and {@link gaps} alone; summing the arrays would come up short by exactly the things a room is furnished with.
- *
- * @evidence contracts/development/design.md#principled-representation Engine inventory counts declared populations, maximizes supported drawable LOD costs and accounts for shadow/outline/background submissions. Texture closure retains represented resident storage bounds and unknown facts as null; geometryBytes covers prototype/surface buffers without certifying native chunk clones or instance streams.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Per-kind rows aid inspection while complete totals, attribution and gaps also include simulations and frame-wide renderer work that those rows do not decompose.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Preflight is not observed GPU work and per-kind rows omit simulated costs. The separately available observation-audit helper currently has no repository product caller; this type creates neither runtime comparison nor a measured frame.
- * @evidence contracts/development/common.md#meaningful-documentation Defines preflight source, each sorted population, complete totals and owner/gap accounting and the distinction from already-drawn frame observations.
  */
 export interface IAutoMovieRenderInventory {
   /** Inventory format. */

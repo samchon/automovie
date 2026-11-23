@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeMarks,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeMarks,
   createDoor,
   createSeat,
   createStorage,
@@ -61,7 +61,7 @@ function same(
  * 6. Under a placement every drawn place is the placement applied to the unplaced one.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Asks for the marks of produced archetypes' affordances and reads their shapes, paths and kinds; a missing or extra outline, an arrow along the wrong axis or of the wrong length, an outline that is not the extent a site reads, a wrong name or group, or a placement applied to the arrow but not the outline is caught.
- * @evidence contracts/development/testing.md#independent-expectations The outlines are held against the archetype's own sites and articulation, which `ArchetypeSite` and `ArchetypeArticulation` own and their tests pin, never against the marks' arithmetic: a grip's ends, a seat's corners, a drawer's frame at full travel. The arrow is the frame convention's `+Y` out of the contact; the naming is the inspection path grammar `ArchetypeMarks` states; a placed point is a rotation and a shift worked here.
+ * @evidence contracts/development/testing.md#independent-expectations The outlines are held against the archetype's own sites and articulation, which `AutoMovieArchetypeSite` and `AutoMovieArchetypeArticulation` own and their tests pin, never against the marks' arithmetic: a grip's ends, a seat's corners, a drawer's frame at full travel. The arrow is the frame convention's `+Y` out of the contact; the naming is the inspection path grammar `AutoMovieArchetypeMarks` states; a placed point is a rotation and a shift worked here.
  * @evidence contracts/development/testing.md#distinguishing-cases One affordance of each outline shape the task of drawing distinguishes: a line, a rectangle, a run, none; an asked against the default arrow length; placed against unplaced. A rim's circle and a crank's spoke follow the same sites and are left to `test_archetype_contract_site`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host and draws nothing.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
@@ -126,7 +126,7 @@ export function test_archetype_contract_marks(): void {
       Quaternion.rotateVector(placement.rotation, p),
     );
   for (const [name, affordance, outline, points] of cases) {
-    const marks: IAutoMovieMark[] = ArchetypeMarks.of(
+    const marks: IAutoMovieMark[] = AutoMovieArchetypeMarks.of(
       "thing",
       [affordance],
       undefined,
@@ -140,7 +140,10 @@ export function test_archetype_contract_marks(): void {
         origin,
         Vector3.add(
           origin,
-          Vector3.scale(ArchetypeFrame.axis(affordance.frame, "y"), 0.05),
+          Vector3.scale(
+            AutoMovieArchetypeFrame.axis(affordance.frame, "y"),
+            0.05,
+          ),
         ),
       ])
     )
@@ -166,7 +169,7 @@ export function test_archetype_contract_marks(): void {
       findings.push(`${name}: a mark is misnamed or in the wrong group`);
 
     // 6. The same marks under a placement.
-    const moved: IAutoMovieMark[] = ArchetypeMarks.of(
+    const moved: IAutoMovieMark[] = AutoMovieArchetypeMarks.of(
       "thing",
       [affordance],
       placement,
@@ -184,21 +187,21 @@ export function test_archetype_contract_marks(): void {
 
   // 4. The default arrow length.
   const plain: IAutoMovieVector3[] = places(
-    ArchetypeMarks.of("thing", [door.affordance("hinge")])[0]!,
+    AutoMovieArchetypeMarks.of("thing", [door.affordance("hinge")])[0]!,
   );
   if (
     Math.abs(
       Vector3.length(Vector3.subtract(plain[1]!, plain[0]!)) -
-        ArchetypeMarks.ARROW,
+        AutoMovieArchetypeMarks.ARROW,
     ) > 1e-9 ||
-    !(ArchetypeMarks.ARROW > 0)
+    !(AutoMovieArchetypeMarks.ARROW > 0)
   )
     findings.push("the default arrow is not the stated length");
 
   // 5. A list's marks come in its order, each under its own name.
   TestValidator.equals(
     "a chair's marks in order",
-    ArchetypeMarks.of("set/chair", [
+    AutoMovieArchetypeMarks.of("set/chair", [
       chair.affordance("seat"),
       chair.affordance("grip"),
     ]).map(

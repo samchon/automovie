@@ -59,6 +59,7 @@
     "playwright-core": "catalog:media",
     "pngjs": "catalog:media",
     "prettier": "catalog:typescript",
+    "prettier-plugin-jsdoc": "catalog:typescript",
     "rimraf": "catalog:utils",
     "three": "catalog:three",
     "ttsc": "catalog:samchon",

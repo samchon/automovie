@@ -1,9 +1,9 @@
 import {
-  ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeRide,
-  ArchetypeUnits,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
   createBicycle,
   createCar,
   createCart,
@@ -19,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose, vclose } from "../internal/predicates";
 
 /** A course along +Z for 20 m, a quarter turn to the left on a 10 m radius, then 15 m straight. */
-const COURSE: ArchetypeCourse.ICourse = {
+const COURSE: AutoMovieArchetypeCourse.ICourse = {
   start: { x: 0, z: 0, heading: 0 },
   legs: [
     { kind: "straight", length: 20 },
@@ -45,14 +45,17 @@ const COURSE: ArchetypeCourse.ICourse = {
  * 8. A malformed course is refused at the field at fault: no legs, a start that is not finite, a cruise, acceleration, deceleration, length or radius that is not positive, and a turn of zero angle.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans courses and samples rides of produced vehicles; a wrong arc, a turn bending to the wrong side, a speed profile that does not come to rest, a missing or mistimed instant, a steering angle off the Ackermann relation, a crank that does not integrate distance by the gear, a lean to the wrong side, a refusal carrying the wrong bound, or a malformed course planned anyway is caught.
- * @evidence contracts/development/testing.md#independent-expectations Arc length r theta and the end points are plane geometry worked here; the trapezoid's times follow from v = a t; the car's road wheel angle is the low-speed Ackermann relation tan(delta) = L / R_rear with R_rear squared = R squared - (L / 2) squared for a root at mid wheelbase, and its least radius is that relation at the lock, half the lock-to-lock turns over the steering ratio; the development is the chain drive's; the lean is the steady-turn balance tan(theta) = v squared / (g r) with g = 9.80665 m/s squared, solved for r at the limit; 50 degrees is Pirelli's road figure. The refused fields are those `ArchetypeCourse.ICourse` states as positive, finite or nonzero.
+ * @evidence contracts/development/testing.md#independent-expectations Arc length r theta and the end points are plane geometry worked here; the trapezoid's times follow from v = a t; the car's road wheel angle is the low-speed Ackermann relation tan(delta) = L / R_rear with R_rear squared = R squared - (L / 2) squared for a root at mid wheelbase, and its least radius is that relation at the lock, half the lock-to-lock turns over the steering ratio; the development is the chain drive's; the lean is the steady-turn balance tan(theta) = v squared / (g r) with g = 9.80665 m/s squared, solved for r at the limit; 50 degrees is Pirelli's road figure. The refused fields are those `AutoMovieArchetypeCourse.ICourse` states as positive, finite or nonzero.
  * @evidence contracts/development/testing.md#distinguishing-cases Straight against turning for each vehicle, a left against a right turn, an admissible against a refused turn and limit, a long against a short course, one malformed course per rule; the vehicles' static dimensions belong to `test_archetype_ride_bands` and a gear's tooth counts to `test_archetype_contract_refusal`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the eight scenarios and what each pins.
  */
 export function test_archetype_ride_course(): void {
   const findings: string[] = [];
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", COURSE);
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    COURSE,
+  );
   const place = (seconds: number): IAutoMovieVector3 =>
     plan.at(seconds).placement.translation;
 
@@ -63,7 +66,7 @@ export function test_archetype_ride_course(): void {
     findings.push(`end point ${JSON.stringify(place(plan.duration))}`);
   if (
     !vclose(
-      ArchetypeFrame.axis(plan.at(plan.duration).placement, "z"),
+      AutoMovieArchetypeFrame.axis(plan.at(plan.duration).placement, "z"),
       { x: 1, y: 0, z: 0 },
       1e-9,
     )
@@ -87,7 +90,9 @@ export function test_archetype_ride_course(): void {
     findings.push("speed at the profile's corners");
   let last: number = 0;
   for (let k: number = 0; k <= 200; k++) {
-    const state: ArchetypeCourse.IState = plan.at((plan.duration * k) / 200);
+    const state: AutoMovieArchetypeCourse.IState = plan.at(
+      (plan.duration * k) / 200,
+    );
     if (state.speed > 6 + 1e-9 || state.distance < last - 1e-12)
       findings.push(`speed or distance at sample ${k}`);
     last = state.distance;
@@ -97,10 +102,13 @@ export function test_archetype_ride_course(): void {
     plan.instants.map((i: { label: string }): string => i.label),
     ["depart", "cruise", "turn2Start", "turn2End", "brake", "stop"],
   );
-  const short: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    ...COURSE,
-    legs: [{ kind: "straight", length: 6 }],
-  });
+  const short: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    {
+      ...COURSE,
+      legs: [{ kind: "straight", length: 6 }],
+    },
+  );
   const peak: number = Math.sqrt((2 * 6 * 2 * 3) / 5);
   if (!nclose(short.peak, peak, 1e-9))
     findings.push("a short course's peak speed");
@@ -123,15 +131,15 @@ export function test_archetype_ride_course(): void {
     { kind: "trolley" },
     1,
   );
-  const pushed: ArchetypeRide.IRide<
+  const pushed: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.along(cart, COURSE);
+  > = AutoMovieArchetypeRide.along(cart, COURSE);
   const turning: number = plan.when(20 + 2.5 * Math.PI);
   if (
     !vclose(
       pushed.frame("handle", turning).translation,
-      ArchetypeFrame.compose(
+      AutoMovieArchetypeFrame.compose(
         plan.at(turning).placement,
         cart.affordance("handle").frame,
       ).translation,
@@ -203,7 +211,7 @@ export function test_archetype_ride_course(): void {
   )
     findings.push("top dead centres are not half a development apart");
   const lean: number = Math.atan((6 * 6) / (AutoMovieGravity.STANDARD * 10));
-  const up3: IAutoMovieVector3 = ArchetypeFrame.axis(
+  const up3: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
     pedalled.at(turning).placement,
     "y",
   );
@@ -225,7 +233,7 @@ export function test_archetype_ride_course(): void {
   if (
     !nclose(
       Math.acos(
-        ArchetypeFrame.axis(
+        AutoMovieArchetypeFrame.axis(
           rideMotorcycle(machine, COURSE).at(turning).placement,
           "y",
         ).y,
@@ -237,7 +245,8 @@ export function test_archetype_ride_course(): void {
     findings.push("the motorcycle's lean");
   const balance = (speed: number, limit: number): number =>
     (speed * speed) /
-    (AutoMovieGravity.STANDARD * Math.tan(limit * ArchetypeUnits.DEGREE));
+    (AutoMovieGravity.STANDARD *
+      Math.tan(limit * AutoMovieArchetypeUnits.DEGREE));
   least(
     findings,
     "a motorcycle past 50 degrees",
@@ -255,27 +264,33 @@ export function test_archetype_ride_course(): void {
   least(
     findings,
     "a 15 degree limit",
-    caught(() => ArchetypeCourse.admitLean("test", COURSE, 15)),
+    caught(() => AutoMovieArchetypeCourse.admitLean("test", COURSE, 15)),
     "course.legs[1].radius",
     balance(6, 15),
   );
-  if (caught(() => ArchetypeCourse.admitLean("test", COURSE, 30)) !== undefined)
+  if (
+    caught(() => AutoMovieArchetypeCourse.admitLean("test", COURSE, 30)) !==
+    undefined
+  )
     findings.push("a 10 m turn at 6 m/s is refused at a 30 degree limit");
 
   // 7. A right turn: facing +Z, the right is -X, so the centre is at (-10, 5).
-  const right: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    ...COURSE,
-    legs: [
-      { kind: "straight", length: 5 },
-      { kind: "turn", radius: 10, angle: -90 },
-    ],
-  });
-  const finish: ArchetypeCourse.IState = right.at(right.duration);
+  const right: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    {
+      ...COURSE,
+      legs: [
+        { kind: "straight", length: 5 },
+        { kind: "turn", radius: 10, angle: -90 },
+      ],
+    },
+  );
+  const finish: AutoMovieArchetypeCourse.IState = right.at(right.duration);
   if (
     !nclose(right.length, 5 + 5 * Math.PI, 1e-9) ||
     !vclose(finish.placement.translation, { x: -10, y: 0, z: 15 }, 1e-9) ||
     !vclose(
-      ArchetypeFrame.axis(finish.placement, "z"),
+      AutoMovieArchetypeFrame.axis(finish.placement, "z"),
       { x: -1, y: 0, z: 0 },
       1e-9,
     )
@@ -285,8 +300,10 @@ export function test_archetype_ride_course(): void {
     );
   let facing: number = Infinity;
   for (let k: number = 0; k <= 100; k++) {
-    const state: ArchetypeCourse.IState = right.at((right.duration * k) / 100);
-    const forward: IAutoMovieVector3 = ArchetypeFrame.axis(
+    const state: AutoMovieArchetypeCourse.IState = right.at(
+      (right.duration * k) / 100,
+    );
+    const forward: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
       state.placement,
       "z",
     );
@@ -299,13 +316,16 @@ export function test_archetype_ride_course(): void {
       findings.push(`a right turn's curvature at sample ${k}`);
     if (turns && !nclose(Math.hypot(at.x + 10, at.z - 5), 10, 1e-9))
       findings.push(`a right turn leaves its arc at sample ${k}`);
-    if (turns && state.speed > 0 && !(ArchetypeCourse.lean(state) < 0))
+    if (turns && state.speed > 0 && !(AutoMovieArchetypeCourse.lean(state) < 0))
       findings.push(`a right turn leans to the left at sample ${k}`);
     facing = heading;
   }
 
   // 8. Malformed courses, each wrong in one field.
-  const malformed: readonly (readonly [string, ArchetypeCourse.ICourse])[] = [
+  const malformed: readonly (readonly [
+    string,
+    AutoMovieArchetypeCourse.ICourse,
+  ])[] = [
     ["course.legs", { ...COURSE, legs: [] }],
     [
       "course.start.x",
@@ -336,14 +356,16 @@ export function test_archetype_ride_course(): void {
     ],
   ];
   for (const [axis, course] of malformed) {
-    const refused: unknown = caught(() => ArchetypeCourse.plan("test", course));
+    const refused: unknown = caught(() =>
+      AutoMovieArchetypeCourse.plan("test", course),
+    );
     if (
-      !(refused instanceof ArchetypeRefusal) ||
+      !(refused instanceof AutoMovieArchetypeRefusal) ||
       refused.kind !== "parameter" ||
       refused.axis !== axis
     )
       findings.push(
-        `a course wrong at ${axis} gave ${refused instanceof ArchetypeRefusal ? refused.axis : String(refused)}`,
+        `a course wrong at ${axis} gave ${refused instanceof AutoMovieArchetypeRefusal ? refused.axis : String(refused)}`,
       );
   }
   TestValidator.equals("rides follow their course", findings, []);
@@ -358,7 +380,7 @@ function least(
   radius: number,
 ): void {
   if (
-    !(thrown instanceof ArchetypeRefusal) ||
+    !(thrown instanceof AutoMovieArchetypeRefusal) ||
     thrown.kind !== "parameter" ||
     thrown.axis !== axis ||
     thrown.feasible?.kind !== "range" ||
@@ -367,7 +389,7 @@ function least(
     thrown.feasible.maximum !== null
   )
     findings.push(
-      `${name}: expected a refusal at ${axis} with a least radius of ${radius} m, got ${thrown instanceof ArchetypeRefusal ? thrown.message : String(thrown)}`,
+      `${name}: expected a refusal at ${axis} with a least radius of ${radius} m, got ${thrown instanceof AutoMovieArchetypeRefusal ? thrown.message : String(thrown)}`,
     );
 }
 

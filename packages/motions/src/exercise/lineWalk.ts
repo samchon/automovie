@@ -31,7 +31,9 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
+import { AutoMovieMotionHumanFootSwing } from "../compose/AutoMovieMotionHumanFootSwing";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanToesOnFloor } from "../compose/AutoMovieMotionHumanToesOnFloor";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -45,7 +47,9 @@ import { lineWalkPole } from "./lineWalkPole";
  * #3997's tightrope). Each step puts a foot one foot's length ahead of the
  * other on the line, heel to toe, turned out `TURN` degrees from it; a
  * stepping foot swings over `SWING` of a `PERIOD`-second step while the
- * other bears. The hips travel along the line between the feet on
+ * other bears, passing the bearing shank on its own side by the two shanks'
+ * radii at the crossing; a foot holds the line under its ball and its heel
+ * rises about that ball. The hips travel along the line between the feet on
  * minimum-jerk progress and sway across it, `SWAY` of the stature at the
  * stride's period, corrected back over the line at each footfall; the arms
  * are held out to the sides for balance.
@@ -285,6 +289,18 @@ export namespace lineWalk {
     }
     // The foot that does not step last closes beside the other.
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
+    // Each foot's own side of the line, and how far a swinging ankle passes the bearing one: the two shank colliders' radii.
+    const heading: IAutoMovieVector3 = Vector3.scale(along, sign);
+    const leftward: IAutoMovieVector3 = Vector3.normalize({
+      x: heading.z,
+      y: 0,
+      z: -heading.x,
+    });
+    const outward: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
+      left: leftward,
+      right: Vector3.scale(leftward, -1),
+    };
+    const passing: number = 2 * body.measure.shankRadius;
     for (const side of ["left", "right"] as const) {
       const list: IFall[] = falls[side];
       const placementAt: (t: number) => IAutoMovieMotionHumanFoot.IPlacement = (
@@ -297,12 +313,28 @@ export namespace lineWalk {
         if (next === undefined) return list[i]!.place;
         const lift: number = next.at - SWING * PERIOD;
         if (t <= lift) return list[i]!.place;
-        return AutoMovieMotionHumanLeg.arc(
-          list[i]!.place,
-          next.place,
-          0.03 * body.measure.stature,
-          minimumJerk.share((t - lift) / (SWING * PERIOD)),
-        );
+        const time: number = (t - lift) / (SWING * PERIOD);
+        const swung: IAutoMovieMotionHumanFoot.IPlacement =
+          AutoMovieMotionHumanFootSwing(
+            body,
+            side,
+            list[i]!.place,
+            next.place,
+            0.03 * body.measure.stature,
+            time,
+          );
+        // Heel to toe on one line, a swinging foot passes the bearing shank on
+        // its own side (`passing`), back on the line at each end.
+        return {
+          ...swung,
+          ankle: Vector3.add(
+            swung.ankle,
+            Vector3.scale(
+              outward[side],
+              passing * Math.sin(Math.PI * Math.min(1, Math.max(0, time))),
+            ),
+          ),
+        };
       };
       // The second the foot last landed, or the start.
       const lands: (t: number) => number = (t: number): number => {
@@ -322,8 +354,8 @@ export namespace lineWalk {
           (f: IFall): boolean =>
             !(t > f.at - SWING * PERIOD && t < f.at) || f.at === 0,
         );
-      primitives.push(
-        AutoMovieMotionHumanLeg.place({
+      const leg: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanLeg.place(
+        {
           body,
           side,
           from: 0,
@@ -340,9 +372,21 @@ export namespace lineWalk {
               planted(t)
                 ? AutoMovieMotionHumanFootRelax.load(t, lifts(t), lands(t))
                 : 0,
+              true,
+              true,
             ),
           planted,
-        }),
+        },
+      );
+      // A foot risen on its ball bends its toes back onto the line, so their
+      // tips never pass under it and slide as the heel rises.
+      primitives.push(
+        AutoMovieMotionHumanToesOnFloor.row(
+          body,
+          side,
+          leg,
+          (at: IAutoMovieVector3): number => point(onLine(at)).y - ankle,
+        ),
       );
       for (let i: number = 0; i < list.length; i++) {
         const from: number = list[i]!.at;
@@ -355,6 +399,7 @@ export namespace lineWalk {
             from: from / duration,
             to: to / duration,
             support,
+            socket: "ball",
           });
       }
     }

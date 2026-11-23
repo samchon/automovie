@@ -3,8 +3,9 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieTransform,
 } from "@automovie/interface";
-import { HumanAidWalk, HumanObject } from "@automovie/motions";
+import { AutoMovieMotionHumanGait, HumanObject } from "@automovie/motions";
 import * as motions from "@automovie/motions";
+import * as internal from "@automovie/motions/internal";
 
 import { SceneArchetype } from "../../scenes/package/SceneArchetype";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
@@ -68,9 +69,10 @@ export namespace PlaygroundObjects {
   ) & { fixed?: boolean };
 
   /** The packages' exports by name, for the members only some releases have. */
-  const MOTIONS: Readonly<Record<string, unknown>> = motions as Readonly<
-    Record<string, unknown>
-  >;
+  const MOTIONS: Readonly<Record<string, unknown>> = {
+    ...(motions as Readonly<Record<string, unknown>>),
+    ...(internal as Readonly<Record<string, unknown>>),
+  };
 
   /**
    * Whether the installed packages can place objects.
@@ -122,7 +124,10 @@ export namespace PlaygroundObjects {
           placed,
           aid === undefined
             ? travel?.placement
-            : HumanAidWalk.track(HumanObject.frame(placed), aid),
+            : AutoMovieMotionHumanGait.aidWalk.track(
+                HumanObject.frame(placed),
+                aid,
+              ),
           travel?.contact,
           travel?.tracks,
         );

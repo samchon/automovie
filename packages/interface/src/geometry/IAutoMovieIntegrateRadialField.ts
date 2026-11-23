@@ -2,20 +2,10 @@
  * Area integrals of a strongest-site compact radial field on a convex plane region.
  *
  * All coordinates and radius share one caller-selected length unit; scalar integral and area have squared units, and integrated gradient has length units. The producer admits dense finite coordinates, positive representable radius and powers 2 or 3, with at most 512 sites; convexity remains a premise and finite precision is not a certified bound.
- *
- * @evidence contracts/development/design.md#principled-representation All coordinates and radius share one caller-selected length unit; scalar integral and area have squared units, and integrated gradient has length units.
- * @evidence contracts/development/design.md#minimal-and-owned-surface integrateAutoMovieRadialField owns radial integration; the caller owns plane construction, convexity, site enumeration and field scale.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer admits dense finite coordinates, positive representable radius and powers 2 or 3, with at most 512 sites; convexity remains a premise and finite precision is not a certified bound.
- * @evidence contracts/development/common.md#meaningful-documentation Area integrals of a strongest-site compact radial field on a convex plane region. All coordinates and radius share one caller-selected length unit; scalar integral and area have squared units, and integrated gradient has length units.
  */
 export namespace IAutoMovieIntegrateRadialField {
   /**
    * Area integrals before any image quantization or material layering; fields retain the caller's coordinate units.
-   *
-   * @evidence contracts/development/design.md#principled-representation All coordinates and radius share one caller-selected length unit; scalar integral and area have squared units, and integrated gradient has length units.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface integrateAutoMovieRadialField owns radial integration; the caller owns plane construction, convexity, site enumeration and field scale.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer admits dense finite coordinates, positive representable radius and powers 2 or 3, with at most 512 sites; convexity remains a premise and finite precision is not a certified bound.
-   * @evidence contracts/development/common.md#meaningful-documentation Area integrals of a strongest-site compact radial field on a convex plane region. All coordinates and radius share one caller-selected length unit; scalar integral and area have squared units, and integrated gradient has length units.
    */
   export interface IOutput {
     /**
@@ -42,11 +32,6 @@ export namespace IAutoMovieIntegrateRadialField {
    * The caller supplies the actual convex domain, rather than an extrapolation from a smaller domain. This operation neither enumerates sites nor chooses an application-specific field scale or eligibility. At most 512 sites bound quadratic cell clipping; larger requests fail explicitly. Floating-point cancellation near tangent circles or nearly coincident sites remains finite precision, not a directed-rounding certificate. Degenerate footprints return zero after input admission.
    *
    * Input collections are borrowed and unchanged. The implementation validates dense finite entries, radius arithmetic and the site cap; convexity and an orthonormal frame are caller premises, not measured by this operation.
-   *
-   * @evidence contracts/development/design.md#principled-representation All coordinates and radius share one caller-selected length unit; scalar integral and area have squared units, and integrated gradient has length units.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface integrateAutoMovieRadialField owns radial integration; the caller owns plane construction, convexity, site enumeration and field scale.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer admits dense finite coordinates, positive representable radius and powers 2 or 3, with at most 512 sites; convexity remains a premise and finite precision is not a certified bound.
-   * @evidence contracts/development/common.md#meaningful-documentation Area integrals of a strongest-site compact radial field on a convex plane region. All coordinates and radius share one caller-selected length unit; scalar integral and area have squared units, and integrated gradient has length units.
    */
   export type IProps = {
     /** Convex finite footprint in the supplied orthonormal plane; either winding is accepted. */

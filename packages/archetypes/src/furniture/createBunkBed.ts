@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { BedConstruction } from "./BedConstruction";
 import type { createBed } from "./createBed";
 
@@ -8,7 +8,7 @@ import type { createBed } from "./createBed";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A stacked pair of beds with lower side seats, an upper sleep surface and a guard bar.
  * @evidence contracts/development/implementation.md#principled-implementation The four main posts support both mattresses and the upper mattress is behind the guard rail.
@@ -21,7 +21,7 @@ import type { createBed } from "./createBed";
 export function createBunkBed(
   params: createBunkBed.IParams = {},
   seed?: number | string,
-): Archetype<createBunkBed.Affordance, createBunkBed.Dimension> {
+): AutoMovieArchetype<createBunkBed.Affordance, createBunkBed.Dimension> {
   return BedConstruction.bunk(params, seed);
 }
 

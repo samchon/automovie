@@ -1,11 +1,11 @@
 import {
-  type Archetype,
-  ArchetypeCourse,
-  type ArchetypeManoeuvre,
-  ArchetypeOval,
-  ArchetypePassage,
-  ArchetypeRefusal,
-  QuadrupedGait,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypeOval,
+  AutoMovieArchetypePassage,
+  AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
   createHorse,
   createQuadruped,
   createRaceRail,
@@ -36,28 +36,28 @@ const CLEARANCE: number = 0.05;
  * 4. A faster runner planned onto a slower one's lane refuses with both names and the interval, and a pace beyond the gallop refuses on its mark.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the layout, the break, the clearances and the refusals.
- * @evidence contracts/development/testing.md#behavioral-verification Builds the rail and the gate, plans each runner with `ArchetypeOval.lane` and measures with `ArchetypePassage`.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds the rail and the gate, plans each runner with `AutoMovieArchetypeOval.lane` and measures with `AutoMovieArchetypePassage`.
  * @evidence contracts/development/testing.md#independent-expectations A one-mile lap; the apex lies a straight's half plus a radius ahead of the centre; at an even pace the rail distance is pace times time; the stall middles are one Derby pitch apart; two runners on one lane at different paces must meet.
  * @evidence contracts/development/testing.md#distinguishing-cases Admitted concentric lanes, a refused shared lane, a refused pace and the rail's start and apex. The first hoof event after the doors open needs the timed ride (#3905).
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over models and plans.
  */
 export function test_world_race_field(): void {
   // 1. The rail.
-  const rail: Archetype = createRaceRail({}, "track");
-  const oval: ArchetypeOval.IOval = ArchetypeOval.lapped(
+  const rail: AutoMovieArchetype = createRaceRail({}, "track");
+  const oval: AutoMovieArchetypeOval.IOval = AutoMovieArchetypeOval.lapped(
     createRaceRail.LAP,
     rail.dimensions.radius!,
   );
   TestValidator.predicate(
     "the rail laps one mile from the home straight's start to the first turn's apex",
-    nclose(ArchetypeOval.length(oval), 1609.344, 1e-9) &&
+    nclose(AutoMovieArchetypeOval.length(oval), 1609.344, 1e-9) &&
       vclose(
         rail.affordance("start").frame.translation,
-        ArchetypeOval.point(oval, 0, 0),
+        AutoMovieArchetypeOval.point(oval, 0, 0),
         1e-9,
       ) &&
       vclose(
-        ArchetypeOval.point(
+        AutoMovieArchetypeOval.point(
           oval,
           oval.straight + (Math.PI * oval.radius) / 2,
           0,
@@ -68,13 +68,20 @@ export function test_world_race_field(): void {
   );
 
   // 2. The break from the gate and the order by pace.
-  const horse: Archetype = createHorse({ withersHeight: 1.62 }, "runner");
-  const gallop: ArchetypeManoeuvre.ISpeedRange = QuadrupedGait.range(
-    createQuadruped.species(horse),
-    "gallop",
-    1.62,
+  const horse: AutoMovieArchetype = createHorse(
+    { withersHeight: 1.62 },
+    "runner",
   );
-  const gate: Archetype = createStartingGate({ stalls: RUNNERS }, "gate");
+  const gallop: AutoMovieArchetypeManoeuvre.ISpeedRange =
+    AutoMovieArchetypeQuadrupedGait.range(
+      createQuadruped.species(horse),
+      "gallop",
+      1.62,
+    );
+  const gate: AutoMovieArchetype = createStartingGate(
+    { stalls: RUNNERS },
+    "gate",
+  );
   const pitch: number = createStartingGate.PITCH;
   // The gate stands across the home straight's start, its stall nearest the rail one metre out.
   const front: number = -(oval.radius + 1) - (RUNNERS / 2 - 0.5) * pitch;
@@ -85,12 +92,12 @@ export function test_world_race_field(): void {
     ((k + 1) / (RUNNERS + 1)) * (gallop.maximum * 0.8 - gallop.minimum);
   const offset: (k: number) => number = (k: number): number =>
     1 + (RUNNERS - 1 - k) * pitch;
-  const plans: ArchetypeCourse.IPlan[] = Array.from(
+  const plans: AutoMovieArchetypeCourse.IPlan[] = Array.from(
     { length: RUNNERS },
-    (_: unknown, k: number): ArchetypeCourse.IPlan =>
-      ArchetypeCourse.timed(
+    (_: unknown, k: number): AutoMovieArchetypeCourse.IPlan =>
+      AutoMovieArchetypeCourse.timed(
         `runner${k}`,
-        ArchetypeOval.lane(
+        AutoMovieArchetypeOval.lane(
           `runner${k}`,
           oval,
           [
@@ -106,18 +113,18 @@ export function test_world_race_field(): void {
   TestValidator.predicate(
     "each runner leaves the middle of its stall",
     plans.every(
-      (plan: ArchetypeCourse.IPlan, k: number): boolean =>
+      (plan: AutoMovieArchetypeCourse.IPlan, k: number): boolean =>
         nclose(plan.at(0).placement.translation.x, stall(k), 1e-9) &&
         nclose(plan.at(0).placement.translation.z, -oval.straight / 2, 1e-9),
     ),
   );
   TestValidator.predicate(
     "each runner keeps the rail distance its pace gives, so the faster lead",
-    plans.every((plan: ArchetypeCourse.IPlan, k: number): boolean =>
+    plans.every((plan: AutoMovieArchetypeCourse.IPlan, k: number): boolean =>
       [5, 10].every((seconds: number): boolean =>
         vclose(
           plan.at(seconds).placement.translation,
-          ArchetypeOval.point(oval, pace(k) * seconds, offset(k)),
+          AutoMovieArchetypeOval.point(oval, pace(k) * seconds, offset(k)),
           1e-6,
         ),
       ),
@@ -125,16 +132,19 @@ export function test_world_race_field(): void {
   );
 
   // 3. Clearances from the rail and each other.
-  const footprint: ArchetypePassage.IFootprint =
-    ArchetypePassage.footprint(horse);
-  const posts: IAutoMovieVector3[] = ArchetypeOval.rail(
+  const footprint: AutoMovieArchetypePassage.IFootprint =
+    AutoMovieArchetypePassage.footprint(horse);
+  const posts: IAutoMovieVector3[] = AutoMovieArchetypeOval.rail(
     oval,
     rail.dimensions.spacing!,
   );
-  const near: ArchetypePassage.IObstacle[] = posts
+  const near: AutoMovieArchetypePassage.IObstacle[] = posts
     .slice(0, Math.ceil((RACE + 20) / rail.dimensions.spacing!))
     .map(
-      (at: IAutoMovieVector3, k: number): ArchetypePassage.IObstacle => ({
+      (
+        at: IAutoMovieVector3,
+        k: number,
+      ): AutoMovieArchetypePassage.IObstacle => ({
         id: `rail${k}`,
         footprint: {
           outline: [at, posts[k + 1]!],
@@ -144,15 +154,15 @@ export function test_world_race_field(): void {
       }),
     );
   const field: (
-    lanes: readonly ArchetypeCourse.IPlan[],
-  ) => ArchetypePassage.IProps = (
-    lanes: readonly ArchetypeCourse.IPlan[],
-  ): ArchetypePassage.IProps => ({
+    lanes: readonly AutoMovieArchetypeCourse.IPlan[],
+  ) => AutoMovieArchetypePassage.IProps = (
+    lanes: readonly AutoMovieArchetypeCourse.IPlan[],
+  ): AutoMovieArchetypePassage.IProps => ({
     participants: lanes.map(
       (
-        plan: ArchetypeCourse.IPlan,
+        plan: AutoMovieArchetypeCourse.IPlan,
         k: number,
-      ): ArchetypePassage.IParticipant => ({
+      ): AutoMovieArchetypePassage.IParticipant => ({
         id: `runner${k}`,
         plan,
         footprint,
@@ -164,14 +174,14 @@ export function test_world_race_field(): void {
   });
   TestValidator.equals(
     "the field clears the rail and each other",
-    ArchetypePassage.conflicts("race", field(plans)),
+    AutoMovieArchetypePassage.conflicts("race", field(plans)),
     [],
   );
 
   // 4. Refusals.
-  const boxed: ArchetypeCourse.IPlan = ArchetypeCourse.timed(
+  const boxed: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
     "runner1",
-    ArchetypeOval.lane(
+    AutoMovieArchetypeOval.lane(
       "runner1",
       oval,
       [
@@ -183,15 +193,13 @@ export function test_world_race_field(): void {
       gallop,
     ),
   );
-  const shared: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "race",
-    field([plans[0]!, boxed]),
-  );
+  const shared: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("race", field([plans[0]!, boxed]));
   TestValidator.predicate(
     `a faster runner on a slower one's lane names both and the interval: ${JSON.stringify(shared)}`,
     shared.length >= 1 &&
       shared.every(
-        (found: ArchetypePassage.IConflict): boolean =>
+        (found: AutoMovieArchetypePassage.IConflict): boolean =>
           found.subject === "runner0" && found.other === "runner1",
       ) &&
       shared[0]!.from > 0 &&
@@ -200,7 +208,7 @@ export function test_world_race_field(): void {
   );
   let refusal: unknown;
   try {
-    ArchetypeOval.lane(
+    AutoMovieArchetypeOval.lane(
       "runner",
       oval,
       [
@@ -216,6 +224,6 @@ export function test_world_race_field(): void {
   }
   TestValidator.predicate(
     "a pace beyond the gallop refuses on its mark",
-    refusal instanceof ArchetypeRefusal && refusal.axis === "marks[0]",
+    refusal instanceof AutoMovieArchetypeRefusal && refusal.axis === "marks[0]",
   );
 }

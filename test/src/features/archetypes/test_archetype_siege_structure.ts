@@ -1,4 +1,7 @@
-import { ArchetypeRefusal, createSiegeEngine } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeRefusal,
+  createSiegeEngine,
+} from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -432,7 +435,7 @@ export function test_archetype_siege_structure(): void {
     } catch (caught) {
       error = caught;
     }
-    truth(label, error instanceof ArchetypeRefusal);
+    truth(label, error instanceof AutoMovieArchetypeRefusal);
   }
 
   /** Preserve all independent physical findings for the complete cause round. */

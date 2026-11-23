@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The maker's ropes read. */
@@ -25,7 +25,7 @@ type Figures = Readonly<Partial<Record<createJumpRope.Dimension, number>>>;
  * @param params The cable, the handle and any dimension the author fixes.
  * @param seed The seed that draws the cable and the handle when they are not given and every dimension left free inside its band; absent, the first of each and the middle of each band.
  * @returns The rope.
- * @throws {ArchetypeRefusal} For a cable or handle Rogue does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a cable or handle Rogue does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the rope lies and its two handles.
  * @evidence contracts/development/implementation.md#principled-implementation A cord rod of one of Rogue's cables with a handle rod of one of its handles, each whole and picked apart, since the cable is sold apart from the handles, beyond each end, all resting on the floor.
@@ -38,9 +38,9 @@ type Figures = Readonly<Partial<Record<createJumpRope.Dimension, number>>>;
 export function createJumpRope(
   params: createJumpRope.IParams = {},
   seed?: number | string,
-): Archetype<createJumpRope.Affordance, createJumpRope.Dimension> {
-  const draw: ArchetypeDrawSession<createJumpRope.Dimension> =
-    new ArchetypeDrawSession<createJumpRope.Dimension>(
+): AutoMovieArchetype<createJumpRope.Affordance, createJumpRope.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createJumpRope.Dimension> =
+    new AutoMovieArchetypeDrawSession<createJumpRope.Dimension>(
       "jumpRope",
       createJumpRope.UNITS,
       seed,
@@ -62,10 +62,10 @@ export function createJumpRope(
     length: cable.figures.length!,
     handleLength: handle.figures.handleLength!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createJumpRope.Affordance,
     createJumpRope.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `skipping rope ${handle.name}, ${cable.name} cable`,
@@ -95,7 +95,9 @@ export function createJumpRope(
       id,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(v((sign * (inner + end)) / 2, r, 0)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v((sign * (inner + end)) / 2, r, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: d.gripDiameter,
@@ -115,7 +117,7 @@ export function createJumpRope(
  */
 export namespace createJumpRope {
   /** The cable's diameter, metres: the maker's 3/32 in (see the source). */
-  export const CORD: number = (3 / 32) * ArchetypeUnits.INCH;
+  export const CORD: number = (3 / 32) * AutoMovieArchetypeUnits.INCH;
 
   /**
    * The affordance ids:
@@ -134,7 +136,9 @@ export namespace createJumpRope {
   export type Dimension = "length" | "handleLength" | "gripDiameter" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     handleLength: "m",
     gripDiameter: "m",
@@ -148,8 +152,8 @@ export namespace createJumpRope {
   export const CABLES: Readonly<
     Record<Cable, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "10ft": { length: 120 * ArchetypeUnits.INCH },
-    "11ft": { length: 11 * ArchetypeUnits.FOOT },
+    "10ft": { length: 120 * AutoMovieArchetypeUnits.INCH },
+    "11ft": { length: 11 * AutoMovieArchetypeUnits.FOOT },
   };
 
   /** Rogue's SR-1 handles. */
@@ -159,9 +163,9 @@ export namespace createJumpRope {
   export const HANDLES: Readonly<
     Record<Handle, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "SR-1": { handleLength: 6.75 * ArchetypeUnits.INCH },
-    "SR-1S": { handleLength: 5.25 * ArchetypeUnits.INCH },
-    "SR-1L": { handleLength: 7.5 * ArchetypeUnits.INCH },
+    "SR-1": { handleLength: 6.75 * AutoMovieArchetypeUnits.INCH },
+    "SR-1S": { handleLength: 5.25 * AutoMovieArchetypeUnits.INCH },
+    "SR-1L": { handleLength: 7.5 * AutoMovieArchetypeUnits.INCH },
   };
 
   /** The parameters: the cable, the handle, and any free dimension fixed to a value inside its band. */
@@ -180,14 +184,17 @@ export namespace createJumpRope {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "length" | "handleLength">, IArchetypeBand>
+    Record<
+      Exclude<Dimension, "length" | "handleLength">,
+      IAutoMovieArchetypeBand
+    >
   > = {
-    gripDiameter: ArchetypeBand.metres(
-      0.875 * ArchetypeUnits.INCH,
-      0.875 * ArchetypeUnits.INCH,
+    gripDiameter: AutoMovieArchetypeBand.metres(
+      0.875 * AutoMovieArchetypeUnits.INCH,
+      0.875 * AutoMovieArchetypeUnits.INCH,
       ROGUE,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       0.1,
       0.3,

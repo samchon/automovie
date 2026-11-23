@@ -47,22 +47,22 @@ export namespace hostageHold {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHostageHold.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const params: IAutoMovieMotionHumanHostageHold.IParams = context.params;
-    const seconds: number = params.seconds ?? 3;
+    const seconds: number = params.duration ?? 3;
     const back: number = params.back ?? 0;
     for (const [axis, value] of [
-      ["seconds", seconds],
+      ["duration", seconds],
       ["back", back],
     ] as const)
       if (
         !(value >= 0 && Number.isFinite(value)) ||
-        (axis === "seconds" && value === 0)
+        (axis === "duration" && value === 0)
       )
         throw new HumanRefusal({
           kind: "parameter",
           axis,
           value,
-          reason: `a hostage hold's ${axis} is a ${axis === "seconds" ? "positive" : "non-negative"} finite value`,
-          fix: `give ${axis} in ${axis === "seconds" ? "seconds" : "metres"}`,
+          reason: `a hostage hold's ${axis} is a ${axis === "duration" ? "positive" : "non-negative"} finite value`,
+          fix: `give ${axis} in ${axis === "duration" ? "seconds" : "metres"}`,
         });
     if ((params.prop === undefined) !== (params.point === undefined))
       throw new HumanRefusal({
@@ -89,7 +89,7 @@ export namespace hostageHold {
       params.prop === undefined || weapon === undefined
         ? {
             target: { kind: "person", subject: params.partner, region: across },
-            side: free,
+            hand: free,
             kind: "hold",
             count: 1,
             hold: seconds,
@@ -97,7 +97,7 @@ export namespace hostageHold {
         : {
             target: { kind: "person", subject: params.partner, region },
             other: { kind: "person", subject: params.partner, region: across },
-            side: weapon,
+            hand: weapon,
             prop: params.prop,
             point: params.point!,
             kind: "hold",

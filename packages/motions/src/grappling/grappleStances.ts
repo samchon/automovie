@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanGrapple,
   IAutoMovieMotionHumanLieDown,
   IAutoMovieMotionHumanSupport,
@@ -264,6 +265,13 @@ export namespace grappleStances {
   /**
    * Author the support keys over the two actors' shared scene duration.
    *
+   * @param p The scene.
+   * @param duration The scene's seconds.
+   * @param body The performer's body.
+   * @param partner The partner's body, which a sumo tachiai's contact gap reads.
+   * @param pitch A sumo tachiai's trunk pitch, degrees, as the support fit takes it (`grappleSumo.keys`); the charge pose's own when absent.
+   * @returns The timed support keys.
+   *
    * @evidence contracts/development/common.md#meaningful-documentation Returns five ordered stances, with a shared shoulder-exchange clock for the completed shoulder scene and the ordinary floor shares for other scenes.
    * @evidence contracts/development/implementation.md#principled-implementation The completed shoulder scene keeps the original foot bearings under its small turn and prepares the seat and back roll endpoints. The other entries step and either recover standing or add floor contacts. The staged shoulder-profile receiver carries free arms outward while the pair separates.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects the stance family and creates the common entry, transfer, settle and release keys.
@@ -275,10 +283,18 @@ export namespace grappleStances {
   export function keys(
     p: IAutoMovieMotionHumanGrapple.IParams,
     duration: number,
-    stature: number,
+    body: IAutoMovieMotionHumanBody,
+    partner: IAutoMovieMotionHumanBody,
+    pitch?: number,
   ): readonly IAutoMovieMotionHumanSupport.IStance[] {
     if (grappleSumo.is(p.kind))
-      return grappleSumo.keys({ ...p, kind: p.kind }, duration, stature);
+      return grappleSumo.keys(
+        { ...p, kind: p.kind },
+        duration,
+        body,
+        partner,
+        pitch,
+      );
     if (p.kind === "seoiNage" && p.outcome !== "denied")
       return shoulderKeys(p.role, p.side ?? "right", duration);
     const row: IRow = rows[p.kind];

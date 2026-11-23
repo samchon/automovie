@@ -7,11 +7,6 @@ import type { AutoMovieServiceUnit } from "./AutoMovieServiceUnit";
  * One rooted distribution system: a medium, the unit it is measured in, and the direction reachability is asked in.
  *
  * A system is the smallest thing that can be asked "is everything on it fed". Cold water off one riser, the recirculating leg of the hot water, one lighting circuit, one supply air trunk and the sprinkler main are five systems, not one network with five colours, because each answers that question separately.
- *
- * @evidence contracts/development/design.md#principled-representation The rooted system defines discipline-compatible medium and unit, traversal orientation and positive declared capacity, comparing terminal-side port demand with that capacity independently of operating closure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface System-specific root and load authority share the common network graph, avoiding duplicated topology for every engineering discipline.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Bidirectional fitting ports are not counted as terminal demand, and declared load admits no diversity, head-loss or circuit simulation unless a separate solver supplies it.
- * @evidence contracts/development/common.md#meaningful-documentation Defines stable root identity, medium/unit rules, three reach directions and exact demand-bearing port convention for capacity.
  */
 export interface IAutoMovieServiceSystem {
   /** Stable system identity within the network. */

@@ -20,32 +20,16 @@
  * and take the goal itself once the lift is done; the body is set down
  * standing, whatever the carry, on the floor under where its root is
  * carried.
- *
- * @evidence contracts/development/common.md#meaningful-documentation lift: Seconds the lift into the carry takes, at the start; none when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. setDown: Seconds the set-down takes, at the end; none when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation lift: Seconds the lift into the carry takes, at the start; none when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. setDown: Seconds the set-down takes, at the end; none when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedLift.ts (HumanCarriedLift.over, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanCarriedLift.over.
  */
 export namespace IAutoMovieMotionHumanCarriedLift {
   /**
    * The two phases' lengths.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation lift: Seconds the lift into the carry takes, at the start; none when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. setDown: Seconds the set-down takes, at the end; none when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   * @evidence contracts/development/design.md#principled-representation lift: Seconds the lift into the carry takes, at the start; none when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. setDown: Seconds the set-down takes, at the end; none when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCarriedLift.ts (HumanCarriedLift.over, context).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanCarriedLift.over.
    */
   export interface IParams {
-    /** Seconds the lift into the carry takes, at the start; none when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the lift into the carry takes, at the start, at least 0; none when absent. */
     lift?: number;
 
-    /** Seconds the set-down takes, at the end; none when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Seconds the set-down takes, at the end, at least 0; none when absent. */
     setDown?: number;
   }
 }

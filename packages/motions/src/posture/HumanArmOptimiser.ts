@@ -50,7 +50,7 @@ export namespace HumanArmOptimiser {
    * @evidence contracts/development/implementation.md#clear-and-simple-structure TrajectoryConvex owns rows, TrajectorySmooth the exact curvature, the quadratic program its interior solve, and the shared sequential-convex loop acceptance; one model shell holds a linearisation and gives its repriced and objective-free variants.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps every model row, penalty, trust schedule and actual trial evaluation; no previous answer or relaxed feasibility supplies a result, and a subproblem the interior method leaves unsolved is solved by the operator splitting, never read as a zero step.
    * @evidence contracts/development/implementation.md#efficient-algorithms One linearisation per round serves the round's model, its repriced variants and the steering's objective-free model; the exact curvature is built once per solve; a subproblem costs a bounded number of banded factorisations. On a grid the rounds read the clearance pairs, the costliest readings, at the knots alone, TrajOpt's discrete collision terms at its timesteps with swept volumes between them (Schulman et al. 2014, section IV-C), and the converged path once in full; a pair that the full reading finds between knots is the caller's to refine (`HumanArmTrajectory.solve`). Measured on a tai chi push's row on f-small, two 87-knot reaches on a 361-instant grid: 52 s to 36-42 s.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales and the solver's scratch serve them all, and the models of one linearisation, which share its rows, start from the last one solved, a start that decides no answer.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The context's exact curvature and each model's trust rows are values built once by their owner and handed on; the solve's subproblems are one interior-point session (`HumanQuadraticInteriorSession`): the first one's variable and cost scales at a penalty serve every subproblem at that penalty, a subproblem at another penalty being equilibrated again and started cold since every soft row weighs the penalty, the solver's scratch serves them all, and the models of one linearisation at one penalty, which share its rows, start from the last one solved, a start that decides no answer; the violation-alone model, whose objective is not the model's, starts cold.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each convexification owns one numeric snapshot and bounded solver scratch until replacement or return; returned coordinates/evaluation remain independent and no trajectory/fit result history is cached.
    */
   export function optimise(
@@ -89,11 +89,16 @@ export namespace HumanArmOptimiser {
       HumanArmTrajectorySmooth.of(read);
 
     // Every subproblem of this solve is one session of the interior-point
-    // solve (`HumanQuadraticInteriorSession`): the first subproblem's
-    // equilibration scales the rest, the scratch is kept, and the models of
-    // one linearisation (a smaller region, a reprice, the violation alone),
-    // which share its rows, each start from the one solved before.
+    // solve (`HumanQuadraticInteriorSession`): the first subproblem at a
+    // penalty equilibrates the rest at that penalty, the scratch is kept,
+    // and the models of one linearisation (a smaller region, a reprice),
+    // which share its rows, each start from the one solved before; the
+    // violation alone, another objective, starts cold. Every soft row weighs the penalty, so a subproblem at another
+    // penalty has data of another magnitude: it is equilibrated again, and
+    // starts cold, as OSQP and Ipopt scale again when their data's magnitude
+    // changes (`scaledAt`).
     const session: HumanQuadraticInteriorSession.ISession = {};
+    let scaledAt: number | undefined;
     // A still solve never steps its fixed endpoints. Its single initial
     // reading supplies those placements throughout this synchronous solve.
     const changing: boolean[] | undefined = read.still
@@ -132,6 +137,7 @@ export namespace HumanArmOptimiser {
         const model: IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> = shell(
           grid === undefined ? built : Knots.reduce(context, weights!, built),
           x,
+          mu,
         );
         return objective ? model : model.feasibility!();
       },
@@ -143,7 +149,7 @@ export namespace HumanArmOptimiser {
     // step of the violation alone the same rows with no objective (Byrd,
     // Nocedal and Waltz's (5.10), `feasibility`), with no geometry read
     // again.
-    const shell = (model: IAutoMovieMotionHumanQuadraticProgram.IProblem, x: number[][][]): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
+    const shell = (model: IAutoMovieMotionHumanQuadraticProgram.IProblem, x: number[][][], mu: number, objectiveFree: boolean = false): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> => {
       let zero: number | undefined;
 
       // The splitting's fixed model of this shell's rows, made only for a
@@ -181,6 +187,20 @@ export namespace HumanArmOptimiser {
           // by the merit like any other: a failed solve is never read as a
           // zero step, which the loop would answer by shrinking the region
           // round an iterate the model can still improve.
+          if (scaledAt !== mu) {
+            session.scaling = undefined;
+            session.point = undefined;
+            scaledAt = mu;
+          }
+          // The violation alone is another problem than the model whose
+          // point the session holds: its objective, the soft rows' penalties
+          // alone, is no small change of the model's, the premise of an
+          // interior-point warm start (Yildirim and Wright 2002, "Warm-start
+          // strategies in interior-point methods for linear programming",
+          // SIAM J Optim 12:782), and a start from that point measured as
+          // failing in four of five solves, each then solved again cold. It
+          // starts cold.
+          if (objectiveFree) session.point = undefined;
           const solved: Float64Array =
             QP.interior(trusted, session)?.x ??
             (fallback ??= QP.prepare(trusted)).solve(trusted.rows).x;
@@ -224,6 +244,7 @@ export namespace HumanArmOptimiser {
                 row.weight === undefined ? row : { ...row, weight: penalty }),
             },
             x,
+            penalty,
           ),
         feasibility: (): IAutoMovieMotionHumanSequentialConvex.IModel<number[][][]> =>
           shell(
@@ -236,6 +257,8 @@ export namespace HumanArmOptimiser {
               q: new Float64Array(model.q.length),
             },
             x,
+            mu,
+            true,
           ),
       };
     };

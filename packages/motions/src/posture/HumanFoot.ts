@@ -150,6 +150,26 @@ export namespace HumanFoot {
     return prepareHumanFootSole(body, side)(foot);
   }
 
+  /**
+   * The height of a placed foot's lowest sole point, flat-toed (`sole`):
+   * the point a swing's clearance is measured at, as gait measures the
+   * swinging foot's clearance at its lowest point (Winter 1992).
+   *
+   * @param body The body.
+   * @param side The foot.
+   * @param foot The foot's placement.
+   * @returns The least height of its sole's points, world metres.
+   */
+  export function lowest(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    foot: IAutoMovieMotionHumanFoot.IPlacement,
+  ): number {
+    return Math.min(
+      ...sole(body, side, foot).map((point: IAutoMovieVector3): number => point.y),
+    );
+  }
+
   /** Flat-toed sole geometry over changing foot placements (`prepareHumanFootSole`), shared only for unchanged body-local geometry. */
   export const prepareSole: typeof prepareHumanFootSole = prepareHumanFootSole;
 
@@ -303,6 +323,39 @@ export namespace HumanFoot {
   export const prepareOffset: typeof humanFootOffset.prepare =
     humanFootOffset.prepare;
 
+  /** A point a foot pivots about: a named sole point, or a point in the foot's rest frame from the ankle (an edge, `edge`). */
+  export type Pivot = "heel" | "ball" | "toe" | "sole" | "mtp" | IAutoMovieVector3;
+
+  /**
+   * A forefoot edge in the foot's rest frame from the ankle: the ball's
+   * sole point carried across the foot by half its breadth across the
+   * metatarsal heads (`IAutoMovieBodyMeasure.footBreadth`), toward its +X
+   * border or its -X one. A foot rolled past the ankle's range bears on
+   * that edge, so a contact window declares it as the point held
+   * (`IAutoMovieMotionHumanContactWindow.socket`) and the foot pivots about
+   * it.
+   *
+   * @param body The body.
+   * @param side The foot.
+   * @param border +1 for the +X border, -1 for the -X one.
+   * @param half How far the edge lies from the sole's midline, metres; half the foot's breadth when absent.
+   * @returns The edge, metres in the foot's rest frame from the ankle.
+   */
+  export function edge(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+    border: number,
+    half: number = body.measure.footBreadth / 2,
+  ): IAutoMovieVector3 {
+    // The edge runs along the forefoot from the ball to the toe; a foot
+    // rolled about its long axis bears on whichever of its two ends lies
+    // lower in the foot's frame, the other standing no lower.
+    const ball: IAutoMovieVector3 = offset(body, side, "ball", 0);
+    const toe: IAutoMovieVector3 = offset(body, side, "toe", 0);
+    const low: IAutoMovieVector3 = toe.y < ball.y ? toe : ball;
+    return { ...low, x: low.x + Math.sign(border) * half };
+  }
+
   /**
    * The foot placed by pivoting about a sole point fixed on the floor.
    *
@@ -326,7 +379,7 @@ export namespace HumanFoot {
   export function pivot(
     body: IAutoMovieMotionHumanBody,
     side: "left" | "right",
-    pivot: "heel" | "ball" | "toe" | "sole" | "mtp",
+    pivot: Pivot,
     at: IAutoMovieVector3,
     heading: number,
     pitch: number,
@@ -334,7 +387,8 @@ export namespace HumanFoot {
     roll: number = 0,
   ): IAutoMovieMotionHumanFoot.IPlacement {
     const r: IAutoMovieQuaternion = rotation(heading, pitch, roll);
-    const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
+    const local: IAutoMovieVector3 =
+      typeof pivot === "string" ? offset(body, side, pivot, toes) : pivot;
     return {
       ankle: Vector3.subtract(at, Quaternion.rotateVector(r, local)),
       rotation: r,

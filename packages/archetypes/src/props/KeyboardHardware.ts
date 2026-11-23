@@ -1,28 +1,18 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
  * Shared key field and the manufacturer records used by saved keyboard recipes.
- *
- * @evidence contracts/development/common.md#meaningful-documentation The records identify the selected manufacturer figures and the key field's position and dimensions.
- * @evidence contracts/development/design.md#principled-representation The kind selects one set of measured keyboard dimensions in metres and mass in kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Both input devices share their base and key geometry. The laptop producer owns its lid.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The model input must be present in the table for the selected kind.
  */
 export namespace KeyboardHardware {
   /**
    * The kinds: a full-size keyboard and a laptop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists the two stored keyboard forms.
-   * @evidence contracts/development/design.md#principled-representation A closed selector chooses the desktop or laptop case.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The two forms share the saved keyboard entry point.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The selector distinguishes devices with and without a lid.
    */
   export type Kind = "keyboard" | "laptop";
 
@@ -48,11 +38,6 @@ export namespace KeyboardHardware {
    * - `homeRow`: the home row's middle, facing up, ten keys wide.
    * - `screen`: a laptop's screen, facing the typist.
    * - `lid`: a laptop lid's top edge, pinched.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the typing surfaces and lid contacts in the model frame.
-   * @evidence contracts/development/design.md#principled-representation A closed union represents every contact the old dispatcher can return.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The typing contacts are shared and the lid contacts belong to the laptop.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The desktop model does not advertise the laptop's contacts.
    */
   export type Affordance = "keys" | "homeRow" | "screen" | "lid";
 
@@ -61,16 +46,13 @@ export namespace KeyboardHardware {
    *
    * - `width`, `depth`, `height`: the base's.
    * - `mass`: kilograms.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Lists the base's sizes in metres and the total mass in kilograms.
-   * @evidence contracts/development/design.md#principled-representation Each dimension has one stated unit for the two measured devices.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The model records only measurements used to place the base and key field.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The lid thickness is accounted for in the model's base height.
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -79,11 +61,6 @@ export namespace KeyboardHardware {
 
   /**
    * The parameters: the kind, and any free dimension fixed to a value inside its band.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the saved selector, optional model and model identifier.
-   * @evidence contracts/development/design.md#principled-representation The selector binds a whole recorded keyboard or laptop profile.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The legacy input retains fields originally exposed on saved keyboard records.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The draw refuses any dimension override because the two forms have no free dimension bands.
    */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Which keyboard. */
@@ -98,21 +75,11 @@ export namespace KeyboardHardware {
 
   /**
    * A model's read figures, by dimension.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the measured numbers by dimension.
-   * @evidence contracts/development/design.md#principled-representation A row carries measured values with dimension-specific units.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only reported figures are present in a partial row.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts One row's mass and sizes stay attached to the same model.
    */
   export type Figures = Readonly<Partial<Record<Dimension, number>>>;
 
   /**
    * The models read: Apple's Magic Keyboard with Numeric Keypad and its Touch ID (USB-C) version, and the MacBook Air M4 in its 13 and 15 inch sizes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the desktop and laptop records from Apple.
-   * @evidence contracts/development/design.md#principled-representation A closed selector selects one complete set of model figures.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The selector covers only the explicitly recorded input hardware.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The selected form must contain the specified model.
    */
   export type Model = "numericKeypad" | "touchId" | "air13" | "air15";
 
@@ -149,7 +116,7 @@ export namespace KeyboardHardware {
 
   /** The band of each free dimension, by kind: none, every figure is a model's. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     keyboard: {},
     laptop: {},
@@ -157,25 +124,15 @@ export namespace KeyboardHardware {
 
   /**
    * The contact ids {@link draw} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of draw.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only draw and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type DrawContact = "keys" | "homeRow";
 
   /**
    * What {@link draw} prepares for its caller.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the builder and the drawn dimensions draw returns, in the family's recorded units.
-   * @evidence contracts/development/design.md#principled-representation The builder typed by the caller's contact ids and the draw's own dimension record.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only the members the named producers read after draw.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is optional where every call sets it.
    */
   export interface IDrawResult<Id extends string> {
     /** The prepared `builder` this call returns. */
-    builder: ArchetypeBuilder<DrawContact | Id, Dimension>;
+    builder: AutoMovieArchetypeBuilder<DrawContact | Id, Dimension>;
 
     /** The prepared `d` this call returns. */
     d: Record<Dimension, number>;
@@ -183,22 +140,19 @@ export namespace KeyboardHardware {
 
   /**
    * Draws the original dimensions in metres and builds the base and key contacts.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the constructed result and its local coordinates or dimensions.
-   * @evidence contracts/development/implementation.md#principled-implementation Use the maker figures and position the key field by the established pitch and margin.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared routine owns key geometry and both input devices reuse it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The key field and home row follow the existing size and location contract.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Draw one model and place one part and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The laptop and desktop keyboard both use the same key field geometry.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the constructed records and builder.
    */
   export function draw<Id extends string>(
     kind: Kind,
     params: Omit<IParams, "kind">,
     seed: number | string | undefined,
   ): IDrawResult<Id> {
-    const draw: ArchetypeDrawSession<Dimension> =
-      new ArchetypeDrawSession<Dimension>("keyboard", UNITS, seed, params);
+    const draw: AutoMovieArchetypeDrawSession<Dimension> =
+      new AutoMovieArchetypeDrawSession<Dimension>(
+        "keyboard",
+        UNITS,
+        seed,
+        params,
+      );
     const drawn: Partial<Record<Dimension, number>> = draw.dimensions(
       BANDS[kind],
     );
@@ -217,8 +171,8 @@ export namespace KeyboardHardware {
       height: read.height!,
       mass: read.mass!,
     };
-    const builder: ArchetypeBuilder<DrawContact | Id, Dimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<DrawContact | Id, Dimension> =
+      new AutoMovieArchetypeBuilder({
         material: "composite",
         id: params.id,
         name: kind,
@@ -236,7 +190,7 @@ export namespace KeyboardHardware {
     builder.affordance({
       id: "keys",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, d.height, front - rows / 2)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, d.height, front - rows / 2)),
       extent: null,
       width: d.width - 2 * MARGIN,
       depth: rows,
@@ -244,7 +198,9 @@ export namespace KeyboardHardware {
     builder.affordance({
       id: "homeRow",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, d.height, front - 2.5 * pitch)),
+      frame: AutoMovieArchetypeFrame.upright(
+        v(0, d.height, front - 2.5 * pitch),
+      ),
       extent: null,
       width: 10 * pitch,
       depth: pitch,

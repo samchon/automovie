@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandToolDraw } from "./HandToolDraw";
 
 /**
@@ -10,7 +10,7 @@ import { HandToolDraw } from "./HandToolDraw";
  * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Hand saw with a blade ledge and a grip across its heel.
  * @evidence contracts/development/implementation.md#principled-implementation The grip crosses the line from the hand to the teeth at a right angle, as in the saved saw hang.
@@ -26,7 +26,7 @@ export function createHandSaw(
     "id" | "length" | "gripDiameter" | "mass" | "blade"
   > = {},
   seed?: number | string,
-): Archetype<createHandSaw.Affordance, createHandSaw.Dimension> {
+): AutoMovieArchetype<createHandSaw.Affordance, createHandSaw.Dimension> {
   const {
     builder,
     d,
@@ -58,7 +58,7 @@ export function createHandSaw(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       centre,
       Vector3.create(1, 0, 0),
       Vector3.scale(across, -1),
@@ -79,7 +79,7 @@ export function createHandSaw(
     id: "face",
     kind: "ledge",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, handle + d.blade! / 2, HandToolDraw.BLADE_DEPTH / 2),
       Vector3.create(0, 0, 1),
       Vector3.create(0, 1, 0),
@@ -95,7 +95,7 @@ export function createHandSaw(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createHandSaw {

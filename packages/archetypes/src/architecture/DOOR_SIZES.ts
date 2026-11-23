@@ -1,4 +1,4 @@
-import { ArchetypeUnits } from "../core";
+import { AutoMovieArchetypeUnits } from "../core";
 import type { createDoor } from "./createDoor";
 
 /** One read size's figures, metres. */
@@ -6,8 +6,8 @@ type Figures = Readonly<Partial<Record<createDoor.Dimension, number>>>;
 
 /** A cylindrical lock's backsets, the Schlage ND's, which a lever and a knob share and a sliding door's pull is set at. */
 const BACKSETS: Readonly<Record<createDoor.Backset, Figures>> = {
-  "2-3/8in": { backset: (2 + 3 / 8) * ArchetypeUnits.INCH },
-  "2-3/4in": { backset: (2 + 3 / 4) * ArchetypeUnits.INCH },
+  "2-3/8in": { backset: (2 + 3 / 8) * AutoMovieArchetypeUnits.INCH },
+  "2-3/4in": { backset: (2 + 3 / 4) * AutoMovieArchetypeUnits.INCH },
 };
 
 /**
@@ -35,55 +35,61 @@ export const DOOR_SIZES: Readonly<{
   >;
 }> = {
   width: {
-    "2ft10in": { width: 2 * ArchetypeUnits.FOOT + 10 * ArchetypeUnits.INCH },
-    "3ft0in": { width: 3 * ArchetypeUnits.FOOT },
+    "2ft10in": {
+      width:
+        2 * AutoMovieArchetypeUnits.FOOT + 10 * AutoMovieArchetypeUnits.INCH,
+    },
+    "3ft0in": { width: 3 * AutoMovieArchetypeUnits.FOOT },
   },
   height: {
-    "6ft8in": { height: 6 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH },
-    "7ft0in": { height: 7 * ArchetypeUnits.FOOT },
+    "6ft8in": {
+      height:
+        6 * AutoMovieArchetypeUnits.FOOT + 8 * AutoMovieArchetypeUnits.INCH,
+    },
+    "7ft0in": { height: 7 * AutoMovieArchetypeUnits.FOOT },
   },
   thickness: {
-    "1-3/8in": { thickness: (1 + 3 / 8) * ArchetypeUnits.INCH },
-    "1-3/4in": { thickness: (1 + 3 / 4) * ArchetypeUnits.INCH },
+    "1-3/8in": { thickness: (1 + 3 / 8) * AutoMovieArchetypeUnits.INCH },
+    "1-3/4in": { thickness: (1 + 3 / 4) * AutoMovieArchetypeUnits.INCH },
   },
   backset: { lever: BACKSETS, knob: BACKSETS, sliding: BACKSETS },
   lever: {
     lever: {
       ATH: {
-        grip: (4 + 9 / 16) * ArchetypeUnits.INCH,
-        projection: (3 + 5 / 16) * ArchetypeUnits.INCH,
+        grip: (4 + 9 / 16) * AutoMovieArchetypeUnits.INCH,
+        projection: (3 + 5 / 16) * AutoMovieArchetypeUnits.INCH,
       },
       BRK: {
-        grip: (4 + 15 / 16) * ArchetypeUnits.INCH,
-        projection: (3 + 1 / 16) * ArchetypeUnits.INCH,
+        grip: (4 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
+        projection: (3 + 1 / 16) * AutoMovieArchetypeUnits.INCH,
       },
       BRW: {
-        grip: (4 + 1 / 2) * ArchetypeUnits.INCH,
-        projection: (3 + 1 / 16) * ArchetypeUnits.INCH,
+        grip: (4 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
+        projection: (3 + 1 / 16) * AutoMovieArchetypeUnits.INCH,
       },
       LAT: {
-        grip: (4 + 1 / 2) * ArchetypeUnits.INCH,
-        projection: (3 + 1 / 8) * ArchetypeUnits.INCH,
+        grip: (4 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
+        projection: (3 + 1 / 8) * AutoMovieArchetypeUnits.INCH,
       },
       LON: {
-        grip: (4 + 15 / 16) * ArchetypeUnits.INCH,
-        projection: (3 + 1 / 8) * ArchetypeUnits.INCH,
+        grip: (4 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
+        projection: (3 + 1 / 8) * AutoMovieArchetypeUnits.INCH,
       },
       OME: {
-        grip: (5 + 1 / 16) * ArchetypeUnits.INCH,
-        projection: (3 + 5 / 16) * ArchetypeUnits.INCH,
+        grip: (5 + 1 / 16) * AutoMovieArchetypeUnits.INCH,
+        projection: (3 + 5 / 16) * AutoMovieArchetypeUnits.INCH,
       },
       RHO: {
-        grip: (4 + 9 / 16) * ArchetypeUnits.INCH,
-        projection: (2 + 15 / 16) * ArchetypeUnits.INCH,
+        grip: (4 + 9 / 16) * AutoMovieArchetypeUnits.INCH,
+        projection: (2 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
       },
       SPA: {
-        grip: (4 + 15 / 16) * ArchetypeUnits.INCH,
-        projection: (3 + 1 / 2) * ArchetypeUnits.INCH,
+        grip: (4 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
+        projection: (3 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
       },
       TLR: {
-        grip: (4 + 15 / 16) * ArchetypeUnits.INCH,
-        projection: 3 * ArchetypeUnits.INCH,
+        grip: (4 + 15 / 16) * AutoMovieArchetypeUnits.INCH,
+        projection: 3 * AutoMovieArchetypeUnits.INCH,
       },
     },
   },

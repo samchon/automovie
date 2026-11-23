@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { StickBuild } from "./StickBuild";
 import type { createStick } from "./createStick";
 
@@ -18,7 +18,7 @@ const TOE: number = 0.1;
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Fit the head and round shaft to the recorded FIH limits and put the contact on the flat playing face.
@@ -31,7 +31,7 @@ const TOE: number = 0.1;
 export function createFieldHockeyStick(
   params: createFieldHockeyStick.IParams = {},
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createFieldHockeyStick.Affordance,
   createFieldHockeyStick.Dimension
 > {

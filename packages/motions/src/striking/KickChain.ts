@@ -36,11 +36,6 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * hold it there: the fit then puts the knee where the hip allows and the
  * weapon lands off the planned point. So the fit is repeated from its own
  * answer ({@link fit}) until the weapon of the fitted leg is on the point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines anatomical weapon geometry, full physical refits, measured misses and fixed-chain preparation versus changing candidate observations.
- * @evidence contracts/development/design.md#principled-representation Uses canonical body/posture/reach/pose types and exposes the original full fitted pose plus physical support/contact measurements.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The sole frame, analytic reach, one-shot fit and fixed-chain fit producer are the actual kick contact planner's required operations; rig FK and physical fitting keep their existing owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every candidate remains a real complete posture fit under the original limits and best-residual decision; no resolved flag, proxy target, pose sample or changed success condition is introduced.
  */
 export namespace KickChain {
   /**
@@ -57,11 +52,6 @@ export namespace KickChain {
 
   /**
    * What a contact solve reads; a prepared fit keeps these values unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member identifies canonical body/side, technique and world-space line/travel/target; prepareFit requires them unchanged for its synchronous search.
-   * @evidence contracts/development/design.md#principled-representation Existing canonical body, side/technique unions and world vector types encode the physical chain without alternate solver state.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface These six actual inputs determine analytic reach and refit geometry; changing candidate bases and reach solutions remain separate arguments.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Inputs contain actual physical intent, never cached poses, warm solutions, source indices or pre-certified outcomes.
    */
   export interface IProps {
     /** The kicking body. */
@@ -85,11 +75,6 @@ export namespace KickChain {
 
   /**
    * The fitted leg at contact, including its original complete fitted pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Members state world-metre positions/residuals, foot rotation, clinical knee angle, full pose and the original reached/jammed/short meanings.
-   * @evidence contracts/development/design.md#principled-representation Combines the existing canonical whole pose and reach status with the actual geometric measurements needed to choose a carriage.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every field is read by kick composition or the contact planner; no factory, FK workspace, metadata token or numerical history escapes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The pose remains complete with original arm/rival clearance and all physical fits, while misses and support slip remain observable rather than being clamped away.
    */
   export interface IFit {
     /** The whole fitted pose. */
@@ -130,14 +115,6 @@ export namespace KickChain {
    *
    * @param line The horizontal unit line toward the target.
    * @returns The foot's world rotation from its rest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the horizontal unit travel line and the push foot's world rotation from rest.
-   * @evidence contracts/development/implementation.md#principled-implementation The existing foot alignment maps the rest toe axis upward and its instep opposite the supplied line, preserving the original push-contact orientation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One line reversal and one shared StrikingBody.foot alignment own the rotation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original up axis, negative line and alignment owner without a baked angle or repaired direction; callers retain the valid unit-line premise.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Fixed vector/alignment work is constant; prepareFit can evaluate this once for a synchronous unchanged push chain instead of per refit, with no measured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The exact fixed line and push technique determine this rotation; round-kick shank-dependent rotations are still evaluated from each actual knee/ankle pair.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This function retains nothing and returns a new rotation. A prepared fit may borrow it internally until that synchronous search ends; fitted output poses and foot observations retain their original ownership.
    */
   export function sole(line: IAutoMovieVector3): IAutoMovieQuaternion {
     return StrikingBody.foot({ x: 0, y: 1, z: 0 }, Vector3.scale(line, -1));
@@ -159,14 +136,6 @@ export namespace KickChain {
    * @param knee The knee, world metres.
    * @param ankle The ankle, world metres.
    * @returns The foot's world rotation from its rest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the limit, the reading, the turn and the case that showed it.
-   * @evidence contracts/development/implementation.md#principled-implementation Dorsiflexion is the toes' angle from square to the shank; the foot turns about the axis normal to the toes and the shank by the excess only.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the bend, turn by the excess.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The limit is the engine's measured one; the margin is named.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call is independent arithmetic.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function unloaded(
     flat: IAutoMovieQuaternion,
@@ -192,14 +161,6 @@ export namespace KickChain {
    * @param base The body's posture at contact.
    * @param origin The kicking hip already read from this exact base, when supplied.
    * @returns The solve: the knee, the ankle, the knee's flexion and whether the point is reached, jammed or short.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States technique, world target, same-base optional hip and the unchanged two-segment reach result.
-   * @evidence contracts/development/implementation.md#principled-implementation Places the shin axis behind its measured tapered radius or the ankle behind the rotated foot ball, then solves the original two-segment chain within the technique's flexion band.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The technique selects the physical contact offset before one shared reach solve.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains actual measured segment lengths, target, shin share, bend and flexion band; a supplied hip must be the exact same body's base hip.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant contact arithmetic plus the shared closed-form reach; only an omitted hip needs its trunk FK ancestry.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller may share an already-read hip across this candidate's solve and fit; no posed result or time history is retained.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns only the reach result and retains no state.
    */
   export function solve(
     props: IProps,
@@ -264,14 +225,6 @@ export namespace KickChain {
    * @param borrowed Optional synchronous exact FK supplier, never retained by the fitted result.
    * @param projection Optional genuine same-body ROM metadata loan; unknown loans use ordinary projection.
    * @returns The fitted leg, with how far it is from the support plant and from the planned point.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fixed base, contact target, iterative weapon correction and optional same-base hip.
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps every original bounded weapon refit and its best-residual decision; only the unchanged base hip and exact FK prerequisites are shared within this synchronous fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The fixed hip and lazy resolution reader belong to the refit loop that consumes them, while read owns each actual whole-posture solve and weapon measurement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains all REFITS, residual thresholds, support plants, target corrections and cold limb searches; no posture or fit answer is cached.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At most eight complete posture refits retain every physical fit and admission. One genuine ROM projector and one prepared fixed endpoint demand remove repeated rig/name preparation; each changed pose still computes its actual endpoint FK. No measured speedup is claimed.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller-supplied hip must belong to the exact body/base. A local resolution reader shares only equal scalar FK inputs across the synchronous refits and their displayed-bone reads; each changed goal is solved normally.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader, ROM loan, fixed endpoint producer and hip belong only to this synchronous fit or its enclosing candidate search. IFit retains its original whole fitted pose and measurements, never a reader, projector, closure or new body memory.
    */
   export function fit(
     props: IProps,
@@ -291,14 +244,6 @@ export namespace KickChain {
    * @param projection Optional genuine same-body ROM metadata loan.
    * @returns A full refit reader for each actual candidate base and reach,
    * optionally borrowing that candidate's exact hip and synchronous FK supplier.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes fixed canonical chain/target geometry from changing candidate base/reach, exact optional hip and borrowed FK supplier.
-   * @evidence contracts/development/implementation.md#principled-implementation Every actual candidate runs the original whole-posture refit loop, target correction, knee hint, support-plant measurement, ROM admission and strict best-residual selection.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Fixed bend, extension bound, push-foot rotation, genuine ROM metadata and endpoint demand are prepared before the returned candidate reader; read remains the actual full-fit/measurement owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps all eight allowed refits and original early stop, flexion bands, goals, rotations, support plants, complete fitted pose and arm/rival clearance. No posture, warm fit or numerical answer is retained.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One unchanged-chain search prepares fixed rig/name/geometry once instead of once per lean/step candidate. Each candidate still pays all admitted physical refits and current endpoint FK; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The caller fixes body/rig/side/technique/line/travel/target for the entire synchronous search. Only those metadata and exact constant push rotation are shared; every base, reach and current round-kick shank orientation is evaluated anew.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The search owns one fixed-demand producer, ROM projector and bounded geometry until return or throw. Each candidate owns its fresh pose/FK workspace and only original IFit values escape; the producer retains no candidate, operation reader, history or external handle.
    */
   export function prepareFit(
     props: IProps,

@@ -15,6 +15,7 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
+import { abductionRange } from "./abductionRange";
 import { swingConeBlend } from "./swingConeBlend";
 
 /**
@@ -172,7 +173,8 @@ function project(
     };
   }
   const f: number | null = clampAxis(flexion, constraint.flexion);
-  const a: number | null = clampAxis(abduction, constraint.abduction);
+  // A hip's abduction ceiling rises with its flexion (`abductionRange`).
+  const a: number | null = clampAxis(abduction, abductionRange(constraint, f));
   const t: number | null = clampAxis(twist, constraint.twist);
   // Ball-joint swing cone: pull a corner pose back onto the cone. The cone is a
   // COUPLING between the two axes, not a per-axis check, so a resting (`null`)

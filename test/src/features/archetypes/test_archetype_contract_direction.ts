@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -7,7 +7,7 @@ import { archetypeCatalog } from "../internal/archetypeCatalog";
 /**
  * Every working affordance of every archetype states what its frame's `+Y` is (`IAutoMovieAffordance.direction`): `along` the object toward that point, or the `normal` of a working face, so a grasp chooser reads it instead of guessing from an angle.
  *
- * The expected table is each archetype's own documentation of its working points: a muzzle, a blade's or a spear's point, a pole's, a javelin's or a baton's end, a racket's sweet spot, a golf club's or a hammer throw's head, a torch's lens, a pen's, a screwdriver's, a fork's, a tube's or a lipstick's tip, a sponge's end, a worm's and a priming wire's point, a cannon's vent and its primer's eye, an atlatl's spur, a vessel's lip and mouth, a cigarette's ends, a musket cartridge's torn end, a lighter's and a light's flame, and a loaf's and a drumstick's bitten end run `along`; an apple's bitten side, a bat's or a baton's strike, a racket's, a club's, a hammer's, a spoon's, a saw's, a cloth's, a broom's, a rammer's, a handspike's, a comb's, a toothbrush's, a razor's, a tissue's, a sheet's, a book's, a watch's and a shield's faces, a shield's boss and rim, a blade's edges and flat, a glove's pocket and a device's lens and screen are `normal`.
+ * The expected table is each archetype's own documentation of its working points: a muzzle, a blade's or a spear's point, a pole's, a javelin's or a baton's end, a racket's sweet spot, a golf club's or a hammer throw's head, a torch's lens, a pen's, a screwdriver's, a fork's, a tube's or a lipstick's tip, a sponge's end, a worm's and a priming wire's point, a cannon's vent and its primer's eye, an atlatl's spur, a vessel's lip and mouth, a cigarette's ends, a musket cartridge's torn end, a lighter's and a light's flame, and a loaf's and a drumstick's bitten end run `along`; an apple's bitten side, a bat's or a baton's strike, a racket's, a club's, a hammer's, a spoon's, a saw's, a cloth's, a broom's, a rammer's, a handspike's, a comb's, a toothbrush's, a razor's, a tissue's, a sheet's, a book's, a watch's and a shield's faces, a shield's boss and rim, a sponge-and-rammer's two named heads, an ox's poll, horn bases and hocks, a blade's edges and flat, a glove's pocket and a device's lens and screen are `normal`.
  *
  * Scenarios, for every row of the archetype catalog at the middle of its bands:
  * 1. Each working affordance the table names for the row's producer (or for the row's own kind where kinds differ) that the row declares states the table's direction.
@@ -52,6 +52,7 @@ export function test_archetype_contract_direction(): void {
     hammerThrow: { head: along },
     relayBaton: { front: along, back: along },
     light: { light: along },
+    ox: { head: normal, horns: normal, hind: normal },
   };
   const KINDS: Readonly<Record<string, Table>> = {
     "stationery-book": { face: normal },
@@ -72,7 +73,12 @@ export function test_archetype_contract_direction(): void {
     "tool-fork": { face: along },
     "microphone-handheld": { head: along },
     "longTool-fishingRod": { tip: along },
-    "longTool-spongeRammer": { face: normal, tip: along },
+    "longTool-spongeRammer": {
+      face: normal,
+      tip: along,
+      rammer: normal,
+      sponge: normal,
+    },
     "longTool-worm": { face: along },
     "tool-primingWire": { face: along },
     "projectile-arrow": { tip: along },
@@ -88,16 +94,17 @@ export function test_archetype_contract_direction(): void {
     "longTool-sling": {},
     "longTool-atlatl": { spur: along },
   };
-  // Rows of those producers that have no working point: a remote, a hat, spectacles and a sling, whose pouch holds a stone it throws from the hand.
+  // Rows of those producers that have no working point: a remote, a hat, a helmet, spectacles and a sling, whose pouch holds a stone it throws from the hand.
   const OPTIONAL: ReadonlySet<string> = new Set([
     "longTool-sling",
     "device-remote",
     "wearable-hat",
+    "wearable-helmet",
     "wearable-spectacles",
   ]);
   const complaints: string[] = [];
   for (const row of archetypeCatalog()) {
-    const model: Archetype = row.create();
+    const model: AutoMovieArchetype = row.create();
     const table: Table | undefined =
       KINDS[row.name] ?? PRODUCERS[row.name.split("-")[0]!];
     let declared: number = 0;

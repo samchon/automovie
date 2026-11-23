@@ -58,22 +58,10 @@ import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHuman
  * bar stool or a saddle is sat on, is got off instead
  * ({@link HumanMountOff}), ahead of the seat or to the side `to` names, with
  * the same events.
- *
- * @evidence contracts/development/common.md#meaningful-documentation to: Where the body gets off a high seat: ahead of it, or to one side of a seat sat astride. When absent, the left of a seat the entry's base names as sat astride (the side horses and cycles are mounted from, a provisional convention) and ahead of any other. Read only where the feet are off the floor; a seat inside the band is risen from over the planted feet. manner: How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent. body: Borrowed body measurements and joint ranges used to compose the rising legs.
- * @evidence contracts/development/design.md#principled-representation to: Where the body gets off a high seat: ahead of it, or to one side of a seat sat astride. When absent, the left of a seat the entry's base names as sat astride (the side horses and cycles are mounted from, a provisional convention) and ahead of any other. Read only where the feet are off the floor; a seat inside the band is risen from over the planted feet. manner: How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent. body: Borrowed body measurements and joint ranges used to compose the rising legs.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.rise, params); everyday/rise.ts (rise.plan, context); lexicon/HumanMountOff.ts (HumanMountOff.plan, context); compose/AutoMovieMotionHumanRise.ts (AutoMovieMotionHumanRise.lift, stance); touch/kiss.ts (kiss.solve, stance); touch/kiss.ts (kiss.posed, stance).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner, IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanBody identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanRise {
   /**
    * Parameters; the rise starts from the seated entry.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation to: Where the body gets off a high seat: ahead of it, or to one side of a seat sat astride. When absent, the left of a seat the entry's base names as sat astride (the side horses and cycles are mounted from, a provisional convention) and ahead of any other. Read only where the feet are off the floor; a seat inside the band is risen from over the planted feet. manner: How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent.
-   * @evidence contracts/development/design.md#principled-representation to: Where the body gets off a high seat: ahead of it, or to one side of a seat sat astride. When absent, the left of a seat the entry's base names as sat astride (the side horses and cycles are mounted from, a provisional convention) and ahead of any other. Read only where the feet are off the floor; a seat inside the band is risen from over the planted feet. manner: How it is performed: the manner's tempo stretches or shortens the rise, or the getting off; neutral when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.rise, params); everyday/rise.ts (rise.plan, context); lexicon/HumanMountOff.ts (HumanMountOff.plan, context); lexicon/HumanMountOff.ts (HumanMountOff.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /**
@@ -101,11 +89,6 @@ export namespace IAutoMovieMotionHumanRise {
 
   /**
    * Both feet as they stand flat.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States that it holds one placement per foot, standing flat, in the placement frame of `HumanFoot`.
-   * @evidence contracts/development/design.md#principled-representation A record keyed by the two sides, each a foot placement, the form `foot` and `lift` read.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned here for the rise and read by the stance solver and the kiss; it reuses `IAutoMovieMotionHumanFoot.IPlacement` instead of a second foot type.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A closed pair of keys, so neither a third foot nor a missing one can be written.
    */
   export type Stance = Record<
     "left" | "right",
@@ -114,11 +97,6 @@ export namespace IAutoMovieMotionHumanRise {
 
   /**
    * The legs of a rise: each foot's goal on its raised placement, planted, with the toes bent back flat on the floor. Input props of AutoMovieMotionHumanRise.legs. The body, the flat stance, the window in seconds since the action's start and the heels' raise in degrees at a second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation body: Borrowed body measurements and joint ranges used to compose the rising legs. from: Beginning of the leg primitive in action-relative seconds. to: End of the leg primitive in action-relative seconds.
-   * @evidence contracts/development/design.md#principled-representation body: Borrowed body measurements and joint ranges used to compose the rising legs. from: Beginning of the leg primitive in action-relative seconds. to: End of the leg primitive in action-relative seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: compose/AutoMovieMotionHumanRise.ts (AutoMovieMotionHumanRise.legs, props).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBody, IAutoMovieMotionHumanRise.Stance identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type ILegsProps = {
     /** Borrowed body measurements and joint ranges used to compose the rising legs. */
@@ -131,14 +109,6 @@ export namespace IAutoMovieMotionHumanRise {
     to: number;
     /**
      * Retained synchronous callback returning HEEL-raise pitch in degrees for foot placement and toe flexion. Receives the action-relative second unchanged, without subtracting from or clamping. Each leg write calls it independently, so both legs can call it at the same second. The returned primitives retain props, stance and callback; captured inputs must stay stable and exceptions propagate.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRise.ILegsProps.degrees: Retained synchronous callback returning HEEL-raise pitch in degrees for foot placement and toe flexion. Receives the action-relative second unchanged, without subtracting from or clamping. Each leg write calls it independently, so both legs can call it at the same second. The returned primitives retain props, stance and callback; captured inputs must stay stable and exceptions propagate.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRise.ILegsProps.degrees is used through packages/motions/src/compose/AutoMovieMotionHumanRise.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRise.ILegsProps.degrees is used through packages/motions/src/compose/AutoMovieMotionHumanRise.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRise.ILegsProps.degrees is used through packages/motions/src/compose/AutoMovieMotionHumanRise.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRise.ILegsProps.degrees is used through packages/motions/src/compose/AutoMovieMotionHumanRise.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRise.ILegsProps.degrees is used through packages/motions/src/compose/AutoMovieMotionHumanRise.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRise.ILegsProps.degrees is used through packages/motions/src/compose/AutoMovieMotionHumanRise.ts.
      */
     degrees: (seconds: number) => number;
   };

@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { createLift } from "./createLift";
 
 /** Metre or unit-axis proximity used only to recognize equivalent authoring frames. */
@@ -31,10 +31,16 @@ export function liftStopHeights(
   doorHeight: number,
 ): liftStopHeights.IStop[] {
   const up: IAutoMovieVector3 = Vector3.create(0, 1, 0);
-  if (Vector3.distance(ArchetypeFrame.axis(context.frame, "y"), up) > ALIGNMENT)
+  if (
+    Vector3.distance(AutoMovieArchetypeFrame.axis(context.frame, "y"), up) >
+    ALIGNMENT
+  )
     throw new Error(`Lift ${context.id} must be upright.`);
   const inverse = Quaternion.inverse(context.frame.rotation);
-  const forward: IAutoMovieVector3 = ArchetypeFrame.axis(context.frame, "z");
+  const forward: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+    context.frame,
+    "z",
+  );
   const result: liftStopHeights.IStop[] = Object.entries(stops).map(
     ([id, value]: [string, createLift.Stop]): liftStopHeights.IStop => {
       const label: string = `Lift ${context.id} stop ${id}`;
@@ -44,8 +50,9 @@ export function liftStopHeights(
         if (typeof value === "number") return Vector3.create(0, value, 0);
         const anchor: IAutoMovieTransform = context.anchor(value.anchor);
         if (
-          Vector3.distance(ArchetypeFrame.axis(anchor, "y"), up) > ALIGNMENT ||
-          Vector3.distance(ArchetypeFrame.axis(anchor, "z"), forward) >
+          Vector3.distance(AutoMovieArchetypeFrame.axis(anchor, "y"), up) >
+            ALIGNMENT ||
+          Vector3.distance(AutoMovieArchetypeFrame.axis(anchor, "z"), forward) >
             ALIGNMENT
         )
           throw new Error(

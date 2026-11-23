@@ -4,11 +4,6 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 /**
  * Turn over while lying (#3987): between the back, either side and the
  * front about the body's long axis, on the floor or on a bed's surface.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the turn and every member's meaning.
- * @evidence contracts/development/design.md#principled-representation The lying position reached, the side a half turn passes and the support it lies on.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The position, the side, the support, the hold and the manner the bedroom and sleep scenes use.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts An entry not lying is refused at runtime.
  */
 export interface IAutoMovieMotionHumanTurnOver {
   /** The lying position reached. */
@@ -31,10 +26,14 @@ export interface IAutoMovieMotionHumanTurnOver {
  * Companion types of {@link IAutoMovieMotionHumanTurnOver}.
  */
 export namespace IAutoMovieMotionHumanTurnOver {
-  /** The lying positions. */
+  /**
+   * The lying positions.
+   */
   export type Position = "supine" | "lateralLeft" | "prone" | "lateralRight";
 
-  /** A lying surface on a prop. */
+  /**
+   * A lying surface on a prop.
+   */
   export interface IOn {
     /** The bed or sofa prop. */
     prop: string;

@@ -41,6 +41,8 @@ const REACH: number = 0.01;
  * @evidence contracts/development/design.md#principled-representation One action claims both arms and hands over the base and declares only the actual fully held interval.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Uses the existing carried posture and grip resolver; no implement course is planned by the motions package.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hold samples each moving handle's actual frame and never transfers prop root ownership to the hands.
+ *
+ * The author gives the total `seconds`; the hands take the handles and let go in `transition` seconds each, together less than `seconds`; no natural value is defined (provisional).
  */
 export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHoldHandles> =
   {
@@ -65,7 +67,7 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         on,
         left = "leftHandle",
         right = "rightHandle",
-        seconds,
+        duration: seconds,
         transition,
       } = context.params;
       if (
@@ -112,7 +114,7 @@ export const HumanHoldHandles: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
         AutoMovieMotionHumanBase.under(context, seconds);
       const first: IAutoMovieRigidTransform = support.frame(context.start);
       const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
-        { ...context, params: { on, seconds, hands: ids } },
+        { ...context, params: { on, duration: seconds, hands: ids } },
         on,
         support,
         base.posture(0),

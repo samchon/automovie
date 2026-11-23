@@ -1,14 +1,14 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { ArchetypeFrame, ArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../core";
+import { AutoMovieArchetypeEquineHobble } from "./AutoMovieArchetypeEquineHobble";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineBodyPose } from "./EquineBodyPose";
-import { EquineHobble } from "./EquineHobble";
 import type { EquineHobbleCue } from "./EquineHobbleCue";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import type { QuadrupedBody } from "./QuadrupedBody";
 
 /** The trunk's nose-up pitch about the hind hooves at the top of a hop, degrees: authored, enough to unload the forehand. */
 const PITCH: number = 6;
@@ -23,15 +23,13 @@ const LOAD: number = 0.35;
 const PIECES: number = 3;
 
 /** The hinds in the order they step up. */
-const HINDS: readonly QuadrupedBody.Limb[] = ["leftHind", "rightHind"];
+const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
+  "leftHind",
+  "rightHind",
+];
 
 /**
  * The hobbled equid's hops (`EquineHobbleCue.IHops`): in each hop the trunk pitches nose-up about the hind hooves to unload the forehand and carries both fores forward together on one path that rises with the pitched shoulders and lifts over that, then each hind in turn takes the weight off itself and steps up the same length, so the fores keep the separation they started with and the strap is never drawn tighter.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the order, the pitch, what the fores keep and the refusal.
- * @evidence contracts/development/design.md#principled-representation A stance row in the rows' own plan form.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `owns` and `plan`, dispatched by `EquineStanceExtras`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pitch, lift and load share are named authored values.
  */
 export namespace EquineHobbleRows {
   /**
@@ -39,16 +37,10 @@ export namespace EquineHobbleRows {
    *
    * @param cue The cue.
    * @returns Whether it is.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation The discriminator.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One comparison.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure test.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function owns(cue: EquineStanceCue.Cue): cue is EquineHobbleCue.Row {
+  export function owns(
+    cue: AutoMovieArchetypeEquineStanceCue.Cue,
+  ): cue is EquineHobbleCue.Row {
     return cue.kind === "hops";
   }
 
@@ -59,24 +51,18 @@ export namespace EquineHobbleRows {
    * @param start The state it starts from.
    * @param cue The hops.
    * @returns Its plan.
-   * @throws {ArchetypeRefusal} For a count that is not whole and positive, a nonpositive length or strap, or fores already standing wider than the strap.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Per hop three pieces: the fores' joint arc with the trunk pitched about the hind hooves' middle and carried half the length, then each hind's weight transfer (`EquineStanceSupport.transfer`) and arc with the trunk carried a quarter each.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the states, the events, then the pose by share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both fores move by one offset, so their separation never changes.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two weight transfers per hop, solved once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The states and loads are prepared once per plan.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states.
+   * @throws {AutoMovieArchetypeRefusal} For a count that is not whole and positive, a nonpositive length or strap, or fores already standing wider than the strap.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
     cue: EquineHobbleCue.IHops,
   ): EquineStanceRows.IPlan {
-    // Where the cuffs close: `EquineHobble.ABOVE` up each fore cannon from its fetlock, as the pose places it.
+    // Where the cuffs close: `AutoMovieArchetypeEquineHobble.ABOVE` up each fore cannon from its fetlock, as the pose places it.
     const apart = (goal: EquineBodyPose.IGoal): number => {
-      const cuff = (limb: QuadrupedBody.Limb): IAutoMovieVector3 => {
+      const cuff = (
+        limb: AutoMovieArchetypeQuadrupedBody.Limb,
+      ): IAutoMovieVector3 => {
         const chain: readonly IAutoMovieVector3[] = body.chain(
           limb,
           goal.trunk,
@@ -85,7 +71,7 @@ export namespace EquineHobbleRows {
         return Vector3.addScaled(
           chain[3]!,
           Vector3.normalize(Vector3.subtract(chain[2]!, chain[3]!)),
-          EquineHobble.ABOVE,
+          AutoMovieArchetypeEquineHobble.ABOVE,
         );
       };
       return Vector3.distance(cuff("leftFore"), cuff("rightFore"));
@@ -94,7 +80,7 @@ export namespace EquineHobbleRows {
       !(Number.isInteger(cue.count) && cue.count >= 1) ||
       !(cue.length > 0 && cue.strap > 0)
     )
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "horse",
         axis: "hops",
@@ -114,14 +100,14 @@ export namespace EquineHobbleRows {
       hops: number,
     ): IAutoMovieVector3 => Vector3.addScaled(anchor, forward, hops);
     const carried = (
-      trunk: ArchetypeFrame.IMotion,
+      trunk: AutoMovieArchetypeFrame.IMotion,
       share: number,
-    ): ArchetypeFrame.IMotion =>
+    ): AutoMovieArchetypeFrame.IMotion =>
       EquineStanceSupport.moved(trunk, Vector3.scale(forward, share));
 
     // Each hop's states: after the fores, after the left hind, after the right hind; and each hind's loaded trunk.
     const states: EquineStanceRows.IState[] = [start];
-    const loads: ArchetypeFrame.IMotion[] = [];
+    const loads: AutoMovieArchetypeFrame.IMotion[] = [];
     for (let k: number = 0; k < cue.count; ++k) {
       const before: EquineStanceRows.IState = states.at(-1)!;
       const fores: EquineStanceRows.IState = {
@@ -155,7 +141,7 @@ export namespace EquineHobbleRows {
     const piece: number = 1 / steps;
     const events: EquineStanceRows.IEvent[] = [];
     for (let s: number = 0; s < steps; ++s) {
-      const limbs: readonly QuadrupedBody.Limb[] =
+      const limbs: readonly AutoMovieArchetypeQuadrupedBody.Limb[] =
         s % PIECES === 0
           ? ["leftFore", "rightFore"]
           : [s % PIECES === 1 ? "leftHind" : "rightHind"];
@@ -196,11 +182,8 @@ export namespace EquineHobbleRows {
             before.anchors.rightHind,
             0.5,
           );
-          const trunk: ArchetypeFrame.IMotion = EquineStanceSupport.blend(
-            before.trunk,
-            after.trunk,
-            local,
-          );
+          const trunk: AutoMovieArchetypeFrame.IMotion =
+            EquineStanceSupport.blend(before.trunk, after.trunk, local);
           const pitch: number = PITCH * Math.sin(Math.PI * local);
           // The fores rise with the pitched shoulders, and their own lift over that.
           const reach: number = Vector3.distance(
@@ -217,7 +200,9 @@ export namespace EquineHobbleRows {
           const rise: number =
             reach * Math.sin((pitch * Math.PI) / 180) +
             LIFT * Math.sin(Math.PI * local);
-          const hop = (limb: QuadrupedBody.Limb): EquineBodyPose.IPlaced => ({
+          const hop = (
+            limb: AutoMovieArchetypeQuadrupedBody.Limb,
+          ): EquineBodyPose.IPlaced => ({
             kind: "placed",
             anchor: Vector3.add(
               Vector3.lerp(before.anchors[limb], after.anchors[limb], local),
@@ -226,7 +211,7 @@ export namespace EquineHobbleRows {
             fold: 0,
           });
           return {
-            trunk: ArchetypeFrame.chain(
+            trunk: AutoMovieArchetypeFrame.chain(
               EquineBodyPose.turn(
                 pitch,
                 0,
@@ -243,9 +228,9 @@ export namespace EquineHobbleRows {
             },
           };
         }
-        const limb: QuadrupedBody.Limb =
+        const limb: AutoMovieArchetypeQuadrupedBody.Limb =
           s % PIECES === 1 ? "leftHind" : "rightHind";
-        const load: ArchetypeFrame.IMotion =
+        const load: AutoMovieArchetypeFrame.IMotion =
           loads[2 * Math.floor(s / PIECES) + (s % PIECES) - 1]!;
         if (local <= LOAD)
           return {
@@ -274,7 +259,7 @@ export namespace EquineHobbleRows {
     for (const share of [0, ...plan.keys]) {
       const wide: number = apart(plan.goal(share));
       if (!(wide <= strap))
-        throw new ArchetypeRefusal({
+        throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype: "horse",
           axis: "strap",
@@ -296,7 +281,7 @@ export namespace EquineHobbleRows {
   function arc(
     before: EquineStanceRows.IState,
     after: EquineStanceRows.IState,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     share: number,
   ): EquineBodyPose.IPlaced {
     return {

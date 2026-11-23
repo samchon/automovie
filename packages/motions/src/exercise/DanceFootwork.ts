@@ -1,8 +1,6 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
@@ -19,17 +17,23 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
+import { AutoMovieMotionHumanFootSwing } from "../compose/AutoMovieMotionHumanFootSwing";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionHumanToesOnFloor } from "../compose/AutoMovieMotionHumanToesOnFloor";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanFoot } from "../posture/HumanFoot";
+import { pelvisReachHeight } from "../posture/pelvisReachHeight";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The footwork every keyed dance law shares (#3991's tap and ballet,
  * #4010's street steps): each foot runs through its keys, dwelling at a
  * key from its arrival to its departure and travelling to the next key
- * between, lifted by that key's clearance on minimum-jerk progress (zero
- * clearance slides it along the floor, as a moonwalk's backslide). A
+ * between on minimum-jerk progress, lifted by that key's clearance: from
+ * one bearing key to another on a half sine of the swing's time, so it lifts
+ * before it travels and lands after it stops (`AutoMovieMotionHumanFootSwing`),
+ * otherwise on that progress (zero clearance slides it along the floor, as a
+ * moonwalk's backslide). A
  * bearing dwell is a contact window: a plant, or a pivot when the key turns
  * the foot as it dwells (a pirouette's demi-pointe). The hips are carried
  * by the caller's world path and heading; the root follows them. A whole
@@ -43,9 +47,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 export namespace DanceFootwork {
   /** How long either side of a brush its strike touches the floor, seconds (provisional). */
   export const BRUSH: number = 0.03;
-
-  /** How near the floor a risen ball starts to bend its toes back, metres: they lie flat once it is down (provisional). */
-  export const TOUCH: number = 0.03;
 
   /** One foot's course: its leg row, its bearing windows and its placement reader. */
   export interface IFoot {
@@ -102,12 +103,25 @@ export namespace DanceFootwork {
         return dwelt(key, Math.min(t, key.leave));
       const next: IAutoMovieMotionHumanDanceFootKey = keys[i + 1]!;
       const u: number = (t - key.leave) / Math.max(1e-9, next.at - key.leave);
-      return AutoMovieMotionHumanLeg.arc(
-        dwelt(key, key.leave),
-        dwelt(next, next.at),
-        next.clearance,
-        minimumJerk.share(Math.min(1, Math.max(0, u))),
-      );
+      // A travel that lands on a bearing place (a step from another, or a
+      // gesture closing to the floor) lifts before it travels and lands after
+      // it stops; a brush or a gesture grazes the floor in passing, so its
+      // rise follows the travel's own share, and a slide keeps to the floor.
+      return next.bears && next.clearance > 0
+        ? AutoMovieMotionHumanFootSwing(
+            body,
+            side,
+            dwelt(key, key.leave),
+            dwelt(next, next.at),
+            next.clearance,
+            u,
+          )
+        : AutoMovieMotionHumanLeg.arc(
+            dwelt(key, key.leave),
+            dwelt(next, next.at),
+            next.clearance,
+            minimumJerk.share(Math.min(1, Math.max(0, u))),
+          );
     }
     function gesture(t: number): boolean {
       const key: IAutoMovieMotionHumanDanceFootKey = keys[last(keys, t)]!;
@@ -188,49 +202,13 @@ export namespace DanceFootwork {
     });
     // A foot risen on its ball at the floor bends its toes back by the heel's
     // lift, so they lie on the floor (as `AutoMovieMotionHumanRise` does).
-    const toes: AutoMovieHumanoidBone =
-      side === "left" ? "leftToes" : "rightToes";
     return {
-      primitive: {
-        ...leg,
-        write: (
-          posture: IAutoMovieMotionHumanPosture,
-          t: number,
-          before?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[2],
-          resolution?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[3],
-          projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
-        ): IAutoMovieMotionHumanPosture => {
-          const written: IAutoMovieMotionHumanPosture = leg.write(
-            posture,
-            t,
-            before,
-            resolution,
-            projection,
-          );
-          // Read the foot the leg was given, its heel risen or not.
-          const goal: IAutoMovieHumanLimbGoal | undefined =
-            written.limbs[side === "left" ? "leftLeg" : "rightLeg"];
-          const at: IAutoMovieMotionHumanFoot.IPlacement =
-            goal?.rotation === undefined
-              ? placed(t)
-              : { ankle: goal.point, rotation: goal.rotation };
-          const lift: number = -HumanFoot.pitch(at.rotation);
-          const near: number = Math.max(
-            0,
-            Math.min(
-              1,
-              1 - (HumanFoot.point(body, side, "ball", at).y - floor) / TOUCH,
-            ),
-          );
-          const bend: number = Math.max(0, lift) * near * near * (3 - 2 * near);
-          return bend > 0
-            ? {
-                ...written,
-                joints: { ...written.joints, [toes]: [bend, 0, 0] },
-              }
-            : written;
-        },
-      },
+      primitive: AutoMovieMotionHumanToesOnFloor.row(
+        body,
+        side,
+        leg,
+        (): number => floor,
+      ),
       contacts,
       placed,
     };
@@ -386,7 +364,8 @@ export namespace DanceFootwork {
   /**
    * A course's hips set over its feet: the feet's midpoint on the floor
    * plan at the entry's standing height above the entry's feet, lowered by
-   * a crouch.
+   * a crouch, and lowered further where feet a stride apart would leave a
+   * leg short of its ankle (`pelvisReachHeight`).
    *
    * @param body The dancer's body.
    * @param entry The entry state.
@@ -395,7 +374,7 @@ export namespace DanceFootwork {
    * @returns The hips path.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the path.
-   * @evidence contracts/development/implementation.md#principled-implementation The feet's placed ankles' midpoint at the entry's hip height over them.
+   * @evidence contracts/development/implementation.md#principled-implementation The feet's placed ankles' midpoint at the entry's hip height over them, capped in closed form where a leg would not reach its ankle (`pelvisReachHeight`).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two foot readers and one expression.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
    * @evidence contracts/development/implementation.md#efficient-algorithms Two key searches per sample.
@@ -407,7 +386,7 @@ export namespace DanceFootwork {
     entry: IAutoMovieMotionHumanEntryState,
     course: Pick<
       IAutoMovieMotionHumanDanceCourse,
-      "duration" | "left" | "right"
+      "duration" | "left" | "right" | "yaw"
     >,
     crouch: number,
   ): (seconds: number) => IAutoMovieVector3 {
@@ -443,7 +422,16 @@ export namespace DanceFootwork {
       const a: IAutoMovieVector3 = left.placed(t).ankle;
       const b: IAutoMovieVector3 = right.placed(t).ankle;
       const floor: number = Math.min(a.y, b.y);
-      return { x: (a.x + b.x) / 2, y: floor + height, z: (a.z + b.z) / 2 };
+      const asked: IAutoMovieVector3 = {
+        x: (a.x + b.x) / 2,
+        y: floor + height,
+        z: (a.z + b.z) / 2,
+      };
+      // Feet a stride apart lower the hips until both legs reach.
+      return {
+        ...asked,
+        y: pelvisReachHeight(body, asked, course.yaw(t), { left: a, right: b }),
+      };
     };
   }
 

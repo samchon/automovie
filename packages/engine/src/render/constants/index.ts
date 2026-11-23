@@ -8,5 +8,4 @@ export * from "./AUTOMOVIE_SEMANTIC_MASK_COLORS";
 export * from "./AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
 export * from "./AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE";
 export * from "./AUTOMOVIE_SKIN_BYTES";
-export * from "./AUTOMOVIE_TEXEL_BYTES";
 export * from "./AUTOMOVIE_UV_BYTES";

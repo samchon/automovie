@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The rule that leaves the pole's size free. */
@@ -24,7 +24,7 @@ const RULE: string =
  * @param params The pole's series and any dimension the author fixes.
  * @param seed The seed that draws the series when it is not given and every dimension left free inside its band; absent, the first series and the middle of each band.
  * @returns The pole.
- * @throws {ArchetypeRefusal} For a series UCS Spirit does not list with a length, or a fixed dimension outside its band; every band fits both grips on the shortest pole, so no other refusal is needed.
+ * @throws {AutoMovieArchetypeRefusal} For a series UCS Spirit does not list with a length, or a fixed dimension outside its band; every band fits both grips on the shortest pole, so no other refusal is needed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the pole stands, each contact and what is not modelled.
  * @evidence contracts/development/implementation.md#principled-implementation One rod of one UCS Spirit series' length and the drawn diameter; the grip bands are measured down from the top by the drawn hold and spacing, each a handle along the rod with the rod's diameter as its aperture.
@@ -37,9 +37,12 @@ const RULE: string =
 export function createVaultingPole(
   params: createVaultingPole.IParams = {},
   seed?: number | string,
-): Archetype<createVaultingPole.Affordance, createVaultingPole.Dimension> {
-  const draw: ArchetypeDrawSession<createVaultingPole.Dimension> =
-    new ArchetypeDrawSession<createVaultingPole.Dimension>(
+): AutoMovieArchetype<
+  createVaultingPole.Affordance,
+  createVaultingPole.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createVaultingPole.Dimension> =
+    new AutoMovieArchetypeDrawSession<createVaultingPole.Dimension>(
       "vaultingPole",
       createVaultingPole.UNITS,
       seed,
@@ -57,10 +60,10 @@ export function createVaultingPole(
     ...draw.dimensions(createVaultingPole.BANDS),
     length: series.figures.length!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createVaultingPole.Affordance,
     createVaultingPole.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `vaulting pole, ${series.name} series`,
@@ -78,7 +81,7 @@ export function createVaultingPole(
     id: "tip",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });
 
@@ -92,7 +95,11 @@ export function createVaultingPole(
       id,
       kind: id === "shaft" ? "bar" : "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, middle, 0), v(0, 0, -1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, middle, 0),
+        v(0, 0, -1),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: id === "shaft" ? "two-hand" : "power",
       aperture: d.diameter,
@@ -144,7 +151,9 @@ export namespace createVaultingPole {
   export type Dimension = "length" | "diameter" | "hold" | "spacing" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     hold: "m",
@@ -159,9 +168,14 @@ export namespace createVaultingPole {
   export const SERIES: Readonly<
     Record<Series, Readonly<Partial<Record<Dimension, number>>>>
   > = {
-    "235": { length: 7 * ArchetypeUnits.FOOT + 8 * ArchetypeUnits.INCH },
-    "305": { length: 10 * ArchetypeUnits.FOOT },
-    "520": { length: 17 * ArchetypeUnits.FOOT + ArchetypeUnits.INCH },
+    "235": {
+      length:
+        7 * AutoMovieArchetypeUnits.FOOT + 8 * AutoMovieArchetypeUnits.INCH,
+    },
+    "305": { length: 10 * AutoMovieArchetypeUnits.FOOT },
+    "520": {
+      length: 17 * AutoMovieArchetypeUnits.FOOT + AutoMovieArchetypeUnits.INCH,
+    },
   };
 
   /** The parameters: the series, and any free dimension fixed to a value inside its band. */
@@ -177,27 +191,27 @@ export namespace createVaultingPole {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "length">, IArchetypeBand>
+    Record<Exclude<Dimension, "length">, IAutoMovieArchetypeBand>
   > = {
-    diameter: ArchetypeBand.metres(
+    diameter: AutoMovieArchetypeBand.metres(
       0.03,
       0.045,
       `${RULE}; an estimate of a fibreglass pole's outer diameter; the UCS Spirit pages read give no diameter`,
       true,
     ),
-    hold: ArchetypeBand.metres(
+    hold: AutoMovieArchetypeBand.metres(
       0.1,
       0.3,
       "the upper hand held a little below the top, a vaulter's habit; an estimate, not read at a source",
       true,
     ),
-    spacing: ArchetypeBand.metres(
+    spacing: AutoMovieArchetypeBand.metres(
       0.45,
       0.65,
       "the hands about shoulder width apart along the pole, a vaulter's habit; an estimate, not read at a source",
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       1.5,
       3,

@@ -1,10 +1,10 @@
 import {
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  OxBody,
-  QuadrupedBody,
-  type QuadrupedEquipment,
-  type QuadrupedLead,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeOxBody,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedEquipment,
+  type AutoMovieArchetypeQuadrupedLead,
   type createOx,
 } from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
@@ -33,19 +33,20 @@ export namespace AnimalEquipmentFixture {
   /** One real laid body and the canonical landmarks used to fit equipment. */
   export interface IFixture {
     /** Genuine builder observed through its ordinary complete build output. */
-    builder: ArchetypeBuilder<
-      QuadrupedEquipment.Affordance,
-      QuadrupedBody.Dimension
+    builder: AutoMovieArchetypeBuilder<
+      AutoMovieArchetypeQuadrupedEquipment.Affordance,
+      AutoMovieArchetypeQuadrupedBody.Dimension
     >;
     /** Actual landmarks of that same already laid quadruped body. */
-    rig: QuadrupedBody.IRig;
+    rig: AutoMovieArchetypeQuadrupedBody.IRig;
   }
 
   /** Lay the actual published ox body through the genuine public builder. */
   export function create(): IFixture {
-    const body: QuadrupedBody.IBody = OxBody();
-    const draw: ArchetypeDrawSession<QuadrupedBody.Dimension> =
-      new ArchetypeDrawSession(
+    const body: AutoMovieArchetypeQuadrupedBody.IBody =
+      AutoMovieArchetypeOxBody();
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeQuadrupedBody.Dimension> =
+      new AutoMovieArchetypeDrawSession(
         "equipment-fixture",
         { withersHeight: "m", girth: "m", mass: "kg", tempo: "" },
         7,
@@ -54,13 +55,14 @@ export namespace AnimalEquipmentFixture {
     draw.derive("girth", 1.5061);
     draw.derive("mass", 300);
     draw.derive("tempo", 0);
-    const builder: IFixture["builder"] = new ArchetypeBuilder({
+    const builder: IFixture["builder"] = new AutoMovieArchetypeBuilder({
       name: "actual ox body fixture",
       draw,
       material: "skin",
     });
-    const rig: QuadrupedBody.IRig = QuadrupedBody.rig(body, draw.values);
-    QuadrupedBody.lay(body, builder, 1.1932, rig);
+    const rig: AutoMovieArchetypeQuadrupedBody.IRig =
+      AutoMovieArchetypeQuadrupedBody.rig(body, draw.values);
+    AutoMovieArchetypeQuadrupedBody.lay(body, builder, 1.1932, rig);
     return { builder, rig };
   }
 
@@ -68,8 +70,8 @@ export namespace AnimalEquipmentFixture {
   export function inspectHook(
     animal: Animal,
     name: string,
-    id: QuadrupedEquipment.Affordance,
-    authored: QuadrupedEquipment.IHook,
+    id: AutoMovieArchetypeQuadrupedEquipment.Affordance,
+    authored: AutoMovieArchetypeQuadrupedEquipment.IHook,
     findings: string[],
   ): void {
     const base: IAutoMovieModelPart = part(animal, `${name}-base`);
@@ -153,7 +155,7 @@ export namespace AnimalEquipmentFixture {
   /** A lead's line contact is the midpoint of its real straight graspable bar. */
   export function inspectLead(
     animal: Animal,
-    authored: QuadrupedLead.IParams,
+    authored: AutoMovieArchetypeQuadrupedLead.IParams,
     findings: string[],
   ): void {
     const lead: IAutoMovieModelPart = part(animal, "lead");

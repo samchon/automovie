@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The amateur boxing body's ring guide, read. */
@@ -30,7 +30,7 @@ const SIDES: readonly ["north", "south", "east", "west"] = [
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The ring.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the ring stands and its contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A platform box of the drawn height whose square is the drawn inside size and an apron; a post rod at each corner of the inside square rising to the top rope; four ropes on each side at the guide's heights, scaled to the drawn top rope's height.
@@ -43,9 +43,9 @@ const SIDES: readonly ["north", "south", "east", "west"] = [
 export function createRing(
   params: createRing.IParams = {},
   seed?: number | string,
-): Archetype<createRing.Affordance, createRing.Dimension> {
-  const draw: ArchetypeDrawSession<createRing.Dimension> =
-    new ArchetypeDrawSession<createRing.Dimension>(
+): AutoMovieArchetype<createRing.Affordance, createRing.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createRing.Dimension> =
+    new AutoMovieArchetypeDrawSession<createRing.Dimension>(
       "ring",
       createRing.UNITS,
       seed,
@@ -54,13 +54,15 @@ export function createRing(
   const d: Record<createRing.Dimension, number> = draw.dimensions(
     createRing.BANDS,
   );
-  const builder: ArchetypeBuilder<createRing.Affordance, createRing.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: "ring",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createRing.Affordance,
+    createRing.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: "ring",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const half: number = d.size / 2;
   const outer: number = d.size + 2 * createRing.APRON;
@@ -87,7 +89,7 @@ export function createRing(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(x, top, z)),
+      frame: AutoMovieArchetypeFrame.upright(v(x, top, z)),
       extent: null,
     });
   }
@@ -127,7 +129,7 @@ export function createRing(
       id,
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         at,
         along ? v(0, 0, -sign) : v(-sign, 0, 0),
         along ? v(1, 0, 0) : v(0, 0, 1),
@@ -141,7 +143,7 @@ export function createRing(
   builder.affordance({
     id: "canvas",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, floor, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, floor, 0)),
     extent: null,
     width: d.size,
     depth: d.size,
@@ -202,7 +204,9 @@ export namespace createRing {
   export type Dimension = "size" | "platform" | "topRope" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     size: "m",
     platform: "m",
     topRope: "m",
@@ -216,23 +220,23 @@ export namespace createRing {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    size: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    size: AutoMovieArchetypeBand.metres(
       6.1,
       6.1,
       `${AIBA}, canvas: 6.10 m square inside the line of the ropes`,
     ),
-    platform: ArchetypeBand.metres(
+    platform: AutoMovieArchetypeBand.metres(
       1,
       1,
       `${AIBA}, poles: 230 cm in all and 130 cm above the canvas, so the canvas stands 100 cm high`,
     ),
-    topRope: ArchetypeBand.metres(
+    topRope: AutoMovieArchetypeBand.metres(
       1.3,
       1.3,
       `${AIBA}, ropes: the four at 40, 70, 100 and 130 cm from the canvas`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       800,
       2000,

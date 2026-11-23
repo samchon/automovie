@@ -11,11 +11,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { unloadedFoot } from "../carrier/unloadedFoot";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
@@ -23,27 +23,42 @@ import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
 
 /**
- * Close-hauled mainsail trim of a small dinghy, degrees of boom travel off
- * the centreline. A provisional staging value: upwind the boom is sheeted to
- * within a few degrees of the quarter, ahead of the transom corner.
+ * Close-hauled mainsail trim of a small dinghy, degrees of boom travel off the
+ * centreline. A provisional staging value: upwind the boom is sheeted to within
+ * a few degrees of the quarter, ahead of the transom corner.
  */
 const CLOSE_HAULED: number = 12;
 
-/** Seconds over which a foot's heel rises before its lift and lowers after its landing: provisional, a fraction of the swing. */
+/**
+ * Seconds over which a foot's heel rises before its lift and lowers after its
+ * landing: provisional, a fraction of the swing.
+ */
 const EASE: number = 0.2;
 
-/** Share of the maneuver by which the sailors have crouched and taken their controls (`helmIn`). */
+/**
+ * Share of the maneuver by which the sailors have crouched and taken their
+ * controls (`helmIn`).
+ */
 const HELM_IN: number = 0.2;
 
-/** The tiller hand's point ahead of the pelvis, over stature: provisional, ahead of a crouched chest. */
+/**
+ * The tiller hand's point ahead of the pelvis, over stature: provisional, ahead
+ * of a crouched chest.
+ */
 const HAND_FORE: number = 0.25;
 
 /** The tiller hand's point above the pelvis, over stature: provisional. */
 const HAND_UP: number = 0.2;
 
-/** The tiller hand's point to its own side of the pelvis, over stature: provisional, outside the trunk. */
+/**
+ * The tiller hand's point to its own side of the pelvis, over stature:
+ * provisional, outside the trunk.
+ */
 const HAND_SIDE: number = 0.1;
-/** How far the crouch lowers the pelvis, over stature: provisional, below a dinghy's boom. */
+/**
+ * How far the crouch lowers the pelvis, over stature: provisional, below a
+ * dinghy's boom.
+ */
 const CROUCH: number = 0.2;
 
 /** One hand on one of the craft's declared handle controls. */
@@ -56,14 +71,14 @@ interface IControl {
 }
 
 /**
- * Dinghy tack and near-side recovery when a tack is aborted. The visible
- * foot transfers follow World Sailing Racing Rules 13 and 42 and Schutt (2017).
- The sailors cross the boat crouched, facing the way they entered. On a
- * craft that declares its handles, each sailor's hand reaches its control by
- * the helm-in instant and holds it on the posed rig while the helm's own
- * drives swing the rudder and boom; on a craft with a standing area for the
- * role the forefoot bears on it and the sailor stays crouched below the boom.
- * The crew's foot transfers lead the helm's.
+ * Dinghy tack and near-side recovery when a tack is aborted. The visible foot
+ * transfers follow World Sailing Racing Rules 13 and 42 and Schutt (2017). The
+ * sailors cross the boat crouched, facing the way they entered. On a craft that
+ * declares its handles, each sailor's hand reaches its control by the helm-in
+ * instant and holds it on the posed rig while the helm's own drives swing the
+ * rudder and boom; on a craft with a standing area for the role the forefoot
+ * bears on it and the sailor stays crouched below the boom. The crew's foot
+ * transfers lead the helm's.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names both outcomes and their supporting references.
  * @evidence contracts/development/design.md#principled-representation Stages body transfers in the hull frame while the helm drives the boat's authored rig.
@@ -140,6 +155,17 @@ export namespace AquaticSail {
     const trailStart: number = aborted ? 0.58 : leadEnd + 0.02;
     const trailEnd: number = trailStart + 0.19;
     const clearance: number = body.measure.stature * 0.075;
+    // The sailor's own forward in the hull frame, level, and how far a
+    // crossing foot passes in front of the standing shank: two shank radii
+    // (the two shanks' surfaces meet) and the skin's give the audits allow.
+    const facing: IAutoMovieVector3 = AquaticCrew.direction(context, hull, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
+    const ahead: IAutoMovieVector3 = Vector3.normalize({ ...facing, y: 0 });
+    const passing: number =
+      2 * body.measure.shankRadius + AutoMovieMotionHumanAuditSkin.BUILT;
 
     const plants: IAutoMovieMotionHumanContactWindow[] = [
       AquaticCrew.bear(hull.id, `${lead}Foot`, "plant", 0, leadStart),
@@ -420,22 +446,30 @@ export namespace AquaticSail {
         const trailX: number = aborted ? 0 : second;
         const leadBase: IAutoMovieVector3 = hull.feet[lead];
         const trailBase: IAutoMovieVector3 = hull.feet[trail];
-        const footA: IAutoMovieVector3 = {
-          ...leadBase,
-          x: leadBase.x + cross * leadX,
-          y:
-            leadBase.y +
-            clearance *
-              (swing(u, leadStart, leadEnd) +
-                (aborted ? swing(u, trailStart, trailEnd) : 0)),
-        };
-        const footB: IAutoMovieVector3 = {
-          ...trailBase,
-          x: trailBase.x + cross * trailX,
-          y:
-            trailBase.y +
-            (aborted ? 0 : clearance * swing(u, trailStart, trailEnd)),
-        };
+        const leadSwing: number =
+          swing(u, leadStart, leadEnd) +
+          (aborted ? swing(u, trailStart, trailEnd) : 0);
+        const trailSwing: number = aborted ? 0 : swing(u, trailStart, trailEnd);
+        // Both feet cross the cockpit by the same `cross`, so each swing
+        // passes the standing foot's place: it steps across in front of the
+        // standing shank, out by two shank radii and the skin's give at its
+        // swing's middle, never through it.
+        const footA: IAutoMovieVector3 = Vector3.add(
+          {
+            ...leadBase,
+            x: leadBase.x + cross * leadX,
+            y: leadBase.y + clearance * leadSwing,
+          },
+          Vector3.scale(ahead, passing * leadSwing),
+        );
+        const footB: IAutoMovieVector3 = Vector3.add(
+          {
+            ...trailBase,
+            x: trailBase.x + cross * trailX,
+            y: trailBase.y + clearance * trailSwing,
+          },
+          Vector3.scale(ahead, passing * trailSwing),
+        );
         const carriedHips: IAutoMovieVector3 = {
           ...hips,
           x: hips.x + cross * (aborted ? 0.48 : 1) * stride,
@@ -502,7 +536,6 @@ export namespace AquaticSail {
               body,
               legsAt(posture).get(`${side}UpperLeg`)!.worldPosition,
               goal,
-              HumanFrame.forward(posture.yaw),
               weight,
             );
             // The heel rises about the toes' joint, which stays where the

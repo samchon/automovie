@@ -1,7 +1,7 @@
 import {
-  ArchetypeRefusal,
-  type GaitedHorseProfile,
-  type QuadrupedGait,
+  type AutoMovieArchetypeEquineGaitedProfile,
+  type AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -14,9 +14,9 @@ type Ride = ReturnType<typeof rideHorse>;
 /** One ambling breed, its gait, the speed it is ridden at and the lateral advanced placement its source reports. */
 interface ICase {
   /** The breed. */
-  breed: GaitedHorseProfile.Breed;
+  breed: AutoMovieArchetypeEquineGaitedProfile.Breed;
   /** Its gait. */
-  gait: QuadrupedGait.Gait;
+  gait: AutoMovieArchetypeQuadrupedGait.Gait;
   /** Metres per second, inside the source's speed range. */
   speed: number;
   /** The hind's landing ahead of its own side's fore, as a share of the stride. */
@@ -29,7 +29,7 @@ interface ICase {
  * Scenarios:
  * 1. A 1.52 m horse of each breed goes at its gait at a speed inside the source's range: every left fore lands its source's lateral advanced placement after the left hind, within 0.01 of a stride.
  * 2. Over two strides, sampled every 10 ms, at least one hoof stands on its planted height: no suspension.
- * 3. An ordinary horse asked for the rack refuses with an ArchetypeRefusal.
+ * 3. An ordinary horse asked for the rack refuses with an AutoMovieArchetypeRefusal.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the breeds, the placement, the support and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public ride's footfall instants and displayed hoof heights.
@@ -111,7 +111,7 @@ export function test_archetype_equine_gaited(): void {
   } catch (error) {
     refusal = error;
   }
-  if (!(refusal instanceof ArchetypeRefusal))
+  if (!(refusal instanceof AutoMovieArchetypeRefusal))
     issues.push(`an ordinary horse asked to rack raises ${String(refusal)}`);
   TestValidator.equals("ambling gaits", issues, []);
 }

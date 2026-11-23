@@ -1,7 +1,7 @@
 import {
-  ArchetypeCourse,
-  ArchetypePassage,
-  type ArchetypeRide,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypePassage,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -36,7 +36,7 @@ const PERSON: number = 0.305;
  * 4. People walking up the street part round an overtaking carriage outside the clearance and close back to their lanes behind it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the line, the crowd and the three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Rides real horses with a leg-yield leg, steers real crowd agents round `ArchetypePassage.obstacle` of each ride's posed envelope, and measures the steered courses with `ArchetypePassage`.
+ * @evidence contracts/development/testing.md#behavioral-verification Rides real horses with a leg-yield leg, steers real crowd agents round `AutoMovieArchetypePassage.obstacle` of each ride's posed envelope, and measures the steered courses with `AutoMovieArchetypePassage`.
  * @evidence contracts/development/testing.md#independent-expectations The line starts abreast on one course shape, so identical rides stay level and spaced by their starts; the authored clearance and Fruin's breadth bound the people.
  * @evidence contracts/development/testing.md#distinguishing-cases Three horses and four people in their way. The hoof crossing of a leg-yield is pinned by equine's lateral specs and a trapped person's refusal by test_world_mounted_formations.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec.
@@ -46,8 +46,8 @@ export function test_world_mounted_crowd_line(): void {
     { withersHeight: 1.65, tempo: 0 },
     "police",
   );
-  const rides: ArchetypeRide.IRide<string, string>[] = [-1, 0, 1].map(
-    (file: number): ArchetypeRide.IRide<string, string> =>
+  const rides: AutoMovieArchetypeRide.IRide<string, string>[] = [-1, 0, 1].map(
+    (file: number): AutoMovieArchetypeRide.IRide<string, string> =>
       rideHorse(
         horse,
         {
@@ -82,7 +82,7 @@ export function test_world_mounted_crowd_line(): void {
     (_: unknown, k: number): number => k * STEP,
   ).every((seconds: number): boolean => {
     const at: IAutoMovieVector3[] = rides.map(
-      (ride: ArchetypeRide.IRide<string, string>): IAutoMovieVector3 =>
+      (ride: AutoMovieArchetypeRide.IRide<string, string>): IAutoMovieVector3 =>
         ride.at(seconds).placement.translation,
     );
     return (
@@ -97,14 +97,14 @@ export function test_world_mounted_crowd_line(): void {
   );
 
   // 2. The crowd gives way round the horses' actual bodies.
-  const participants: ArchetypePassage.IParticipant[] = rides.map(
+  const participants: AutoMovieArchetypePassage.IParticipant[] = rides.map(
     (
-      ride: ArchetypeRide.IRide<string, string>,
+      ride: AutoMovieArchetypeRide.IRide<string, string>,
       k: number,
-    ): ArchetypePassage.IParticipant => ({
+    ): AutoMovieArchetypePassage.IParticipant => ({
       id: `horse${k}`,
       plan: ride.plan,
-      footprint: ArchetypePassage.envelope(ride, 0, end, STEP),
+      footprint: AutoMovieArchetypePassage.envelope(ride, 0, end, STEP),
       margin: CLEARANCE,
     }),
   );
@@ -121,7 +121,7 @@ export function test_world_mounted_crowd_line(): void {
         start: 0,
       }),
     ),
-    obstacles: participants.map(ArchetypePassage.obstacle),
+    obstacles: participants.map(AutoMovieArchetypePassage.obstacle),
     from: 0,
     to: end,
   });
@@ -135,17 +135,17 @@ export function test_world_mounted_crowd_line(): void {
   );
 
   // 3. Every person keeps the clearance from every horse's posed body.
-  const walkers: ArchetypePassage.IParticipant[] = steered.courses.map(
+  const walkers: AutoMovieArchetypePassage.IParticipant[] = steered.courses.map(
     (
       course: IAutoMovieCrowdAgent.ICourse,
       k: number,
-    ): ArchetypePassage.IParticipant => ({
+    ): AutoMovieArchetypePassage.IParticipant => ({
       id: `person${k}`,
-      plan: ArchetypeCourse.timed(
+      plan: AutoMovieArchetypeCourse.timed(
         `person${k}`,
         Array.from(
           { length: Math.floor(end / 0.25) + 1 },
-          (_: unknown, i: number): ArchetypeCourse.ISample => {
+          (_: unknown, i: number): AutoMovieArchetypeCourse.ISample => {
             const at: IAutoMovieVector3 = course.at(i * 0.25).position;
             return { seconds: i * 0.25, x: at.x, y: 0, z: at.z };
           },
@@ -155,26 +155,24 @@ export function test_world_mounted_crowd_line(): void {
       margin: 0,
     }),
   );
-  const close: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "crowd line",
-    {
+  const close: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("crowd line", {
       participants: [...participants, ...walkers],
       step: STEP,
       to: end,
-    },
-  ).filter(
-    (found: ArchetypePassage.IConflict): boolean =>
-      found.subject.startsWith("horse") && found.other.startsWith("person"),
-  );
+    }).filter(
+      (found: AutoMovieArchetypePassage.IConflict): boolean =>
+        found.subject.startsWith("horse") && found.other.startsWith("person"),
+    );
   TestValidator.equals(
     `every person clears every horse: ${JSON.stringify(close.slice(0, 2))}`,
     close,
     [],
   );
   // 4. People walking up the street part round an overtaking carriage and close behind it.
-  const carriage: ArchetypePassage.IParticipant = {
+  const carriage: AutoMovieArchetypePassage.IParticipant = {
     id: "carriage",
-    plan: ArchetypeCourse.plan("carriage", {
+    plan: AutoMovieArchetypeCourse.plan("carriage", {
       start: { x: 0, z: -14, heading: 0 },
       legs: [{ kind: "straight", length: 60 }],
       cruise: 2.4,
@@ -203,7 +201,7 @@ export function test_world_mounted_crowd_line(): void {
         start: 0,
       }),
     ),
-    obstacles: [ArchetypePassage.obstacle(carriage)],
+    obstacles: [AutoMovieArchetypePassage.obstacle(carriage)],
     from: 0,
     to: 30,
   });

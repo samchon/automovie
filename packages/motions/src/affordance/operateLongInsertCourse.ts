@@ -128,7 +128,7 @@ export function operateLongInsertCourse(
   ): never => {
     throw new HumanRefusal({
       kind: "reach",
-      axis: "mechanism",
+      axis: "kind",
       value: props.depth,
       feasible: {
         kind: "range",

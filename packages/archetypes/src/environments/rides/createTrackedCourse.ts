@@ -13,8 +13,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
-import { ArchetypeUnits } from "../../core/ArchetypeUnits";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeUnits } from "../../core/AutoMovieArchetypeUnits";
 
 /** Start with 32 chord and display sections per spline span. */
 const SECTIONS_PER_SPAN: number = 32;
@@ -31,14 +31,6 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * @param input Local waypoints, closure and optional bank and lateral input.
  * @returns Approximate arc stations and their shared rigid frame sampler.
  * @throws On malformed points or orientation, degenerate travel or distances the sampled frame cannot represent.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The engine supplies the centripetal spline and double-reflection transport. A closed spline uses the same seam tangent at both ends and apportions its measured residual twist, after which bank is a rotation about the tangent. A fixed chord sum and a binary inverse form an approximate metric station clock.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare and sample the spine once, then invert the station table to find each frame and apply its two local rotations as one bank.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing lateral uses the world up cross the tangent except on a vertical tangent, where +X is the declared starting axis. Supplied malformed axes and vanishing or unrepresentable intervals refuse. Stations approximate spline arclength and each adjacent authored bank change must be at most a half turn.
- * @evidence contracts/development/common.md#meaningful-documentation States inputs, output frame, source of its approximation, closure correction and refused cases.
- * @evidence contracts/development/implementation.md#efficient-algorithms One constant-density sample table per spline span; sampled path calls use the engine's linear span search. A distance lookup is logarithmic in those samples plus a frame query.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Retains one transport and one station table for all geometry and timing queries of this course.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only linear-size spline and station data, no history of queries or external resources.
  */
 export function createTrackedCourse(
   input: IAutoMovieTrackCourse.IInput,
@@ -108,7 +100,7 @@ export function createTrackedCourse(
     ? Math.atan2(
         Vector3.dot(first.normal, Vector3.cross(last.x, first.x)),
         Vector3.dot(last.x, first.x),
-      ) / ArchetypeUnits.DEGREE
+      ) / AutoMovieArchetypeUnits.DEGREE
     : 0;
   const chordLength: number = chords[chords.length - 1]!;
   const parameters: number[] = [0];
@@ -175,7 +167,7 @@ export function createTrackedCourse(
             Quaternion.fromAxisAngle(FORWARD, bank),
           ),
         ),
-        scale: { ...ArchetypeFrame.UNIT },
+        scale: { ...AutoMovieArchetypeFrame.UNIT },
       };
     },
   });

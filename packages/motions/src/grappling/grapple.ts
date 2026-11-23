@@ -18,6 +18,7 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { grappleArms } from "./grappleArms";
+import { grappleFront } from "./grappleFront";
 import { grappleMatRoll } from "./grappleMatRoll";
 import { grappleStances } from "./grappleStances";
 import { grappleSumo } from "./grappleSumo";
@@ -141,24 +142,21 @@ export namespace grapple {
       role: IAutoMovieMotionHumanGrapple.Role,
       body: IAutoMovieMotionHumanBody,
     ): number => {
-      const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
       const lean: number =
-        ((grappleStances
+        grappleStances
           .keys(
             { kind, role, partner: role },
             grappleStances.seconds(kind),
-            m.stature,
+            body,
+            role === "initiator" ? receiver : initiator,
           )
           .find(
             (stance: ReturnType<typeof grappleStances.keys>[number]): boolean =>
               stance.event === "entry",
-          )?.prefer?.pitch ?? 0) *
-          Math.PI) /
-        180;
+          )?.prefer?.pitch ?? 0;
       return Math.max(
-        (m.headHeight - m.headRadius - m.hipHeight) * Math.sin(lean) +
-          m.headRadius,
-        (m.chestHeight - m.hipHeight) * Math.sin(lean) + m.chestDepth / 2,
+        grappleFront.head(body, lean),
+        grappleFront.chest(body, lean),
       );
     };
     return front("initiator", initiator) + front("receiver", receiver);
@@ -191,18 +189,34 @@ export namespace grapple {
         fix: "name the other actor in the staged scene",
       });
 
-    const duration: number = p.seconds ?? grappleStances.seconds(p.kind);
-    HumanBound.above("seconds", duration, 0, "s");
+    const duration: number = p.duration ?? grappleStances.seconds(p.kind);
+    HumanBound.above("duration", duration, 0, "s");
 
-    const keys: ReturnType<typeof grappleStances.keys> = grappleStances.keys(
-      p,
-      duration,
-      context.body.measure.stature,
-    );
-    const supportPlan: IAutoMovieMotionHumanActionPlan = support.plan({
+    const partnerBody: IAutoMovieMotionHumanBody = context.performer(
+      p.partner,
+    ).body;
+    const stancesAt = (
+      pitch?: number,
+    ): ReturnType<typeof grappleStances.keys> =>
+      grappleStances.keys(p, duration, context.body, partnerBody, pitch);
+    let keys: ReturnType<typeof grappleStances.keys> = stancesAt();
+    let supportPlan: IAutoMovieMotionHumanActionPlan = support.plan({
       ...context,
       params: { stances: keys },
     });
+    // A sumo tachiai's contact gap is read at the trunk's pitch the support
+    // fit takes there, not the charge pose's asked one: asked 35 degrees, the
+    // fit took 28 on the small body and the chests stopped 37 mm apart. The
+    // keys are laid again on that pitch.
+    if (grappleSumo.is(p.kind)) {
+      const fitted: number | undefined = supportPlan.posture(
+        duration * grappleSumo.window().take,
+      ).pitch;
+      if (fitted !== undefined) {
+        keys = stancesAt(fitted);
+        supportPlan = support.plan({ ...context, params: { stances: keys } });
+      }
+    }
     const shoulder: boolean = p.kind === "seoiNage" && p.outcome !== "denied";
     const floor: IAutoMovieMotionHumanActionPlan =
       shoulder && p.role === "receiver"

@@ -1,9 +1,9 @@
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  type ArchetypeFracture,
-  ArchetypeRefusal,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  type AutoMovieArchetypeFracture,
+  AutoMovieArchetypeRefusal,
 } from "@automovie/archetypes";
 import type {
   IAutoMovieModelPart,
@@ -44,8 +44,8 @@ import { TestValidator } from "@nestia/e2e";
 export function test_archetype_fracture_hit(): void {
   const findings: string[] = [];
   const momentum: IAutoMovieVector3 = { x: 2, y: -1, z: 1 };
-  const model: Archetype<never, never> = fixture();
-  const plain: Archetype<never, never> = fixture(3, false);
+  const model: AutoMovieArchetype<never, never> = fixture();
+  const plain: AutoMovieArchetype<never, never> = fixture(3, false);
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
   if (
@@ -55,10 +55,11 @@ export function test_archetype_fracture_hit(): void {
   )
     findings.push("a zero/subthreshold hit or unbreakable object broke");
 
-  const broken: ArchetypeFracture.IPieces<never, never> | null = model.broken({
-    energy: 5,
-    momentum,
-  });
+  const broken: AutoMovieArchetypeFracture.IPieces<never, never> | null =
+    model.broken({
+      energy: 5,
+      momentum,
+    });
   if (broken === null || broken.fragments.length !== 2)
     findings.push("the threshold did not produce exactly two fragments");
   else {
@@ -93,9 +94,8 @@ export function test_archetype_fracture_hit(): void {
     broken.fragments[0]!.velocity.x = 99;
     if (broken.fragments[1]!.velocity.x !== 1 || momentum.x !== 2)
       findings.push("one velocity mutation changed another fragment or input");
-    const replay: ArchetypeFracture.IPieces<never, never> | null = model.broken(
-      { energy: 5, momentum },
-    );
+    const replay: AutoMovieArchetypeFracture.IPieces<never, never> | null =
+      model.broken({ energy: 5, momentum });
     if (replay === null || replay.fragments[0]?.velocity.x !== 1)
       findings.push("a previous returned velocity changed a later break");
   }
@@ -146,12 +146,12 @@ export function test_archetype_fracture_hit(): void {
   )
     findings.push("finite input produced a non-finite fragment velocity");
 
-  const stationary: ArchetypeFracture.IPieces<never, never> | null =
+  const stationary: AutoMovieArchetypeFracture.IPieces<never, never> | null =
     model.broken({ energy: 5, momentum: zero });
   if (
     stationary === null ||
     stationary.fragments.some(
-      (fragment: ArchetypeFracture.IPiece<never>): boolean =>
+      (fragment: AutoMovieArchetypeFracture.IPiece<never>): boolean =>
         fragment.velocity.x !== 0 ||
         fragment.velocity.y !== 0 ||
         fragment.velocity.z !== 0,
@@ -161,12 +161,14 @@ export function test_archetype_fracture_hit(): void {
       "a valid zero-momentum hit did not give stationary fragments",
     );
 
-  const lowThreshold: Archetype<never, never> = fixture(3, true, 0.5);
+  const lowThreshold: AutoMovieArchetype<never, never> = fixture(3, true, 0.5);
   const unitMomentum: IAutoMovieVector3 = { x: 2, y: 0, z: 0 };
   for (const incident of [0.75, 1 - Number.EPSILON / 2]) {
-    const refused: ArchetypeRefusal | null = energyRefusal((): void => {
-      lowThreshold.broken({ energy: incident, momentum: unitMomentum });
-    });
+    const refused: AutoMovieArchetypeRefusal | null = energyRefusal(
+      (): void => {
+        lowThreshold.broken({ energy: incident, momentum: unitMomentum });
+      },
+    );
     if (
       refused?.axis !== "energy" ||
       refused.feasible?.kind !== "range" ||
@@ -184,24 +186,26 @@ export function test_archetype_fracture_hit(): void {
     y: 0,
     z: 0,
   };
-  const largeBreak: ArchetypeFracture.IPieces<never, never> | null =
+  const largeBreak: AutoMovieArchetypeFracture.IPieces<never, never> | null =
     model.broken({ energy: Number.MAX_VALUE, momentum: large });
   if (
     largeBreak === null ||
     largeBreak.fragments.some(
-      (fragment: ArchetypeFracture.IPiece<never>): boolean =>
+      (fragment: AutoMovieArchetypeFracture.IPiece<never>): boolean =>
         !Number.isFinite(fragment.velocity.x),
     )
   )
     findings.push(
       "an admissible hit was lost to intermediate energy-product overflow",
     );
-  const impossible: ArchetypeRefusal | null = energyRefusal((): void => {
-    model.broken({
-      energy: Number.MAX_VALUE,
-      momentum: { x: Number.MAX_VALUE / 2, y: 0, z: 0 },
-    });
-  });
+  const impossible: AutoMovieArchetypeRefusal | null = energyRefusal(
+    (): void => {
+      model.broken({
+        energy: Number.MAX_VALUE,
+        momentum: { x: Number.MAX_VALUE / 2, y: 0, z: 0 },
+      });
+    },
+  );
   if (impossible?.axis !== "energy" || impossible.feasible !== null)
     findings.push(
       "an energy floor above every finite number reported a feasible finite budget",
@@ -217,21 +221,20 @@ export function test_archetype_fracture_hit(): void {
     mass: number = 3,
     breakable: boolean = true,
     threshold: number = 5,
-  ): Archetype<never, never> {
-    const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession<never>(
-      "fracture-fixture",
-      {},
-      undefined,
-      {},
-    );
-    const builder: ArchetypeBuilder<never, never> = new ArchetypeBuilder<
-      never,
-      never
-    >({
-      draw,
-      name: "fracture fixture",
-      material: "steel",
-    });
+  ): AutoMovieArchetype<never, never> {
+    const draw: AutoMovieArchetypeDrawSession<never> =
+      new AutoMovieArchetypeDrawSession<never>(
+        "fracture-fixture",
+        {},
+        undefined,
+        {},
+      );
+    const builder: AutoMovieArchetypeBuilder<never, never> =
+      new AutoMovieArchetypeBuilder<never, never>({
+        draw,
+        name: "fracture fixture",
+        material: "steel",
+      });
     for (const [id, x] of [
       ["left", -2],
       ["middle", 0],
@@ -245,7 +248,7 @@ export function test_archetype_fracture_hit(): void {
       ]);
     const invalidMass: boolean =
       !(Number.isFinite(mass) && mass > 0) || mass === Number.MIN_VALUE;
-    const made: Archetype<never, never> = builder.build(
+    const made: AutoMovieArchetype<never, never> = builder.build(
       invalidMass ? 3 : mass,
       {
         restitution: 0,
@@ -255,7 +258,7 @@ export function test_archetype_fracture_hit(): void {
     if (!invalidMass) return made;
 
     // Deliberately malformed rest data bypass the builder's own total-mass admission.
-    return new Archetype<never, never>({
+    return new AutoMovieArchetype<never, never>({
       archetype: "fracture-fixture",
       id: "fracture-fixture",
       name: "malformed fracture mass",
@@ -293,17 +296,17 @@ export function test_archetype_fracture_hit(): void {
     try {
       run();
     } catch (error) {
-      return error instanceof ArchetypeRefusal && error.axis === axis;
+      return error instanceof AutoMovieArchetypeRefusal && error.axis === axis;
     }
     return false;
   }
 
   /** Preserve the structured energy range while rejecting an unrelated failure. */
-  function energyRefusal(run: () => void): ArchetypeRefusal | null {
+  function energyRefusal(run: () => void): AutoMovieArchetypeRefusal | null {
     try {
       run();
     } catch (error) {
-      if (error instanceof ArchetypeRefusal) return error;
+      if (error instanceof AutoMovieArchetypeRefusal) return error;
       throw error;
     }
     return null;

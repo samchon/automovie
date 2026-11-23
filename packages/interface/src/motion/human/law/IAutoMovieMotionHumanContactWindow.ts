@@ -17,11 +17,6 @@ import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHuman
  * ground, a prop or another person. A moving support carries its contacts, as
  * Unreal's based movement and Unity's parent constraint carry a character on
  * a platform, so slip and penetration are measured in that frame.
- *
- * @evidence contracts/development/common.md#meaningful-documentation from: Start share. to: End share. inHand: A grip's in-hand motion of the held object (#3447): a rigid displacement in the hand's frame at a share of this window from 0 to 1, metres, the identity at 0. The performance composes it before the offset it stored at closure (position R_d p + t_d, rotation R_d R), so a pen turned into a writing grip or a coin rolled across the fingers moves in the hand while the hand holds it. It must be a pure function of the share. Absent, the object keeps the offset it had at closure. kind: Support discriminant: ground, prop or another person. kind: Support discriminant: ground, prop or another person. subject: Scene subject id of the supporting prop or person.
- * @evidence contracts/development/design.md#principled-representation from: Start share. to: End share. inHand: A grip's in-hand motion of the held object (#3447): a rigid displacement in the hand's frame at a share of this window from 0 to 1, metres, the identity at 0. The performance composes it before the offset it stored at closure (position R_d p + t_d, rotation R_d R), so a pen turned into a writing grip or a coin rolled across the fingers moves in the hand while the hand holds it. It must be a pure function of the share. Absent, the object keeps the offset it had at closure. kind: Support discriminant: ground, prop or another person. kind: Support discriminant: ground, prop or another person. subject: Scene subject id of the supporting prop or person.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/stand.ts (stand.plan, return); actions/supportWindows.ts (supportWindows.of, return); actions/supportWindows.ts (supportWindows.of.close.part, p); actions/walkDelayed.ts (walkDelayed, c); actions/walkDelayed.ts (walkDelayed, return); actions/walkPaced.ts (walkPaced, c).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieQuaternion, AutoMovieHumanoidRegion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical AutoMovieHumanoidRegion, AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanContactWindow {
   /** The body part in contact; head and chest bear through their 
@@ -76,14 +71,6 @@ egion, as a head resting on a partner's shoulder (#4012). */
    *
    * @param share The share of the window, in [0, 1].
    * @returns The object's displacement in the hand's frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanContactWindow.inHand: A grip's in-hand motion of the held object (#3447): a rigid displacement in the hand's frame at a share of this window from 0 to 1, metres, the identity at 0. The performance composes it before the offset it stored at closure (position R_d p + t_d, rotation R_d R), so a pen turned into a writing grip or a coin rolled across the fingers moves in the hand while the hand holds it. It must be a pure function of the share. Absent, the object keeps the offset it had at closure.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanContactWindow.inHand is used through packages/motions/src/perform/HumanPropHold.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanContactWindow.inHand is used through packages/motions/src/perform/HumanPropHold.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanContactWindow.inHand is used through packages/motions/src/perform/HumanPropHold.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanContactWindow.inHand is used through packages/motions/src/perform/HumanPropHold.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanContactWindow.inHand is used through packages/motions/src/perform/HumanPropHold.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanContactWindow.inHand is used through packages/motions/src/perform/HumanPropHold.ts.
    */
   inHand?(share: number): {
     /** Prop displacement in the holding hand's frame, metres; zero at share 0. */
@@ -136,11 +123,6 @@ export namespace IAutoMovieMotionHumanContactWindow {
    * The held point of a planted foot: a named sole socket, or a point in the
    * foot's rest frame relative to its ankle joint, metres, as a leg goal's
    * `contact` names it (`IAutoMovieHumanLimbGoal.contact`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States both forms, the frame and the unit.
-   * @evidence contracts/development/design.md#principled-representation A sole socket by name, or the same rest-frame offset a leg goal turns its foot about.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the slip and lift audits (audit/AutoMovieMotionHumanAuditGround.ts, plants).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanFoot.Socket and IAutoMovieVector3 identities.
    */
   export type Socket = IAutoMovieMotionHumanFoot.Socket | IAutoMovieVector3;
 
@@ -149,11 +131,6 @@ export namespace IAutoMovieMotionHumanContactWindow {
    * region, or a person's segment, the bone an arm's segment lies along (a
    * self-hug's forearm on the other forearm), where a region's point and
    * frame would not say which part of the segment it lies on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation kind: Support discriminant: ground, prop or another person. kind: Support discriminant: ground, prop or another person. subject: Scene subject id of the supporting prop or person.
-   * @evidence contracts/development/design.md#principled-representation kind: Support discriminant: ground, prop or another person. kind: Support discriminant: ground, prop or another person. subject: Scene subject id of the supporting prop or person.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/supportWindows.ts (supportWindows.of.frames, return); carrier/HumanSupportFrame.ts (HumanSupportFrame.of, return); carrier/HumanSupportFrame.ts (HumanSupportFrame.contact, return); carrier/HumanSupportFrame.ts (HumanSupportFrame.at, named); compose/AutoMovieMotionHumanTouchContacts.ts (AutoMovieMotionHumanTouchContacts.windows, hand); perform/HumanPerformancePlace.ts (HumanPerformancePlace.place.context, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanoidRegion, AutoMovieHumanoidBone identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type Support =
     | IGround
@@ -186,11 +163,6 @@ export namespace IAutoMovieMotionHumanContactWindow {
 
   /**
    * A stationary horizontal surface, such as the floor or a stair tread.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Height measures world elevation in metres. An omitted height selects the floor.
-   * @evidence contracts/development/design.md#principled-representation The ground discriminant identifies horizontal stationary support, so elevation alone locates its plane.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The contact window uses this variant for both floor and tread support. Height distinguishes raised treads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies actual support elevation without encoding a stair number or scene.
    */
   export interface IGround {
     /** Support discriminant. */

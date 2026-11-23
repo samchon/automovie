@@ -64,7 +64,7 @@ export const headTilt: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadT
       );
       const seconds: number = HumanBound.least(
         "seconds",
-        context.params.seconds ?? 0.9,
+        context.params.duration ?? 0.9,
         0.6,
         "s",
       );

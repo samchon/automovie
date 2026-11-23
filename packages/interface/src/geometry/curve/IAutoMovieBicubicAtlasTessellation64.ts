@@ -3,11 +3,6 @@ import type { IAutoMovieBicubicAtlas64 } from "./IAutoMovieBicubicAtlas64";
 
 /**
  * Immutable atlas input, streamed vertex suffixes and terminal tessellation totals.
- *
- * @evidence contracts/development/design.md#principled-representation Input uses millimetre coefficients and unit-square charts; chunks convert to model metres while preserving append-only global indices.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The tessellation generator accepts Input, yields Chunk and returns Summary on exhaustion.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Completion, finite geometry and approximation qualification remain separate from source fidelity and embedding.
- * @evidence contracts/development/common.md#meaningful-documentation The three contracts state borrowed input lifetime, transferred buffers, policy defaults and terminal summary limits.
  */
 export namespace IAutoMovieBicubicAtlasTessellation64 {
   /**
@@ -15,11 +10,6 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
    * Keep the complete input unchanged until generator completion or cancellation;
    * canonical position closures read borrowed controls during emission. Admission
    * in AutoMovieBicubicAtlasPlan64 and boundary preparation throws before yielding.
-   *
-   * @evidence contracts/development/design.md#principled-representation Dense finite millimetre triples and sixteen row-major IDs per patch define unit-square charts; runtime admission enforces names, indices, tolerances and safe budgets.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface tessellateAutoMovieBicubicAtlas64 consumes this registry, declared boundary identities and output-retention policy as one run.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shared control IDs and canonical authorities declare topology independently of positions; retain-coarse explicitly separates finite output from approximation qualification.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines immutable lifetime, admission, parameter domains, budget defaults and optional snapshot retention.
    */
   export type Input = {
     /** Nonblank identity scope for this physical atlas instance, prefixed onto logical vertex IDs; distinct physical instances require distinct domains. */
@@ -77,11 +67,6 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
    * One yielded patch-local vertex suffix and its global triangle references.
    * Buffers belong to the consumer and are not subsequently appended by the
    * generator. A chunk may be empty or partially emitted and carry diagnostics.
-   *
-   * @evidence contracts/development/design.md#principled-representation Flat model-metre positions and dimensionless normals align by vertex; global indices can reference earlier chunks while ranges use local triangle offsets.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Atlas emission transfers geometry, logical position identities, cell attribution and optional coefficient/parameter snapshots together.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Distinct normal fans may share physical IDs without sharing render indices; finite output does not establish outward orientation, G1 or embedding.
-   * @evidence contracts/development/common.md#meaningful-documentation Defines buffer ownership, empty/partial chunks, units, indexing and optional retained evidence.
    */
   export type Chunk = {
     /** Owning patch name for this streamed suffix. */
@@ -112,11 +97,6 @@ export namespace IAutoMovieBicubicAtlasTessellation64 {
   /**
    * Terminal return after generator exhaustion; cancelling after a finite prefix
    * does not deliver this summary. Omitted patches include partial failures.
-   *
-   * @evidence contracts/development/design.md#principled-representation Run-wide published counts remain separate from planning-time coarse retention and requested millimetre grid snapshots.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The tessellation generator returns completion totals independently of transferred per-chunk geometry.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts approximationQualified only tests retained planning estimates and can be true with omitted work; it is no completeness, embedding or fidelity certificate.
-   * @evidence contracts/development/common.md#meaningful-documentation States exhaustion semantics, partial omission scope and the limits of retained coefficients and diagnostics.
    */
   export type Summary = {
     /** Requested copied prepared grids in input patch order, independent of emission completeness. Conflicting plans also retain their initial constructed grid; snapshots are not an admission or conformity certificate. */

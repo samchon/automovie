@@ -17,6 +17,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * occupied target square without its capture is refused before anything
  * moves, as FIDE's laws forbid it (article 3.1).
  *
+ * Duration: each prop takes a pick up and a put down, so a reach-to-grasp time per transport (about 0.5 s for a 0.4 m reach, `IAutoMovieMotionHumanPickUp`), a 0.15 s load, a 0.2 s release and the return; the moves add no timing of their own (provisional: no study of tabletop speeds). A chess move is one pick and one place, a deal one pair per seat.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Names each composition, the identity rule and the refusals.
  * @evidence contracts/development/design.md#principled-representation Compositions over the shipped pickup and placement laws; the composer owns only the board-state refusals.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The tabletop scenes the issue names: cards, chips, dice, notes and chess.
@@ -101,7 +103,7 @@ export namespace HumanTabletop {
         });
       next = next
         .pickUp({ prop: params.capture, handle: "grip", hand, lift: 0.05 })
-        .putDown({ prop: params.capture, at: aside, hand });
+        .putDown({ prop: params.capture, to: aside, hand });
     }
     return next
       .pickUp({ prop: params.piece, handle: "grip", hand, lift: 0.05 })
@@ -149,13 +151,11 @@ export namespace HumanTabletop {
         card: string,
         i: number,
       ): IAutoMovieMotionHumanChain =>
-        next
-          .pickUp({ prop: card, handle: "grip", hand, lift: 0.04 })
-          .putDown({
-            prop: card,
-            at: params.seats[i % params.seats.length]!,
-            hand,
-          }),
+        next.pickUp({ prop: card, handle: "grip", hand, lift: 0.04 }).putDown({
+          prop: card,
+          to: params.seats[i % params.seats.length]!,
+          hand,
+        }),
       chain,
     );
   }
@@ -202,14 +202,12 @@ export namespace HumanTabletop {
         card: string,
         i: number,
       ): IAutoMovieMotionHumanChain =>
-        next
-          .pickUp({ prop: card, handle: "grip", hand, lift: 0.04 })
-          .putDown({
-            prop: card,
-            at: params.places[i]!.at,
-            rotation: params.places[i]!.rotation,
-            hand,
-          }),
+        next.pickUp({ prop: card, handle: "grip", hand, lift: 0.04 }).putDown({
+          prop: card,
+          to: params.places[i]!.at,
+          rotation: params.places[i]!.rotation,
+          hand,
+        }),
       chain,
     );
   }
@@ -236,7 +234,7 @@ export namespace HumanTabletop {
     return chain
       .pickUp({ prop: params.left, handle: "grip", hand: "left", lift: 0.05 })
       .pickUp({ prop: params.right, handle: "grip", hand: "right", lift: 0.05 })
-      .putDown({ prop: params.left, at: params.at, hand: "left" })
+      .putDown({ prop: params.left, to: params.at, hand: "left" })
       .putDown({
         prop: params.right,
         onto: { prop: params.leftTop, point: "top", via: "base" },
@@ -267,7 +265,7 @@ export namespace HumanTabletop {
       params.hand ?? "right";
     return chain
       .pickUp({ prop: params.stack, handle: "grip", hand, lift: 0.01 })
-      .putDown({ prop: params.stack, at: params.to, hand });
+      .putDown({ prop: params.stack, to: params.to, hand });
   }
 
   /**
@@ -293,6 +291,6 @@ export namespace HumanTabletop {
       params.hand ?? "right";
     return chain
       .pickUp({ prop: params.die, handle: "grip", hand, lift: 0.08 })
-      .putDown({ prop: params.die, at: params.to, yaw: 90, hand });
+      .putDown({ prop: params.die, to: params.to, yaw: 90, hand });
   }
 }

@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -18,18 +18,10 @@ import {
  *
  * @param params The model id, supplied as an option or as a positional string.
  * @returns A rigid wooden stick with `grip` and `face` contacts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Gives the local axes, contact placements, source dimensions and estimates.
- * @evidence contracts/development/implementation.md#principled-implementation A shaft and narrowed neck end in a bead whose exposed surface supplies the face.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Builds three visible primitives and their two contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The face sits on the actual bead at the same radial offset as the grip, so the declared working line is axial.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Three fixed primitives.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each invocation builds its own scenic prop.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the returned prop.
  */
 export function createDrumstick(
   params: { id?: string } | string = {},
-): Archetype<"grip" | "face", never> {
+): AutoMovieArchetype<"grip" | "face", never> {
   const v: typeof Vector3.create = Vector3.create;
   const length: number = 0.4064;
   const shaftRadius: number = 0.014351 / 2;
@@ -37,12 +29,16 @@ export function createDrumstick(
   const bead: number = length - beadRadius;
   const shoulder: number = 0.8 * length;
   const color: string = "#c58b54";
-  const builder: ArchetypeBuilder<"grip" | "face", never> =
-    new ArchetypeBuilder({
+  const builder: AutoMovieArchetypeBuilder<"grip" | "face", never> =
+    new AutoMovieArchetypeBuilder({
       id: typeof params === "string" ? params : params.id,
       name: "drumstick",
       material: "wood",
-      draw: new ArchetypeDrawSession<never>("drumstick", {}, undefined),
+      draw: new AutoMovieArchetypeDrawSession<never>(
+        "drumstick",
+        {},
+        undefined,
+      ),
     });
   builder.rod("shaft", shaftRadius, v(0, 0, 0), v(0, shoulder, 0), { color });
   builder.rod("neck", shaftRadius * 0.55, v(0, shoulder, 0), v(0, bead, 0), {
@@ -52,7 +48,7 @@ export function createDrumstick(
   builder.affordance({
     id: "grip",
     kind: "handle",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, 0.105, beadRadius),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -64,7 +60,7 @@ export function createDrumstick(
   builder.affordance({
     id: "face",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, bead, beadRadius),
       v(0, 0, 1),
       v(0, 1, 0),

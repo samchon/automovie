@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /** The shaft's length, metres: 65 in, the Weaver Leather lunge whip's listed shaft (retailer listing, Farm & Fleet), whose 67 in lash and 11 in popper are not laid. */
@@ -49,15 +49,11 @@ const MASS: number = 0.25;
  */
 export function createLungeWhip(
   params: createLungeWhip.IParams = {},
-): Archetype<createLungeWhip.Affordance, never> {
-  const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession<never>(
-    "lungeWhip",
-    {},
-    undefined,
-    {},
-  );
-  const builder: ArchetypeBuilder<createLungeWhip.Affordance, never> =
-    new ArchetypeBuilder({
+): AutoMovieArchetype<createLungeWhip.Affordance, never> {
+  const draw: AutoMovieArchetypeDrawSession<never> =
+    new AutoMovieArchetypeDrawSession<never>("lungeWhip", {}, undefined, {});
+  const builder: AutoMovieArchetypeBuilder<createLungeWhip.Affordance, never> =
+    new AutoMovieArchetypeBuilder({
       material: "wood",
       id: params.id,
       name: "lungeWhip",
@@ -80,7 +76,7 @@ export function createLungeWhip(
   builder.affordance({
     id: "grip",
     kind: "handle",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, HANDLE.length / 2, HANDLE.radius),
       Vector3.create(0, 0, -1),
       Vector3.create(0, 1, 0),

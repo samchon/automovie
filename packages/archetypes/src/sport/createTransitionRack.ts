@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** No rack maker's page was read. */
@@ -38,9 +38,12 @@ const STEEL: string = "#9aa1a6";
 export function createTransitionRack(
   params: createTransitionRack.IParams = {},
   seed?: number | string,
-): Archetype<createTransitionRack.Affordance, createTransitionRack.Dimension> {
-  const draw: ArchetypeDrawSession<createTransitionRack.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createTransitionRack.Affordance,
+  createTransitionRack.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createTransitionRack.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "transitionRack",
       createTransitionRack.UNITS,
       seed,
@@ -49,10 +52,10 @@ export function createTransitionRack(
   const d: Record<createTransitionRack.Dimension, number> = draw.dimensions(
     createTransitionRack.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createTransitionRack.Affordance,
     createTransitionRack.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "transition rack",
     material: "steel",
@@ -82,7 +85,7 @@ export function createTransitionRack(
   builder.affordance({
     id: "bar",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, 0)),
     extent: null,
     width: d.length,
     depth: createTransitionRack.BAR,
@@ -115,16 +118,18 @@ export namespace createTransitionRack {
   }
 
   /** Units of each dimension. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     height: "m",
     mass: "kg",
   };
 
   /** Staged bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(1.5, 3, STAGED, true),
-    height: ArchetypeBand.metres(0.8, 1.3, STAGED, true),
-    mass: ArchetypeBand.of("kg", 15, 30, STAGED, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(1.5, 3, STAGED, true),
+    height: AutoMovieArchetypeBand.metres(0.8, 1.3, STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 15, 30, STAGED, true),
   };
 }

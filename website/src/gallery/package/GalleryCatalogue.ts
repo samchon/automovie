@@ -1,7 +1,7 @@
 import {
   ARCHETYPE_FAMILIES,
-  type Archetype,
-  type ArchetypeMass,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeMass,
 } from "@automovie/archetypes";
 
 import { formatArchetypeLabel } from "../formatArchetypeLabel";
@@ -20,10 +20,10 @@ import type { IGalleryCatalogue } from "../structures/IGalleryCatalogue";
  */
 export namespace GalleryCatalogue {
   /** A displayed archetype with optional physical mass properties. */
-  export type Model = Archetype<
+  export type Model = AutoMovieArchetype<
     string,
     string,
-    ArchetypeMass.IProperties | null
+    AutoMovieArchetypeMass.IProperties | null
   >;
 
   /** A producer as the gallery calls it: the function with the tables it carries. */

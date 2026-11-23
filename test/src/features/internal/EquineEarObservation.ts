@@ -1,7 +1,7 @@
 import {
-  type ArchetypeRide,
-  type QuadrupedGait,
-  type createHorse,
+  type AutoMovieArchetypeEquine,
+  type AutoMovieArchetypeQuadrupedGait,
+  type AutoMovieArchetypeRide,
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -51,7 +51,7 @@ export namespace EquineEarObservation {
   export function observe(
     model: Model,
     row: ICase,
-    tack: createHorse.Tack,
+    tack: AutoMovieArchetypeEquine.Tack,
     label: string,
     findings: string[],
   ): void {
@@ -170,11 +170,11 @@ export namespace EquineEarObservation {
     label: string,
     findings: string[],
   ): void {
-    const table: QuadrupedGait.ITable = structuredClone(
+    const table: AutoMovieArchetypeQuadrupedGait.ITable = structuredClone(
       createQuadruped.species(model).table,
     );
     table.gaits.walk!.nod = { range: 10, timing: "support" };
-    const ride: ArchetypeRide.IRide<
+    const ride: AutoMovieArchetypeRide.IRide<
       createQuadruped.Affordance,
       createQuadruped.Dimension
     > = rideQuadruped(

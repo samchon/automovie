@@ -12,6 +12,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingHeld,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -21,7 +22,6 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
@@ -31,7 +31,6 @@ import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 import { PrecisionStrokeKeys } from "./PrecisionStrokeKeys";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
-import { holdPrecisionSwing } from "./holdPrecisionSwing";
 import { precisionStrokeTool } from "./precisionStrokeTool";
 
 /** The shared authorship contract. Cue strokes also name a supporting surface. */
@@ -103,15 +102,15 @@ export function createPrecisionSportStroke<P extends Stroke>(
         "ball",
       );
       const toward: IAutoMovieVector3 = Vector3.subtract(
-        context.aim(params.toward, seconds).point,
+        context.aim(params.target, seconds).point,
         ball.centre,
       );
       const horizontal: IAutoMovieVector3 = { ...toward, y: 0 };
       if (!(Vector3.length(horizontal) > 0))
         throw new HumanRefusal({
           kind: "parameter",
-          axis: "toward",
-          value: params.toward,
+          axis: "target",
+          value: params.target,
           reason: "the shot needs a horizontal direction away from the ball",
           fix: "give a target with a distinct horizontal position",
         });
@@ -133,11 +132,6 @@ export function createPrecisionSportStroke<P extends Stroke>(
         precisionStrokeTool(body, side, form, held, context.entry.pose);
       const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
       const sign: number = side === "right" ? 1 : -1;
-      const axis: IAutoMovieVector3 = PrecisionStrokeForms.axis(
-        form,
-        side,
-        direction,
-      );
       // A swinging miss passes one ball's diameter under the ball.
       const contact: IAutoMovieVector3 = Vector3.subtract(
         ball.centre,
@@ -146,78 +140,22 @@ export function createPrecisionSportStroke<P extends Stroke>(
           Vector3.scale(up, params.miss === true ? 2 * ball.radius : 0),
         ),
       );
-      const arc: IAutoMovieVector3 = Vector3.cross(axis, direction);
-      const radius: number = tool.length + body.measure.forearm * 0.25;
-      const pivot: IAutoMovieVector3 = Vector3.subtract(
-        contact,
-        Vector3.scale(axis, radius),
-      );
-      const path = (
-        progress: number,
-      ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
-        if (form.sweep === 0)
-          return StrikingHeld.hand(
-            tool,
-            0,
-            Vector3.add(
-              contact,
-              Vector3.scale(
-                direction,
-                (progress - 1) * form.draw * body.measure.forearm,
-              ),
-            ),
-            axis,
-            cue ? up : direction,
-          );
-        const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          arc,
-          (progress - 1) * form.sweep,
-        );
-        const along: IAutoMovieVector3 = Quaternion.rotateVector(
-          rotation,
-          axis,
-        );
-        const edge: IAutoMovieVector3 = Quaternion.rotateVector(
-          rotation,
-          direction,
-        );
-        return StrikingHeld.hand(
-          tool,
-          0,
-          Vector3.add(pivot, Vector3.scale(along, radius)),
-          along,
-          edge,
-        );
-      };
-
-      // The backswing and the follow-through sweep the whole arm in front of
-      // the trunk and within reach: the swing goes back and on only while the
-      // arm's line from its shoulder to the hand stays ahead of the trunk's front
-      // (the shoulder lies on the root's frontal plane, so the line's middle
-      // is half the chest's depth ahead when the hand is a whole depth ahead)
-      // and the hand within the arm's reach of the striking shoulder as it
-      // stood, and holds where the arm would pass into the trunk or out of
-      // reach.
-      const forward: IAutoMovieVector3 = HumanFrame.point(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: context.entry.posture.yaw },
-        { x: 0, y: 0, z: 1 },
-      );
-      const shoulder: IAutoMovieVector3 = entryBones.get(
-        `${side}UpperArm`,
-      )!.worldPosition;
-      const front = (progress: number): number =>
-        Math.min(
-          Vector3.dot(
-            Vector3.subtract(path(progress).point, context.entry.posture.root),
-            forward,
-          ) - body.measure.chestDepth,
-          PrecisionStrokeForms.reach(body) -
-            Vector3.length(Vector3.subtract(path(progress).point, shoulder)),
-        );
+      // The swing as the address judged it (`PrecisionStrokeForms.swing`):
+      // the backswing and the follow-through held in front of the trunk and
+      // within reach, linear rows as much as swinging ones.
       const swept: (
         progress: number,
       ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-        form.sweep === 0 ? path : holdPrecisionSwing(path, front);
+        PrecisionStrokeForms.swing({
+          body,
+          form,
+          side,
+          tool,
+          contact,
+          direction,
+          entry: context.entry.posture,
+          shoulder: entryBones.get(`${side}UpperArm`)!.worldPosition,
+        });
 
       const plan: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
         context,
@@ -266,7 +204,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           context.entry.posture,
           context.entry.feet,
           side,
-          path(1).point,
+          swept(1).point,
           bridge,
           bridge === undefined ? 0 : BRIDGE_INCLINE,
           bridge === undefined ? Infinity : 0,
@@ -275,6 +213,58 @@ export function createPrecisionSportStroke<P extends Stroke>(
         side,
         "flat",
       );
+      // A second hand the entry leaves off the implement (a putter carried in
+      // one hand to the address) joins its handle over the address and
+      // leaves it over the recovery, from and to its own place at the entry,
+      // by the stroke's own presence, as the striking hand leaves its hold
+      // (`StrikingBlade`) and the bridge hand its entry: the support goal
+      // sits on the implement throughout, so read at the stroke's ends it
+      // reached the free hand across the upright trunk to the holding hand's
+      // side, the forearm through the spine where the arm course must land.
+      const freedBones: ReturnType<typeof poseBones> | undefined =
+        bridge === undefined &&
+        held !== undefined &&
+        context.entry.holds[guide] !== implement(params)
+          ? poseBones(
+              body,
+              context.entry.pose,
+              undefined,
+              new Set<AutoMovieHumanoidBone>([
+                `${guide}Hand`,
+                `${guide}LowerArm`,
+              ]),
+            )
+          : undefined;
+      const joined = (
+        current: IAutoMovieMotionHumanPosture,
+        influence: number,
+      ): IAutoMovieMotionHumanPosture => {
+        const goal: IAutoMovieHumanLimbGoal | undefined =
+          current.limbs[`${guide}Arm`];
+        if (freedBones === undefined || goal === undefined || influence >= 1)
+          return current;
+        const hand: IAutoMovieResolvedBone = freedBones.get(`${guide}Hand`)!;
+        return {
+          ...current,
+          limbs: {
+            ...current.limbs,
+            [`${guide}Arm`]: {
+              ...goal,
+              point: Vector3.lerp(hand.worldPosition, goal.point, influence),
+              rotation: Quaternion.slerp(
+                hand.worldRotation,
+                goal.rotation ?? hand.worldRotation,
+                influence,
+              ),
+              bend: Vector3.lerp(
+                freedBones.get(`${guide}LowerArm`)!.worldPosition,
+                goal.bend,
+                influence,
+              ),
+            },
+          },
+        };
+      };
       const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
         t,
         channels,
@@ -300,7 +290,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           held === undefined
             ? { ...raw, joints: { ...raw.joints, ...open } }
             : raw;
-        if (influence <= 0) return planned;
+        if (influence <= 0) return joined(planned, 0);
         // The swing's key poses (address, top, contact, finish): two hands
         // on one implement coil the trunk away from the shot to the top of
         // the backswing, uncoil it square into the contact and turn it on
@@ -309,9 +299,15 @@ export function createPrecisionSportStroke<P extends Stroke>(
         const keyed: IAutoMovieMotionHumanPosture =
           form.oneHand === true || held === undefined || form.sweep === 0
             ? address(planned, influence)
-            : StrikingBlade.turned(
+            : // The keys' turn returns with the address over the recovery,
+              // by the same influence: held to the end, the finish's turn left
+              // the trunk turned under an arm already back at its entry
+              // angles, the forearm through the spine, and the trunk jumped
+              // back where the stroke's posture hands over.
+              StrikingBlade.turned(
                 address(planned, influence),
-                sign *
+                influence *
+                  sign *
                   (PrecisionStrokeKeys.FINISH *
                     clock.progress("stroke", "strokeEnd", t) -
                     PrecisionStrokeKeys.COIL *
@@ -324,7 +320,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
           bridgeEntry === undefined ||
           bridgeBones === undefined
         )
-          return current;
+          return joined(current, influence);
         const goal: IAutoMovieHumanLimbGoal =
           AutoMovieMotionHumanArmTarget.goal(body, guide, {
             surface: "palm",

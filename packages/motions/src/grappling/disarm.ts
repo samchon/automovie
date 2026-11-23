@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -11,31 +11,51 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanDisarm,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanTouch,
   IAutoMovieMotionTarget,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
+import { handOver } from "../handling/handOver";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { touch } from "../touch/touch";
 
-/** The hand of a performer that holds a prop, by the nearest hand to its frame. */
+/**
+ * The hand of the partner that holds the prop as the disarm starts: the
+ * performance's own grip custody (`IAutoMovieMotionHumanPropReader.holderAt`),
+ * read after the partner is, so a partner placed on demand is placed first.
+ * A reader that tracks no grips is read by the nearer hand to the prop.
+ */
 function holding(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IParams>,
   partner: string,
   prop: string,
 ): AutoMovieHumanSide {
-  const frame: IAutoMovieVector3 = context
-    .prop(prop)
-    .frame(context.start).position;
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = context
     .performer(partner)
     .bones(
       context.start,
       new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]),
     );
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(prop);
+  if (reader.holderAt !== undefined) {
+    const held: IAutoMovieMotionHumanPropReader.IHolder | undefined =
+      reader.holderAt(context.start);
+    if (held === undefined || held.subject !== partner)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "prop",
+        value: prop,
+        reason: `${partner} does not hold ${prop} as the disarm starts`,
+        fix: "arm the partner with the weapon before the disarm",
+      });
+    return held.side;
+  }
+  const frame: IAutoMovieVector3 = reader.frame(context.start).position;
   return Vector3.distance(bones.get("leftHand")!.worldPosition, frame) <
     Vector3.distance(bones.get("rightHand")!.worldPosition, frame)
     ? "left"
@@ -67,6 +87,9 @@ export namespace disarm {
 
   /** How long the defender holds the weapon in the action after taking it, seconds: authored. */
   export const AFTER: number = 0.4;
+
+  /** How long the taking hand takes to close into its fist, seconds: the time a hand-over's fingers take to open at the release (`handOver.OPEN`, provisional). */
+  export const CLOSE: number = handOver.OPEN;
 
   /**
    * Plan a disarm.
@@ -108,8 +131,8 @@ export namespace disarm {
     const grab: IAutoMovieMotionHumanTouch.IParams = {
       target: { kind: "person", subject: params.partner, region: wrist },
       other,
-      side,
-      with: "palm",
+      hand: side,
+      effector: "palm",
       kind: "squeeze",
       count: 1,
       hold: lever + AFTER,
@@ -128,6 +151,9 @@ export namespace disarm {
     const taken: number = Math.min(duration, closed + lever);
     const share: number = taken / duration;
     const part: IAutoMovieMotionHumanContactWindow["part"] = `${side}Hand`;
+    const closing: ReturnType<
+      typeof AutoMovieMotionHumanHand.prepareFingerWriter
+    > = AutoMovieMotionHumanHand.prepareFingerWriter(side, "fist");
     return {
       ...grabbed,
       events: [
@@ -174,13 +200,19 @@ export namespace disarm {
           resolution,
           projection,
         );
-        // The taking hand closes into a fist round the weapon's grip.
-        return seconds < taken
-          ? shown
-          : {
-              ...shown,
-              joints: { ...shown.joints, ...HumanHand.shape(side, "fist") },
-            };
+        // The taking hand closes into a fist round the weapon's grip, from the
+        // fingers the grab shows over `CLOSE` on a minimum-jerk share: a fist
+        // written whole at `taken` snapped the fingers in one frame.
+        if (seconds < taken) return shown;
+        const joints: IAutoMovieMotionHumanPosture["joints"] = {
+          ...shown.joints,
+        };
+        closing(
+          joints,
+          0,
+          minimumJerk.share(Math.min(1, (seconds - taken) / CLOSE)),
+        );
+        return { ...shown, joints };
       },
     };
   }

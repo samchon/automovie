@@ -13,14 +13,6 @@ import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
  * Run `automovie render` in a production: draw one subject of a module's draw page frame by frame in headless Chromium and encode it into one video, resolving to the exit status.
  *
  * Options are read by `readAutoMovieCaptureArguments` and split by `readAutoMovieRenderOptions`; the rest is the request, of which a render takes only `subject`, read by `parseAutoMovieCapturePlanRequest` as `capture` reads it, and any other key is refused. A `--props` file is read as JSON before anything starts. FFmpeg is resolved before the page is built, so a missing encoder costs no drawing. The work is `renderAutoMovieVideo` through one `AutoMovieCaptureHost`, closed on every outcome. It prints the video, the report and the frame count, and resolves to 0; a refusal throws to `run`, which prints it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how options are read, the order of the checks, what does the work, what is printed and the status.
- * @evidence contracts/development/implementation.md#principled-implementation Every rule is the render package's or `renderAutoMovieVideo`'s; the command loads the production's packages and reports.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read, resolve FFmpeg, open the host, render, report.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown option and a request key a render cannot honour are refused, and FFmpeg's absence fails before any drawing.
- * @evidence contracts/development/implementation.md#efficient-algorithms One page build, one browser and one encode.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One render per command.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The host is closed on every outcome.
  */
 export async function renderAutoMovie(props: {
   /** The tokens after `render`. */

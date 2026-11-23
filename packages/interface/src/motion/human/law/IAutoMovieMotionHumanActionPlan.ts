@@ -10,6 +10,7 @@ import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";
 import type { IAutoMovieMotionHumanFlight } from "./IAutoMovieMotionHumanFlight";
+import type { IAutoMovieMotionHumanFollow } from "./IAutoMovieMotionHumanFollow";
 import type { IAutoMovieMotionPropDrive } from "./IAutoMovieMotionPropDrive";
 import type { IAutoMovieMotionPropHold } from "./IAutoMovieMotionPropHold";
 import type { IAutoMovieMotionPropLaunch } from "./IAutoMovieMotionPropLaunch";
@@ -23,11 +24,6 @@ import type { IAutoMovieMotionWieldedTool } from "./IAutoMovieMotionWieldedTool"
  * One planned instance of an action: its duration in seconds, its named events and contact windows as shares of that duration, its decisive instant, and its posture as a pure function of the seconds since the action's start.
  *
  * The plan is computed once per instance and carries whatever the law decided (footprints, a flight parabola, a strike path), so every frame is a closed evaluation of `posture`, independent of the frame grid.
- *
- * @evidence contracts/development/common.md#meaningful-documentation duration: Duration, seconds; positive. events: Named instants, shares of the duration. contacts: Contact windows, shares of the duration. from: Share of this action from which the prop is held. from: Share of this action from which the prop is worn. from: Share of this action from which the prop rides the socket.
- * @evidence contracts/development/design.md#principled-representation duration: Duration, seconds; positive. events: Named instants, shares of the duration. contacts: Contact windows, shares of the duration. from: Share of this action from which the prop is held. from: Share of this action from which the prop is worn. from: Share of this action from which the prop rides the socket.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/jump.ts (jump.plan, return); actions/run.ts (run.plan, return); actions/stand.ts (stand.plan, return); actions/support.ts (support.plan, return); actions/walk.ts (walk.plan, return); actions/walk.ts (walk.locomote, return).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionEvent, IAutoMovieMotionHumanContactWindow, AutoMovieMotionHumanChannelClaim, IAutoMovieMotionHumanBase, IAutoMovieMotionHumanPosture, IAutoMovieHumanoidSurfaces.ITangent identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers. Shares the canonical AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export interface IAutoMovieMotionHumanActionPlan {
   /** Duration, seconds; positive. */
@@ -69,6 +65,16 @@ export interface IAutoMovieMotionHumanActionPlan {
    */
   channels?: readonly AutoMovieMotionHumanChannelClaim[];
 
+  /**
+   * The channels whose writer follows another performer live, each over its
+   * window (an arm course that tracks a partner's region a feedback delay
+   * earlier), so a plan-level reading that needs no such arm there (the
+   * display's swivel course of the plan's own limb goals) reads the plan
+   * without it inside the window and never reads that partner. Absent, no
+   * channel follows anyone.
+   */
+  follows?: readonly IAutoMovieMotionHumanFollow[];
+
   /** Claimed channels whose authored transport starts from the displayed entry pose.
    * Their planned movement already includes acquisition from the carrier.
    * Release of these channels still follows the overlay handback.
@@ -106,14 +112,6 @@ export interface IAutoMovieMotionHumanActionPlan {
    * @param resolution Optional exact FK source borrowed only for this synchronous unchanged-body evaluation; never retained in the plan, posture, preparation evidence or a returned callback.
    * @param projection Optional genuine same-body ROM projector borrowed for this call only; every actual direct joint is still projected, and unknown functions fall back to ordinary admission.
    * @returns The borrowed posture; when a demand is supplied, only requested channels are guaranteed current.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.posture: The posture at a second of the action.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionPlan.posture is used through packages/motions/src/perform/HumanSegment.ts.
    */
   posture(
     seconds: number,
@@ -125,14 +123,6 @@ export interface IAutoMovieMotionHumanActionPlan {
   /**
    * Drop anything memoised from reads made before the performance settled. A plan whose geometry depends on another person or prop may build it on its first posture call; a call during schedule resolution can read a half-placed performance, so the performance calls this on every plan once every action is placed, before any pose is evaluated again.
    * `contacts` may be a getter over the same memo.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.settle: Drop anything memoised from reads made before the performance settled. A plan whose geometry depends on another person or prop may build it on its first posture call; a call during schedule resolution can read a half-placed performance, so the performance calls this on every plan once every action is placed, before any pose is evaluated again. `contacts` may be a getter over the same memo.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionPlan.settle is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionPlan.settle is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionPlan.settle is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionPlan.settle is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionPlan.settle is used through packages/motions/src/perform/HumanSegment.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionPlan.settle is used through packages/motions/src/perform/HumanSegment.ts.
    */
   settle?(): void;
 
@@ -175,14 +165,6 @@ export interface IAutoMovieMotionHumanActionPlan {
    * Receive this action's resolved contacts, once, after the schedule is placed and before any pose is shown; a law that takes them replaces its own contact scan. A stop changes the pose only, never the duration, the events or the decisive instant.
    *
    * @param events This action's weapons' first contacts, in time order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.stop: Receive this action's resolved contacts, once, after the schedule is placed and before any pose is shown; a law that takes them replaces its own contact scan. A stop changes the pose only, never the duration, the events or the decisive instant.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionPlan.stop is used through packages/motions/src/perform/HumanPerformanceContacts.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionPlan.stop is used through packages/motions/src/perform/HumanPerformanceContacts.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionPlan.stop is used through packages/motions/src/perform/HumanPerformanceContacts.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionPlan.stop is used through packages/motions/src/perform/HumanPerformanceContacts.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionPlan.stop is used through packages/motions/src/perform/HumanPerformanceContacts.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionPlan.stop is used through packages/motions/src/perform/HumanPerformanceContacts.ts.
    */
   stop?(events: readonly IAutoMovieMotionWeaponContact[]): void;
 
@@ -200,14 +182,6 @@ export interface IAutoMovieMotionHumanActionPlan {
    * Receive the flight's whole-body rotation, once, after placement and the contacts and before any pose is shown, like `stop`: between take-off and touchdown the plan then returns its posture with that `rotation` (`IAutoMovieMotionHumanPosture.rotation`). It changes the pose only, never the duration, the events or the decisive instant.
    *
    * @param rotation The rotation at a second of this action, seconds since its start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionPlan.airborne: Receive the flight's whole-body rotation, once, after placement and the contacts and before any pose is shown, like `stop`: between take-off and touchdown the plan then returns its posture with that `rotation` (`IAutoMovieMotionHumanPosture.rotation`). It changes the pose only, never the duration, the events or the decisive instant.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionPlan.airborne is used through packages/motions/src/perform/HumanPerformanceFlight.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionPlan.airborne is used through packages/motions/src/perform/HumanPerformanceFlight.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionPlan.airborne is used through packages/motions/src/perform/HumanPerformanceFlight.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionPlan.airborne is used through packages/motions/src/perform/HumanPerformanceFlight.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionPlan.airborne is used through packages/motions/src/perform/HumanPerformanceFlight.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionPlan.airborne is used through packages/motions/src/perform/HumanPerformanceFlight.ts.
    */
   airborne?(
     rotation: (seconds: number) => IAutoMovieHumanPostureRotation,
@@ -218,11 +192,6 @@ export interface IAutoMovieMotionHumanActionPlan {
 export namespace IAutoMovieMotionHumanActionPlan {
   /**
    * The closed physical phase on the plan's own clock, in seconds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the clock, unit and endpoint rule.
-   * @evidence contracts/development/design.md#principled-representation The two event times delimit the part of an action whose outcome requires physical judgement.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Shared by the law that places the phase and the motion audit that judges it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The phase is declared explicitly by its producer without inferring it from poses.
    */
   export interface IPhysicalWindow {
     /** Seconds from the action start to the beginning of the physical phase. */

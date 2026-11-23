@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -31,10 +31,21 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { HumanTrunkLean } from "../handling/HumanTrunkLean";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { HumanWornItem } from "./HumanWornItem";
 import { placeOverHeadPath } from "./placeOverHeadPath";
+
+/** How far the presented loop's nearest edge stands off the chest, metres (provisional: a hand's breadth). */
+const PRESENT: number = 0.1;
+
+/** How far below the shoulders the loop is presented, metres (provisional: at the chest). */
+const BELOW: number = 0.2;
+
+/** How many even pieces of the loop's path the hip hinge is solved at the ends of, once per plan (provisional: the path's few key frames, each piece a fraction of the descent over the head). */
+const HINGES: number = 8;
 
 /** The handle names a neck loop declares. */
 type Handle = "holdLeft" | "holdRight";
@@ -43,16 +54,21 @@ type Handle = "holdLeft" | "holdRight";
  * Set a neck loop over a partner's head (#4015). The loop's path is
  * `placeOverHeadPath`'s, read on the partner's displayed body at the
  * action's start, so a partner who bows, kneels or sits first is met where
- * they are. The hand that holds the loop at entry keeps it on the path; the
- * other hand closes on the loop's other handle by `ready`, without carrying
- * it, and both hands carry it over the stroke; at `strokeEnd` it is worn on
- * the partner's upper chest (the sternum region's bone) and both grips end,
+ * they are. The hand that holds the loop at entry first presents it level
+ * before the chest (its nearest edge `PRESENT` off the chest, `BELOW` the
+ * shoulders), turned as it
+ * will go over the head, and the other hand closes on the loop's other
+ * handle there by `ready`, without carrying it. Both hands carry it along
+ * the path over the stroke; at `strokeEnd` it is worn on the partner's upper chest (the sternum region's bone) and both grips end,
  * and the hands return. Both arms are laid in one course (`courseArmGoal`
  * with `with`). Before any of it, the loop's inner half-breadth is checked
  * against the partner's head radius, and the hands' highest places, above
  * the crown, against the arm's reach from each shoulder: a loop too narrow
  * for the head, or a crown the arms cannot clear (a standing tall partner),
- * is refused with the measure, so the partner bows or kneels.
+ * is refused with the measure, so the partner bows or kneels. Down past the
+ * crown to a seated partner's nape and chest the dresser hinges at the hips
+ * by the least angle that keeps both wrists within their arms along the
+ * path (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the path's owner, who carries the loop, the custody change, the course and both refusals.
  * @evidence contracts/development/design.md#principled-representation The loop's rigid frame along its path is the plan; both hands follow from it.
@@ -127,21 +143,48 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
       // The loop's inside: its centre half the opening's length in from its
       // back edge, and its half-breadth.
       const opening: IAutoMovieAffordance = site("opening");
-      const path: placeOverHeadPath.IPath = placeOverHeadPath.prepare({
-        start,
-        wear: site("wear").frame.translation,
-        front: site("front").frame.translation,
-        centre: Vector3.add(
-          opening.frame.translation,
-          Quaternion.rotateVector(opening.frame.rotation, {
+      const centre: IAutoMovieVector3 = Vector3.add(
+        opening.frame.translation,
+        Quaternion.rotateVector(opening.frame.rotation, {
+          x: 0,
+          y: (opening.height ?? 0) / 2,
+          z: 0,
+        }),
+      );
+      const along = (from: IAutoMovieRigidTransform): placeOverHeadPath.IPath =>
+        placeOverHeadPath.prepare({
+          start: from,
+          wear: site("wear").frame.translation,
+          front: site("front").frame.translation,
+          centre,
+          body: partner.body,
+          bones,
+        });
+      // The holding hand first presents the loop level before the chest,
+      // turned as it will go over the head, where the other hand takes it:
+      // its nearest edge `PRESENT` off the chest, `BELOW` the shoulders.
+      const lead: IAutoMovieMotionHumanPosture = context.entry.posture;
+      const presented: IAutoMovieRigidTransform = (() => {
+        const rotation: IAutoMovieRigidTransform["rotation"] =
+          along(start).apex.rotation;
+        const at: IAutoMovieVector3 = HumanFrame.point(
+          { origin: lead.root, yaw: lead.yaw },
+          {
             x: 0,
-            y: (opening.height ?? 0) / 2,
-            z: 0,
-          }),
-        ),
-        body: partner.body,
-        bones,
-      });
+            y: body.measure.shoulderHeight - BELOW - lead.root.y,
+            z:
+              body.measure.chestDepth / 2 + PRESENT + (opening.height ?? 0) / 2,
+          },
+        );
+        return {
+          position: Vector3.subtract(
+            at,
+            Quaternion.rotateVector(rotation, centre),
+          ),
+          rotation,
+        };
+      })();
+      const path: placeOverHeadPath.IPath = along(presented);
       const inner: number = (opening.width ?? 0) / 2;
       if (inner <= partner.body.measure.headRadius)
         throw new HumanRefusal({
@@ -176,6 +219,27 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
         context.entry.pose,
       );
       const reach: number = body.measure.upperArm + body.measure.forearm;
+      // A crown just past the standing arm, below the shoulders, is still
+      // reached by the hip hinge the descent takes (`HumanTrunkLean`); one no
+      // hinge brings within the arm is refused as the partner's.
+      const leans = (
+        arm: AutoMovieHumanSide,
+        target: IAutoMovieMotionHumanArmTarget.ITarget,
+      ): boolean => {
+        try {
+          HumanTrunkLean.least(context, [
+            {
+              side: arm,
+              point: AutoMovieMotionHumanArmTarget.goal(body, arm, target).point,
+              rotation: target.rotation,
+            },
+          ]);
+          return true;
+        } catch (error: unknown) {
+          if (error instanceof HumanRefusal) return false;
+          throw error;
+        }
+      };
       for (const [arm, target] of [
         [side, holding(path.apex)],
         [other, grasping(path.apex)],
@@ -184,7 +248,7 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
           `${arm}UpperArm`,
         )!.worldPosition;
         const miss: number = Vector3.distance(shoulder, target.point) - reach;
-        if (miss > 0)
+        if (miss > 0 && !leans(arm, target))
           throw new HumanRefusal({
             kind: "reach",
             axis: "partner",
@@ -227,7 +291,7 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
       const prepare: number = AutoMovieMotionHumanTiming.transport(
         Vector3.distance(
           AutoMovieMotionHumanArmTarget.point(entry, origins[other]),
-          grasping(start).point,
+          grasping(presented).point,
         ),
       );
       const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
@@ -267,6 +331,8 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
                     ? holding(path.at(progress))
                     : grasping(path.at(progress)),
               }),
+              // The holding hand keeps the fingers it holds the loop with.
+              ...(arm === side ? { channels: [`${arm}Arm`] } : {}),
               reads: ["root", `${arm}Arm`, `${arm}Hand`],
             }),
           ),
@@ -278,18 +344,94 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
         relax: clock.at("relax"),
         end: clock.duration,
       };
+      // Past the crown the loop comes down over the head to a seated
+      // partner's nape and chest, below and beyond the standing arms: the
+      // hands follow it there by the least hinge at the hips that brings both
+      // wrists within their arms at that point of the path
+      // (`HumanTrunkLean.least`, a closed form per instant), as `dressPartner`
+      // reaches a kneeling crown, so the dresser keeps its standoff at the
+      // seated knees. The hinge rides the path's own progress, comes in over
+      // the reach and goes out over the return on the minimum-jerk profile
+      // (Flash and Hogan 1985). The crown itself is reached standing, its
+      // refusal above naming the partner.
+      const wrist: (
+        arm: AutoMovieHumanSide,
+        target: IAutoMovieMotionHumanArmTarget.ITarget,
+      ) => HumanTrunkLean.IWrist = (
+        arm: AutoMovieHumanSide,
+        target: IAutoMovieMotionHumanArmTarget.ITarget,
+      ): HumanTrunkLean.IWrist => ({
+        side: arm,
+        point: AutoMovieMotionHumanArmTarget.goal(body, arm, target).point,
+        rotation: target.rotation,
+      });
+      // The hinge is solved once per plan at `HINGES` + 1 evenly spaced
+      // points of the path and read between them in proportion, so a
+      // posture's read solves nothing.
+      const keyed: readonly number[] = Array.from(
+        { length: HINGES + 1 },
+        (_: unknown, k: number): number => {
+          const at: IAutoMovieRigidTransform = path.at(k / HINGES);
+          return HumanTrunkLean.least(context, [
+            wrist(side, holding(at)),
+            wrist(other, grasping(at)),
+          ]);
+        },
+      );
+      const hinged: (progress: number) => number = (progress: number): number => {
+        const x: number = Math.min(HINGES, Math.max(0, progress * HINGES));
+        const k: number = Math.min(HINGES - 1, Math.floor(x));
+        return keyed[k]! + (keyed[k + 1]! - keyed[k]!) * (x - k);
+      };
+      const hinge: (seconds: number) => number = (seconds: number): number =>
+        seconds <= span.ready
+          ? hinged(0) *
+            minimumJerk.share(
+              span.ready > 0 ? Math.max(0, seconds / span.ready) : 1,
+            )
+          : seconds <= span.relax
+            ? hinged(clock.progress("strokeStart", "strokeEnd", seconds))
+            : hinged(1) *
+              (1 -
+                minimumJerk.share(
+                  Math.min(1, (seconds - span.relax) / (span.end - span.relax)),
+                ));
+      const deepest: number = Math.max(...keyed);
+      const leaned: IAutoMovieMotionHumanActionPlan =
+        deepest > 0
+          ? {
+              ...HumanTrunkLean.moving(plan, deepest),
+              posture: (
+                seconds: number,
+                channels?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[1],
+                resolution?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[2],
+                projection?: Parameters<
+                  IAutoMovieMotionHumanActionPlan["posture"]
+                >[3],
+              ): IAutoMovieMotionHumanPosture =>
+                HumanTrunkLean.lean(
+                  body,
+                  plan.posture(seconds, channels, resolution, projection),
+                  hinge(seconds),
+                ),
+            }
+          : plan;
       const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
         body,
-        plan,
+        plan: leaned,
         side,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
         span,
-        grasp: ["hand"],
+        grasp: ["hand", "lowerArm"],
         with: [
           {
             side: other,
             rest: AutoMovieMotionHumanArm.angles(context.entry.pose, other),
-            grasp: ["hand"],
+            grasp: ["hand", "lowerArm"],
           },
         ],
       });

@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeDraw, ArchetypeFrame } from "../core";
+import {
+  ArchetypeDraw,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { StageCarrierConstruction } from "./StageCarrierConstruction";
 import { createHolster } from "./createHolster";
 
@@ -12,7 +16,7 @@ import { createHolster } from "./createHolster";
  * @param params The scene id, optional display dimensions and this carrier's own fit options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the wearable model origin and the model-space stage contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves the original silhouette geometry and the costume contact required by this form.
@@ -25,7 +29,7 @@ import { createHolster } from "./createHolster";
 export function createStageBladeCarrier(
   params: createStageBladeCarrier.IParams,
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStageBladeCarrier.Affordance,
   createStageBladeCarrier.Dimension
 > {
@@ -55,7 +59,7 @@ export function createStageBladeCarrier(
     builder.affordance({
       id: "mouth",
       kind: "socket",
-      frame: ArchetypeFrame.upright(v(0, length, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, length, 0)),
       extent: null,
     });
     builder.affordance({

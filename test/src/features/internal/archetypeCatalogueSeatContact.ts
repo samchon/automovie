@@ -270,8 +270,8 @@ function supportFilm(
       },
     ],
     composition: HumanChain.subject("a")
-      .sit({ seat, seconds: 0.5 })
-      .handToFace({ task: "drink" }).node,
+      .sit({ seat, hold: 0.5 })
+      .handToFace({ kind: "drink" }).node,
   });
 }
 

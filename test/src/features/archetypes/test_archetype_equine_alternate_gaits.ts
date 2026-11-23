@@ -1,6 +1,6 @@
 import {
-  QuadrupedBody,
-  QuadrupedLocomotion,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedLocomotion,
   createHorse,
   createQuadruped,
   rideHorse,
@@ -51,12 +51,14 @@ export function test_archetype_equine_alternate_gaits(): void {
   )
     failures.push("the quadruped catalogue loses the explicit horse cohort");
 
-  const table: ReturnType<typeof QuadrupedLocomotion.admit> =
-    QuadrupedLocomotion.admit(createQuadruped.species(icelandic).table);
+  const table: ReturnType<typeof AutoMovieArchetypeQuadrupedLocomotion.admit> =
+    AutoMovieArchetypeQuadrupedLocomotion.admit(
+      createQuadruped.species(icelandic).table,
+    );
   TestValidator.error(
     "an explicit gait cannot also occur in automatic order",
     () =>
-      QuadrupedLocomotion.admit({
+      AutoMovieArchetypeQuadrupedLocomotion.admit({
         ...table,
         explicit: ["walk", "tolt", "pace"],
       }),
@@ -116,8 +118,8 @@ export function test_archetype_equine_alternate_gaits(): void {
       failures.push(
         `${example.gait} stride period does not match its measured bin`,
       );
-    QuadrupedBody.LIMBS.forEach(
-      (limb: QuadrupedBody.Limb, index: number): void => {
+    AutoMovieArchetypeQuadrupedBody.LIMBS.forEach(
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb, index: number): void => {
         const expected: number =
           origin + example.phase[index]! * example.stride;
         const on: number | undefined = archetypeHorseRide
@@ -143,8 +145,9 @@ export function test_archetype_equine_alternate_gaits(): void {
       { length: 24 },
       (_, index: number): number =>
         Math.min(
-          ...QuadrupedBody.LIMBS.map((limb: QuadrupedBody.Limb): number =>
-            sole(ride, limb, origin + example.stride * (index / 24)),
+          ...AutoMovieArchetypeQuadrupedBody.LIMBS.map(
+            (limb: AutoMovieArchetypeQuadrupedBody.Limb): number =>
+              sole(ride, limb, origin + example.stride * (index / 24)),
           ),
         ),
     );
@@ -173,13 +176,13 @@ export function test_archetype_equine_alternate_gaits(): void {
   /** Observe the independently composed rigid terminal shape against level ground. */
   function sole(
     ride: ReturnType<typeof rideHorse>,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     time: number,
   ): number {
     const sample: ReturnType<typeof ride.at> = ride.at(time);
     const terminal: IAutoMovieModelPart = sample.archetype.parts.find(
       (part: IAutoMovieModelPart): boolean =>
-        part.id === QuadrupedBody.BONES[limb][3],
+        part.id === AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
     )!;
     return animalTerminalSole(terminal, sample.placement);
   }

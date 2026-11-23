@@ -132,9 +132,9 @@ export function handoverCases(): IMotionCaptureCase[] {
       props: [bottle],
       composition: HumanChain.pair(
         HumanChain.subject("a")
-          .stand({ seconds: 0.3 })
+          .stand({ hold: 0.3 })
           .pickUp({ prop: "bottle", handle: "low", hand: "right" }),
-        HumanChain.subject("b").stand({ seconds: 0.3 }),
+        HumanChain.subject("b").stand({ hold: 0.3 }),
       ).handOver({
         prop: "bottle",
         handle: "high",

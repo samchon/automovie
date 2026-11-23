@@ -59,7 +59,14 @@ export namespace instance {
 
   /** The cuts: any action may follow it at any instant, inertialized. */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
-    any: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate }],
+    any: [
+      {
+        window: [0, 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
+    ],
   };
 
   /**
@@ -74,11 +81,11 @@ export namespace instance {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanInstance.IParams = context.params;
     const shift: number = p.shift ?? 0;
-    if (!(p.seconds > 0) || !(Number.isInteger(shift) && shift >= 0))
+    if (!(p.duration > 0) || !(Number.isInteger(shift) && shift >= 0))
       throw new HumanRefusal({
         kind: "parameter",
-        axis: p.seconds > 0 ? "shift" : "seconds",
-        value: p.seconds > 0 ? shift : p.seconds,
+        axis: p.duration > 0 ? "shift" : "duration",
+        value: p.duration > 0 ? shift : p.duration,
         reason:
           "an instance lasts a positive time and lags by a whole number of frames",
         fix: "give a positive span and a whole, nonnegative shift",
@@ -106,8 +113,8 @@ export namespace instance {
 
     // The template keeps its heading over the span, read every film frame.
     const first: IAutoMovieMotionHumanPosture = at(0);
-    for (let k: number = 1; k <= Math.ceil(p.seconds * RATE); ++k) {
-      const yaw: number = at(Math.min(p.seconds, k / RATE)).yaw;
+    for (let k: number = 1; k <= Math.ceil(p.duration * RATE); ++k) {
+      const yaw: number = at(Math.min(p.duration, k / RATE)).yaw;
       const turned: number = Math.abs(
         ((((yaw - first.yaw + 180) % 360) + 360) % 360) - 180,
       );
@@ -139,12 +146,12 @@ export namespace instance {
       turn,
     );
     return {
-      duration: p.seconds,
+      duration: p.duration,
       events: [],
       contacts: [],
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: IAutoMovieMotionHumanPosture = at(
-          Math.min(p.seconds, Math.max(0, seconds)),
+          Math.min(p.duration, Math.max(0, seconds)),
         );
         const root: IAutoMovieVector3 = add(t.root, rotate(offset, t.yaw));
         const move = (point: IAutoMovieVector3): IAutoMovieVector3 =>

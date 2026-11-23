@@ -16,8 +16,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
+import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHumanPartnerClear";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { wardrobeHands } from "./wardrobeHands";
@@ -68,8 +71,7 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
           "hold the jacket open for a positive span while the partner threads its sleeves",
         );
       const hand: AutoMovieHumanSide =
-        params.hand ??
-        (entry.holds.right === params.prop ? "right" : "left");
+        params.hand ?? (entry.holds.right === params.prop ? "right" : "left");
       const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
         context,
         hand,
@@ -81,8 +83,11 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
         "wear",
         "socket",
       );
+      const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+        params.partner,
+      );
       const target: IAutoMovieRigidTransform = HumanPropFrame.parent(
-        collar(context.performer(params.partner), context.start),
+        collar(partner, context.start),
         wardrobeHands.frame(wear),
       );
       const kept: IAutoMovieRigidTransform = HumanPropFrame.parent(
@@ -96,10 +101,13 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
       );
       const arrival: number = wardrobeHands.duration(carrying, kept);
       const release: number = arrival + params.hold + SETTLE;
-      const duration: number =
-        release + wardrobeHands.duration(kept, carrying);
-      const posture: (t: number) => IAutoMovieMotionHumanPosture = (
+      const duration: number = release + wardrobeHands.duration(kept, carrying);
+      const posture: (
         t: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      ) => IAutoMovieMotionHumanPosture = (
+        t: number,
+        channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
       ): IAutoMovieMotionHumanPosture =>
         wardrobeHands.arm(
           body,
@@ -112,6 +120,7 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
                 carrying,
                 (t - release) / (duration - release),
               ),
+          channels,
         );
       wardrobeHands.verify(
         context,
@@ -120,45 +129,74 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
         kept,
         wardrobeHands.MISS,
       );
-      const base: IAutoMovieMotionHumanActionPlan = AutoMovieMotionHumanBase.under(
-        context,
-        duration,
-      );
+      const base: IAutoMovieMotionHumanActionPlan =
+        AutoMovieMotionHumanBase.under(context, duration);
       const worn: number = release / duration;
-      return {
-        ...base,
-        events: [
-          { name: "collarReady", share: arrival / duration },
-          { name: "jacketWorn", share: worn },
-          { name: "relax", share: 1 },
-        ],
-        hands: [hand],
-        contacts: [
-          ...base.contacts,
-          {
-            ...wardrobeHands.contact(params.prop, hand, 0, worn),
-            inHand: (share: number): IAutoMovieRigidTransform => {
-              const at: number = share * release;
-              return wardrobeHands.roll(
-                body,
-                posture(at),
-                hand,
-                wardrobeHands.path(carrying, kept, at / arrival),
-                at / arrival,
-              );
+
+      // The holding arm is laid as one course over the grip's goal
+      // (`courseArmGoal`): the planner's carry to the collar, the goal held
+      // with branch and swivel continuity through the threading, and the
+      // planner's own return to the carrying grip, kept clear of the body,
+      // in place of a fresh fit at each second, whose straight return took
+      // the fingers through the hips. The reach check above and the jacket's
+      // roll in the hand read the goal itself.
+      return courseArmGoal({
+        body,
+        side: hand,
+        rest: AutoMovieMotionHumanArm.angles(entry.pose, hand),
+        span: { start: 0, ready: arrival, relax: release, end: duration },
+        plan: {
+          ...base,
+          events: [
+            { name: "collarReady", share: arrival / duration },
+            { name: "jacketWorn", share: worn },
+            { name: "relax", share: 1 },
+          ],
+          hands: [hand],
+          contacts: [
+            ...base.contacts,
+            {
+              ...wardrobeHands.contact(params.prop, hand, 0, worn),
+              inHand: (share: number): IAutoMovieRigidTransform => {
+                const at: number = share * release;
+                return wardrobeHands.roll(
+                  body,
+                  posture(at),
+                  hand,
+                  wardrobeHands.path(carrying, kept, at / arrival),
+                  at / arrival,
+                );
+              },
             },
-          },
-        ],
-        wears: [
-          {
-            prop: params.prop,
-            bone: "chest",
-            from: worn,
-            wearer: params.partner,
-          },
-        ],
-        posture,
-      };
+          ],
+          wears: [
+            {
+              prop: params.prop,
+              bone: "chest",
+              from: worn,
+              wearer: params.partner,
+            },
+          ],
+          // The partner's body, behind which the arm carries the jacket, is
+          // the arm's obstacle too (`AutoMovieMotionHumanPartnerClear`). A
+          // demand that leaves the arm out (the arm on its course) reads
+          // neither its goal nor the partner.
+          posture: (
+            t: number,
+            channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+          ): IAutoMovieMotionHumanPosture =>
+            channels !== undefined && !channels.includes(`${hand}Arm`)
+              ? posture(t, channels)
+              : AutoMovieMotionHumanPartnerClear.onto(
+                  posture(t),
+                  `${hand}Arm`,
+                  AutoMovieMotionHumanPartnerClear.at(
+                    partner,
+                    context.start + t,
+                  ),
+                ),
+        },
+      });
     },
   };
 
@@ -173,10 +211,8 @@ function collar(
   ];
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     partner.bones(seconds, new Set(names));
-  const rotation: IAutoMovieRigidTransform["rotation"] = Quaternion.fromAxisAngle(
-    { x: 0, y: 1, z: 0 },
-    partner.root(seconds).yaw,
-  );
+  const rotation: IAutoMovieRigidTransform["rotation"] =
+    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, partner.root(seconds).yaw);
   return {
     position: Vector3.add(
       Vector3.lerp(

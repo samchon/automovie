@@ -191,11 +191,11 @@ function plan(
   const beat: IBeat = BEATS[params.beat];
   const hand: AutoMovieHumanSide = params.hand ?? "right";
   const other: AutoMovieHumanSide = hand === "left" ? "right" : "left";
-  const seconds: number = params.seconds ?? beat.seconds;
+  const seconds: number = params.duration ?? beat.seconds;
   if (!(seconds > 0 && Number.isFinite(seconds)))
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
+      axis: "duration",
       value: seconds,
       reason: "the stage beat needs a positive finite duration",
       fix: "give it a positive duration in seconds",

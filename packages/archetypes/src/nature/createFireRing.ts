@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** A maker's campground fire ring, read. */
@@ -23,7 +23,7 @@ const RING: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The fire ring.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the ring stands, how it is drawn, its two contacts and why it carries no friction.
  * @evidence contracts/development/implementation.md#principled-implementation Plates of the read thickness and height, each as wide as its side of the polygon whose faces touch the read outside circle, turned round the vertical axis; the mass is the read weight.
@@ -36,9 +36,9 @@ const RING: string =
 export function createFireRing(
   params: createFireRing.IParams,
   seed?: number | string,
-): Archetype<createFireRing.Affordance, createFireRing.Dimension> {
-  const draw: ArchetypeDrawSession<createFireRing.Dimension> =
-    new ArchetypeDrawSession<createFireRing.Dimension>(
+): AutoMovieArchetype<createFireRing.Affordance, createFireRing.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createFireRing.Dimension> =
+    new AutoMovieArchetypeDrawSession<createFireRing.Dimension>(
       "fireRing",
       createFireRing.UNITS,
       seed,
@@ -53,10 +53,10 @@ export function createFireRing(
   const d: Record<createFireRing.Dimension, number> = draw.dimensions(
     createFireRing.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createFireRing.Affordance,
     createFireRing.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "fire ring",
@@ -91,14 +91,14 @@ export function createFireRing(
     id: "rim",
     kind: "ledge",
     direction: "normal",
-    frame: ArchetypeFrame.upright(v(0, d.height, middle)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, middle)),
     extent: null,
   });
   builder.affordance({
     id: "fire",
     kind: "socket",
     direction: "along",
-    frame: ArchetypeFrame.upright(v(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -108,7 +108,7 @@ export function createFireRing(
  * Companion types, constants and bands of {@link createFireRing}.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Each kind, affordance, dimension and constant states what it is and where it comes from.
- * @evidence contracts/development/design.md#principled-representation A closed union of rings, each band the maker's read figure through `ArchetypeUnits`.
+ * @evidence contracts/development/design.md#principled-representation A closed union of rings, each band the maker's read figure through `AutoMovieArchetypeUnits`.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The rim a foot or a pot meets and the fire's place (#3468's N9).
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Every band is read; the segment count only draws the circle.
  */
@@ -141,7 +141,9 @@ export namespace createFireRing {
   export type Dimension = "diameter" | "height" | "wall" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     height: "m",
     wall: "m",
@@ -159,29 +161,29 @@ export namespace createFireRing {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     campground: {
-      diameter: ArchetypeBand.metres(
-        30 * ArchetypeUnits.INCH,
-        30 * ArchetypeUnits.INCH,
+      diameter: AutoMovieArchetypeBand.metres(
+        30 * AutoMovieArchetypeUnits.INCH,
+        30 * AutoMovieArchetypeUnits.INCH,
         `${RING}: taking it as the outside is a choice, not a reading, and the rim reads it; the inside reading differs by twice the plate, about 9.5 mm`,
         true,
       ),
-      height: ArchetypeBand.metres(
-        8 * ArchetypeUnits.INCH,
-        8 * ArchetypeUnits.INCH,
+      height: AutoMovieArchetypeBand.metres(
+        8 * AutoMovieArchetypeUnits.INCH,
+        8 * AutoMovieArchetypeUnits.INCH,
         RING,
       ),
-      wall: ArchetypeBand.metres(
-        (3 / 16) * ArchetypeUnits.INCH,
-        (3 / 16) * ArchetypeUnits.INCH,
+      wall: AutoMovieArchetypeBand.metres(
+        (3 / 16) * AutoMovieArchetypeUnits.INCH,
+        (3 / 16) * AutoMovieArchetypeUnits.INCH,
         RING,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
-        42 * ArchetypeUnits.POUND,
-        42 * ArchetypeUnits.POUND,
+        42 * AutoMovieArchetypeUnits.POUND,
+        42 * AutoMovieArchetypeUnits.POUND,
         RING,
       ),
     },

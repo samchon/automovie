@@ -22,14 +22,6 @@ import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
  * Options are read by `readAutoMovieCaptureArguments` and split by `readAutoMovieCaptureHostOptions`; the rest is the request `parseAutoMovieCapturePlanRequest` reads, so the command takes exactly the keys of a page's address. With `--module` the subject is drawn through `AutoMovieCaptureHost`, its module called with the JSON of `--props` when given; with `--file` the file is probed by FFmpeg and captured by `runAutoMovieVideoCapture`, its subject named by `subject` or the file's name. Both write into `--out`, or `media/capture/<subject>`.
  *
  * It prints the folder and how many cells were drawn, the backend, every sheet, every cell not drawn with its cause, and each unmatched or changed comparison entry. The status is 1 when any cell was not drawn, because an undrawn cell is unverified evidence, and 0 otherwise; a refusal throws to `run`, which prints it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States how options are read and split, both sources, where they write, what is printed, and the exit status with its reason.
- * @evidence contracts/development/implementation.md#principled-implementation Every rule of a capture is the render package's; the command loads that package from the production, supplies the browser or FFmpeg, and reports.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Read, then one branch per source, then one report.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown option is refused by the request reader instead of ignored, and FFmpeg is resolved only for a video so a drawn capture never needs it.
- * @evidence contracts/development/implementation.md#efficient-algorithms One host or two FFmpeg runs plus the probe; printing is linear in the record.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One capture per command.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The host is closed on every outcome.
  */
 export async function captureAutoMovie(props: {
   /** The tokens after `capture`. */

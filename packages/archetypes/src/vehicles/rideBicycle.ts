@@ -5,11 +5,11 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeRide,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
 } from "../core";
 import type { createBicycle } from "./createBicycle";
 
@@ -22,10 +22,10 @@ import type { createBicycle } from "./createBicycle";
  * @param course The course its root follows, or its plan, such as a timed course's.
  * @param gear Teeth in use and optional freewheel intervals in course metres, such as a road coast or the stretches a bicycle is wheeled by hand. The default teeth are 34 and 17, a ratio of 2 from the compact road chainsets and 11 to 28 tooth cassettes Wikipedia's Bicycle gearing article lists (https://en.wikipedia.org/wiki/Bicycle_gearing). Omit coasting for fixed-drive behavior. UCI article 1.3.025 separates competition road and track drive equipment, https://www.uci.org/regulations/3MyLDDrwJCJJ0BGGOFzOat .
  * @returns The ride.
- * @throws {ArchetypeRefusal} When a tooth count is not a positive whole number, a leg is reversed (a bicycle freewheels backward, so its crank would run back by the distance, which no rider does), a bend at the fastest the course lets it be taken needs more than `rideBicycle.LEAN` degrees of lean (as `ArchetypeCourse.admitLean` refuses), or the course is malformed.
+ * @throws {AutoMovieArchetypeRefusal} When a tooth count is not a positive whole number, a leg is reversed (a bicycle freewheels backward, so its crank would run back by the distance, which no rider does), a bend at the fastest the course lets it be taken needs more than `rideBicycle.LEAN` degrees of lean (as `AutoMovieArchetypeCourse.admitLean` refuses), or the course is malformed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the gear relation, the instants added and the default gear with its source.
- * @evidence contracts/development/implementation.md#principled-implementation The development of a chain drive: wheel circumference times chainring teeth over sprocket teeth per crank turn. The crank's travel is taken modulo a full turn, which leaves the pose unchanged and keeps the number small. The lean is the steady-turn balance of `ArchetypeCourse.lean`.
+ * @evidence contracts/development/implementation.md#principled-implementation The development of a chain drive: wheel circumference times chainring teeth over sprocket teeth per crank turn. The crank's travel is taken modulo a full turn, which leaves the pose unchanged and keeps the number small. The lean is the steady-turn balance of `AutoMovieArchetypeCourse.lean`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the gear, plan the course unless planned, admit its direction and its bends' lean, list the dead-centre instants from its distance, then one pose function.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coasting holds the crank at its phase upon entering the declared interval while both wheels continue rolling. Braking speed is supplied by the course.
  * @evidence contracts/development/implementation.md#efficient-algorithms One instant per half turn of the crank over the course; constant work per sample.
@@ -33,19 +33,25 @@ import type { createBicycle } from "./createBicycle";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the bicycle and the plan for as long as the caller keeps the ride.
  */
 export function rideBicycle(
-  bicycle: Archetype<createBicycle.Affordance, createBicycle.Dimension>,
-  course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
+  bicycle: AutoMovieArchetype<
+    createBicycle.Affordance,
+    createBicycle.Dimension
+  >,
+  course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
   gear: rideBicycle.IGear = {
     chainring: 34,
     sprocket: 17,
   },
-): ArchetypeRide.IRide<createBicycle.Affordance, createBicycle.Dimension> {
+): AutoMovieArchetypeRide.IRide<
+  createBicycle.Affordance,
+  createBicycle.Dimension
+> {
   for (const [name, teeth] of [
     ["chainring", gear.chainring],
     ["sprocket", gear.sprocket],
   ] as const)
     if (!(Number.isInteger(teeth) && teeth > 0))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "bicycle",
         axis: `gear.${name}`,
@@ -58,13 +64,15 @@ export function rideBicycle(
   const development: number = (circumference * gear.chainring) / gear.sprocket;
 
   // The crank turns with the distance, which runs one way only.
-  const plan: ArchetypeCourse.IPlan =
-    course.kind === "plan" ? course : ArchetypeCourse.plan("bicycle", course);
+  const plan: AutoMovieArchetypeCourse.IPlan =
+    course.kind === "plan"
+      ? course
+      : AutoMovieArchetypeCourse.plan("bicycle", course);
   if (plan.course.kind !== "timed")
     plan.course.legs.forEach(
-      (leg: ArchetypeCourse.Leg, index: number): void => {
+      (leg: AutoMovieArchetypeCourse.Leg, index: number): void => {
         if (leg.reverse === true)
-          throw new ArchetypeRefusal({
+          throw new AutoMovieArchetypeRefusal({
             kind: "parameter",
             archetype: "bicycle",
             axis: `course.legs[${index}].reverse`,
@@ -76,7 +84,7 @@ export function rideBicycle(
           });
       },
     );
-  ArchetypeCourse.admitLean("bicycle", plan, rideBicycle.LEAN);
+  AutoMovieArchetypeCourse.admitLean("bicycle", plan, rideBicycle.LEAN);
 
   // One interval, or several in course order that do not overlap: a
   // bicycle wheeled by hand out of a transition and back into it coasts twice.
@@ -91,7 +99,7 @@ export function rideBicycle(
     if (
       !(coast[0] >= previous && coast[1] > coast[0] && coast[1] <= plan.length)
     )
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "bicycle",
         axis: "gear.coast",
@@ -136,12 +144,12 @@ export function rideBicycle(
     (left: rideBicycle.IInstant, right: rideBicycle.IInstant): number =>
       left.seconds - right.seconds,
   );
-  return ArchetypeRide.along(
+  return AutoMovieArchetypeRide.along(
     bicycle,
     plan,
     (
-      state: ArchetypeCourse.IState,
-    ): ArchetypeRide.IPose<
+      state: AutoMovieArchetypeCourse.IState,
+    ): AutoMovieArchetypeRide.IPose<
       createBicycle.Affordance,
       createBicycle.Dimension
     > => ({
@@ -150,7 +158,10 @@ export function rideBicycle(
         frontSpin: ((state.distance / circumference) * 360) % 360,
         rearSpin: ((state.distance / circumference) * 360) % 360,
       }),
-      placement: ArchetypeCourse.banked(state, ArchetypeCourse.lean(state)),
+      placement: AutoMovieArchetypeCourse.banked(
+        state,
+        AutoMovieArchetypeCourse.lean(state),
+      ),
     }),
     instants,
   );
@@ -214,7 +225,7 @@ export namespace rideBicycle {
    * @param interval Takeoff and touchdown film seconds on one level,
    * forward straight leg travelled at constant positive speed.
    * @returns The same ride clock and drive with takeoff and touchdown instants.
-   * @throws {ArchetypeRefusal} When the interval lies outside the ride or
+   * @throws {AutoMovieArchetypeRefusal} When the interval lies outside the ride or
    * overlaps one of its hops, the approach changes speed or direction, or
    * the bicycle is off the level course at either boundary.
    *
@@ -231,7 +242,7 @@ export namespace rideBicycle {
       touchdown <= takeoff ||
       touchdown > ride.duration
     )
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "bicycle",
         axis: "hop.interval",
@@ -255,7 +266,7 @@ export namespace rideBicycle {
       }
     }
     if (overlap !== undefined)
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "bicycle",
         axis: "hop.interval",
@@ -265,15 +276,15 @@ export namespace rideBicycle {
         fix: "choose a takeoff and touchdown outside its other flights",
       });
 
-    const plan: ArchetypeCourse.IPlan = ride.plan;
-    const entry: ArchetypeCourse.IState = plan.at(takeoff);
-    const exit: ArchetypeCourse.IState = plan.at(touchdown);
+    const plan: AutoMovieArchetypeCourse.IPlan = ride.plan;
+    const entry: AutoMovieArchetypeCourse.IState = plan.at(takeoff);
+    const exit: AutoMovieArchetypeCourse.IState = plan.at(touchdown);
     const seconds: number = touchdown - takeoff;
     const legIndex: number = plan.legSpans.findIndex(
-      (span: ArchetypeCourse.ILegSpan): boolean =>
+      (span: AutoMovieArchetypeCourse.ILegSpan): boolean =>
         entry.distance >= span.from && exit.distance <= span.from + span.span,
     );
-    const leg: ArchetypeCourse.Leg | undefined =
+    const leg: AutoMovieArchetypeCourse.Leg | undefined =
       plan.course.kind === "timed" ? undefined : plan.course.legs[legIndex];
     if (
       leg?.kind !== "straight" ||
@@ -283,7 +294,7 @@ export namespace rideBicycle {
       Math.abs(exit.speed - entry.speed) > 1e-8 ||
       Math.abs(exit.distance - entry.distance - entry.speed * seconds) > 1e-8
     )
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "bicycle",
         axis: "hop.approach",
@@ -300,14 +311,14 @@ export namespace rideBicycle {
       const placement: IAutoMovieTransform = ride.at(film).placement;
       return (
         Math.abs(placement.translation.y - floor) <= 1e-8 &&
-        Math.abs(ArchetypeFrame.axis(placement, "y").y - 1) <= 1e-8
+        Math.abs(AutoMovieArchetypeFrame.axis(placement, "y").y - 1) <= 1e-8
       );
     };
     if (
       !grounded(takeoff, entry.placement.translation.y) ||
       !grounded(touchdown, exit.placement.translation.y)
     )
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "bicycle",
         axis: "hop.approach",

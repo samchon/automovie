@@ -314,6 +314,7 @@ export namespace AutoMovieHumanCanonicalProfile {
         },
         childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
         axes: axesOf(child, 50 * downstream(child)),
+        ...orderOf(child),
       };
     });
     const total: number = segments.reduce(
@@ -611,6 +612,36 @@ const DIGITS: readonly (readonly string[])[] = [
   ]),
 ];
 
+/** The joint frame's axis a clinical axis turns about: its dominant rig letter, as `axesOf` reads it. */
+function letterOf(d: IAutoMovieVector3): IAutoMoviePhysicalJointAxis["axis"] {
+  return Math.abs(d.x) >= Math.abs(d.y) && Math.abs(d.x) >= Math.abs(d.z)
+    ? "x"
+    : Math.abs(d.y) >= Math.abs(d.z)
+      ? "y"
+      : "z";
+}
+
+/**
+ * The joint's sequential chart: its three clinical axes' letters in the
+ * order the rig composes them (`jointToQuaternion`): flexion, abduction,
+ * twist for the declared ISB order, abduction, flexion, twist for a distal
+ * twist, and twist, abduction, flexion otherwise. Absent when two clinical
+ * axes share a letter, which leaves the independent coordinates.
+ */
+function orderOf(bone: AutoMovieHumanoidBone): Pick<IAutoMoviePhysicalJoint, "order"> {
+  const axes: IAutoMovieJointAxes = HUMANOID_JOINT_AXES[bone] ?? DEFAULT_JOINT_AXES;
+  const flexion: IAutoMoviePhysicalJointAxis["axis"] = letterOf(axes.flexion);
+  const abduction: IAutoMoviePhysicalJointAxis["axis"] = letterOf(axes.abduction);
+  const twist: IAutoMoviePhysicalJointAxis["axis"] = letterOf(axes.twist);
+  const order: IAutoMoviePhysicalJointAxis["axis"][] =
+    axes.rotationOrder === "flexion-abduction-twist"
+      ? [flexion, abduction, twist]
+      : axes.twistPlacement === "distal"
+        ? [abduction, flexion, twist]
+        : [twist, abduction, flexion];
+  return new Set(order).size === 3 ? { order } : {};
+}
+
 /** The physical axes of one joint from its clinical ranges, read onto the T-pose rig. */
 function axesOf(
   bone: AutoMovieHumanoidBone,
@@ -624,12 +655,7 @@ function axesOf(
     const range = rom?.[clinical];
     if (range === null || range === undefined) continue;
     const d: IAutoMovieVector3 = axes[clinical];
-    const letter: "x" | "y" | "z" =
-      Math.abs(d.x) >= Math.abs(d.y) && Math.abs(d.x) >= Math.abs(d.z)
-        ? "x"
-        : Math.abs(d.y) >= Math.abs(d.z)
-          ? "y"
-          : "z";
+    const letter: IAutoMoviePhysicalJointAxis["axis"] = letterOf(d);
     if (
       out.some((a: IAutoMoviePhysicalJointAxis): boolean => a.axis === letter)
     )

@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { BallBuild } from "./BallBuild";
 import type { createBall } from "./createBall";
 
@@ -18,7 +18,7 @@ const GREEN: number = 1.83 ** 2 / (2 * 9.80665 * 3.05);
  * @param params The sport profile, identifier and dimensions fixed within their bands. Omission selects football.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Build one sphere with the sport's recorded diameter and centre it one radius above the floor.
@@ -31,7 +31,10 @@ const GREEN: number = 1.83 ** 2 / (2 * 9.80665 * 3.05);
 export function createSphericalBall(
   params: createSphericalBall.IParams = {},
   seed?: number | string,
-): Archetype<createSphericalBall.Affordance, createSphericalBall.Dimension> {
+): AutoMovieArchetype<
+  createSphericalBall.Affordance,
+  createSphericalBall.Dimension
+> {
   const kind: createSphericalBall.Kind = ArchetypeDraw.choice(
     "ball",
     "kind",

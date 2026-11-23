@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The rule text that names the struck regions, read. */
@@ -42,7 +42,7 @@ const UNREAD: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The piece.
- * @throws {ArchetypeRefusal} For an unknown kind or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each piece's frame as worn, its wear socket and the struck regions with their rule source.
  * @evidence contracts/development/implementation.md#principled-implementation Coarse padded boxes, rods and a shell sized by the drawn width, height and depth, with the struck surfaces placed on the outside of the parts the rules name.
@@ -55,9 +55,12 @@ const UNREAD: string =
 export function createKendoArmour(
   params: createKendoArmour.IParams,
   seed?: number | string,
-): Archetype<createKendoArmour.Affordance, createKendoArmour.Dimension> {
-  const draw: ArchetypeDrawSession<createKendoArmour.Dimension> =
-    new ArchetypeDrawSession<createKendoArmour.Dimension>(
+): AutoMovieArchetype<
+  createKendoArmour.Affordance,
+  createKendoArmour.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createKendoArmour.Dimension> =
+    new AutoMovieArchetypeDrawSession<createKendoArmour.Dimension>(
       "kendoArmour",
       createKendoArmour.UNITS,
       seed,
@@ -72,10 +75,10 @@ export function createKendoArmour(
   const d: Record<createKendoArmour.Dimension, number> = draw.dimensions(
     createKendoArmour.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createKendoArmour.Affordance,
     createKendoArmour.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `kendo ${kind}`,
@@ -114,21 +117,24 @@ export function createKendoArmour(
     builder.affordance({
       id: "wear",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, d.height - pad, 0), v(0, -1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, d.height - pad, 0),
+        v(0, -1, 0),
+      ),
       extent: null,
     });
     builder.affordance({
       id: "men",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(v(0, d.height, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(v(0, d.height, 0), v(0, 1, 0)),
       extent: null,
     });
     builder.affordance({
       id: "tsuki",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, 0.15 * d.height, 0.4 * d.depth + pad / 2),
         v(0, 0, 1),
       ),
@@ -146,7 +152,7 @@ export function createKendoArmour(
     builder.affordance({
       id: "wear",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, 0, -1)),
+      frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, 0, -1)),
       extent: null,
     });
     for (const [id, sign] of [
@@ -157,7 +163,7 @@ export function createKendoArmour(
         id,
         kind: "surface",
         direction: "normal",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(sign * 0.4 * d.width, -0.2 * d.height, d.depth),
           v(sign, 0, 1),
         ),
@@ -178,7 +184,7 @@ export function createKendoArmour(
     builder.affordance({
       id: "wear",
       kind: "socket",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, 0.7 * d.height, -d.depth / 2 + pad),
         v(0, 0, 1),
       ),
@@ -188,7 +194,7 @@ export function createKendoArmour(
       id: "kote",
       kind: "surface",
       direction: "normal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, 0.3 * d.height, -d.depth / 2),
         v(0, 0, -1),
       ),
@@ -216,7 +222,7 @@ export function createKendoArmour(
     builder.affordance({
       id: "wear",
       kind: "socket",
-      frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, 0, -1)),
+      frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, 0, -1)),
       extent: null,
     });
   }
@@ -280,7 +286,9 @@ export namespace createKendoArmour {
   export type Dimension = "width" | "height" | "depth" | "mass";
 
   /** Each dimension's unit, which its band shares. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     depth: "m",
@@ -298,31 +306,31 @@ export namespace createKendoArmour {
 
   /** The band of each free dimension, by kind; all estimates. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     men: {
-      width: ArchetypeBand.metres(0.24, 0.27, UNREAD, true),
-      height: ArchetypeBand.metres(0.3, 0.34, UNREAD, true),
-      depth: ArchetypeBand.metres(0.26, 0.3, UNREAD, true),
-      mass: ArchetypeBand.of("kg", 1.2, 1.8, UNREAD, true),
+      width: AutoMovieArchetypeBand.metres(0.24, 0.27, UNREAD, true),
+      height: AutoMovieArchetypeBand.metres(0.3, 0.34, UNREAD, true),
+      depth: AutoMovieArchetypeBand.metres(0.26, 0.3, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.2, 1.8, UNREAD, true),
     },
     do: {
-      width: ArchetypeBand.metres(0.36, 0.42, UNREAD, true),
-      height: ArchetypeBand.metres(0.4, 0.46, UNREAD, true),
-      depth: ArchetypeBand.metres(0.06, 0.1, UNREAD, true),
-      mass: ArchetypeBand.of("kg", 1.2, 2, UNREAD, true),
+      width: AutoMovieArchetypeBand.metres(0.36, 0.42, UNREAD, true),
+      height: AutoMovieArchetypeBand.metres(0.4, 0.46, UNREAD, true),
+      depth: AutoMovieArchetypeBand.metres(0.06, 0.1, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 1.2, 2, UNREAD, true),
     },
     kote: {
-      width: ArchetypeBand.metres(0.1, 0.12, UNREAD, true),
-      height: ArchetypeBand.metres(0.3, 0.36, UNREAD, true),
-      depth: ArchetypeBand.metres(0.09, 0.11, UNREAD, true),
-      mass: ArchetypeBand.of("kg", 0.25, 0.4, UNREAD, true),
+      width: AutoMovieArchetypeBand.metres(0.1, 0.12, UNREAD, true),
+      height: AutoMovieArchetypeBand.metres(0.3, 0.36, UNREAD, true),
+      depth: AutoMovieArchetypeBand.metres(0.09, 0.11, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.25, 0.4, UNREAD, true),
     },
     tare: {
-      width: ArchetypeBand.metres(0.4, 0.48, UNREAD, true),
-      height: ArchetypeBand.metres(0.22, 0.27, UNREAD, true),
-      depth: ArchetypeBand.metres(0.02, 0.04, UNREAD, true),
-      mass: ArchetypeBand.of("kg", 0.5, 0.9, UNREAD, true),
+      width: AutoMovieArchetypeBand.metres(0.4, 0.48, UNREAD, true),
+      height: AutoMovieArchetypeBand.metres(0.22, 0.27, UNREAD, true),
+      depth: AutoMovieArchetypeBand.metres(0.02, 0.04, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.5, 0.9, UNREAD, true),
     },
   };
 

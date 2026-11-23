@@ -17,35 +17,35 @@ import { selfAction } from "../touch/selfAction";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion of its own or restates a value of the law.
  */
 export namespace HumanSelfActionRows {
-  /** `selfAction` of kind `stretch`. */
+  /** `selfAction` of kind `stretch`: both arms overhead, palms up, 6 s in all (the yawn's duration, Provine 1986, unverified); waking, tiredness, relief ({@link selfAction.YAWN}). */
   export const selfStretch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfStretch"]
   > = HumanActionRow.of("selfStretch", selfAction, {
     kind: "stretch",
   });
 
-  /** `selfAction` of kind `victory`. */
+  /** `selfAction` of kind `victory`: both fists raised overhead and outside the shoulders, held 0.8 s after the rise; winning, triumph (Hwang and Matsumoto 2014; times provisional, {@link selfAction}). */
   export const selfVictory: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfVictory"]
   > = HumanActionRow.of("selfVictory", selfAction, {
     kind: "victory",
   });
 
-  /** `selfAction` of kind `fistPump`. */
+  /** `selfAction` of kind `fistPump`: a fist at eye height dropped a fifth of the arm and raised again 3 times of 0.4 s, 1.2 s in all after the rise; a small win, determination (provisional, {@link selfAction}). */
   export const selfFistPump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfFistPump"]
   > = HumanActionRow.of("selfFistPump", selfAction, {
     kind: "fistPump",
   });
 
-  /** `selfAction` of kind `neckRoll`. */
+  /** `selfAction` of kind `neckRoll`: the head circled through a light share of its range, 2 circles of 1.0 s, 2.0 s in all after the rise; loosening up, tension (provisional, {@link selfAction}). */
   export const selfNeckRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfNeckRoll"]
   > = HumanActionRow.of("selfNeckRoll", selfAction, {
     kind: "neckRoll",
   });
 
-  /** `selfAction` of kind `shoulderRoll`. */
+  /** `selfAction` of kind `shoulderRoll`: both shoulders circled through a light share of their range, 2 circles of 1.0 s, 2.0 s in all after the rise; loosening up, tension (provisional, {@link selfAction}). */
   export const selfShoulderRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfShoulderRoll"]
   > = HumanActionRow.of("selfShoulderRoll", selfAction, {

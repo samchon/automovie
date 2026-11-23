@@ -14,11 +14,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { courseArmGoal } from "../compose/courseArmGoal";
 import { seated } from "../everyday/seated";
 import { sitPlace } from "../everyday/sitPlace";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { precisionStrokePeak } from "../lexicon/precisionStrokePeak";
 import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticCrew } from "./AquaticCrew";
@@ -173,7 +176,7 @@ export namespace AquaticScull {
           events.push({ name: `${name}${cycle + 1}`, share });
       }
     events.push({ name: "relax", share: 1 });
-    return {
+    const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       contacts,
       drives,
@@ -233,6 +236,34 @@ export namespace AquaticScull {
         return posture;
       },
     };
+
+    // Both hands follow their handles from the first instant to the end as
+    // one admitted course of the two arms (courseArmGoal), not a fit of
+    // each arm afresh at every second, where the forearm went into the
+    // trunk at the finish and the fit turned the forearm half a turn as the
+    // handles swept: the hold fitted instant by instant on the branch and
+    // swivel the instant before chose, clear of the body, at the strokes'
+    // own pace (the handles' fastest speed, precisionStrokePeak).
+    let fastest: number | undefined;
+    const pace = (): number =>
+      (fastest ??= Math.max(
+        precisionStrokePeak(goals.posture, "leftArm", duration),
+        precisionStrokePeak(goals.posture, "rightArm", duration),
+      ));
+    return courseArmGoal({
+      body,
+      plan: goals,
+      side: "left",
+      rest: AutoMovieMotionHumanArm.angles(entry.pose, "left"),
+      span: { start: 0, ready: 0, relax: duration, end: duration },
+      pace,
+      with: [
+        {
+          side: "right",
+          rest: AutoMovieMotionHumanArm.angles(entry.pose, "right"),
+        },
+      ],
+    });
   }
 }
 

@@ -25,11 +25,6 @@ const { combine, cross, dot, norm, scale, solve2, sub, unit }: typeof AutoMovieS
  * plane, a sphere, a cylinder cut square to its axis), and leaves the walls' third-order terms elsewhere; the wedge's tangent length is
  * its limit as both curvatures vanish (Choi and Ju 1989 and Chuang and Hwang 1997 define the same ball by the offsets' intersection,
  * read here in the section instead of marched).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the section, the circles, the ball's equations, the solve, the exactness and the limit.
- * @evidence contracts/development/design.md#principled-representation The rolling ball's centre lies on both offsets; in a normal section each offset of a circle of curvature is a concentric circle, so the contact is two circles' meeting, not a wedge's.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One reader of both chords.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A solve that does not settle returns null and the caller keeps the wedge's length; nothing is clamped.
  */
 export namespace AutoMovieSolidFoldContact {
   /** Newton steps of one contact. */
@@ -47,14 +42,6 @@ export namespace AutoMovieSolidFoldContact {
    * @param p The curve point with both preimages.
    * @param radius The ball's radius, mm.
    * @returns The host's and the part's chord, mm, or null where the walls do not make a fold there or the solve does not settle.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Reads both outward normals and kept directions as the rail solve does, each wall's normal curvature along its kept direction from its fundamental forms, and solves the two centres' meeting by Gauss-Newton in the two arc lengths.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One wall reader, one section reader and one loop.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No tolerance is widened on failure and no chord is invented: null leaves the decision to the caller.
-   * @evidence contracts/development/common.md#meaningful-documentation States each input's unit, the result and its null.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two surface jets and at most `STEPS` constant-size steps.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One point's solve shares nothing with another's.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Call-local values only; the two numbers are returned.
    */
   export function chords(
     part: IAutoMovieSolidSurface,

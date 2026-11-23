@@ -1,4 +1,4 @@
-import { type IArchetypeBand, createCar } from "@automovie/archetypes";
+import { type IAutoMovieArchetypeBand, createCar } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -15,14 +15,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
-  HumanFoot,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
-  poseBones,
 } from "@automovie/motions";
+import { HumanFoot, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "./archetypeExtent";
@@ -89,7 +88,7 @@ export function archetypeCatalogueRideContact(
       minimum = Math.min(y.high, minimum);
       maximum = Math.max(y.high, maximum);
       const seatHeight: number = model.dimensions.seatHeight!;
-      const band: IArchetypeBand | undefined =
+      const band: IAutoMovieArchetypeBand | undefined =
         model.provenance.bands.seatHeight;
       if (
         !(
@@ -289,7 +288,7 @@ function standingFloor(body: IAutoMovieMotionHumanBody): number {
         proficiency: { level: "trained" },
       },
     ],
-    composition: HumanChain.subject("a").stand({ seconds: 0.5, sway: 0 }).node,
+    composition: HumanChain.subject("a").stand({ hold: 0.5, sway: 0 }).node,
   });
   const entry: IAutoMovieMotionHumanEntryState =
     film.segments("a")[0]!.context.entry;
@@ -326,14 +325,15 @@ function rideFilm(
     model,
     placed(0),
     "driverSeat",
+    "sedan",
   );
   const actor: IAutoMovieMotionHumanChain = HumanChain.subject("a");
   const entry: IAutoMovieMotionHumanChain = seated
-    ? actor.sit({ seat, seconds: 0.5 })
-    : actor.stand({ seconds: 0.5 });
+    ? actor.sit({ seat, hold: 0.5 })
+    : actor.stand({ hold: 0.5 });
   return new HumanPerformance({
     seed: "catalogue/sedan/ride",
-    laws: [HumanRide.ride],
+    laws: [AutoMovieMotionHumanMount.rideHorse.ride],
     props: [HumanObject.prop("sedan", model, placed(0), placed)],
     performers: [
       {
@@ -346,7 +346,7 @@ function rideFilm(
     ],
     composition: entry.registered("ride", {
       on: "sedan",
-      seconds: 7,
+      duration: 7,
       seat: "driverSeat",
     }).node,
   });

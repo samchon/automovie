@@ -70,7 +70,7 @@ function plan(
   if (
     !Number.isFinite(p.travel) ||
     p.travel === 0 ||
-    ![p.radius, p.thickness, p.seconds].every(
+    ![p.radius, p.thickness, p.duration].every(
       (value: number): boolean => Number.isFinite(value) && value > 0,
     )
   )
@@ -192,10 +192,10 @@ function plan(
       "place and orient the thumb site on the back of the button relative to its travel",
     );
 
-  const side: AutoMovieHumanSide = p.side ?? "right";
+  const side: AutoMovieHumanSide = p.hand ?? "right";
   const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
   const tempo: number = context.tempo ?? 1;
-  const stroke: number = tempo * p.seconds;
+  const stroke: number = tempo * p.duration;
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(context.body, context.entry.pose);
   const motion: number = Math.max(

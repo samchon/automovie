@@ -44,13 +44,13 @@ export namespace wireArrest {
     const params: IAutoMovieMotionHumanWireFlight.IArrest = context.params;
     const g: number = AutoMovieGravity.STANDARD;
     const bound: number = params.deceleration ?? 2 * g;
-    const lower: number = params.seconds ?? 1;
+    const lower: number = params.duration ?? 1;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const top: number = entry.root.y;
     for (const [axis, value, ok] of [
       ["drop", params.drop, params.drop > 0],
       ["stop", params.stop, params.stop >= 0],
-      ["seconds", lower, lower > 0],
+      ["duration", lower, lower > 0],
       ["deceleration", bound, bound > 0],
     ] as const)
       if (!(ok && Number.isFinite(value)))

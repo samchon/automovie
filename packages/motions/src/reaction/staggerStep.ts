@@ -32,19 +32,9 @@ import type { staggerRecover } from "./staggerRecover";
  * hold it is the admission's (`staggerAdmission`), which reads the step but
  * never moves it, so the pendulum's outcome is the whole model's wherever
  * the legs hold the steps.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the step's phases, its region, its crossing, its landing point, its source and the admission's separation.
- * @evidence contracts/development/design.md#principled-representation One step over a shared pendulum, so the orders of the feet search reuses the steps they share.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One function and its result, read by `staggerRecover`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every bound is a measured one from `staggerBounds`; the region scales with the body's stature and the crossing with its soles.
  */
 export namespace staggerStep {
   /** A step's outcome.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the capture flag and whether the landing crosses the stance foot.
-   * @evidence contracts/development/design.md#principled-representation The capture decision and the crossing the admission reads; the step itself is on the pendulum.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Recovery reads both to continue an order and to admit its prefix.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reports the pendulum's actual capture, with no success override.
    */
   export interface IResult {
     /** Whether the body is caught after it; null when the legs admit no landing in its region. */
@@ -63,14 +53,6 @@ export namespace staggerStep {
    * @param unloaded Whether this is a sideways push's first step with the leg it unloads (`staggerBounds.LATERAL`).
    * @param admit Whether the legs hold a candidate step at the given instants, whose feet cross when the flag says so (`staggerAdmission`); every landing is the aimed one when absent, the pendulum alone.
    * @returns Whether it catches the body, and whether the landing crosses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each input and the outcome.
-   * @evidence contracts/development/implementation.md#principled-implementation Capture-point stepping (Koolen et al. 2012; Hof 2008): the foot lands its landing point on the extrapolated centre of mass at touch-down, held inside the measured region and, crossing, a sole's length clear of the stance foot; caught once the extrapolated centre of mass is inside the two feet's base.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shift, the swing, the aim, the region, the crossing, the landing.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The region and the times are the measured bounds; a landing is never moved by the legs' admission, which refuses it instead.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Closed form: one weight-shift span (`staggerTransfer`, its end a fixed point of a few passes), one held swing span, two region clamps and two support hulls; admitted, at most 3 + log2(1 / `ADAPTED`) landing admissions.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Ball, heel and sole positions are read once from the departing placement and shared by its toe direction, aim and landing point.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Appends the step and its spans to the pendulum the search owns.
    */
   export function take(
     pendulum: StaggerPendulum,

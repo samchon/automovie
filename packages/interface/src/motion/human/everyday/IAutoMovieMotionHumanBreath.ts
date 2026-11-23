@@ -44,20 +44,10 @@
  *
  * The phase runs on film seconds from a seeded offset, so breathing continues
  * smoothly across action boundaries.
- *
- * @evidence contracts/development/common.md#meaningful-documentation rate: Breaths a minute at rest; a seeded draw from the adult band when absent. from: Film second the bout starts; under way since before the film when absent. recovery: Recovery seconds; 60 when absent, the onset's span (Whipp and Ward 1990).
- * @evidence contracts/development/design.md#principled-representation rate: Breaths a minute at rest; a seeded draw from the adult band when absent. from: Film second the bout starts; under way since before the film when absent. recovery: Recovery seconds; 60 when absent, the onset's span (Whipp and Ward 1990).
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanBreath.ts (HumanBreath.state, exertion); everyday/HumanBreath.ts (HumanBreath.state, return); everyday/HumanBreath.ts (HumanBreath.layer, options).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanBreath.state.
  */
 export namespace IAutoMovieMotionHumanBreath {
   /**
    * The breathing layer. Layer options.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation rate: Breaths a minute at rest; a seeded draw from the adult band when absent.
-   * @evidence contracts/development/design.md#principled-representation rate: Breaths a minute at rest; a seeded draw from the adult band when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanBreath.ts (HumanBreath.layer, options).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanBreath.IExertion identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IOptions {
     /** Breaths a minute at rest; a seeded draw from the adult band when absent. */
@@ -69,11 +59,6 @@ export namespace IAutoMovieMotionHumanBreath {
 
   /**
    * One bout of exertion, from `from` to `at`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation from: Film second the bout starts; under way since before the film when absent. at: Film second the bout ends and recovery starts. recovery: Recovery seconds; 60 when absent, the onset's span (Whipp and Ward 1990).
-   * @evidence contracts/development/design.md#principled-representation from: Film second the bout starts; under way since before the film when absent. at: Film second the bout ends and recovery starts, no earlier than `from`, which HumanBreath.state admits. recovery: Recovery seconds; 60 when absent, the onset's span (Whipp and Ward 1990).
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanBreath.ts (HumanBreath.state, exertion).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanBreath.state.
    */
   export interface IExertion {
     /** Film second the bout starts; under way since before the film when absent. */
@@ -91,11 +76,6 @@ export namespace IAutoMovieMotionHumanBreath {
 
   /**
    * The breathing state at a film second. Result returned by HumanBreath.state. The rate, the cycle phase and the lung volume in tidal breaths.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation rate: Instantaneous breathing rate in breaths per minute. phase: Integrated breathing phase in cycles, including the performer's deterministic phase offset. volume: Tidal breath volume relative to the resting breath volume.
-   * @evidence contracts/development/design.md#principled-representation rate: Instantaneous breathing rate in breaths per minute. phase: Integrated breathing phase in cycles, including the performer's deterministic phase offset. volume: Tidal breath volume relative to the resting breath volume.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanBreath.ts (HumanBreath.state, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanBreath.state.
    */
   export type IStateResult = {
     /** Instantaneous breathing rate in breaths per minute. */

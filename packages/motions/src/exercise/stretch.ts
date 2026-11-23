@@ -120,10 +120,10 @@ export namespace stretch {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanStretch.IParams = context.params;
-    const hold: number = p.seconds ?? HOLD;
-    HumanBound.least("seconds", hold, 0, "s");
+    const hold: number = p.hold ?? HOLD;
+    HumanBound.least("hold", hold, 0, "s");
     const level: IAutoMovieMotionHumanRange.Level =
-      INTENSITY[p.intensity ?? "moderate"];
+      INTENSITY[p.depth ?? "moderate"];
     const modifiers: IAutoMovieMotionManner.IModifiers =
       AutoMovieMotionManner.of(context, p.manner);
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(

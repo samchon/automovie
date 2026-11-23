@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 import { BOAT_MODELS } from "./BOAT_MODELS";
 import { BoatHull } from "./BoatHull";
@@ -21,7 +21,7 @@ import { createBoat } from "./createBoat";
  * @param params The hull's authored options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the hull's waterline frame and separate outfitting owner.
  * @evidence contracts/development/implementation.md#principled-implementation Derives the original hull panels and reference frames before building the selected boat's interior.
@@ -36,9 +36,9 @@ export function BoatConstruction(
   params: Omit<createBoat.IParams, "kind">,
   seed: number | string | undefined,
   outfit: BoatConstruction.Outfit,
-): Archetype<createBoat.Affordance, createBoat.Dimension> {
-  const draw: ArchetypeDrawSession<createBoat.Dimension> =
-    new ArchetypeDrawSession<createBoat.Dimension>(
+): AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBoat.Dimension> =
+    new AutoMovieArchetypeDrawSession<createBoat.Dimension>(
       "boat",
       createBoat.UNITS,
       seed,
@@ -77,13 +77,15 @@ export function BoatConstruction(
     kind === "rowboat"
       ? { ...drawn, ...derived(BoatOars.blade(drawn.beam!)) }
       : drawn;
-  const builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind === "launch" ? "pulling boat" : kind,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createBoat.Affordance,
+    createBoat.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: kind === "launch" ? "pulling boat" : kind,
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const length: number = d.length!;
   const beam: number = d.beam!;
@@ -155,7 +157,7 @@ export function BoatConstruction(
   builder.affordance({
     id: "floor",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, floor, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, floor, 0)),
     extent: null,
     width: beam * e.floor.beam,
     depth: length * e.floor.length,
@@ -171,7 +173,7 @@ export function BoatConstruction(
     id: "gunwale",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(beam / 2, gunwale, 0),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -184,14 +186,18 @@ export function BoatConstruction(
   builder.affordance({
     id: "bow",
     kind: "ledge",
-    frame: ArchetypeFrame.upright(v(0, ends, length / 2 - e.ledge / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      v(0, ends, length / 2 - e.ledge / 2),
+    ),
     extent: null,
     length: e.ledge,
   });
   builder.affordance({
     id: "stern",
     kind: "ledge",
-    frame: ArchetypeFrame.upright(v(0, ends, -length / 2 + e.ledge / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      v(0, ends, -length / 2 + e.ledge / 2),
+    ),
     extent: null,
     length: Math.max(2 * stern, e.ledge),
   });
@@ -227,7 +233,10 @@ export namespace BoatConstruction {
 
   /** Builds the interior and its contacts over the finished hull. */
   export type Outfit = (
-    builder: ArchetypeBuilder<createBoat.Affordance, createBoat.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createBoat.Affordance,
+      createBoat.Dimension
+    >,
     hull: IHull,
   ) => void;
 }

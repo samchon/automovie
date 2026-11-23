@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
   IAutoMovieMotionHumanArmAngles,
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
@@ -22,11 +23,6 @@ type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
  * Prepare or evaluate the correction of a joint-space arm carry. The live
  * carry takes the current solved arm and planning pose. A fixed course owns
  * endpoint triples, the arrival clearance geometry and its correction knots.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the inputs that vary and what the course represents.
- * @evidence contracts/development/design.md#principled-representation The authored shoulder and elbow correction is piecewise linear over joint-space blends. Earlier carried arms contribute their corrected angles and later ones their uncorrected angles at the same share.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The live carry and native fixed-arrival writer share the same geometry and clearance functions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A moving goal or clearance body calls the live course. Preparation preserves every existing key and threshold.
  */
 export namespace AutoMovieMotionHumanArmCarryCourse {
   /**
@@ -34,14 +30,6 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
    * triples on every source posture and have no limb goals at any share.
    * The law supplies an invariant arrival posture and still owns the actual
    * posture at each second, including its changing fingers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the eligibility premise, returned writer's inputs and ownership of current posture.
-   * @evidence contracts/development/implementation.md#principled-implementation With the goal removed the arm's current resolved endpoint is its direct ROM projection. Uncarried joints and fingers cannot change those three selected joint records. The clearance geometry and both blends are therefore the fixed arrival's, with no world-space goal or obstacle read from the varying posture.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the arrival once, prepare its correction coefficients and write over the current posture at the share supplied by the law.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Preparation samples the existing clearance keys only and carries the original angle blend at every queried share. The law handles start and arrival endpoint semantics.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One arrival solve and the original clearance calculation at each fixed key per carried arm. Samples evaluate the chart-aware arm blends and two scalar correction interpolants.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The unchanged arrival and absence of goals for the carried arms give identical endpoints. The fixed clearance keys depend on that arrival only.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the fixed blends and scalar corrections until the owning plan releases them. Temporary collision poses and resolution metadata end with preparation.
    */
   export function fixed(
     body: IAutoMovieMotionHumanBody,
@@ -95,14 +83,6 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
    * Build the arm courses from the exact goals and plan pose. With fixed
    * input the plans are compiled before return. Otherwise the readers are
    * scoped to one current carry evaluation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States clearance and endpoint inputs, preparation mode and lifetime.
-   * @evidence contracts/development/implementation.md#principled-implementation The correction uses the original clearance function and the corresponding share of the other arm. The fixed option supplies the same share to the already prepared preceding arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare both plain blends before computing correction knots in arm order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Baselines, clearance candidates and blend charts use their original owners and accept no changed bounds.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Live reads inspect only the enclosing keys. Fixed reads interpolate original coefficients compiled across the authored key set.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed data are supplied only by the invariant arrival constructor. Within a live carry, each key's geometry and correction is shared only among identical requests.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Live readers own their query maps for one carry. Compilation replaces those readers with the coefficient-only samplers.
    */
   export function arms(
     body: IAutoMovieMotionHumanBody,
@@ -221,16 +201,25 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
         key: number,
       ): IAutoMovieMotionHumanArmClearance.IArm => {
         ends ??= [reading(held, 0, held.fingers), reading(aimed, 1)];
+        // Beside the arrival a key may keep at least the arrival's own room,
+        // so the place's contact is never read as room to clear.
+        const beside = (from: number, to: number): number =>
+          key > HumanArmClearing.BESIDE
+            ? Math.max(from * (1 - key) + to * key, to)
+            : from * (1 - key) + to * key;
+        // The fingers as the carry shows them at the key, on their way from
+        // the held shape to the place's, so the room read is the room of
+        // the hand that is drawn.
         return HumanArmClearance.cleared(
           body,
-          pose(key),
+          fingersAt(pose(key), side, held.fingers, aimed.fingers, key),
           side,
           of,
           0,
           others,
           {
-            forearm: ends[0].forearm * (1 - key) + ends[1].forearm * key,
-            segments: ends[0].segments * (1 - key) + ends[1].segments * key,
+            forearm: beside(ends[0].forearm, ends[1].forearm),
+            segments: beside(ends[0].segments, ends[1].segments),
           },
           resolution,
         );
@@ -260,3 +249,36 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
     return courses;
   }
 }
+
+/** A hand's finger angles at a share of the carry, read on a pose. */
+type Fingers = IAutoMovieMotionHumanArmAngles.IAngles["fingers"];
+
+/**
+ * A pose with one hand's fingers at a share of their way from the held
+ * shape to the arrival's, each angle blended by the share as the carry
+ * shapes them; the pose unchanged where either shape is not known.
+ */
+function fingersAt(
+  pose: IAutoMoviePose,
+  side: AutoMovieHumanSide,
+  from: Fingers,
+  to: Fingers,
+  share: number,
+): IAutoMoviePose {
+  if (from === undefined || to === undefined) return pose;
+  const blended: Partial<Record<AutoMovieHumanoidBone, Triple>> = {};
+  for (const bone of Object.keys(to) as AutoMovieHumanoidBone[]) {
+    const a: Triple | undefined = from[bone];
+    const b: Triple | undefined = to[bone];
+    if (a === undefined || b === undefined) continue;
+    blended[bone] = [
+      a[0] + (b[0] - a[0]) * share,
+      a[1] + (b[1] - a[1]) * share,
+      a[2] + (b[2] - a[2]) * share,
+    ];
+  }
+  return HumanArmClearance.fingered(pose, side, blended);
+}
+
+/** One joint's clinical angles, degrees. */
+type Triple = readonly [number, number, number];

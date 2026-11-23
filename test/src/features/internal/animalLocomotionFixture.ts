@@ -1,9 +1,9 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  type QuadrupedBody,
-  type QuadrupedGait,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedGait,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createCamel,
   type rideQuadruped,
 } from "@automovie/archetypes";
@@ -21,13 +21,13 @@ export namespace animalLocomotionFixture {
   export type Animal = ReturnType<typeof createCamel>;
 
   /** The shared ride with the actual consumer's own contact and dimension types. */
-  export type Ride = ArchetypeRide.IRide<
+  export type Ride = AutoMovieArchetypeRide.IRide<
     Parameters<Animal["affordance"]>[0],
-    QuadrupedBody.Dimension
+    AutoMovieArchetypeQuadrupedBody.Dimension
   >;
 
   /** Four literal feet; their identifiers are the public quadruped bone contract. */
-  export const FEET: readonly QuadrupedBody.Limb[] = [
+  export const FEET: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
     "leftFore",
     "rightFore",
     "leftHind",
@@ -37,7 +37,7 @@ export namespace animalLocomotionFixture {
   /** Six seconds at constant speed, under translation and yaw, without speed ramps. */
   export function course(
     speed: number,
-    lead: QuadrupedGait.Lead = "left",
+    lead: AutoMovieArchetypeQuadrupedGait.Lead = "left",
   ): rideQuadruped.ICourse {
     return {
       start: { x: 2, z: -3, heading: 29 },
@@ -51,7 +51,7 @@ export namespace animalLocomotionFixture {
   /** Observe a real terminal bar's distal centre through its actual pose and root transforms. */
   export function foot(
     ride: Ride,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     seconds: number,
   ): IAutoMovieVector3 {
     const sample: ReturnType<typeof ride.at> = ride.at(seconds);
@@ -80,7 +80,7 @@ export namespace animalLocomotionFixture {
         z: 0,
       }),
     );
-    return ArchetypeFrame.point(sample.placement, endpoint);
+    return AutoMovieArchetypeFrame.point(sample.placement, endpoint);
   }
 
   /**
@@ -102,7 +102,7 @@ export namespace animalLocomotionFixture {
    */
   export function sole(
     ride: Ride,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     seconds: number,
   ): number {
     const sample: ReturnType<typeof ride.at> = ride.at(seconds);
@@ -141,7 +141,7 @@ export namespace animalLocomotionFixture {
       error = caught;
     }
     if (
-      !(error instanceof ArchetypeRefusal) ||
+      !(error instanceof AutoMovieArchetypeRefusal) ||
       error.kind !== "parameter" ||
       error.axis.length === 0
     )

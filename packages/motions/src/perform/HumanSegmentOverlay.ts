@@ -36,20 +36,10 @@ import { unplantedHumanObservation } from "./unplantedHumanObservation";
  * A carrier's pose with its overlays written over it: which overlays run at
  * a second, and how each one's channels are faded in and out against the
  * body without it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the file owns and what it reads from its siblings.
- * @evidence contracts/development/design.md#principled-representation One responsibility of a placed action's evaluation, over the records `HumanSegment` declares.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Split from `HumanSegment` unchanged, so each file holds one responsibility.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the sibling owners; nothing is duplicated between them.
  */
 export namespace HumanSegmentOverlay {
   /**
    * A faded pose and the limb contacts its declared windows still hold.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States which goals survive fading and their coordinate convention.
-   * @evidence contracts/development/design.md#principled-representation The displayed pose and its active constraints, kept together through final resolution.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Adds only active contact goals to the existing seeded pose record.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the posture's own goal type, preserving all constraint data.
    */
   export interface IOverlaid extends HumanSegmentPose.ISeeded {
     /** World goals have received the root turn; attached goals retain `on`. */
@@ -96,14 +86,6 @@ export namespace HumanSegmentOverlay {
    * @param prepared Optional same-body evaluation preparation, lending genuine direct ROM metadata to leaves and complete source evaluation to first held-frame capture.
    * @param carrier The action the overlays ride, whose last leaf seeds start the leaf's swept fits' bounded searches and which keeps this leaf's (`IAutoMovieMotionHumanSegment.incumbents`); absent, the fits search without them.
    * @returns The pose, the seeds of its fits and its open contact goals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the fade, carry, contact and seed behavior and which raw posture and weight evaluations are shared.
-   * @evidence contracts/development/implementation.md#principled-implementation Each branch merges the same overlay's pure posture at the same local second onto its own under-posture; fade and final contact fits retain their original order. Plan contacts, hands and channel claims stay unchanged within the call, so metadata decisions are shared. Exact contact FK needs the body's unchanged skeleton topology; prepared blending additionally requires its constraints and clinical axes unchanged throughout this synchronous evaluation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Lazy posture/weight slots and prepared fixed-claim mergers feed the recursive branch builder, then ordinary contact refitting. Exact-name continuation and attachment admission retain their existing owners.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts All active overlay branches, fade weights, seed names and contact windows remain. Every merged raw posture receives native joint admission and goal fitting; a shared under-posture reference cannot assert that its arbitrary overlay goals permit partial-leg reuse.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each demanded overlay samples raw posture, weight and ordinal once per query. Fixed claims classify encountered bone names once per merger; no-digit merges omit digit-goal traversal. Contact windows are scanned once and missing explicit goals demand only their effector/lower FK ancestry. Up to 2^N fade leaves remain for N simultaneous partial overlays; checked source-leg reuse or bare observational selection may avoid only their proven independent fits. A leaf's swept fits start their bounded searches from the carrier's last leaf seeds (`HumanLimbIncumbent`), which order the search but never answer it. Runtime speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Raw postures, weights, ordinals, claim mergers, drive metadata and blend preparation share within this query. The parent FK/ROM source reaches actual raw/canonical consumers while every branch keeps its original independent native goal fit.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query slots, branch indexes, claim mergers, blender and local FK supplier release on return or throw. No returned pose, seed or goal retains them.
    */
   export function overlaid(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -315,6 +297,9 @@ export namespace HumanSegmentOverlay {
         under,
         ((postures ??= [])[k] ??= postureAt(overlay)),
       );
+      // An overlay handing its channels on to the act after it in its chain
+      // keeps them to its end (`handsOn`), so the act after it enters from
+      // where it ended and blends in from it, not from the carrier.
       const weight: number = ((weights ??= [])[k] ??= Math.min(
         minimumJerk.share(
           Math.min(
@@ -322,9 +307,7 @@ export namespace HumanSegmentOverlay {
             Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
           ),
         ),
-        minimumJerk.share(
-          Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
-        ),
+        released(person, overlay, seconds),
       ));
 
       // The prefix names exactly the included overlays, in their original
@@ -400,14 +383,7 @@ export namespace HumanSegmentOverlay {
       const entered: IAutoMovieMotionHumanActionPlan["enteredChannels"] =
         overlay.plan.enteredChannels;
       const release: number =
-        entered === undefined
-          ? weight
-          : minimumJerk.share(
-              Math.min(
-                1,
-                Math.max(0, (overlay.end - seconds) / HumanSegment.FADE),
-              ),
-            );
+        entered === undefined ? weight : released(person, overlay, seconds);
       for (const bone of owned) {
         const pair: [
           IAutoMovieJointPose | undefined,
@@ -465,14 +441,6 @@ export namespace HumanSegmentOverlay {
    * @param person The person.
    * @param seconds Film seconds.
    * @returns The overlays, in placement order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States film-second input, placement-order output and inclusive comparisons with the existing endpoint allowance.
-   * @evidence contracts/development/implementation.md#principled-implementation Filters the person's placed overlays by their active entry and end instants, retaining the existing 1e-12-second comparison allowance at both endpoints.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered filter owns active-overlay selection; posture composition remains with the overlay evaluator.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads every overlay's actual interval without changing contact windows, ordering or physical tolerances.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Scans N placed overlays in O(N) time and allocates an array of the K active references, O(K) space.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each query reads current overlay intervals and seconds; no persistent selection cache assumes unchanged placement.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a caller-owned array of borrowed overlays and retains no query, person or external handle.
    */
   export function running(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -483,4 +451,69 @@ export namespace HumanSegmentOverlay {
         seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,
     );
   }
+
+  /**
+   * Read a state with the overlays that end at a second handing their
+   * channels on there: an overlay chain's next act is placed at the instant
+   * the act before it ends, and reads its entry from that act's end, not
+   * from the carrier the act would release to were nothing to follow it.
+   *
+   * @param seconds The film second the next act enters at.
+   * @param run The read.
+   * @returns What the read returns.
+   */
+  export function handing<T>(seconds: number, run: () => T): T {
+    const enclosing: number | undefined = entering;
+    entering = seconds;
+    try {
+      return run();
+    } finally {
+      entering = enclosing;
+    }
+  }
+}
+
+/** The second an overlay chain's next act enters at, while its entry is read (`HumanSegmentOverlay.handing`). */
+let entering: number | undefined;
+
+/** Seconds two instants of one handoff may differ by. */
+const HANDOFF: number = 1e-9;
+
+/** Whether two overlays claim a channel in common. */
+function shares(
+  a: IAutoMovieMotionHumanSegment.IOverlay,
+  b: IAutoMovieMotionHumanSegment.IOverlay,
+): boolean {
+  return a.channels.some(
+    (channel: (typeof a.channels)[number]): boolean =>
+      b.channels.includes(channel),
+  );
+}
+
+/** Whether an overlay hands its channels on at its end: to one that enters then, or to the act whose entry is being read there (`HumanSegmentOverlay.handing`). */
+function handsOn(
+  person: IAutoMovieMotionHumanSegment.IPerson,
+  overlay: IAutoMovieMotionHumanSegment.IOverlay,
+): boolean {
+  if (entering !== undefined && Math.abs(entering - overlay.end) <= HANDOFF)
+    return true;
+  return person.overlays.some(
+    (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
+      o !== overlay &&
+      Math.abs(o.entryTime - overlay.end) <= HANDOFF &&
+      shares(o, overlay),
+  );
+}
+
+/** How far an overlay still holds its channels at a second, released to the carrier over the fade before its end unless it hands them on. */
+function released(
+  person: IAutoMovieMotionHumanSegment.IPerson,
+  overlay: IAutoMovieMotionHumanSegment.IOverlay,
+  seconds: number,
+): number {
+  return handsOn(person, overlay)
+    ? 1
+    : minimumJerk.share(
+        Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
+      );
 }

@@ -5,7 +5,6 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { HumanBound } from "../law/HumanBound";
 import { HumanGaze } from "./HumanGaze";
 import { HumanProxemics } from "./HumanProxemics";
 
@@ -68,143 +67,16 @@ export namespace HumanConversation {
     up: 0.03,
   };
 
-  /**
-   * A participant's gaze requests through a conversation.
-   *
-   * @param subject The participant.
-   * @param partner The other participant's subject id; the gaze goes to their face.
-   * @param turns The turns, in time order.
-   * @param random The participant's stream.
-   * @param eyes The participant's eye height, metres, the height a look away turns from.
-   * @returns Gaze layer requests in time order.
-   * @throws {HumanRefusal} For a turn that does not start at a finite film second, at least 0, or does not end at a finite second after its start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the fixed partner, seeded input, eye height in metres and request order.
-   * @evidence contracts/development/implementation.md#principled-implementation Applies the documented role cadence to the same partner on every turn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Supplies fixed-partner selection to the shared glance planner with finite, nonnegative turn starts and finite ends after their starts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses film seconds and the shared documented means for every participant.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in spans and emitted requests with no per-turn index.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares cadence and aversion between dyadic and group planning.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the returned requests outlive the call.
-   */
-  export function gaze(
+  /** The shared glance planner the Conversation readers apply to each span's selected face: the speaker's and the listener's cadence (`GLANCES`) and the speaker's aversions (`AVERSIONS`), drawn from the participant's stream. */
+  export function glances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
     subject: string,
-    partner: string,
-    turns: readonly IAutoMovieMotionHumanConversation.ITurn[],
+    turns: readonly Turn[],
     random: IAutoMovieRandom,
     eyes: number,
+    partner: (turn: Turn) => string,
+    release: boolean = false,
   ): IAutoMovieMotionHumanGaze.ILayer[] {
-    return glances(
-      subject,
-      turns,
-      random,
-      eyes,
-      (turn: IAutoMovieMotionHumanConversation.ITurn): string => {
-        HumanBound.least("turns.from", turn.from, 0, "s");
-        HumanBound.above("turns.to", turn.to, turn.from, "s");
-        return partner;
-      },
-    );
-  }
-
-  /**
-   * Plan a participant's gaze from authored turns in a group conversation.
-   *
-   * At each turn start the listeners look toward the speaker and the speaker
-   * looks toward the authored addressee. Auer (2018, doi:10.1075/ais.10.09aue)
-   * observed speakers selecting addressees with gaze in three-party
-   * interaction. Holler and Kendrick (2015, doi:10.3389/fpsyg.2015.00098)
-   * observed unaddressed listeners shifting to the incoming speaker in
-   * questions and replies. Here each change starts on the authored boundary.
-   * Consecutive spans with one speaker can redirect their address.
-   *
-   * @param subject The participant whose gaze is being authored.
-   * @param participants Distinct nonempty subject IDs, including silent listeners.
-   * @param turns Ordered, non-overlapping speaking spans in film seconds.
-   * @param random The participant's seeded stream.
-   * @param eyes Eye height in metres in the performer's frame.
-   * @returns Requests for HumanGaze.layer. The last request of each span releases at its end.
-   * @throws When a subject, span, or eye height falls outside the stated bounds.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the studied gaze roles, authored timing, units, and consuming gaze layer.
-   * @evidence contracts/development/implementation.md#principled-implementation Selects the current speaker or authored addressee by role and uses the existing dyadic cadence provisionally for group glances.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validates the roster and spans before delegating cadence to the shared glance planner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses scripted boundaries and person targets for every participant. The sources do not set a fixed anticipatory offset for general dialogue.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in participant IDs, spans and emitted requests, with a temporary roster set and the output array.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the seeded glance planner and the existing gaze layer. Each request sequence depends on its input spans and stream.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the returned requests outlive the call.
-   */
-  export function groupGaze(
-    subject: string,
-    participants: readonly string[],
-    turns: readonly IAutoMovieMotionHumanConversation.IGroupTurn[],
-    random: IAutoMovieRandom,
-    eyes: number,
-  ): IAutoMovieMotionHumanGaze.ILayer[] {
-    const roster: Set<string> = new Set(participants);
-    if (roster.size !== participants.length || roster.has(""))
-      throw new RangeError(
-        "conversation participants must be distinct, nonempty subject IDs",
-      );
-    if (!roster.has(subject))
-      throw new RangeError(
-        `conversation subject ${subject} is outside the participant roster`,
-      );
-    HumanBound.above("eyes", eyes, 0, "m");
-
-    let previousEnd: number = 0;
-    for (const turn of turns) {
-      if (!roster.has(turn.speaker) || !roster.has(turn.addressee))
-        throw new RangeError(
-          "conversation speaker and addressee must belong to the participant roster",
-        );
-      if (turn.speaker === turn.addressee)
-        throw new RangeError("conversation speaker and addressee must differ");
-      HumanBound.least("turns.from", turn.from, previousEnd, "s");
-      previousEnd = HumanBound.above("turns.to", turn.to, turn.from, "s");
-    }
-
-    return glances(
-      subject,
-      turns,
-      random,
-      eyes,
-      (turn: IAutoMovieMotionHumanConversation.IGroupTurn): string =>
-        turn.speaker === subject ? turn.addressee : turn.speaker,
-      true,
-    );
-  }
-
-  /**
-   * The share of a film span in which the requests target a person's face.
-   * A request ends at its release or the next request, whichever comes first.
-   * This measures authored attention without modeling the layer's physical blend.
-   *
-   * @param requests Gaze requests in chronological order.
-   * @param from Span start, film seconds.
-   * @param to Span end, film seconds, greater than from.
-   * @returns The share in [0, 1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the attention interval and the film time measured.
-   * @evidence contracts/development/implementation.md#principled-implementation Intersects each person request's effective range with the measurement span, using the same latest-request precedence as the gaze layer.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass accumulates durations before normalization.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Measures authored times directly and counts no pose-derived value.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in requests with constant auxiliary space.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The scalar depends on all intersected requests and the queried span.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The query retains no state.
-   */
-  export function share(
-    requests: readonly IAutoMovieMotionHumanGaze.ILayer[],
-    from: number,
-    to: number,
-  ): number {
-    let on: number = 0;
-    requests.forEach((r: IAutoMovieMotionHumanGaze.ILayer, i: number): void => {
-      const a: number = Math.max(from, r.from);
-      const b: number = Math.min(to, r.to ?? to, requests[i + 1]?.from ?? to);
-      if (b > a && r.target.kind === "person") on += b - a;
-    });
-    return on / (to - from);
+    return planGlances(subject, turns, random, eyes, partner, release);
   }
 }
 
@@ -259,7 +131,7 @@ function away(
 }
 
 /** Apply the shared speaker/listener cadence to each span's selected face. */
-function glances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
+function planGlances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
   subject: string,
   turns: readonly Turn[],
   random: IAutoMovieRandom,

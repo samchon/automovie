@@ -11,22 +11,12 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * First pass: the body is rigid in the pose it had when its base broke,
  * through the swing and the flight; the swing's fulcrum is fixed at the
  * thrower's placed region at that instant.
- *
- * @evidence contracts/development/common.md#meaningful-documentation broken: Seconds from the action's start to the broken base. grip: The grip sites' mean height, world metres. remaining: Seconds the pull lasts after the broken base.
- * @evidence contracts/development/design.md#principled-representation broken: Seconds from the action's start to the broken base. grip: The grip sites' mean height, world metres. remaining: Seconds the pull lasts after the broken base.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: grappling/HumanForceThrow.ts (HumanForceThrow.plan, props).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieResolveCenterOfMass.IModel, IAutoMovieVector3, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanContactWindow identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanForceThrow {
   /**
    * What the response hands the throw: the pulled body's model, the pull's
    * direction, the instant its base breaks, its pose frozen there, its
    * centre's speed then, its yield before and its feet's plant windows.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The state of the pulled body at the broken base, the throw's initial condition.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ten members, each read by `plan`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The yield and the plant are the response's own functions, so the throw does not restate them.
    */
   export interface IProps {
     /** The body's mass model. */
@@ -58,14 +48,6 @@ export namespace IAutoMovieMotionHumanForceThrow {
      *
      * @param seconds Seconds since the action's start.
      * @returns The posture.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceThrow.IProps.yieldAt: The yield's posture before the broken base.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanForceThrow.IProps.yieldAt is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanForceThrow.IProps.yieldAt is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanForceThrow.IProps.yieldAt is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanForceThrow.IProps.yieldAt is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanForceThrow.IProps.yieldAt is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanForceThrow.IProps.yieldAt is used through packages/motions/src/grappling/HumanForceThrow.ts.
      */
     yieldAt(seconds: number): IAutoMovieMotionHumanPosture;
 
@@ -75,14 +57,6 @@ export namespace IAutoMovieMotionHumanForceThrow {
      * @param part The foot.
      * @param to The share it ends at.
      * @returns The window.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceThrow.IProps.plant: A foot's plant on the floor from the start.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanForceThrow.IProps.plant is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanForceThrow.IProps.plant is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanForceThrow.IProps.plant is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanForceThrow.IProps.plant is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanForceThrow.IProps.plant is used through packages/motions/src/grappling/HumanForceThrow.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanForceThrow.IProps.plant is used through packages/motions/src/grappling/HumanForceThrow.ts.
      */
     plant(
       part: "leftFoot" | "rightFoot",

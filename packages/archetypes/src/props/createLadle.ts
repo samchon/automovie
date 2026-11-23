@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { HandToolDraw } from "./HandToolDraw";
 
 /**
@@ -9,7 +9,7 @@ import { HandToolDraw } from "./HandToolDraw";
  * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Ladle with a pinch grip and a bowl facing +Z.
  * @evidence contracts/development/implementation.md#principled-implementation The bowl radius sets its position and its surface contact.
@@ -25,7 +25,7 @@ export function createLadle(
     "id" | "length" | "gripDiameter" | "mass" | "bowl"
   > = {},
   seed?: number | string,
-): Archetype<createLadle.Affordance, createLadle.Dimension> {
+): AutoMovieArchetype<createLadle.Affordance, createLadle.Dimension> {
   const {
     builder,
     d,
@@ -50,7 +50,7 @@ export function createLadle(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, length - d.bowl! / 2, d.bowl! / 2),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -65,7 +65,7 @@ export function createLadle(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createLadle {

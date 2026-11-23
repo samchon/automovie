@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  type ArchetypeCourse,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  ArchetypeUnits,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
+  AutoMovieArchetypeUnits,
   createBoat,
   rowBoat,
 } from "@automovie/archetypes";
@@ -33,11 +33,11 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_archetype_boat_oars(): void {
   const findings: string[] = [];
-  const boat: Archetype<createBoat.Affordance, createBoat.Dimension> =
+  const boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> =
     createBoat({ kind: "rowboat" }, 5);
   const d: Readonly<Partial<Record<createBoat.Dimension, number>>> =
     boat.dimensions;
-  const course: ArchetypeCourse.ICourse = {
+  const course: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 0, z: 0, heading: 0 },
     legs: [{ kind: "straight", length: 40 }],
     cruise: 1.5,
@@ -46,9 +46,11 @@ export function test_archetype_boat_oars(): void {
   };
   // The handle's held run, read off the boat's own handle contact.
   const grip: number = boat.affordance("leftHandle").length!;
-  const ride: ArchetypeRide.IRide<createBoat.Affordance, createBoat.Dimension> =
-    rowBoat(boat, course);
-  const inboard: number = d.beam! / 2 + 2 * ArchetypeUnits.INCH;
+  const ride: AutoMovieArchetypeRide.IRide<
+    createBoat.Affordance,
+    createBoat.Dimension
+  > = rowBoat(boat, course);
+  const inboard: number = d.beam! / 2 + 2 * AutoMovieArchetypeUnits.INCH;
   const pivotY: number = d.depth! - d.draft! + createBoat.LOCK;
   const share: number =
     (0.84 * Math.min(Math.max((60 * 1.5) / rowBoat.STROKE, 26), 36.5) + 25.1) /
@@ -75,7 +77,7 @@ export function test_archetype_boat_oars(): void {
     seconds < end;
     seconds += 0.05
   ) {
-    const sample: ArchetypeRide.ISample<
+    const sample: AutoMovieArchetypeRide.ISample<
       createBoat.Affordance,
       createBoat.Dimension
     > = ride.at(seconds);
@@ -86,9 +88,11 @@ export function test_archetype_boat_oars(): void {
       ["left", 1],
       ["right", -1],
     ] as const) {
-      const pivot: IAutoMovieVector3 = ArchetypeFrame.compose(
+      const pivot: IAutoMovieVector3 = AutoMovieArchetypeFrame.compose(
         sample.placement,
-        ArchetypeFrame.upright(Vector3.create((sign * d.beam!) / 2, pivotY, 0)),
+        AutoMovieArchetypeFrame.upright(
+          Vector3.create((sign * d.beam!) / 2, pivotY, 0),
+        ),
       ).translation;
       const handle: IAutoMovieVector3 = ride.frame(
         `${side}Handle`,
@@ -123,7 +127,7 @@ export function test_archetype_boat_oars(): void {
     rowBoat(createBoat({ kind: "canoe" }), course);
     findings.push("a canoe was rowed");
   } catch (error) {
-    if (!(error instanceof ArchetypeRefusal))
+    if (!(error instanceof AutoMovieArchetypeRefusal))
       findings.push(`a canoe failed otherwise: ${String(error)}`);
   }
   TestValidator.equals("the oars row as the stroke cycle asks", findings, []);
@@ -164,8 +168,10 @@ function lowest(
         );
         least = Math.min(
           least,
-          ArchetypeFrame.compose(placement, ArchetypeFrame.upright(local))
-            .translation.y,
+          AutoMovieArchetypeFrame.compose(
+            placement,
+            AutoMovieArchetypeFrame.upright(local),
+          ).translation.y,
         );
       }
   return least;

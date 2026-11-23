@@ -54,7 +54,7 @@ export function standCases(
   let chain: IAutoMovieMotionHumanChain | undefined;
   names.forEach((_, i: number): void => {
     const one: IAutoMovieMotionHumanChain = HumanChain.subject(`s${i}`).stand({
-      seconds: 2,
+      hold: 2,
     });
     chain = chain === undefined ? one : chain.with(one);
   });

@@ -61,7 +61,7 @@ export function everydayPostureCases(
     };
     const performance: IAutoMovieMotionHumanPerformance = one(
       HumanChain.subject("a")
-        .sit({ seat, seconds: 0.5 })
+        .sit({ seat, hold: 0.5 })
         .shift({ by: 0.12 })
         .rise(),
     );
@@ -171,7 +171,7 @@ export function everydayPostureCases(
     let chain: IAutoMovieMotionHumanChain = HumanChain.subject("a");
     for (const strategy of strategies)
       chain = chain.bend({
-        toward: { kind: "point", at: points[strategy], frame: "world" },
+        target: { kind: "point", at: points[strategy], frame: "world" },
         strategy,
       });
     const performance: IAutoMovieMotionHumanPerformance = one(chain);

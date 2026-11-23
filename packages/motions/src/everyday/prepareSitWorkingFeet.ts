@@ -216,21 +216,12 @@ export function prepareSitWorkingFeet(
           resolveHumanPosture.heading({ yaw, pitch: 0, roll: 0 }),
           joints.hips,
         )[side];
-        limbs[`${side}Leg`] = unloadedFoot(
-          body,
-          hip,
-          {
-            ...leg,
-            rotation: swing.placement.rotation,
-            planted: false,
-            contact: undefined,
-          },
-          {
-            x: Math.sin((yaw * Math.PI) / 180),
-            y: 0,
-            z: Math.cos((yaw * Math.PI) / 180),
-          },
-        );
+        limbs[`${side}Leg`] = unloadedFoot(body, hip, {
+          ...leg,
+          rotation: swing.placement.rotation,
+          planted: false,
+          contact: undefined,
+        });
         return lower({ ...next, root, limbs }, resolution);
       },
     },
@@ -262,7 +253,8 @@ export function prepareSitWorkingFeet(
  */
 export namespace prepareSitWorkingFeet {
   /**
-   * Prepend the working feet's steps while preserving the descent's relative times.
+   * Prepend the working feet's steps while preserving the descent's relative
+   * times.
    *
    * @param prefix The two steps onto the final deck footprints.
    * @param lowering The original sit descent and its seat-contact windows.

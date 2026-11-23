@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
 } from "@automovie/archetypes";
 import { Quaternion, materializeCompiledEffects } from "@automovie/engine";
 import type {
@@ -15,10 +15,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanStance,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  stand,
 } from "@automovie/motions";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -35,20 +35,21 @@ export namespace filmStageScreenCue {
   export const FPS: number = 24;
 
   /** A decorative stage panel built as a fixed frame and a detachable tile. */
-  export type Panel = Archetype<never, never>;
+  export type Panel = AutoMovieArchetype<never, never>;
 
   /** Make a solid decorative panel whose visible tile can separate. */
   export function panel(): Panel {
-    const builder: ArchetypeBuilder<never, never> = new ArchetypeBuilder({
-      draw: new ArchetypeDrawSession<never>(
-        "rehearsal-panel",
-        {},
-        undefined,
-        {},
-      ),
-      name: "decorative panel",
-      material: "wood",
-    });
+    const builder: AutoMovieArchetypeBuilder<never, never> =
+      new AutoMovieArchetypeBuilder({
+        draw: new AutoMovieArchetypeDrawSession<never>(
+          "rehearsal-panel",
+          {},
+          undefined,
+          {},
+        ),
+        name: "decorative panel",
+        material: "wood",
+      });
     const frame = { color: "#274932" };
     builder.box(
       "base",
@@ -94,12 +95,12 @@ export namespace filmStageScreenCue {
     const rehearsal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanStand.IParams> =
       {
         name: "sceneryRehearsal",
-        interrupts: stand.interrupts,
+        interrupts: AutoMovieMotionHumanStance.stand.interrupts,
         plan(
           context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
         ): IAutoMovieMotionHumanActionPlan {
           return {
-            ...stand.plan(context),
+            ...AutoMovieMotionHumanStance.stand.plan(context),
             launches: [
               {
                 prop: "foam-token",
@@ -114,20 +115,20 @@ export namespace filmStageScreenCue {
     const operator = HumanChain.subject("performer").registered(
       rehearsal.name,
       {
-        seconds: 1,
+        hold: 1,
         sway: 0,
       },
     );
     const waiting = HumanChain.subject("observer").stand({
-      seconds: contact ? RESPONSE : 1,
+      hold: contact ? RESPONSE : 1,
       sway: 0,
     });
     const response = contact
       ? waiting.look(
           {
             target: { kind: "point", frame: "world", at: { x: 0, y: 1, z: 0 } },
-            with: "head",
-            seconds: 1 - RESPONSE,
+            recruit: "head",
+            duration: 1 - RESPONSE,
           },
           "notice-the-panel",
         )

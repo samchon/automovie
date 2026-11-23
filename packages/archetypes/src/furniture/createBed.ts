@@ -1,8 +1,8 @@
 import {
-  Archetype,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { BED_BANDS } from "./BED_BANDS";
 import { createBunkBed } from "./createBunkBed";
@@ -16,7 +16,7 @@ import { createPlatformBed } from "./createPlatformBed";
 type Producer = (
   params: createBed.IParams,
   seed?: number | string,
-) => Archetype<createBed.Affordance, createBed.Dimension>;
+) => AutoMovieArchetype<createBed.Affordance, createBed.Dimension>;
 
 /**
  * Replay a saved bed variant with the original dimensions, identifier and model choices.
@@ -24,7 +24,7 @@ type Producer = (
  * @param params The historic selector and optional fixed settings in the original units.
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
- * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved bed variant with the original dimensions, identifier and model choices.
  * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the bed draw namespace.
@@ -37,7 +37,7 @@ type Producer = (
 export function createBed(
   params: createBed.IParams,
   seed?: number | string,
-): Archetype<createBed.Affordance, createBed.Dimension> {
+): AutoMovieArchetype<createBed.Affordance, createBed.Dimension> {
   const kind: createBed.Kind = ArchetypeDraw.choice(
     "bed",
     "kind",
@@ -173,7 +173,9 @@ export namespace createBed {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     length: "m",
     height: "m",
@@ -204,6 +206,6 @@ export namespace createBed {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = BED_BANDS;
 }

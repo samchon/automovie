@@ -8,7 +8,6 @@ export * from "./AutoMovieBicubicAtlasPlan64";
 export * from "./AutoMovieBicubicAtlasRegistry64";
 export * from "./AutoMovieBicubicAtlasVertex64";
 export * from "./AutoMovieCanonicalBoundary64";
-export * from "./AutoMovieClampedTailField64";
 export * from "./AutoMovieContourLoftCurves64";
 export * from "./AutoMovieContourSlit64";
 export * from "./AutoMovieCubicOval64";

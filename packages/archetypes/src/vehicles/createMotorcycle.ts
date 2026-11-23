@@ -2,14 +2,14 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Rider-triangle positions no maker publishes. */
@@ -26,7 +26,7 @@ const TRIANGLE: string =
  * @param params The kind, its read model and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The machine.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the machine's origin and front and where the rider's seat, hands and feet go.
  * @evidence contracts/development/implementation.md#principled-implementation Two wheels a wheelbase apart, a body box, a seat slab at the drawn seat height and a handlebar the drawn width across; a scooter's body stands under its seat only, with a front shield under the handlebar and the floorboard between the two, the step-through that tells it from a motorcycle; the foot contacts are `pedal` plates without travel, the kind a foot rests on.
@@ -39,9 +39,9 @@ const TRIANGLE: string =
 export function createMotorcycle(
   params: createMotorcycle.IParams,
   seed?: number | string,
-): Archetype<createMotorcycle.Affordance, createMotorcycle.Dimension> {
-  const draw: ArchetypeDrawSession<createMotorcycle.Dimension> =
-    new ArchetypeDrawSession<createMotorcycle.Dimension>(
+): AutoMovieArchetype<createMotorcycle.Affordance, createMotorcycle.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createMotorcycle.Dimension> =
+    new AutoMovieArchetypeDrawSession<createMotorcycle.Dimension>(
       "motorcycle",
       createMotorcycle.UNITS,
       seed,
@@ -65,10 +65,10 @@ export function createMotorcycle(
     ...draw.dimensions(createMotorcycle.BANDS[kind], createMotorcycle.BANDS),
     ...model.figures,
   } as Record<createMotorcycle.Dimension, number>;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createMotorcycle.Affordance,
     createMotorcycle.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind,
@@ -121,7 +121,7 @@ export function createMotorcycle(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       v(0, seat.y, seat.z + createMotorcycle.SEAT.depth / 2),
     ),
     extent: null,
@@ -147,7 +147,7 @@ export function createMotorcycle(
       id,
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(
+      frame: AutoMovieArchetypeFrame.upright(
         v(sign * (d.width / 2 - 0.06), bar.y, bar.z),
       ),
       extent: null,
@@ -176,7 +176,7 @@ export function createMotorcycle(
     builder.affordance({
       id: "floorboard",
       kind: "pedal",
-      frame: ArchetypeFrame.upright(board),
+      frame: AutoMovieArchetypeFrame.upright(board),
       extent: null,
       width: 0.4,
       depth: 0.4,
@@ -188,7 +188,7 @@ export function createMotorcycle(
       builder.affordance({
         id,
         kind: "surface",
-        frame: ArchetypeFrame.upright(v(sign * 0.1, board.y, board.z)),
+        frame: AutoMovieArchetypeFrame.upright(v(sign * 0.1, board.y, board.z)),
         extent: null,
       });
   } else
@@ -211,7 +211,7 @@ export function createMotorcycle(
       builder.affordance({
         id,
         kind: "pedal",
-        frame: ArchetypeFrame.upright(peg),
+        frame: AutoMovieArchetypeFrame.upright(peg),
         extent: null,
         width: 0.1,
         depth: 0.03,
@@ -282,7 +282,9 @@ export namespace createMotorcycle {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     seatHeight: "m",
     wheelbase: "m",
     width: "m",
@@ -309,7 +311,7 @@ export namespace createMotorcycle {
   export type Model = "cb500Hornet" | "mt07" | "pcx125";
 
   /**
-   * Each kind's read machines, each whole: its seat height, wheelbase, overall width (taken as the handlebar's), tyres' outer diameters (`ArchetypeUnits.tyre`) and kerb or wet mass. The CB500 Hornet at Honda UK's page (the 2026 E-Clutch version: seat 785 mm, wheelbase 1,410, 800 mm wide, 120/70 ZR17 and 160/60 ZR17, 191 kg; https://www.honda.co.uk/motorcycles/range/street/cb500-hornet/specifications-and-price.html); the MT-07 at Yamaha's 2019 factsheet, p. 4 (seat 805 mm, wheel base 1,400, 745 mm wide, 120/70 ZR17 and 180/55 ZR17, wet weight 182 kg; https://cdn2.yamaha-motor.eu/prod/product-assets/2019/MT07/Factsheets/2019-MT07_en.pdf); the PCX125 at Honda UK's page (the 2025 version: seat 763 mm, wheelbase 1,315, 740 mm wide, 110/70-14 and 130/70-13, 134 kg; https://www.honda.co.uk/motorcycles/range/scooter/pcx-125/specifications.html).
+   * Each kind's read machines, each whole: its seat height, wheelbase, overall width (taken as the handlebar's), tyres' outer diameters (`AutoMovieArchetypeUnits.tyre`) and kerb or wet mass. The CB500 Hornet at Honda UK's page (the 2026 E-Clutch version: seat 785 mm, wheelbase 1,410, 800 mm wide, 120/70 ZR17 and 160/60 ZR17, 191 kg; https://www.honda.co.uk/motorcycles/range/street/cb500-hornet/specifications-and-price.html); the MT-07 at Yamaha's 2019 factsheet, p. 4 (seat 805 mm, wheel base 1,400, 745 mm wide, 120/70 ZR17 and 180/55 ZR17, wet weight 182 kg; https://cdn2.yamaha-motor.eu/prod/product-assets/2019/MT07/Factsheets/2019-MT07_en.pdf); the PCX125 at Honda UK's page (the 2025 version: seat 763 mm, wheelbase 1,315, 740 mm wide, 110/70-14 and 130/70-13, 134 kg; https://www.honda.co.uk/motorcycles/range/scooter/pcx-125/specifications.html).
    */
   export const MODELS: Readonly<
     Record<
@@ -324,16 +326,16 @@ export namespace createMotorcycle {
         seatHeight: 0.785,
         wheelbase: 1.41,
         width: 0.8,
-        frontWheelDiameter: ArchetypeUnits.tyre(120, 70, 17),
-        wheelDiameter: ArchetypeUnits.tyre(160, 60, 17),
+        frontWheelDiameter: AutoMovieArchetypeUnits.tyre(120, 70, 17),
+        wheelDiameter: AutoMovieArchetypeUnits.tyre(160, 60, 17),
         mass: 191,
       },
       mt07: {
         seatHeight: 0.805,
         wheelbase: 1.4,
         width: 0.745,
-        frontWheelDiameter: ArchetypeUnits.tyre(120, 70, 17),
-        wheelDiameter: ArchetypeUnits.tyre(180, 55, 17),
+        frontWheelDiameter: AutoMovieArchetypeUnits.tyre(120, 70, 17),
+        wheelDiameter: AutoMovieArchetypeUnits.tyre(180, 55, 17),
         mass: 182,
       },
     },
@@ -342,8 +344,8 @@ export namespace createMotorcycle {
         seatHeight: 0.763,
         wheelbase: 1.315,
         width: 0.74,
-        frontWheelDiameter: ArchetypeUnits.tyre(110, 70, 14),
-        wheelDiameter: ArchetypeUnits.tyre(130, 70, 13),
+        frontWheelDiameter: AutoMovieArchetypeUnits.tyre(110, 70, 14),
+        wheelDiameter: AutoMovieArchetypeUnits.tyre(130, 70, 13),
         mass: 134,
       },
     },
@@ -351,25 +353,25 @@ export namespace createMotorcycle {
 
   /** The band of each dimension no machine's maker states, by kind; the others are the read model's (`MODELS`). */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     motorcycle: {
-      gripDiameter: ArchetypeBand.metres(
-        (7 / 8) * ArchetypeUnits.INCH,
-        (7 / 8) * ArchetypeUnits.INCH,
+      gripDiameter: AutoMovieArchetypeBand.metres(
+        (7 / 8) * AutoMovieArchetypeUnits.INCH,
+        (7 / 8) * AutoMovieArchetypeUnits.INCH,
         "the 7/8 in handlebar, not read at a source",
         true,
       ),
-      footrestHeight: ArchetypeBand.metres(0.3, 0.38, TRIANGLE, true),
+      footrestHeight: AutoMovieArchetypeBand.metres(0.3, 0.38, TRIANGLE, true),
     },
     scooter: {
-      gripDiameter: ArchetypeBand.metres(
-        (7 / 8) * ArchetypeUnits.INCH,
-        (7 / 8) * ArchetypeUnits.INCH,
+      gripDiameter: AutoMovieArchetypeBand.metres(
+        (7 / 8) * AutoMovieArchetypeUnits.INCH,
+        (7 / 8) * AutoMovieArchetypeUnits.INCH,
         "the 7/8 in handlebar, not read at a source",
         true,
       ),
-      footrestHeight: ArchetypeBand.metres(0.25, 0.3, TRIANGLE, true),
+      footrestHeight: AutoMovieArchetypeBand.metres(0.25, 0.3, TRIANGLE, true),
     },
   };
 }

@@ -7,11 +7,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * and a stationary opening and rim. The author supplies a sphere enclosing
  * the button and the thickness of the stationary panel. Those dimensions
  * bound the passage without cloth deformation or a geometry-specific solver.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the authored geometry, motion and dimensions used by the button law.
- * @evidence contracts/development/design.md#principled-representation Models passage as a bounded rigid envelope and finite-thickness opening on one articulated prop.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The law consumes only named model contacts, the slide and passage dimensions, timing and preferred hand.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The model owns the geometry and bindings, and the law admits the passage from the authored dimensions.
  */
 export interface IAutoMovieMotionHumanButton {
   /** Subject of the stationary garment prop. */
@@ -38,9 +33,9 @@ export interface IAutoMovieMotionHumanButton {
   /** Full panel thickness across the aperture plane, metres. */
   thickness: number;
 
-  /** Duration of the push, seconds, at unit tempo. */
-  seconds: number;
+  /** Duration of the push, seconds, at unit tempo. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
+  duration: number;
 
   /** Hand pushing the button. Defaults to the right. */
-  side?: AutoMovieHumanSide;
+  hand?: AutoMovieHumanSide;
 }

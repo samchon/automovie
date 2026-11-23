@@ -4,11 +4,6 @@ import type { IAutoMovieLoftViewRead } from "./IAutoMovieLoftViewRead";
  * Complete endpoint generating data after orientation into the receiving station/phase chart.
  *
  * AutoMovieLoftSectionSource.bind admits this family, clones it into independent field and snapshot records, and binds both to the receiving layer's actual coefficient rows. endpoint later refuses a changed or malformed family rather than treating it as absent legacy geometry. Native inputs retain their scalar physical-station jets; basis rows retain all coefficients through station order two.
- *
- * @evidence contracts/development/design.md#principled-representation The discriminator selects the actual native scalar family or complete basis coefficient jets, so neither representation is inferred from a few sampled endpoint positions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One family supplies endpoint geometry and its independently copied validation snapshot to both adjoining field readers.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing physical derivatives do not become zeros, and a present stale family throws instead of selecting legacy geometry.
- * @evidence contracts/development/common.md#meaningful-documentation Defines family selection, derivative row order, copy ownership and the binding/validation lifecycle.
  */
 export type IAutoMovieLoftSectionSourceFamily =
   | {

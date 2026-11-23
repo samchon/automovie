@@ -1,5 +1,9 @@
 import { HORSE_BANDS } from "../animals/HORSE_BANDS";
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import { CART_MODELS } from "./CART_MODELS";
 import type { createCart } from "./createCart";
 
@@ -74,71 +78,77 @@ const WRIST: string =
 export const CART_BANDS: Readonly<
   Record<
     createCart.Kind,
-    Readonly<Partial<Record<createCart.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createCart.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   trolley: {
-    length: ArchetypeBand.metres(1.15, 1.15, TROLLEY, true),
-    width: ArchetypeBand.metres(0.61, 0.61, TROLLEY, true),
-    handleHeight: ArchetypeBand.metres(
-      35 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(1.15, 1.15, TROLLEY, true),
+    width: AutoMovieArchetypeBand.metres(0.61, 0.61, TROLLEY, true),
+    handleHeight: AutoMovieArchetypeBand.metres(
+      35 * AutoMovieArchetypeUnits.INCH,
       1.03,
       `the 35 and 37 in middle push hand heights of the Liberty Mutual tables after Snook and Ciriello 1991 (https://www.gorbel.com/resources/blog/LibertyMutualTables manual materials handling guidelines.pdf) up to the trolley's 1030 mm height (${TROLLEY})`,
       true,
     ),
-    handleSpacing: ArchetypeBand.metres(0.61, 0.61, TROLLEY, true),
-    gripDiameter: ArchetypeBand.metres(
+    handleSpacing: AutoMovieArchetypeBand.metres(0.61, 0.61, TROLLEY, true),
+    gripDiameter: AutoMovieArchetypeBand.metres(
       0.025,
       0.032,
       "the trolley's handle is a round tube whose diameter its maker does not state; an estimate",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 18, 28, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      18,
+      28,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   wheelbarrow: {
-    length: ArchetypeBand.metres(1.45, 1.45, BARROW),
-    width: ArchetypeBand.metres(0.59, 0.59, BARROW),
-    handleHeight: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(1.45, 1.45, BARROW),
+    width: AutoMovieArchetypeBand.metres(0.59, 0.59, BARROW),
+    handleHeight: AutoMovieArchetypeBand.metres(
       0.62,
       0.645,
       `${BARROW}: 620 mm overall height; 645 mm handle height of another model, seen only in search results`,
       true,
     ),
-    handleSpacing: ArchetypeBand.metres(
+    handleSpacing: AutoMovieArchetypeBand.metres(
       0.59,
       0.595,
       `${BARROW}: 590 mm overall width; 595 mm handle spacing of another model, seen only in search results`,
       true,
     ),
-    gripDiameter: ArchetypeBand.metres(
+    gripDiameter: AutoMovieArchetypeBand.metres(
       0.038,
       0.038,
       `${BARROW}: handgrip 38 mm, the column's label being ambiguous`,
       true,
     ),
-    wheelDiameter: ArchetypeBand.metres(0.4, 0.4, BARROW),
-    mass: ArchetypeBand.of("kg", 18.6, 18.6, BARROW),
+    wheelDiameter: AutoMovieArchetypeBand.metres(0.4, 0.4, BARROW),
+    mass: AutoMovieArchetypeBand.of("kg", 18.6, 18.6, BARROW),
   },
   cart: {
-    track: ArchetypeBand.metres(
+    track: AutoMovieArchetypeBand.metres(
       1.37,
       spread("cart", "track")[1],
       `${INTRO}; ${MULTI}: the read tracks, borrowed by the gig, whose page gives none and whose track no law gives from its wheels (searched: the Carriage Foundation's record)`,
       true,
     ),
-    clearance: ArchetypeBand.metres(
-      8 * ArchetypeUnits.INCH,
-      20 * ArchetypeUnits.INCH,
+    clearance: AutoMovieArchetypeBand.metres(
+      8 * AutoMovieArchetypeUnits.INCH,
+      20 * AutoMovieArchetypeUnits.INCH,
       'IVC Carriage, Types of Horse Carriage Shafts: "there should be 8-20" of clearance from the horse to the closest part of the vehicle" (https://www.ivccarriage.com/blogs/ivc-carriage/types-of-horse-carriage-shafts)',
     ),
-    seatHeight: ArchetypeBand.metres(
-      51 * ArchetypeUnits.INCH,
-      51 * ArchetypeUnits.INCH,
+    seatHeight: AutoMovieArchetypeBand.metres(
+      51 * AutoMovieArchetypeUnits.INCH,
+      51 * AutoMovieArchetypeUnits.INCH,
       "a used Bennington two-wheeler's 51 in seat height, seen only in search results (the listing's page no longer answers)",
       true,
     ),
     withersHeight: HORSE_BANDS.withersHeight,
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       90,
       110,
@@ -147,28 +157,34 @@ export const CART_BANDS: Readonly<
     ),
   },
   rickshaw: {
-    wheelDiameter: ArchetypeBand.metres(
-      42 * ArchetypeUnits.INCH,
+    wheelDiameter: AutoMovieArchetypeBand.metres(
+      42 * AutoMovieArchetypeUnits.INCH,
       spread("rickshaw", "wheelDiameter")[1],
       `${RICKSHAW}: the 1882 rule's and the Edo rickshaw's wheels, borrowed by the records that give none`,
       true,
     ),
-    gripHeight: ArchetypeBand.metres(0.793, 0.846, WRIST),
-    mass: ArchetypeBand.of("kg", 40, 60, ArchetypeBand.TYPICAL_MASS, true),
+    gripHeight: AutoMovieArchetypeBand.metres(0.793, 0.846, WRIST),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      60,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   chariot: {
-    wheelDiameter: ArchetypeBand.metres(0.9, 0.97, CHARIOT),
-    track: ArchetypeBand.metres(1.57, 1.8, CHARIOT),
-    floorWidth: ArchetypeBand.metres(0.92, 1.11, CHARIOT),
-    floorDepth: ArchetypeBand.metres(0.39, 0.54, CHARIOT),
-    railHeight: ArchetypeBand.metres(
+    wheelDiameter: AutoMovieArchetypeBand.metres(0.9, 0.97, CHARIOT),
+    track: AutoMovieArchetypeBand.metres(1.57, 1.8, CHARIOT),
+    floorWidth: AutoMovieArchetypeBand.metres(0.92, 1.11, CHARIOT),
+    floorDepth: AutoMovieArchetypeBand.metres(0.39, 0.54, CHARIOT),
+    railHeight: AutoMovieArchetypeBand.metres(
       ...spread("chariot", "railHeight"),
       `${CHARIOT}: Carter's greatest heights of the body, taken from the floor, borrowed by the chariots whose rows give none`,
       true,
     ),
-    poleLength: ArchetypeBand.metres(2.43, 2.6, CHARIOT),
+    poleLength: AutoMovieArchetypeBand.metres(2.43, 2.6, CHARIOT),
     withersHeight: HORSE_BANDS.withersHeight,
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       24,
       30,
@@ -176,87 +192,93 @@ export const CART_BANDS: Readonly<
     ),
   },
   limber: {
-    wheelDiameter: ArchetypeBand.metres(
-      57 * ArchetypeUnits.INCH,
-      57 * ArchetypeUnits.INCH,
+    wheelDiameter: AutoMovieArchetypeBand.metres(
+      57 * AutoMovieArchetypeUnits.INCH,
+      57 * AutoMovieArchetypeUnits.INCH,
       `${LIMBER}: height of wheel 57 in, every field carriage's`,
     ),
-    track: ArchetypeBand.metres(
-      60 * ArchetypeUnits.INCH,
-      60 * ArchetypeUnits.INCH,
+    track: AutoMovieArchetypeBand.metres(
+      60 * AutoMovieArchetypeUnits.INCH,
+      60 * AutoMovieArchetypeUnits.INCH,
       `${LIMBER}: track 60 in`,
     ),
-    length: ArchetypeBand.metres(
-      52.85 * ArchetypeUnits.INCH,
-      52.85 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      52.85 * AutoMovieArchetypeUnits.INCH,
+      52.85 * AutoMovieArchetypeUnits.INCH,
       `${LIMBER}: the limber's length without wheels or pole, 52.85 in`,
     ),
-    poleLength: ArchetypeBand.metres(
-      (161.2 - 52.85) * ArchetypeUnits.INCH,
-      (161.2 - 52.85) * ArchetypeUnits.INCH,
+    poleLength: AutoMovieArchetypeBand.metres(
+      (161.2 - 52.85) * AutoMovieArchetypeUnits.INCH,
+      (161.2 - 52.85) * AutoMovieArchetypeUnits.INCH,
       `${LIMBER}: the pole beyond the frame, the limber's 161.2 in without wheels less its 52.85 in without wheels or pole`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      860 * ArchetypeUnits.POUND,
-      860 * ArchetypeUnits.POUND,
+      860 * AutoMovieArchetypeUnits.POUND,
+      860 * AutoMovieArchetypeUnits.POUND,
       `${LIMBER}: the limber complete without implements, 860 lb`,
     ),
   },
   wagon: {
-    frontWheelDiameter: ArchetypeBand.metres(
-      46 * ArchetypeUnits.INCH,
-      46 * ArchetypeUnits.INCH,
+    frontWheelDiameter: AutoMovieArchetypeBand.metres(
+      46 * AutoMovieArchetypeUnits.INCH,
+      46 * AutoMovieArchetypeUnits.INCH,
       `${WAGON}: front wheels 3 ft 10 in high`,
     ),
-    wheelDiameter: ArchetypeBand.metres(
-      58 * ArchetypeUnits.INCH,
-      58 * ArchetypeUnits.INCH,
+    wheelDiameter: AutoMovieArchetypeBand.metres(
+      58 * AutoMovieArchetypeUnits.INCH,
+      58 * AutoMovieArchetypeUnits.INCH,
       `${WAGON}: hind wheels 4 ft 10 in high`,
     ),
-    track: ArchetypeBand.metres(
-      60 * ArchetypeUnits.INCH,
-      60 * ArchetypeUnits.INCH,
+    track: AutoMovieArchetypeBand.metres(
+      60 * AutoMovieArchetypeUnits.INCH,
+      60 * AutoMovieArchetypeUnits.INCH,
       `${WAGON}: to track 5 ft from centre to centre of the wheels`,
     ),
-    wheelbase: ArchetypeBand.metres(
-      73 * ArchetypeUnits.INCH,
-      73 * ArchetypeUnits.INCH,
+    wheelbase: AutoMovieArchetypeBand.metres(
+      73 * AutoMovieArchetypeUnits.INCH,
+      73 * AutoMovieArchetypeUnits.INCH,
       `${WAGON}: the centre of the king-bolt hole to the centre of the back axle-tree, 6 ft 1 in, the king-bolt standing over the front axle`,
     ),
-    poleLength: ArchetypeBand.metres(
-      128 * ArchetypeUnits.INCH,
-      128 * ArchetypeUnits.INCH,
+    poleLength: AutoMovieArchetypeBand.metres(
+      128 * AutoMovieArchetypeUnits.INCH,
+      128 * AutoMovieArchetypeUnits.INCH,
       `${WAGON}: the tongue, 10 ft 8 in long`,
     ),
-    length: ArchetypeBand.metres(
-      120 * ArchetypeUnits.INCH,
-      120 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      120 * AutoMovieArchetypeUnits.INCH,
+      120 * AutoMovieArchetypeUnits.INCH,
       `${WAGON}: the body 10 ft long at the bottom, inside`,
     ),
-    width: ArchetypeBand.metres(
-      42 * ArchetypeUnits.INCH,
-      42 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      42 * AutoMovieArchetypeUnits.INCH,
+      42 * AutoMovieArchetypeUnits.INCH,
       `${WAGON}: the body 3 ft 6 in wide, inside`,
     ),
-    bedDepth: ArchetypeBand.metres(
-      24 * ArchetypeUnits.INCH,
-      24 * ArchetypeUnits.INCH,
+    bedDepth: AutoMovieArchetypeBand.metres(
+      24 * AutoMovieArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
       `${WAGON}: the body 2 ft deep, inside`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      1950 * ArchetypeUnits.POUND,
-      1950 * ArchetypeUnits.POUND,
+      1950 * AutoMovieArchetypeUnits.POUND,
+      1950 * AutoMovieArchetypeUnits.POUND,
       `${WAGON}: weight of wagon about 1,950 pounds`,
     ),
   },
   carriage: {
-    wheelbase: ArchetypeBand.metres(
+    wheelbase: AutoMovieArchetypeBand.metres(
       ...spread("carriage", "wheelbase"),
       `${BROUGHAM}: the two read wheelbases, borrowed by the Peters brougham, whose record gives none`,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 400, 600, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      400,
+      600,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
 };

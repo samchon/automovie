@@ -11,11 +11,6 @@ import type { IAutoMovieMotionHumanDressPartner } from "./IAutoMovieMotionHumanD
  * is worn there from the arrival, and from then the bound parts keep the
  * places they had, within the link's slack, until a later grip takes the
  * restraint off.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is carried where, what the link binds and when it frees.
- * @evidence contracts/development/design.md#principled-representation The dressing of a partner plus the link the wear carries, so custody and binding are one record.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The dressing's members, the visit's pause for its hold, and one link.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A link naming both or neither end, or a bad slack, is refused at runtime by the law.
  */
 export interface IAutoMovieMotionHumanBindPartner extends Omit<
   IAutoMovieMotionHumanDressPartner,
@@ -28,16 +23,11 @@ export interface IAutoMovieMotionHumanBindPartner extends Omit<
   link: IAutoMovieMotionHumanBindPartner.ILink;
 }
 
-/**
- * Companion types of {@link IAutoMovieMotionHumanBindPartner}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the link's ends and length.
- * @evidence contracts/development/design.md#principled-representation The second end is a partner's region or a scene target, resolved to a bone or kept as the target.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One second end and one length.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Exactly one end is required.
- */
+/** Companion types of {@link IAutoMovieMotionHumanBindPartner}. */
 export namespace IAutoMovieMotionHumanBindPartner {
-  /** The second end of the binding and its slack. */
+  /**
+   * The second end of the binding and its slack.
+   */
   export interface ILink {
     /** The partner's other bound region, such as the other wrist; absent when the restraint binds to a target. */
     region?: AutoMovieHumanoidRegion;

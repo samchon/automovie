@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { StageBladeConstruction } from "./StageBladeConstruction";
 import type { createStageBladeProp } from "./createStageBladeProp";
 
@@ -12,7 +12,7 @@ import type { createStageBladeProp } from "./createStageBladeProp";
  * @param params The scene identity and optional display length in metres.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the capped digital prop and its hand contact.
  * @evidence contracts/development/implementation.md#principled-implementation Uses the shared capped display shaft with a form-owned guard and an explicit actor hand contact.
@@ -25,7 +25,7 @@ import type { createStageBladeProp } from "./createStageBladeProp";
 export function createStagePracticeSwordProp(
   params: createStagePracticeSwordProp.IParams = {},
   seed?: number | string,
-): Archetype<
+): AutoMovieArchetype<
   createStagePracticeSwordProp.Affordance,
   createStagePracticeSwordProp.Dimension
 > {

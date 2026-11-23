@@ -2,13 +2,13 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Concept2's published RowErg figures, read. */
@@ -23,7 +23,7 @@ const CONCEPT2: string =
  * @param params The legs and any dimension the author fixes.
  * @param seed The seed that draws the legs when they are not given and every dimension left free inside its band; absent, the standard legs and the middle of each band.
  * @returns The rowing machine.
- * @throws {ArchetypeRefusal} For legs Concept2 does not list or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For legs Concept2 does not list or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the machine stands, the way the rower faces and its four contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A rail box of the drawn length on two feet, a seat box on it at the picked legs' height, a flywheel box at the front, two stretcher plates turned back by a fixed tilt and a handle rod before them.
@@ -36,9 +36,12 @@ const CONCEPT2: string =
 export function createRowingMachine(
   params: createRowingMachine.IParams = {},
   seed?: number | string,
-): Archetype<createRowingMachine.Affordance, createRowingMachine.Dimension> {
-  const draw: ArchetypeDrawSession<createRowingMachine.Dimension> =
-    new ArchetypeDrawSession<createRowingMachine.Dimension>(
+): AutoMovieArchetype<
+  createRowingMachine.Affordance,
+  createRowingMachine.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createRowingMachine.Dimension> =
+    new AutoMovieArchetypeDrawSession<createRowingMachine.Dimension>(
       "rowingMachine",
       createRowingMachine.UNITS,
       seed,
@@ -57,10 +60,10 @@ export function createRowingMachine(
     seatHeight: legs.figures.seatHeight!,
     mass: legs.figures.mass!,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createRowingMachine.Affordance,
     createRowingMachine.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: `rowing machine on ${legs.name} legs`,
@@ -105,7 +108,7 @@ export function createRowingMachine(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright(v(0, d.seatHeight, sit)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.seatHeight, sit)),
     extent: null,
     depth: seat.depth,
     width: seat.width,
@@ -121,8 +124,8 @@ export function createRowingMachine(
   const stretch: number = front - 0.35;
   const normal: IAutoMovieVector3 = v(
     0,
-    Math.sin(tilt * ArchetypeUnits.DEGREE),
-    -Math.cos(tilt * ArchetypeUnits.DEGREE),
+    Math.sin(tilt * AutoMovieArchetypeUnits.DEGREE),
+    -Math.cos(tilt * AutoMovieArchetypeUnits.DEGREE),
   );
   for (const [id, sign] of [
     ["leftFoot", 1],
@@ -130,8 +133,10 @@ export function createRowingMachine(
   ] as const) {
     const centre: IAutoMovieVector3 = v(
       (sign * plate.width) / 2 + sign * 0.02,
-      top + (plate.height / 2) * Math.cos(tilt * ArchetypeUnits.DEGREE),
-      stretch + (plate.height / 2) * Math.sin(tilt * ArchetypeUnits.DEGREE),
+      top +
+        (plate.height / 2) * Math.cos(tilt * AutoMovieArchetypeUnits.DEGREE),
+      stretch +
+        (plate.height / 2) * Math.sin(tilt * AutoMovieArchetypeUnits.DEGREE),
     );
     builder.box(`${id}Plate`, v(plate.width, plate.height, 0.02), centre, {
       color: "#55595f",
@@ -140,7 +145,7 @@ export function createRowingMachine(
     builder.affordance({
       id,
       kind: "pedal",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.add(centre, Vector3.scale(normal, 0.01)),
         normal,
         v(1, 0, 0),
@@ -166,7 +171,7 @@ export function createRowingMachine(
     id: "handle",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, held, front - 0.32),
       v(0, 0, -1),
       v(1, 0, 0),
@@ -240,7 +245,9 @@ export namespace createRowingMachine {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     seatHeight: "m",
     length: "m",
     width: "m",
@@ -256,12 +263,12 @@ export namespace createRowingMachine {
     Record<Legs, Readonly<Partial<Record<Dimension, number>>>>
   > = {
     standard: {
-      seatHeight: 14 * ArchetypeUnits.INCH,
-      mass: 57 * ArchetypeUnits.POUND,
+      seatHeight: 14 * AutoMovieArchetypeUnits.INCH,
+      mass: 57 * AutoMovieArchetypeUnits.POUND,
     },
     tall: {
-      seatHeight: 20 * ArchetypeUnits.INCH,
-      mass: 68 * ArchetypeUnits.POUND,
+      seatHeight: 20 * AutoMovieArchetypeUnits.INCH,
+      mass: 68 * AutoMovieArchetypeUnits.POUND,
     },
   };
 
@@ -278,19 +285,19 @@ export namespace createRowingMachine {
 
   /** The band of each free dimension. */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "seatHeight" | "mass">, IArchetypeBand>
+    Record<Exclude<Dimension, "seatHeight" | "mass">, IAutoMovieArchetypeBand>
   > = {
-    length: ArchetypeBand.metres(
-      96 * ArchetypeUnits.INCH,
-      96 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      96 * AutoMovieArchetypeUnits.INCH,
+      96 * AutoMovieArchetypeUnits.INCH,
       `${CONCEPT2}: 96 in long`,
     ),
-    width: ArchetypeBand.metres(
-      24 * ArchetypeUnits.INCH,
-      24 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      24 * AutoMovieArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
       `${CONCEPT2}: 2 ft wide`,
     ),
-    handleWidth: ArchetypeBand.metres(
+    handleWidth: AutoMovieArchetypeBand.metres(
       0.45,
       0.55,
       "Concept2's page read gives no handle width",

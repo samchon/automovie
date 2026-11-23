@@ -246,10 +246,7 @@ function MotionCard(props: {
         </span>
         <span className="am-motion-card-name">{entry.name}</span>
         <span className="am-motion-card-facts">
-          {entry.parameters === 0
-            ? "no parameters"
-            : `${entry.parameters} parameter${entry.parameters === 1 ? "" : "s"}${entry.required === 0 ? "" : `, ${entry.required} required`}`}
-          {entry.poster?.kind === "scene" ? " · in a scene" : ""}
+          {entry.poster?.kind === "scene" ? "in a scene" : ""}
         </span>
       </a>
     </li>

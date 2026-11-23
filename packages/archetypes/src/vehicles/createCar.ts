@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { CAR_BANDS } from "./CAR_BANDS";
 import { CAR_MODELS } from "./CAR_MODELS";
@@ -20,7 +20,7 @@ import { CarRear } from "./CarRear";
  * @param params The class, its read model and tyre, the driving side and any dimension the author fixes.
  * @param seed The seed that picks the model and its tyre and draws every dimension left free inside its band; absent, the first model and tyre, and each dimension the middle of its band.
  * @returns The car.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band or one the class lacks, or a model or tyre the class does not offer.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or one the class lacks, or a model or tyre the class does not offer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the car's origin and front, why the body is open, which side the driver is on, what each class carries and what the affordances cover.
  * @evidence contracts/development/implementation.md#principled-implementation Pick one read model of the class whole and one of its tyres (`CAR_MODELS`, `ArchetypeDraw.model`), so no car mixes two models' figures, draw the remaining dimensions with the model's own ranges, lay the body out once (`CarBody.layout`), then build the shell (`CarBody`), the class's rear (`CarRear`), the wheels, the doors, the seats and the controls on that layout. The interior is laid out from the driver's seating reference point as SAE J1100 does.
@@ -33,9 +33,9 @@ import { CarRear } from "./CarRear";
 export function createCar(
   params: createCar.IParams,
   seed?: number | string,
-): Archetype<createCar.Affordance, createCar.Dimension> {
-  const draw: ArchetypeDrawSession<createCar.Dimension> =
-    new ArchetypeDrawSession<createCar.Dimension>(
+): AutoMovieArchetype<createCar.Affordance, createCar.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createCar.Dimension> =
+    new AutoMovieArchetypeDrawSession<createCar.Dimension>(
       "car",
       createCar.UNITS,
       seed,
@@ -79,13 +79,15 @@ export function createCar(
     ...model.figures,
     ...fitted.figures,
   };
-  const builder: ArchetypeBuilder<createCar.Affordance, createCar.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createCar.Affordance,
+    createCar.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: kind,
+    draw,
+  });
   const layout: CarBody.ILayout = CarBody.layout(kind, side, d);
   CarBody.shell(builder, layout);
   CarRear.build(builder, layout);
@@ -208,7 +210,7 @@ export namespace createCar {
     wheelbase: number,
     side: number,
   ): number {
-    const tangent: number = Math.tan(centre * ArchetypeUnits.DEGREE);
+    const tangent: number = Math.tan(centre * AutoMovieArchetypeUnits.DEGREE);
     return (
       (Math.atan2(wheelbase * tangent, wheelbase - side * tangent) * 180) /
       Math.PI
@@ -331,7 +333,9 @@ export namespace createCar {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     height: "m",
@@ -399,6 +403,6 @@ export namespace createCar {
 
   /** The band of each free dimension, by class; a model's own figures and ranges are `CAR_MODELS`'s. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = CAR_BANDS;
 }

@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  type ArchetypeDrawSession,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeDrawSession,
 } from "../core";
-import { QuadrupedBody } from "./QuadrupedBody";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /**
  * Build a non-equid prototype from its declared dimensions and coarse body.
@@ -26,18 +26,27 @@ import { QuadrupedBody } from "./QuadrupedBody";
  */
 export function QuadrupedAnimal<Id extends string>(
   props: QuadrupedAnimal.IProps<Id>,
-): Archetype<Id, QuadrupedBody.Dimension> {
-  const dimensions: Readonly<Partial<Record<QuadrupedBody.Dimension, number>>> =
-    props.draw.values;
-  const rig: QuadrupedBody.IRig = QuadrupedBody.rig(props.body, dimensions);
-  const builder: ArchetypeBuilder<Id, QuadrupedBody.Dimension> =
-    new ArchetypeBuilder({
-      id: props.id,
-      name: props.name,
-      draw: props.draw,
-      material: "skin",
-    });
-  QuadrupedBody.lay(props.body, builder, dimensions.withersHeight!, rig);
+): AutoMovieArchetype<Id, AutoMovieArchetypeQuadrupedBody.Dimension> {
+  const dimensions: Readonly<
+    Partial<Record<AutoMovieArchetypeQuadrupedBody.Dimension, number>>
+  > = props.draw.values;
+  const rig: AutoMovieArchetypeQuadrupedBody.IRig =
+    AutoMovieArchetypeQuadrupedBody.rig(props.body, dimensions);
+  const builder: AutoMovieArchetypeBuilder<
+    Id,
+    AutoMovieArchetypeQuadrupedBody.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    id: props.id,
+    name: props.name,
+    draw: props.draw,
+    material: "skin",
+  });
+  AutoMovieArchetypeQuadrupedBody.lay(
+    props.body,
+    builder,
+    dimensions.withersHeight!,
+    rig,
+  );
   props.add?.(builder, rig);
   return builder.build(dimensions.mass!, { rests: props.body.foot });
 }
@@ -48,7 +57,7 @@ export function QuadrupedAnimal<Id extends string>(
  * @evidence contracts/development/common.md#meaningful-documentation Every input states its ownership and unit.
  * @evidence contracts/development/design.md#principled-representation One body profile and its existing dimension draw session.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Adds no species registry or alternative geometry representation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback adds actual parts and contacts to the same physical model.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The callback adds parts and contacts to the same physical model.
  */
 export namespace QuadrupedAnimal {
   /** One producer's complete construction input. */
@@ -58,13 +67,16 @@ export namespace QuadrupedAnimal {
     /** Human-readable prototype name. */
     name: string;
     /** Already admitted metres, kilograms and dimensionless tempo. */
-    draw: ArchetypeDrawSession<QuadrupedBody.Dimension>;
+    draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeQuadrupedBody.Dimension>;
     /** Coarse proportions, with any unknown physical fields left absent. */
-    body: QuadrupedBody.IBody;
+    body: AutoMovieArchetypeQuadrupedBody.IBody;
     /** Add the species' identifying parts and authored tack to this model. */
     add?: (
-      builder: ArchetypeBuilder<Id, QuadrupedBody.Dimension>,
-      rig: QuadrupedBody.IRig,
+      builder: AutoMovieArchetypeBuilder<
+        Id,
+        AutoMovieArchetypeQuadrupedBody.Dimension
+      >,
+      rig: AutoMovieArchetypeQuadrupedBody.IRig,
     ) => void;
   }
 }

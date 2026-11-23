@@ -1,9 +1,9 @@
 import {
-  Archetype,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { LIGHT_BANDS } from "./LIGHT_BANDS";
 import { createCandle } from "./createCandle";
@@ -16,7 +16,7 @@ import { createStandingLamp } from "./createStandingLamp";
 type Producer = (
   params: createLight.IParams,
   seed?: number | string,
-) => Archetype<createLight.Affordance, createLight.Dimension>;
+) => AutoMovieArchetype<createLight.Affordance, createLight.Dimension>;
 
 /**
  * Replay a saved light variant with the original dimensions, identifier and model choices.
@@ -24,7 +24,7 @@ type Producer = (
  * @param params The historic selector and optional fixed settings in the original units.
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
- * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved light variant with the original dimensions, identifier and model choices.
  * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the light draw namespace.
@@ -37,7 +37,7 @@ type Producer = (
 export function createLight(
   params: createLight.IParams,
   seed?: number | string,
-): Archetype<createLight.Affordance, createLight.Dimension> {
+): AutoMovieArchetype<createLight.Affordance, createLight.Dimension> {
   const kind: createLight.Kind = ArchetypeDraw.choice(
     "light",
     "kind",
@@ -122,7 +122,7 @@ export namespace createLight {
   ];
 
   /** A lantern's globe across its top, metres: Dietz's 2 3/8 in, the width its cap is drawn at. */
-  export const GLOBE_TOP: number = (2 + 3 / 8) * ArchetypeUnits.INCH;
+  export const GLOBE_TOP: number = (2 + 3 / 8) * AutoMovieArchetypeUnits.INCH;
 
   /**
    * A lantern's parts no source read sizes, metres, provisional estimates: `fount`, the burner's height over the floor, where the globe stands and the flame burns; `wire`, the bail's wire across, the hooked grip's aperture. The search 'Dietz No. 20 Junior lantern fount height inches dimensions bail' found the lantern's height, base, globe, fount capacity and a bail-up height, neither of these.
@@ -185,7 +185,9 @@ export namespace createLight {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     diameter: "m",
     headDiameter: "m",
@@ -210,6 +212,6 @@ export namespace createLight {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = LIGHT_BANDS;
 }

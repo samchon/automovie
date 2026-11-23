@@ -1,4 +1,8 @@
-import { Archetype, ArchetypeBuilder, ArchetypeDrawSession } from "../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+} from "../core";
 import { createProjectile } from "./createProjectile";
 
 /** The readable name of each kind. */
@@ -18,11 +22,11 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
  * The stored model record and original draw session preserve the silhouette's scene identity, size and material.
  *
  * @param kind The historical profile label.
- * @param build The shape builder for the chosen profile, with its actual resolved dimensions.
+ * @param build The shape builder for the chosen profile, with its resolved dimensions.
  * @param params The model choice, admitted dimensions and scene identifier.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the source record and digital display callback.
  * @evidence contracts/development/implementation.md#principled-implementation Resolves model and admitted band values, and then asks the selected visual profile to emit its body and named contacts.
@@ -37,9 +41,9 @@ export function StageTokenConstruction(
   params: Omit<createProjectile.IParams, "kind">,
   seed: number | string | undefined,
   build: StageTokenConstruction.Build,
-): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
-  const draw: ArchetypeDrawSession<createProjectile.Dimension> =
-    new ArchetypeDrawSession<createProjectile.Dimension>(
+): AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createProjectile.Dimension> =
+    new AutoMovieArchetypeDrawSession<createProjectile.Dimension>(
       "projectile",
       createProjectile.UNITS,
       seed,
@@ -66,10 +70,10 @@ export function StageTokenConstruction(
       "diameter",
       Math.cbrt((6 * d.mass!) / (Math.PI * d.gravity! * 1000)),
     );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createProjectile.Affordance,
     createProjectile.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material:
       kind === "ball"
         ? "lead"
@@ -96,11 +100,14 @@ export function StageTokenConstruction(
 export namespace StageTokenConstruction {
   /** Builds one digital silhouette and its existing metadata. */
   export type Build = (
-    builder: ArchetypeBuilder<
+    builder: AutoMovieArchetypeBuilder<
       createProjectile.Affordance,
       createProjectile.Dimension
     >,
     d: Readonly<Partial<Record<createProjectile.Dimension, number>>>,
     model: createProjectile.Model | undefined,
-  ) => Archetype<createProjectile.Affordance, createProjectile.Dimension>;
+  ) => AutoMovieArchetype<
+    createProjectile.Affordance,
+    createProjectile.Dimension
+  >;
 }

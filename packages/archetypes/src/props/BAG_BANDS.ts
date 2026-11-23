@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createBag } from "./createBag";
 
 /** Tote sizes and handle lengths from a maker's listing seen in search results. */
@@ -38,7 +42,7 @@ const TOOLBOX: string =
   "Stanley 19 in Essential toolbox STST1-75520, 48.2 x 25.4 x 25 cm (https://www.stanleytools.co.uk/product/stst1-75520/stanley-19-essential-tool-box); its 1.5 kg seen only in search results";
 
 /** The NIOSH optimal handle's diameters, metres, applied to a cased or carried bag's handle bar. */
-const NIOSH_HANDLE: IArchetypeBand = ArchetypeBand.metres(
+const NIOSH_HANDLE: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.019,
   0.038,
   NIOSH,
@@ -46,7 +50,7 @@ const NIOSH_HANDLE: IArchetypeBand = ArchetypeBand.metres(
 );
 
 /** The same diameters applied to a strap's webbing. */
-const NIOSH_WEBBING: IArchetypeBand = ArchetypeBand.metres(
+const NIOSH_WEBBING: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   NIOSH_HANDLE.minimum,
   NIOSH_HANDLE.maximum,
   WEBBING,
@@ -56,59 +60,70 @@ const NIOSH_WEBBING: IArchetypeBand = ArchetypeBand.metres(
 /** The band of each free dimension of `createBag`, by kind, with the sources they are read at: kept apart from the producer so each file stays within its size. */
 export const BAG_BANDS: typeof createBag.BANDS = {
   tote: {
-    width: ArchetypeBand.metres(
-      9.5 * ArchetypeUnits.INCH,
-      17 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      9.5 * AutoMovieArchetypeUnits.INCH,
+      17 * AutoMovieArchetypeUnits.INCH,
       TOTE,
       true,
     ),
-    height: ArchetypeBand.metres(
-      10.5 * ArchetypeUnits.INCH,
-      15 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      10.5 * AutoMovieArchetypeUnits.INCH,
+      15 * AutoMovieArchetypeUnits.INCH,
       TOTE,
       true,
     ),
-    depth: ArchetypeBand.metres(
-      5 * ArchetypeUnits.INCH,
-      7.5 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(
+      5 * AutoMovieArchetypeUnits.INCH,
+      7.5 * AutoMovieArchetypeUnits.INCH,
       TOTE,
       true,
     ),
-    handleDrop: ArchetypeBand.metres(
-      6 * ArchetypeUnits.INCH,
-      8 * ArchetypeUnits.INCH,
+    handleDrop: AutoMovieArchetypeBand.metres(
+      6 * AutoMovieArchetypeUnits.INCH,
+      8 * AutoMovieArchetypeUnits.INCH,
       TOTE,
       true,
     ),
-    strapDrop: ArchetypeBand.metres(
-      21.75 * ArchetypeUnits.INCH,
-      25 * ArchetypeUnits.INCH,
+    strapDrop: AutoMovieArchetypeBand.metres(
+      21.75 * AutoMovieArchetypeUnits.INCH,
+      25 * AutoMovieArchetypeUnits.INCH,
       STRAP,
       true,
     ),
     handleDiameter: NIOSH_WEBBING,
-    mass: ArchetypeBand.of("kg", 0.4, 0.9, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      0.4,
+      0.9,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   backpack: {
-    width: ArchetypeBand.metres(0.27, 13 * ArchetypeUnits.INCH, BACKPACK, true),
-    height: ArchetypeBand.metres(
-      0.38,
-      16.7 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      0.27,
+      13 * AutoMovieArchetypeUnits.INCH,
       BACKPACK,
       true,
     ),
-    depth: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(
+      0.38,
+      16.7 * AutoMovieArchetypeUnits.INCH,
+      BACKPACK,
+      true,
+    ),
+    depth: AutoMovieArchetypeBand.metres(
       0.13,
-      8.5 * ArchetypeUnits.INCH,
+      8.5 * AutoMovieArchetypeUnits.INCH,
       BACKPACK,
       true,
     ),
     handleDiameter: NIOSH_WEBBING,
-    mass: ArchetypeBand.of("kg", 0.3, 0.3, BACKPACK, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.3, BACKPACK, true),
   },
   suitcase: {
     handleDiameter: NIOSH_HANDLE,
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       3.2,
       4.3,
@@ -117,47 +132,47 @@ export const BAG_BANDS: typeof createBag.BANDS = {
     ),
   },
   briefcase: {
-    width: ArchetypeBand.metres(0.415, 0.452, ATTACHE, true),
-    height: ArchetypeBand.metres(0.35, 0.394, ATTACHE, true),
-    depth: ArchetypeBand.metres(0.085, 0.147, ATTACHE, true),
+    width: AutoMovieArchetypeBand.metres(0.415, 0.452, ATTACHE, true),
+    height: AutoMovieArchetypeBand.metres(0.35, 0.394, ATTACHE, true),
+    depth: AutoMovieArchetypeBand.metres(0.085, 0.147, ATTACHE, true),
     handleDiameter: NIOSH_HANDLE,
-    mass: ArchetypeBand.of("kg", 2.3, 2.95, ATTACHE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 2.3, 2.95, ATTACHE, true),
   },
   toolbox: {
-    width: ArchetypeBand.metres(0.482, 0.482, TOOLBOX),
-    height: ArchetypeBand.metres(0.25, 0.25, TOOLBOX),
-    depth: ArchetypeBand.metres(0.254, 0.254, TOOLBOX),
+    width: AutoMovieArchetypeBand.metres(0.482, 0.482, TOOLBOX),
+    height: AutoMovieArchetypeBand.metres(0.25, 0.25, TOOLBOX),
+    depth: AutoMovieArchetypeBand.metres(0.254, 0.254, TOOLBOX),
     handleDiameter: NIOSH_HANDLE,
-    mass: ArchetypeBand.of("kg", 1.5, 1.5, TOOLBOX, true),
+    mass: AutoMovieArchetypeBand.of("kg", 1.5, 1.5, TOOLBOX, true),
   },
   handbag: {
-    width: ArchetypeBand.metres(0.3, 0.3, HANDBAG),
-    height: ArchetypeBand.metres(0.28, 0.28, HANDBAG),
-    depth: ArchetypeBand.metres(0.2, 0.2, HANDBAG),
-    handleDrop: ArchetypeBand.metres(0.11, 0.12, HANDBAG, true),
+    width: AutoMovieArchetypeBand.metres(0.3, 0.3, HANDBAG),
+    height: AutoMovieArchetypeBand.metres(0.28, 0.28, HANDBAG),
+    depth: AutoMovieArchetypeBand.metres(0.2, 0.2, HANDBAG),
+    handleDrop: AutoMovieArchetypeBand.metres(0.11, 0.12, HANDBAG, true),
     handleDiameter: NIOSH_HANDLE,
-    mass: ArchetypeBand.of("kg", 0.24, 0.24, HANDBAG, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.24, 0.24, HANDBAG, true),
   },
   duffel: {
-    width: ArchetypeBand.metres(
-      25 * ArchetypeUnits.INCH,
-      25 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      25 * AutoMovieArchetypeUnits.INCH,
+      25 * AutoMovieArchetypeUnits.INCH,
       DUFFEL,
       true,
     ),
-    height: ArchetypeBand.metres(
-      14 * ArchetypeUnits.INCH,
-      14 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      14 * AutoMovieArchetypeUnits.INCH,
+      14 * AutoMovieArchetypeUnits.INCH,
       DUFFEL,
       true,
     ),
-    depth: ArchetypeBand.metres(
-      14 * ArchetypeUnits.INCH,
-      14 * ArchetypeUnits.INCH,
+    depth: AutoMovieArchetypeBand.metres(
+      14 * AutoMovieArchetypeUnits.INCH,
+      14 * AutoMovieArchetypeUnits.INCH,
       DUFFEL,
       true,
     ),
     handleDiameter: NIOSH_HANDLE,
-    mass: ArchetypeBand.of("kg", 1.62, 1.62, DUFFEL, true),
+    mass: AutoMovieArchetypeBand.of("kg", 1.62, 1.62, DUFFEL, true),
   },
 };

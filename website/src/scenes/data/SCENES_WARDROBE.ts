@@ -18,7 +18,7 @@ export const SCENES_WARDROBE: readonly IScene[] = [
     "wardrobe-change",
     [
       person("actor", "m1", 0, 0, 0, [
-        act("stand", { seconds: 0.3 }),
+        act("stand", { hold: 0.3 }),
         act("pickUp", {
           prop: "jacket",
           handle: "hold",
@@ -34,7 +34,7 @@ export const SCENES_WARDROBE: readonly IScene[] = [
           hand: "left",
           lift: 0.04,
         }),
-        act("sit", { seat: seat("chair"), seconds: 0.8 }),
+        act("sit", { seat: seat("chair"), hold: 0.8 }),
         act("wardrobe", {
           kind: "footwearOn",
           prop: "shoe",
@@ -42,8 +42,8 @@ export const SCENES_WARDROBE: readonly IScene[] = [
           hand: "left",
         }),
         act("rise"),
-        act("stand", { seconds: 0.35 }),
-        act("sit", { seat: seat("chair"), seconds: 0.8 }),
+        act("stand", { hold: 0.35 }),
+        act("sit", { seat: seat("chair"), hold: 0.8 }),
         act("wardrobe", {
           kind: "footwearOff",
           prop: "shoe",
@@ -53,7 +53,7 @@ export const SCENES_WARDROBE: readonly IScene[] = [
         act("rise"),
         act("putDown", {
           prop: "shoe",
-          at: { x: 0.43, y: 0.73, z: 0.25 },
+          to: { x: 0.43, y: 0.73, z: 0.25 },
           hand: "left",
         }),
         act("wardrobe", { kind: "openZip", prop: "jacket", side: "right" }),
@@ -67,7 +67,7 @@ export const SCENES_WARDROBE: readonly IScene[] = [
         }),
         act("putDown", {
           prop: "jacket",
-          at: { x: 0, y: 1.06, z: 0.24 },
+          to: { x: 0, y: 1.06, z: 0.24 },
           hand: "left",
         }),
         act("walk", { to: to(0.65, 0.4) }),

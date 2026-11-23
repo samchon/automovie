@@ -1,15 +1,15 @@
 import {
-  ArchetypeCourse,
-  ArchetypeRefusal,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
   createCart,
-  ArchetypeRide,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { vclose } from "../internal/predicates";
 
 /** A 200 m straight entered and left at 10 m/s under a 12 m/s cruise. */
-const FLYING: ArchetypeCourse.ICourse = {
+const FLYING: AutoMovieArchetypeCourse.ICourse = {
   start: { x: 0, z: 0, heading: 0 },
   legs: [{ kind: "straight", length: 200 }],
   cruise: 12,
@@ -35,12 +35,16 @@ const FLYING: ArchetypeCourse.ICourse = {
  */
 export function test_archetype_ride_course_flying(): void {
   const findings: string[] = [];
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", FLYING);
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    FLYING,
+  );
 
   // 1. Moving at both ends.
   const up: number = (12 - 10) / 2;
   const down: number = (12 - 10) / 3;
-  const level: number = (200 - ((10 + 12) * up) / 2 - ((12 + 10) * down) / 2) / 12;
+  const level: number =
+    (200 - ((10 + 12) * up) / 2 - ((12 + 10) * down) / 2) / 12;
   if (Math.abs(plan.duration - (up + level + down)) > 1e-9)
     findings.push(`running time ${plan.duration}`);
   if (
@@ -51,12 +55,15 @@ export function test_archetype_ride_course_flying(): void {
     findings.push("speeds at the ends and in the middle");
 
   // 2. A delayed start.
-  const delayed: ArchetypeCourse.IPlan = ArchetypeCourse.plan("test", {
-    ...FLYING,
-    at: 4,
-  });
+  const delayed: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "test",
+    {
+      ...FLYING,
+      at: 4,
+    },
+  );
   for (const t of [0, 2, 4 - 1e-9]) {
-    const state: ArchetypeCourse.IState = delayed.at(t);
+    const state: AutoMovieArchetypeCourse.IState = delayed.at(t);
     if (state.distance !== 0 || state.speed !== 0)
       findings.push(`before its start the support moves at ${t} s`);
   }
@@ -71,7 +78,9 @@ export function test_archetype_ride_course_flying(): void {
         1e-9,
       )
     )
-      findings.push(`the delayed course at ${t} s is not the course at ${t - 4} s`);
+      findings.push(
+        `the delayed course at ${t} s is not the course at ${t - 4} s`,
+      );
   if (
     delayed.instants.length !== plan.instants.length ||
     delayed.instants.some(
@@ -81,13 +90,13 @@ export function test_archetype_ride_course_flying(): void {
     )
   )
     findings.push("the delayed instants are not shifted by 4 s");
-  const ride: ArchetypeRide.IRide<
+  const ride: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.along(
-    createCart({ kind: "trolley" }, 1),
-    { ...FLYING, at: 4 },
-  );
+  > = AutoMovieArchetypeRide.along(createCart({ kind: "trolley" }, 1), {
+    ...FLYING,
+    at: 4,
+  });
   if (
     !vclose(ride.at(2).placement.translation, { x: 0, y: 0, z: 0 }, 1e-12) ||
     Math.abs(ride.duration - delayed.duration) > 1e-12
@@ -105,17 +114,21 @@ export function test_archetype_ride_course_flying(): void {
   ] as const) {
     let thrown: unknown = null;
     try {
-      ArchetypeCourse.plan("test", course);
+      AutoMovieArchetypeCourse.plan("test", course);
     } catch (error) {
       thrown = error;
     }
     if (
-      !(thrown instanceof ArchetypeRefusal) ||
+      !(thrown instanceof AutoMovieArchetypeRefusal) ||
       thrown.axis !== axis ||
       thrown.feasible?.kind !== "range" ||
       Math.abs(thrown.feasible.maximum! - maximum) > 1e-12
     )
       findings.push(`expected a refusal at ${axis}, got ${String(thrown)}`);
   }
-  TestValidator.equals("a course starts and ends where it is asked", findings, []);
+  TestValidator.equals(
+    "a course starts and ends where it is asked",
+    findings,
+    [],
+  );
 }

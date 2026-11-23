@@ -78,7 +78,7 @@ export namespace thrown {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrown.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { distance, height } = context.params;
-    const lie: number = context.params.seconds ?? 1;
+    const lie: number = context.params.hold ?? 1;
     for (const [axis, value] of [
       ["distance", distance],
       ["height", height],
@@ -100,7 +100,7 @@ export namespace thrown {
     if (!(lie >= 0))
       throw new HumanRefusal({
         kind: "parameter",
-        axis: "seconds",
+        axis: "hold",
         value: lie,
         feasible: {
           kind: "range",
@@ -120,7 +120,7 @@ export namespace thrown {
     const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
       ReactionSource.at(
         context,
-        context.params.from,
+        context.params.target,
         context.start - StrikingTarget.LOOK,
         entry,
         AutoMovieMotionHumanTarget.DEFAULTS.ahead,

@@ -1,11 +1,11 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
 } from "../core";
 
 /**
@@ -15,7 +15,7 @@ import {
  *
  * @param params The kind, any dimension the author fixes, and the load's mass.
  * @returns The load at rest.
- * @throws {ArchetypeRefusal} For a nonpositive dimension or mass.
+ * @throws {AutoMovieArchetypeRefusal} For a nonpositive dimension or mass.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind stands, its contacts and that its sizes are estimates.
  * @evidence contracts/development/implementation.md#principled-implementation Each kind is laid from bars and boxes on the ground plane with its contacts on the parts that bear them.
@@ -27,12 +27,12 @@ import {
  */
 export function createDragged(
   params: createDragged.IParams,
-): Archetype<createDragged.Affordance, createDragged.Dimension> {
+): AutoMovieArchetype<createDragged.Affordance, createDragged.Dimension> {
   const d: Record<createDragged.Dimension, number> = {
     ...createDragged.SIZES[params.kind],
   };
-  const draw: ArchetypeDrawSession<createDragged.Dimension> =
-    new ArchetypeDrawSession<createDragged.Dimension>(
+  const draw: AutoMovieArchetypeDrawSession<createDragged.Dimension> =
+    new AutoMovieArchetypeDrawSession<createDragged.Dimension>(
       "dragged",
       createDragged.UNITS,
       undefined,
@@ -43,7 +43,7 @@ export function createDragged(
     const value: number = params[key] ?? d[key];
     d[key] = value;
     if (!(Number.isFinite(value) && value > 0))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "dragged",
         axis: key,
@@ -63,10 +63,10 @@ export function createDragged(
     y,
     z,
   });
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createDragged.Affordance,
     createDragged.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: params.kind,
@@ -91,7 +91,7 @@ export function createDragged(
         id: side === "left" ? "leftHandle" : "rightHandle",
         kind: "bar",
         symmetry: "round",
-        frame: ArchetypeFrame.upright(
+        frame: AutoMovieArchetypeFrame.upright(
           v((sign * d.handleSpread) / 2, d.handleHeight, -front),
         ),
         extent: null,
@@ -103,7 +103,7 @@ export function createDragged(
     builder.affordance({
       id: "share",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
       extent: null,
       width: d.width,
       depth: 0.35,
@@ -151,7 +151,7 @@ export function createDragged(
     builder.affordance({
       id: "bed",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, d.height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, d.height, 0)),
       extent: null,
       width: d.width,
       depth: d.length * 0.9,
@@ -160,7 +160,7 @@ export function createDragged(
   builder.affordance({
     id: "coupling",
     kind: "hook",
-    frame: ArchetypeFrame.upright(v(0, hitch, front)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, hitch, front)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -204,7 +204,9 @@ export namespace createDragged {
   }
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     height: "m",

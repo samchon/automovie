@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -32,7 +32,7 @@ const SIZES: Readonly<Record<createPalette.Kind, createPalette.ISize>> = {
  *
  * @param params The kind and the optional scene id.
  * @returns The board and its contacts, metres.
- * @throws {ArchetypeRefusal} For a kind outside the set.
+ * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the kinds, the frame and both contacts.
  * @evidence contracts/development/implementation.md#principled-implementation One slab with its hold at the edge and its working face over the rest.
@@ -44,7 +44,7 @@ const SIZES: Readonly<Record<createPalette.Kind, createPalette.ISize>> = {
  */
 export function createPalette(
   params: createPalette.IParams,
-): Archetype<createPalette.Affordance, createPalette.Dimension> {
+): AutoMovieArchetype<createPalette.Affordance, createPalette.Dimension> {
   const kind: createPalette.Kind = ArchetypeDraw.choice(
     "palette",
     "kind",
@@ -53,8 +53,8 @@ export function createPalette(
   );
   const size: createPalette.ISize = SIZES[kind];
   const v: typeof Vector3.create = Vector3.create;
-  const draw: ArchetypeDrawSession<createPalette.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createPalette.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       kind,
       { width: "m", depth: "m", mass: "kg" },
       undefined,
@@ -62,10 +62,10 @@ export function createPalette(
   draw.derive("width", size.width);
   draw.derive("depth", size.depth);
   draw.derive("mass", size.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createPalette.Affordance,
     createPalette.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? kind,
     name: kind,
     material: kind === "palette" ? "wood" : "felt",
@@ -79,7 +79,7 @@ export function createPalette(
     id: "hold",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(edge, -size.thickness / 2, 0),
       v(0, -1, 0),
       v(0, 0, 1),
@@ -93,7 +93,7 @@ export function createPalette(
   builder.affordance({
     id: "face",
     kind: "surface",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       v(size.width / 2 - span / 2, size.thickness / 2, 0),
     ),
     extent: null,

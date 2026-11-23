@@ -2,20 +2,15 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type ArchetypeBuilder,
-  ArchetypeFrame,
-  type ArchetypeFriction,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeFriction,
 } from "../core";
 import { CartWheel } from "./CartWheel";
 import { createCart } from "./createCart";
 
 /**
  * The drawn carriers on two axles: a wagon and a closed carriage, each with its rear axle along `X` under the origin and its front axle turning about a pivot `wheelbase` ahead, carrying the pole.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what it builds and where the axles stand.
- * @evidence contracts/development/design.md#principled-representation One running gear for both: a rear pair, a front pair on a two-sided `wheel` articulation, and the pole on it; each body on that gear.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two builders `createCart` calls for its four-wheeled kinds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The running gear is one helper, not a copy per kind.
  */
 export namespace CartCoach {
   /**
@@ -23,17 +18,12 @@ export namespace CartCoach {
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The specification's wheels, track, king-bolt station and tongue on the running gear, the tongue's end hanging `WAGON.drop` above the ground; the body's inside length, width and depth, its floor `WAGON.bed` above the hind axle, centred between the axles; the `bed` affordance on its floor. The hind wheels have fourteen spokes and the front twelve, as specified, and iron tyres: the specification's tyre, 2.5 in wide and 5/8 in thick, is bolted through each felloe, as only a metal tyre is (p. 1), so the wagon rests on iron, measured against stone.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Running gear, then the body.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The body's floor height and the front axle's lock are named provisional values; the cover, the bows and the feed trough are not built.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About forty parts, most of them spokes.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wagon(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -83,7 +73,7 @@ export namespace CartCoach {
     builder.affordance({
       id: "bed",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, middle)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, floor, middle)),
       extent: null,
       width,
       depth: length,
@@ -95,17 +85,12 @@ export namespace CartCoach {
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built and where each place comes from.
-   * @evidence contracts/development/implementation.md#principled-implementation The museum broughams' wheels, wheelbase, length, width and height; the track the width less `CARRIAGE.hubs`; the carriage centred on its wheelbase; the closed body from the rear to just behind the front wheels' reach, its roof at `height`, a door on each side in its middle with the opening behind it, as `createCar`'s doors are, and a forward-facing seat across its back; the driver's `box` over the front axle.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Running gear, the body, the doors, the seats.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The track, the floor, the seats, the doors, the pole and the lock are named provisional values (`CARRIAGE`); the lamps, the glass and the springs are not built.
-   * @evidence contracts/development/implementation.md#efficient-algorithms About forty parts, most of them spokes.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function carriage(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -179,7 +164,7 @@ export namespace CartCoach {
       builder.affordance({
         id: `${side}Door`,
         kind: "hinge",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(x, c.floor + c.door.height / 2, hinge),
           v(0, -sign, 0),
           v(0, 0, -1),
@@ -191,7 +176,7 @@ export namespace CartCoach {
       builder.affordance({
         id: `${side}Aperture`,
         kind: "aperture",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(x, c.floor, middle),
           v(0, 1, 0),
           v(0, 0, sign),
@@ -213,7 +198,7 @@ export namespace CartCoach {
     builder.affordance({
       id: "seat",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, seat, rear + 0.55)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, seat, rear + 0.55)),
       extent: null,
       depth: 0.5,
       width: 2 * half - 0.1,
@@ -225,7 +210,7 @@ export namespace CartCoach {
     builder.affordance({
       id: "box",
       kind: "seat",
-      frame: ArchetypeFrame.upright(v(0, c.box, wheelbase + 0.225)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, c.box, wheelbase + 0.225)),
       extent: null,
       depth: 0.45,
       width: 1,
@@ -240,7 +225,7 @@ export namespace CartCoach {
         id: `${side}LineGrip`,
         kind: "rein",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(
             (sign * BOX_HANDS.apart) / 2,
             c.box + createCart.REST.elbow,
@@ -275,14 +260,17 @@ const WOOD: string = "#8b6a43";
 const CLOTH: string = "#6b2f2f";
 
 /**
- * Add the running gear: the rear pair under the origin and a steering front axle wheelbase ahead. The fixed-length pole pitches on the actual front axle through drawbarPitch, riding frontAxle; its coupling rides that pitch. The ±180 degree travel is a principal-angle representation chart, not a measured mechanical limit or load rating.
+ * Add the running gear: the rear pair under the origin and a steering front axle wheelbase ahead. The fixed-length pole pitches on the front axle through drawbarPitch, riding frontAxle; its coupling rides that pitch. The ±180 degree travel is a principal-angle representation chart, not a measured mechanical limit or load rating.
  *
  * @param builder The carrier under construction.
  * @param d The drawn dimensions: `wheelDiameter`, `frontWheelDiameter` and `wheelbase` are read.
  * @param gear The track, the pole's length and its end's height at rest, the lock, the front and rear spoke counts, and the tyres' material where a source gives it.
  */
 function gear(
-  builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+  builder: AutoMovieArchetypeBuilder<
+    createCart.Affordance,
+    createCart.Dimension
+  >,
   d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   gear: {
     track: number;
@@ -290,7 +278,7 @@ function gear(
     tip: number;
     lock: number;
     spokes: readonly [number, number];
-    surface?: ArchetypeFriction.Material;
+    surface?: AutoMovieArchetypeFriction.Material;
   },
 ): void {
   const v: typeof Vector3.create = Vector3.create;
@@ -321,7 +309,7 @@ function gear(
   builder.affordance({
     id: "frontAxle",
     kind: "wheel",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, front, wheelbase),
       v(0, 1, 0),
       v(0, 0, 1),
@@ -333,7 +321,7 @@ function gear(
   builder.affordance({
     id: "drawbarPitch",
     kind: "hinge",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, front, wheelbase),
       v(1, 0, 0),
       v(0, 1, 0),
@@ -347,7 +335,7 @@ function gear(
   builder.affordance({
     id: "coupling",
     kind: "hook",
-    frame: ArchetypeFrame.upright(tip),
+    frame: AutoMovieArchetypeFrame.upright(tip),
     extent: null,
     rides: "drawbarPitch",
   });

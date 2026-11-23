@@ -1,4 +1,8 @@
-import { ArchetypeUnits, ArchetypeBand, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createBoat } from "./createBoat";
 
 /** Fixed-seat rowboats read at their designers' pages. */
@@ -15,32 +19,44 @@ const LAUNCH: string =
 export const BOAT_BANDS: Readonly<
   Record<
     createBoat.Kind,
-    Readonly<Partial<Record<createBoat.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createBoat.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   rowboat: {
-    draft: ArchetypeBand.metres(
-      5 * ArchetypeUnits.INCH,
-      7 * ArchetypeUnits.INCH,
+    draft: AutoMovieArchetypeBand.metres(
+      5 * AutoMovieArchetypeUnits.INCH,
+      7 * AutoMovieArchetypeUnits.INCH,
       `${ROWBOAT}: the Thames skiff's and the Whitehall skiff's drafts, borrowed by the Glen-L Whitehall, whose page gives none and whose draft no law gives from its other figures (searched: the Glen-L page's specifications)`,
       true,
     ),
   },
   canoe: {
-    seatHeight: ArchetypeBand.metres(
-      7 * ArchetypeUnits.INCH,
-      9 * ArchetypeUnits.INCH,
+    seatHeight: AutoMovieArchetypeBand.metres(
+      7 * AutoMovieArchetypeUnits.INCH,
+      9 * AutoMovieArchetypeUnits.INCH,
       "Clipper Canoes, seats 7 to 9 in off the hull bottom (https://www.clippercanoes.com/pages/canoe-design)",
     ),
   },
   launch: {
-    length: ArchetypeBand.metres(360 * ArchetypeUnits.INCH, 360 * ArchetypeUnits.INCH, LAUNCH),
-    beam: ArchetypeBand.metres(105 * ArchetypeUnits.INCH, 105 * ArchetypeUnits.INCH, LAUNCH),
-    depth: ArchetypeBand.metres(42 * ArchetypeUnits.INCH, 42 * ArchetypeUnits.INCH, LAUNCH),
-    mass: ArchetypeBand.of(
+    length: AutoMovieArchetypeBand.metres(
+      360 * AutoMovieArchetypeUnits.INCH,
+      360 * AutoMovieArchetypeUnits.INCH,
+      LAUNCH,
+    ),
+    beam: AutoMovieArchetypeBand.metres(
+      105 * AutoMovieArchetypeUnits.INCH,
+      105 * AutoMovieArchetypeUnits.INCH,
+      LAUNCH,
+    ),
+    depth: AutoMovieArchetypeBand.metres(
+      42 * AutoMovieArchetypeUnits.INCH,
+      42 * AutoMovieArchetypeUnits.INCH,
+      LAUNCH,
+    ),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      (38 * 112) * ArchetypeUnits.POUND,
-      (38 * 112) * ArchetypeUnits.POUND,
+      38 * 112 * AutoMovieArchetypeUnits.POUND,
+      38 * 112 * AutoMovieArchetypeUnits.POUND,
       `${LAUNCH}; a hundredweight is 112 lb`,
     ),
   },

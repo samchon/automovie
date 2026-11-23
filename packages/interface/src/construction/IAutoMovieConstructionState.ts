@@ -9,20 +9,10 @@ import type { IAutoMovieSolidTrim } from "./IAutoMovieSolidTrim";
 
 /**
  * Mutable state and append-only checkpoints of one construction realization walk.
- *
- * @evidence contracts/development/design.md#principled-representation Face/name indexes, output lists and pending transformations have explicit per-walk ownership; checkpoints retain geometry lengths and cycle copies.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Realize and its leaf/operator handlers share this state and the same snap/restore protocol.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Rollback excludes diagnostics, overrides and arbitrary edits to old records; it is valid for the walk's append/cycle mutation model.
- * @evidence contracts/development/common.md#meaningful-documentation Defines mutation ownership and the checkpoint's scope.
  */
 export namespace IAutoMovieConstructionState {
   /**
    * The realization walk's mutable indexes, output lists, diagnostics and pending continuation work.
-   *
-   * @evidence contracts/development/design.md#principled-representation Name indexes connect admitted tree references to body faces/chains, while ordered lists retain the records that survive rollback.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One call-local state groups discovery indexes and published-output preparation without a second geometry owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Diagnostics intentionally survive geometry rollback; overrides have their own scoped registration/consumption and are not part of the checkpoint.
-   * @evidence contracts/development/common.md#meaningful-documentation Names index keys, list order, pending replacement meaning and every reported-premise collection.
    */
   export interface IState {
     /** Each realized face's index in the body, by its view part's or join's name. */
@@ -76,23 +66,10 @@ export namespace IAutoMovieConstructionState {
 
   /**
    * A scoped continuation replacement callback and the walk's application/failure state.
-   *
-   * @evidence contracts/development/design.md#principled-representation The callback receives the just-lofted part chain; applied/error record the walk's actual use of its chain-or-premise result.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One current record connects a named future view to its host boundary; a nested record retains and composes its enclosing record without a second loft pass.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Pending existence is not success: realization checks applied and the part face before retaining the continuation.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives the replacement result and distinguishes unapplied, applied and failed state.
    */
   export interface IOverride {
     /**
      * Return the chain with the pending endpoint replacement, or a premise string.
-     *
-     * @evidence contracts/development/implementation.md#principled-implementation A chain-or-string result lets the realizing view preserve a failed replacement as a named continuation premise rather than substituting geometry.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The callback consumes the already lofted chain and leaves applied/error bookkeeping to its walk owner.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature promises no validation or retry; its producer applies enclosing pending transformations before its own ConstructionContinuation.apply call, preserving each owner's actual result and first refusal.
-     * @evidence contracts/development/common.md#meaningful-documentation States successful replacement versus premise-string return and the pending endpoint role.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This callable interface member has no implementation; the concrete continuation transform owns its algorithm.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The current producer reuses its closed-over host boundary and the supplied part chain instead of lofting either again.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation acquires no handle by contract; the pending record's map entry owns the callback lifetime and the returned chain's owner retains its shared data.
      */
     apply(chain: IAutoMovieLoftChain): IAutoMovieLoftChain | string;
 
@@ -105,11 +82,6 @@ export namespace IAutoMovieConstructionState {
 
   /**
    * A geometry/list checkpoint before building a part; diagnostics and pending overrides are excluded.
-   *
-   * @evidence contracts/development/design.md#principled-representation Saves existing cycles/inverted flags and append-only array lengths/name membership so a failed subtree can be removed under the realization's mutation model.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Deep cycle data and scalar lengths distinguish state that can be edited in place from state restored by truncation.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts This is not an arbitrary object-graph transaction: old mesh numbers, station grids, surface records, diagnostics and overrides are not copied or restored.
-   * @evidence contracts/development/common.md#meaningful-documentation Names every saved population and the excluded state, with array lengths expressed as entry counts rather than byte or triangle counts.
    */
   export interface ISnapshot {
     /** The body's face count. */

@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** No maker's page was read. */
@@ -32,9 +32,12 @@ const STAGED: string =
 export function createFeedingBottle(
   params: createFeedingBottle.IParams = {},
   seed?: number | string,
-): Archetype<createFeedingBottle.Affordance, createFeedingBottle.Dimension> {
-  const draw: ArchetypeDrawSession<createFeedingBottle.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createFeedingBottle.Affordance,
+  createFeedingBottle.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createFeedingBottle.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "feedingBottle",
       createFeedingBottle.UNITS,
       seed,
@@ -43,10 +46,10 @@ export function createFeedingBottle(
   const d: Record<createFeedingBottle.Dimension, number> = draw.dimensions(
     createFeedingBottle.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createFeedingBottle.Affordance,
     createFeedingBottle.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "a feeding bottle",
     material: "plastic",
@@ -66,7 +69,11 @@ export function createFeedingBottle(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, barrel / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, barrel / 2, 0),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: 0.06,
@@ -75,7 +82,7 @@ export function createFeedingBottle(
   builder.affordance({
     id: "teat",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, 0)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -103,14 +110,16 @@ export namespace createFeedingBottle {
   }
 
   /** Units of each dimension. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     mass: "kg",
   };
 
   /** Staged bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    height: ArchetypeBand.metres(0.16, 0.2, STAGED, true),
-    mass: ArchetypeBand.of("kg", 0.15, 0.3, STAGED, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    height: AutoMovieArchetypeBand.metres(0.16, 0.2, STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.15, 0.3, STAGED, true),
   };
 }

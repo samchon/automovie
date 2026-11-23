@@ -30,20 +30,10 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * through the target so the foot meets it at 0.82 of the unit, after its
  * peak speed, as the side kick's peak foot speed comes at 82 % of its
  * extension (Wąsik 2011).
- *
- * @evidence contracts/development/common.md#meaningful-documentation technique: The foot strike. leg: The kicking leg, rear when absent. at: What it strikes. spin: A whole turn first. jump: Off the floor at contact.
- * @evidence contracts/development/design.md#principled-representation A closed technique union, a target, the leg side and two modifier flags.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the foot strike law and its strike rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the motion target; the law owns reach.
  */
 export namespace IAutoMovieMotionHumanFootStrike {
   /**
    * The foot strikes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the seven foot strikes.
-   * @evidence contracts/development/design.md#principled-representation Explicit literals, each with its contact point, travel and turn.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the foot strike law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The law owns each technique's geometry.
    */
   export type Technique =
     | "side"
@@ -56,26 +46,14 @@ export namespace IAutoMovieMotionHumanFootStrike {
 
   /**
    * The kicking leg: the stance's lead or rear.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two legs by the stance.
-   * @evidence contracts/development/design.md#principled-representation Two literals relative to the stance's lead.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the foot strike law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The law resolves the side from the entry's stance.
    */
   export type Leg = "lead" | "rear";
 
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The technique, the target, the leg and the two modifiers.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the foot strike plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
-    /** The foot strike. */
+    /** The foot strike. Launch to contact: `side` 0.77 s (the middle of 0.70 to 0.84 s, Pieter and Pieter); every other technique 0.33 s, the round kick's ({@link IAutoMovieMotionHumanKick}); times 1.06 at novice to 1.0 at elite (`footStrike.SIDE`, `footStrike.KICK`). The recoil is 0.65 s. */
     technique: IAutoMovieMotionHumanFootStrike.Technique;
 
     /** What it strikes. */
@@ -84,10 +62,10 @@ export namespace IAutoMovieMotionHumanFootStrike {
     /** The kicking leg; rear when absent. */
     leg?: IAutoMovieMotionHumanFootStrike.Leg;
 
-    /** A whole turn on the support ball before the strike; none when absent. */
+    /** A whole turn on the support ball before the strike, adding 0.33 s before the contact (`footStrike.KICK`); none when absent. */
     spin?: boolean;
 
-    /** Off the floor with both feet at the contact; planted when absent. */
+    /** Off the floor with both feet at the contact, adding 0.15 s before it and lifting 0.25 of the leg (`footStrike.JUMP`, provisional); planted when absent. */
     jump?: boolean;
   }
 }

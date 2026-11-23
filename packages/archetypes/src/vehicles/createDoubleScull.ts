@@ -2,12 +2,12 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 const HULL: string =
@@ -38,7 +38,7 @@ const PLATE: Readonly<{ width: number; depth: number; tilt: number }> = {
   tilt: 37,
 };
 
-type Build = ArchetypeBuilder<
+type Build = AutoMovieArchetypeBuilder<
   createDoubleScull.Affordance,
   createDoubleScull.Dimension
 >;
@@ -65,9 +65,12 @@ type Build = ArchetypeBuilder<
 export function createDoubleScull(
   params: createDoubleScull.IParams = {},
   seed?: string | number,
-): Archetype<createDoubleScull.Affordance, createDoubleScull.Dimension> {
-  const draw: ArchetypeDrawSession<createDoubleScull.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createDoubleScull.Affordance,
+  createDoubleScull.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createDoubleScull.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "doubleScull",
       createDoubleScull.UNITS,
       seed,
@@ -75,7 +78,7 @@ export function createDoubleScull(
     );
   const dimensions: Record<createDoubleScull.Dimension, number> =
     draw.dimensions(createDoubleScull.BANDS);
-  const builder: Build = new ArchetypeBuilder({
+  const builder: Build = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "double scull",
     material: "composite",
@@ -145,7 +148,7 @@ function shell(builder: Build, length: number, beam: number): void {
   }
 }
 
-/** Build one actual seat on two rails, the angled feet and a pair of articulated sculls. */
+/** Build one seat on two rails, the angled feet and a pair of articulated sculls. */
 function station(
   builder: Build,
   id: createDoubleScull.Station,
@@ -174,7 +177,11 @@ function station(
   builder.affordance({
     id: slide,
     kind: "slider",
-    frame: ArchetypeFrame.facing(v(0, railY, at), v(0, 1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, railY, at),
+      v(0, 1, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     travel: SEAT.travel,
     parts: [coaster],
@@ -182,7 +189,11 @@ function station(
   builder.affordance({
     id: `${id}Seat`,
     kind: "seat",
-    frame: ArchetypeFrame.facing(v(0, SEAT.y, front), v(0, 1, 0), v(-1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, SEAT.y, front),
+      v(0, 1, 0),
+      v(-1, 0, 0),
+    ),
     extent: null,
     depth: SEAT.depth,
     width: SEAT.width,
@@ -210,7 +221,7 @@ function station(
     builder.affordance({
       id: `${name}Foot`,
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.add(foot, Vector3.scale(normal, 0.012)),
         normal,
         along,
@@ -275,14 +286,14 @@ function scull(
   builder.affordance({
     id: turn,
     kind: "wheel",
-    frame: ArchetypeFrame.facing(pivot, v(0, -sign, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(pivot, v(0, -sign, 0), v(0, 0, 1)),
     extent: null,
     travel: 60,
   });
   builder.affordance({
     id: dip,
     kind: "hinge",
-    frame: ArchetypeFrame.facing(pivot, v(0, 0, sign), along),
+    frame: AutoMovieArchetypeFrame.facing(pivot, v(0, 0, sign), along),
     extent: null,
     travel: 15,
     reverse: 20,
@@ -293,7 +304,7 @@ function scull(
     id: `${name}Handle`,
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       at(-inboard + gripLength / 2),
       up,
       Vector3.scale(along, -1),
@@ -307,7 +318,7 @@ function scull(
   builder.affordance({
     id: `${name}BladeTip`,
     kind: "surface",
-    frame: ArchetypeFrame.facing(at(bladeEnd), along, v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(at(bladeEnd), along, v(0, 0, 1)),
     extent: null,
     width: 0.012,
     depth: 0.22,
@@ -340,18 +351,24 @@ export namespace createDoubleScull {
     id?: string;
   }
   /** Units of the fixed reference dimensions. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     beam: "m",
     oarLength: "m",
     mass: "kg",
   };
   /** The reference hull, rig and assembled reference mass. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(9.4, 9.4, HULL),
-    beam: ArchetypeBand.metres(0.33, 0.33, HULL),
-    oarLength: ArchetypeBand.metres(2.9, 2.9, `${OARS}; rigged to ${RIG}`),
-    mass: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(9.4, 9.4, HULL),
+    beam: AutoMovieArchetypeBand.metres(0.33, 0.33, HULL),
+    oarLength: AutoMovieArchetypeBand.metres(
+      2.9,
+      2.9,
+      `${OARS}; rigged to ${RIG}`,
+    ),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       32.64,
       32.64,

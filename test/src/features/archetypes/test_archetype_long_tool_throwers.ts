@@ -1,4 +1,4 @@
-import { type Archetype, createLongTool } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createLongTool } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -43,8 +43,10 @@ export function test_archetype_long_tool_throwers(): void {
       findings.push(`${kind}: speeds span only ${least} to ${most}`);
   };
 
-  const sling: Archetype<createLongTool.Affordance, createLongTool.Dimension> =
-    createLongTool({ kind: "sling" }, 1);
+  const sling: AutoMovieArchetype<
+    createLongTool.Affordance,
+    createLongTool.Dimension
+  > = createLongTool({ kind: "sling" }, 1);
   const s: Readonly<Partial<Record<createLongTool.Dimension, number>>> =
     sling.dimensions;
   for (const [name, expected] of [
@@ -75,8 +77,10 @@ export function test_archetype_long_tool_throwers(): void {
   if (!close(archetypeExtent(sling, "z", ["pouch"]).size, 0.155, 1e-6))
     findings.push("the pouch part is not 155 mm long");
 
-  const atlatl: Archetype<createLongTool.Affordance, createLongTool.Dimension> =
-    createLongTool({ kind: "atlatl" }, 1);
+  const atlatl: AutoMovieArchetype<
+    createLongTool.Affordance,
+    createLongTool.Dimension
+  > = createLongTool({ kind: "atlatl" }, 1);
   const a: Readonly<Partial<Record<createLongTool.Dimension, number>>> =
     atlatl.dimensions;
   for (const [name, expected] of [

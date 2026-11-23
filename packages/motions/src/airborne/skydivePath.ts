@@ -166,8 +166,8 @@ export namespace skydivePath {
     toggles.forEach(
       (toggle: IAutoMovieMotionHumanSkydive.IToggle, i: number): void => {
         if (
-          !(toggle.at >= 0 && toggle.seconds > 0) ||
-          (i > 0 && toggles[i - 1]!.at + toggles[i - 1]!.seconds > toggle.at)
+          !(toggle.at >= 0 && toggle.hold > 0) ||
+          (i > 0 && toggles[i - 1]!.at + toggles[i - 1]!.hold > toggle.at)
         )
           throw refusal(
             `toggles[${i}]`,
@@ -197,7 +197,7 @@ export namespace skydivePath {
       for (const toggle of toggles) {
         if (toggle.at >= s) break;
         offset = Vector3.add(offset, arc(FORWARD, heading, 0, toggle.at - t));
-        const held: number = Math.min(toggle.seconds, s - toggle.at);
+        const held: number = Math.min(toggle.hold, s - toggle.at);
         const rate: number = toggle.side === "left" ? TURN : -TURN;
         offset = Vector3.add(offset, arc(FORWARD, heading, rate, held));
         heading += rate * held;

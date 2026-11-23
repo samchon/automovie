@@ -12,7 +12,11 @@ import { HumanActionRow } from "../law/HumanActionRow";
 /**
  * Dance styles beyond the social steps (#3991, #4010): tap, classical ballet,
  * street grooves and social group dances, each a row of its law on the dance
- * law's beat clock, the step left open.
+ * law's beat clock, the step left open. The clock keeps 120 beats a
+ * minute, 0.5 s a beat (`dance.BPM`), unless `bpm` or a cue track sets it;
+ * `beats` counts the beats of a street groove and of ballet's position. No
+ * tempo by style (a waltz, a hip-hop groove) is defined: choose `bpm`
+ * (provisional, missing).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each row is and what it leaves open.
  * @evidence contracts/development/design.md#principled-representation Each entry is a row of a shipped action (`HumanActionRow`).

@@ -128,11 +128,11 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBikeGuide>,
     ): IAutoMovieMotionHumanActionPlan => {
       const { body, entry, params, start }: typeof context = context;
-      const duration: number = params.seconds;
+      const duration: number = params.duration;
       if (!(Number.isFinite(duration) && duration > REACH))
         throw new HumanRefusal({
           kind: "parameter",
-          axis: "seconds",
+          axis: "duration",
           value: duration,
           feasible: {
             kind: "range",

@@ -10,11 +10,6 @@ import type { IAutoMovieMotionHumanHeldWork } from "./IAutoMovieMotionHumanHeldW
  * refused. Optionally the other hand's tool steadies the work, the tool's
  * articulations are driven, and a prop is taken onto the tool or left on
  * the surface at the stroke's end.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies both prop roles, the two affordances, the plane and units, the stroke clock and the hand default.
- * @evidence contracts/development/design.md#principled-representation A planar polyline requires two vertices in its type. Coordinates are in the writing affordance's XZ plane in metres, with +Y outward. The write law admits finite distinct consecutive points and a positive duration.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The registerable write law reads the tool, its working point, the stationary surface frame, one stroke and its timing. Grip placement remains a preceding action's responsibility.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No body, glyph, pen geometry or paper size is embedded. Named affordances come from the scene's two props.
  */
 export interface IAutoMovieMotionHumanWrite {
   /** Subject of the tool held at entry. */
@@ -36,11 +31,11 @@ export interface IAutoMovieMotionHumanWrite {
     ...(readonly [number, number])[],
   ];
 
-  /** Seconds of the stroke before any performance tempo scaling. Approach and return have their own durations. */
-  seconds: number;
+  /** Seconds of the stroke before any performance tempo scaling. Approach and return have their own durations. Required: no natural value is defined, so the author sets it (provisional: no timing study was read). */
+  duration: number;
 
   /** Holding hand. If omitted, use the hand holding the tool at entry. */
-  side?: AutoMovieHumanSide;
+  hand?: AutoMovieHumanSide;
 
   /** The other hand's held tool kept on the surface through the stroke, as a fork pins what a knife saws. */
   steady?: IAutoMovieMotionHumanHeldWork.ISteady;

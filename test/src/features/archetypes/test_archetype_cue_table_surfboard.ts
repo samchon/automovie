@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createCueTable,
   createSurfboard,
 } from "@automovie/archetypes";
@@ -43,8 +43,8 @@ export function test_archetype_cue_table_surfboard(): void {
         name: "pool table bed height",
         measure: (seed: number): number =>
           createCueTable({}, seed).affordance("bed").frame.translation.y,
-        minimum: 29.25 * ArchetypeUnits.INCH,
-        maximum: 31 * ArchetypeUnits.INCH,
+        minimum: 29.25 * AutoMovieArchetypeUnits.INCH,
+        maximum: 31 * AutoMovieArchetypeUnits.INCH,
         source: "WPA 2",
       },
       {
@@ -59,16 +59,16 @@ export function test_archetype_cue_table_surfboard(): void {
             table.affordance("bed").frame.translation.y
           );
         },
-        minimum: 0.625 * 2.25 * ArchetypeUnits.INCH,
-        maximum: 0.645 * 2.25 * ArchetypeUnits.INCH,
+        minimum: 0.625 * 2.25 * AutoMovieArchetypeUnits.INCH,
+        maximum: 0.645 * 2.25 * AutoMovieArchetypeUnits.INCH,
         source: "WPA 7",
       },
       {
         name: "pool table rail width",
         measure: (seed: number): number =>
           archetypeExtent(createCueTable({}, seed), "x", ["rail-left"]).size,
-        minimum: 4 * ArchetypeUnits.INCH,
-        maximum: 7.5 * ArchetypeUnits.INCH,
+        minimum: 4 * AutoMovieArchetypeUnits.INCH,
+        maximum: 7.5 * AutoMovieArchetypeUnits.INCH,
         source: "WPA 6",
       },
     ]),
@@ -78,15 +78,15 @@ export function test_archetype_cue_table_surfboard(): void {
   const length: number = table.affordance("bed").depth!;
   if (
     !(
-      width >= 50 * ArchetypeUnits.INCH - 1e-9 &&
-      width <= 50.125 * ArchetypeUnits.INCH + 1e-9
+      width >= 50 * AutoMovieArchetypeUnits.INCH - 1e-9 &&
+      width <= 50.125 * AutoMovieArchetypeUnits.INCH + 1e-9
     )
   )
     findings.push(`the bed is ${width} wide`);
   if (
     !(
-      length >= 100 * ArchetypeUnits.INCH - 1e-9 &&
-      length <= 100.125 * ArchetypeUnits.INCH + 1e-9
+      length >= 100 * AutoMovieArchetypeUnits.INCH - 1e-9 &&
+      length <= 100.125 * AutoMovieArchetypeUnits.INCH + 1e-9
     )
   )
     findings.push(`the bed is ${length} long`);
@@ -132,21 +132,21 @@ export function test_archetype_cue_table_surfboard(): void {
   ])[] = [
     [
       "5'10",
-      70 * ArchetypeUnits.INCH,
-      18.75 * ArchetypeUnits.INCH,
-      2.36 * ArchetypeUnits.INCH,
+      70 * AutoMovieArchetypeUnits.INCH,
+      18.75 * AutoMovieArchetypeUnits.INCH,
+      2.36 * AutoMovieArchetypeUnits.INCH,
     ],
     [
       "6'0",
-      72 * ArchetypeUnits.INCH,
-      19.18 * ArchetypeUnits.INCH,
-      2.4 * ArchetypeUnits.INCH,
+      72 * AutoMovieArchetypeUnits.INCH,
+      19.18 * AutoMovieArchetypeUnits.INCH,
+      2.4 * AutoMovieArchetypeUnits.INCH,
     ],
     [
       "6'2",
-      74 * ArchetypeUnits.INCH,
-      19.5 * ArchetypeUnits.INCH,
-      2.5 * ArchetypeUnits.INCH,
+      74 * AutoMovieArchetypeUnits.INCH,
+      19.5 * AutoMovieArchetypeUnits.INCH,
+      2.5 * AutoMovieArchetypeUnits.INCH,
     ],
   ];
   for (const [size, length, width, thickness] of chart) {
@@ -175,7 +175,10 @@ export function test_archetype_cue_table_surfboard(): void {
       ["rightRail", -1],
     ] as const) {
       const edge: IAutoMovieAffordance = board.affordance(id);
-      const tangent: IAutoMovieVector3 = ArchetypeFrame.axis(edge.frame, "x");
+      const tangent: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+        edge.frame,
+        "x",
+      );
       near(
         `board ${size}: ${id} lies on the board side`,
         edge.frame.translation.x,

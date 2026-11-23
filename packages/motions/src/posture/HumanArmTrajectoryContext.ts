@@ -24,19 +24,9 @@ import { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
  * and each site's touched collider and normal. What a waypoint holds is
  * built once per waypoint, so a refinement of the same arms reads only the
  * waypoints it adds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines fixed arm setup, per-waypoint frames, original allowances, ordinary fresh setup and explicit unchanged-operation setup preparation with borrowed metadata lifetime.
- * @evidence contracts/development/design.md#principled-representation Actual frames and ordered arm coordinates retain the existing trajectory problem; one same-base FK reader shares only identical completed math across its arm frames.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One problem record and one numerical builder serve ordinary contexts and a prepared static-setup reader used by actual following/refinement work; no caller-supplied setup verdict is exposed.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No candidate, range, rest, external reference or contact allowance is changed by sharing the synchronous frame-construction reader.
  */
 export namespace HumanArmTrajectoryContext {
   /** What the context is built from: the trajectory's problem, or a still configuration of it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines body, seconds, original base frames, arm contact inputs and the still flag; coordinate and contact meanings remain with the geometry/model owners.
-   * @evidence contracts/development/design.md#principled-representation Ordered per-arm sites and per-second bases describe the same deterministic trajectory whose coordinates are optimized.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Every input is read by the setup, waypoint, rest or allowed-pair construction.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Borrows the original body, poses and declarations without replacing unmet contacts or widening joint ranges; parallel time/base/site lengths remain caller premises.
    */
   export interface IProblem {
     /** The body. */
@@ -70,12 +60,23 @@ export namespace HumanArmTrajectoryContext {
       /** Its segments that grasp one object with the other arm over the action (`HumanArmTrajectoryModel.IContext.grasped`); none when absent. */
       grasp?: readonly M.Segment[];
 
+      /** The arm the goal's own solution gives at the hold's start, whose grasping pairs' depth the closing and the parting keep (`HumanArmTrajectoryModel.IContext.grasped`); none when absent. */
+      guess?: IAutoMovieMotionHumanArmClearance.IArm;
+
       /** The arm a still configuration is drawn to, its distance from it the objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when absent. */
       anchor?: IAutoMovieMotionHumanArmClearance.IArm;
     }[];
 
     /** Whether the problem is a still configuration (`HumanArmTrajectoryModel.IContext.still`). */
     still?: boolean;
+
+    /**
+     * The share of the reach made at a second, 0 at rest and 1 on the hold (`HumanArmTrajectory.IProblem.share`); a grasp's closing and parting keep its depth on the hold by it. Nothing is kept when absent.
+     *
+     * @param seconds Seconds of the problem.
+     * @returns The share, 0 to 1.
+     */
+    share?: (seconds: number) => number;
   }
 
   /**
@@ -84,14 +85,6 @@ export namespace HumanArmTrajectoryContext {
    * @param problem The problem.
    * @param previous The context of the same arms on other waypoints, an earlier reading of the trajectory a refinement splits: a waypoint at a second it read, on the same base and with the same sites, keeps what was built there (its frames, the arm resting there placed, each probe's allowances, each site's touched collider and normal), so only the new waypoints are read.
    * @returns The context.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies original problem inputs, continued-waypoint reuse and returned fixed context.
-   * @evidence contracts/development/implementation.md#principled-implementation Prepares actual arm charts, hard intervals and contact geometry; exact same-base FK dependencies may share completed math across arms while every pose still receives full ordered admission and fresh outputs.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Setup and per-second frame construction precede waypoint reuse and lazy pair-allowance readers; each shared FK reader is local to one base's synchronous setup map and is created only when an actual frame miss requests it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps arm/time order, original reference depths, bidirectional declared rests, grasp exemptions, still/open endpoints and hard-box rounding behavior; the shared FK reader is never retained in a context or reused at another second.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Full arm/base pose scans and fresh outputs remain; identical completed FK math can be reused for the second arm at one base. An all-hit frame map allocates no resolution reader or FK maps. Waypoint geometry is built only for new base/site combinations, and allowance maps evaluate each requested pair key once.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses existing setup, frame, waypoint and audit owners; one operation-local reader serves only the same base's arm frames, and the existing store preserves actual frame/site-identity matches across refinement.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A same-base FK reader dies after its synchronous map. Existing weak context stores retain distinct queried waypoint seconds and their pair keys while a continued context lives; closures borrow the original problem and current points, with no new global result cache.
    */
   export function of(problem: IProblem, previous?: M.IContext): M.IContext {
     return built(problem, previous);
@@ -99,14 +92,6 @@ export namespace HumanArmTrajectoryContext {
 
   /**
    * Bind genuine arm setup metadata for one unchanged-body trajectory operation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Copies fixed side order, prepares actual native setups and returns current-problem readers; body/rig/ROM mappings and returned borrowed setup metadata stay unchanged until release.
-   * @evidence contracts/development/implementation.md#principled-implementation Arm charts, effective ROM, rest and mobile-axis metadata depend on fixed body/side rather than waypoint poses/sites, so only those invariants are prepared once; each current frame/allowance still builds normally.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A fixed native setup producer feeds the same private builder as ordinary of; changed body/side domains select its original fresh setup path.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No caller-provided setup/index/verdict is accepted, and no pose, waypoint, physical query, box bound or candidate is dropped; ordinary of retains current-input preparation.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Across Q contexts, fixed setup axes/ROM preparation costs O(A*B) once for A arms/B rig bones instead of Q repetitions; every dynamic frame/contact/allowance query and output remains actual, with unmeasured speedup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The explicit unchanged body/canonical mappings and copied ordered sides establish only static setup equivalence. Current problem frames, sites, rests and previous-waypoint matching retain their owning builder.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The operation owns A native setups and copied sides until release; the reader stores no current problem/context, pose, FK reader or queried time. Returned contexts borrow fixed setups under the same unchanged-operation contract.
    */
   export function prepare(body: IAutoMovieMotionHumanBody, sides: readonly ("left" | "right")[]):
     (problem: IProblem, previous?: M.IContext) => M.IContext {
@@ -247,8 +232,13 @@ export namespace HumanArmTrajectoryContext {
 
     // A declared rest is a resting contact: no deeper than where the
     // segments meet (the audit's reference depth of the pair), and drawn to
-    // it by the objective; any other pair keeps `DEPTH` of margin. An
-    // own collider's corner keeps the tangle audit's reference depth in
+    // it by the objective; any other pair keeps `DEPTH` of margin. The
+    // segments the goal lays the hand on (the frame's resting parts) lie on
+    // the hand, which reads them not at all, and on its forearm at contact
+    // depth, read both ways: a hand closed on a partner's wrist or on a
+    // weapon the partner holds lays its forearm over the gripped hand, as a
+    // two-handed pistol grab's redirecting forearm lies over the gun hand.
+    // An own collider's corner keeps the tangle audit's reference depth in
     // that segment; an external collider has no own-body reference. An axis
     // sphere keeps the depth the arm resting at the waypoint has
     // (`HumanArmTrajectoryWaypoint.IWaypoint.placed`).
@@ -282,7 +272,14 @@ export namespace HumanArmTrajectoryContext {
       if (Number.isNaN(v)) {
         const frame: IAutoMovieMotionHumanArmGeometry.IFrame = point.frames[a]!;
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
-        const rested: number = give(declared(a, k, probe, s.bone));
+        const lower: boolean =
+          probe >= G.SURFACE
+            ? frame.owners[probe - G.SURFACE] === "lower"
+            : probe >= 2 && probe < 6;
+        const rested: number = give(
+          declared(a, k, probe, s.bone) ||
+            (lower && frame.resting.has(s.part)),
+        );
         if (probe >= G.SURFACE)
           v =
             (s.part >= 0 && s.part < model.parts.length
@@ -388,8 +385,85 @@ export namespace HumanArmTrajectoryContext {
                 body.part,
                 col.part,
               )[body.corner]!
-            : 0) - give(lying(a, k, own, body.bone));
+            : 0) -
+          give(
+            lying(a, k, own, body.bone) ||
+              (own === "lowerArm" &&
+                point.frames[a]!.resting.has(body.part)),
+          );
         point.inside[a]!.set(key, v);
+      }
+      return v;
+    };
+
+    // A grasp both hands share (`HumanArmTrajectoryModel.IContext.grasped`):
+    // the depth a grasping segment has in the other arm's shape with both
+    // arms on the hold, the goal's own solution there (`guess`), read at a
+    // waypoint's own base as the rest reference is, once per waypoint,
+    // segment and shape; none without both guesses. The segment's deepest
+    // probe bounds it, since the solved hold lies near, not on, the guess.
+    const holding: readonly boolean[] = problem.times.map(
+      (_: number, k: number): boolean =>
+        problem.arms.every(
+          (arm: IProblem["arms"][number]): boolean =>
+            arm.sites[k] !== undefined,
+        ),
+    );
+    const guessed: number[][] | undefined =
+      problem.arms.length === 2 &&
+      problem.arms.every(
+        (arm: IProblem["arms"][number]): boolean => arm.guess !== undefined,
+      )
+        ? problem.arms.map(
+            (arm: IProblem["arms"][number], a: number): number[] =>
+              G.encode(setups[a]!, arm.guess!),
+          )
+        : undefined;
+    const held: (IAutoMovieMotionHumanArmGeometry.IPlaced[] | undefined)[] =
+      [];
+    const heldShapes: (IAutoMovieMotionHumanArmGeometry.IShape[][] | undefined)[] =
+      [];
+    const holdDepths: Map<string, number> = new Map();
+    const holdDepth = (
+      a: number,
+      k: number,
+      own: M.Segment,
+      shape: number,
+    ): number => {
+      if (guessed === undefined) return 0;
+      const key: string = `${a}|${k}|${own}|${shape}`;
+      let v: number | undefined = holdDepths.get(key);
+      if (v === undefined) {
+        const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = (held[k] ??=
+          setups.map(
+            (
+              setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+              b: number,
+            ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+              G.placed(setup, frames[b]![k]!, guessed[b]!),
+          ));
+        const theirs: IAutoMovieMotionHumanArmGeometry.IShape = (heldShapes[
+          k
+        ] ??= placed.map(
+          (
+            arm: IAutoMovieMotionHumanArmGeometry.IPlaced,
+            b: number,
+          ): IAutoMovieMotionHumanArmGeometry.IShape[] =>
+            S.colliders(frames[b]![k]!, arm),
+        ))[1 - a]![shape]!;
+        let deepest: number = 0;
+        placed[a]!.probes.forEach(
+          ([p, r]: readonly [IAutoMovieVector3, number], probe: number): void => {
+            if (probe < G.SURFACE || S.segment(frames[a]![k]!, probe) !== own)
+              return;
+            deepest = Math.max(
+              deepest,
+              r -
+                physicalShapeSegmentDistance(theirs.pose, theirs.shape, p, p),
+            );
+          },
+        );
+        holdDepths.set(key, (v = deepest));
       }
       return v;
     };
@@ -441,18 +515,34 @@ export namespace HumanArmTrajectoryContext {
       ),
       allowed,
       between,
-      // A grasp both hands share: over the action, as they close on the
-      // object, hold it and part from it, a pair of segments each arm
-      // declares is the grasp's contact, not a collision.
+      // A grasp both hands share: on the hold a pair of segments each arm
+      // declares is the grasp's contact, not a collision; as the hands close
+      // on the object and part from it the pair keeps its depth on the hold
+      // by the share of the reach still made, down to the margin every pair
+      // keeps at rest, so a parting hand leaves the other arm, never passes
+      // through it.
       grasped: (
         a: number,
-        _k: number,
+        k: number,
         own: M.Segment,
         other: M.Segment,
-      ): boolean =>
-        problem.arms.length === 2 &&
-        (problem.arms[a]!.grasp ?? []).includes(own) &&
-        (problem.arms[1 - a]!.grasp ?? []).includes(other),
+        shape: number,
+      ): number | undefined => {
+        if (
+          !(
+            problem.arms.length === 2 &&
+            (problem.arms[a]!.grasp ?? []).includes(own) &&
+            (problem.arms[1 - a]!.grasp ?? []).includes(other)
+          )
+        )
+          return undefined;
+        if (holding[k]!) return Infinity;
+        const share: number = Math.min(
+          1,
+          Math.max(0, problem.share?.(problem.times[k]!) ?? 0),
+        );
+        return share > 0 ? share * holdDepth(a, k, own, shape) : 0;
+      },
       inside,
       lying,
       normals: setups.map(

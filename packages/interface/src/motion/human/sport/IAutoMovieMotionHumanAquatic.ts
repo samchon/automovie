@@ -4,11 +4,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 /**
  * Timed pool, aquatic team and small-craft performances. Water is a world
  * reference plane. Named supports and tools come from the performance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the reference frames and where supports come from.
- * @evidence contracts/development/design.md#principled-representation Closed action kinds and named scene objects distinguish pool, team and boat staging.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The aquatic planner owns runtime admission and motion; this type contains author inputs.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Water and the launch target use world units; no scene object geometry is encoded in the contract.
  */
 export namespace IAutoMovieMotionHumanAquatic {
   /**
@@ -20,11 +15,6 @@ export namespace IAutoMovieMotionHumanAquatic {
    * edge, `liftOut` and `liftedOut` are a rescuer on the deck and the victim
    * it lifts out by the wrists, and `finSwim`, `duckDive` and `snorkel` swim with fins under or at
    * the surface.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the named variants select and distinguishes the authored outcomes.
-   * @evidence contracts/development/design.md#principled-representation Closed choices identify distinct motions or outcomes without requiring combinations of flags.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The aquatic law dispatches this discriminator; runtime movement and prop reading stay with its planners.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The terms distinguish the enacted stroke, figure or maneuver without embedding fitted body, tool or venue values.
    */
   export type Kind =
     | "crawlStartTurn"
@@ -51,11 +41,6 @@ export namespace IAutoMovieMotionHumanAquatic {
   /**
    * Seat of a rower in a two-person racing shell. The bow seat is nearest the
    * bow, and the stroke seat sets the rhythm from the stern.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names both seats and where each sits in the shell.
-   * @evidence contracts/development/design.md#principled-representation A closed choice selects one station's own seat, stretcher and oar articulations.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The double-scull planner consumes it to choose the affordances it drives.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The name selects scene affordances and encodes no geometry.
    */
   export type Station = "bow" | "stroke";
 
@@ -63,11 +48,6 @@ export namespace IAutoMovieMotionHumanAquatic {
    * The performer's part in a team or crew. Water polo uses attack, defend and
    * keeper; artistic swimming uses figure, base and flyer; sailing uses helm
    * and crew.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Groups each role with the kind that reads it.
-   * @evidence contracts/development/design.md#principled-representation A closed choice of sporting roles; the planner of the selected kind admits only its own.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The polo, artistic and sailing planners read it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Roles name what the performer does and carry no timing or geometry.
    */
   export type Role =
     | "attack"
@@ -82,11 +62,6 @@ export namespace IAutoMovieMotionHumanAquatic {
   /**
    * Authored staging inputs. The aquatic law admits the selected combination
    * and resolves named supports and participants on the film clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each field states the required meaning, coordinate frame, domain or default where applicable.
-   * @evidence contracts/development/design.md#principled-representation The kind and role describe staging while subject and affordance ids identify actual scene supports.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The sport lexicon and aquatic law consume these inputs. Motion solving and prop tracks remain outside the declaration.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts World points use the canonical vector and metre units, and named supports use the performance's prop lookup instead of a second geometry record.
    */
   export interface IParams {
     /** The sequence. */
@@ -120,7 +95,7 @@ export namespace IAutoMovieMotionHumanAquatic {
     role?: Role;
 
     /** Seconds of a distress before submersion (20 to 60, 30 when absent), or of a fin swim or snorkel (4 when absent). */
-    seconds?: number;
+    duration?: number;
 
     /** The victim a rescuer tows or lifts out, or the rescuer a towed victim holds on to. */
     partner?: string;

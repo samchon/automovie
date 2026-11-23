@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionHumanAuditMeasure } from "@automovie/interface";
-import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions";
+import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions/internal";
 
 import LEDGER from "./MOTION_HUMAN_LEDGER.json";
 import { motionCoveringArray } from "./motionCoveringArray";
@@ -153,8 +153,14 @@ export namespace motionHumanLawCovering {
     seeds: readonly string[] = SEEDS,
   ): string[] {
     const [i, n] = at;
-    if (!Number.isSafeInteger(i) || !Number.isSafeInteger(n) ||
-      n <= 0 || bodies.length === 0 || n % bodies.length !== 0 || !(i >= 0 && i < n))
+    if (
+      !Number.isSafeInteger(i) ||
+      !Number.isSafeInteger(n) ||
+      n <= 0 ||
+      bodies.length === 0 ||
+      n % bodies.length !== 0 ||
+      !(i >= 0 && i < n)
+    )
       throw new Error(
         `part ${i} of ${n} cannot be cut over ${bodies.length} bodies`,
       );

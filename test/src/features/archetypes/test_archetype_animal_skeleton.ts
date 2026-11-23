@@ -1,6 +1,7 @@
 import {
-  QuadrupedBody,
-  QuadrupedSkeleton,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedSkeleton,
   createHorse,
 } from "@automovie/archetypes";
 import {
@@ -34,7 +35,7 @@ import { nclose } from "../internal/nclose";
  *    leave the original horse's complete serialization unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual source bars, independent neutral-frame comparison, carried-contact invariants and preservation of original horse bytes.
- * @evidence contracts/development/testing.md#behavioral-verification Uses the public horse producer, generic engine reader and actual QuadrupedSkeleton.pose output. Both rigid head-carried and independently trunk-held contact cases observe real parts and full flexible held runs instead of an isolated matrix.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses the public horse producer, generic engine reader and actual AutoMovieArchetypeQuadrupedSkeleton.pose output. Both rigid head-carried and independently trunk-held contact cases observe real parts and full flexible held runs instead of an isolated matrix.
  * @evidence contracts/development/testing.md#independent-expectations Original built geometry is the neutral oracle. Head-bound contacts preserve inverse-neck coordinates; trunk-held origins preserve inverse-trunk coordinates while span distal points preserve inverse-head coordinates and contact +X follows actual rod +Y. Expected bone count 23 is five axial links, two shoulder blades and four times four limb links.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts neutral and articulated geometry, bone and accessory parts, root-carried and neck-carried contacts, complete versus missing bindings and current posed output versus untouched original serialization.
  * @evidence contracts/development/testing.md#execution-ownership One portable synchronous unit owns its producer, maps and posed outputs; no process, renderer, compiler or foreign runtime replacement is used.
@@ -45,12 +46,15 @@ export function test_archetype_animal_skeleton(): void {
     12,
   );
   const original: string = JSON.stringify(animal);
-  const skeleton: IAutoMovieArticulatedRig<QuadrupedBody.Bone> =
-    QuadrupedSkeleton.of(animal);
-  const reader: ReturnType<typeof prepareArticulatedRig<QuadrupedBody.Bone>> =
-    prepareArticulatedRig(skeleton);
-  const rest: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
-    reader.read();
+  const skeleton: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone> =
+    AutoMovieArchetypeQuadrupedSkeleton.of(animal);
+  const reader: ReturnType<
+    typeof prepareArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>
+  > = prepareArticulatedRig(skeleton);
+  const rest: ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    IAutoMovieTransform
+  > = reader.read();
   const findings: string[] = [];
   if (rest.size !== 23 || skeleton.bones[0]!.bone !== "trunk")
     findings.push("the actual quadruped vocabulary was not preserved");
@@ -61,9 +65,9 @@ export function test_archetype_animal_skeleton(): void {
     if (!same(frame, { ...actual.transform!, translation: end(actual, -1) }))
       findings.push(`neutral ${bone} no longer matches its actual upper joint`);
   }
-  const parts: Record<string, QuadrupedBody.Bone> = {};
+  const parts: Record<string, AutoMovieArchetypeQuadrupedBody.Bone> = {};
   for (const part of animal.parts)
-    if (!rest.has(part.id as QuadrupedBody.Bone))
+    if (!rest.has(part.id as AutoMovieArchetypeQuadrupedBody.Bone))
       parts[part.id] = [
         "crown-left",
         "crown-right",
@@ -80,19 +84,15 @@ export function test_archetype_animal_skeleton(): void {
       ].includes(part.id)
         ? "head"
         : "trunk";
-  const contacts: Record<string, QuadrupedBody.Bone> = {};
+  const contacts: Record<string, AutoMovieArchetypeQuadrupedBody.Bone> = {};
   for (const contact of animal.affordances)
     contacts[contact.id] = contact.kind === "rein" ? "head" : "trunk";
   const joints: Map<
-    QuadrupedBody.Bone,
+    AutoMovieArchetypeQuadrupedBody.Bone,
     Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">
   > = new Map([["neck", { flexion: 20, abduction: 0, twist: 0 }]]);
-  const posed: ReturnType<typeof createHorse> = QuadrupedSkeleton.pose(
-    animal,
-    joints,
-    parts,
-    contacts,
-  );
+  const posed: ReturnType<typeof createHorse> =
+    AutoMovieArchetypeQuadrupedSkeleton.pose(animal, joints, parts, contacts);
   const errors: ReturnType<typeof validateModel> = validateModel({
     model: posed,
   });
@@ -108,7 +108,7 @@ export function test_archetype_animal_skeleton(): void {
   for (const contact of animal.affordances) {
     if (contacts[contact.id] !== "head") continue;
     const current: IAutoMovieTransform = posed.affordance(
-      contact.id as createHorse.Affordance,
+      contact.id as AutoMovieArchetypeEquine.Affordance,
     ).frame;
     const oldLocal: IAutoMovieTransform["translation"] =
       Quaternion.rotateVector(
@@ -130,14 +130,16 @@ export function test_archetype_animal_skeleton(): void {
 
   // A held hand can instead stay with the body while the bit moves separately.
   // This complements the explicit head-following case rather than weakening it.
-  const trunkContacts: Record<string, QuadrupedBody.Bone> = {};
+  const trunkContacts: Record<string, AutoMovieArchetypeQuadrupedBody.Bone> =
+    {};
   for (const contact of animal.affordances) trunkContacts[contact.id] = "trunk";
-  const heldPose: ReturnType<typeof createHorse> = QuadrupedSkeleton.pose(
-    animal,
-    joints,
-    parts,
-    trunkContacts,
-  );
+  const heldPose: ReturnType<typeof createHorse> =
+    AutoMovieArchetypeQuadrupedSkeleton.pose(
+      animal,
+      joints,
+      parts,
+      trunkContacts,
+    );
   const oldBody: IAutoMovieTransform = animal.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === "trunk",
   )!.transform!;
@@ -150,7 +152,10 @@ export function test_archetype_animal_skeleton(): void {
   const heldHead: IAutoMovieTransform = heldPose.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === "head",
   )!.transform!;
-  const lines: readonly (readonly [createHorse.Affordance, string])[] = [
+  const lines: readonly (readonly [
+    AutoMovieArchetypeEquine.Affordance,
+    string,
+  ])[] = [
     ["leftRein", "rein-left"],
     ["rightRein", "rein-right"],
     ["lead", "lead"],
@@ -234,8 +239,10 @@ export function test_archetype_animal_skeleton(): void {
       "the neck rotated around its mesh centre or separated its head joint",
     );
   for (const run of [
-    (): unknown => QuadrupedSkeleton.pose(animal, joints, {}, contacts),
-    (): unknown => QuadrupedSkeleton.pose(animal, joints, parts, {}),
+    (): unknown =>
+      AutoMovieArchetypeQuadrupedSkeleton.pose(animal, joints, {}, contacts),
+    (): unknown =>
+      AutoMovieArchetypeQuadrupedSkeleton.pose(animal, joints, parts, {}),
     (): unknown => animal.reposed(animal.parts, new Map()),
     (): unknown =>
       animal.reposed(

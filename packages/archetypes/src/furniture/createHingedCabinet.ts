@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { StorageMechanisms } from "./StorageMechanisms";
 import type { createStorage } from "./createStorage";
 
@@ -8,7 +8,7 @@ import type { createStorage } from "./createStorage";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Wardrobe leaves have admitted travel and carry their pulls. The locker has a hinge frame with no admitted travel.
  * @evidence contracts/development/implementation.md#principled-implementation The wardrobe carries its pulls through the admitted angle of each leaf. The locker supplies its resting hinge and interior shelf.
@@ -21,7 +21,10 @@ import type { createStorage } from "./createStorage";
 export function createHingedCabinet(
   params: createHingedCabinet.IParams,
   seed?: number | string,
-): Archetype<createHingedCabinet.Affordance, createHingedCabinet.Dimension> {
+): AutoMovieArchetype<
+  createHingedCabinet.Affordance,
+  createHingedCabinet.Dimension
+> {
   return StorageMechanisms.hinged(
     ArchetypeDraw.choice(
       "storage",

@@ -4,22 +4,12 @@ import type { IAutoMoviePhysicalProfile } from "./IAutoMoviePhysicalProfile";
 
 /**
  * Independent endpoint goals, bounded chain-fitting inputs and residual-bearing motor poses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation A proximal-to-distal physical chain and an independent world endpoint goal. World motor-goal poses after bounded chain fitting and the remaining endpoint error.
- * @evidence contracts/development/design.md#principled-representation goal and optional terminal localPoint are metres; iterations is an integer in [1,64] and tolerance a positive finite metre residual. residual is the Euclidean world distance in metres between the fitted terminal support point and the unchanged requested goal.
- * @evidence contracts/development/design.md#minimal-and-owned-surface solvePhysicalChainTarget borrows the admitted profile and pose record, then detaches only pose shells it writes; omitted localPoint targets the terminal bone origin. solvePhysicalChainTarget creates a new target record and detaches changed pose shells; unchanged branches still borrow the input poses and must not be mutated through this result.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer validates the budget, finite goal and chain length of at least two; caller admission owns coherent chain topology and complete poses. The original endpoint goal remains unchanged when unreachable. The solve projects all declared joint coordinates while updating descendants; budget exhaustion may leave nonzero error. Results do not change solved bodies or certify achieved contact.
  */
 export namespace IAutoMovieSolvePhysicalChainTarget {
   /**
    * A proximal-to-distal physical chain and an independent world endpoint goal.
    *
    * goal and optional terminal localPoint are metres; iterations is an integer in [1,64] and tolerance a positive finite metre residual. solvePhysicalChainTarget borrows the admitted profile and pose record, then detaches only pose shells it writes; omitted localPoint targets the terminal bone origin. The producer validates the budget, finite goal and chain length of at least two; caller admission owns coherent chain topology and complete poses. The original endpoint goal remains unchanged when unreachable.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A proximal-to-distal physical chain and an independent world endpoint goal.
-   * @evidence contracts/development/design.md#principled-representation goal and optional terminal localPoint are metres; iterations is an integer in [1,64] and tolerance a positive finite metre residual.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface solvePhysicalChainTarget borrows the admitted profile and pose record, then detaches only pose shells it writes; omitted localPoint targets the terminal bone origin.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The producer validates the budget, finite goal and chain length of at least two; caller admission owns coherent chain topology and complete poses. The original endpoint goal remains unchanged when unreachable.
    */
   export type IInput = {
     /** Admitted physical tree and angular coordinates. */
@@ -48,11 +38,6 @@ export namespace IAutoMovieSolvePhysicalChainTarget {
    * World motor-goal poses after bounded chain fitting and the remaining endpoint error.
    *
    * residual is the Euclidean world distance in metres between the fitted terminal support point and the unchanged requested goal. solvePhysicalChainTarget creates a new target record and detaches changed pose shells; unchanged branches still borrow the input poses and must not be mutated through this result. The solve projects all declared joint coordinates while updating descendants; budget exhaustion may leave nonzero error. Results do not change solved bodies or certify achieved contact.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation World motor-goal poses after bounded chain fitting and the remaining endpoint error.
-   * @evidence contracts/development/design.md#principled-representation residual is the Euclidean world distance in metres between the fitted terminal support point and the unchanged requested goal.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface solvePhysicalChainTarget creates a new target record and detaches changed pose shells; unchanged branches still borrow the input poses and must not be mutated through this result.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The solve projects all declared joint coordinates while updating descendants; budget exhaustion may leave nonzero error. Results do not change solved bodies or certify achieved contact.
    */
   export type IResult = {
     /** New motor-goal record in world metres/unit rotations; unchanged pose branches are borrowed from input and must be treated as read-only. */

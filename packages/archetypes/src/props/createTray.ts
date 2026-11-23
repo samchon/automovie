@@ -1,9 +1,9 @@
 import {
-  Archetype,
-  ArchetypeBand,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeDrawSession,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { createCarryBasket } from "./createCarryBasket";
 import { createServingTray } from "./createServingTray";
@@ -15,7 +15,7 @@ const UNREAD: string = "the IKEA pages read give no weight of the item alone";
 type Producer = (
   params: createTray.IParams,
   seed?: number | string,
-) => Archetype<createTray.Affordance, createTray.Dimension>;
+) => AutoMovieArchetype<createTray.Affordance, createTray.Dimension>;
 
 /**
  * Replay a saved tray variant with the original dimensions, identifier and model choices.
@@ -23,7 +23,7 @@ type Producer = (
  * @param params The historic selector and optional fixed settings in the original units.
  * @param seed Draws the omitted settings. Omit it for the original seedless defaults.
  * @returns The original generated model and its local contacts.
- * @throws {ArchetypeRefusal} If the selector or any author setting is outside its admitted range.
+ * @throws {AutoMovieArchetypeRefusal} If the selector or any author setting is outside its admitted range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Replay a saved tray variant with the original dimensions, identifier and model choices.
  * @evidence contracts/development/implementation.md#principled-implementation Validate the saved selector and call its named producer, which runs the original shape construction in the tray draw namespace.
@@ -36,7 +36,7 @@ type Producer = (
 export function createTray(
   params: createTray.IParams,
   seed?: number | string,
-): Archetype<createTray.Affordance, createTray.Dimension> {
+): AutoMovieArchetype<createTray.Affordance, createTray.Dimension> {
   const kind: createTray.Kind = ArchetypeDraw.choice(
     "tray",
     "kind",
@@ -120,7 +120,9 @@ export namespace createTray {
   export type Dimension = "width" | "depth" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -167,13 +169,13 @@ export namespace createTray {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     tray: {
-      mass: ArchetypeBand.of("kg", 0.4, 1, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.4, 1, UNREAD, true),
     },
     basket: {
-      mass: ArchetypeBand.of("kg", 0.3, 0.8, UNREAD, true),
+      mass: AutoMovieArchetypeBand.of("kg", 0.3, 0.8, UNREAD, true),
     },
   };
 }

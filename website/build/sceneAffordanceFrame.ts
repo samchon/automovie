@@ -1,4 +1,4 @@
-import { ArchetypeFrame } from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanPerformance,
@@ -33,7 +33,7 @@ export function sceneAffordanceFrame(
     .affordance(id);
   return {
     site,
-    pose: ArchetypeFrame.compose(
+    pose: AutoMovieArchetypeFrame.compose(
       {
         translation: root.position,
         rotation: root.rotation,

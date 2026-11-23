@@ -1,53 +1,12 @@
 import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanLexiconParams,
-  IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
 
 import { support } from "../actions/support";
-import { getUp } from "../floor/getUp";
 import { HumanActionRow } from "../law/HumanActionRow";
-
-/** The feet, bearing anywhere on the floor the stance's solve lays them. */
-const FEET: readonly IAutoMovieMotionHumanSupport.IContact[] = [
-  { part: "leftFoot", kind: "bear" },
-  { part: "rightFoot", kind: "bear" },
-];
-
-/**
- * A part on the action's surface (`support.IParams.on`), on its own side,
- * in from the edge by an inset in forearm-and-hand lengths
- * (`HumanSupport.IContact.inset`).
- */
-const on = (
-  part: IAutoMovieMotionHumanSupport.Part,
-  inset: number = 0,
-): IAutoMovieMotionHumanSupport.IContact => ({
-  part,
-  kind: "bear",
-  target: "on",
-  ...(inset === 0 ? {} : { inset }),
-});
-
-/**
- * Seated upright on a surface: the hip and the knee at a right angle, the
- * seated reference posture (ANSI/HFES 100-2007), the arms left to hang as the
- * body's relaxed arms, which the support planner lays under every stated
- * posture.
- */
-const SEATED: IAutoMovieMotionHumanSupport.IStance["prefer"] = {
-  pitch: 0,
-  roll: 0,
-  joints: {
-    leftUpperLeg: [90, 0, 0],
-    rightUpperLeg: [90, 0, 0],
-    leftLowerLeg: [90, 0, 0],
-    rightLowerLeg: [90, 0, 0],
-  },
-};
-
-/** Lead with the left foot while the right knee carries the body onto the ledge. */
-const HALF_KNEEL: IAutoMovieMotionHumanSupport.IStance["prefer"] = getUp.halfKneeling("left");
+import { HUMAN_SUPPORT_SCRAMBLE } from "../next/presets/HUMAN_SUPPORT_SCRAMBLE";
+import { HUMAN_SUPPORT_SLIDE_OFF } from "../next/presets/HUMAN_SUPPORT_SLIDE_OFF";
 
 /**
  * Movements over a surface as rows of the support planner (`support`): each
@@ -76,60 +35,13 @@ const HALF_KNEEL: IAutoMovieMotionHumanSupport.IStance["prefer"] = getUp.halfKne
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No row writes motion or a place of its own; the postures are the floor laws' keys and a cited standard's, and the places the composition's surface with insets in the body's own lengths.
  */
 export namespace HumanSupportRows {
-  /** Scramble up onto a ledge: the palms on its top, a knee up onto its edge, the other foot up, standing on it. */
+  /** Scramble up onto a ledge: the palms on its top, a knee up onto its edge, the other foot up, standing on it. Each of its 4 stances takes `support.SECONDS`, 1 s, so about 4 s (provisional: no timing study); getting onto a ledge, a wall, a table. */
   export const scramble: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["support"]["scramble"]
-  > = HumanActionRow.of("scramble", support, {
-    stances: [
-      { contacts: [...FEET, on("leftHand", 0.5), on("rightHand", 0.5)] },
-      {
-        contacts: [
-          FEET[0]!,
-          on("leftHand", 0.5),
-          on("rightHand", 0.5),
-          on("rightKnee"),
-        ],
-        prefer: HALF_KNEEL,
-      },
-      {
-        contacts: [
-          on("leftHand", 0.5),
-          on("rightHand", 0.5),
-          on("rightKnee"),
-          on("leftFoot", 0.5),
-        ],
-        prefer: HALF_KNEEL,
-      },
-      {
-        contacts: [on("leftFoot", 0.5), on("rightFoot", 0.5)],
-        prefer: getUp.POSES.stood,
-      },
-    ],
-  });
+  > = HumanActionRow.of("scramble", support, HUMAN_SUPPORT_SCRAMBLE);
 
-  /** Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing. */
+  /** Slide off a table's edge: seated upright on it with the hands beside the seat, the feet down to the floor, standing. Each of its 3 stances takes `support.SECONDS`, 1 s, so about 3 s (provisional: no timing study); getting down from a table or a counter. */
   export const slideOff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["support"]["slideOff"]
-  > = HumanActionRow.of("slideOff", support, {
-    stances: [
-      {
-        contacts: [
-          on("seat", -0.5),
-          on("leftHand", -0.5),
-          on("rightHand", -0.5),
-        ],
-        prefer: SEATED,
-      },
-      {
-        contacts: [
-          on("seat", -0.5),
-          on("leftHand", -0.5),
-          on("rightHand", -0.5),
-          ...FEET,
-        ],
-        prefer: SEATED,
-      },
-      { contacts: FEET, prefer: getUp.POSES.stood },
-    ],
-  });
+  > = HumanActionRow.of("slideOff", support, HUMAN_SUPPORT_SLIDE_OFF);
 }

@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  ArchetypeUnits,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
   createStorage,
 } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
@@ -19,8 +19,11 @@ const HON: Readonly<{
   height: readonly [number, number];
 }> = {
   drawers: 4,
-  travel: (23 + 1 / 2) * ArchetypeUnits.INCH,
-  height: [52 * ArchetypeUnits.INCH, 52 * ArchetypeUnits.INCH],
+  travel: (23 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
+  height: [
+    52 * AutoMovieArchetypeUnits.INCH,
+    52 * AutoMovieArchetypeUnits.INCH,
+  ],
 };
 
 /** Lyon's single-tier lockers: 12 to 18 in wide, 12 to 21 in deep, 72 in high on 6 in legs. */
@@ -37,11 +40,11 @@ const LYON: Readonly<{
     [18, 18],
     [18, 21],
   ].map(([w, d]: number[]): readonly [number, number] => [
-    w! * ArchetypeUnits.INCH,
-    d! * ArchetypeUnits.INCH,
+    w! * AutoMovieArchetypeUnits.INCH,
+    d! * AutoMovieArchetypeUnits.INCH,
   ]),
-  height: 72 * ArchetypeUnits.INCH,
-  legs: 6 * ArchetypeUnits.INCH,
+  height: 72 * AutoMovieArchetypeUnits.INCH,
+  legs: 6 * AutoMovieArchetypeUnits.INCH,
 };
 
 /** IKEA BILLY: 80 x 28 x 202 cm, one fixed and four adjustable shelves. */
@@ -145,7 +148,7 @@ export function test_archetype_storage_kinds(): void {
   near(
     "the locker's hat shelf",
     locker.affordance("shelf1").frame.translation.y,
-    LYON.legs + 48 * ArchetypeUnits.INCH,
+    LYON.legs + 48 * AutoMovieArchetypeUnits.INCH,
   );
   if (locker.affordance("door").travel !== undefined)
     findings.push("the locker door states a travel no source gives");
@@ -166,7 +169,7 @@ export function test_archetype_storage_kinds(): void {
     findings.push("a fixed locker width was accepted");
   } catch (error) {
     if (
-      !(error instanceof ArchetypeRefusal) ||
+      !(error instanceof AutoMovieArchetypeRefusal) ||
       error.kind !== "parameter" ||
       error.axis !== "width"
     )

@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { MobilityAidConstruction } from "./MobilityAidConstruction";
 import type { createMobilityAid } from "./createMobilityAid";
 
@@ -8,7 +8,7 @@ import type { createMobilityAid } from "./createMobilityAid";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A mobile infusion stand with a tube grip and a top bag hook.
  * @evidence contracts/development/implementation.md#principled-implementation Five caster legs support the telescoping tubes. The bag hook lies on the top of the stand.
@@ -21,7 +21,10 @@ import type { createMobilityAid } from "./createMobilityAid";
 export function createInfusionStand(
   params: createInfusionStand.IParams = {},
   seed?: number | string,
-): Archetype<createInfusionStand.Affordance, createInfusionStand.Dimension> {
+): AutoMovieArchetype<
+  createInfusionStand.Affordance,
+  createInfusionStand.Dimension
+> {
   return MobilityAidConstruction.infusionStand(params, seed);
 }
 

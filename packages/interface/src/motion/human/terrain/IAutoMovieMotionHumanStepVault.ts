@@ -6,11 +6,6 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * support the crossing while the foot on the hand's side passes between
  * them. The supporting foot then follows to the exit. Give fixed targets
  * with enough room for the ordinary support-sequence swing.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the contact sequence, side convention and which choreography the targets support.
- * @evidence contracts/development/design.md#principled-representation The side selects the paired palm and opposite foot. Separate entry, crossing and exit targets describe their physical locations in each authored frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `stepVaultSupport` reads each target in the stance where that contact bears, and the side chooses which leg moves through first.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the human side and motion target contracts. The route's coordinates and stances remain independent of body dimensions.
  */
 export interface IAutoMovieMotionHumanStepVault {
   /** The supporting hand. The foot on this same side crosses first. */
@@ -36,11 +31,6 @@ export namespace IAutoMovieMotionHumanStepVault {
   /**
    * A fixed prop's named contact or a fixed point in metres in the
    * indicated frame. The support action resolves it at entry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the variants, units, frame and time of resolution.
-   * @evidence contracts/development/design.md#principled-representation The motion target discriminant preserves either a named prop contact or a spatial point and its frame.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The route and its footprints share the same support target projection.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the shared target union and admits only physical point variants.
    */
   export type Target = Extract<
     IAutoMovieMotionTarget,
@@ -49,11 +39,6 @@ export namespace IAutoMovieMotionHumanStepVault {
 
   /**
    * The pair of places where the feet bear at one end of the crossing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States where this pair applies and what it represents.
-   * @evidence contracts/development/design.md#principled-representation Each required member supplies one of the two distinct foot contacts.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `stepVaultSupport` reads both sides for the entry and exit stances.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The same pair type handles both ends and either choice of supporting hand.
    */
   export interface IFeet {
     /** Where the left foot bears. */

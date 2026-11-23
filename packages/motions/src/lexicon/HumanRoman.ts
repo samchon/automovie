@@ -43,7 +43,7 @@ export const HumanRoman: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRom
     plan(context: Context): IAutoMovieMotionHumanActionPlan {
       const params: IAutoMovieMotionHumanRoman = context.params;
       const step: number = params.step ?? 0.6;
-      HumanBound.above("seconds", params.seconds, 0, "s");
+      HumanBound.above("hold", params.hold, 0, "s");
       HumanBound.least("step", step, 0, "s");
       const left: HumanMountedFrame.Reader = HumanMountedFrame.of(
         context.prop(params.left),
@@ -59,9 +59,9 @@ export const HumanRoman: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRom
       const widest: number =
         2 * (m.thigh + m.shank) * Math.sin(Math.PI / 6) + 2 * m.hipHalfWidth;
       const narrowest: number = 2 * m.hipHalfWidth;
-      const duration: number = step + params.seconds;
+      const duration: number = step + params.hold;
       for (let k: number = 0; k <= 16; ++k) {
-        const film: number = context.start + step + (params.seconds * k) / 16;
+        const film: number = context.start + step + (params.hold * k) / 16;
         const span: number = Vector3.distance(
           left(film).position,
           right(film).position,

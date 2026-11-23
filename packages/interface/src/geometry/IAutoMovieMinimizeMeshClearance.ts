@@ -2,11 +2,6 @@
  * Solved forward-axis vertex travel restoring directional mesh clearance.
  *
  * Distances are nonnegative metres along the chosen positive axis and vertices retain original front-mesh identities. Negative or nonfinite clearance and incomplete solves refuse; results require remeasurement after skin propagation or Float32 conversion and do not certify volume collision freedom.
- *
- * @evidence contracts/development/design.md#principled-representation Distances are nonnegative metres along the chosen positive axis and vertices retain original front-mesh identities.
- * @evidence contracts/development/design.md#minimal-and-owned-surface minimizeAutoMovieMeshClearance consumes all overlap witnesses and returns newly owned displacement entries for the caller to apply.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Negative or nonfinite clearance and incomplete solves refuse; results require remeasurement after skin propagation or Float32 conversion and do not certify volume collision freedom.
- * @evidence contracts/development/common.md#meaningful-documentation Solved forward-axis vertex travel restoring directional mesh clearance. Distances are nonnegative metres along the chosen positive axis and vertices retain original front-mesh identities.
  */
 export namespace IAutoMovieMinimizeMeshClearance {
   /**
@@ -35,11 +30,6 @@ export namespace IAutoMovieMinimizeMeshClearance {
    * propagating the travel through a shared skin and after Float32 export.
    *
    * The list and entries transfer to the caller without changing either mesh. An empty list means no positive directional deficit was found; zero-distance entries may remain for vertices included in the solve.
-   *
-   * @evidence contracts/development/design.md#principled-representation Distances are nonnegative metres along the chosen positive axis and vertices retain original front-mesh identities.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface minimizeAutoMovieMeshClearance consumes all overlap witnesses and returns newly owned displacement entries for the caller to apply.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Negative or nonfinite clearance and incomplete solves refuse; results require remeasurement after skin propagation or Float32 conversion and do not certify volume collision freedom.
-   * @evidence contracts/development/common.md#meaningful-documentation Solved forward-axis vertex travel restoring directional mesh clearance. Distances are nonnegative metres along the chosen positive axis and vertices retain original front-mesh identities.
    */
   export type IResult = {
     /**

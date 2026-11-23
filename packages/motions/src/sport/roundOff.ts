@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanExerciseKey,
+  IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanGymnasticsWheel,
   IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
@@ -25,6 +26,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsWheel } from "./GymnasticsWheel";
 import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
+import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 import { cartwheel } from "./cartwheel";
 
 /**
@@ -53,11 +55,6 @@ import { cartwheel } from "./cartwheel";
  *
  * Events: `handsDown` (the first hand bears), `inverted` (half the wheel),
  * `feetDown` (the feet bear again), `relax` (the end).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the figure, the two turns and where each happens, where the twist and the roll overlap and how they compose with its follow-up, the timing, the events and what is left out.
- * @evidence contracts/development/design.md#principled-representation A wheel table from the body's own joints, the quarter turns a function of the wheel's angle.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel table, the seconds, the closing shape, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No length in metres: the travel follows from the spokes.
  */
 export namespace roundOff {
   /** The action's name. */
@@ -87,14 +84,6 @@ export namespace roundOff {
    *
    * @param body The body.
    * @returns The key.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the shape and that its angles are provisional.
-   * @evidence contracts/development/implementation.md#principled-implementation An exercise key on the body (`ExerciseKey.from`), so what it leaves unstated is the body's own standing.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One key.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `ExerciseKey.from` and `ExerciseKey.stood`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function landed(
     body: IAutoMovieMotionHumanBody,
@@ -112,14 +101,6 @@ export namespace roundOff {
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When the seconds are not positive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The shape at an angle is the cartwheel's wheel in the first half and closes to `landed` in the second; its heading turns by the quarter turns; the wheel table rolls it over both feet, each foot, each hand and both feet again.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The shape by angle, the table, the angle by time, the supports from the table.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The final posture is returned with no roll, the same body as a whole wheel, so the next action does not unwind it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Original table rows retain demanded spoke FK. Standing/wheel/landing keys and two ordered joint unions prepare once; each changing angle performs its actual interpolation. Entry FK requests only ankles; speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses cartwheel geometry/step, prepared exercise blends and the standing plan. Fixed key endpoints are shared within this plan, with no time-keyed shape cache or changed interpolation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its table and two fixed key-pair readers, without retaining query postures or FK readers.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoundOff.IParams>,
@@ -127,20 +108,21 @@ export namespace roundOff {
     const body: IAutoMovieMotionHumanBody = context.body;
     const duration: number = HumanBound.above(
       "seconds",
-      context.params.seconds ?? SECONDS,
+      context.params.duration ?? SECONDS,
       0,
       "s",
     );
     const sign: number = context.params.lead === "right" ? 1 : -1;
     const standing: IAutoMovieMotionHumanPosture = stand
-      .plan({ ...context, params: { seconds: 1 } })
+      .plan({ ...context, params: { hold: 1 } })
       .posture(0);
     const ease: (x: number) => number = (x: number): number =>
       minimumJerk.share(x);
     const wheeled: IAutoMovieMotionHumanExerciseKey.IKey =
       cartwheel.wheel(body);
+    // The wheel leaves the body as the entry shows it, its stance and feet.
     const entering: ReturnType<typeof ExerciseKey.prepareBlend> =
-      ExerciseKey.prepareBlend(ExerciseKey.standing(body), wheeled);
+      ExerciseKey.prepareBlend(ExerciseKey.shown(context.entry.pose), wheeled);
     const closing: ReturnType<typeof ExerciseKey.prepareBlend> =
       ExerciseKey.prepareBlend(wheeled, landed(body));
 
@@ -194,7 +176,9 @@ export namespace roundOff {
         body,
         shaped,
         spokes,
-        start: standing.root,
+        // The root where the entry shows it, so the feet bear where they
+        // stand.
+        start: context.entry.pose.root?.translation ?? standing.root,
         until: 360,
         step: cartwheel.STEP,
       });
@@ -235,23 +219,25 @@ export namespace roundOff {
         root: wheel.root(angle),
       };
     };
-    // The bearing hands and feet laid where they came down, and each arm
-    // coursed over the whole turn with one continuous branch.
+    // The bearing hands and feet laid where they came down, the hands in the
+    // T-shape the round-off is coached and measured in (Farana et al. 2014):
+    // the first turned across the run, the second along it.
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: { x: 0, y: 0, z: 0 },
+      yaw: standing.yaw,
+    };
+    // A foot rolled past the ankle's range bears on its forefoot's edge.
+    const borne: IAutoMovieMotionHumanContactWindow[] =
+      edgeGymnasticsWheelFeet(body, contacts, duration, carried);
     const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
-      GymnasticsWheelPlants.of(
-        body,
-        contacts,
-        duration,
-        carried,
-        HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: standing.yaw },
-          { x: -sign, y: 0, z: 0 },
-        ),
-      );
+      GymnasticsWheelPlants.of(body, borne, duration, carried, {
+        first: HumanFrame.point(frame, { x: -sign, y: 0, z: 0 }),
+        second: HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
+      });
     const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,
-      contacts,
+      contacts: borne,
       contact: feetDown * duration,
       posture: (seconds: number): IAutoMovieMotionHumanPosture =>
         lay(carried(seconds), Math.min(duration, Math.max(0, seconds))),

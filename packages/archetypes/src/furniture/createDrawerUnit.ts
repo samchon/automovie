@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { StorageMechanisms } from "./StorageMechanisms";
 import type { createStorage } from "./createStorage";
 
@@ -8,7 +8,7 @@ import type { createStorage } from "./createStorage";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A chest or filing cabinet with individually sliding drawers.
  * @evidence contracts/development/implementation.md#principled-implementation Each drawer advances along the cabinet's +Z axis. The chest supplies carried pull grips.
@@ -21,7 +21,7 @@ import type { createStorage } from "./createStorage";
 export function createDrawerUnit(
   params: createDrawerUnit.IParams,
   seed?: number | string,
-): Archetype<createDrawerUnit.Affordance, createDrawerUnit.Dimension> {
+): AutoMovieArchetype<createDrawerUnit.Affordance, createDrawerUnit.Dimension> {
   return StorageMechanisms.sliding(
     ArchetypeDraw.choice(
       "storage",

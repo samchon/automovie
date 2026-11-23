@@ -48,22 +48,10 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * requested apex, and the body does not step at the take-off.
  *
  * Events: `takeoff`, `apex`, optional `barCrossing`, `touchdown`, `settled`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation to: Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. on: The prop landed on, its subject id; the floor when absent.
- * @evidence contracts/development/design.md#principled-representation to: Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. on: The prop landed on, its subject id; the floor when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: sport/highJump.ts (highJump.plan, context); sport/highJump.ts (highJump.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanHighJump {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The landing place, its support, the high jump's crossbar and the authored centre-of-mass rise above its axis.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The surface is a prop's subject id, as the jump's.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** Where the body comes down on its back, world metres: its height is the landing surface's, the floor's 0 or a mat's top. */
@@ -75,7 +63,7 @@ export namespace IAutoMovieMotionHumanHighJump {
     /** The high jump's prop subject. Its `bar` affordance supplies the crossbar's world axis and span. */
     bar: string;
 
-    /** The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed. */
+    /** The centre-of-mass apex above the crossbar's axis, in metres. Defaults to zero. The vertical take-off speed is bounded by 5.05 m/s (`highJump.RISE`), so the apex above take-off is at most 1.30 m (`v^2 / 2g`, g 9.80665 m/s2); the flight time is the ballistic fall from that apex to the landing surface. The high-jump law requires a finite non-negative value and bounds the combined apex by the takeoff's vertical speed. */
     apexReserve?: number;
 
     /** The planted foot that pushes off. Omitted uses the foot a cut run-up has planted, otherwise the incoming stance's leading support. */

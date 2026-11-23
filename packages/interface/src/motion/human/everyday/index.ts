@@ -8,8 +8,6 @@ export type { IAutoMovieMotionHumanConversation } from "./IAutoMovieMotionHumanC
 export type { IAutoMovieMotionHumanCrouch } from "./IAutoMovieMotionHumanCrouch";
 export type { IAutoMovieMotionHumanCurtsy } from "./IAutoMovieMotionHumanCurtsy";
 export type { IAutoMovieMotionHumanEffort } from "./IAutoMovieMotionHumanEffort";
-export type { IAutoMovieMotionHumanGaze } from "./IAutoMovieMotionHumanGaze";
-export type { IAutoMovieMotionHumanGesture } from "./IAutoMovieMotionHumanGesture";
 export type { IAutoMovieMotionHumanGestureStroke } from "./IAutoMovieMotionHumanGestureStroke";
 export type { IAutoMovieMotionHumanHeadTilt } from "./IAutoMovieMotionHumanHeadTilt";
 export type { IAutoMovieMotionHumanKneel } from "./IAutoMovieMotionHumanKneel";

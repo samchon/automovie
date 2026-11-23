@@ -59,7 +59,6 @@ export * from "./physics";
 export * from "./placeFormationSlot";
 export * from "./populationRuntime";
 export * from "./productionRuntimeModelId";
-export * from "./productionRuntimeSkeletonId";
 export * from "./random";
 export * from "./readAutoMovieGeometryGround";
 export * from "./render";

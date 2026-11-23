@@ -40,7 +40,7 @@ export function prepareDanceBeats(
   exact: boolean = false,
 ): IAutoMovieMotionHumanDanceBeats {
   HumanBound.above("bpm", bpm, 0, "beats per minute");
-  HumanBound.whole("beats", beats);
+  HumanBound.whole("count", beats);
   const locked: readonly number[] | null =
     lock === undefined
       ? null
@@ -77,7 +77,7 @@ export function prepareDanceBeats(
   return {
     period,
     lead,
-    beats,
+    count: beats,
     at: (k: number): number =>
       (exact ? locked?.[k - 1] : undefined) ?? lead + (k - 1) * period,
   };

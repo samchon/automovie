@@ -1,9 +1,4 @@
 /** Source incidence witnessed while one section contour is fitted. This acquisition-only record stays outside the source-free coefficient bundle. Face IDs address the original observation input's triangle array; they include every face incident to a contour vertex or crossed edge, so they may include adjacent faces and do not identify an anatomical region or an exact generating patch.
- *
- * @evidence contracts/development/design.md#principled-representation Original edge and vertex incidence identifies supporting source faces without nearest-point inference or face reindexing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One callback record separates acquisition provenance from source-free reconstruction data and identifies the corresponding published curve or unsupported contour.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The record supplies no source positions, normals, replacement surface or semantic part labels; incident support is not claimed as exact patch membership.
- * @evidence contracts/development/common.md#meaningful-documentation States millimetre station coordinates, original source addresses, publication indices, callback ownership and the incidence limitation.
  */
 export interface IAutoMovieRecoverySourceLineage {
   /** Signed station coordinate in millimetres along the input's section axis. */

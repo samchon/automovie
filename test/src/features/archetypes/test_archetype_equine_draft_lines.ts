@@ -1,7 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRide,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRide,
   createCart,
   createHorse,
   rideHorse,
@@ -14,7 +15,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /** A towed cart's ride. */
-type Towed = ArchetypeRide.ITowedRide<
+type Towed = AutoMovieArchetypeRide.ITowedRide<
   createCart.Affordance,
   createCart.Dimension
 >;
@@ -39,13 +40,15 @@ interface IHolder {
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name.
  */
 export function test_archetype_equine_draft_lines(): void {
-  const horse: Archetype<createHorse.Affordance, createHorse.Dimension> =
-    createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 3);
-  const cart: Archetype<createCart.Affordance, createCart.Dimension> =
+  const horse: AutoMovieArchetype<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  > = createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, 3);
+  const cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension> =
     createCart({ kind: "cart", withersHeight: 1.6 }, 3);
-  const leader: ArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+  const leader: AutoMovieArchetypeRide.IRide<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   > = rideHorse(horse, {
     start: { x: 0, z: 0, heading: 0 },
     legs: [
@@ -66,32 +69,45 @@ export function test_archetype_equine_draft_lines(): void {
         z: 0.04 * Math.cos(seconds),
       },
     );
-  holder.ride = ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
-    lines: createCart.lines(cart, held),
-    support: createCart.towing(cart),
-  });
-  const plain: Towed = ArchetypeRide.towed(leader, "hitch", cart, "coupling", {
-    lines: createCart.lines(cart),
-    support: createCart.towing(cart),
-  });
+  holder.ride = AutoMovieArchetypeRide.towed(
+    leader,
+    "hitch",
+    cart,
+    "coupling",
+    {
+      lines: createCart.lines(cart, held),
+      support: createCart.towing(cart),
+    },
+  );
+  const plain: Towed = AutoMovieArchetypeRide.towed(
+    leader,
+    "hitch",
+    cart,
+    "coupling",
+    {
+      lines: createCart.lines(cart),
+      support: createCart.towing(cart),
+    },
+  );
   const issues: string[] = [];
   for (const seconds of [0.5, 2.3, 4.1, 6.7]) {
-    const horseSample: ArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+    const horseSample: AutoMovieArchetypeRide.ISample<
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = leader.at(seconds);
     const ball = (id: string): IAutoMovieVector3 =>
-      ArchetypeFrame.compose(
+      AutoMovieArchetypeFrame.compose(
         horseSample.placement,
         horseSample.archetype.parts.find(
           (p: IAutoMovieModelPart): boolean => p.id === id,
         )!.transform!,
       ).translation;
     for (const side of ["left", "right"] as const) {
-      const line: ArchetypeRide.ILineState | undefined = holder.ride
+      const line: AutoMovieArchetypeRide.ILineState | undefined = holder.ride
         .at(seconds)
         .lines?.find(
-          (l: ArchetypeRide.ILineState): boolean => l.id === `line-${side}`,
+          (l: AutoMovieArchetypeRide.ILineState): boolean =>
+            l.id === `line-${side}`,
         );
       const expected: IAutoMovieVector3[] = [
         ball(`bit-${side}`),
@@ -119,10 +135,11 @@ export function test_archetype_equine_draft_lines(): void {
         issues.push(
           `${seconds} s: the ${side} grip segment does not end at the hand`,
         );
-      const fixed: ArchetypeRide.ILineState | undefined = plain
+      const fixed: AutoMovieArchetypeRide.ILineState | undefined = plain
         .at(seconds)
         .lines?.find(
-          (l: ArchetypeRide.ILineState): boolean => l.id === `line-${side}`,
+          (l: AutoMovieArchetypeRide.ILineState): boolean =>
+            l.id === `line-${side}`,
         );
       if (
         fixed === undefined ||

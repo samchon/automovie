@@ -1,4 +1,8 @@
-import { ArchetypeUnits, ArchetypeFrame, createPoolEdge } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  createPoolEdge,
+} from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieVector3,
@@ -37,11 +41,11 @@ export function test_archetype_pool_edge(): void {
     id: createPoolEdge.Affordance,
   ): number => edge.affordance(id).frame.translation.y - water(edge);
   const tilt = (edge: ReturnType<typeof createPoolEdge>): number => {
-    const normal: IAutoMovieVector3 = ArchetypeFrame.axis(
+    const normal: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
       edge.affordance("platform").frame,
       "y",
     );
-    return Math.atan2(normal.z, normal.y) / ArchetypeUnits.DEGREE;
+    return Math.atan2(normal.z, normal.y) / AutoMovieArchetypeUnits.DEGREE;
   };
   const row = (
     name: string,
@@ -65,16 +69,30 @@ export function test_archetype_pool_edge(): void {
     row("deck above the water", 0.3, 0.3, `${FR} 2.4.3`, (s: number): number =>
       above(createPoolEdge({ kind: "deckEdge" }, s), "deck"),
     ),
-    row("rest ledge below the water", -1.2, -1.2, `${FR} 2.4.2`, (s: number): number =>
-      above(createPoolEdge({ kind: "deckEdge" }, s), "restLedge"),
+    row(
+      "rest ledge below the water",
+      -1.2,
+      -1.2,
+      `${FR} 2.4.2`,
+      (s: number): number =>
+        above(createPoolEdge({ kind: "deckEdge" }, s), "restLedge"),
     ),
-    row("rest ledge width", 0.1, 0.15, `${FR} 2.4.2`, (s: number): number =>
-      archetypeExtent(createPoolEdge({ kind: "deckEdge" }, s), "z", [
-        "rest-ledge",
-      ]).size,
+    row(
+      "rest ledge width",
+      0.1,
+      0.15,
+      `${FR} 2.4.2`,
+      (s: number): number =>
+        archetypeExtent(createPoolEdge({ kind: "deckEdge" }, s), "z", [
+          "rest-ledge",
+        ]).size,
     ),
-    row("platform above the water", 0.5, 0.75, `${FR} 2.7`, (s: number): number =>
-      above(block(s), "platform"),
+    row(
+      "platform above the water",
+      0.5,
+      0.75,
+      `${FR} 2.7`,
+      (s: number): number => above(block(s), "platform"),
     ),
     row("platform slope", 0, 10, `${FR} 2.7`, (s: number): number =>
       tilt(block(s)),
@@ -97,15 +115,25 @@ export function test_archetype_pool_edge(): void {
       "top",
     ]).high;
     if (forward > 1e-9)
-      findings.push(`seed ${seed}: the platform reaches ${forward} m past the wall`);
+      findings.push(
+        `seed ${seed}: the platform reaches ${forward} m past the wall`,
+      );
     const front: IAutoMovieVector3 = edge.affordance("front").frame.translation;
     if (
       edge.dimensions.slope! > 0.5 &&
-      !(tilt(edge) > 0 && front.y < edge.affordance("platform").frame.translation.y)
+      !(
+        tilt(edge) > 0 &&
+        front.y < edge.affordance("platform").frame.translation.y
+      )
     )
       findings.push(`seed ${seed}: the top does not fall toward the water`);
-    if (Math.abs(front.z) > 0.5 * (1 - Math.cos(10 * ArchetypeUnits.DEGREE)) + 1e-9)
-      findings.push(`seed ${seed}: the front edge stands ${front.z} m off the wall's line`);
+    if (
+      Math.abs(front.z) >
+      0.5 * (1 - Math.cos(10 * AutoMovieArchetypeUnits.DEGREE)) + 1e-9
+    )
+      findings.push(
+        `seed ${seed}: the front edge stands ${front.z} m off the wall's line`,
+      );
     const grip: number = above(edge, "backstrokeGrip");
     const bar: { low: number; high: number } = archetypeExtent(edge, "y", [
       "backstroke-grip",
@@ -118,7 +146,9 @@ export function test_archetype_pool_edge(): void {
         archetypeExtent(edge, "z", ["backstroke-grip"]).high <= 1e-9
       )
     )
-      findings.push(`seed ${seed}: the backstroke grip lies ${grip} m above the water, off FR 2.7's place`);
+      findings.push(
+        `seed ${seed}: the backstroke grip lies ${grip} m above the water, off FR 2.7's place`,
+      );
   }
 
   // 4. The contacts.
@@ -129,7 +159,9 @@ export function test_archetype_pool_edge(): void {
       .join(",");
   const deck: string = "deck:surface,edge:ledge,restLedge:ledge,water:surface";
   if (ids(createPoolEdge({ kind: "deckEdge" })) !== deck)
-    findings.push(`the deck edge declares ${ids(createPoolEdge({ kind: "deckEdge" }))}`);
+    findings.push(
+      `the deck edge declares ${ids(createPoolEdge({ kind: "deckEdge" }))}`,
+    );
   const platform: string =
     "backstrokeGrip:bar,deck:surface,edge:ledge,front:ledge,platform:surface,restLedge:ledge,water:surface";
   if (ids(block(1)) !== platform)

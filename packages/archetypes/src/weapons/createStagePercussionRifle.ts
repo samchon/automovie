@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
 /**
@@ -47,12 +51,12 @@ const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
  */
 export function createStagePercussionRifle(
   params: createStagePercussionRifle.IParams = {},
-): Archetype<
+): AutoMovieArchetype<
   createStagePercussionRifle.Affordance,
   createStagePercussionRifle.Dimension
 > {
   const v: typeof Vector3.create = Vector3.create;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStagePercussionRifle.Affordance,
     createStagePercussionRifle.Dimension
   > = StagePeriodGunConstruction.lay<createStagePercussionRifle.Lock>(
@@ -78,14 +82,14 @@ export function createStagePercussionRifle(
   builder.affordance({
     id: "nipple",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0.012, 0.016, breech + 0.01)),
+    frame: AutoMovieArchetypeFrame.upright(v(0.012, 0.016, breech + 0.01)),
     extent: null,
   });
   builder.affordance({
     id: "hammer",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0.014, 0.034, breech - 0.025),
       v(0, 1, 0),
       v(0, 0, 1),

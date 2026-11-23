@@ -71,11 +71,11 @@ export function HumanSeesawRide(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): Plan {
   const body: IAutoMovieMotionHumanBody = context.body;
-  const { on, seat, hands, seconds }: Params = context.params;
+  const { on, seat, hands, duration: seconds }: Params = context.params;
   const ground: number = context.params.ground ?? 0;
   const ride: Plan = HumanRide.ride.plan({
     ...context,
-    params: { on, seconds, seat, hands },
+    params: { on, duration: seconds, seat, hands },
   });
   const forward: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.fromAxisAngle(UP, context.entry.posture.yaw),

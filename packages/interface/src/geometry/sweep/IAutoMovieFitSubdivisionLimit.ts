@@ -1,10 +1,5 @@
 /**
  * Input topology and independently owned output of a one-shot inverse subdivision fit.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Quad topology and packed targets share one spatial unit; fitted controls retain that unit and report their measured limit residual. Pinned controls are held rather than limit-interpolated; structural buffers do not establish full manifoldness or convergence.
- * @evidence contracts/development/design.md#principled-representation Quad topology and packed targets share one spatial unit; fitted controls retain that unit and report their measured limit residual.
- * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionLimit builds stencils and delegates the solve; callers own the resulting controls and acceptance decision.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Pinned controls are held rather than limit-interpolated; structural buffers do not establish full manifoldness or convergence.
  */
 export namespace IAutoMovieFitSubdivisionLimit {
   /**
@@ -30,11 +25,6 @@ export namespace IAutoMovieFitSubdivisionLimit {
    * Pinned vertices keep their target as their control position and are not
    * solved, which is how a cage meets a fixed junction ring exactly: their limit
    * points then depend on the cage around them.
-   *
-   * @evidence contracts/development/design.md#principled-representation Packed targets and quad indices define a linear limit system in the caller's frame and length unit; the wrapper checks triple packing and stencil construction checks supported incidence, not coordinate finiteness.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface fitAutoMovieSubdivisionLimit builds canonical stencils and delegates to solveAutoMovieSubdivisionLimit; callers supply optional held vertices without exposing solver buffers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Pinning fixes controls, not their limit points; convergence remains observable in the returned residual rather than assumed from valid topology.
-   * @evidence contracts/development/common.md#meaningful-documentation Documents topology premises, input ownership, packing, mask defaults, units and solver stopping behavior.
    */
   export type IProps = {
     /** Quad corner vertex indices, with consistent manifold winding as a caller premise. stencilAutoMovieSubdivisionLimit checks quad cardinality, integer index range, unused vertices and zero/two boundary edges per vertex; it does not certify full manifoldness. Inputs are borrowed only during the call. */
@@ -49,11 +39,6 @@ export namespace IAutoMovieFitSubdivisionLimit {
 
   /**
    * Controls and the last measured free-vertex residual from a one-shot fit. The caller decides whether the residual is acceptable; the fitter returns after its iteration cap without throwing for nonconvergence.
-   *
-   * @evidence contracts/development/design.md#principled-representation Positions retain the target frame and length unit; residual is a Euclidean length and the two fields do not encode a convergence guarantee.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The one-shot fitter returns newly allocated controls and the residual needed to judge the fit; the stencil and ping-pong buffers remain private.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Iteration exhaustion is exposed through residual rather than hidden by a success boolean; the reported residual measures the returned controls even at the iteration cap.
-   * @evidence contracts/development/common.md#meaningful-documentation States mutable output ownership, held-control meaning, residual units and the iteration-cap limitation.
    */
   export type IResult = {
     /** Newly allocated mutable packed XYZ controls, in targets' frame and unit. Held controls equal their target; no storage is shared with input arrays. */

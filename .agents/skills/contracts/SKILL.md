@@ -5,7 +5,7 @@ description: Defines the evidence checklists maintained declarations and tests a
 
 # Contracts
 
-Each selected declaration answers one checklist item per H2 in its doc comment. `evidence.config.ts` selects items. `pnpm run evidence` checks coverage. Review checks truth and completeness.
+Each selected declaration answers one checklist item per H2. A package declaration answers in the package's evidence document, `evidence/<source path>.md`, under an H1 naming it as `<source path>#<accessor>`, so its doc comment stays the documentation its users read. A test function answers in its doc comment. `evidence.config.ts` selects items. `pnpm run evidence` checks coverage. Review checks truth and completeness.
 
 | Checklist | Answered by |
 | --- | --- |
@@ -21,9 +21,9 @@ Answer each item from the code:
 1. Read the declaration and the dependencies the item asks about.
 2. Answer every fact the item asks for, from what the code does.
 3. Fix the code where it falls short of the item, and state any gap that remains instead of claiming it is met.
-4. Write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line.
+4. In an evidence document, write `## @evidence contracts/development/<file>.md#<anchor>` under the declaration's H1, with the reason below it. In a test's doc comment, write `@evidence contracts/development/<file>.md#<anchor> <reason>` after a blank comment line.
 
-For an item that does not apply, write `@evidenceExclude` the same way, never for a whole file.
+For an item that does not apply, write `@evidenceExclude` the same way, as a heading in an evidence document and a tag in a test, never for a whole file. A change to a declaration updates its evidence document in the same commit.
 
 ## Selection
 

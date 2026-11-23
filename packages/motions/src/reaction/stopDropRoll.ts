@@ -82,7 +82,7 @@ export namespace stopDropRoll {
     const params: IAutoMovieMotionHumanCollapse.IParams = {
       direction: "forward",
       tone: "protective",
-      seconds: 0,
+      hold: 0,
     };
     const drop: IAutoMovieMotionHumanActionPlan = collapse.plan({
       ...context,
@@ -131,16 +131,21 @@ export namespace stopDropRoll {
       // sideways by the arc the body rolls along the floor.
       const lift: number = rest(theta) - deep;
       const arc: number = theta * ((deep + wide) / 2);
+      const moved: IAutoMovieVector3 = Vector3.add(
+        { x: 0, y: lift, z: 0 },
+        Vector3.scale(right, arc),
+      );
       return {
         ...lying,
-        root: Vector3.add(
-          lying.root,
-          Vector3.add({ x: 0, y: lift, z: 0 }, Vector3.scale(right, arc)),
-        ),
+        root: Vector3.add(lying.root, moved),
         // The turn about the body's long axis, a line along the heading
-        // through the root at the lying cross-section's depth.
+        // through the lying cross-section's centre, which the roll has
+        // carried up and sideways with the root: the turn is about where
+        // the axis now lies, so the root keeps its place on it (a pivot
+        // left behind would swing the body about a line it no longer lies
+        // on, down through the floor).
         rotation: {
-          about: { x: lying.root.x, y: deep, z: lying.root.z },
+          about: Vector3.add({ x: lying.root.x, y: deep, z: lying.root.z }, moved),
           turn: Quaternion.fromAxisAngle(along, degrees),
         },
       };

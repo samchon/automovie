@@ -121,10 +121,14 @@ export namespace balletStep {
           leading === "left" ? "leftUpperLeg" : "rightUpperLeg",
           "flexion",
         ) ?? 0) +
-        (AutoMovieMotionHumanRange.limit(
-          leading === "left" ? "rightUpperLeg" : "leftUpperLeg",
-          "extension",
-        ) ?? 0);
+        // The extension's limit is signed (the range's low end): the split
+        // adds its magnitude.
+        Math.abs(
+          AutoMovieMotionHumanRange.limit(
+            leading === "left" ? "rightUpperLeg" : "leftUpperLeg",
+            "extension",
+          ) ?? 0,
+        );
       const split: number = p.split ?? 150;
       if (!(split > 0 && split <= reach))
         throw new HumanRefusal({
@@ -141,8 +145,8 @@ export namespace balletStep {
           fix: `split at most ${reach.toFixed(0)} degrees`,
         });
     }
-    const count: number = p.beats ?? 4;
-    HumanBound.whole("beats", count);
+    const count: number = p.count ?? 4;
+    HumanBound.whole("count", count);
     const beats: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
       context,
       p.bpm ?? dance.BPM,
@@ -159,7 +163,7 @@ export namespace balletStep {
         : p.kind === "pirouette"
           ? balletPirouette.course(context, beats, turnout)
           : balletJete.course(context, beats);
-    for (let k: number = 1; k <= beats.beats; k++)
+    for (let k: number = 1; k <= beats.count; k++)
       if (beats.at(k) <= course.duration)
         course.instants.push({ name: `beat${k}`, seconds: beats.at(k) });
     if (
@@ -167,7 +171,7 @@ export namespace balletStep {
         (i: IAutoMovieMotionClockInstant): boolean => i.name === "relax",
       )
     )
-      course.instants.push({ name: "relax", seconds: beats.at(beats.beats) });
+      course.instants.push({ name: "relax", seconds: beats.at(beats.count) });
     return DanceFootwork.compose(context.body, context.entry.posture, course, {
       kind: "ground",
     });

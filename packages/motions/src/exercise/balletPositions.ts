@@ -239,19 +239,19 @@ export namespace balletPositions {
       IAutoMovieMotionHumanFoot.IPlacement
     > = feet(context, p.position ?? 1, turnout, front);
     const arrive: number = beats.at(1);
-    const end: number = beats.at(beats.beats) + beats.period;
+    const end: number = beats.at(beats.count) + beats.period;
 
     // The movement's share: 1 on even beats, 0 on odd ones and at the end.
     function share(t: number): number {
       if (movement === "hold" || t <= arrive) return 0;
       const k: number = Math.min(
-        beats.beats,
+        beats.count,
         Math.floor((t - arrive) / beats.period) + 1,
       );
       const from: number = k % 2 === 0 ? 1 : 0;
       const at: number = beats.at(k);
-      const next: number = k + 1 <= beats.beats ? beats.at(k + 1) : end;
-      const to: number = k + 1 <= beats.beats ? ((k + 1) % 2 === 0 ? 1 : 0) : 0;
+      const next: number = k + 1 <= beats.count ? beats.at(k + 1) : end;
+      const to: number = k + 1 <= beats.count ? ((k + 1) % 2 === 0 ? 1 : 0) : 0;
       return (
         from +
         (to - from) * minimumJerk.share(Math.min(1, (t - at) / (next - at)))

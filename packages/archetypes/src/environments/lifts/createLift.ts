@@ -81,7 +81,7 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
   };
   const transfer = (
     crossing: createLift.ICrossing,
-  ): IAutoMovieMotionHumanSupportTransfer => {
+  ): createLift.ITransfer => {
     const { id, stop, direction, start, seconds, lead, landing } = crossing;
     if (!Object.hasOwn(props.stops, stop))
       throw new Error(`Lift ${id} has no stop named ${stop}.`);
@@ -103,11 +103,11 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
       throw new Error(
         `Lift ${id} stop ${stop} is not fully open and docked throughout the transfer.`,
       );
-    const cab: IAutoMovieMotionHumanSupportTransfer.ISurface = {
+    const cab: createLift.ISurface = {
       prop: `${id}/cab`,
       surface: "sill",
     };
-    const pad: IAutoMovieMotionHumanSupportTransfer.ISurface = {
+    const pad: createLift.ISurface = {
       prop: `${id}/stops/${stop}/landing`,
       surface: "sill",
     };
@@ -222,15 +222,27 @@ export namespace createLift {
     car?: Omit<createElevator.IParams, "id">;
   }
 
+  /** A prop surface selector of the support-transfer grammar: a prop subject id and its surface affordance id. */
+  export type ISurface = IAutoMovieMotionHumanSupportTransfer.ISurface;
+
+  /** The foot, duration and destination station a crossing hands to the support-transfer grammar unchanged. */
+  export type ITiming = Pick<
+    IAutoMovieMotionHumanSupportTransfer,
+    "lead" | "seconds" | "landing"
+  >;
+
+  /** The support-transfer input `transfer` returns: both surfaces plus the crossing's foot, duration and station. Docking is left at its stationary default. */
+  export type ITransfer = Pick<
+    IAutoMovieMotionHumanSupportTransfer,
+    "from" | "to" | "lead" | "seconds" | "landing"
+  >;
+
   /**
    * One shot-local transfer between the named landing and cab surfaces.
    * The stop and time select a docked window. The leading foot and optional
    * destination-surface coordinates use the existing support-transfer grammar.
    */
-  export interface ICrossing extends Pick<
-    IAutoMovieMotionHumanSupportTransfer,
-    "lead" | "seconds" | "landing"
-  > {
+  export interface ICrossing extends ITiming {
     /** Scoped id of the placed lift module, including the environment name. */
     id: string;
 
@@ -257,6 +269,6 @@ export namespace createLift {
      * @returns The two support selectors and existing transfer parameters.
      * @throws When the known stop is not open and docked during that interval.
      */
-    transfer(crossing: ICrossing): IAutoMovieMotionHumanSupportTransfer;
+    transfer(crossing: ICrossing): ITransfer;
   }
 }

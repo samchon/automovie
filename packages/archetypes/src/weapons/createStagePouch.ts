@@ -1,4 +1,4 @@
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { CartridgeBox } from "./CartridgeBox";
 import { StageCarrierConstruction } from "./StageCarrierConstruction";
 import type { createHolster } from "./createHolster";
@@ -11,7 +11,7 @@ import type { createHolster } from "./createHolster";
  * @param params The scene id, optional display dimensions and this carrier's own fit options.
  * @param seed Uses the original named draw session to resolve omitted settings.
  * @returns The digital model and its authored contact frames.
- * @throws {ArchetypeRefusal} For inputs the selected catalogue profile cannot use.
+ * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile cannot use.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the wearable model origin and the model-space stage contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Preserves the original silhouette geometry and the costume contact required by this form.
@@ -24,7 +24,7 @@ import type { createHolster } from "./createHolster";
 export function createStagePouch(
   params: createStagePouch.IParams = {},
   seed?: number | string,
-): Archetype<createStagePouch.Affordance, createStagePouch.Dimension> {
+): AutoMovieArchetype<createStagePouch.Affordance, createStagePouch.Dimension> {
   return StageCarrierConstruction(
     "pouch",
     params,

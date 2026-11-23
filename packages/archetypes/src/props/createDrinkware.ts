@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { DRINKWARE_BANDS } from "./DRINKWARE_BANDS";
 
@@ -54,7 +54,7 @@ const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
  * @param params The kind, how full it is and any dimension the author fixes.
  * @param seed The seed that picks the model when none is given and draws every dimension left free inside its band; absent, the first model and the middle of each band.
  * @returns The vessel.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band or a fill outside 0 to 1.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or a fill outside 0 to 1.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, where the grips and the lip stand and how the vessel is oriented.
  * @evidence contracts/development/implementation.md#principled-implementation Dimensioned rods from the drawn height and diameters; grip frames follow the `handle` convention with the wrapped axis along the vessel's or the handle bar's axis, and the content's mass is the fill times the stated capacity at water's density.
@@ -67,9 +67,9 @@ const CAPACITY: Readonly<Record<createDrinkware.Kind, number>> = {
 export function createDrinkware(
   params: createDrinkware.IParams,
   seed?: number | string,
-): Archetype<createDrinkware.Affordance, createDrinkware.Dimension> {
-  const draw: ArchetypeDrawSession<createDrinkware.Dimension> =
-    new ArchetypeDrawSession<createDrinkware.Dimension>(
+): AutoMovieArchetype<createDrinkware.Affordance, createDrinkware.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createDrinkware.Dimension> =
+    new AutoMovieArchetypeDrawSession<createDrinkware.Dimension>(
       "drinkware",
       createDrinkware.UNITS,
       seed,
@@ -83,7 +83,7 @@ export function createDrinkware(
   );
   const fill: number = params.fill ?? 0;
   if (!(fill >= 0 && fill <= 1))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "drinkware",
       axis: "fill",
@@ -109,10 +109,10 @@ export function createDrinkware(
   };
   const height: number = d.height!;
   const radius: number = d.diameter! / 2;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createDrinkware.Affordance,
     createDrinkware.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material:
       fill > 0
         ? "composite"
@@ -144,7 +144,7 @@ export function createDrinkware(
     id: "body",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, (stem + top) / 2, 0),
       Vector3.create(-1, 0, 0),
       Vector3.create(0, 1, 0),
@@ -187,7 +187,7 @@ export function createDrinkware(
       id: "handle",
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(reach, height / 2, 0),
         Vector3.create(1, 0, 0),
         Vector3.create(0, 1, 0),
@@ -219,7 +219,7 @@ export function createDrinkware(
       id: "stem",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, (0.004 + stem) / 2, 0),
         Vector3.create(-1, 0, 0),
         Vector3.create(0, 1, 0),
@@ -245,7 +245,7 @@ export function createDrinkware(
       id: "neck",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(0, top + neck / 2, 0),
         Vector3.create(-1, 0, 0),
         Vector3.create(0, 1, 0),
@@ -259,7 +259,7 @@ export function createDrinkware(
       id: "mouth",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
       extent: null,
     });
   }
@@ -267,7 +267,7 @@ export function createDrinkware(
     id: "lip",
     kind: "ledge",
     direction: "along",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, rim)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, rim)),
     extent: null,
   });
   // A beer bottle breaks at the energies a drop tower measured on half-litre beer bottles: its body leaves as shards and its neck stays in the hand.
@@ -361,7 +361,9 @@ export namespace createDrinkware {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     diameter: "m",
     handleDiameter: "m",
@@ -391,7 +393,10 @@ export namespace createDrinkware {
 
   /** A mug's and a cup's handle bands: the loop admitting the women's to the men's two fingers, and the industrial-handle analogue bar, as `DRINKWARE_BANDS` holds them. */
   export const LOOP: Readonly<
-    Record<"handleDiameter" | "handleOpening" | "handleLoop", IArchetypeBand>
+    Record<
+      "handleDiameter" | "handleOpening" | "handleLoop",
+      IAutoMovieArchetypeBand
+    >
   > = {
     handleDiameter: DRINKWARE_BANDS.cup.handleDiameter!,
     handleOpening: DRINKWARE_BANDS.cup.handleOpening!,
@@ -418,6 +423,6 @@ export namespace createDrinkware {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = DRINKWARE_BANDS;
 }

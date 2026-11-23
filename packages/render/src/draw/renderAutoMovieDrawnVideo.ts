@@ -19,14 +19,6 @@ import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
  * The clock and raster are the subject's, read from the session, so the spec takes no frame format. The encoding is admitted and planned by `planAutoMovieVideoEncoding` before the first frame is drawn, so a clock that is not a whole number of frames or an odd raster costs no drawing. Frame `i` is drawn at `frameTimes`' second `i / fps` in the `beauty` pass through the subject's own camera, and written as `<frameDir>/frame_<i>.png`; frames are drawn and written one at a time, in order. The encoder then runs once with the planned arguments. When a frame supplies diagnostics, the output clock binds the sample to that frame and the audit reports coverage against the full schedule.
  *
  * Files and processes are the host's: `write` stores a file and `encode` runs FFmpeg, so the order of every step runs under a unit test. `encode` is handed the frame receipts and scene audit with its arguments, so they survive an encoder failure. A draw, write or encode failure rejects at once and leaves the files written so far to the host.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States where the clock and raster come from, when the plan is admitted, how each frame is drawn, named and written, what the host supplies and what a failure leaves.
- * @evidence contracts/development/implementation.md#principled-implementation Every delivered frame comes from the same draw function inspection stills use, at the exact schedule `frameTimes` gives, and the encoder runs on the vector `planAutoMovieVideoEncoding` admits, so a delivered video and a still at the same second are drawn by the same code.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Plan, then one loop of draw, encode as PNG, hash and write, then an optional scene audit and one encode.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No frame is skipped or reused and no failure is retried.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in frames times pixels: one draw, one PNG encoding and one hash per frame.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each frame is drawn once; nothing is shared between renders.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One frame's picture and bytes are held at a time, plus frame receipts and any diagnostic packets until reduction; the session stays the caller's.
  */
 export async function renderAutoMovieDrawnVideo(props: {
   /** The opened draw session of the subject. */

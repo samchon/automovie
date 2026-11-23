@@ -160,7 +160,7 @@ export namespace AquaticFin {
     )!.worldPosition;
 
     if (kind !== "duckDive") {
-      const seconds: number = params.seconds ?? 4;
+      const seconds: number = params.duration ?? 4;
       const depth: number = kind === "snorkel" ? 0 : (params.depth ?? 2);
       // At the surface the face is in the water with the back of the head
       // just under it; under water the hips hold the authored depth.
@@ -192,7 +192,7 @@ export namespace AquaticFin {
 
     // The duck dive.
     const depth: number = params.depth ?? 3;
-    const budget: number = params.seconds ?? BREATH;
+    const budget: number = params.duration ?? BREATH;
     const reachable: number =
       Math.max(0, budget - PIKE - LIFT - TURN) / (1 / DESCENT + 1 / ASCENT);
     if (!(depth > 0) || depth > reachable)

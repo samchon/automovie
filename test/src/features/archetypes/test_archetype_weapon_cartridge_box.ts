@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
   createHolster,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
@@ -34,8 +34,10 @@ export function test_archetype_weapon_cartridge_box(): void {
   const findings: string[] = [];
   const close = (a: number, b: number, tolerance: number = 1e-9): boolean =>
     Math.abs(a - b) <= tolerance;
-  const box: Archetype<createHolster.Affordance, createHolster.Dimension> =
-    createHolster({ kind: "pouch" }, 1);
+  const box: AutoMovieArchetype<
+    createHolster.Affordance,
+    createHolster.Dimension
+  > = createHolster({ kind: "pouch" }, 1);
   const d: Readonly<Partial<Record<createHolster.Dimension, number>>> =
     box.dimensions;
   for (const [name, inches] of [
@@ -93,15 +95,21 @@ export function test_archetype_weapon_cartridge_box(): void {
     } catch (error) {
       refused = error;
     }
-    if (!(refused instanceof ArchetypeRefusal && refused.axis === "slots"))
+    if (
+      !(
+        refused instanceof AutoMovieArchetypeRefusal && refused.axis === "slots"
+      )
+    )
       findings.push(`${count} cartridges are not refused`);
   }
 
   const lid: IAutoMovieAffordance = box.affordance("lid");
   if (lid.kind !== "hinge" || !(lid.travel! > 0))
     findings.push(`the lid is a ${lid.kind} of travel ${lid.travel}`);
-  const open: Archetype<createHolster.Affordance, createHolster.Dimension> =
-    box.articulate({ lid: lid.travel! });
+  const open: AutoMovieArchetype<
+    createHolster.Affordance,
+    createHolster.Dimension
+  > = box.articulate({ lid: lid.travel! });
   for (const posed of [box, open])
     if (!validateModel({ model: posed }).success)
       findings.push("a lid pose is refused");

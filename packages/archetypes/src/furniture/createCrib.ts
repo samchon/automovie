@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { BedConstruction } from "./BedConstruction";
 import type { createBed } from "./createBed";
 
@@ -8,7 +8,7 @@ import type { createBed } from "./createBed";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A crib with a surrounding slat frame and grasp bars on both sides.
  * @evidence contracts/development/implementation.md#principled-implementation The mattress is inside the rails. The bars follow the long top rails.
@@ -21,7 +21,7 @@ import type { createBed } from "./createBed";
 export function createCrib(
   params: createCrib.IParams = {},
   seed?: number | string,
-): Archetype<createCrib.Affordance, createCrib.Dimension> {
+): AutoMovieArchetype<createCrib.Affordance, createCrib.Dimension> {
   return BedConstruction.crib(params, seed);
 }
 

@@ -59,7 +59,7 @@ const RPM: number = 120;
  * The faces ride the wheel's `raise` slider, which the pull drives from its
  * travel at the start up by `rise` over `seconds`, so both palms rise with
  * the wall and its height grows monotonically; the trunk leans forward over
- * the wheel, by the least of `HumanTrunkLean.LEANS` that brings every palm place within the
+ * the wheel, by the least hip hinge (`HumanTrunkLean`) that brings every palm place within the
  * arms, coming in and going out with the hands; the head's crank turns at
  * `rpm` throughout. The clay is round about the head's axis, so each palm
  * stays on the same surface in the turning head's frame. The hands reach
@@ -88,11 +88,11 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowPottery.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanThrowPottery.IParams = context.params;
-  if (!(Number.isFinite(p.seconds) && p.seconds > 0))
+  if (!(Number.isFinite(p.duration) && p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
-      value: p.seconds,
+      axis: "duration",
+      value: p.duration,
       feasible: {
         kind: "range",
         minimum: 0,
@@ -210,7 +210,7 @@ function plan(
     );
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare: transport,
-    attack: tempo * p.seconds,
+    attack: tempo * p.duration,
     retract: transport,
   });
   const ready: number = clock.at("strokeStart");
@@ -242,7 +242,6 @@ function plan(
         context.tempo,
       ),
       rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-      disc: 0,
       weight: (seconds: number): number =>
         clock.envelope(["start", "ready"], ["relax", "end"], seconds),
       goal: (
@@ -264,9 +263,10 @@ function plan(
     clock.duration,
   );
   const base: IAutoMovieMotionHumanActionPlan = {
-    ...under,
+    ...HumanTrunkLean.moving(under, forward),
     posture: (seconds: number): IAutoMovieMotionHumanPosture =>
       HumanTrunkLean.lean(
+        context.body,
         under.posture(seconds),
         forward * clock.envelope(["start", "ready"], ["relax", "end"], seconds),
       ),

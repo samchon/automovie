@@ -1,10 +1,10 @@
 import {
-  Archetype,
-  ArchetypeDensity,
   ArchetypeDraw,
-  type ArchetypeDrawSession,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeDensity,
+  type AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { PROJECTILE_BANDS } from "./PROJECTILE_BANDS";
 import { createStageBallProp } from "./createStageBallProp";
@@ -23,7 +23,7 @@ import { projectileFlight } from "./projectileFlight";
  * @param params The kind, the read object where the kind has several, and any dimension the author fixes.
  * @param seed The seed that picks the object left free and draws every dimension left free inside its band; absent, the first object and the middle of each band.
  * @returns The projectile.
- * @throws {ArchetypeRefusal} For an object not of the kind, a fixed dimension outside its band, or one the object gives.
+ * @throws {AutoMovieArchetypeRefusal} For an object not of the kind, a fixed dimension outside its band, or one the object gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each projectile rests or stands, how it is held, and what waits.
  * @evidence contracts/development/implementation.md#principled-implementation The saved kind selects its canonical producer and retains its original profile data and actor contacts.
@@ -36,7 +36,7 @@ import { projectileFlight } from "./projectileFlight";
 export function createProjectile(
   params: createProjectile.IParams,
   seed?: number | string,
-): Archetype<createProjectile.Affordance, createProjectile.Dimension> {
+): AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension> {
   const kind: createProjectile.Kind = ArchetypeDraw.choice(
     "projectile",
     "kind",
@@ -48,7 +48,10 @@ export function createProjectile(
     build(
       params: createProjectile.IParams,
       seed?: number | string,
-    ): Archetype<createProjectile.Affordance, createProjectile.Dimension>;
+    ): AutoMovieArchetype<
+      createProjectile.Affordance,
+      createProjectile.Dimension
+    >;
   }["build"];
   // The selected producer validates its options from the saved parameter union.
   const produce: Producer = createProjectile.PRODUCERS[kind] as Producer;
@@ -116,8 +119,8 @@ export namespace createProjectile {
   /** European ash's density at 12 % moisture, kilograms per cubic metre (The Wood Database, https://www.wood-database.com/european-ash/), the Met's bolts being steel on oak and ash. */
   export const ASH: number = 680;
 
-  /** A bolt's steel head's density (`ArchetypeDensity.STEEL`) over its ash shaft's, which places the bolt's balance toward its head. */
-  export const STEEL_OVER_ASH: number = ArchetypeDensity.STEEL / ASH;
+  /** A bolt's steel head's density (`AutoMovieArchetypeDensity.STEEL`) over its ash shaft's, which places the bolt's balance toward its head. */
+  export const STEEL_OVER_ASH: number = AutoMovieArchetypeDensity.STEEL / ASH;
 
   /** How each launched kind is held in flight: `velocity`, its axis along its velocity, point first, as an arrow and a bolt fly; `free`, turning as it will, as a sphere does (#3482). A cartridge is loaded, not launched, so it has none. */
   export const ATTITUDE: Readonly<
@@ -165,11 +168,11 @@ export namespace createProjectile {
   }> = {
     sphere: 0.47,
     arrow: 1.5,
-    ballEmbed: 0.75 * ArchetypeUnits.INCH,
-    arrowEmbed: 2 * ArchetypeUnits.INCH,
+    ballEmbed: 0.75 * AutoMovieArchetypeUnits.INCH,
+    arrowEmbed: 2 * AutoMovieArchetypeUnits.INCH,
     shotEmbed: {
-      sixPounder: 3.5 * ArchetypeUnits.FOOT,
-      twelvePounder: 8.5 * ArchetypeUnits.FOOT,
+      sixPounder: 3.5 * AutoMovieArchetypeUnits.FOOT,
+      twelvePounder: 8.5 * AutoMovieArchetypeUnits.FOOT,
     },
     ground: 0.3,
   };
@@ -215,18 +218,18 @@ export namespace createProjectile {
         headWidth: 0.0136,
         mass:
           Math.PI * (0.0136 / 2) ** 2 * (0.36 - 0.077) * ASH +
-          ((0.0136 ** 2 * 0.077) / 3) * ArchetypeDensity.STEEL,
+          ((0.0136 ** 2 * 0.077) / 3) * AutoMovieArchetypeDensity.STEEL,
       },
       met33754: { length: 0.437, head: 0.066, headWidth: 0.019, mass: 0.074 },
     },
     roundShot: {
       sixPounder: {
-        diameter: 3.58 * ArchetypeUnits.INCH,
-        mass: 6.1 * ArchetypeUnits.POUND,
+        diameter: 3.58 * AutoMovieArchetypeUnits.INCH,
+        mass: 6.1 * AutoMovieArchetypeUnits.POUND,
       },
       twelvePounder: {
-        diameter: 4.52 * ArchetypeUnits.INCH,
-        mass: 12.3 * ArchetypeUnits.POUND,
+        diameter: 4.52 * AutoMovieArchetypeUnits.INCH,
+        mass: 12.3 * AutoMovieArchetypeUnits.POUND,
       },
     },
   };
@@ -270,7 +273,9 @@ export namespace createProjectile {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     length: "m",
     head: "m",
@@ -293,6 +298,6 @@ export namespace createProjectile {
 
   /** The band of each free dimension an object leaves, by kind: an arrow's and a bolt's provisional bands are drawn only for the object that does not give the figure. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = PROJECTILE_BANDS;
 }

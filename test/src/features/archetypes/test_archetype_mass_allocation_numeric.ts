@@ -1,8 +1,8 @@
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeMass,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeMass,
 } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -32,7 +32,7 @@ import { nclose } from "../internal/nclose";
  *    and an explicitly authored zero share still means massless geometry.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States authored dimensions, relative weights, total mass, SI tensor components, ordinary controls and binary64 scalar versus aggregate boundaries without material-derived measurements.
- * @evidence contracts/development/testing.md#behavioral-verification Uses real Builder.build, Archetype.properties and public Mass.parts. Positive allocations rounded to zero or a nonzero subnormal still contribute their physical geometry to the aggregate. Observing scalar outputs separately prevents hiding the defect by changing parts or refusing all small masses.
+ * @evidence contracts/development/testing.md#behavioral-verification Uses real Builder.build, AutoMovieArchetype.properties and public Mass.parts. Positive allocations rounded to zero or a nonzero subnormal still contribute their physical geometry to the aggregate. Observing scalar outputs separately prevents hiding the defect by changing parts or refusing all small masses.
  * @evidence contracts/development/testing.md#independent-expectations A cube's central moment is m*squaredSide/6. For W=L squared=2^600, the two intrinsic contributions sum to M*W/[3*(W+1)], which rounds to M/3. Their reduced-mass parallel-axis contribution on each displaced coordinate is M*W*L squared/(W+1) squared, which rounds to M; equal coordinate offsets give negative cross moments. For shares 2^475:3 and squared side2^474, intrinsic contributions approach M/6+M/4=5M/12, with corrections far below one ulp. Expectations do not multiply the rounded scalar part masses. For local weight controls, volume MIN at x=2^1023 contributes centre 2^-51 and a transverse moment 2^972 under unit total mass; this is a pre-allocation local datum whose inexact representation is refused, not a rounded scalar part mass whose aggregate moment must be recovered. Tensor and centre observations are divided by their known physical scale before nclose, so tiny results cannot pass an absolute tolerance vacuously.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers zero and nonzero subnormal scalar allocations, concentric and displaced solids, positive diagonal and negative cross components, both input orders, ordinary total mass, separately observed part masses, an exact least-positive singleton, implicit zero/inexact subnormal refusal versus exact local weights, and authored zero shares. Existing mass_numeric owns invalid/local-primitive representability refusal.
  * @evidence contracts/development/testing.md#execution-ownership One synchronous portable unit owns its synthetic builders and uses public outputs and the shared finite-aware nclose helper; no private arithmetic, patched method, compiler, process or renderer is invoked.
@@ -45,7 +45,7 @@ export function test_archetype_mass_allocation_numeric(): void {
   const layouts: readonly {
     offset: IAutoMovieVector3;
     centre: IAutoMovieVector3;
-    inertia: ArchetypeMass.IInertia;
+    inertia: AutoMovieArchetypeMass.IInertia;
   }[] = [
     {
       offset: { x: 0, y: 0, z: 0 },
@@ -66,7 +66,7 @@ export function test_archetype_mass_allocation_numeric(): void {
   for (const mass of [small, 1])
     for (const reverse of [false, true]) {
       for (const layout of layouts) {
-        const made: Archetype<never, never> = make(
+        const made: AutoMovieArchetype<never, never> = make(
           mass,
           2 ** 600,
           1,
@@ -91,7 +91,7 @@ export function test_archetype_mass_allocation_numeric(): void {
             findings.push(
               "the centre and tensor used different mass distributions",
             );
-        const scalar: Record<string, number> = ArchetypeMass.parts(
+        const scalar: Record<string, number> = AutoMovieArchetypeMass.parts(
           made.parts,
           mass,
           {},
@@ -105,7 +105,7 @@ export function test_archetype_mass_allocation_numeric(): void {
             "aggregate recovery changed independently rounded scalar part masses",
           );
       }
-      const rounded: Archetype<never, never> = make(
+      const rounded: AutoMovieArchetype<never, never> = make(
         mass,
         2 ** 475,
         3,
@@ -119,7 +119,7 @@ export function test_archetype_mass_allocation_numeric(): void {
         { xx: 5 / 12, yy: 5 / 12, zz: 5 / 12, xy: 0, xz: 0, yz: 0 },
         "nonzero-subnormal allocation moment",
       );
-      const scalar: Record<string, number> = ArchetypeMass.parts(
+      const scalar: Record<string, number> = AutoMovieArchetypeMass.parts(
         rounded.parts,
         mass,
         {},
@@ -137,7 +137,7 @@ export function test_archetype_mass_allocation_numeric(): void {
         );
     }
 
-  const singleton: Archetype<never, never> = builder()
+  const singleton: AutoMovieArchetype<never, never> = builder()
     .box("only", { x: 2, y: 2, z: 2 }, { x: 0, y: 0, z: 0 })
     .build(Number.MIN_VALUE);
   observe(
@@ -149,13 +149,13 @@ export function test_archetype_mass_allocation_numeric(): void {
 
   // The implicit positive local weight precedes both aggregate and scalar allocation.
   for (const factor of [1, 3]) {
-    const specimen: Archetype<never, never> = localSpecimen(factor, 1);
+    const specimen: AutoMovieArchetype<never, never> = localSpecimen(factor, 1);
     const readers: readonly (() => unknown)[] = [
-      (): Archetype<never, never> => localSpecimen(factor, 0.5),
-      (): ArchetypeMass.IProperties =>
-        ArchetypeMass.of(specimen.parts, 1, { b: 0.5 }),
+      (): AutoMovieArchetype<never, never> => localSpecimen(factor, 0.5),
+      (): AutoMovieArchetypeMass.IProperties =>
+        AutoMovieArchetypeMass.of(specimen.parts, 1, { b: 0.5 }),
       (): Record<string, number> =>
-        ArchetypeMass.parts(specimen.parts, 1, { b: 0.5 }),
+        AutoMovieArchetypeMass.parts(specimen.parts, 1, { b: 0.5 }),
     ];
     for (const read of readers) {
       let refused: boolean = false;
@@ -177,9 +177,12 @@ export function test_archetype_mass_allocation_numeric(): void {
     [1, 1],
     [2, 0.5],
   ] as const) {
-    const specimen: Archetype<never, never> = localSpecimen(factor, relative);
-    const actual: ArchetypeMass.IProperties = specimen.properties;
-    const scalar: Record<string, number> = ArchetypeMass.parts(
+    const specimen: AutoMovieArchetype<never, never> = localSpecimen(
+      factor,
+      relative,
+    );
+    const actual: AutoMovieArchetypeMass.IProperties = specimen.properties;
+    const scalar: Record<string, number> = AutoMovieArchetypeMass.parts(
       specimen.parts,
       1,
       { b: relative },
@@ -194,8 +197,12 @@ export function test_archetype_mass_allocation_numeric(): void {
         "an exactly represented subnormal local weight was refused or changed",
       );
   }
-  const massless: Archetype<never, never> = localSpecimen(1, 0.5, true);
-  const masslessParts: Record<string, number> = ArchetypeMass.parts(
+  const massless: AutoMovieArchetype<never, never> = localSpecimen(
+    1,
+    0.5,
+    true,
+  );
+  const masslessParts: Record<string, number> = AutoMovieArchetypeMass.parts(
     massless.parts,
     1,
     { b: 0.5 },
@@ -217,9 +224,9 @@ export function test_archetype_mass_allocation_numeric(): void {
 
   /** A scale-free observation catches both finite-value loss and NaN/Infinity. */
   function observe(
-    actual: ArchetypeMass.IProperties,
+    actual: AutoMovieArchetypeMass.IProperties,
     mass: number,
-    expected: ArchetypeMass.IInertia,
+    expected: AutoMovieArchetypeMass.IInertia,
     label: string,
   ): void {
     if (!nclose(actual.mass, mass, 0))
@@ -239,7 +246,7 @@ export function test_archetype_mass_allocation_numeric(): void {
     side: number,
     offset: IAutoMovieVector3,
     reverse: boolean,
-  ): Archetype<never, never> {
+  ): AutoMovieArchetype<never, never> {
     const entries: {
       id: string;
       side: number;
@@ -250,7 +257,7 @@ export function test_archetype_mass_allocation_numeric(): void {
       { id: "b", side, centre: offset, share: shareB },
     ];
     if (reverse) entries.reverse();
-    const made: ArchetypeBuilder<never, never> = builder();
+    const made: AutoMovieArchetypeBuilder<never, never> = builder();
     for (const entry of entries)
       made.box(
         entry.id,
@@ -266,7 +273,7 @@ export function test_archetype_mass_allocation_numeric(): void {
     factor: number,
     relative: number,
     zero: boolean = false,
-  ): Archetype<never, never> {
+  ): AutoMovieArchetype<never, never> {
     const side: number = 2 ** -358;
     return builder()
       .box("a", { x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0 })
@@ -279,11 +286,11 @@ export function test_archetype_mass_allocation_numeric(): void {
       .build(1);
   }
   /** Neutral authored geometry, with no empirical material or restitution claim. */
-  function builder(): ArchetypeBuilder<never, never> {
-    return new ArchetypeBuilder<never, never>({
+  function builder(): AutoMovieArchetypeBuilder<never, never> {
+    return new AutoMovieArchetypeBuilder<never, never>({
       name: "allocation inertia fixture",
       material: "composite",
-      draw: new ArchetypeDrawSession<never>(
+      draw: new AutoMovieArchetypeDrawSession<never>(
         "allocation-inertia-fixture",
         {},
         undefined,

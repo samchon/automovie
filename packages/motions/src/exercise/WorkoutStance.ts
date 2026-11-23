@@ -72,7 +72,7 @@ export namespace WorkoutStance {
       pin,
       supports,
       enter,
-      reps,
+      count: reps,
       route,
       alternate,
       strides,

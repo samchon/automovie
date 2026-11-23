@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeConvexCell } from "../core";
+import { AutoMovieArchetypeConvexCell } from "../core";
 import { ArmourCell } from "./ArmourCell";
 import type { ArmourProfile } from "./ArmourProfile";
 
@@ -16,14 +16,6 @@ import type { ArmourProfile } from "./ArmourProfile";
  * and one rigid piece; their proportions are not specimen-exact anatomy.
  * Unfitted elliptical guards/cuffs share one inner scale, retaining a minimum
  * authored normal gauge instead of claiming uniform specimen thickness.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States model metres/+Y course, original unfitted extrema, actual fitted radial cavity, gauntlet cuff fitting site and authored rigid hand-domain limits.
- * @evidence contracts/development/implementation.md#principled-implementation Fitted radial convex wall cells have an inner plane tangent to the admitted limb radius and an outer plane one exact sourced plate gauge beyond it. Unfitted ellipses retain their outer course and share inner factor 1-wall/minimum actual face support, so adjacent inner corners meet and every face retains at least the authored gauge. Y endpoints retain measured segment length. Gauntlet cuffs continue into actual mitten/thumb regions with declared coarse hand limits.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare one bounded radial lattice, emit the actual tube/cuff, then build the gauntlet's hand and thumb through the shared interval-panel owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No filled cylinder, hidden body solid, extra hand measure, reconstructed elbow reinforce or articulated finger supplies the geometry; insufficient positive wall/working resolution refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms Sixteen coarse radial cells and, for a gauntlet, ten panels. A fitted circle prepares one radial cell; an unfitted ellipse prepares its eight distinct half-turn classes, without a thin-wall resolution loop.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work One prepared actual cell and exact Y rotations serve circular sectors, while ellipses share only exact half turns. Core reuses its hull, mesh and local mass without re-admitting each placement.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns fresh corners and cell records without retaining input, completed geometry, source buffers or external handles.
  */
 export function ArmourLimb(
   profile: ArmourProfile.IProfile,
@@ -77,7 +69,7 @@ export function ArmourLimb(
       );
       prepared.set(canonical, {
         ...cell,
-        prepared: ArchetypeConvexCell.of(cell.points),
+        prepared: AutoMovieArchetypeConvexCell.of(cell.points),
       });
     }
     cells.push({

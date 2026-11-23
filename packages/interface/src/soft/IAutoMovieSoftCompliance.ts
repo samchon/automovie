@@ -10,11 +10,6 @@
  * stiffness a family shows does not change with the sweep count or the step,
  * unlike the relaxation weights of `IAutoMovieSoftStiffness`. Zero is a rigid
  * constraint: an inextensible cord, a sheet that does not stretch.
- *
- * @evidence contracts/development/design.md#principled-representation One non-negative compliance per family, in metres per newton, the alpha of XPBD's distance constraints.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The three families the lattice already has, so the record mirrors `IAutoMovieSoftStiffness` member for member.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A physical compliance, not a relaxation weight; non-negativity and finiteness are the engine validator's to enforce.
- * @evidence contracts/development/common.md#meaningful-documentation States the unit, the source, the solver it feeds, why it is iteration-independent and what zero means.
  */
 export interface IAutoMovieSoftCompliance {
   /** Row and column neighbours: a cord's or a sheet's stretch, metres per newton; not negative. */

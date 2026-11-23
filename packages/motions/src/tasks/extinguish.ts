@@ -52,7 +52,7 @@ const SPAN: number = 40;
  * A, S and S of OSHA's PASS (pull, aim, squeeze, sweep; Portable fire
  * extinguishers,
  * https://osha.gov/etools/evacuation-plans-procedures/emergency-standards/portable-extinguishers/use).
- * Register as `extinguish`; `HumanFirefight.pass` pulls the pin first.
+ * Register as `extinguish`; the chain's `pass` pulls the pin first.
  *
  * The extinguisher rides the hand on its `handle`, so its `nozzle` lies at
  * a fixed lever from the wrist. The wrist stays where it is and turns the
@@ -141,7 +141,7 @@ function plan(
         unit: "m",
       },
       reason: "the lever is locked while the pin is in",
-      fix: "pull the pin first (`HumanFirefight.pass`)",
+      fix: "pull the pin first (the chain's `pass`)",
     });
 
   // The unit turns about the hand's grip on it, the grip staying where it
@@ -260,7 +260,6 @@ function plan(
             context.tempo,
           ),
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          disc: 0,
           weight: (seconds: number): number =>
             clock.envelope(["start", "ready"], ["relax", "end"], seconds),
           goal: (

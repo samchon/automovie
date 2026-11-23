@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createBed } from "./createBed";
 
 /** UK bed sizes. */
@@ -46,108 +50,162 @@ const MYDAL: string =
 export const BED_BANDS: Readonly<
   Record<
     createBed.Kind,
-    Readonly<Partial<Record<createBed.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createBed.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   single: {
-    width: ArchetypeBand.metres(0.9, 0.9, SIZES),
-    length: ArchetypeBand.metres(1.9, 1.9, SIZES),
-    height: ArchetypeBand.metres(0.39, 0.63, HEIGHT),
-    thickness: ArchetypeBand.metres(0.15, 0.25, MATTRESS, true),
-    mass: ArchetypeBand.of("kg", 30, 50, ArchetypeBand.TYPICAL_MASS, true),
+    width: AutoMovieArchetypeBand.metres(0.9, 0.9, SIZES),
+    length: AutoMovieArchetypeBand.metres(1.9, 1.9, SIZES),
+    height: AutoMovieArchetypeBand.metres(0.39, 0.63, HEIGHT),
+    thickness: AutoMovieArchetypeBand.metres(0.15, 0.25, MATTRESS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      30,
+      50,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   double: {
-    width: ArchetypeBand.metres(1.35, 1.35, SIZES),
-    length: ArchetypeBand.metres(1.9, 1.9, SIZES),
-    height: ArchetypeBand.metres(0.39, 0.63, HEIGHT),
-    thickness: ArchetypeBand.metres(0.15, 0.25, MATTRESS, true),
-    mass: ArchetypeBand.of("kg", 45, 75, ArchetypeBand.TYPICAL_MASS, true),
+    width: AutoMovieArchetypeBand.metres(1.35, 1.35, SIZES),
+    length: AutoMovieArchetypeBand.metres(1.9, 1.9, SIZES),
+    height: AutoMovieArchetypeBand.metres(0.39, 0.63, HEIGHT),
+    thickness: AutoMovieArchetypeBand.metres(0.15, 0.25, MATTRESS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      45,
+      75,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   mattress: {
-    thickness: ArchetypeBand.metres(0.15, 0.25, MATTRESS, true),
-    mass: ArchetypeBand.of("kg", 10, 30, ArchetypeBand.TYPICAL_MASS, true),
+    thickness: AutoMovieArchetypeBand.metres(0.15, 0.25, MATTRESS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      10,
+      30,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   hospital: {
-    width: ArchetypeBand.metres(0.91, 0.91, `${GOBED}: the patient surface`),
-    length: ArchetypeBand.metres(2.13, 2.13, `${GOBED}: the patient surface`),
-    overallLength: ArchetypeBand.metres(2.394, 2.394, GOBED),
-    overallWidth: ArchetypeBand.metres(1.016, 1.016, GOBED),
-    litter: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
+      0.91,
+      0.91,
+      `${GOBED}: the patient surface`,
+    ),
+    length: AutoMovieArchetypeBand.metres(
+      2.13,
+      2.13,
+      `${GOBED}: the patient surface`,
+    ),
+    overallLength: AutoMovieArchetypeBand.metres(2.394, 2.394, GOBED),
+    overallWidth: AutoMovieArchetypeBand.metres(1.016, 1.016, GOBED),
+    litter: AutoMovieArchetypeBand.metres(
       0.368,
       0.737,
       `${GOBED}: the litter top's range`,
     ),
-    thickness: ArchetypeBand.metres(0.15, 0.15, ISOFLEX, true),
-    rail: ArchetypeBand.metres(0.22, 0.22, SIDERAIL),
-    mass: ArchetypeBand.of("kg", 150, 250, ArchetypeBand.TYPICAL_MASS, true),
+    thickness: AutoMovieArchetypeBand.metres(0.15, 0.15, ISOFLEX, true),
+    rail: AutoMovieArchetypeBand.metres(0.22, 0.22, SIDERAIL),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      150,
+      250,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   gurney: {
-    width: ArchetypeBand.metres(
-      26 * ArchetypeUnits.INCH,
-      26 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      26 * AutoMovieArchetypeUnits.INCH,
+      26 * AutoMovieArchetypeUnits.INCH,
       `${PRIME}: the patient surface`,
     ),
-    length: ArchetypeBand.metres(
-      75.25 * ArchetypeUnits.INCH,
-      75.25 * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      75.25 * AutoMovieArchetypeUnits.INCH,
+      75.25 * AutoMovieArchetypeUnits.INCH,
       `${PRIME}: the patient surface`,
     ),
-    overallLength: ArchetypeBand.metres(
-      85 * ArchetypeUnits.INCH,
-      85 * ArchetypeUnits.INCH,
+    overallLength: AutoMovieArchetypeBand.metres(
+      85 * AutoMovieArchetypeUnits.INCH,
+      85 * AutoMovieArchetypeUnits.INCH,
       PRIME,
     ),
-    overallWidth: ArchetypeBand.metres(
-      26 * ArchetypeUnits.INCH,
-      26 * ArchetypeUnits.INCH,
+    overallWidth: AutoMovieArchetypeBand.metres(
+      26 * AutoMovieArchetypeUnits.INCH,
+      26 * AutoMovieArchetypeUnits.INCH,
       `${PRIME}: with the siderails down`,
     ),
-    litter: ArchetypeBand.metres(0.527, 0.864, `${PRIME}: the height range`),
-    thickness: ArchetypeBand.metres(0.14, 0.14, PRIME),
-    mass: ArchetypeBand.of("kg", 80, 120, ArchetypeBand.TYPICAL_MASS, true),
+    litter: AutoMovieArchetypeBand.metres(
+      0.527,
+      0.864,
+      `${PRIME}: the height range`,
+    ),
+    thickness: AutoMovieArchetypeBand.metres(0.14, 0.14, PRIME),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      80,
+      120,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   crib: {
-    width: ArchetypeBand.metres(
-      (28 - 5 / 8) * ArchetypeUnits.INCH,
-      (28 + 5 / 8) * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      (28 - 5 / 8) * AutoMovieArchetypeUnits.INCH,
+      (28 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
       `${CRIB}: the interior's width`,
     ),
-    length: ArchetypeBand.metres(
-      (52 + 3 / 8 - 5 / 8) * ArchetypeUnits.INCH,
-      (52 + 3 / 8 + 5 / 8) * ArchetypeUnits.INCH,
+    length: AutoMovieArchetypeBand.metres(
+      (52 + 3 / 8 - 5 / 8) * AutoMovieArchetypeUnits.INCH,
+      (52 + 3 / 8 + 5 / 8) * AutoMovieArchetypeUnits.INCH,
       `${CRIB}: the interior's length`,
     ),
-    rail: ArchetypeBand.metres(
-      26 * ArchetypeUnits.INCH,
-      26 * ArchetypeUnits.INCH,
+    rail: AutoMovieArchetypeBand.metres(
+      26 * AutoMovieArchetypeUnits.INCH,
+      26 * AutoMovieArchetypeUnits.INCH,
       `${CRIB}: the rail's top above the support at its lowest; the model takes the least`,
     ),
-    height: ArchetypeBand.metres(
-      35 * ArchetypeUnits.INCH,
-      35 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      35 * AutoMovieArchetypeUnits.INCH,
+      35 * AutoMovieArchetypeUnits.INCH,
       CRIB_TOP,
     ),
-    thickness: ArchetypeBand.metres(
-      6 * ArchetypeUnits.INCH,
-      6 * ArchetypeUnits.INCH,
+    thickness: AutoMovieArchetypeBand.metres(
+      6 * AutoMovieArchetypeUnits.INCH,
+      6 * AutoMovieArchetypeUnits.INCH,
       `${CRIB}: the mattress's greatest thickness, which the model takes`,
     ),
-    mass: ArchetypeBand.of("kg", 20, 35, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      20,
+      35,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   bunk: {
-    width: ArchetypeBand.metres(0.9, 0.9, `${MYDAL}: the mattress`),
-    length: ArchetypeBand.metres(2, 2, `${MYDAL}: the mattress`),
-    overallLength: ArchetypeBand.metres(2.06, 2.06, MYDAL),
-    overallWidth: ArchetypeBand.metres(0.97, 0.97, MYDAL),
-    height: ArchetypeBand.metres(1.57, 1.57, MYDAL),
-    gap: ArchetypeBand.metres(0.91, 0.91, MYDAL),
-    clearance: ArchetypeBand.metres(0.2, 0.2, MYDAL),
-    thickness: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(0.9, 0.9, `${MYDAL}: the mattress`),
+    length: AutoMovieArchetypeBand.metres(2, 2, `${MYDAL}: the mattress`),
+    overallLength: AutoMovieArchetypeBand.metres(2.06, 2.06, MYDAL),
+    overallWidth: AutoMovieArchetypeBand.metres(0.97, 0.97, MYDAL),
+    height: AutoMovieArchetypeBand.metres(1.57, 1.57, MYDAL),
+    gap: AutoMovieArchetypeBand.metres(0.91, 0.91, MYDAL),
+    clearance: AutoMovieArchetypeBand.metres(0.2, 0.2, MYDAL),
+    thickness: AutoMovieArchetypeBand.metres(
       0.1,
       0.19,
       `${MYDAL}: the mattress at most 19 cm; the least is a thin mattress's, not read at a source`,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 40, 70, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      40,
+      70,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
 };

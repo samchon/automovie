@@ -32,36 +32,20 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
  * and stamps it down into a wide, deep stance; the wing chun stance takes a
  * short step under the centreline guard, both hands forward on the midline.
  * All return to the entry and have no partner or contact target.
- *
- * @evidence contracts/development/common.md#meaningful-documentation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#principled-representation count: Punches of a choku-zuki series; 4 when absent. Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. seconds: Seconds the stance is held; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainSport.ts (HumanChainSport.martialArt, params); sport/martialArt.ts (martialArt.plan, context); sport/martialArt.ts (martialArt.plan); executable/cases/martialArtCases.ts (martialArtCases).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanMartialArt {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The named form, series count and hold with a lead override for stance phrases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The named form or unpartnered screen reset. */
     kind: IAutoMovieMotionHumanMartialArt.Kind;
 
-    /** Punches of a choku-zuki series; 4 when absent.
-     * Numeric representation: "uint32". Inclusive minimum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** Punches of a choku-zuki series, a whole number of at least 1; 4 when absent. Each punch extends in 0.2 s and stays 0.2 s (`martialArt`). */
     count?: number;
 
-    /** Seconds the stance is held; 1 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
-    seconds?: number;
+    /** Seconds the stance is held, at least 0; 1 when absent. */
+    hold?: number;
 
     /** Leading foot of a linked stance phrase or reset. Left when absent. */
     lead?: "left" | "right";
@@ -72,11 +56,6 @@ export namespace IAutoMovieMotionHumanMartialArt {
 
   /**
    * Named techniques and linked solo forms from a quiet standing pose.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Identifies the kinds as named solo movement and reset phrases from standing.
-   * @evidence contracts/development/design.md#principled-representation Closed choices distinguish the admitted held techniques and the linked stance phrases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface HumanChainSport.martialArt accepts this vocabulary through IParams. The martialArt law selects its support phrase.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses explicit stable literals. Runtime admission remains with the generated action schema.
    */
   export type Kind =
     | "horseStance"

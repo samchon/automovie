@@ -3,52 +3,39 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import type { Archetype } from "../core";
-import { QuadrupedBody } from "./QuadrupedBody";
+import type { AutoMovieArchetype } from "../core";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import type { createQuadruped } from "./createQuadruped";
 
 /**
- * Explicit rigid carriers for an actual quadruped's accessories and contacts.
+ * Explicit rigid carriers for a quadruped's accessories and contacts.
  * Species nod selectors describe optional producer vocabulary: an absent tack
  * selector creates no attachment and does not require an unbuilt accessory.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States actual accessory/contact ownership, optional nod-selector vocabulary, neck/trunk policy, bone exclusion and identity/selector refusals.
- * @evidence contracts/development/design.md#principled-representation Each actual non-bone part and affordance has one named carrier from the shared closed bone vocabulary, derived only from the species' declared nod selectors and its explicit trunk default.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The shared ride passes these two complete records to QuadrupedPose; source producers retain geometry/contact identities and QuadrupedSkeleton owns rigid emission.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No nearest-bone geometry, coordinate threshold, species case, contact-name heuristic or fixture-specific attachment substitutes for the declared policy.
  */
 export namespace QuadrupedCarriage {
   /**
-   * Bind every actual accessory/contact to the declared neck or trunk carrier.
+   * Bind every accessory/contact to the declared neck or trunk carrier.
    *
-   * The 21 actual bone parts carry themselves and are excluded from parts.
+   * The 21 bone parts carry themselves and are excluded from parts.
    * Accessories named by species.nodding follow the common neck nod; every
    * remaining accessory follows trunk. Contacts named by noddingContacts
    * follow neck, while remaining contacts retain trunk carriage, including the
    * current equid held-rein policy. Flexible two-end spans are another owner.
    * Optional producer vocabulary may name absent tack, but duplicate/empty
-   * selectors and declarations assigning another actual bone to neck refuse.
+   * selectors and declarations assigning another bone to neck refuse.
    *
-   * @param animal The actual source parts and original affordances, unchanged.
+   * @param animal The source parts and original affordances, unchanged.
    * @param species Its declared nod-part/contact selectors and trunk default.
    * @returns Independent complete accessory-part/contact carrier records; bone parts are intentionally absent from the first record.
-   * @throws {RangeError} For missing/sparse arrays, empty/duplicate identities or selectors, a missing actual bone or a nod selector conflicting with a self-carried bone.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines complete actual records, the shared bone exclusion, neck/trunk defaults, optional absent tack selectors, legacy equid contact carriage and explicit refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation Admit actual identities and the complete closed bone vocabulary, then bind each existing non-bone part and contact according to its declared nod-selector membership. Bone parts remain owned by their actual FK frames.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the shared bone set, admit selectors/source identities, verify all actual bones and emit the two independent carrier records.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No coordinate or nearest-bone inference, species branch, silently ignored duplicate, invented absent accessory or assumed rein-to-head binding changes the producer's declared policy.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B+P+A+N) work and storage for bones, actual parts/affordances and nod selectors; sets/maps avoid repeated scans and geometry is neither inspected nor copied.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared QuadrupedBody.LIMBS/BONES supply the closed actual vocabulary; admitted selector sets serve every binding and the same records feed the existing pose owner.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All sets/maps are call-local. Returned O(P+A) string records own their entries and retain no model, geometry, source arrays, process or external handle.
+   * @throws {RangeError} For missing/sparse arrays, empty/duplicate identities or selectors, a missing bone or a nod selector conflicting with a self-carried bone.
    */
   export function of(
-    animal: Pick<Archetype, "parts" | "affordances">,
+    animal: Pick<AutoMovieArchetype, "parts" | "affordances">,
     species: createQuadruped.ISpecies,
   ): {
-    parts: Readonly<Record<string, QuadrupedBody.Bone>>;
-    contacts: Readonly<Record<string, QuadrupedBody.Bone>>;
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
   } {
     if (!Array.isArray(animal.parts) || !Array.isArray(animal.affordances))
       throw new RangeError(
@@ -62,9 +49,11 @@ export namespace QuadrupedCarriage {
       "head",
       "tail",
       ...Object.values(QuadrupedScapula.BONES),
-      ...QuadrupedBody.LIMBS.flatMap(
-        (limb: QuadrupedBody.Limb): QuadrupedBody.Bone[] => [
-          ...QuadrupedBody.BONES[limb],
+      ...AutoMovieArchetypeQuadrupedBody.LIMBS.flatMap(
+        (
+          limb: AutoMovieArchetypeQuadrupedBody.Limb,
+        ): AutoMovieArchetypeQuadrupedBody.Bone[] => [
+          ...AutoMovieArchetypeQuadrupedBody.BONES[limb],
         ],
       ),
     ]);
@@ -86,8 +75,9 @@ export namespace QuadrupedCarriage {
 
     const partIds: Set<string> = new Set();
     const contactIds: Set<string> = new Set();
-    const parts: Map<string, QuadrupedBody.Bone> = new Map();
-    const contacts: Map<string, QuadrupedBody.Bone> = new Map();
+    const parts: Map<string, AutoMovieArchetypeQuadrupedBody.Bone> = new Map();
+    const contacts: Map<string, AutoMovieArchetypeQuadrupedBody.Bone> =
+      new Map();
     for (let index: number = 0; index < animal.parts.length; index++) {
       const part: IAutoMovieModelPart | undefined = animal.parts[index];
       const id: string = identity(part?.id, `part ${index}`);
@@ -117,7 +107,7 @@ export namespace QuadrupedCarriage {
     };
   }
 
-  /** A missing or empty identity cannot name an explicit actual carrier. */
+  /** A missing or empty identity cannot name an explicit carrier. */
   function identity(value: string | undefined, label: string): string {
     if (typeof value !== "string" || value.trim().length === 0)
       throw new RangeError(`Quadruped ${label} requires a nonempty identity`);

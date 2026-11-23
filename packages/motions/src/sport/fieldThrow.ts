@@ -3,6 +3,7 @@ import {
   Quaternion,
   Vector3,
   minimumJerk,
+  wrapDegrees,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -234,6 +235,15 @@ export namespace fieldThrow {
       },
     };
     const middle: IAutoMovieVector3 = Vector3.lerp(ball.left, ball.right, 0.5);
+
+    // Each foot keeps the turn it was entered with off the body's heading
+    // (its toe-out) while it pivots, so the throw starts on the feet as
+    // they stand.
+    const facing: number = yaw - spec.turn;
+    const out: Record<AutoMovieHumanSide, number> = {
+      left: wrapDegrees(HumanFoot.heading(context.entry.feet.left.rotation) - facing),
+      right: wrapDegrees(HumanFoot.heading(context.entry.feet.right.rotation) - facing),
+    };
     const footAt: (
       s: AutoMovieHumanSide,
       heading: number,
@@ -241,7 +251,7 @@ export namespace fieldThrow {
       s: AutoMovieHumanSide,
       heading: number,
     ): IAutoMovieMotionHumanFoot.IPlacement =>
-      HumanFoot.pivot(body, s, "ball", ball[s], heading, 0);
+      HumanFoot.pivot(body, s, "ball", ball[s], heading + out[s], 0);
 
     // A foot touching outside the circle, or past the arc, is a foul.
     const radius: number =

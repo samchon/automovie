@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  QuadrupedBody,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -19,7 +19,7 @@ import { archetypeHorseRide } from "../internal/archetypeHorseRide";
  * 4. A leg naming the walk at a canter's speed is refused with the walk's range.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Rides produced horses on named leads and reads the order of the landings; a lead not mirrored, a change that never takes, or a gait admitted beyond its range is caught.
- * @evidence contracts/development/testing.md#independent-expectations The left lead's order is the paper's Table 1, mirrored here by hand for the right; the speed is scaled by the square root of the height ratio, the dynamic similarity `QuadrupedGait.scale` states.
+ * @evidence contracts/development/testing.md#independent-expectations The left lead's order is the paper's Table 1, mirrored here by hand for the right; the speed is scaled by the square root of the height ratio, the dynamic similarity `AutoMovieArchetypeQuadrupedGait.scale` states.
  * @evidence contracts/development/testing.md#distinguishing-cases Both leads, a flying change and a refused gait.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
@@ -42,21 +42,37 @@ export function test_archetype_ride_horse_lead(): void {
     const k: number = starts.findIndex((s: number): boolean => s >= at);
     const from: number = starts[k]!;
     const to: number = starts[k + 1]!;
-    return QuadrupedBody.LIMBS.map((limb: QuadrupedBody.Limb): [string, number] => [
-      limb,
-      archetypeHorseRide.footfalls(r, limb).find((s: number): boolean => s >= from - 1e-9 && s < to - 1e-9)! - from,
-    ])
-      .sort((a: [string, number], b: [string, number]): number => a[1] - b[1] || a[0].localeCompare(b[0]))
+    return AutoMovieArchetypeQuadrupedBody.LIMBS.map(
+      (limb: AutoMovieArchetypeQuadrupedBody.Limb): [string, number] => [
+        limb,
+        archetypeHorseRide
+          .footfalls(r, limb)
+          .find((s: number): boolean => s >= from - 1e-9 && s < to - 1e-9)! -
+          from,
+      ],
+    )
+      .sort(
+        (a: [string, number], b: [string, number]): number =>
+          a[1] - b[1] || a[0].localeCompare(b[0]),
+      )
       .map((p: [string, number]): string => p[0])
       .join(" ");
   };
-  const left: ReturnType<typeof rideHorse> = rideHorse(horse, course([{ kind: "straight", length: 120, gait: "canter" }]));
-  const right: ReturnType<typeof rideHorse> = rideHorse(horse, course([{ kind: "straight", length: 120, gait: "canter", lead: "right" }]));
+  const left: ReturnType<typeof rideHorse> = rideHorse(
+    horse,
+    course([{ kind: "straight", length: 120, gait: "canter" }]),
+  );
+  const right: ReturnType<typeof rideHorse> = rideHorse(
+    horse,
+    course([{ kind: "straight", length: 120, gait: "canter", lead: "right" }]),
+  );
   // Within a stride from the left fore, ties named in alphabetical order: on the left lead the right hind, then the left hind with the right fore; on the right lead the right hind with the left fore, then the right fore, then the left hind.
   const leftOrder: string = order(left, left.duration / 2);
   const rightOrder: string = order(right, right.duration / 2);
-  if (leftOrder !== "leftFore rightHind leftHind rightFore") findings.push(`left lead order ${leftOrder}`);
-  if (rightOrder !== "leftFore rightHind rightFore leftHind") findings.push(`right lead order ${rightOrder}`);
+  if (leftOrder !== "leftFore rightHind leftHind rightFore")
+    findings.push(`left lead order ${leftOrder}`);
+  if (rightOrder !== "leftFore rightHind rightFore leftHind")
+    findings.push(`right lead order ${rightOrder}`);
 
   const change: ReturnType<typeof rideHorse> = rideHorse(
     horse,
@@ -65,21 +81,38 @@ export function test_archetype_ride_horse_lead(): void {
       { kind: "straight", length: 60, gait: "canter", lead: "right" },
     ]),
   );
-  const changes: { seconds: number; label: string }[] = change.instants.filter((i: { label: string }): boolean => i.label.startsWith("lead:"));
-  if (changes.length !== 1 || changes[0]!.label !== "lead:left-right") findings.push(`lead changes ${JSON.stringify(changes)}`);
-  else if (!archetypeHorseRide.footfalls(change, "leftFore").some((s: number): boolean => Math.abs(s - changes[0]!.seconds) < 1e-9))
+  const changes: { seconds: number; label: string }[] = change.instants.filter(
+    (i: { label: string }): boolean => i.label.startsWith("lead:"),
+  );
+  if (changes.length !== 1 || changes[0]!.label !== "lead:left-right")
+    findings.push(`lead changes ${JSON.stringify(changes)}`);
+  else if (
+    !archetypeHorseRide
+      .footfalls(change, "leftFore")
+      .some((s: number): boolean => Math.abs(s - changes[0]!.seconds) < 1e-9)
+  )
     findings.push("the flying change is at no left fore landing");
   else {
     const starts: number[] = archetypeHorseRide.footfalls(change, "leftFore");
-    const after: number = starts[starts.findIndex((s: number): boolean => s >= changes[0]!.seconds - 1e-9) + 2]!;
-    if (order(change, after) !== rightOrder) findings.push(`after the change the order is ${order(change, after)}`);
+    const after: number =
+      starts[
+        starts.findIndex(
+          (s: number): boolean => s >= changes[0]!.seconds - 1e-9,
+        ) + 2
+      ]!;
+    if (order(change, after) !== rightOrder)
+      findings.push(`after the change the order is ${order(change, after)}`);
   }
 
   try {
     rideHorse(horse, course([{ kind: "straight", length: 60, gait: "walk" }]));
     findings.push("a walk at a canter's speed was admitted");
   } catch (error) {
-    if (!(error instanceof ArchetypeRefusal) || error.feasible?.kind !== "range") findings.push(`a fast walk failed otherwise: ${String(error)}`);
+    if (
+      !(error instanceof AutoMovieArchetypeRefusal) ||
+      error.feasible?.kind !== "range"
+    )
+      findings.push(`a fast walk failed otherwise: ${String(error)}`);
   }
   TestValidator.equals("the leads land in their order", findings, []);
 }

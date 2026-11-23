@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Colour and banding references for the fictional scenery. */
@@ -23,7 +23,7 @@ const OAK_AND_IRON: string =
  * @param params Dimensions the author fixes, and an optional scene id.
  * @param seed Seed for dimensions left free, or the band midpoints when absent.
  * @returns The fixed scenery and its model-local staging contacts.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the scene origin, axes, geometry and staging contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Box surfaces and the doorway's two jambs and lintel share dimensions with the staging contacts. Round wheel faces and shallow hubs use the builder's cylinder primitive.
@@ -36,9 +36,12 @@ const OAK_AND_IRON: string =
 export function createLoadingTower(
   params: createLoadingTower.IParams = {},
   seed?: number | string,
-): Archetype<createLoadingTower.Affordance, createLoadingTower.Dimension> {
-  const draw: ArchetypeDrawSession<createLoadingTower.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createLoadingTower.Affordance,
+  createLoadingTower.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createLoadingTower.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "loading tower",
       createLoadingTower.UNITS,
       seed,
@@ -47,10 +50,10 @@ export function createLoadingTower(
   const d: Record<createLoadingTower.Dimension, number> = draw.dimensions(
     createLoadingTower.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createLoadingTower.Affordance,
     createLoadingTower.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "loading tower",
     material: "composite",
@@ -83,7 +86,7 @@ export function createLoadingTower(
     builder.affordance({
       id,
       kind: "surface",
-      frame: ArchetypeFrame.upright(Vector3.create(0, y, z)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, y, z)),
       extent: null,
       width,
       depth,
@@ -188,7 +191,9 @@ export function createLoadingTower(
   builder.affordance({
     id: "door",
     kind: "aperture",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.platformHeight, front)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, d.platformHeight, front),
+    ),
     extent: null,
     width: openingWidth,
     height: openingHeight,
@@ -231,7 +236,9 @@ export namespace createLoadingTower {
   /**
    * Model lengths are metres and mass is kilograms.
    */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     platformHeight: "m",
@@ -242,29 +249,41 @@ export namespace createLoadingTower {
   /**
    * Scene blockout bands, chosen for actor staging and silhouette.
    */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.of(
       "m",
       1.8,
       2.6,
       `Fictional scene footprint. Finish reference: ${OAK_AND_IRON}`,
       true,
     ),
-    depth: ArchetypeBand.of("m", 1.9, 2.7, "Fictional scene footprint", true),
-    platformHeight: ArchetypeBand.of(
+    depth: AutoMovieArchetypeBand.of(
+      "m",
+      1.9,
+      2.7,
+      "Fictional scene footprint",
+      true,
+    ),
+    platformHeight: AutoMovieArchetypeBand.of(
       "m",
       2.3,
       3.1,
       "Fictional upper staging level",
       true,
     ),
-    gangwayDepth: ArchetypeBand.of(
+    gangwayDepth: AutoMovieArchetypeBand.of(
       "m",
       0.7,
       1.2,
       "Fictional gangway staging area",
       true,
     ),
-    mass: ArchetypeBand.of("kg", 160, 240, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      160,
+      240,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

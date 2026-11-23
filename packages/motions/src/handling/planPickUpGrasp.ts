@@ -22,13 +22,13 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { poseBones } from "../posture/poseBones";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
+import { pickUpAlong } from "./pickUpAlong";
 import { pickUp } from "./pickUp";
 import { pickUpAdjust } from "./pickUpAdjust";
 import type { pickUpIntercept } from "./pickUpIntercept";
@@ -81,11 +81,14 @@ export function planPickUpGrasp(
   // hand turned as asked (a cylinder grips alike from any azimuth).
   const authored: IAutoMovieMotionHumanGrasp.ITarget =
     interception?.target ??
-    HumanGrasp.target(
+    pickUpAlong(
       context,
-      context.params.prop,
-      context.params.handle,
-      context.start,
+      HumanGrasp.target(
+        context,
+        context.params.prop,
+        context.params.handle,
+        context.start,
+      ),
     );
   const carried: IAutoMovieVector3 | undefined =
     interception === undefined
@@ -234,6 +237,14 @@ export function planPickUpGrasp(
     AutoMovieMotionHumanArm.angles(context.entry.pose, side);
   const hand: IAutoMovieMotionHumanContactWindow["part"] =
     side === "left" ? "leftHand" : "rightHand";
+  // The feet the entry bears on, and the frame each bears on.
+  const planted: Map<
+    IAutoMovieMotionHumanContactWindow["part"],
+    IAutoMovieMotionHumanContactWindow["support"]
+  > = new Map();
+  for (const s of context.entry.supports)
+    if (s.part === "leftFoot" || s.part === "rightFoot")
+      planted.set(s.part, s.support);
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
     events: [
@@ -243,7 +254,9 @@ export function planPickUpGrasp(
       ...(up === 0 ? [] : [{ name: "upright", share: 1 }]),
     ],
     contacts: [
-      ...pickUpAdjust.plants(lowered, reach, end, up, raise.share),
+      // Each foot keeps the contact the entry has it in: a seated body's
+      // hanging foot is not planted on a floor it does not reach.
+      ...pickUpAdjust.plants(lowered, reach, end, up, raise.share, planted),
       // What else the body rests on at the entry, a seat or a back, it
       // keeps throughout.
       ...context.entry.supports
@@ -370,6 +383,9 @@ export function planPickUpGrasp(
   // the planner's own, timed and cleared as it lays it; the arm then holds
   // the grip through the lift, and as the body straightens after it keeps
   // the angles it lifted with, so the prop rides up with the body.
+  // The load between the grip's close and the lift-off is the course's own
+  // hold: a posture frozen at the close and released at the lift-off shows a
+  // step wherever the course's hold has settled since the close.
   const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
     body,
     plan: goals,
@@ -378,28 +394,5 @@ export function planPickUpGrasp(
     span: { start: 0, ready: reach, relax: end, end },
     after: "angles",
   });
-  if (interception !== undefined) return coursed;
-
-  // A stationary grip keeps the wrist, support and digits fixed while
-  // loading: the posture at the grip's close, shown until the lift starts.
-  const loading: IAutoMovieMotionHumanPosture = coursed.posture(reach);
-  const plan: IAutoMovieMotionHumanActionPlan = {
-    ...coursed,
-    posture: (
-      seconds: number,
-      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): IAutoMovieMotionHumanPosture =>
-      seconds >= reach && seconds <= liftOff
-        ? loading
-        : coursed.posture(seconds, channels, resolution, projection),
-  };
-  HumanPreparedPlayback.attach(plan, body, {
-    mode: "posture",
-    phases: [
-      { from: reach, to: liftOff, sample: () => ({ posture: loading }) },
-    ],
-  });
-  return plan;
+  return coursed;
 }

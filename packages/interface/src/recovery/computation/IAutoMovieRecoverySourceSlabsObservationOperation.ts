@@ -8,21 +8,11 @@ import type {
 
 /**
  * Bind actual cut-emitting faces and published contour identities to clipped source slabs. The same physical scalar chart drives source cells and PL critical classification. All components and issues survive; only actual segment/contact provenance supplies ports, never endpoint-star witnesses. Copy the observed raw-node, alias and halfedge registries with their input ordinal spaces so boundary words remain joinable without parsing IDs. Measured critical brackets do not imply curves fitted at those bracket planes, exact material phase transport or transverse jets.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Source incidence or chart preparation shared by the operation; its borrowed arrays remain stable for the pass. Finite scalar projections aligned with source vertices, in the same units as query levels.
- * @evidence contracts/development/design.md#principled-representation Source incidence or chart preparation shared by the operation; its borrowed arrays remain stable for the pass.
- * @evidence contracts/development/design.md#minimal-and-owned-surface observeRecoverySourceSlabs share IAutoMovieRecoverySourceSlabsObservationOperation's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Complete original contour-publication lineage used to bind ports without inventing a fitted curve.
  */
 
 export namespace IAutoMovieRecoverySourceSlabsObservationOperation {
   /**
    * Bind actual cut-emitting faces and published contour identities to clipped source slabs. The same physical scalar chart drives source cells and PL critical classification. All components and issues survive; only actual segment/contact provenance supplies ports, never endpoint-star witnesses. Copy the observed raw-node, alias and halfedge registries with their input ordinal spaces so boundary words remain joinable without parsing IDs. Measured critical brackets do not imply curves fitted at those bracket planes, exact material phase transport or transverse jets.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Source incidence or chart preparation shared by the operation; its borrowed arrays remain stable for the pass. Finite scalar projections aligned with source vertices, in the same units as query levels.
-   * @evidence contracts/development/design.md#principled-representation Source incidence or chart preparation shared by the operation; its borrowed arrays remain stable for the pass.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface observeRecoverySourceSlabs share IAutoMovieRecoverySourceSlabsObservationOperation's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Complete original contour-publication lineage used to bind ports without inventing a fitted curve.
    */
 
   export type Operation = (input: {

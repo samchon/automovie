@@ -57,7 +57,7 @@ export function resolvePianoScoreVoicing(
         normal,
         points: [site, Vector3.subtract(site, Vector3.scale(normal, dip))],
         digit:
-          `${score.side}${score.digit[0]!.toUpperCase()}${score.digit.slice(1)}` as AutoMovieHumanDigit,
+          `${score.hand}${score.digit[0]!.toUpperCase()}${score.digit.slice(1)}` as AutoMovieHumanDigit,
       };
     },
   );
@@ -72,18 +72,18 @@ export function resolvePianoScoreVoicing(
   );
   const rotation: IAutoMovieQuaternion = manipulateFacing(
     context.entry.posture,
-    [{ site, normal, side: score.side }],
-    score.side,
+    [{ site, normal, side: score.hand }],
+    score.hand,
   );
   const reach: ReturnType<typeof manipulateReach.prepare> =
-    manipulateReach.prepare(context.body, score.side, rotation);
+    manipulateReach.prepare(context.body, score.hand, rotation);
   const preferred: IAutoMovieVector3[] = notes.map(
     (note: resolvePianoScoreVoicing.Note): IAutoMovieVector3 =>
       reach(note.score.digit, note.points[0], note.normal, note.dip),
   );
   const average: IAutoMovieVector3 = mean(preferred);
   const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-    x: score.side === "left" ? 1 : -1,
+    x: score.hand === "left" ? 1 : -1,
     y: 0,
     z: 0,
   });
@@ -105,7 +105,7 @@ export function resolvePianoScoreVoicing(
   // replaces only its playing digit with the straight seed for its own fit.
   const shape: IAutoMovieMotionHumanPosture["joints"] = manipulateShape(
     context.body,
-    score.side,
+    score.hand,
     score.digit,
     arm.point,
     rotation,
@@ -114,7 +114,7 @@ export function resolvePianoScoreVoicing(
   ).joints;
   if (notes.length > 1) {
     const seed: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
-      score.side,
+      score.hand,
       "flat",
     );
     for (const bone of Object.keys(seed) as AutoMovieHumanoidBone[])

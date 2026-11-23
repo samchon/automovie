@@ -1,9 +1,9 @@
 import {
-  ArchetypeRefusal,
-  EquineFord,
-  EquineFordPlan,
-  QuadrupedBody,
-  type QuadrupedFooting,
+  AutoMovieArchetypeEquineFord,
+  AutoMovieArchetypeEquineFordPlan,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedFooting,
+  AutoMovieArchetypeRefusal,
   createHorse,
 } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
@@ -41,11 +41,10 @@ export function test_archetype_equine_ford(): void {
   });
   const level: number =
     equineFordScene.WATER - equineFordScene.IMMERSION - BACK * 1.72;
-  const params: EquineFordPlan.IParams = equineFordScene.params(level - 0.05);
-  const crossing: EquineFordPlan.IClip<string, string> = EquineFord(
-    horse,
-    params,
-  );
+  const params: AutoMovieArchetypeEquineFordPlan.IParams =
+    equineFordScene.params(level - 0.05);
+  const crossing: AutoMovieArchetypeEquineFordPlan.IClip<string, string> =
+    AutoMovieArchetypeEquineFord(horse, params);
   const issues: string[] = [];
   const { float, swim, land, climb } = crossing.events;
 
@@ -75,7 +74,7 @@ export function test_archetype_equine_ford(): void {
         issues.push(`${seconds} s: ${String(error)}`);
       }
   const centres = (seconds: number): Map<string, IAutoMovieVector3> => {
-    const sample: EquineFordPlan.ISample<string, string> =
+    const sample: AutoMovieArchetypeEquineFordPlan.ISample<string, string> =
       crossing.sample(seconds);
     return new Map(
       sample.archetype.parts.map(
@@ -115,13 +114,13 @@ export function test_archetype_equine_ford(): void {
   }
 
   // 3. Planted on the far bank.
-  const banks: readonly QuadrupedFooting.IPlane[] =
+  const banks: readonly AutoMovieArchetypeQuadrupedFooting.IPlane[] =
     params.footing.planes.filter(
-      (plane: QuadrupedFooting.IPlane): boolean =>
+      (plane: AutoMovieArchetypeQuadrupedFooting.IPlane): boolean =>
         plane.id === "shelf" || plane.id === "climb",
     );
   let landings: number = 0;
-  for (const limb of QuadrupedBody.LIMBS)
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS)
     for (const instant of crossing.instants)
       if (
         instant.label === `${limb}On` &&
@@ -129,13 +128,11 @@ export function test_archetype_equine_ford(): void {
         instant.seconds + 0.09 < crossing.duration
       ) {
         landings++;
-        const id: string = QuadrupedBody.BONES[limb][3];
-        const first: EquineFordPlan.ISample<string, string> = crossing.sample(
-          instant.seconds + 1e-3,
-        );
-        const next: EquineFordPlan.ISample<string, string> = crossing.sample(
-          instant.seconds + 0.08,
-        );
+        const id: string = AutoMovieArchetypeQuadrupedBody.BONES[limb][3];
+        const first: AutoMovieArchetypeEquineFordPlan.ISample<string, string> =
+          crossing.sample(instant.seconds + 1e-3);
+        const next: AutoMovieArchetypeEquineFordPlan.ISample<string, string> =
+          crossing.sample(instant.seconds + 0.08);
         const slid: number = Vector3.distance(
           equineFordScene.frame(first, id).translation,
           equineFordScene.frame(next, id).translation,
@@ -148,10 +145,11 @@ export function test_archetype_equine_ford(): void {
           next,
           id,
         ).translation;
-        const plane: QuadrupedFooting.IPlane | undefined = banks.find(
-          (candidate: QuadrupedFooting.IPlane): boolean =>
-            where.z >= candidate.z[0] && where.z < candidate.z[1],
-        );
+        const plane: AutoMovieArchetypeQuadrupedFooting.IPlane | undefined =
+          banks.find(
+            (candidate: AutoMovieArchetypeQuadrupedFooting.IPlane): boolean =>
+              where.z >= candidate.z[0] && where.z < candidate.z[1],
+          );
         const hoof: IAutoMovieModelPart = next.archetype.parts.find(
           (part: IAutoMovieModelPart): boolean => part.id === id,
         )!;
@@ -174,19 +172,19 @@ export function test_archetype_equine_ford(): void {
     } catch (caught) {
       error = caught;
     }
-    if (!(error instanceof ArchetypeRefusal && error.axis === axis))
+    if (!(error instanceof AutoMovieArchetypeRefusal && error.axis === axis))
       issues.push(
         `${label}: expected a refusal on ${axis}, got ${String(error)}`,
       );
   };
   refuses("unreachable bank", "bank", () =>
-    EquineFord(horse, equineFordScene.params(level - 0.5)),
+    AutoMovieArchetypeEquineFord(horse, equineFordScene.params(level - 0.5)),
   );
   refuses("bank into the stroke", "bank", () =>
-    EquineFord(horse, equineFordScene.params(level + 0.9)),
+    AutoMovieArchetypeEquineFord(horse, equineFordScene.params(level + 0.9)),
   );
   refuses("shallow ford", "entry", () =>
-    EquineFord(horse, {
+    AutoMovieArchetypeEquineFord(horse, {
       ...params,
       entry: { ...params.entry, legs: [{ kind: "straight", length: 8 }] },
     }),

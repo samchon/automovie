@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { SANITARY_BANDS } from "./SANITARY_BANDS";
 import { SanitaryConstruction } from "./SanitaryConstruction";
@@ -13,7 +13,7 @@ import type { createSanitary } from "./createSanitary";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The well's floor and front rim retain their measured support locations. A separate room control supplies the plumbing action.
@@ -26,7 +26,7 @@ import type { createSanitary } from "./createSanitary";
 export function createBathtub(
   params: createBathtub.IParams = {},
   seed?: number | string,
-): Archetype<createBathtub.Affordance, createBathtub.Dimension> {
+): AutoMovieArchetype<createBathtub.Affordance, createBathtub.Dimension> {
   return FixtureDraw.installed<
     createBathtub.Affordance,
     createSanitary.Dimension

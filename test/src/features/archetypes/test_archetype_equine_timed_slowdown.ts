@@ -1,5 +1,5 @@
 import {
-  ArchetypeCourse,
+  AutoMovieArchetypeCourse,
   createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -46,7 +46,10 @@ export function test_archetype_equine_timed_slowdown(): void {
     }
     return out;
   };
-  const ride = rideQuadruped(horse, ArchetypeCourse.timed("mare", marks(1.3)));
+  const ride = rideQuadruped(
+    horse,
+    AutoMovieArchetypeCourse.timed("mare", marks(1.3)),
+  );
   for (let at: number = 0; at <= ride.duration; at += 0.02)
     try {
       ride.at(at);

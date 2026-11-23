@@ -31,20 +31,10 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * hang, and the body gets onto it by a step up or a swing of a leg. The
  * popliteal height is the knee joint's height less the thigh's radius, where
  * the thigh's underside meets a level seat.
- *
- * @evidence contracts/development/common.md#meaningful-documentation at: The middle of the sitting surface's front edge, world metres; its height is the seat height. yaw: The heading a sitter faces, degrees about +Y. depth: Depth back from the front edge, metres; deep enough for the thigh when absent.
- * @evidence contracts/development/design.md#principled-representation at: The middle of the sitting surface's front edge, world metres; its height is the seat height. yaw: The heading a sitter faces, degrees about +Y. depth: Depth back from the front edge, metres; deep enough for the thigh when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/seated.ts (seated.high, seat); everyday/seated.ts (seated.ratio, seat); everyday/seated.ts (seated.check, seat); everyday/seated.ts (seated.point, seat); everyday/sitPlace.ts (sitPlace.reach, seat); lexicon/HumanMountOn.ts (HumanMountOn.plan, seat).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanSeated {
   /**
    * Whether a seat is a high one for a body: above the band, so the feet cannot stay on the floor and the body gets onto it by a step up or a swing of a leg, then sits with the feet on its rests or hanging, as on a bar stool, a saddle or a wall. A seat in the world.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation at: The middle of the sitting surface's front edge, world metres; its height is the seat height. yaw: The heading a sitter faces, degrees about +Y. depth: Depth back from the front edge, metres; deep enough for the thigh when absent.
-   * @evidence contracts/development/design.md#principled-representation at: The middle of the sitting surface's front edge, world metres; its height is the seat height. yaw: The heading a sitter faces, degrees about +Y. depth: Depth back from the front edge, metres; deep enough for the thigh when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/seated.ts (seated.high, seat); everyday/seated.ts (seated.ratio, seat); everyday/seated.ts (seated.check, seat); everyday/seated.ts (seated.point, seat); everyday/sitPlace.ts (sitPlace.reach, seat); lexicon/HumanMountOn.ts (HumanMountOn.plan, seat).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ISeat {
     /** The middle of the sitting surface's front edge, world metres; its height is the seat height. */
@@ -58,6 +48,12 @@ export namespace IAutoMovieMotionHumanSeated {
 
     /** The sitting surface's sideways tilt, degrees, as a posture's roll; level when absent. */
     roll?: number;
+
+    /** The subject of the prop the seat belongs to, when that prop may move: the seat is then read where the prop stands when the sit begins, and the sit follows it in the prop's frame (`sitCarried`). A seat in the world when absent. */
+    carrier?: string;
+
+    /** The seat's own contact id on its `carrier`, read only with it: the sit also follows that contact as it moves within the carrier, as a saddle rises and falls on a walking horse's back, the way a ride follows its seat. Carried with the carrier alone when absent. */
+    point?: string;
 
     /** Depth back from the front edge, metres; deep enough for the thigh when absent. */
     depth?: number;

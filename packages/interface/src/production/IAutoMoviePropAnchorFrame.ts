@@ -5,11 +5,6 @@ import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
 
 /**
  * Borrowed placement registries used to resolve a relation's rest-world anchor.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Borrowed placement registries used to resolve a relation's rest-world anchor. Targets select prop-local affordance frames or building rest frames, returned in world metres with decomposed rotation/scale. Operating states are intentionally absent from this rest-frame query.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional props/set are empty registries when omitted, making prop-affordance targets unresolved. A space has no frame; absent/cyclic references return null rather than an invented transform.
- * @evidence contracts/development/design.md#principled-representation Targets select prop-local affordance frames or building rest frames, returned in world metres with decomposed rotation/scale. Operating states are intentionally absent from this rest-frame query.
- * @evidence contracts/development/design.md#minimal-and-owned-surface propAnchorFrame consumes only the target and relevant environment/prop/set registries; validatePropPlacements owns duplicate-id and placement admission.
  */
 export namespace IAutoMoviePropAnchorFrame {
   /**
@@ -27,11 +22,6 @@ export namespace IAutoMoviePropAnchorFrame {
    * A building target also answers `null` when its environment, element or record is missing or an element's parent chain is missing or cyclic. Rest pose means operating states are ignored: an anchor on a door is where the door hangs, not where it swings to. Lookups take the first record of a given id; two records sharing one id is a contradiction {@link validatePropPlacements} refuses by name, so resolving it a second time here would report the same defect in a worse place.
    *
    * The composed affine matrix is returned as a decomposed TRS with normalized rotation. Rotations combined with nonuniform parent scales can introduce shear that this representation does not preserve; the result is not a general affine anchor matrix. Matrix4.decompose can throw when derived affine arithmetic cannot produce a finite frame; null covers the stated missing/cyclic/absent-face cases, not every numerical failure.
-   *
-   * @evidence contracts/development/design.md#principled-representation Targets select prop-local affordance frames or building rest frames, returned in world metres with decomposed rotation/scale. Operating states are intentionally absent from this rest-frame query.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface propAnchorFrame consumes only the target and relevant environment/prop/set registries; validatePropPlacements owns duplicate-id and placement admission.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Optional props/set are empty registries when omitted, making prop-affordance targets unresolved. A space has no frame; absent/cyclic references return null rather than an invented transform.
-   * @evidence contracts/development/common.md#meaningful-documentation Borrowed placement registries used to resolve a relation's rest-world anchor. Targets select prop-local affordance frames or building rest frames, returned in world metres with decomposed rotation/scale. Operating states are intentionally absent from this rest-frame query.
    */
   export type IProps = {
     /**

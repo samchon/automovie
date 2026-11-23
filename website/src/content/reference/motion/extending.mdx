@@ -18,13 +18,13 @@ An installed action that fails under documented use is a package defect. The age
 
 ## The lexicon
 
-Before writing a row, check the lexicon. It holds named rows over the shipped actions, ready to register, in families such as `emblem`, `habit`, `stance`, `gait`, `social`, `stageFight`, `labour`, `ride`, `sport` and `sword`. `HUMAN_LEXICON` lists every family's rows as data, and `HUMAN_LEXICON_SCHEMAS` gives each row's parameters as a JSON schema:
+Before writing a row, check the lexicon. It holds named rows over the shipped actions, ready to register, in families such as `emblem`, `habit`, `stance`, `gait`, `social`, `stageFight`, `labour`, `ride`, `sport` and `sword`. `HUMAN_LEXICON` lists every family's rows as data:
 
 ```ts
-import { HumanChain, HumanEmblem, HumanPerformance, HumanStageFight } from "@automovie/motions";
+import { AutoMovieMotionHumanGesture, AutoMovieMotionHumanStageFight, HumanChain, HumanPerformance } from "@automovie/motions";
 
-const { salute } = HumanEmblem;
-const { slap } = HumanStageFight;
+const { salute } = AutoMovieMotionHumanGesture.HumanEmblem;
+const { slap } = AutoMovieMotionHumanStageFight.HumanStageFight;
 const Chain = HumanChain.extend({ salute, slap });
 
 new HumanPerformance({
@@ -42,14 +42,14 @@ A lexicon row leaves open only what the scene decides: a target, a partner, a de
 A row writes no motion. The action it is a row of plans it, so it is fitted, refused and checked as that action is, cuts like it and is carried over a walk where that action can be. `HumanActionRow.of` names the row and fixes its parameters:
 
 ```ts
-import { HumanActionRow, HumanChain, HumanPerformance, touch } from "@automovie/motions";
+import { AutoMovieMotionHumanTouch, HumanActionRow, HumanChain, HumanPerformance } from "@automovie/motions";
 
 // A touch with its target, effector, kind, hand and elbow fixed.
-const salute = HumanActionRow.of("salute", touch, {
+const salute = HumanActionRow.of("salute", AutoMovieMotionHumanTouch.touch, {
   target: { kind: "self", region: "templeRight" },
-  with: "forefinger", // the hand continues the forearm, palm down
+  effector: "forefinger", // the hand continues the forearm, palm down
   kind: "hold",
-  side: "right",
+  hand: "right",
   elbow: "level", // the upper arm horizontal
 });
 
@@ -69,8 +69,8 @@ The chain method takes the parameters the row leaves open, here `hold`.
 Some actions plan from a table of entries, such as the tasks of `handToFace`. An entry the table lacks is a row too, given as the table's own row type:
 
 ```ts
-const shave = HumanActionRow.of("shave", handToFace, {
-  task: { region: "jawRight", effector, kind: "rub", count: 3, hold: 0.2, tangent: "up", head: 0, at: "atJaw" },
+const shave = HumanActionRow.of("shave", AutoMovieMotionHumanHandToBody.handToFace, {
+  kind: { region: "jawRight", effector, kind: "rub", count: 3, hold: 0.2, tangent: "up", head: 0, at: "atJaw" },
 });
 ```
 

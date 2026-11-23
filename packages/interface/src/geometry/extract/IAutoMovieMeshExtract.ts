@@ -6,20 +6,10 @@ import type { IAutoMovieScalarHermiteKnot } from "./IAutoMovieScalarHermiteKnot"
  * Mesh slicing and Hermite reduction records used to author construction profiles.
  *
  * Sections use the supplied mesh frame in millimetres; scalar runs keep their supplied station and value units, and loop tangents differentiate chord length. Mesh indexing, finite samples and orthonormal frames are caller premises; outline flags broken cuts, reducers check minimum sample counts, and profileCurve checks station order and loop size.
- *
- * @evidence contracts/development/design.md#principled-representation Sections use the supplied mesh frame in millimetres; scalar runs keep their supplied station and value units, and loop tangents differentiate chord length.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieMeshExtract produces these records; AutoMovieMeshCourse and profileCurve consume section loops and fitted knots.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Mesh indexing, finite samples and orthonormal frames are caller premises; outline flags broken cuts, reducers check minimum sample counts, and profileCurve checks station order and loop size.
- * @evidence contracts/development/common.md#meaningful-documentation Mesh slicing and Hermite reduction records used to author construction profiles. Sections use the supplied mesh frame in millimetres; scalar runs keep their supplied station and value units, and loop tangents differentiate chord length.
  */
 export namespace IAutoMovieMeshExtract {
   /**
    * One extreme point of a section along an in-plane direction.
-   *
-   * @evidence contracts/development/design.md#principled-representation The support point of the section polygon, which is always one of its vertices.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The point and its reach, nothing derived further.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reports the cut's own vertex; no smoothing.
-   * @evidence contracts/development/common.md#meaningful-documentation States what the reach is measured from.
    */
   export interface IExtreme {
     /**
@@ -53,11 +43,6 @@ export namespace IAutoMovieMeshExtract {
    * its top and its foot without a knot of its own.
    *
    * The reducer borrows its inputs and returns mutable copies. Increasing finite stations, finite values and a meaningful nonnegative tolerance remain caller premises; only the retained sample count is checked. Greedy removal does not prove a globally minimal knot count.
-   *
-   * @evidence contracts/development/design.md#principled-representation Sections use the supplied mesh frame in millimetres; scalar runs keep their supplied station and value units, and loop tangents differentiate chord length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieMeshExtract produces these records; AutoMovieMeshCourse and profileCurve consume section loops and fitted knots.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Mesh indexing, finite samples and orthonormal frames are caller premises; outline flags broken cuts, reducers check minimum sample counts, and profileCurve checks station order and loop size.
-   * @evidence contracts/development/common.md#meaningful-documentation Mesh slicing and Hermite reduction records used to author construction profiles. Sections use the supplied mesh frame in millimetres; scalar runs keep their supplied station and value units, and loop tangents differentiate chord length.
    */
   export type IReduceResult = {
     /**
@@ -84,11 +69,6 @@ export namespace IAutoMovieMeshExtract {
    * merge away); at least four knots remain.
    *
    * The result owns its knot records and point/tangent tuples. Finite coordinates, nonzero consecutive retained chords and a meaningful nonnegative tolerance are caller premises; only the minimum retained sample count is checked.
-   *
-   * @evidence contracts/development/design.md#principled-representation Sections use the supplied mesh frame in millimetres; scalar runs keep their supplied station and value units, and loop tangents differentiate chord length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieMeshExtract produces these records; AutoMovieMeshCourse and profileCurve consume section loops and fitted knots.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Mesh indexing, finite samples and orthonormal frames are caller premises; outline flags broken cuts, reducers check minimum sample counts, and profileCurve checks station order and loop size.
-   * @evidence contracts/development/common.md#meaningful-documentation Mesh slicing and Hermite reduction records used to author construction profiles. Sections use the supplied mesh frame in millimetres; scalar runs keep their supplied station and value units, and loop tangents differentiate chord length.
    */
   export type IReduceLoopResult = {
     /**

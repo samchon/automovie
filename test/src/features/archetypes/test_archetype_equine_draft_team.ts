@@ -1,10 +1,11 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeRide,
-  HorseTeam,
-  type HorseTeamPlan,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeEquineTeam,
+  type AutoMovieArchetypeEquineTeamPlan,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeRide,
   createCart,
   createHorse,
 } from "@automovie/archetypes";
@@ -19,7 +20,7 @@ import { TestValidator } from "@nestia/e2e";
 import { archetypeHorseRide } from "../internal/archetypeHorseRide";
 
 /** A team's sample. */
-type Sample = HorseTeamPlan.ISample<
+type Sample = AutoMovieArchetypeEquineTeamPlan.ISample<
   createCart.Affordance,
   createCart.Dimension
 >;
@@ -28,7 +29,10 @@ type Sample = HorseTeamPlan.ISample<
 type Bar = readonly [IAutoMovieVector3, IAutoMovieVector3, number];
 
 /** A team. */
-type Team = HorseTeamPlan.ITeam<createCart.Affordance, createCart.Dimension>;
+type Team = AutoMovieArchetypeEquineTeamPlan.ITeam<
+  createCart.Affordance,
+  createCart.Dimension
+>;
 
 /**
  * Teams of harnessed horses draw one pole vehicle, each horse on its own path in its place, joined to the vehicle by spans that stay on its parts.
@@ -49,9 +53,11 @@ type Team = HorseTeamPlan.ITeam<createCart.Affordance, createCart.Dimension>;
 export function test_archetype_equine_draft_team(): void {
   const horse = (
     seed: number,
-  ): Archetype<createHorse.Affordance, createHorse.Dimension> =>
-    createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, seed);
-  const base: HorseTeamPlan.IParams = {
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  > => createHorse({ tack: "harness", withersHeight: 1.6, tempo: 0 }, seed);
+  const base: AutoMovieArchetypeEquineTeamPlan.IParams = {
     hitch: "pair",
     spacing: 0.8,
     length: 3,
@@ -69,7 +75,7 @@ export function test_archetype_equine_draft_team(): void {
     sag: 0.06,
   };
   const issues: string[] = [];
-  const pair: Team = HorseTeam(
+  const pair: Team = AutoMovieArchetypeEquineTeam(
     [horse(1), horse(2)],
     createCart({ kind: "chariot", withersHeight: 1.6 }, 1),
     base,
@@ -96,7 +102,7 @@ export function test_archetype_equine_draft_team(): void {
     issues.push(`outside over inside ${ratio}, expected ${12.4 / 11.6}`);
 
   // 2-4 for a four-in-hand on a brougham.
-  const four: Team = HorseTeam(
+  const four: Team = AutoMovieArchetypeEquineTeam(
     [horse(1), horse(2), horse(3), horse(4)],
     createCart({ kind: "carriage" }, 1),
     {
@@ -118,7 +124,7 @@ export function test_archetype_equine_draft_team(): void {
     issues.push("the same second replays differently");
   let refused: unknown = null;
   try {
-    HorseTeam(
+    AutoMovieArchetypeEquineTeam(
       [horse(1), horse(2)],
       createCart({ kind: "chariot", withersHeight: 1.6 }, 1),
       {
@@ -135,7 +141,7 @@ export function test_archetype_equine_draft_team(): void {
   }
   if (
     !(
-      refused instanceof ArchetypeRefusal &&
+      refused instanceof AutoMovieArchetypeRefusal &&
       refused.axis === "legs[1].radius" &&
       refused.feasible?.kind === "range" &&
       (refused.feasible.minimum ?? 0) > 1.5
@@ -158,12 +164,14 @@ export function test_archetype_equine_draft_team(): void {
       const braking: boolean = seconds >= team.brake;
       if (sample.stage !== (braking ? "brake" : "pull"))
         issues.push(`${label} ${seconds}: stage ${sample.stage}`);
-      team.places.forEach((place: HorseTeamPlan.IPlace, k: number): void => {
-        if (sample.breeching[k] !== (braking && place.role === "wheeler"))
-          issues.push(
-            `${label} ${seconds}: horse ${k} breeching ${sample.breeching[k]}`,
-          );
-      });
+      team.places.forEach(
+        (place: AutoMovieArchetypeEquineTeamPlan.IPlace, k: number): void => {
+          if (sample.breeching[k] !== (braking && place.role === "wheeler"))
+            issues.push(
+              `${label} ${seconds}: horse ${k} breeching ${sample.breeching[k]}`,
+            );
+        },
+      );
       for (const line of sample.lines) {
         const k: number = Number(
           line.id.split("-").at(-2) === "strap"
@@ -211,9 +219,9 @@ export function test_archetype_equine_draft_team(): void {
     }
     team.rides.forEach(
       (
-        ride: ArchetypeRide.IRide<
-          createHorse.Affordance,
-          createHorse.Dimension
+        ride: AutoMovieArchetypeRide.IRide<
+          AutoMovieArchetypeEquine.Affordance,
+          AutoMovieArchetypeEquine.Dimension
         >,
         k: number,
       ): void => {
@@ -231,10 +239,13 @@ export function test_archetype_equine_draft_team(): void {
 
 /** A posed part's world origin. */
 function world(
-  sample: ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension>,
+  sample: AutoMovieArchetypeRide.ISample<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  >,
   id: string,
 ): IAutoMovieVector3 {
-  return ArchetypeFrame.compose(
+  return AutoMovieArchetypeFrame.compose(
     sample.placement,
     sample.archetype.parts.find(
       (part: IAutoMovieModelPart): boolean => part.id === id,
@@ -244,7 +255,10 @@ function world(
 
 /** The trunk's world centre. */
 function trunk(
-  sample: ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension>,
+  sample: AutoMovieArchetypeRide.ISample<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  >,
 ): IAutoMovieVector3 {
   return world(sample, "trunk");
 }
@@ -262,13 +276,19 @@ function inverse(
 
 /** The clearance between two horses' trunk capsules, metres. */
 function capsules(
-  a: ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension>,
-  b: ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension>,
+  a: AutoMovieArchetypeRide.ISample<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  >,
+  b: AutoMovieArchetypeRide.ISample<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
+  >,
 ): number {
   const axis = (
-    sample: ArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+    sample: AutoMovieArchetypeRide.ISample<
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     >,
   ): Bar => {
     const part: IAutoMovieModelPart = sample.archetype.parts.find(
@@ -279,7 +299,7 @@ function capsules(
       part.geometry.shape.type !== "capsule"
     )
       throw new Error("no trunk capsule");
-    const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+    const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
       sample.placement,
       part.transform!,
     );

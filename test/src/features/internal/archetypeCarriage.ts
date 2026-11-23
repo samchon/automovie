@@ -1,6 +1,6 @@
 import {
-  ArchetypeAssembly,
-  ArchetypeFrame,
+  AutoMovieArchetypeAssembly,
+  AutoMovieArchetypeFrame,
   createBar,
   createSeat,
   createWall,
@@ -16,8 +16,8 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  */
 export function archetypeCarriage(
   seed: number,
-): ArchetypeAssembly<archetypeCarriage.Members> {
-  return ArchetypeAssembly.of(
+): AutoMovieArchetypeAssembly<archetypeCarriage.Members> {
+  return AutoMovieArchetypeAssembly.of(
     "carriage",
     "railway carriage",
     archetypeCarriage.members(seed),
@@ -29,37 +29,40 @@ export namespace archetypeCarriage {
   /** The members by key. */
   export type Members = {
     /** The rear bench. */
-    bench1: ArchetypeAssembly.IMember<
+    bench1: AutoMovieArchetypeAssembly.IMember<
       createSeat.Affordance,
       createSeat.Dimension
     >;
 
     /** The middle bench. */
-    bench2: ArchetypeAssembly.IMember<
+    bench2: AutoMovieArchetypeAssembly.IMember<
       createSeat.Affordance,
       createSeat.Dimension
     >;
 
     /** The front bench. */
-    bench3: ArchetypeAssembly.IMember<
+    bench3: AutoMovieArchetypeAssembly.IMember<
       createSeat.Affordance,
       createSeat.Dimension
     >;
 
     /** The rail along the left side. */
-    railLeft: ArchetypeAssembly.IMember<
+    railLeft: AutoMovieArchetypeAssembly.IMember<
       createBar.Affordance,
       createBar.Dimension
     >;
 
     /** The rail along the right side. */
-    railRight: ArchetypeAssembly.IMember<
+    railRight: AutoMovieArchetypeAssembly.IMember<
       createBar.Affordance,
       createBar.Dimension
     >;
 
     /** The low wall across the front. */
-    wall: ArchetypeAssembly.IMember<createWall.Affordance, createWall.Dimension>;
+    wall: AutoMovieArchetypeAssembly.IMember<
+      createWall.Affordance,
+      createWall.Dimension
+    >;
   };
 
   /**
@@ -115,7 +118,7 @@ export namespace archetypeCarriage {
     return {
       translation: { x, y, z },
       rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading),
-      scale: { ...ArchetypeFrame.UNIT },
+      scale: { ...AutoMovieArchetypeFrame.UNIT },
     };
   }
 }

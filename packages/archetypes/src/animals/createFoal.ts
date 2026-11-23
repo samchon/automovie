@@ -1,8 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeDrawSession,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeRefusal,
 } from "../core";
+import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { HORSE_BANDS } from "./HORSE_BANDS";
 import { createHorse } from "./createHorse";
 
@@ -32,6 +33,11 @@ interface IEnds {
  *
  * The withers height follows the foal's age between two cited points, linearly between them: about 60% of mature height at birth (Horse & Hound, a secondary estimate) and 84% at six months (Lawrence 2003, as Kentucky Equine Research reports it). The distal limb (cannon and pastern) is nearer its mature length: 1 / 1.06 of it at weaning, since it grows only 5 to 7% more from weaning to three years (Anderson and McIlwraith 2004, Equine Vet J 36:563), and an authored, provisional 0.85 at birth. The proximal limb bones grow with the height; the trunk is an authored, provisional 0.9 of the height's share. Each bone's fraction of the withers height is the horse's (`createHorse.LENGTHS`) scaled by its growth over the height's, so the foal's limbs are longer and its trunk shorter for its height than an adult's. It is a horse to every consumer (its archetype is the horse's) and rides on the horse's gait table, scaled to its own height; its model is named a foal. Weaning is taken at 183 days.
  *
+ * @param params The age in days, the mature withers height in metres, the tack and the id; each is optional.
+ * @param seed The seed that draws the horse's free dimensions other than the withers height, which the age fixes; absent, each takes the middle of its band.
+ * @returns The foal, with the horse's affordances and dimensions.
+ * @throws {AutoMovieArchetypeRefusal} For an age below 0 or above 183 days.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States each growth curve, its source or that it is authored and provisional, how the bone fractions follow and the age range.
  * @evidence contracts/development/implementation.md#principled-implementation The horse's equid builder on a foal profile whose height and bone fractions are the growth curves at the age.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the age, build the profile, build the equid.
@@ -43,10 +49,13 @@ interface IEnds {
 export function createFoal(
   params: createFoal.IParams = {},
   seed?: number | string,
-): Archetype<createHorse.Affordance, createHorse.Dimension> {
+): AutoMovieArchetype<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
+> {
   const age: number = params.age ?? 0;
   if (!(Number.isFinite(age) && age >= 0 && age <= createFoal.WEANING))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: createFoal.ARCHETYPE,
       axis: "age",
@@ -63,15 +72,15 @@ export function createFoal(
   const mature: number = params.mature ?? createFoal.MATURE;
   const growth: createFoal.IGrowth = createFoal.growth(age);
   const withers: number = mature * growth.withers;
-  const draw: ArchetypeDrawSession<createHorse.Dimension> =
-    new ArchetypeDrawSession<createHorse.Dimension>(
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeEquine.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeEquine.Dimension>(
       createHorse.PROFILE.archetype,
-      createHorse.UNITS,
+      AutoMovieArchetypeEquine.UNITS,
       seed,
       {},
     );
   draw.derive("withersHeight", withers);
-  return createHorse.equid(
+  return AutoMovieArchetypeEquine.equid(
     createFoal.profile(withers, growth),
     { tack: params.tack ?? "bare", id: params.id },
     draw,
@@ -98,11 +107,6 @@ export namespace createFoal {
 
   /**
    * The parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Days and metres.
-   * @evidence contracts/development/design.md#principled-representation An age, a mature height and the horse's tack and id.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `createFoal` takes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IParams {
     /** Days from birth, 0 to `WEANING`; 0 when absent. */
@@ -112,7 +116,7 @@ export namespace createFoal {
     mature?: number;
 
     /** What the foal wears; `bare` when absent. */
-    tack?: createHorse.Tack;
+    tack?: AutoMovieArchetypeEquine.Tack;
 
     /** The model's id. */
     id?: string;
@@ -120,11 +124,6 @@ export namespace createFoal {
 
   /**
    * Growth fractions of mature size at an age.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member is a fraction of the mature size.
-   * @evidence contracts/development/design.md#principled-representation Three fractions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `growth`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IGrowth {
     /** The withers height's. */
@@ -142,14 +141,6 @@ export namespace createFoal {
    *
    * @param age Days from birth, 0 to `WEANING`.
    * @returns The fractions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the end values and their sources.
-   * @evidence contracts/development/implementation.md#principled-implementation Linear interpolation between the birth and weaning values.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by the producer.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function growth(age: number): IGrowth {
     const u: number = age / WEANING;
@@ -167,19 +158,11 @@ export namespace createFoal {
    * @param withers The foal's height at the withers, metres.
    * @param growth Its growth fractions.
    * @returns The profile.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the scaling.
-   * @evidence contracts/development/implementation.md#principled-implementation A bone's fraction of the height is the adult's times its growth over the height's growth: proximal bones grow with the height, so theirs is unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One profile record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the horse's body.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh profile.
    */
   export function profile(
     withers: number,
     growth: IGrowth,
-  ): createHorse.IProfile {
+  ): AutoMovieArchetypeEquine.IProfile {
     const distal: number = growth.distal / growth.withers;
     const scale = (
       bones: readonly [number, number, number, number],

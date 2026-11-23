@@ -16,9 +16,11 @@ import type {
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanBound } from "../law/HumanBound";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanSkill } from "../skill/HumanSkill";
 import { stand } from "./stand";
+import { standClearArms } from "./standClearArms";
 import { standFeet } from "./standFeet";
 import { standUpright } from "./standUpright";
 
@@ -30,14 +32,6 @@ import { standUpright } from "./standUpright";
  * @param context The fixed action context; params.seconds is supplied later.
  * @param side The acting side that signs lateral sway.
  * @returns A stand planner at a positive duration in seconds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the probe/final-duration use, fixed inputs, varying positive seconds and stream ownership.
- * @evidence contracts/development/implementation.md#principled-implementation Retains stand's exact contact-preserving rocker course, midpoint/root alignment, minimum-jerk settle and seeded smooth sway with the same duration-specific normalization and moving-support carry.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry geometry and support choice are prepared once, then each requested duration owns its settle, fresh random channels, events, contacts and joint map.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither a probe's trajectory nor an entry posture substitutes for the duration-specific stance; each query evaluates the original equations and actual support frame.
- * @evidence contracts/development/implementation.md#efficient-algorithms A shared entry performs its socket FK and geometric preparation once; each duration prepares its two fixed four-term sway spectra lazily, while every posture still evaluates the original sines, window, rockers and carry.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Fixed entry/body/alignment/support data serve both durations. Each child owns its pure indexed random channels and duration-specific spectra, whose exact coefficients are reused without sharing any time-dependent result with another child.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The owning action retains one finite two-foot preparation until release; each child plan owns two lazy four-term noise readers and its joint map. No FK reader, evaluated pose or query history is retained.
  */
 export function prepareStand(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
@@ -52,11 +46,17 @@ export function prepareStand(
   const initial: IAutoMovieVector3 = course.offset(0);
   const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright.of(context.body);
   const middle: IAutoMovieVector3 = stand.root(context.body, course.flat, yaw);
+  const from: IAutoMovieVector3 = context.entry.posture.root;
+  // The arms hang relaxed beside the thighs of the stance settled on the
+  // entry's feet, which may stand wider or staggered than the quiet stance;
+  // while the stance settles, a hand the moving thighs meet is let out at
+  // the shoulder (`HumanArmClearance.swung`), as a gait's swinging arm is.
   const aligned: IAutoMovieMotionHumanPosture["joints"] = {
-    ...stand.relaxed(context.body),
+    ...standClearArms(context.body, [
+      course.write({ root: middle, yaw, pitch: 0, roll: 0, joints: upright.joints, limbs: {} }, 1),
+    ]),
     ...upright.joints,
   };
-  const from: IAutoMovieVector3 = context.entry.posture.root;
   const sway: number =
     context.params.sway ?? stand.SWAY * HumanSkill.sway(context.skill);
   HumanBound.least("sway", sway, 0, "m");
@@ -92,7 +92,7 @@ export function prepareStand(
         );
 
   return (duration: number): IAutoMovieMotionHumanActionPlan => {
-    HumanBound.above("seconds", duration, 0, "s");
+    HumanBound.above("hold", duration, 0, "s");
     const settle: number = Math.min(stand.SETTLE, duration);
     const sx: IAutoMovieRandom = context.random("swayX");
     const sz: IAutoMovieRandom = context.random("swayZ");
@@ -154,7 +154,7 @@ export function prepareStand(
             swayed.z,
         };
         const carry: IAutoMovieMotionHumanSupportCarry.ICarry | undefined = carried(t);
-        return feet.write(
+        const written: IAutoMovieMotionHumanPosture = feet.write(
           {
             root: carry?.point(root) ?? root,
             yaw: yaw + (carry?.yaw ?? 0),
@@ -165,7 +165,13 @@ export function prepareStand(
           },
           carry,
         );
+        // Settled, the arms hang clear of the thighs they were found clear
+        // of; while settling, the thighs move under them.
+        return s < 1 ? HumanArmClearance.swung(context.body, written, SIDES) : written;
       },
     };
   };
 }
+
+/** Both arms, which a settling stand keeps clear of its moving thighs. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

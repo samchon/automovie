@@ -12,6 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { walkFoot } from "../actions/walkFoot";
 import { walkLeg } from "../actions/walkLeg";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { KickCarriage } from "./KickCarriage";
@@ -71,6 +72,9 @@ import { StrikingStroke } from "./StrikingStroke";
  * reaches as the shank swings forward over a foot held flat in the world.
  */
 export namespace KickSwing {
+  /** The last share of the lowering in which the foot comes straight down onto its replant from a walking foot's clearance (provisional: the terminal swing's descent, Winter 1992). */
+  export const SET_DOWN: number = 1 / 3;
+
   /** What a kicking leg's path is built from. */
   export interface IProps {
     /** The kicking body. */
@@ -281,12 +285,25 @@ export namespace KickSwing {
                   : 1 - minimumJerk.share(clock / Math.max(1e-3, prep)),
               ) - KickChain.DORSAL_MARGIN,
             );
+      // The lowering carries the foot over its replant first and sets it
+      // down straight in the last `SET_DOWN` of it, from a walking foot's
+      // clearance (`walkFoot.CLEARANCE`), so it never travels on the floor.
+      const travel: number =
+        lowered > 0 ? Math.min(1, lowered / (1 - KickSwing.SET_DOWN)) : 0;
+      const over: number =
+        lowered > 0
+          ? walkFoot.CLEARANCE *
+            (1 -
+              minimumJerk.share(
+                (lowered - (1 - KickSwing.SET_DOWN)) / KickSwing.SET_DOWN,
+              ))
+          : 0;
       const floor: KickThrust.ILeg | undefined =
         on === undefined
           ? undefined
           : KickThrust.planted(
               currentHip,
-              on.foot.ankle,
+              { ...on.foot.ankle, y: on.foot.ankle.y + over },
               Vector3.add(plant.knee, moved!),
               lengths,
               forward,
@@ -294,7 +311,7 @@ export namespace KickSwing {
       const posed: KickThrust.ILeg =
         floor === undefined
           ? chambered
-          : between(floor, chambered, lowered > 0 ? 1 - lowered : lifted);
+          : between(floor, chambered, lowered > 0 ? 1 - travel : lifted);
       // Off the floor the plant's foot rides its shank, so the ankle keeps
       // the plant's bend instead of dorsiflexing as the shank swings forward
       // over a foot still flat in the world; it is the plant's own foot again

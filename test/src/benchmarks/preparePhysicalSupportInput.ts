@@ -83,7 +83,6 @@ export function preparePhysicalSupportInput(
   const input: IAutoMoviePhysicalSimulationInput.IInput =
     createPhysicalBalanceInput(profile, "internal", impulse, duration, body);
   if (impulse === 0) {
-    input.iterations = 32;
     input.impulses.length = 0;
   } else {
     const perturbation: IAutoMoviePhysicalSimulationInput.IInput["impulses"][number] =
@@ -163,7 +162,7 @@ export namespace preparePhysicalSupportInput {
     const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
       "physical-support-geometry",
       [{ subject: profile.id, body: human }],
-      HumanChain.subject(profile.id).stand({ seconds: 1, sway: 0 }),
+      HumanChain.subject(profile.id).stand({ hold: 1, sway: 0 }),
     );
     const settled: number = motionHumanLaw.event(film, "settled", profile.id);
     const seconds: number = settled + (film.duration - settled) / 2;

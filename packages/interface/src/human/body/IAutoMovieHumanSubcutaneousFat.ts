@@ -4,12 +4,6 @@
  * The thickness of fat over a muscle affects how sharply its borders and grooves show through the skin. Each value is a typical thickness for the region's named site, not a minimum or maximum over it or a muscle-size measurement.
  *
  * Static bounds are envelopes wider than any surveyed person: the largest trunk skinfold among the 481 adults of Durnin and Womersley (1974, Br J Nutr 32(1):77-97, Table 2) was 60 mm, a layer of about 30.
- *
- *
- * @evidence contracts/development/common.md#meaningful-documentation Thickness of the subcutaneous fat layer over each region of the body, millimetres, from the skin's underside to the deep fascia, measured uncompressed with the body at rest; both sides take the same values.
- * @evidence contracts/development/design.md#principled-representation `abdomen`: Over the rectus abdominis, beside and below the navel. `flank`: Over the external oblique, above the iliac crest at the side. `chest`: Over the pectoralis major, above any breast.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanSubcutaneousFat is the canonical exchange used by IAutoMovieHumanSubcutaneousFatSchema, IAutoMovieHumanComposition.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `abdomen`, `flank`, `chest`, `back`, `upperArmFront`, `upperArmBack`, `forearm`, `thighFront`, `thighBack`, `calf`; callers supply the complete record.
  */
 export interface IAutoMovieHumanSubcutaneousFat {
   /** Over the rectus abdominis, beside and below the navel. Schema constraints: Minimum: 0; Maximum: 150; retained by Human's schema refinement. */

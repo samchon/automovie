@@ -30,7 +30,6 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
-import { HumanUnseatPose } from "./HumanUnseatPose";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
@@ -77,7 +76,7 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
      * Admit the throw, lay the swing and the launch, then sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, bad counts or times, a stride track with fewer than two instants inside the swing, and a target beyond `REACH`.
-     * @evidence contracts/development/implementation.md#principled-implementation The swing's period is the stride track's mean interval and its phase puts the wrist ahead of the circle's centre at each stride instant; the circle lies level over the entry's own right shoulder joint and out to its side, its outermost point at the distance the arm's lengths give at the elbow's flexion and every other point nearer, so the wrist is reachable all round by construction and the arm never crosses the head; the wrist first rises to the circle's front at the swing's own speed under a minimum-jerk profile, whose peak rate is its closed form's at mid-course, and the swing starts on the first stride instant after; the hand is given no turn, since the swinging loop touches nothing, so the course leaves it to the arm's least strain rather than spin the hand a whole turn a stride; the launch velocity is the projectile's from the loop's place at the release to the target's contact in the flight time under standard gravity.
+     * @evidence contracts/development/implementation.md#principled-implementation The swing's period is the stride track's mean interval and its phase puts the wrist ahead of the circle's centre at each stride instant; the circle lies level over the entry's own right shoulder joint and out to its side, its outermost point at the distance the arm's lengths give at the elbow's flexion and every other point nearer, so the wrist is reachable all round by construction and the arm never crosses the head; the wrist first rises to the circle's front at the swing's own speed under a minimum-jerk profile, whose peak rate is its closed form's at mid-course, and the swing starts on the first stride instant after; the hand is given no turn, since the swinging loop touches nothing, so the course leaves it to the arm's least strain rather than spin the hand a whole turn a stride; the launch velocity is the projectile's from the loop's place at the release to the target's contact in the flight time under standard gravity; after the release the wrist runs on from the throw's point, with a dally back to the horn under a minimum-jerk profile over the loop's flight and then round it, so the arm never leaps back to its entry hold.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the clock, the circle, the launch, then the sampler.
      * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target out of reach is refused, never pulled in.
      * @evidence contracts/development/implementation.md#efficient-algorithms One shoulder resolve restricted to the upper arm; a sample reads one carrier frame and writes one arm goal.
@@ -367,52 +366,52 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     posture: (time: number): IAutoMovieMotionHumanPosture => {
       const t: number = Math.max(0, Math.min(duration, time));
       const film: number = context.start + t;
-      if (t <= release) {
-        // The wrist on its circle, the hand's turn left to the arm, the elbow hung from the body; laid in the carrier's frame.
-        const point: IAutoMovieVector3 = wrist(t);
-        const swung: IAutoMovieMotionHumanPosture = {
-          ...local,
-          limbs: {
-            ...local.limbs,
-            rightArm: {
-              point,
-              bend: AutoMovieMotionHumanBend.hang(context.body, local, "right"),
-              elbow: "strain",
-            },
-          },
-        };
-        return HumanMountedFrame.move(
-          swung,
-          HumanMountedFrame.LOCAL,
-          carrier(film),
+      const placed: IAutoMovieRigidTransform = carrier(film);
+      // The wrist on its circle, then out to the throw; after the release it
+      // comes back to the horn while the loop flies and dallies round it, or
+      // without a dally stays where the throw left it, so the arm runs on
+      // from the throw with no seam. The hand's turn is left to the arm and
+      // the elbow hung from the body; laid in the carrier's frame.
+      let point: IAutoMovieVector3 = t <= release ? wrist(t) : thrown;
+      if (t > release && params.dally !== undefined) {
+        const horn: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.inverse(placed.rotation),
+          Vector3.subtract(
+            HumanMountedFrame.contact(support, params.dally.horn, film),
+            placed.position,
+          ),
         );
-      }
-      const shown: IAutoMovieMotionHumanPosture = HumanMountedFrame.move(
-        entry,
-        origin,
-        carrier(film),
-      );
-      if (params.dally === undefined || t < caught) return shown;
-      const horn: IAutoMovieVector3 = HumanMountedFrame.contact(
-        support,
-        params.dally.horn,
-        film,
-      );
-      const angle: number =
-        2 * Math.PI * Math.min(turns, (t - caught) / SWING.turn);
-      return HumanUnseatPose.reach(
-        shown,
-        "right",
-        Vector3.add(horn, {
+        const angle: number =
+          2 * Math.PI * Math.min(turns, Math.max(0, t - caught) / SWING.turn);
+        const wrap: IAutoMovieVector3 = Vector3.add(horn, {
           x: SWING.wrap * Math.cos(angle),
           y: 0.02,
           z: SWING.wrap * Math.sin(angle),
-        }),
-        1,
-      );
+        });
+        point =
+          t < caught
+            ? Vector3.lerp(
+                thrown,
+                wrap,
+                minimumJerk.share((t - release) / flight),
+              )
+            : wrap;
+      }
+      const swung: IAutoMovieMotionHumanPosture = {
+        ...local,
+        limbs: {
+          ...local.limbs,
+          rightArm: {
+            point,
+            bend: AutoMovieMotionHumanBend.hang(context.body, local, "right"),
+            elbow: "strain",
+          },
+        },
+      };
+      return HumanMountedFrame.move(swung, HumanMountedFrame.LOCAL, placed);
     },
   };
-  // The swinging arm is laid as a planned course on the wrist's circle, paced at the swing's own peak speed: the wrist's, or a hand point's a hand's length out as the hand turns once a turn of the circle; the reach into the swing, the swing held to the release; after it the arm keeps its angles until the dally.
+  // The swinging arm is laid as a planned course on the wrist's circle, paced at the swing's own peak speed: the wrist's, or a hand point's a hand's length out as the hand turns once a turn of the circle; the reach into the swing, the swing held to the release; after it the plan's own goal carries the arm on from the throw to the horn and round it.
   let peak: number =
     (2 * Math.PI * (SWING.radius + context.body.measure.hand)) / period;
   for (let k: number = 1; k <= 64; ++k) {

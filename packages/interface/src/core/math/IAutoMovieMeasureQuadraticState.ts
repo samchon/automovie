@@ -1,10 +1,5 @@
 /**
  * Data and callback contracts shared by the MeasureQuadraticState operations.
- *
- * @evidence contracts/development/design.md#principled-representation Homogeneous residual vectors retain solver-coordinate scaling while objective, gap and termination metrics explicitly undo their documented scaling; n and m dimensions remain solver premises.
- * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieQuadraticState publishes the quantities the interior-point termination and certificate checks read, using one result contract.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Residuals and certificate quantities remain distinct; a reported cost or ratio alone is not convergence or admitted geometry.
- * @evidence contracts/development/common.md#meaningful-documentation Documents residual signs, vector dimensions, objective units, normalization and homogeneous ratios.
  */
 export namespace IAutoMovieMeasureQuadraticState {
   /**
@@ -14,11 +9,6 @@ export namespace IAutoMovieMeasureQuadraticState {
    * Stable Euclidean norms retain the preceding solver's residual definitions.
    * Product/addition corrections remain through sparse residuals and costs; the
    * gap is formed before the two reported costs round to individual numbers.
-   *
-   * @evidence contracts/development/design.md#principled-representation Homogeneous residual vectors retain solver-coordinate scaling while objective, gap and termination metrics explicitly undo their documented scaling; n and m dimensions remain solver premises.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface measureAutoMovieQuadraticState publishes the quantities the interior-point termination and certificate checks read, using one result contract.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Residuals and certificate quantities remain distinct; a reported cost or ratio alone is not convergence or admitted geometry.
-   * @evidence contracts/development/common.md#meaningful-documentation Documents residual signs, vector dimensions, objective units, normalization and homogeneous ratios.
    */
   export type IResult = {
     /** Homogeneous dual equation residual -P*x - Aᵀ*z - q*tau in equilibrated solver coordinates; fresh array of n variable components. */

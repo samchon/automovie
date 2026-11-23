@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypePassage,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypePassage,
+  AutoMovieArchetypeRefusal,
   createHorse,
   createStartingGate,
 } from "@automovie/archetypes";
@@ -37,7 +37,7 @@ const PITCH: number = (65 * 0.3048) / 20;
 export function test_archetype_starting_gate(): void {
   // 1. Stall layout.
   for (const stalls of [3, 14]) {
-    const gate: Archetype = createStartingGate(
+    const gate: AutoMovieArchetype = createStartingGate(
       stalls === 14 ? {} : { stalls },
       "gate",
     );
@@ -61,9 +61,11 @@ export function test_archetype_starting_gate(): void {
   }
 
   // 2. The shared front release.
-  const gate: Archetype = createStartingGate({}, "gate");
+  const gate: AutoMovieArchetype = createStartingGate({}, "gate");
   const clear: number = gate.affordance("stall0").width!;
-  const open: Archetype = gate.articulate({ door0: createStartingGate.SWING });
+  const open: AutoMovieArchetype = gate.articulate({
+    door0: createStartingGate.SWING,
+  });
   for (const index of [0, 1, 27]) {
     const closed: IAutoMovieVector3 = centre(gate, `leaf${index}`);
     const opened: IAutoMovieVector3 = centre(open, `leaf${index}`);
@@ -85,7 +87,7 @@ export function test_archetype_starting_gate(): void {
   );
 
   // 3. A loading door alone.
-  const loading: Archetype = gate.articulate({
+  const loading: AutoMovieArchetype = gate.articulate({
     rear5: createStartingGate.SWING,
   });
   TestValidator.predicate(
@@ -96,9 +98,10 @@ export function test_archetype_starting_gate(): void {
   );
 
   // 4. A saddle horse fits a stall.
-  const outline: readonly IAutoMovieVector3[] = ArchetypePassage.footprint(
-    createHorse({ withersHeight: 1.8 }),
-  ).outline;
+  const outline: readonly IAutoMovieVector3[] =
+    AutoMovieArchetypePassage.footprint(
+      createHorse({ withersHeight: 1.8 }),
+    ).outline;
   const breadth: number =
     Math.max(...outline.map((p: IAutoMovieVector3): number => p.x)) -
     Math.min(...outline.map((p: IAutoMovieVector3): number => p.x));
@@ -134,13 +137,13 @@ export function test_archetype_starting_gate(): void {
     }
     TestValidator.predicate(
       `${stalls} stalls refuse`,
-      refusal instanceof ArchetypeRefusal && refusal.axis === "stalls",
+      refusal instanceof AutoMovieArchetypeRefusal && refusal.axis === "stalls",
     );
   }
 }
 
 /** A part's placed middle, metres in the gate's frame. */
-function centre(gate: Archetype, id: string): IAutoMovieVector3 {
+function centre(gate: AutoMovieArchetype, id: string): IAutoMovieVector3 {
   return gate.parts.find(
     (part: IAutoMovieModelPart): boolean => part.id === id,
   )!.transform!.translation;

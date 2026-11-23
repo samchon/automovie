@@ -57,7 +57,7 @@ export class HumanMountedTimeline {
       starts.push(at);
       at += figure.transfer;
       arrivals.push(at);
-      at += figure.seconds;
+      at += figure.hold;
     }
     this.starts = starts;
     this.arrivals = arrivals;

@@ -3,23 +3,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "./ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "./AutoMovieArchetypeFrame";
 
 /**
- * Read an actual wheel pair's shared transverse axis without guessing part names.
+ * Read a wheel pair's shared transverse axis without guessing part names.
  *
  * @param left Producer-declared left wheel spin contact.
  * @param right Producer-declared right wheel spin contact.
  * @returns A fresh model-space midpoint, metres, at the neutral wheel clearance.
  * @throws {RangeError} For nonfinite/noncollinear centres, unsupported spin axes or nonpositive clearance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names actual producer-owned wheel contacts, metre midpoint/clearance and transverse-axis refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Two actual wheel-rotation frames define one transverse axle; their shared Y/Z and midpoint X provide its source coordinate.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit finite centres and actual spin axes, then copy the midpoint.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The producer supplies identities; no nearest wheel search, dimension surrogate, kind heuristic or altered frame creates support geometry.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two frame/axis reads and constant scalar arithmetic.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Cart and cannon geometry readers share this axle admission owner.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no input frame/contact and returns one independent point.
  */
 export function towingAxle(
   left: IAutoMovieAffordance,
@@ -51,7 +43,10 @@ export function towingAxle(
       "The declared towing wheels must share one transverse axle",
     );
   for (const contact of [left, right]) {
-    const axis: IAutoMovieVector3 = ArchetypeFrame.axis(contact.frame, "y");
+    const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+      contact.frame,
+      "y",
+    );
     if (
       contact.kind !== "knob" ||
       ![axis.x, axis.y, axis.z].every(Number.isFinite) ||

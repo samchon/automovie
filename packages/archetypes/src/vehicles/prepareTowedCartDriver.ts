@@ -6,33 +6,28 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { Archetype } from "../core/Archetype";
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
-import { ArchetypeRefusal } from "../core/ArchetypeRefusal";
-import type { ArchetypeRide } from "../core/ArchetypeRide";
+import type { AutoMovieArchetype } from "../core/AutoMovieArchetype";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
+import { AutoMovieArchetypeRefusal } from "../core/AutoMovieArchetypeRefusal";
+import type { AutoMovieArchetypeRide } from "../core/AutoMovieArchetypeRide";
 import type { createCart } from "./createCart";
 
 /**
- * Bind a towed cart's driver to its actual placement, footboard, seat and
+ * Bind a towed cart's driver to its placement, footboard, seat and
  * driving lines. The nominal hand stations project to the live final segments
  * between the horse's terrets and the cart's material ends. Each palm uses
  * the current line tangent, so steering does not pull the hand off the rein.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the exact cart and ride pair, world readers and current line projection.
- * @evidence contracts/development/implementation.md#principled-implementation The nearest point on the producer's current material segment is the clamped orthogonal projection from the nominal station. The segment tangent and projected up vector give the material frame.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One native tow read supplies a frame and named contacts. The special branch is only the two moving driving lines.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each actual second reads the tow and every requested real endpoint. The complete renderer still emits its full original model and lines.
- * @evidence contracts/development/implementation.md#efficient-algorithms A paired read evaluates current tow sources once, then only the two endpoints for each demanded driving grip without drawing unrelated lines.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The standard prop adapter transfers the binding only for this exact cart and exact callback pair. Same-time queries share current transform closure, never another instant's answer.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The binding retains its tow for its own lifetime. A current geometry snapshot is held only by the synchronous query.
  */
 export function prepareTowedCartDriver(
-  cart: Archetype<createCart.Affordance, createCart.Dimension>,
-  ride: ArchetypeRide.ITowedRide<createCart.Affordance, createCart.Dimension>,
+  cart: AutoMovieArchetype<createCart.Affordance, createCart.Dimension>,
+  ride: AutoMovieArchetypeRide.ITowedRide<
+    createCart.Affordance,
+    createCart.Dimension
+  >,
 ): RigidCarrierSample.IBinding {
   const playback: IAutoMovieMotionPlayback<RigidCarrierSample.IRead> = {
     sample: (seconds: number): RigidCarrierSample.IRead => {
-      const current: ArchetypeRide.ITowedSample<createCart.Affordance> =
+      const current: AutoMovieArchetypeRide.ITowedSample<createCart.Affordance> =
         ride.geometry(seconds);
       const frame: IAutoMovieRigidTransform = {
         position: current.placement.translation,
@@ -49,7 +44,7 @@ export function prepareTowedCartDriver(
             id === "leftLineGrip" ? "line-left" : "line-right";
           const segment: ReturnType<typeof current.tail> = current.tail(line);
           if (segment === undefined)
-            throw new ArchetypeRefusal({
+            throw new AutoMovieArchetypeRefusal({
               kind: "parameter",
               archetype: cart.archetype,
               axis: "lines",
@@ -69,7 +64,7 @@ export function prepareTowedCartDriver(
                 Vector3.dot(span, span),
             ),
           );
-          return ArchetypeFrame.facing(
+          return AutoMovieArchetypeFrame.facing(
             Vector3.lerp(from, to, share),
             Vector3.addScaled({ x: 0, y: 1, z: 0 }, along, -along.y),
             along,

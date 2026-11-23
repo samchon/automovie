@@ -16,6 +16,10 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * - `personal` 1.0 m, the far phase where conversation between acquaintances
  *   happens (Hall; Hayduk 1978, Psychol Bull 85:117, reviews measured
  *   comfortable distances of the same order, larger in front than behind);
+ * - `fighting` 1.5 m, the middle of the 1.01 to 2.00 m two taekwondo
+ *   fighters keep for 60 % of a fight (Maloney, Renshaw and Farrow 2021, Int
+ *   J Perf Anal Sport 21:993), the kicking sport measured; a kickboxing or
+ *   karate bout takes it, where `faceToFace` lies inside a punch's reach;
  * - `social` 1.6 m, the middle of the social close phase, impersonal business;
  * - `handing`: the gap at which both people's hands meet midway between
  *   their chests with the elbows flexed 35 degrees, the middle of the 20 to
@@ -27,35 +31,27 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * A gap is horizontal, measured from the front of the performer's chest (the
  * sternum region) to the target point: another person's sternum, a prop's
  * point or a free point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation at: Stopped feet-midpoint position on the world floor, metres; it is the floor location used to place the body. yaw: Stopped body heading in degrees about world +Y.
- * @evidence contracts/development/design.md#principled-representation at: Stopped feet-midpoint position on the world floor, metres; it is the floor location used to place the body. yaw: Stopped body heading in degrees about world +Y.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanProxemics.ts (HumanProxemics.gap, request); everyday/HumanProxemics.ts (HumanProxemics.stop, return); everyday/HumanProxemics.ts (HumanProxemics.GAPS).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanProxemics {
   /**
    * The gap of a request between two people. A named gap.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The gap of a request between two people. A named gap.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "intimate", "faceToFace", "personal", "social", "handing" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanProxemics.ts (HumanProxemics.gap, request); everyday/HumanProxemics.ts (HumanProxemics.GAPS).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanProxemics.gap.
    */
   export type Band =
+    /** 0.3 m (`HumanProxemics.GAPS`): an embrace, a whisper. */
     | "intimate"
+    /** 0.6 m: squared up within arm's reach; a confrontation, not a fight: a striking bout keeps the `fighting` gap. */
     | "faceToFace"
+    /** 1.0 m: acquaintances talking; out of arm's reach. */
     | "personal"
+    /** 1.5 m: two striking fighters squared off, out of punching reach and a step from a kick (`HumanProxemics.GAPS`; Maloney, Renshaw and Farrow 2021). */
+    | "fighting"
+    /** 1.6 m: impersonal business, a follower's distance. */
     | "social"
+    /** The gap where both people's hands meet midway with the elbows bent 35 degrees (`HumanProxemics.HANDING_ELBOW`); it follows the arm length. */
     | "handing";
 
   /**
    * Where to stop: the floor point for the feet's midpoint so the front of the chest is `gap` short of the target along the line from the start. Result returned by HumanProxemics.stop. The stop point on the floor and the heading to face, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation at: Stopped feet-midpoint position on the world floor, metres; it is the floor location used to place the body. yaw: Stopped body heading in degrees about world +Y.
-   * @evidence contracts/development/design.md#principled-representation at: Stopped feet-midpoint position on the world floor, metres; it is the floor location used to place the body. yaw: Stopped body heading in degrees about world +Y.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/HumanProxemics.ts (HumanProxemics.stop, return).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export type IStopResult = {
     /** Stopped feet-midpoint position on the world floor, metres; it is the floor location used to place the body. */

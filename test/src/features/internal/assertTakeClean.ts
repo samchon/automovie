@@ -1,9 +1,10 @@
 import type {
+  IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
-import { HumanPerformance, HumanVerdicts } from "@automovie/motions";
+import { HumanVerdicts } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /** One film window the verdicts read. */
@@ -37,7 +38,10 @@ const MARGIN: number = 0.1;
  * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing is cached.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
-export function assertTakeClean(label: string, take: HumanPerformance): void {
+export function assertTakeClean(
+  label: string,
+  take: IAutoMovieMotionHumanPerformance,
+): void {
   const acting: IWindow[] = take.performers
     .flatMap(
       (

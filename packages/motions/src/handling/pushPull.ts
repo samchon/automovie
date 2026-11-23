@@ -88,10 +88,10 @@ export namespace pushPull {
         reason: `a ${p.way} that moves ${p.prop} needs where the walk goes`,
         fix: "give `to`, or set `moves: false` with `seconds` for a load that does not move",
       });
-    if (!moves && p.seconds === undefined)
+    if (!moves && p.duration === undefined)
       throw new HumanRefusal({
         kind: "parameter",
-        axis: "seconds",
+        axis: "duration",
         value: null,
         feasible: { kind: "alternatives", values: [] },
         reason: `a ${p.way} that does not move ${p.prop} needs how long the hands press`,
@@ -127,7 +127,7 @@ export namespace pushPull {
         ...(p.way === "pull"
           ? { facing: { yaw: context.entry.posture.yaw } }
           : {}),
-        ...(moves ? {} : { seconds: p.seconds!, moves: false }),
+        ...(moves ? {} : { duration: p.duration!, moves: false }),
       },
     });
   }

@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSupportCarry,
@@ -12,11 +13,13 @@ import type {
 
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { HumanFoot } from "../posture/HumanFoot";
 
 /**
  * Plan a walk that starts bearing on a fixed level prop as the floor gait
  * at that prop's height. The entry's loaded soles give the height
- * (`HumanSupportFrame.floor`); the entry is lowered by it, the ordinary
+ * (`HumanSupportFrame.floor`), less the height a flat foot's sole sockets
+ * stand above its floor; the entry is lowered by it, the ordinary
  * floor gait plans from there, and every posture it writes is raised back,
  * so the steps bear on the top the walk began on. A walk that boards a
  * prop from the floor, rides a moving or sloped one, or starts on the
@@ -60,7 +63,20 @@ export function walkLevelSupport(
   )
     return plan(context);
   const entry: IAutoMovieMotionHumanEntryState = context.entry;
-  const height: number = HumanSupportFrame.floor(context.body, entry);
+  // The floor gait stands its sole sockets the height a flat foot's stand
+  // above the floor with the ankle at the body's ankle height, so the top
+  // lies that far below the entry's lowest socket: lowered by the sockets'
+  // own height, the gait stood every footfall that much too high.
+  const flat: number = Math.min(
+    ...HumanFoot.SOCKETS.map(
+      (socket: IAutoMovieMotionHumanFoot.Socket): number =>
+        HumanFoot.point(context.body, "left", socket, {
+          ankle: { x: 0, y: context.body.measure.ankleHeight, z: 0 },
+          rotation: HumanFoot.rotation(0, 0),
+        }).y,
+    ),
+  );
+  const height: number = HumanSupportFrame.floor(context.body, entry) - flat;
   if (!Number.isFinite(height) || Math.abs(height) < 0.01) return plan(context);
 
   const translate = (dy: number): IAutoMovieMotionHumanSupportCarry.ICarry => ({

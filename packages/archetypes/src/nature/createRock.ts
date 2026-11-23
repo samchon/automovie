@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The Udden-Wentworth size classes, read in a university textbook. */
@@ -26,7 +26,7 @@ const GRANITE: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The stone.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the stone rests, how its mass follows its size and its contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A ball of the size class's drawn diameter; the mass is the sphere's volume, pi d cubed over six, times granite's measured specific gravity and water's density.
@@ -39,9 +39,9 @@ const GRANITE: string =
 export function createRock(
   params: createRock.IParams,
   seed?: number | string,
-): Archetype<createRock.Affordance, createRock.Dimension> {
-  const draw: ArchetypeDrawSession<createRock.Dimension> =
-    new ArchetypeDrawSession<createRock.Dimension>(
+): AutoMovieArchetype<createRock.Affordance, createRock.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createRock.Dimension> =
+    new AutoMovieArchetypeDrawSession<createRock.Dimension>(
       "rock",
       createRock.UNITS,
       seed,
@@ -56,13 +56,15 @@ export function createRock(
   const d: Record<createRock.Dimension, number> = draw.dimensions(
     createRock.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<createRock.Affordance, createRock.Dimension> =
-    new ArchetypeBuilder({
-      material: "stone",
-      id: params.id,
-      name: kind,
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createRock.Affordance,
+    createRock.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "stone",
+    id: params.id,
+    name: kind,
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
   const r: number = d.diameter / 2;
   builder.ball("stone", r, v(0, r, 0), { color: "#7d7a74", surface: "stone" });
@@ -71,7 +73,11 @@ export function createRock(
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(v(0, r, 0), v(-1, 0, 0), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, r, 0),
+        v(-1, 0, 0),
+        v(0, 1, 0),
+      ),
       extent: null,
       grip: "power",
       aperture: d.diameter,
@@ -80,13 +86,13 @@ export function createRock(
     builder.affordance({
       id: "top",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, d.diameter, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, d.diameter, 0)),
       extent: null,
     });
     builder.affordance({
       id: "side",
       kind: "surface",
-      frame: ArchetypeFrame.facing(v(0, r, r), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(v(0, r, r), v(0, 0, 1), v(1, 0, 0)),
       extent: null,
     });
   }
@@ -130,7 +136,9 @@ export namespace createRock {
   export type Dimension = "diameter" | "gravity";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     diameter: "m",
     gravity: "",
   };
@@ -145,18 +153,23 @@ export namespace createRock {
   }
 
   /** Granite's specific gravity, its mean density plus and minus one standard deviation over water's 1 g/cm3. */
-  const GRAVITY: IArchetypeBand = ArchetypeBand.of("", 2.6, 2.72, GRANITE);
+  const GRAVITY: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
+    "",
+    2.6,
+    2.72,
+    GRANITE,
+  );
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     cobble: {
-      diameter: ArchetypeBand.metres(0.064, 0.256, WENTWORTH),
+      diameter: AutoMovieArchetypeBand.metres(0.064, 0.256, WENTWORTH),
       gravity: GRAVITY,
     },
     boulder: {
-      diameter: ArchetypeBand.metres(0.256, 1.024, WENTWORTH),
+      diameter: AutoMovieArchetypeBand.metres(0.256, 1.024, WENTWORTH),
       gravity: GRAVITY,
     },
   };

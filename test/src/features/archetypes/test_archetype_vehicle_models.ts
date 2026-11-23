@@ -1,5 +1,5 @@
 import {
-  ArchetypeRefusal,
+  AutoMovieArchetypeRefusal,
   createBoat,
   createCar,
   createMotorcycle,
@@ -41,7 +41,10 @@ const figures = (
  */
 export function test_archetype_vehicle_models(): void {
   const car =
-    (kind: createCar.Kind, names: readonly string[]): ((seed: number) => number[]) =>
+    (
+      kind: createCar.Kind,
+      names: readonly string[],
+    ): ((seed: number) => number[]) =>
     (seed: number): number[] =>
       figures(createCar({ kind }, seed).dimensions, names);
   const machine =
@@ -56,7 +59,10 @@ export function test_archetype_vehicle_models(): void {
         "mass",
       ]);
   const boat =
-    (kind: createBoat.Kind, names: readonly string[]): ((seed: number) => number[]) =>
+    (
+      kind: createBoat.Kind,
+      names: readonly string[],
+    ): ((seed: number) => number[]) =>
     (seed: number): number[] =>
       figures(createBoat({ kind }, seed).dimensions, names);
   const canoe = (
@@ -66,7 +72,13 @@ export function test_archetype_vehicle_models(): void {
     ends: number,
     masses: readonly number[],
   ): number[][] =>
-    masses.map((m: number): number[] => [length * IN, beam * IN, depth * IN, ends * IN, m * LB]);
+    masses.map((m: number): number[] => [
+      length * IN,
+      beam * IN,
+      depth * IN,
+      ends * IN,
+      m * LB,
+    ]);
   // A dimension a picked model supplies is the model's own: fixing it is refused, never dropped.
   let refused: unknown = null;
   try {
@@ -76,14 +88,21 @@ export function test_archetype_vehicle_models(): void {
   }
   TestValidator.predicate(
     "a fixed length a hatchback grade supplies is refused",
-    refused instanceof ArchetypeRefusal && refused.axis === "length",
+    refused instanceof AutoMovieArchetypeRefusal && refused.axis === "length",
   );
   TestValidator.equals(
     "each vehicle is one read model whole",
     archetypeModelSweep([
       {
         name: "hatchback",
-        measure: car("hatchback", ["length", "width", "height", "wheelbase", "wheelDiameter", "lockTurns"]),
+        measure: car("hatchback", [
+          "length",
+          "width",
+          "height",
+          "wheelbase",
+          "wheelDiameter",
+          "lockTurns",
+        ]),
         models: [
           [4.089, 1.694, 1.526, 2.517, tyre(185, 60, 15), 2.51],
           [4.089, 1.694, 1.526, 2.517, tyre(185, 55, 16), 2.35],
@@ -127,12 +146,15 @@ export function test_archetype_vehicle_models(): void {
           [0.785, 1.41, 0.8, tyre(120, 70, 17), tyre(160, 60, 17), 191],
           [0.805, 1.4, 0.745, tyre(120, 70, 17), tyre(180, 55, 17), 182],
         ],
-        source: "Honda UK's CB500 Hornet page and Yamaha's 2019 MT-07 factsheet",
+        source:
+          "Honda UK's CB500 Hornet page and Yamaha's 2019 MT-07 factsheet",
       },
       {
         name: "scooter",
         measure: machine("scooter"),
-        models: [[0.763, 1.315, 0.74, tyre(110, 70, 14), tyre(130, 70, 13), 134]],
+        models: [
+          [0.763, 1.315, 0.74, tyre(110, 70, 14), tyre(130, 70, 13), 134],
+        ],
         source: "Honda UK's PCX125 page",
       },
       {
@@ -147,7 +169,13 @@ export function test_archetype_vehicle_models(): void {
       },
       {
         name: "canoe",
-        measure: boat("canoe", ["length", "beam", "depth", "endHeight", "mass"]),
+        measure: boat("canoe", [
+          "length",
+          "beam",
+          "depth",
+          "endHeight",
+          "mass",
+        ]),
         models: [
           ...canoe(192, 36, 15, 23, [64, 54, 60, 44, 47]),
           ...canoe(201, 37, 15, 23, [91]),

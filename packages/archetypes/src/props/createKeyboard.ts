@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { KeyboardHardware } from "./KeyboardHardware";
 import { createDesktopKeyboard } from "./createDesktopKeyboard";
 import { createLaptop } from "./createLaptop";
@@ -9,7 +9,7 @@ import { createLaptop } from "./createLaptop";
  * @param params The saved kind, model and optional identifier.
  * @param seed The seed used by the selected producer.
  * @returns An input device with its original contact frames.
- * @throws {ArchetypeRefusal} For an unsupported kind or model, or any dimension override.
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported kind or model, or any dimension override.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The recipe keeps the original kind and the original inputs.
  * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and delegate its drawing to the corresponding producer.
@@ -22,7 +22,7 @@ import { createLaptop } from "./createLaptop";
 export function createKeyboard(
   params: createKeyboard.IParams,
   seed?: number | string,
-): Archetype<createKeyboard.Affordance, createKeyboard.Dimension> {
+): AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension> {
   const kind: createKeyboard.Kind = ArchetypeDraw.choice(
     "keyboard",
     "kind",
@@ -34,7 +34,7 @@ export function createKeyboard(
   const produce: (
     params: createKeyboard.IParams,
     seed?: number | string,
-  ) => Archetype<createKeyboard.Affordance, createKeyboard.Dimension> =
+  ) => AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension> =
     createKeyboard.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);
 }

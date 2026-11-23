@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { HandheldDevice } from "./HandheldDevice";
 import { createCamera } from "./createCamera";
 import { createPhone } from "./createPhone";
@@ -12,7 +12,7 @@ import { createTablet } from "./createTablet";
  * @param params The saved kind, dimensions, model and optional identifier.
  * @param seed The seed used by the selected device.
  * @returns The selected device in its original coordinate frame.
- * @throws {ArchetypeRefusal} When the kind, model or dimension is refused.
+ * @throws {AutoMovieArchetypeRefusal} When the kind, model or dimension is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and the selected device.
  * @evidence contracts/development/implementation.md#principled-implementation Admit the saved kind and let its producer validate the original input for that kind.
@@ -25,7 +25,7 @@ import { createTablet } from "./createTablet";
 export function createDevice(
   params: createDevice.IParams,
   seed?: number | string,
-): Archetype<createDevice.Affordance, createDevice.Dimension> {
+): AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension> {
   const kind: createDevice.Kind = ArchetypeDraw.choice(
     "device",
     "kind",
@@ -37,8 +37,8 @@ export function createDevice(
   const produce: (
     params: createDevice.IParams,
     seed?: number | string,
-  ) => Archetype<createDevice.Affordance, createDevice.Dimension> = createDevice
-    .PRODUCERS[kind] as typeof produce;
+  ) => AutoMovieArchetype<createDevice.Affordance, createDevice.Dimension> =
+    createDevice.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);
 }
 

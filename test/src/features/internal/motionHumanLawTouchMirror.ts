@@ -4,9 +4,7 @@ import type {
   IAutoMovieMotionHumanTouch,
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanAuditDifference,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions/internal";
 
 import { motionHumanJointText } from "./motionHumanJointText";
 import { motionHumanLaw } from "./motionHumanLaw";
@@ -37,7 +35,10 @@ export function motionHumanLawTouchMirror(
   label: string,
   params: IAutoMovieMotionHumanTouch.IParams,
   right: motionHumanLaw.IFilm | undefined,
-  perform: (row: IAutoMovieMotionHumanTouch.IParams, still: boolean) => motionHumanLaw.IFilm,
+  perform: (
+    row: IAutoMovieMotionHumanTouch.IParams,
+    still: boolean,
+  ) => motionHumanLaw.IFilm,
 ): string[] {
   if (params.other !== undefined) return [];
   const flip = (target: IAutoMovieMotionTarget): IAutoMovieMotionTarget =>
@@ -53,7 +54,7 @@ export function motionHumanLawTouchMirror(
     {
       ...params,
       target: flip(params.target),
-      side: "left",
+      hand: "left",
     },
     true,
   );

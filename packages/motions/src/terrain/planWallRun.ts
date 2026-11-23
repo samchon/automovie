@@ -224,6 +224,13 @@ export function planWallRun(
         reason: `the wall's top is ${(top.y - reach).toFixed(3)} m beyond the hands' reach from the wall step`,
         fix: "run at a lower wall",
       });
+    // Each hand takes the top on its own side, the climber's left read off
+    // the feet as they enter, whichever way the face's axis runs: a hand
+    // sent to the other side crosses the forearms.
+    const leftward: number =
+      Vector3.dot(Vector3.subtract(toe("left"), toe("right")), face.axis) >= 0
+        ? 1
+        : -1;
     const hand = (
       side: AutoMovieHumanSide,
     ): IAutoMovieMotionHumanSupport.IContact => ({
@@ -235,7 +242,7 @@ export function planWallRun(
           top,
           Vector3.scale(
             face.axis,
-            (side === "left" ? 1 : -1) * measure.shoulderHalfWidth,
+            (side === "left" ? 1 : -1) * leftward * measure.shoulderHalfWidth,
           ),
         ),
       ),
@@ -248,11 +255,15 @@ export function planWallRun(
       top.y - HANG * measure.stature,
     );
     stances.push(
+      // The push off lets both feet go before the hands catch the top: the
+      // catch is taken in flight, not with a foot still on the floor or the
+      // wall step (`IStance.free`).
       {
         contacts: [hand("left"), hand("right")],
         seconds: BEAT,
         event: "catch",
         prefer: HANGING,
+        free: ["leftFoot", "rightFoot"],
       },
       {
         contacts: [

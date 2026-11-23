@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The ring sizes: ISO 8653:2016 states a ring's size as its inner circumference in millimetres, its table running from 49 to 72 mm. */
@@ -35,7 +35,7 @@ const PIECES: number = 12;
  * @param params Any dimension the author fixes inside its band, and an optional scene id.
  * @param seed The seed that draws every dimension left free inside its band; absent, the middle of each band.
  * @returns The ring.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled, how it lies and its two contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The inner circumference is the ISO 8653 size; the band's centreline lies half a wire outside it.
@@ -48,9 +48,9 @@ const PIECES: number = 12;
 export function createFingerRing(
   params: createFingerRing.IParams = {},
   seed?: number | string,
-): Archetype<createFingerRing.Affordance, createFingerRing.Dimension> {
-  const draw: ArchetypeDrawSession<createFingerRing.Dimension> =
-    new ArchetypeDrawSession<createFingerRing.Dimension>(
+): AutoMovieArchetype<createFingerRing.Affordance, createFingerRing.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createFingerRing.Dimension> =
+    new AutoMovieArchetypeDrawSession<createFingerRing.Dimension>(
       "fingerRing",
       createFingerRing.UNITS,
       seed,
@@ -59,10 +59,10 @@ export function createFingerRing(
   const d: Record<createFingerRing.Dimension, number> = draw.dimensions(
     createFingerRing.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createFingerRing.Affordance,
     createFingerRing.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: "finger ring",
@@ -82,7 +82,7 @@ export function createFingerRing(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, 0, 0),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),
@@ -93,7 +93,7 @@ export function createFingerRing(
   builder.affordance({
     id: "hold",
     kind: "handle",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, radius, 0),
       Vector3.create(0, 1, 0),
       Vector3.create(0, 0, 1),
@@ -121,7 +121,9 @@ export namespace createFingerRing {
   export type Dimension = "circumference" | "wire" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     circumference: "m",
     wire: "m",
     mass: "kg",
@@ -134,9 +136,9 @@ export namespace createFingerRing {
   }
 
   /** The sourced bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    circumference: ArchetypeBand.metres(0.049, 0.072, SIZE),
-    wire: ArchetypeBand.metres(0.0015, 0.0025, WIRE),
-    mass: ArchetypeBand.of("kg", 0.002, 0.008, MASS),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    circumference: AutoMovieArchetypeBand.metres(0.049, 0.072, SIZE),
+    wire: AutoMovieArchetypeBand.metres(0.0015, 0.0025, WIRE),
+    mass: AutoMovieArchetypeBand.of("kg", 0.002, 0.008, MASS),
   };
 }

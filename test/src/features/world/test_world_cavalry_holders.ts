@@ -8,8 +8,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
-  HumanLeadHorse,
   HumanObject,
   HumanPerformance,
 } from "@automovie/motions";
@@ -70,26 +70,26 @@ export function test_world_cavalry_holders(): void {
         proficiency: { level: "trained" },
       },
     ],
-    laws: [HumanLeadHorse],
+    laws: [AutoMovieMotionHumanMount.leadHorse],
     props: [
       HumanObject.prop("left", horse, parked(PAIR / 2)),
       HumanObject.prop("right", horse, parked(-PAIR / 2)),
     ],
     composition: AutoMovieComposition.parallel(
       HumanChain.subject("holder")
-        .stand({ seconds: HOLD })
+        .stand({ hold: HOLD })
         .over((holder) =>
           holder
             .registered("leadHorse", {
               on: "left",
-              side: "left",
-              seconds: HOLD - 1,
+              hand: "left",
+              duration: HOLD - 1,
               transition: 0.5,
             })
             .registered("leadHorse", {
               on: "right",
-              side: "right",
-              seconds: HOLD - 1,
+              hand: "right",
+              duration: HOLD - 1,
               transition: 0.5,
             }),
         ).node,

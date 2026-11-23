@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
   createCannon,
 } from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
@@ -39,8 +39,10 @@ export function test_archetype_cannon_kinds(): void {
     b: number,
     tolerance: number = 1e-9,
   ): boolean => Math.abs(a - b) <= tolerance * Math.max(1, Math.abs(b));
-  const naval: Archetype<createCannon.Affordance, createCannon.Dimension> =
-    createCannon({ kind: "navalGun" }, 1);
+  const naval: AutoMovieArchetype<
+    createCannon.Affordance,
+    createCannon.Dimension
+  > = createCannon({ kind: "navalGun" }, 1);
   const n: Readonly<Partial<Record<createCannon.Dimension, number>>> =
     naval.dimensions;
   for (const [name, expected] of [
@@ -80,8 +82,10 @@ export function test_archetype_cannon_kinds(): void {
   );
 
   for (const model of ["siege10", "coehorn24"] as const) {
-    const mortar: Archetype<createCannon.Affordance, createCannon.Dimension> =
-      createCannon({ kind: "mortar", model }, 1);
+    const mortar: AutoMovieArchetype<
+      createCannon.Affordance,
+      createCannon.Dimension
+    > = createCannon({ kind: "mortar", model }, 1);
     const muzzle: IAutoMovieVector3 =
       mortar.affordance("muzzle").frame.translation;
     const vent: IAutoMovieVector3 = mortar.affordance("vent").frame.translation;
@@ -99,10 +103,14 @@ export function test_archetype_cannon_kinds(): void {
   const up: number = naval.affordance("elevation").travel!;
   const down: number = naval.affordance("elevation").reverse!;
   const level: number = naval.affordance("muzzle").frame.translation.y;
-  const raised: Archetype<createCannon.Affordance, createCannon.Dimension> =
-    naval.articulate({ elevation: up });
-  const lowered: Archetype<createCannon.Affordance, createCannon.Dimension> =
-    naval.articulate({ elevation: -down });
+  const raised: AutoMovieArchetype<
+    createCannon.Affordance,
+    createCannon.Dimension
+  > = naval.articulate({ elevation: up });
+  const lowered: AutoMovieArchetype<
+    createCannon.Affordance,
+    createCannon.Dimension
+  > = naval.articulate({ elevation: -down });
   if (!(raised.affordance("muzzle").frame.translation.y > level))
     findings.push("the naval muzzle does not rise");
   if (!(lowered.affordance("muzzle").frame.translation.y < level))
@@ -128,11 +136,17 @@ export function test_archetype_cannon_kinds(): void {
     } catch (error) {
       refused = error;
     }
-    if (!(refused instanceof ArchetypeRefusal && refused.axis === "model"))
+    if (
+      !(
+        refused instanceof AutoMovieArchetypeRefusal && refused.axis === "model"
+      )
+    )
       findings.push("a model is not refused");
   }
-  const swivel: Archetype<createCannon.Affordance, createCannon.Dimension> =
-    createCannon({ kind: "swivelGun" }, 1);
+  const swivel: AutoMovieArchetype<
+    createCannon.Affordance,
+    createCannon.Dimension
+  > = createCannon({ kind: "swivelGun" }, 1);
   if (
     !close(swivel.dimensions.bore!, 2.25 * IN) ||
     !close(swivel.dimensions.length!, 1)

@@ -1,33 +1,26 @@
+import type { IAutoMovieMotionHumanPolo } from "../next/IAutoMovieMotionHumanPolo";
+import type { IAutoMovieMotionHumanRide } from "../next/IAutoMovieMotionHumanRide";
 import type { IAutoMovieMotionHumanBicycleEffort } from "./IAutoMovieMotionHumanBicycleEffort";
 import type { IAutoMovieMotionHumanBikeGuide } from "./IAutoMovieMotionHumanBikeGuide";
 import type { IAutoMovieMotionHumanBikeTransfer } from "./IAutoMovieMotionHumanBikeTransfer";
-import type { IAutoMovieMotionHumanFloatBeside } from "./IAutoMovieMotionHumanFloatBeside";
-import type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
-import type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHoldHandles";
-import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
-import type { IAutoMovieMotionHumanLunge } from "./IAutoMovieMotionHumanLunge";
-import type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";
-import type { IAutoMovieMotionHumanUnseat } from "./IAutoMovieMotionHumanUnseat";
-import type { IAutoMovieMotionHumanPolo } from "./IAutoMovieMotionHumanPolo";
 import type { IAutoMovieMotionHumanBoard } from "./IAutoMovieMotionHumanBoard";
 import type { IAutoMovieMotionHumanClasp } from "./IAutoMovieMotionHumanClasp";
 import type { IAutoMovieMotionHumanDrape } from "./IAutoMovieMotionHumanDrape";
-import type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
-import type { IAutoMovieMotionHumanRoman } from "./IAutoMovieMotionHumanRoman";
-import type { IAutoMovieMotionHumanLasso } from "./IAutoMovieMotionHumanLasso";
-import type { IAutoMovieMotionHumanSabre } from "./IAutoMovieMotionHumanSabre";
+import type { IAutoMovieMotionHumanFloatBeside } from "./IAutoMovieMotionHumanFloatBeside";
+import type { IAutoMovieMotionHumanHandrimStroke } from "./IAutoMovieMotionHumanHandrimStroke";
+import type { IAutoMovieMotionHumanHoldHandles } from "./IAutoMovieMotionHumanHoldHandles";
 import type { IAutoMovieMotionHumanLanceCouch } from "./IAutoMovieMotionHumanLanceCouch";
-import type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
+import type { IAutoMovieMotionHumanLasso } from "./IAutoMovieMotionHumanLasso";
+import type { IAutoMovieMotionHumanLeadHorse } from "./IAutoMovieMotionHumanLeadHorse";
+import type { IAutoMovieMotionHumanLunge } from "./IAutoMovieMotionHumanLunge";
+import type { IAutoMovieMotionHumanMounted } from "./IAutoMovieMotionHumanMounted";
+import type { IAutoMovieMotionHumanRoman } from "./IAutoMovieMotionHumanRoman";
+import type { IAutoMovieMotionHumanSabre } from "./IAutoMovieMotionHumanSabre";
+import type { IAutoMovieMotionHumanTrick } from "./IAutoMovieMotionHumanTrick";
+import type { IAutoMovieMotionHumanUnseat } from "./IAutoMovieMotionHumanUnseat";
 
 /**
  * Open parameters of the ride lexicon family, keyed by each runtime export name.
- * Omitted keys are fixed by the row before its underlying law plans; the remaining members retain that law's defaults, units and required status.
- * HumanPerformanceParams checks these open inputs using the generated row schema before planning or resolving a row's fixed values.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Each row describes the performed act; its parameter expression identifies the underlying contract and every fixed key.
- * @evidence contracts/development/design.md#principled-representation The ride family is a closed export-name map. Each key uses the law contract directly or projects its open parameters.
- * @evidence contracts/development/design.md#minimal-and-owned-surface This interface owns the ride row parameter map used by the family registry and schema generator.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Parameter types refer to canonical action contracts and never infer from runtime law values.
  */
 export interface IAutoMovieMotionHumanLexiconRideParams {
   /** Ride a moving support, seated on it. */
@@ -63,7 +56,7 @@ export interface IAutoMovieMotionHumanLexiconRideParams {
   HumanUnseat: IAutoMovieMotionHumanUnseat;
 
   /** Strike a ground ball with a polo mallet from the saddle, forehand or backhand, on either side. */
-  HumanPolo: IAutoMovieMotionHumanPolo;
+  HumanPolo: IAutoMovieMotionHumanPolo.IPolo;
 
   /** Board a moving carrier's seat at speed, from the ground, a height or another carrier. */
   HumanBoard: IAutoMovieMotionHumanBoard;

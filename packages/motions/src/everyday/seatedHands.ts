@@ -1,8 +1,14 @@
-import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
+import {
+  DEFAULT_HUMANOID_ROM,
+  Quaternion,
+  Vector3,
+  physicalShapeSpan,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
+  IAutoMovieAngleRange,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
@@ -36,24 +42,11 @@ type PalmRests = ReturnType<typeof prepareSeatedPalms>;
  * owns its resolved bones so its target and hanging origin share one solve.
  * Optional FK/ROM sources are borrowed only for the synchronous placement;
  * every current joint and relevant goal is still admitted and fitted.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the target surfaces and the lifetime of shared resolved bones; members give world-metre and degree inputs.
- * @evidence contracts/development/design.md#principled-representation Existing posture goals, body surfaces and resolved bones describe both resting targets.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The seated facade delegates its four hand operations here: thigh goals, thigh rests, mixed rests and the armrest goal.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the canonical arm goal and posture resolver without a parallel fit or stored target pose.
  */
 export namespace seatedHands {
   /**
    * Lay both palms on their own front thighs, fingers toward the knees.
    * The input's leg goals are solved before the surface is measured.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the surface, direction and solved-leg premise.
-   * @evidence contracts/development/implementation.md#principled-implementation Transforms each body's thigh-front surface through its resolved bone and uses its lower leg to orient a flat palm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One canonical solve feeds the shared thigh-goal builder.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains the existing provisional hanging-elbow out share of 0.2 and canonical palm goal construction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One canonical observational resolution and demanded FK, then constant work for the requested targets; independent world arm goals that cannot change thigh observations need no fit, under the resolver's existing guard.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both targets read the same completed bone map; it is never shared across different input postures.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Bones and goals are invocation-local and no cache or handle is retained.
    */
   export function hands(
     body: IAutoMovieMotionHumanBody,
@@ -81,14 +74,6 @@ export namespace seatedHands {
   /**
    * Move the hands from their posed hanging origins to their thighs by a
    * caller-eased share, clamped by the endpoint branches at zero and one.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two endpoints and the caller's eased progress convention.
-   * @evidence contracts/development/implementation.md#principled-implementation The free wrist travels from hanging to bearing with spherical wrist rotation. Where the straight route would cross the thigh, the two current solid support extents determine its radial displacement.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Delegates the two active hands to the shared partial-placement operation.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original hanging and fully resting branches and elbow hints remain unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms At positive share one pose resolution and FK supplies origins and targets instead of resolving that same posture twice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses one invocation's exact bone map for target surfaces and hanging wrist frames.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned posture and its goals survive the call.
    */
   export function arms(
     body: IAutoMovieMotionHumanBody,
@@ -114,14 +99,6 @@ export namespace seatedHands {
    * Rest each hand on its armrest when supplied, otherwise on its thigh.
    * Inputs contain placed legs and directly authored hanging arms; share is
    * zero hanging to one bearing, and armrest coordinates are world metres.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States target precedence, input pose and progress, and world-metre rests.
-   * @evidence contracts/development/implementation.md#principled-implementation Each hand retains the same independently defined thigh or armrest interpolation from the posed hanging origin.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Selects only the thighs that remain visible, then writes supplied armrests with their existing owner.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Armrest goals still replace thigh goals on that side and become planted only at full share; no reach refusal is added.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Avoids overwritten thigh targets and, when the input has no arm goals, shares one canonical solve between the actual thigh and armrest consumers instead of repeating its identical leg solve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Absence of both input arm goals makes the original posture exactly the legs-only posture armrest origins require; those matching inputs share one call-local map. Inputs with arm goals retain separate full and legs-only readings, borrowing one synchronous parent FK/ROM source only for exact prerequisites.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The active-side list and resolved maps end with the invocation; no retained state is added.
    */
   export function rested(
     body: IAutoMovieMotionHumanBody,
@@ -263,14 +240,6 @@ export namespace seatedHands {
   /**
    * The bearing wrist that puts the body's flat palm on an armrest,
    * palm down and fingers along the seat's yaw, in world metres and degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the offset, frame, orientation and bearing state.
-   * @evidence contracts/development/implementation.md#principled-implementation Places the exact flat palm surface, with the canonical hand orientation and hanging-elbow preset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Constructs one world arm goal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the existing elbow share and uses the body's measured palm instead of assuming a wrist height.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work without pose resolution.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Independent point and posture inputs require their own goal.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains no state or resources.
    */
   export function armrest(
     body: IAutoMovieMotionHumanBody,
@@ -457,12 +426,34 @@ export namespace seatedHands {
         thigh.worldRotation,
         frame.normal,
       );
+      // The palm lies on the thigh at any heading about its normal: the
+      // fingers point along the thigh where the arm's own line from the
+      // shoulder to the contact allows it, and within the wrist's deviation
+      // of that line otherwise (`heading`). Along an astride rider's splayed
+      // thigh the fingers asked the forearm for a twist beyond its range,
+      // which the fit met at the range's end with the forearm folded into
+      // the trunk.
       const along: IAutoMovieVector3 = Vector3.subtract(
         bones.get(`${side}LowerLeg`)!.worldPosition,
         thigh.worldPosition,
       );
+      const reach: IAutoMovieVector3 = Vector3.subtract(
+        point,
+        bones.get(`${side}UpperArm`)!.worldPosition,
+      );
+      const laidReach: IAutoMovieVector3 = Vector3.addScaled(
+        reach,
+        normal,
+        -Vector3.dot(reach, normal),
+      );
       const rotation: IAutoMovieQuaternion = HumanHand.rotation(side, {
-        fingers: along,
+        fingers: heading(
+          side,
+          along,
+          laidReach,
+          normal,
+          Vector3.subtract(thigh.worldPosition, posture.root),
+        ),
         palm: Vector3.scale(normal, -1),
       });
       limbs[`${side}Arm`] = AutoMovieMotionHumanArm.goal(body, side, {
@@ -572,6 +563,7 @@ export namespace seatedHands {
           .bone,
       );
       requested.add(`${side}LowerLeg`);
+      requested.add(`${side}UpperArm`);
       if (wrists) requested.add(`${side}Hand`);
     }
     return requested;
@@ -579,4 +571,49 @@ export namespace seatedHands {
 
   /** The body's fixed bilateral ordering, shared by every placement. */
   const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+}
+
+/**
+ * The fingers' direction for a palm laid on a surface: the surface's own
+ * direction (along the thigh) where it lies within the wrist's deviation of
+ * the arm's line laid into the surface, else that line turned by the
+ * deviation toward it. The deviation is the side of the rig's wrist
+ * deviation range (`DEFAULT_HUMANOID_ROM`, the hand's abduction) the turn
+ * goes to: for a palm laid down, fingers turned away from the body's
+ * midline turn toward the little finger, ulnar deviation, the wider side of
+ * the range, and fingers turned toward the midline radially, the narrower
+ * (the table's -30 and 20 degrees; the American Academy of Orthopaedic
+ * Surgeons' norms, Greene and Heckman 1994, give ulnar 30 and radial 20).
+ */
+function heading(
+  side: AutoMovieHumanSide,
+  along: IAutoMovieVector3,
+  reach: IAutoMovieVector3,
+  normal: IAutoMovieVector3,
+  lateral: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const laid: IAutoMovieVector3 = Vector3.addScaled(
+    along,
+    normal,
+    -Vector3.dot(along, normal),
+  );
+  if (Vector3.length(reach) <= 1e-9 || Vector3.length(laid) <= 1e-9)
+    return along;
+  const range: IAutoMovieAngleRange =
+    DEFAULT_HUMANOID_ROM[`${side}Hand`]!.abduction!;
+  const n: IAutoMovieVector3 = Vector3.normalize(normal);
+  const r: IAutoMovieVector3 = Vector3.normalize(reach);
+  const a: IAutoMovieVector3 = Vector3.normalize(laid);
+  const ulnar: boolean = Vector3.dot(Vector3.subtract(a, r), lateral) > 0;
+  const deviation: number = ulnar
+    ? Math.max(Math.abs(range.min), Math.abs(range.max))
+    : Math.min(Math.abs(range.min), Math.abs(range.max));
+  const turn: number =
+    (Math.atan2(Vector3.dot(Vector3.cross(r, a), n), Vector3.dot(r, a)) * 180) /
+    Math.PI;
+  if (Math.abs(turn) <= deviation) return along;
+  return Quaternion.rotateVector(
+    Quaternion.fromAxisAngle(n, Math.sign(turn) * deviation),
+    r,
+  );
 }

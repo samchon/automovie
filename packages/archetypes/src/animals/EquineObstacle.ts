@@ -6,26 +6,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeCourse, ArchetypeFrame } from "../core";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeFrame,
+} from "../core";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
 /**
  * The obstacles an authored footing places across one straight course leg: its poles as rails and the gaps between its planes as ditches.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is read from the footing and the frame of the result.
- * @evidence contracts/development/design.md#principled-representation Each obstacle is an interval of course distance and a top height above the leg's ground.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineJump` to admit and plan a jump.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Only authored geometry is read; no obstacle is inferred from a cue.
  */
 export namespace EquineObstacle {
   /**
    * One obstacle on the leg's line.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the course distances and the top height.
-   * @evidence contracts/development/design.md#principled-representation An interval of course distance in metres and a height above the leg's ground.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the jump's admission and flight.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IObstacle {
     /** Course distance where it begins, metres. */
@@ -43,21 +36,15 @@ export namespace EquineObstacle {
    * @param span The leg's span.
    * @param footing The authored footing, if any.
    * @returns The obstacles in course order.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the order.
-   * @evidence contracts/development/implementation.md#principled-implementation Intersect each pole's horizontal segment with the leg's line: its course interval is its radius over the sine of the crossing angle about the crossing, and its top the pole's higher end plus its radius above the leg's start. A ditch is an interval of the line no authored plane covers, between covered ones, each plane's cover read by the slab method.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Rails, then ditches, then one sort.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A pole parallel to the leg or off its segment is not an obstacle; none is widened.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(K + S log S) for K poles and S planes.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the plan's placement at the leg's start.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh list.
    */
   export function read(
-    plan: ArchetypeCourse.IPlan,
-    span: ArchetypeCourse.ILegSpan,
-    footing: QuadrupedFooting.IScene | undefined,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    span: AutoMovieArchetypeCourse.ILegSpan,
+    footing: AutoMovieArchetypeQuadrupedFooting.IScene | undefined,
   ): IObstacle[] {
-    const origin: ArchetypeCourse.IState = plan.at(plan.when(span.from));
+    const origin: AutoMovieArchetypeCourse.IState = plan.at(
+      plan.when(span.from),
+    );
     const start: IAutoMovieVector3 = origin.placement.translation;
     const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
       origin.placement.rotation,
@@ -130,17 +117,9 @@ export namespace EquineObstacle {
    * @param landing Film second of first fore landing.
    * @param sample The displayed parts and placement at a film second.
    * @returns The signed change of flight seconds the tightest part asks for: positive where a part falls short of the clearance, negative by the surplus the tightest part keeps, zero when no part passes over an obstacle.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frames, units and the zero result.
-   * @evidence contracts/development/implementation.md#principled-implementation Each part's exact lowest point and extent along the leg are read in the leg's own frame every 5 ms of the flight; a part overlapping an obstacle short of its top plus the clearance by h at a time τ after takeoff asks the arc b = g/2 (t − t_T)(t_L − t) to rise by h there, which a later landing gives at the rate g τ / 2.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Sample, measure, take the largest request.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The measured parts are the ride's own displayed solids; nothing is padded.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(N·P·O) for N samples, P parts and O obstacles, once per planning round.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the exact primitive floor reader for each rotated frame.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function shortfall(
-    plan: ArchetypeCourse.IPlan,
+    plan: AutoMovieArchetypeCourse.IPlan,
     start: number,
     obstacles: readonly IObstacle[],
     clearance: number,
@@ -155,12 +134,12 @@ export namespace EquineObstacle {
         Quaternion.inverse(leg.rotation),
         Vector3.scale(leg.translation, -1),
       ),
-      scale: ArchetypeFrame.UNIT,
+      scale: AutoMovieArchetypeFrame.UNIT,
     };
     let extra: number = -Infinity;
     for (let at: number = takeoff + STEP; at < landing; at += STEP) {
       const current: ISample = sample(at);
-      const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+      const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
         inverse,
         current.placement,
       );
@@ -177,13 +156,13 @@ export namespace EquineObstacle {
         ].map((rotation: IAutoMovieQuaternion): number =>
           QuadrupedRestFloor({
             ...part,
-            transform: ArchetypeFrame.compose(
+            transform: AutoMovieArchetypeFrame.compose(
               {
                 rotation,
                 translation: { x: 0, y: 0, z: 0 },
-                scale: ArchetypeFrame.UNIT,
+                scale: AutoMovieArchetypeFrame.UNIT,
               },
-              ArchetypeFrame.compose(frame, part.transform!),
+              AutoMovieArchetypeFrame.compose(frame, part.transform!),
             ),
           }),
         );
@@ -202,11 +181,6 @@ export namespace EquineObstacle {
 
   /**
    * The displayed parts and placement a flown ride shows at one second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frames.
-   * @evidence contracts/development/design.md#principled-representation Model-space parts and their world placement.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplied by the ride to `shortfall`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface ISample {
     /** Model-space parts. */

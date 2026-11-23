@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -17,7 +17,7 @@ import {
  * @param params The model and any dimension the author fixes.
  * @param seed The seed that picks the model left free and draws the mass inside its band; absent, the first model and the middle of the band.
  * @returns The rack.
- * @throws {ArchetypeRefusal} For a model not read, a fixed mass outside its band, or a fixed dimension the model gives.
+ * @throws {AutoMovieArchetypeRefusal} For a model not read, a fixed mass outside its band, or a fixed dimension the model gives.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the rack stands, where each weapon rests and leans and that the weapon keeps its own grip.
  * @evidence contracts/development/implementation.md#principled-implementation A base box of the stand's width and depth, two end post rods up to its rail height and a rail box across their tops; the four slots are spaced evenly along the base.
@@ -30,9 +30,9 @@ import {
 export function createWeaponRack(
   params: createWeaponRack.IParams = {},
   seed?: number | string,
-): Archetype<createWeaponRack.Affordance, createWeaponRack.Dimension> {
-  const draw: ArchetypeDrawSession<createWeaponRack.Dimension> =
-    new ArchetypeDrawSession<createWeaponRack.Dimension>(
+): AutoMovieArchetype<createWeaponRack.Affordance, createWeaponRack.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createWeaponRack.Dimension> =
+    new AutoMovieArchetypeDrawSession<createWeaponRack.Dimension>(
       "weaponRack",
       createWeaponRack.UNITS,
       seed,
@@ -50,10 +50,10 @@ export function createWeaponRack(
     ...draw.dimensions(createWeaponRack.BANDS),
     ...model.figures,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createWeaponRack.Affordance,
     createWeaponRack.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: "weapon rack",
@@ -89,7 +89,7 @@ export function createWeaponRack(
     builder.affordance({
       id: slot,
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(x, base, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(x, base, 0)),
       extent: null,
       width: inner / createWeaponRack.SLOTS,
       depth: d.depth!,
@@ -97,7 +97,7 @@ export function createWeaponRack(
     builder.affordance({
       id: rail,
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(x, d.height! - post / 2, post / 2),
         v(0, 0, 1),
         v(1, 0, 0),
@@ -157,7 +157,9 @@ export namespace createWeaponRack {
   export type Dimension = "width" | "depth" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -185,8 +187,10 @@ export namespace createWeaponRack {
   }
 
   /** The band of the dimension a stand leaves. */
-  export const BANDS: Readonly<Partial<Record<Dimension, IArchetypeBand>>> = {
-    mass: ArchetypeBand.of(
+  export const BANDS: Readonly<
+    Partial<Record<Dimension, IAutoMovieArchetypeBand>>
+  > = {
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       8,
       20,

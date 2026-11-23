@@ -212,7 +212,7 @@ export namespace HumanCarriedCouplingPose {
       if (found === undefined)
         throw new HumanRefusal({
           kind: "participant",
-          axis: "by",
+          axis: "partner",
           value: role,
           reason: `the carry's ${role} is not given`,
           fix: "name every bearer of the carry",
@@ -225,7 +225,7 @@ export namespace HumanCarriedCouplingPose {
     if (anchored === undefined)
       throw new HumanRefusal({
         kind: "participant",
-        axis: "by",
+        axis: "partner",
         value: coupling.anchor,
         reason: `the bearer's rig has no ${coupling.anchor} to carry the borne body by`,
         fix: "carry on a body of the canonical humanoid rig",

@@ -17,11 +17,6 @@ import { HumanFrame } from "../posture/HumanFrame";
  * of the same second are placed on the moved body. Planted legs keep their
  * world goals and are solved again on the moved pelvis, which is what bends
  * the knees when the root sinks.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the root moves, the frame it moves in, why it is written first and what happens to planted legs.
- * @evidence contracts/development/design.md#principled-representation A displacement in the performer's own floor frame, so "left" and "forward" mean the same at every heading; the legs follow from their unchanged world goals.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The displacement and its scaling, one primitive (`travel`) and one named time course (`excursion`).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The offset is added to the posture so far, never set, so a root row composes with a moving base.
  */
 export namespace AutoMovieMotionHumanRoot {
   /**
@@ -31,14 +26,6 @@ export namespace AutoMovieMotionHumanRoot {
    * @param posture The posture.
    * @param offset The displacement.
    * @returns The displaced posture.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the order of the move and the turn.
-   * @evidence contracts/development/implementation.md#principled-implementation The floor-frame transform of the offset by the heading the posture had, then the turn added, so the move does not depend on the turn of the same offset.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One transform and one sum.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every other member of the posture is kept as it is.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `HumanFrame.point`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function place(
     posture: IAutoMovieMotionHumanPosture,
@@ -60,14 +47,6 @@ export namespace AutoMovieMotionHumanRoot {
    * @param offset The displacement.
    * @param share The share, 0 for none and 1 for all of it.
    * @returns The scaled displacement.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is scaled and the share's two ends.
-   * @evidence contracts/development/implementation.md#principled-implementation A displacement is linear in its translation and its turn, so a share of it scales both.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Four products.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The share is not clamped: a caller that passes a clock's envelope already has a value in [0, 1], and an overshoot is the caller's to ask for.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to reuse or cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A pure function that retains nothing.
    */
   export function scale(
     offset: IAutoMovieMotionHumanRoot.IOffset,
@@ -88,14 +67,6 @@ export namespace AutoMovieMotionHumanRoot {
    *
    * @param props The window and the offset.
    * @returns The primitive, on the root.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is displaced and the channel claimed.
-   * @evidence contracts/development/implementation.md#principled-implementation Each second the offset is evaluated and applied to the posture so far.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `place`.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Claims the root only; pitch and roll are the trunk's.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `place`.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its props only and holds no per-second state.
    */
   export function travel(
     props: IAutoMovieMotionHumanRoot.ITravel,
@@ -123,14 +94,6 @@ export namespace AutoMovieMotionHumanRoot {
    * @param fall The instants the body starts returning and is back at.
    * @param to The displacement at its fullest.
    * @returns The primitive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the two windows, the span written and that the root rejoins the base.
-   * @evidence contracts/development/implementation.md#principled-implementation A body that leaves and returns is the displacement scaled by the clock's envelope, which is 0 at both ends.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call of `travel` with the scaled offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The windows are named instants of the clock, so no time is written twice.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `travel`, `scale` and the clock.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work with no algorithm to choose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function excursion(
     clock: IAutoMovieMotionClock,
@@ -155,14 +118,6 @@ export namespace AutoMovieMotionHumanRoot {
    * @param window The instants the body starts moving and arrives at.
    * @param by The move in the body's own floor frame, metres.
    * @returns The primitive, on the root from the first instant to the clock's end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the window, the frame and unit, and how long the primitive holds.
-   * @evidence contracts/development/implementation.md#principled-implementation A body carried from one place to another starts and ends at rest, so the displacement is scaled by the clock's minimum-jerk progress; the primitive runs to the clock's end because a moved body stays where it arrived.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One `travel` with the scaled offset.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the displacement is the caller's. No law reads it yet; the steps and the seats rebuilt for #3286 are the consumers.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `travel`, `scale` and the clock; `excursion` is the same offset on an envelope for a move that returns.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function shift(
     clock: IAutoMovieMotionClock,
@@ -188,14 +143,6 @@ export namespace AutoMovieMotionHumanRoot {
    * @param window The instants the turn starts and arrives at.
    * @param yaw The turn about +Y, degrees; positive toward the performer's left.
    * @returns The primitive, on the root from the first instant to the clock's end.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the movement, the window, the unit and sign, and how long the primitive holds.
-   * @evidence contracts/development/implementation.md#principled-implementation A turn of the heading starts and ends at rest, so the angle is scaled by the clock's minimum-jerk progress and held to the clock's end.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One `travel` with the scaled offset, the same shape as `shift` with the angle in place of the displacement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: the angle is the caller's, and the feet are not moved here, so a law that turns the body turns its feet with the leg phrases. No law reads it yet.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Delegates to `travel`, `scale` and the clock.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work per evaluated second.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive closes over its arguments only.
    */
   export function face(
     clock: IAutoMovieMotionClock,

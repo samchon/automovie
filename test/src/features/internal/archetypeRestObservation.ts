@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  QuadrupedBody,
-  QuadrupedRest,
-  type QuadrupedRestPlan,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedRest,
+  type AutoMovieArchetypeQuadrupedRestPlan,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, tessellate } from "@automovie/engine";
 import type {
@@ -43,14 +43,12 @@ export namespace archetypeRestObservation {
    */
   export function verify(
     name: string,
-    animal: Archetype,
-    params: QuadrupedRestPlan.IParams,
+    animal: AutoMovieArchetype,
+    params: AutoMovieArchetypeQuadrupedRestPlan.IParams,
   ): void {
     const original: string = JSON.stringify(animal);
-    const clip: QuadrupedRestPlan.IClip<string, string> = QuadrupedRest(
-      animal,
-      params,
-    );
+    const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<string, string> =
+      AutoMovieArchetypeQuadrupedRest(animal, params);
     const source: Map<string, IAutoMovieModelPart> = new Map(
       animal.parts.map(
         (part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
@@ -86,8 +84,10 @@ export namespace archetypeRestObservation {
       nclose(clip.duration, 5, 1e-12),
     );
     for (const time of times) {
-      const sample: QuadrupedRestPlan.ISample<string, string> =
-        clip.sample(time);
+      const sample: AutoMovieArchetypeQuadrupedRestPlan.ISample<
+        string,
+        string
+      > = clip.sample(time);
       const current: Map<string, IAutoMovieModelPart> = new Map(
         sample.animal.parts.map(
           (part: IAutoMovieModelPart): [string, IAutoMovieModelPart] => [
@@ -96,8 +96,9 @@ export namespace archetypeRestObservation {
           ],
         ),
       );
-      for (const limb of QuadrupedBody.LIMBS) {
-        const chain: readonly QuadrupedBody.Bone[] = QuadrupedBody.BONES[limb];
+      for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+        const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
+          AutoMovieArchetypeQuadrupedBody.BONES[limb];
         const top: IAutoMovieVector3 = endpoint(source.get(chain[0]!)!, -1);
         TestValidator.predicate(
           `${name} ${time} ${limb} shares one root`,
@@ -108,7 +109,7 @@ export namespace archetypeRestObservation {
           ),
         );
         for (let index: number = 0; index < chain.length; index++) {
-          const bone: QuadrupedBody.Bone = chain[index]!;
+          const bone: AutoMovieArchetypeQuadrupedBody.Bone = chain[index]!;
           const part: IAutoMovieModelPart = current.get(bone)!;
           const length: number = Vector3.length(
             Vector3.subtract(endpoint(part, 1), endpoint(part, -1)),
@@ -187,7 +188,8 @@ export namespace archetypeRestObservation {
         const contact: IAutoMovieAffordance = sample.animal.affordances.find(
           (item: IAutoMovieAffordance): boolean => item.id === old.id,
         )!;
-        const carrier: QuadrupedBody.Bone = params.contacts[old.id]!;
+        const carrier: AutoMovieArchetypeQuadrupedBody.Bone =
+          params.contacts[old.id]!;
         const oldFrame: IAutoMovieTransform = local(
           source.get(carrier)!.transform!,
           old.frame,
@@ -216,10 +218,12 @@ export namespace archetypeRestObservation {
           );
       }
     }
-    const first: QuadrupedRestPlan.ISample<string, string> = clip.sample(0);
-    const recovered: QuadrupedRestPlan.ISample<string, string> = clip.sample(
-      clip.duration,
-    );
+    const first: AutoMovieArchetypeQuadrupedRestPlan.ISample<string, string> =
+      clip.sample(0);
+    const recovered: AutoMovieArchetypeQuadrupedRestPlan.ISample<
+      string,
+      string
+    > = clip.sample(clip.duration);
     for (let index: number = 0; index < first.animal.parts.length; index++) {
       const a: IAutoMovieTransform = first.animal.parts[index]!.transform!;
       const b: IAutoMovieTransform = recovered.animal.parts[index]!.transform!;

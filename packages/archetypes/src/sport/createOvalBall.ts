@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { BallBuild } from "./BallBuild";
 import type { createBall } from "./createBall";
 
@@ -11,7 +11,7 @@ import type { createBall } from "./createBall";
  * @param params The sport profile, identifier and dimensions fixed within their bands. Omission selects rugby.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Use a capsule with the selected rulebook length and short diameter. The same diameter determines the grip aperture and height.
@@ -24,7 +24,7 @@ import type { createBall } from "./createBall";
 export function createOvalBall(
   params: createOvalBall.IParams = {},
   seed?: number | string,
-): Archetype<createOvalBall.Affordance, createOvalBall.Dimension> {
+): AutoMovieArchetype<createOvalBall.Affordance, createOvalBall.Dimension> {
   const kind: createOvalBall.Kind = ArchetypeDraw.choice(
     "ball",
     "kind",

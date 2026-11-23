@@ -64,7 +64,7 @@ interface IVertex {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No specific tool, glyph, in-hand regrasp or paper geometry is required. The author supplies the stroke.
  * @evidence contracts/development/implementation.md#principled-implementation The rigid transform fixes the tip relative to the wrist. Each target is on the surface plane, along a minimum-jerk leg of the authored stroke.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the input, place the surface and tool frames, then compose one planned arm over the entered base.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tip and surface come from the props' affordances. The contact radius is the campaign's bound.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tip and surface come from the props' affordances. The contact radius is the radius the tip declares, a point when it declares none.
  * @evidence contracts/development/implementation.md#efficient-algorithms Linear preparation in the stroke's vertices. The shared arm planner reads target sites by binary edge lookup and solves one trajectory.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The posture reads the planned arm trajectory through the carried-arm primitive. The world surface path is formed once for that plan.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the path and trajectory samples. It starts no process and acquires no external handle.
@@ -101,16 +101,16 @@ function planWrite(
       reason: "a writing stroke needs at least two finite planar vertices",
       fix: "give [X, Z] vertices in metres on the surface",
     });
-  if (!(Number.isFinite(p.seconds) && p.seconds > 0))
+  if (!(Number.isFinite(p.duration) && p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
-      axis: "seconds",
-      value: p.seconds,
+      axis: "duration",
+      value: p.duration,
       reason: "a writing stroke needs a finite positive duration",
       fix: "give the duration of this stroke in seconds",
     });
   const side: AutoMovieHumanSide =
-    p.side ?? (context.entry.holds.left === p.tool ? "left" : "right");
+    p.hand ?? (context.entry.holds.left === p.tool ? "left" : "right");
   const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
     context,
     side,
@@ -236,7 +236,7 @@ function planWrite(
     Quaternion.rotateVector(toolFrame.rotation, site.frame.translation),
   );
   const tempo: number = context.tempo ?? 1;
-  const writing: number = p.seconds * tempo;
+  const writing: number = p.duration * tempo;
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({
     prepare:
       tempo *
@@ -257,32 +257,69 @@ function planWrite(
     context.entry.posture,
     side,
   );
-  const lever: IAutoMovieVector3 = Quaternion.rotateVector(rotation, contact);
+  // With the other hand steadying a tool of its own, both handles turn out
+  // toward their hands so the two grips stay a hand's length apart over the
+  // whole stroke (`writeWith.splay`).
+  const aim: writeWith.IAim | undefined =
+    p.steady === undefined
+      ? undefined
+      : writeWith.steadyAim(context, p.steady, side, origin, facing);
+  const turns: writeWith.ISplay | undefined =
+    aim === undefined
+      ? undefined
+      : writeWith.splay(
+          context.body,
+          facing,
+          {
+            point: first.point,
+            lever: Quaternion.rotateVector(rotation, contact),
+          },
+          {
+            point: aim.target,
+            lever: Quaternion.rotateVector(aim.rotation, aim.contact),
+          },
+          vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
+        );
+  const holding: IAutoMovieQuaternion =
+    turns === undefined
+      ? rotation
+      : Quaternion.normalize(Quaternion.multiply(turns.stroke, rotation));
+  const lever: IAutoMovieVector3 = Quaternion.rotateVector(holding, contact);
   writeWith.reach(
     context,
     side,
     vertices.map((vertex: IVertex): IAutoMovieVector3 => vertex.point),
     lever,
   );
+  // The whole clock is the law's own, lengthened by a slower tempo. A
+  // steadying arm is planned in the stroking arm's group, the two one
+  // problem over one span (writeWith.steady).
+  const group: ReturnType<typeof AutoMovieMotionHumanArm.together> =
+    AutoMovieMotionHumanArm.together(context.handover, true, context.tempo);
   const steadied: writeWith.ISteadied | undefined =
     p.steady === undefined
       ? undefined
-      : writeWith.steady(context, p.steady, side, origin, facing, clock);
+      : writeWith.steady(
+          context,
+          p.steady,
+          side,
+          origin,
+          facing,
+          clock,
+          turns?.steady,
+          group,
+        );
   const arm: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried({
     body: context.body,
     side,
     from: 0,
     to: clock.duration,
     span: { start: 0, ready, relax: done, end: clock.duration },
-    // The whole clock is the law's own, lengthened by a slower tempo.
-    together: AutoMovieMotionHumanArm.together(
-      context.handover,
-      true,
-      context.tempo,
-    ),
+    together: group,
     rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-    // A point target leaves the millimetre allowance to the arm solver.
-    disc: 0,
+    // The mark is as wide as the tip that makes it: the stroke's point may
+    // land within the radius the tip declares; a tip declaring none is a point.
+    disc: site.radius ?? 0,
     weight: (seconds: number): number =>
       clock.envelope(["start", "ready"], ["relax", "end"], seconds),
     goal: (
@@ -293,7 +330,7 @@ function planWrite(
         strokePoint(vertices, last.length * ((seconds - ready) / writing)),
         lever,
       ),
-      rotation,
+      rotation: holding,
       contact,
       bend,
     }),

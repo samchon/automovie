@@ -1,30 +1,32 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Authored internal coarse footwear sizes in metres. */
-const BANDS: Readonly<Record<createStageFootwear.Dimension, IArchetypeBand>> = {
-  length: ArchetypeBand.metres(
+const BANDS: Readonly<
+  Record<createStageFootwear.Dimension, IAutoMovieArchetypeBand>
+> = {
+  length: AutoMovieArchetypeBand.metres(
     0.21,
     0.36,
     "Clear length of the coarse footwear proxy",
     true,
   ),
-  width: ArchetypeBand.metres(
+  width: AutoMovieArchetypeBand.metres(
     0.1,
     0.17,
     "Clear standing foot opening of the coarse proxy",
     true,
   ),
-  height: ArchetypeBand.metres(
+  height: AutoMovieArchetypeBand.metres(
     0.035,
     0.085,
     "Coarse footwear wall height above the sole",
@@ -51,7 +53,7 @@ const PROFILES: Readonly<Record<createStageFootwear.Kind, IFootwearProfile>> = {
 };
 
 /**
- * An open-footwear stage prop with an actual clear upper cavity.
+ * An open-footwear stage prop with a clear upper cavity.
  *
  * The model sits on its sole, with +Z toward the toe. It has an independent
  * rear pull grip, a rectangular foot opening and a heel seat inside the sole.
@@ -59,12 +61,12 @@ const PROFILES: Readonly<Record<createStageFootwear.Kind, IFootwearProfile>> = {
  * @param params The form, model identity, and any fixed clearance in metres.
  * @param seed Selects dimensions left unbound by the author.
  * @returns The shaped footwear and its three actor-facing contacts.
- * @throws {ArchetypeRefusal} For an unavailable form or an out-of-band size.
+ * @throws {AutoMovieArchetypeRefusal} For an unavailable form or an out-of-band size.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States form, clear opening, toe axis and heel support.
  * @evidence contracts/development/implementation.md#principled-implementation Separate walls establish a genuine hollow footprint with a sole; the rear grip and heel seat use the same measured part dimensions.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the profile and sizes, then build the shell and named contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The foot opening is bounded by actual walls rather than a filled stand-in. The sock is a coarse prop shape.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The foot opening is bounded by walls rather than a filled stand-in. The sock is a coarse prop shape.
  * @evidence contracts/development/implementation.md#efficient-algorithms Builds a fixed set of parts and contact records.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Both forms use their shared cavity and attachment contract.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a complete model and retains no inputs.
@@ -72,15 +74,18 @@ const PROFILES: Readonly<Record<createStageFootwear.Kind, IFootwearProfile>> = {
 export function createStageFootwear(
   params: createStageFootwear.IParams,
   seed?: number | string,
-): Archetype<createStageFootwear.Affordance, createStageFootwear.Dimension> {
+): AutoMovieArchetype<
+  createStageFootwear.Affordance,
+  createStageFootwear.Dimension
+> {
   const kind: createStageFootwear.Kind = ArchetypeDraw.choice(
     "stageFootwear",
     "kind",
     params.kind,
     createStageFootwear.KINDS,
   );
-  const draw: ArchetypeDrawSession<createStageFootwear.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createStageFootwear.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "stageFootwear",
       { length: "m", width: "m", height: "m" },
       seed,
@@ -95,10 +100,10 @@ export function createStageFootwear(
   const wall: number = profile.thickness;
   const half: number = length / 2;
   const v: typeof Vector3.create = Vector3.create;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStageFootwear.Affordance,
     createStageFootwear.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: kind === "shoe" ? "stage slip-on shoe" : "stage ankle sock",
     material: "composite",
@@ -106,7 +111,7 @@ export function createStageFootwear(
   });
   const outerWidth: number = width + 2 * wall;
   const outerLength: number = length + 2 * wall;
-  const color: ArchetypeBuilder.IOptions = { color: profile.tint };
+  const color: AutoMovieArchetypeBuilder.IOptions = { color: profile.tint };
   const center: number = wall + height / 2;
   builder.box(
     "sole",
@@ -153,7 +158,11 @@ export function createStageFootwear(
   builder.affordance({
     id: "hold",
     kind: "handle",
-    frame: ArchetypeFrame.facing(v(0, pullY, pullZ), v(0, 0, -1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, pullY, pullZ),
+      v(0, 0, -1),
+      v(1, 0, 0),
+    ),
     extent: null,
     grip: "power",
     symmetry: "round",
@@ -163,7 +172,7 @@ export function createStageFootwear(
   builder.affordance({
     id: "opening",
     kind: "aperture",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, wall + height, half),
       v(0, 0, -1),
       v(1, 0, 0),
@@ -175,7 +184,7 @@ export function createStageFootwear(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, wall, -half + 0.015)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, wall, -half + 0.015)),
     extent: null,
   });
   return builder.build(profile.mass);

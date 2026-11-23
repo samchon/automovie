@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** No maker's page was read. */
@@ -32,9 +32,12 @@ const STAGED: string =
 export function createChoppingBlock(
   params: createChoppingBlock.IParams = {},
   seed?: number | string,
-): Archetype<createChoppingBlock.Affordance, createChoppingBlock.Dimension> {
-  const draw: ArchetypeDrawSession<createChoppingBlock.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createChoppingBlock.Affordance,
+  createChoppingBlock.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createChoppingBlock.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "choppingBlock",
       createChoppingBlock.UNITS,
       seed,
@@ -43,10 +46,10 @@ export function createChoppingBlock(
   const d: Record<createChoppingBlock.Dimension, number> = draw.dimensions(
     createChoppingBlock.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createChoppingBlock.Affordance,
     createChoppingBlock.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "a chopping block",
     material: "wood",
@@ -59,7 +62,7 @@ export function createChoppingBlock(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, d.height, 0)),
     extent: null,
     width: 2 * d.radius,
     depth: 2 * d.radius,
@@ -89,16 +92,18 @@ export namespace createChoppingBlock {
   }
 
   /** Units of each dimension. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     radius: "m",
     height: "m",
     mass: "kg",
   };
 
   /** Staged bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    radius: ArchetypeBand.metres(0.2, 0.28, STAGED, true),
-    height: ArchetypeBand.metres(0.4, 0.5, STAGED, true),
-    mass: ArchetypeBand.of("kg", 35, 70, STAGED, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    radius: AutoMovieArchetypeBand.metres(0.2, 0.28, STAGED, true),
+    height: AutoMovieArchetypeBand.metres(0.4, 0.5, STAGED, true),
+    mass: AutoMovieArchetypeBand.of("kg", 35, 70, STAGED, true),
   };
 }

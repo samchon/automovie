@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -49,14 +49,14 @@ const SIZE: Readonly<createChopsticks.ISize> = {
  */
 export function createChopsticks(
   params: createChopsticks.IParams = {},
-): Archetype<createChopsticks.Affordance, createChopsticks.Dimension> {
+): AutoMovieArchetype<createChopsticks.Affordance, createChopsticks.Dimension> {
   const v: typeof Vector3.create = Vector3.create;
   const r: number = SIZE.diameter / 2;
   const fulcrum: number = SIZE.length / 3;
   const rise: number =
     Math.tan((SIZE.spread * Math.PI) / 180) * (SIZE.length - fulcrum);
-  const draw: ArchetypeDrawSession<createChopsticks.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createChopsticks.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "chopsticks",
       { length: "m", diameter: "m", mass: "kg" },
       undefined,
@@ -64,10 +64,10 @@ export function createChopsticks(
   draw.derive("length", SIZE.length);
   draw.derive("diameter", SIZE.diameter);
   draw.derive("mass", SIZE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createChopsticks.Affordance,
     createChopsticks.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "chopsticks",
     name: "chopsticks",
     material: "wood",
@@ -86,13 +86,21 @@ export function createChopsticks(
     extent: null,
     travel: SIZE.spread,
     parts: ["upper"],
-    frame: ArchetypeFrame.facing(v(0, 2 * r, fulcrum), v(1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, 2 * r, fulcrum),
+      v(1, 0, 0),
+      v(0, 0, 1),
+    ),
   });
   builder.affordance({
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(v(0, r, fulcrum), v(0, -1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, r, fulcrum),
+      v(0, -1, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     grip: "precision",
     aperture: 3 * SIZE.diameter,
@@ -101,7 +109,7 @@ export function createChopsticks(
   builder.affordance({
     id: "tips",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, r, SIZE.length)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, r, SIZE.length)),
     extent: null,
   });
   return builder.build(SIZE.mass);

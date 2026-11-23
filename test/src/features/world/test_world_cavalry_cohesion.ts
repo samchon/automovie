@@ -3,13 +3,8 @@ import type {
   IAutoMovieMotionHumanEnsemble,
   IAutoMovieMotionHumanEnsemblePreset,
 } from "@automovie/interface";
-import {
-  HumanAttribute,
-  HumanEnsemble,
-  HumanFormation,
-  HumanResponse,
-  HumanSkill,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
+import { HumanResponse, HumanSkill } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -33,7 +28,7 @@ const RUN: number = 10;
  * 3. The same seed draws the same arrivals again.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two squadrons, the trumpet and the three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Builds real ensembles from the shipped presets with `HumanEnsemble.of` and draws each member's warned reaction with `HumanResponse.latency` from its own skill, stream and attributes.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds real ensembles from the shipped presets with `AutoMovieMotionHumanEnsemble.HumanEnsemble.of` and draws each member's warned reaction with `HumanResponse.latency` from its own skill, stream and attributes.
  * @evidence contracts/development/testing.md#independent-expectations The presets give the elite a higher, tighter discipline than the militia, and discipline replaces a member's reaction proficiency, so the elite's reactions vary less; one shared course makes arrival spread equal reaction spread.
  * @evidence contracts/development/testing.md#distinguishing-cases The two extreme presets and a replay. The ridden course from response to line is pinned by test_world_cavalry_squadron and test_world_mounted_cues.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec.
@@ -45,33 +40,34 @@ export function test_world_cavalry_cohesion(): void {
   ) => number[] = (
     preset: IAutoMovieMotionHumanEnsemblePreset.Name,
   ): number[] => {
-    const squadron: IAutoMovieMotionHumanEnsemble.IEnsemble = HumanEnsemble.of({
-      id: `squadron-${preset}`,
-      seed: "charge",
-      count: TROOPERS,
-      bodies: [body],
-      preset,
-      formation: HumanFormation.of({
-        blocks: [
-          {
-            layout: {
-              kind: "line",
-              ranks: 2,
-              files: TROOPERS / 2,
-              spacing: { lateral: 1.8, depth: 4 },
+    const squadron: IAutoMovieMotionHumanEnsemble.IEnsemble =
+      AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+        id: `squadron-${preset}`,
+        seed: "charge",
+        count: TROOPERS,
+        bodies: [body],
+        preset,
+        formation: AutoMovieMotionHumanEnsemble.HumanFormation.of({
+          blocks: [
+            {
+              layout: {
+                kind: "line",
+                ranks: 2,
+                files: TROOPERS / 2,
+                spacing: { lateral: 1.8, depth: 4 },
+              },
+              count: TROOPERS,
             },
-            count: TROOPERS,
-          },
-        ],
-        frame: { kind: "fixed", at: { x: 0, y: 0, z: 0 }, heading: 0 },
-      }),
-    });
-    return HumanEnsemble.members(squadron).map(
+          ],
+          frame: { kind: "fixed", at: { x: 0, y: 0, z: 0 }, heading: 0 },
+        }),
+      });
+    return AutoMovieMotionHumanEnsemble.HumanEnsemble.members(squadron).map(
       (member: IAutoMovieMotionHumanEnsemble.IMember): number =>
         CUE +
         HumanResponse.latency(
           HumanSkill.resolve(member.proficiency, squadron.input.seed),
-          HumanAttribute.stream(
+          AutoMovieMotionHumanEnsemble.HumanAttribute.stream(
             squadron.input.seed,
             squadron.input.id,
             member.index,

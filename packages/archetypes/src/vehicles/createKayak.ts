@@ -5,12 +5,12 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 const SOURCE: string =
@@ -21,12 +21,15 @@ const v: typeof Vector3.create = Vector3.create;
 const WALL: number = 0.012;
 const FLOOR: number = -0.14;
 
-type Build = ArchetypeBuilder<createKayak.Affordance, createKayak.Dimension>;
+type Build = AutoMovieArchetypeBuilder<
+  createKayak.Affordance,
+  createKayak.Dimension
+>;
 
 /**
  * A sit-inside kayak based on the published Pungo 120 envelope. The bow
  * points along +Z and Y = 0 is the reference waterline. The cockpit has an
- * actual opening, a low seat and separate tilted footbraces. The deck and
+ * opening, a low seat and separate tilted footbraces. The deck and
  * floor share the same hull section family. Wall thickness and the
  * installed seat and brace geometry are staging estimates.
  *
@@ -44,13 +47,13 @@ type Build = ArchetypeBuilder<createKayak.Affordance, createKayak.Dimension>;
 export function createKayak(
   params: createKayak.IParams = {},
   seed?: number | string,
-): Archetype<createKayak.Affordance, createKayak.Dimension> {
-  const draw: ArchetypeDrawSession<createKayak.Dimension> =
-    new ArchetypeDrawSession("kayak", createKayak.UNITS, seed, params);
+): AutoMovieArchetype<createKayak.Affordance, createKayak.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createKayak.Dimension> =
+    new AutoMovieArchetypeDrawSession("kayak", createKayak.UNITS, seed, params);
   const dimensions: Record<createKayak.Dimension, number> = draw.dimensions(
     createKayak.BANDS,
   );
-  const builder: Build = new ArchetypeBuilder({
+  const builder: Build = new AutoMovieArchetypeBuilder({
     material: "composite",
     name: "sit-inside kayak",
     id: params.id,
@@ -77,7 +80,10 @@ export function createKayak(
   builder.affordance({
     id: "seat",
     kind: "seat",
-    frame: ArchetypeFrame.upright({ ...seat, z: seat.z + seatDepth / 2 }),
+    frame: AutoMovieArchetypeFrame.upright({
+      ...seat,
+      z: seat.z + seatDepth / 2,
+    }),
     extent: null,
     width: seatWidth,
     depth: seatDepth,
@@ -196,7 +202,7 @@ function hull(
   }
 }
 
-/** Put an actual angled brace face and foot contact inside the coaming. */
+/** Put an angled brace face and foot contact inside the coaming. */
 function brace(builder: Build, id: createKayak.Brace, sign: number): void {
   const at: IAutoMovieVector3 = v(sign * 0.16, FLOOR + 0.125, 0.53);
   const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -215,7 +221,7 @@ function brace(builder: Build, id: createKayak.Brace, sign: number): void {
   builder.affordance({
     id,
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.add(at, Vector3.scale(normal, 0.012)),
       normal,
       toes,
@@ -229,7 +235,7 @@ function brace(builder: Build, id: createKayak.Brace, sign: number): void {
 /**
  * Fixed dimension sites and the three contact affordance names.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the measured sites, units and actual cockpit contacts.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the measured sites, units and cockpit contacts.
  * @evidence contracts/development/design.md#principled-representation A closed dimension and contact vocabulary for one sit-inside hull.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Independent of canoes and the shape of the hand-held paddle.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Provenance for the published dimensions is separate from the installed geometry estimates.
@@ -254,7 +260,9 @@ export namespace createKayak {
     id?: string;
   }
   /** Units of the catalogue measures. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     beam: "m",
     depth: "m",
@@ -263,12 +271,12 @@ export namespace createKayak {
     mass: "kg",
   };
   /** Published envelope, cockpit at the coaming and bare hull mass. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(3.66, 3.66, SOURCE),
-    beam: ArchetypeBand.metres(0.74, 0.74, SOURCE),
-    depth: ArchetypeBand.metres(0.33, 0.33, SOURCE),
-    cockpitLength: ArchetypeBand.metres(1.45, 1.45, SOURCE),
-    cockpitWidth: ArchetypeBand.metres(0.56, 0.56, SOURCE),
-    mass: ArchetypeBand.of("kg", 22, 22, SOURCE),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(3.66, 3.66, SOURCE),
+    beam: AutoMovieArchetypeBand.metres(0.74, 0.74, SOURCE),
+    depth: AutoMovieArchetypeBand.metres(0.33, 0.33, SOURCE),
+    cockpitLength: AutoMovieArchetypeBand.metres(1.45, 1.45, SOURCE),
+    cockpitWidth: AutoMovieArchetypeBand.metres(0.56, 0.56, SOURCE),
+    mass: AutoMovieArchetypeBand.of("kg", 22, 22, SOURCE),
   };
 }

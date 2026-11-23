@@ -17,7 +17,6 @@ import type { IPlaygroundComposition } from "../structures/IPlaygroundCompositio
 import type { IPlaygroundVerdicts } from "../structures/IPlaygroundVerdicts";
 import type { IPlaygroundVocabulary } from "../structures/IPlaygroundVocabulary";
 import { PlaygroundChain } from "./PlaygroundChain";
-import { PlaygroundSchema } from "./PlaygroundSchema";
 import { PlaygroundStage } from "./PlaygroundStage";
 
 /**
@@ -36,17 +35,10 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
     const laws: Readonly<Record<string, { overlay?: boolean }>> =
       HUMAN_ACTIONS as Readonly<Record<string, { overlay?: boolean }>>;
     const grammar: unknown = exported["HUMAN_GRAMMAR"];
-    const schemas: Record<string, IPlaygroundVocabulary.IParameter[]> =
-      PlaygroundSchema.rows();
-    const actions: Record<string, IPlaygroundVocabulary.IParameter[]> =
-      PlaygroundSchema.actions();
     return {
       actions: Object.keys(laws).map(
         (name: string): IPlaygroundVocabulary.IAction => ({
           name,
-
-          // An action the release ships no schema for is edited as JSON.
-          parameters: Object.hasOwn(actions, name) ? actions[name]! : null,
           overlay: PlaygroundChain.has("over")
             ? laws[name]!.overlay === true
             : null,
@@ -56,20 +48,6 @@ export const PlaygroundPackageAdapter: IPlaygroundAdapter = {
         ([name, rows]): IPlaygroundVocabulary.IFamily => ({
           name,
           rows: rows.map((row: { name: string }): string => row.name),
-          parameters: Object.fromEntries(
-            rows
-              .filter((row: { name: string }): boolean =>
-                Object.hasOwn(schemas, row.name),
-              )
-              .map(
-                (row: {
-                  name: string;
-                }): [string, IPlaygroundVocabulary.IParameter[]] => [
-                  row.name,
-                  schemas[row.name]!,
-                ],
-              ),
-          ),
         }),
       ),
       mutuals: Object.values(PlaygroundChain.mutuals()).map(

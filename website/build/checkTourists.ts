@@ -10,11 +10,11 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStrike } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditTangle,
   HumanColliders,
-  StrikingBody,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";
@@ -91,7 +91,11 @@ export function checkTourists(): void {
         performance.bones("ivy", at);
       assert(
         Vector3.distance(
-          StrikingBody.region(body, bones, "noseBridge").point,
+          AutoMovieMotionHumanStrike.StrikingBody.region(
+            body,
+            bones,
+            "noseBridge",
+          ).point,
           screen,
         ) <= TOUCH,
         take.label + " screen at the eye",

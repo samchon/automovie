@@ -125,10 +125,11 @@ export async function test_inspection_physical_force_marks(): Promise<void> {
     drop(0.1, {
       kind: "exaggerated",
       gravity: 1,
-      impulse: 1e-300,
+      // The smallest positive double scales a soft impulse under one newton second below half of itself, so its transfer rounds to exactly zero.
+      impulse: Number.MIN_VALUE,
       compliance: 1,
       reason:
-        "A positive Float64 soft impulse rounds to zero at its actual native transfer",
+        "A positive soft impulse underflows to zero at its actual transfer",
     }),
   );
   const normal: IAutoMoviePhysicalPlayback = await replay(drop(0.1, null));

@@ -33,32 +33,25 @@ import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHum
  * Not yet: hand closure timed by optical expansion (Savelsbergh et al.
  * 1991), a running catch (McLeod and Dienes 1996), a fumble, the catch
  * against the chest, and a held prop handed from the throw.
- *
- * @evidence contracts/development/common.md#meaningful-documentation hands: One hand or two; `two` when absent. side: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
- * @evidence contracts/development/design.md#principled-representation hands: One hand or two; `two` when absent. side: The catching hand when one; `right` when absent. glove: A glove worn on the one catching hand, its prop subject: the ball meets its `pocket`, the hand turned as its bare palm would be (`createGlove`'s contacts). A bare hand when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: actions/HumanMutual.ts (HumanMutual.pass, params); chain/HumanChainMutual.ts (HumanChainMutual.catchObject, params); throwing/catchObject.ts (catchObject.plan, context); throwing/catchObject.ts (catchObject.plan, return); actions/HumanMutual.ts (HumanMutual.pass); executable/cases/throwCases.ts (throwCases.object).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCatchObject {
   /**
+   * How many hands take the object: `one` or `two`.
+   */
+  export type Hands = "one" | "two";
+
+  /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and default.
-   * @evidence contracts/development/design.md#principled-representation The source anchor, prop and hand configuration identify the catch.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Ordinary and staged catch share the same hand options.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The referenced throw and ball supply the ordinary approach.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The anchor of the throw caught. */
-    from: string;
+    partner: string;
 
-    /** One hand or two; `two` when absent. */
-    hands?: "one" | "two";
+    /** One hand or two; `two` when absent. The hands reach the object in the aimed movement time to its size (McIntosh et al. 2018), give 0.05 to 0.15 m with it (provisional) and hold it at the sternum. */
+    hands?: IAutoMovieMotionHumanCatchObject.Hands;
 
     /** The catching hand when one; `right` when absent. */
-    side?: AutoMovieHumanSide;
+    hand?: AutoMovieHumanSide;
 
     /** The ball caught, its prop subject: its `grip` contact's aperture is its diameter (`createBall`'s contacts). */
     ball: string;
@@ -69,27 +62,19 @@ export namespace IAutoMovieMotionHumanCatchObject {
 
   /**
    * Staged catch parameters, using the prop's actual placed trajectory.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the stage-only interception time and its placement bounds.
-   * @evidence contracts/development/design.md#principled-representation The ordinary hand parameters and optional positive elapsed time identify the capture on the anchored flight.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only stageCatch admits the explicit interception time.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Performance supplies the contact point even for a specified interception time.
    */
   export interface IStageParams extends IParams {
     /**
-     * Seconds after the anchored prop release at which `stageCatch` reads the realized interception. Absent, use the ordinary throw's approach.
-     * Exclusive minimum: 0. Unit: s. `stageCatch` admits this only inside the source action's surviving window.
+     * Seconds, positive, after the anchored prop's release at which
+     * `stageCatch` reads the realized interception; `stageCatch` admits it
+     * only inside the source action's surviving window. The ordinary
+     * throw's approach when absent.
      */
     intercept?: number;
   }
 
   /**
    * A catch's plan: an action plan with the object's place over time.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation object: The object's centre at a second of the action.
-   * @evidence contracts/development/design.md#principled-representation object: The object's centre at a second of the action.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: throwing/catchObject.ts (catchObject.plan, return); executable/cases/throwCases.ts (throwCases.object).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IPlan extends IAutoMovieMotionHumanActionPlan {
     /**
@@ -97,19 +82,13 @@ export namespace IAutoMovieMotionHumanCatchObject {
      *
      * @param seconds Seconds since the action's start.
      * @returns World metres.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCatchObject.IPlan.object: The object's centre at a second of the action.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
      */
     object(seconds: number): IAutoMovieVector3;
   }
 
-  /** The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path. */
+  /**
+   * The staged catch law: a catch law whose plan publishes its object path (`IPlan`), so a law built on it reads the path.
+   */
   export interface IStageLaw extends IAutoMovieMotionHumanActionLaw<IStageParams> {
     /**
      * Plan a staged catch.

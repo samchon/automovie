@@ -2,10 +2,10 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /** A halter strap's width and thickness, metres: authored, the halter listings read give strap lengths only. */
@@ -40,20 +40,16 @@ const MASS: number = 0.4;
 export function createHalter(
   head: createHalter.IHead,
   params: createHalter.IParams = {},
-): Archetype<createHalter.Affordance, never> {
+): AutoMovieArchetype<createHalter.Affordance, never> {
   if (
     !(Number.isFinite(head.length) && head.length > 0) ||
     !(Number.isFinite(head.radius) && head.radius > 0)
   )
     throw new RangeError("A halter fits a head of positive length and radius");
-  const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession<never>(
-    "halter",
-    {},
-    undefined,
-    {},
-  );
-  const builder: ArchetypeBuilder<createHalter.Affordance, never> =
-    new ArchetypeBuilder({
+  const draw: AutoMovieArchetypeDrawSession<never> =
+    new AutoMovieArchetypeDrawSession<never>("halter", {}, undefined, {});
+  const builder: AutoMovieArchetypeBuilder<createHalter.Affordance, never> =
+    new AutoMovieArchetypeBuilder({
       material: "leather",
       id: params.id,
       name: "halter",
@@ -92,7 +88,7 @@ export function createHalter(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       top,
       Vector3.create(0, 0, -1),
       Vector3.create(1, 0, 0),
@@ -104,7 +100,7 @@ export function createHalter(
   builder.affordance({
     id: "seat",
     kind: "socket",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
   });
   return builder.build(MASS);
@@ -124,11 +120,6 @@ export namespace createHalter {
 
   /**
    * The head a halter is fitted to.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Metres.
-   * @evidence contracts/development/design.md#principled-representation The head capsule's length and radius.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the fit reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IHead {
     /** The head capsule's length from poll to nose, metres. */

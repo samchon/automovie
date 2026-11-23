@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The high jump's landing area in the rules' comparison sheet. */
@@ -26,7 +26,7 @@ const POLE: string =
  * @param params The kind, a pole vault mat's layout and any dimension the author fixes.
  * @param seed The seed that draws a pole vault mat's layout when it is not given and every dimension left free inside its band; absent, the first layout and the middle of each band.
  * @returns The mat.
- * @throws {ArchetypeRefusal} For a layout the rules do not give or one named for a high jump mat, a fixed dimension outside its band, or one only the other kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a layout the rules do not give or one named for a high jump mat, a fixed dimension outside its band, or one only the other kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the mat lies and the contact.
  * @evidence contracts/development/implementation.md#principled-implementation One box of the rules' length, width and height, a pole vault mat's length its layout's whole; its top is the contact, as large as the top.
@@ -39,9 +39,9 @@ const POLE: string =
 export function createLandingMat(
   params: createLandingMat.IParams,
   seed?: number | string,
-): Archetype<createLandingMat.Affordance, createLandingMat.Dimension> {
-  const draw: ArchetypeDrawSession<createLandingMat.Dimension> =
-    new ArchetypeDrawSession<createLandingMat.Dimension>(
+): AutoMovieArchetype<createLandingMat.Affordance, createLandingMat.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createLandingMat.Dimension> =
+    new AutoMovieArchetypeDrawSession<createLandingMat.Dimension>(
       "landingMat",
       createLandingMat.UNITS,
       seed,
@@ -68,10 +68,10 @@ export function createLandingMat(
   const length: number = d.length!;
   const width: number = d.width!;
   const height: number = d.height!;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createLandingMat.Affordance,
     createLandingMat.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name:
@@ -87,7 +87,7 @@ export function createLandingMat(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
     width,
     depth: length,
@@ -124,7 +124,9 @@ export namespace createLandingMat {
   export type Dimension = "length" | "width" | "height" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     height: "m",
@@ -163,13 +165,13 @@ export namespace createLandingMat {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     highJump: {
-      length: ArchetypeBand.metres(4, 4, HIGH),
-      width: ArchetypeBand.metres(6, 6, HIGH),
-      height: ArchetypeBand.metres(0.7, 0.7, HIGH),
-      mass: ArchetypeBand.of(
+      length: AutoMovieArchetypeBand.metres(4, 4, HIGH),
+      width: AutoMovieArchetypeBand.metres(6, 6, HIGH),
+      height: AutoMovieArchetypeBand.metres(0.7, 0.7, HIGH),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         250,
         400,
@@ -178,9 +180,9 @@ export namespace createLandingMat {
       ),
     },
     poleVault: {
-      width: ArchetypeBand.metres(6, 6, POLE),
-      height: ArchetypeBand.metres(0.8, 0.8, POLE),
-      mass: ArchetypeBand.of(
+      width: AutoMovieArchetypeBand.metres(6, 6, POLE),
+      height: AutoMovieArchetypeBand.metres(0.8, 0.8, POLE),
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         450,
         700,

@@ -39,32 +39,22 @@ import type { IAutoMovieMotionHumanCarried } from "./IAutoMovieMotionHumanCarrie
  * Arm wrestling is `HumanSocial.armWrestle` with the author's winner; the
  * loser's trunk turn the winner's torque gives is owed to #3439. A tug of
  * war is #3451's.
- *
- * @evidence contracts/development/common.md#meaningful-documentation carry: The carry; `piggyback` when absent. seconds: Seconds carried; the laws' own when absent. lift: Seconds of the lift into the carry; none when absent.
- * @evidence contracts/development/design.md#principled-representation carry: The carry; `piggyback` when absent. seconds: Seconds carried; the laws' own when absent. lift: Seconds of the lift into the carry; none when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCoupled.ts (HumanCoupled.carry, params); lexicon/HumanCoupled.ts (HumanCoupled.helpUp, params); lexicon/HumanCoupled.ts (HumanCoupled.supportWalk, params); lexicon/HumanCoupled.ts (HumanCoupled.throwing, params); lexicon/HumanCoupled.ts (HumanCoupled.carry); lexicon/HumanCoupled.ts (HumanCoupled.helpUp).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanCarried.Carry identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanCoupled {
   /**
    * The shared parameters of a carry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation carry: The carry; `piggyback` when absent. seconds: Seconds carried; the laws' own when absent. lift: Seconds of the lift into the carry; none when absent.
-   * @evidence contracts/development/design.md#principled-representation carry: The carry; `piggyback` when absent. seconds: Seconds carried; the laws' own when absent. lift: Seconds of the lift into the carry; none when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCoupled.ts (HumanCoupled.carry, params); lexicon/HumanCoupled.ts (HumanCoupled.carry).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanCarried.Carry identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ICarry {
     /** The carry; `piggyback` when absent. */
     carry?: IAutoMovieMotionHumanCarried.Carry;
 
-    /** Seconds carried; the laws' own when absent. */
-    seconds?: number;
+    /** Seconds carried; 2 s when absent (`HumanCarriedBorne`, provisional: no study of a carry's length). It is the whole span of the pair's coupled meeting, lift and set-down included. */
+    hold?: number;
 
-    /** Seconds of the lift into the carry; none when absent. */
+    /** Seconds of the lift into the carry, inside `seconds`; none when absent: the carried body starts in the carry. Provisional: no lifting time was read. */
     lift?: number;
 
-    /** Seconds of the set-down; none when absent. */
+    /** Seconds of the set-down, inside `seconds`; none when absent: the carry ends in place. Provisional: no setting-down time was read. */
     setDown?: number;
 
     /** Kilograms the borne person carries besides their body; none when absent. */
@@ -73,11 +63,6 @@ export namespace IAutoMovieMotionHumanCoupled {
 
   /**
    * The shared parameters of helping someone up from the floor.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation hand: The hand both hold by, the helper's and the helped's alike, as a handshake takes them; `right` when absent.
-   * @evidence contracts/development/design.md#principled-representation hand: The hand both hold by, the helper's and the helped's alike, as a handshake takes them; `right` when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCoupled.ts (HumanCoupled.helpUp, params); lexicon/HumanCoupled.ts (HumanCoupled.helpUp).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanCoupled.helpUp.
    */
   export interface IHelpUp {
     /** The hand both hold by, the helper's and the helped's alike, as a handshake takes them; `right` when absent. */
@@ -86,34 +71,19 @@ export namespace IAutoMovieMotionHumanCoupled {
 
   /**
    * The shared parameters of a walk between two helpers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation seconds: Seconds supported; the laws' own when absent.
-   * @evidence contracts/development/design.md#principled-representation seconds: Seconds supported; the laws' own when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCoupled.ts (HumanCoupled.supportWalk, params); lexicon/HumanCoupled.ts (HumanCoupled.supportWalk).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanCoupled.supportWalk.
    */
   export interface ISupportWalk {
     /** Seconds supported; the laws' own when absent. */
-    seconds?: number;
+    duration?: number;
   }
 
   /**
    * A throw or a takedown by its common name.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A throw or a takedown by its common name.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "seoiNage", "oGoshi", "oSotoGari", "singleLeg" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCoupled.ts (HumanCoupled.FULCRUMS).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanCoupled.FULCRUMS.
    */
   export type Throw = "seoiNage" | "oGoshi" | "oSotoGari" | "singleLeg";
 
   /**
    * The shared parameters of a throw.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation kind: The throw; `seoiNage` when absent. outcome: The author's outcome: thrown, resisted or yielded; `thrown` when absent. hold: Seconds the thrower holds the grip; the clinch's own when absent.
-   * @evidence contracts/development/design.md#principled-representation kind: The throw; `seoiNage` when absent. outcome: The author's outcome: thrown, resisted or yielded; `thrown` when absent. hold: Seconds the thrower holds the grip; the clinch's own when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanCoupled.ts (HumanCoupled.throwing, params); lexicon/HumanCoupled.ts (HumanCoupled.throwing).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanCoupled.Throw identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IThrow {
     /** The throw; `seoiNage` when absent. */

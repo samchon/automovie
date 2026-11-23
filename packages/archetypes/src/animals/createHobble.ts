@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { Archetype, ArchetypeBuilder, ArchetypeDrawSession } from "../core";
+import {
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+} from "../core";
 
 /** A cuff's size. */
 interface ICuff {
@@ -26,7 +30,7 @@ const MASS: number = 0.3;
 /**
  * A fore hobble: a cuff round each foreleg's cannon and a strap between them.
  *
- * Each cuff is a short ring round the cannon, a cylinder along the leg's axis (`+Y`) that clears the cannon's radius by the leather's thickness; at rest the cuffs' middles stand the strap's length apart along `+X`, the left at `+X`. The strap is a span from the inner side of one cuff to the inner side of the other, its rest length the strap's length less the two cuffs' radii, so the cuffs' middles never stand farther apart than the strap's length while it is not drawn past its rest length, and a pose that draws it shorter reports it slack. The cuffs are posed onto a hobbled equid's forelegs by `EquineHobble`. The cuff's width and thickness, the strap's radius and the mass are authored.
+ * Each cuff is a short ring round the cannon, a cylinder along the leg's axis (`+Y`) that clears the cannon's radius by the leather's thickness; at rest the cuffs' middles stand the strap's length apart along `+X`, the left at `+X`. The strap is a span from the inner side of one cuff to the inner side of the other, its rest length the strap's length less the two cuffs' radii, so the cuffs' middles never stand farther apart than the strap's length while it is not drawn past its rest length, and a pose that draws it shorter reports it slack. The cuffs are posed onto a hobbled equid's forelegs by `AutoMovieArchetypeEquineHobble`. The cuff's width and thickness, the strap's radius and the mass are authored.
  *
  * @param cannon The radius of the cannon the cuffs close round, metres.
  * @param params The strap's length and the model's id.
@@ -44,7 +48,7 @@ const MASS: number = 0.3;
 export function createHobble(
   cannon: number,
   params: createHobble.IParams,
-): Archetype<never, never> {
+): AutoMovieArchetype<never, never> {
   if (
     !(Number.isFinite(cannon) && cannon > 0) ||
     !(Number.isFinite(params.strap) && params.strap > 0)
@@ -52,18 +56,15 @@ export function createHobble(
     throw new RangeError(
       "A hobble closes round a cannon of positive radius with a strap of positive length",
     );
-  const draw: ArchetypeDrawSession<never> = new ArchetypeDrawSession<never>(
-    "hobble",
-    {},
-    undefined,
-    {},
-  );
-  const builder: ArchetypeBuilder<never, never> = new ArchetypeBuilder({
-    material: "leather",
-    id: params.id,
-    name: "hobble",
-    draw,
-  });
+  const draw: AutoMovieArchetypeDrawSession<never> =
+    new AutoMovieArchetypeDrawSession<never>("hobble", {}, undefined, {});
+  const builder: AutoMovieArchetypeBuilder<never, never> =
+    new AutoMovieArchetypeBuilder({
+      material: "leather",
+      id: params.id,
+      name: "hobble",
+      draw,
+    });
   const ring: number = cannon + CUFF.thickness;
   if (!(params.strap > 2 * ring))
     throw new RangeError(

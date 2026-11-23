@@ -43,12 +43,12 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceMeeting } from "./HumanPerformanceMeeting";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
-import { HumanPerformanceParams } from "./HumanPerformanceParams";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
+import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 
 /**
@@ -99,9 +99,6 @@ export namespace HumanPerformancePlace {
     const given: object =
       (intent.parameters?.params as object | undefined) ?? {};
 
-    // An action's or a row's parameters are read against its schema first,
-    // so a missing or a wrong value is refused at its entry.
-    HumanPerformanceParams.check(name, given);
     const params: object = law.resolve?.(given) ?? given;
 
     // The parameter through which this action named an id, so a refusal of a
@@ -211,9 +208,28 @@ export namespace HumanPerformancePlace {
         ? last
         : undefined;
     if (!trial) self.trial = undefined;
+
+    // Nothing is placed while the entry state is read, as while a plan is
+    // made, so its reads share the placed people's displayed poses by second
+    // (`HumanSegment.planning`): a pose its samples, anchors or a held prop's
+    // hand read again is read once, as an animation graph evaluates a pose
+    // once per update and lets every reader share it (Unreal Engine
+    // `FAnimNode_SaveCachedPose`).
+    // An overlay entering where the act before it in its chain ends reads
+    // that act's end, which hands its channels on (`HumanSegmentOverlay.handing`).
+    const read: () => ReturnType<typeof HumanSegment.entry> = (): ReturnType<
+      typeof HumanSegment.entry
+    > =>
+      HumanSegment.planning(
+        self.people.values(),
+        (): ReturnType<typeof HumanSegment.entry> =>
+          HumanSegment.entry(person, previous, start, blend),
+      );
     const entry: ReturnType<typeof HumanSegment.entry> =
       kept === undefined
-        ? HumanSegment.entry(person, previous, start, blend)
+        ? over
+          ? HumanSegmentOverlay.handing(start, read)
+          : read()
         : kept.context.entry;
     const instance: number = [...person.segments, ...person.overlays].filter(
       (s: IAutoMovieMotionHumanSegment): boolean =>
@@ -223,15 +239,37 @@ export namespace HumanPerformancePlace {
       person.performer.body;
     // The overlays an overlay is laid on: those placed before it.
     const laid: number = person.overlays.length;
+
+    // The performer's own bones are those of the entry pose, fixed for the
+    // action: admitted once, at the first read, and every read takes fresh
+    // bones of that one reading (`poseBones.read`), as a kept displayed pose
+    // gives its readers (`HumanSegmentShown.bones`).
+    let entered: ReturnType<typeof poseBones.read> | undefined;
     const ownBones: (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ) => ReturnType<typeof poseBones> = (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): ReturnType<typeof poseBones> =>
-      poseBones(body, entry.pose, undefined, requested);
+      (entered ??= poseBones.read(body, entry.pose)).map(requested);
     let performers:
       | Map<string, IAutoMovieMotionHumanPerformerReader>
       | undefined;
+    // Each partner of this action's own parallel group
+    // (`IAutoMovieScheduleContext.meeting`) whose part still waits is read
+    // no later than the end of their placed actions, recorded as this action
+    // is placed, so a plan that reads the partner lazily afterwards reads the
+    // same pose the action was timed against: past it, at their last placed
+    // pose held. A partner placed whole before this action (a carrier the
+    // borne rides, a helper whose palm the helped grips) is read live.
+    const meetings: Map<string, number> = new Map();
+    for (const other of self.people.keys()) {
+      if (other === intent.subject || self.meeting?.(other) === undefined)
+        continue;
+      const placed: readonly IAutoMovieMotionHumanSegment[] =
+        HumanPerformanceRead.person(self, other).segments;
+      if ((self.intended.get(other)?.length ?? 0) > placed.length)
+        meetings.set(other, placed.at(-1)?.end ?? 0);
+    }
     // The arm solutions this action's plans hand each other in this
     // performance: an alignment trial's, its placement's and a tempo
     // replan's read what the plan before them wrote, under one map.
@@ -306,6 +344,7 @@ export namespace HumanPerformancePlace {
             ownBones,
             intent.subject,
           ),
+          meetings,
         ),
       forces: (
         from: number,
@@ -377,9 +416,22 @@ export namespace HumanPerformancePlace {
           ): ReturnType<typeof poseBones> =>
             subject === intent.subject
               ? ownBones(requested)
-              : HumanPerformanceRead.bones(self, subject, seconds, requested),
+              : HumanPerformanceRead.bones(
+                  self,
+                  subject,
+                  seconds,
+                  requested,
+                  axis,
+                  meetings.get(subject),
+                ),
           root: (seconds: number): IAutoMovieMotionHumanActionContext.IRoot =>
-            HumanPerformanceRead.root(self, subject, seconds, axis),
+            HumanPerformanceRead.root(
+              self,
+              subject,
+              seconds,
+              axis,
+              meetings.get(subject),
+            ),
           posture: (seconds: number): IAutoMovieMotionHumanPosture =>
             HumanPerformanceRead.posture(
               self,
@@ -387,6 +439,7 @@ export namespace HumanPerformancePlace {
               seconds,
               undefined,
               axis,
+              meetings.get(subject),
             ),
         };
         (performers ??= new Map()).set(subject, reader);
@@ -438,6 +491,10 @@ export namespace HumanPerformancePlace {
           ):
             | Pick<IAutoMovieMotionHumanProp.IMounted, "prop" | "point">
             | undefined => HumanPerformanceHold.mount(self, subject, seconds),
+          holderAt: (
+            seconds: number,
+          ): IAutoMovieMotionHumanPropReader.IHolder | undefined =>
+            HumanPerformanceHold.holder(self, subject, seconds),
           state: (seconds: number): Readonly<Record<string, number>> =>
             HumanPerformanceObject.state(self, prop, seconds),
         };
@@ -450,7 +507,12 @@ export namespace HumanPerformancePlace {
         start,
       ),
       action: (anchor: string): IAutoMovieMotionHumanPlacedAction => {
-        const placed = self.anchors.get(anchor);
+        // An anchored action a later part of an open group holds is placed
+        // first (`IAutoMovieScheduleContext.demandAnchor`), as a read of a
+        // person is.
+        let placed = self.anchors.get(anchor);
+        if (placed === undefined && self.demandAnchor?.(anchor) === "placed")
+          placed = self.anchors.get(anchor);
         if (placed === undefined)
           throw new HumanRefusal({
             kind: "participant",
@@ -480,12 +542,18 @@ export namespace HumanPerformancePlace {
     // to its carrier.
     const context: IAutoMovieMotionHumanActionContext<never> =
       kept?.context ?? drafted;
-    if (!over && kept === undefined)
+    if (!over && kept === undefined) {
       context.demands = HumanPerformanceAhead.reader(
         self,
         context,
         person.segments.length,
       );
+      // How the composition cuts this action into the next one, and what
+      // that one plants (`HumanPerformanceAhead.cut`).
+      const cut: IAutoMovieMotionHumanActionContext.ICut | undefined =
+        HumanPerformanceAhead.cut(self, intent, person.segments.length);
+      if (cut !== undefined) context.cut = cut;
+    }
     // A plan too fast for the speed bound is replanned slower by its own
     // refusal's factor (`HumanPerformanceTempo`).
     let plan: IAutoMovieMotionHumanActionPlan =

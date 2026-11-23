@@ -100,7 +100,7 @@ export namespace relayPass {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanRelayPass.IParams = context.params;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const side: AutoMovieHumanSide = p.side ?? "right";
+    const side: AutoMovieHumanSide = p.hand ?? "right";
     const sign: number = side === "left" ? 1 : -1;
     const at: number = p.at - context.start;
     HumanBound.least("at", at, REACH, "s");

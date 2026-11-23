@@ -3,11 +3,6 @@ import type { IAutoMovieBuiltPlacementBodyLocator } from "./IAutoMovieBuiltPlace
 
 /**
  * Building and body identity used to query one static world-space placement bound.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Building and body identity used to query one static world-space placement bound. The shared locator discriminates element and population identities; boxes are in world metres and missing or transform-only bodies resolve to null.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The environment is borrowed and must supply admitted geometry; CPU bounds exclude skinning and external loaded geometry, and along-route population bounds throw.
- * @evidence contracts/development/design.md#principled-representation The shared locator discriminates element and population identities; boxes are in world metres and missing or transform-only bodies resolve to null.
- * @evidence contracts/development/design.md#minimal-and-owned-surface builtEnvironmentPlacementBounds and the support-status query use the same environment and locator contracts as the placement resolver.
  */
 export namespace IAutoMovieBuiltEnvironmentPlacementBounds {
   /**
@@ -20,11 +15,6 @@ export namespace IAutoMovieBuiltEnvironmentPlacementBounds {
    * The point basis is selected by equal box corners and can also describe genuine degenerate geometry; it does not independently prove that the model's vertices were absent.
    *
    * These are CPU boxes of finite stated or tessellated vertices under element-world and part-local TRS. Attached-bone transforms, skinning, animation, loaded external geometry and GPU Float32 evaluation are outside this measurement; enclosure of a rendered frame requires those extra effects to be absent or separately bounded.
-   *
-   * @evidence contracts/development/design.md#principled-representation The shared locator discriminates element and population identities; boxes are in world metres and missing or transform-only bodies resolve to null.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface builtEnvironmentPlacementBounds and the support-status query use the same environment and locator contracts as the placement resolver.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The environment is borrowed and must supply admitted geometry; CPU bounds exclude skinning and external loaded geometry, and along-route population bounds throw.
-   * @evidence contracts/development/common.md#meaningful-documentation Building and body identity used to query one static world-space placement bound. The shared locator discriminates element and population identities; boxes are in world metres and missing or transform-only bodies resolve to null.
    */
   export type IProps = {
     /** Borrowed building declarations and parent transforms used to resolve CPU world-metre bounds. */

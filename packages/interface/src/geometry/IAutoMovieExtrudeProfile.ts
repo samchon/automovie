@@ -2,11 +2,6 @@ import type { IAutoMovieProfilePoint } from "./IAutoMovieProfilePoint";
 
 /**
  * Data and callback contracts shared by the ExtrudeProfile operations.
- *
- * @evidence contracts/development/common.md#meaningful-documentation A local XY metre profile and positive metre depth describe a convex prism centred on Z. The structural arrays permit concave, repeated and collinear points; the engine rejects them rather than silently changing the profile.
- * @evidence contracts/development/design.md#principled-representation A local XY metre profile and positive metre depth describe a convex prism centred on Z.
- * @evidence contracts/development/design.md#minimal-and-owned-surface extrudeAutoMovieProfile owns hull admission and mesh creation from this input.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The structural arrays permit concave, repeated and collinear points; the engine rejects them rather than silently changing the profile.
  */
 export namespace IAutoMovieExtrudeProfile {
   /**
@@ -25,11 +20,6 @@ export namespace IAutoMovieExtrudeProfile {
    * U could be both zero and the perimeter. `extrudeAutoMovieRegion` takes the
    * same kind of profile, keeps concave outlines and holes, and lays a metric
    * atlas over the result; use it whenever the prism carries a finish.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation A local XY metre profile and positive metre depth describe a convex prism centred on Z. The structural arrays permit concave, repeated and collinear points; the engine rejects them rather than silently changing the profile.
-   * @evidence contracts/development/design.md#principled-representation A local XY metre profile and positive metre depth describe a convex prism centred on Z.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface extrudeAutoMovieProfile owns hull admission and mesh creation from this input.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The structural arrays permit concave, repeated and collinear points; the engine rejects them rather than silently changing the profile.
    */
   export type IProps = {
     /** Strictly convex outline in local XY metres. */

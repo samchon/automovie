@@ -69,7 +69,7 @@ const ORIGIN: IAutoMovieRigidTransform = {
  * @evidence contracts/development/design.md#minimal-and-owned-surface One seated motion using the shared seat geometry and palm placement. The scene owns ball mechanics.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts A floor seat is required and its socket is preserved through the shift. The specified hand keeps its contact point while the pelvis moves.
  */
-export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSittingVolley> =
+export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSittingVolley.ISittingVolley> =
   {
     name: "sittingVolley",
     interrupts: {
@@ -77,11 +77,11 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     },
     yields: ["head"],
     plan: (
-      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSittingVolley>,
+      context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSittingVolley.ISittingVolley>,
     ): IAutoMovieMotionHumanActionPlan => {
       const { body, entry, params }: typeof context = context;
-      const { hand, lateral, seconds, target }: typeof params = params;
-      HumanBound.above("seconds", seconds, 0, "s");
+      const { hand, lateral, duration: seconds, target }: typeof params = params;
+      HumanBound.above("duration", seconds, 0, "s");
       HumanBound.within(
         "lateral",
         lateral,

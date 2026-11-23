@@ -50,7 +50,7 @@ export namespace WorkoutHanging {
       { part: "rightHand", kind: "grip", prop: true },
     ],
     enter: 1,
-    reps,
+    count: reps,
     route,
   });
 

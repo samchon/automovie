@@ -87,7 +87,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   figures.forEach(
     (figure: IAutoMovieMotionHumanTrick.IFigure, i: number): void => {
       HumanBound.above(`figures.${i}.transfer`, figure.transfer, 0, "s");
-      HumanBound.least(`figures.${i}.seconds`, figure.seconds, 0, "s");
+      HumanBound.least(`figures.${i}.seconds`, figure.hold, 0, "s");
       if (figure.kind === "pickup" && figure.object === undefined)
         throw new HumanRefusal({
           kind: "parameter",
@@ -120,7 +120,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   let clock: number = 0;
   for (const figure of figures) {
     starts.push(clock);
-    clock += figure.transfer + figure.seconds;
+    clock += figure.transfer + figure.hold;
   }
   const duration: number = clock;
   const at = (t: number): { index: number; share: number } => {
@@ -285,7 +285,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     });
   const p: number = pickups[0]!;
   const ready: number = starts[p]! + figures[p]!.transfer;
-  const relax: number = ready + figures[p]!.seconds;
+  const relax: number = ready + figures[p]!.hold;
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: starts[p]!,
     ready,

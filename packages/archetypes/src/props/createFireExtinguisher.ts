@@ -1,10 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
 } from "../core";
 
 /**
@@ -49,15 +49,15 @@ const SIZE: Readonly<createFireExtinguisher.ISize> = {
  */
 export function createFireExtinguisher(
   params: createFireExtinguisher.IParams = {},
-): Archetype<
+): AutoMovieArchetype<
   createFireExtinguisher.Affordance,
   createFireExtinguisher.Dimension
 > {
   const v: typeof Vector3.create = Vector3.create;
   const r: number = SIZE.diameter / 2;
   const body: number = SIZE.height - 0.08;
-  const draw: ArchetypeDrawSession<createFireExtinguisher.Dimension> =
-    new ArchetypeDrawSession(
+  const draw: AutoMovieArchetypeDrawSession<createFireExtinguisher.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "fireExtinguisher",
       { height: "m", diameter: "m", mass: "kg" },
       undefined,
@@ -65,10 +65,10 @@ export function createFireExtinguisher(
   draw.derive("height", SIZE.height);
   draw.derive("diameter", SIZE.diameter);
   draw.derive("mass", SIZE.mass);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createFireExtinguisher.Affordance,
     createFireExtinguisher.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id ?? "extinguisher",
     name: "fire extinguisher",
     material: "steel",
@@ -112,7 +112,7 @@ export function createFireExtinguisher(
     id: "handle",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, body + 0.039, (back + end) / 2),
       v(0, -1, 0),
       v(0, 0, -1),
@@ -128,7 +128,7 @@ export function createFireExtinguisher(
     extent: null,
     travel: SIZE.lever,
     parts: ["lever"],
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, body + 0.07, 0.015),
       v(1, 0, 0),
       v(0, 0, -1),
@@ -138,7 +138,7 @@ export function createFireExtinguisher(
     id: "leverTip",
     kind: "button",
     rides: "lever",
-    frame: ArchetypeFrame.upright(v(0, body + 0.075, -0.08)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, body + 0.075, -0.08)),
     extent: null,
   });
   builder.affordance({
@@ -147,7 +147,7 @@ export function createFireExtinguisher(
     extent: null,
     travel: SIZE.pin,
     parts: ["pin"],
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0.02, body + 0.055, 0.01),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -158,7 +158,7 @@ export function createFireExtinguisher(
     kind: "handle",
     symmetry: "round",
     rides: "pin",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0.035, body + 0.055, 0.01),
       v(0, 1, 0),
       v(1, 0, 0),
@@ -171,7 +171,7 @@ export function createFireExtinguisher(
   builder.affordance({
     id: "nozzle",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, body + 0.03, 0.09),
       v(0, 0, 1),
       v(1, 0, 0),

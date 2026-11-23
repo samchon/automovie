@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { WornPropDraw } from "./WornPropDraw";
 
 /**
@@ -9,7 +9,7 @@ import { WornPropDraw } from "./WornPropDraw";
  * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Wristwatch resting dial up with a straight band.
  * @evidence contracts/development/implementation.md#principled-implementation The hold is on the case, the dial on top, and the wrist socket faces down below the band.
@@ -25,7 +25,7 @@ export function createWatch(
     "id" | "width" | "depth" | "height" | "mass"
   > = {},
   seed?: number | string,
-): Archetype<createWatch.Affordance, createWatch.Dimension> {
+): AutoMovieArchetype<createWatch.Affordance, createWatch.Dimension> {
   const {
     builder,
     d,
@@ -51,7 +51,7 @@ export function createWatch(
     id: "hold",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, thin + d.height / 2, 0),
       v(1, 0, 0),
       v(0, 0, 1),
@@ -64,7 +64,7 @@ export function createWatch(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.upright(v(0, thin + d.height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, thin + d.height, 0)),
     extent: null,
     width: d.width,
     depth: d.width,
@@ -72,7 +72,7 @@ export function createWatch(
   builder.affordance({
     id: "wear",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(0, 0, 1)),
     extent: null,
   });
   return builder.build(d.mass);
@@ -83,7 +83,7 @@ export function createWatch(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createWatch {

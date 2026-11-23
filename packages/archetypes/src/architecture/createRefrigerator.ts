@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { APPLIANCE_BANDS } from "./APPLIANCE_BANDS";
 import { ApplianceConstruction } from "./ApplianceConstruction";
 import { FixtureDraw } from "./FixtureDraw";
@@ -13,7 +13,7 @@ import type { createAppliance } from "./createAppliance";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The hollow cabinet and four shelves remain in `ApplianceConstruction.refrigerator`; each door carries its handle.
@@ -26,7 +26,10 @@ import type { createAppliance } from "./createAppliance";
 export function createRefrigerator(
   params: createRefrigerator.IParams = {},
   seed?: number | string,
-): Archetype<createRefrigerator.Affordance, createRefrigerator.Dimension> {
+): AutoMovieArchetype<
+  createRefrigerator.Affordance,
+  createRefrigerator.Dimension
+> {
   return FixtureDraw.installed<
     createRefrigerator.Affordance,
     createAppliance.Dimension

@@ -16,11 +16,16 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * Scaling time by a factor keeps a path and divides every speed on it by
  * the factor (Hollerbach 1984, "Dynamic scaling of manipulator
  * trajectories", J Dyn Syst Meas Control 106:102), so where the slower
- * action leaves its path as it was, one replan meets the bound. Where the
- * slower base the action is written on moves the path, the action is
- * replanned again only while the factor still needed falls by more than
- * its roundoff, and refused with both factors once it does not, so the
- * replans end after a number bounded by the first factor. The slower time reaches the plan
+ * action leaves its path as it was, one replan meets the bound. A plan
+ * stops at the first arm group that refuses, so a replan that meets one
+ * group's need may reveal another's, which is stepped to once in turn.
+ * Where the slower base the action is written on moves a path once (its
+ * held spans keep their seconds while its moving spans slow), the same
+ * group names the rest of its need on that replan, and the second replan
+ * takes the secant through its two refusals, exact where the span grows
+ * affinely with the time scale; a group still refusing
+ * after `REPLANS` replans has the action refused with the whole time it
+ * needs, never an iteration toward the bound. The slower time reaches the plan
  * through the action's time scale (`IHumanActionContext.tempo`), which the
  * manner owner applies to every span physics does not fix
  * (`AutoMovieMotionManner.of`).
@@ -32,14 +37,21 @@ export namespace HumanPerformanceTempo {
    * @param law The action's law.
    * @param context The action's context; its time scale is raised while the action is replanned.
    * @returns The plan.
-   * @throws {HumanRefusal} Whatever the law refuses with on any other ground, and a `duration` refusal naming both factors when a replan needs no less time than the one before.
+   * @throws {HumanRefusal} Whatever the law refuses with on any other ground, and a `duration` refusal whose value is the whole time the action needs over the time it was first planned at, when the same refusing group (or the same refusal outside any group) still refuses after its `REPLANS` replans.
    */
   export function plan<P>(
     law: Pick<IAutoMovieMotionHumanActionLaw<P>, "plan"> & HumanPhysics.ILaw,
     context: IAutoMovieMotionHumanActionContext<P>,
   ): IAutoMovieMotionHumanActionPlan {
-    let needed: number | undefined;
+    // How many replans each refusing source has had: an arm group of the
+    // plan by its handover key, any other refusal under no key.
+    const needed: Map<string | undefined, number> = new Map();
+    // Each refusing source's last refusal: the time scale it was planned at
+    // and the span it had there.
+    const sampled: Map<string | undefined, ISample> = new Map();
+    const first: number = context.tempo ?? 1;
     for (;;) {
+      const refusal: AutoMovieMotionHumanArmPlanned.IRefusal = {};
       try {
         // The plan's arm groups read the last plan's solutions and write
         // their own (`AutoMovieMotionHumanArmPlanned.within`), so a replan at
@@ -51,25 +63,54 @@ export namespace HumanPerformanceTempo {
             HumanPhysics.admitted(context.params, law, planned);
             return planned;
           },
+          refusal,
         );
       } catch (error: unknown) {
         const factor: number | undefined = slower(error);
         if (factor === undefined) throw error;
-        // A factor that no longer falls by more than the roundoff of the
-        // ratio it is read as is not progress, so the replans stop: each
-        // one that goes on shrinks the factor by at least that share, so at
-        // most ln(f0) / -ln(1 - ROUNDOFF) of them run from a first factor f0.
-        if (needed !== undefined && !(factor < needed * (1 - ROUNDOFF)))
+        const tempo: number = context.tempo ?? 1;
+
+        // Time scaling is exact on a path that stays (Hollerbach 1984): the
+        // factor a source names is the replan it needs. Where the base the
+        // arms are written on moves with the action's time (a body lowering
+        // under hands laid on its thighs) while its held spans keep their
+        // seconds, the slower base moves the path once, and the source names
+        // the rest of its need on that replan; past `REPLANS` the action is
+        // refused with the time it needs, never iterated toward the bound.
+        // The plan stops at the first group that refuses, so a replan that
+        // meets that group's need can reveal another group's, stepped to in
+        // turn.
+        const source: string | undefined =
+          refusal.error === error ? refusal.group : undefined;
+        if ((needed.get(source) ?? 0) >= REPLANS) {
+          // The time the action needs over the time it was first planned
+          // at: what the author is told to give it.
+          const total: number = (tempo / first) * factor;
           throw new HumanRefusal({
             kind: "reach",
             axis: "duration",
-            value: factor,
+            value: total,
             feasible: null,
-            reason: `replanned at ${needed.toFixed(3)} times its time, the action still needs ${factor.toFixed(3)} times that for its hands to move within the speed bound`,
+            reason: `the action needs at least ${total.toFixed(3)} times its time for its hands to move within the speed bound: replanned at ${(tempo / first).toFixed(3)} times its time, it still needs ${factor.toFixed(3)} times that`,
             fix: "give the action more time",
           });
-        needed = factor;
-        context.tempo = (context.tempo ?? 1) * factor;
+        }
+        needed.set(source, (needed.get(source) ?? 0) + 1);
+        // The span a source had grows with the time scale as its moving
+        // share does and keeps its held share's seconds, an affine law of
+        // the scale; its first replan scales by the factor, and the second
+        // takes the secant through the two refusals to the span it needs,
+        // exact on that law.
+        const read: ISpan = span(error)!;
+        const last: ISample | undefined = sampled.get(source);
+        const slope: number =
+          last === undefined || tempo - last.tempo <= 0
+            ? 0
+            : (read.had - last.had) / (tempo - last.tempo);
+        const secant: number =
+          slope > 0 ? tempo + (read.needs - read.had) / slope : 0;
+        sampled.set(source, { tempo, had: read.had });
+        context.tempo = Math.max(secant, tempo * factor);
       }
     }
   }
@@ -83,26 +124,51 @@ export namespace HumanPerformanceTempo {
    * @returns The factor, greater than 1; undefined when the refusal asks no more time.
    */
   export function slower(error: unknown): number | undefined {
-    if (
-      !(error instanceof HumanRefusal) ||
-      error.kind !== "reach" ||
-      error.axis !== "duration" ||
-      error.feasible === null ||
-      error.feasible.kind !== "range" ||
-      error.feasible.unit !== "s" ||
-      error.feasible.minimum === null ||
-      typeof error.value !== "number" ||
-      !(error.value > 0)
-    )
-      return undefined;
-    const factor: number = error.feasible.minimum / error.value;
+    const read: ISpan | undefined = span(error);
+    if (read === undefined) return undefined;
+    const factor: number = read.needs / read.had;
     return factor > 1 ? factor : undefined;
   }
 }
 
+/** The span a speed refusal had and the span it needs, seconds; none for any other refusal. */
+function span(error: unknown): ISpan | undefined {
+  if (
+    !(error instanceof HumanRefusal) ||
+    error.kind !== "reach" ||
+    error.axis !== "duration" ||
+    error.feasible === null ||
+    error.feasible.kind !== "range" ||
+    error.feasible.unit !== "s" ||
+    error.feasible.minimum === null ||
+    typeof error.value !== "number" ||
+    !(error.value > 0)
+  )
+    return undefined;
+  return { had: error.value, needs: error.feasible.minimum };
+}
+
+/** A speed refusal's span: what it had and what it needs, seconds. */
+interface ISpan {
+  /** The span the motion had. */
+  had: number;
+
+  /** The span it needs within the speed bound. */
+  needs: number;
+}
+
+/** One refusing source's last refusal: the time scale and the span it had there. */
+interface ISample {
+  /** The action's time scale. */
+  tempo: number;
+
+  /** The span the source had, seconds. */
+  had: number;
+}
+
 /**
- * The relative roundoff of a factor read as the quotient of two spans:
- * each span carries half an ulp, and the quotient one more, so three
- * machine epsilons bound it with one to spare.
+ * The replans one refusing source may have: the time-scaling step, and the
+ * secant step a base whose moving spans slow while its held spans keep their
+ * seconds needs after it.
  */
-const ROUNDOFF: number = 4 * Number.EPSILON;
+const REPLANS: number = 2;

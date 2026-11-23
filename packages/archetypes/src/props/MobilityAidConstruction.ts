@@ -1,11 +1,11 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { createMobilityAid } from "./createMobilityAid";
 
@@ -17,10 +17,8 @@ const NAMES: Readonly<Record<createMobilityAid.Kind, string>> = {
 };
 
 /** The model-space construction for the selected contact IDs. */
-type Builder<Id extends createMobilityAid.Affordance> = ArchetypeBuilder<
-  Id,
-  createMobilityAid.Dimension
->;
+type Builder<Id extends createMobilityAid.Affordance> =
+  AutoMovieArchetypeBuilder<Id, createMobilityAid.Dimension>;
 
 /** Model dimensions in the legacy family's recorded units. */
 type Dimensions = Partial<Record<createMobilityAid.Dimension, number>>;
@@ -46,8 +44,8 @@ function draw<Id extends createMobilityAid.Affordance>(
   params: Omit<createMobilityAid.IParams, "kind">,
   seed?: number | string,
 ): IDrawn<Id> {
-  const session: ArchetypeDrawSession<createMobilityAid.Dimension> =
-    new ArchetypeDrawSession<createMobilityAid.Dimension>(
+  const session: AutoMovieArchetypeDrawSession<createMobilityAid.Dimension> =
+    new AutoMovieArchetypeDrawSession<createMobilityAid.Dimension>(
       "mobilityAid",
       createMobilityAid.UNITS,
       seed,
@@ -63,7 +61,7 @@ function draw<Id extends createMobilityAid.Affordance>(
     createMobilityAid.MODELS[kind],
   );
   // The model's own range bands its height, so the author's height is checked in it.
-  const range: IArchetypeBand | undefined =
+  const range: IAutoMovieArchetypeBand | undefined =
     model.name === undefined
       ? undefined
       : createMobilityAid.HANDLE_HEIGHTS[model.name];
@@ -76,7 +74,7 @@ function draw<Id extends createMobilityAid.Affordance>(
     ),
     ...model.figures,
   };
-  const builder: Builder<Id> = new ArchetypeBuilder({
+  const builder: Builder<Id> = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: NAMES[kind],
@@ -92,45 +90,27 @@ function tip(builder: {
   builder.affordance({
     id: "tip",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, 0, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });
 }
 
 /**
  * Shared sizing and individual constructions for floor-supported props held beside a person.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Shared sizing and individual constructions for floor-supported props held beside a person.
- * @evidence contracts/development/design.md#principled-representation Each construction applies the selected variant's coordinate frame and dimensions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Used by the named producers and the legacy selector.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No shape dispatch is shared between unrelated mechanisms.
  */
 export namespace MobilityAidConstruction {
   /**
    * The contact ids {@link cane} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of cane.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only cane and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type CaneContact = "grip" | "tip";
 
   /**
    * Build an offset cane with a floor tip and a handle across its shaft.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build an offset cane with a floor tip and a handle across its shaft.
-   * @evidence contracts/development/implementation.md#principled-implementation Fit the shaft and horizontal rod from the admitted metres. The grip closes around the rod's diameter.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the offset-handle construction estimate and its original grip frame.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two rods and two contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function cane(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<CaneContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<CaneContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<CaneContact>> =
       draw<CaneContact>("cane", params, seed);
     const height: number = d.height!;
@@ -144,7 +124,7 @@ export namespace MobilityAidConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, height - r, (handle - r) / 2),
         v(0, 1, 0),
         v(0, 0, 1),
@@ -161,29 +141,16 @@ export namespace MobilityAidConstruction {
 
   /**
    * The contact ids {@link walker} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of walker.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only walker and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type WalkerContact = "leftGrip" | "rightGrip" | "tip";
 
   /**
    * Build a walking frame with paired side rail grips and a central floor tip.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a walking frame with paired side rail grips and a central floor tip.
-   * @evidence contracts/development/implementation.md#principled-implementation Fit the four legs and three rails from the manufacturer's admitted dimensions. Grip sites lie on the side rail axes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the existing adult or junior measured options and shaft-diameter estimate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Seven rods and three contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function walker(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<WalkerContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<WalkerContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<WalkerContact>> =
       draw<WalkerContact>("walker", params, seed);
     const height: number = d.height!;
@@ -213,7 +180,11 @@ export namespace MobilityAidConstruction {
         id,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(v(sx * x, top, 0), v(0, 1, 0), v(0, 0, 1)),
+        frame: AutoMovieArchetypeFrame.facing(
+          v(sx * x, top, 0),
+          v(0, 1, 0),
+          v(0, 0, 1),
+        ),
         extent: null,
         grip: "power",
         aperture: 2 * r,
@@ -227,29 +198,16 @@ export namespace MobilityAidConstruction {
 
   /**
    * The contact ids {@link infusionStand} builds or reads.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids in the signature of infusionStand.
-   * @evidence contracts/development/design.md#principled-representation A closed union of the literal contact ids the construction builds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only infusionStand and the named producers that call it read this union.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts It names no contact the construction does not build.
    */
   export type InfusionStandContact = "grip" | "tip" | "hook";
 
   /**
    * Build a wheeled stand with a shaft grip, floor tip and bag hook.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Build a wheeled stand with a shaft grip, floor tip and bag hook.
-   * @evidence contracts/development/implementation.md#principled-implementation Lay out five caster legs and the telescoping tubes. Distribute the measured base mass over the legs and casters by volume.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the saved dimensions and build the parts before returning the contacts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original measured widths, radii, mass and local tube or hook contacts.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Twelve solids and three contacts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The named producer and the historical selector share this construction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Each call hands its model data to the caller and acquires no external resource.
    */
   export function infusionStand(
     params: Omit<createMobilityAid.IParams, "kind">,
     seed?: number | string,
-  ): Archetype<InfusionStandContact, createMobilityAid.Dimension> {
+  ): AutoMovieArchetype<InfusionStandContact, createMobilityAid.Dimension> {
     const { builder, d }: ReturnType<typeof draw<InfusionStandContact>> =
       draw<InfusionStandContact>("infusionStand", params, seed);
     const height: number = d.height!;
@@ -297,7 +255,7 @@ export namespace MobilityAidConstruction {
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(0, (hub + outer) / 2, 0),
         v(0, 0, -1),
         v(0, 1, 0),
@@ -310,7 +268,7 @@ export namespace MobilityAidConstruction {
     builder.affordance({
       id: "hook",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, height, 0)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, height, 0)),
       extent: null,
     });
 

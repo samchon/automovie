@@ -1,5 +1,7 @@
 import type {
   AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
@@ -9,11 +11,13 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
+  IAutoMoviePose,
 } from "@automovie/interface";
 
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
+import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHumanAction";
 
@@ -58,8 +62,8 @@ import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHuman
  * @evidence contracts/development/implementation.md#principled-implementation A moving effector goal is a trajectory problem solved once with branch continuity and clearance (the planner's), never a fresh inverse kinematics solve per sample.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The plan less its arm goal is the composer's base; the planned carry is its one primitive; the composed posture replaces the plan's.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is the plan's own at each instant; no goal, bound or timing is invented, and the planner's refusal stands.
- * @evidence contracts/development/implementation.md#efficient-algorithms One course per plan, solved when composed; at each second the plan's posture is evaluated once and shared by the base and the goal.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The last evaluated posture is reused while the second and the borrowed readers are the same.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One course per plan, solved when composed; at each second the plan's posture is evaluated once and shared by the base and the goal. Once laid, a second where every arm in its window is on its course asks the law for every channel but those arms, whose goals no reader takes there, so a law that honours the demand skips them.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The last evaluated posture is reused while the second, the borrowed readers and the demanded channels are the same; each set of skipped arms keeps one channel list, so the reads of a second share it.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the plan, the course, one posture and the arm's ending angles, released with the plan.
  */
 export function courseArmGoal(
@@ -68,31 +72,93 @@ export function courseArmGoal(
   const { plan }: courseArmGoal.IProps = props;
   const arms: readonly courseArmGoal.IArm[] = [props, ...(props.with ?? [])];
   // Arms coursed together are one trajectory problem: one group, solved
-  // when the first of them is prepared.
+  // when the first of them is prepared, each arm on its own hold.
   const group: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
     props.together ??
     (arms.length > 1 ? AutoMovieMotionHumanArm.together() : undefined);
+  const beside: IAutoMovieMotionHumanArmPlanned.ITogether | undefined =
+    props.beside;
   let last: courseArmGoal.IRead | undefined;
   const kept: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]> =
     new Map();
+  // Each arm's return target, read once before the composition is laid.
+  const returned: Map<
+    courseArmGoal.Limb,
+    IAutoMovieMotionHumanPosture["joints"]
+  > = new Map();
   const read = (
     seconds: number,
     resolution?: courseArmGoal.Resolution,
     projection?: courseArmGoal.Projection,
+    channels?: readonly AutoMovieMotionHumanChannel[],
   ): IAutoMovieMotionHumanPosture => {
     if (
       last === undefined ||
       last.seconds !== seconds ||
       last.resolution !== resolution ||
-      last.projection !== projection
+      last.projection !== projection ||
+      last.channels !== channels
     )
       last = {
         seconds,
         resolution,
         projection,
-        posture: plan.posture(seconds, undefined, resolution, projection),
+        channels,
+        posture: plan.posture(seconds, channels, resolution, projection),
       };
     return last.posture;
+  };
+
+  // Whether the course is laid: the composition below prepares it, and its
+  // planner reads each arm's goal at the seconds it reads the base at, so
+  // until then the base reads the whole posture, shared with the goal.
+  let laid: boolean = false;
+
+  // Once laid, an arm on its course (`AutoMovieMotionHumanArmCarry.carried`
+  // writes the planned trajectory there, not tracking a live goal) reads no
+  // goal, and the base deletes it: the base asks the law for every channel
+  // but those arms, so a law that honours the demand skips their goals
+  // (`IAutoMovieMotionHumanActionPlan.posture`'s `channels`): demand-driven
+  // evaluation of only the required parts, as an engine's animation graph
+  // evaluates only its required bones (Unreal Engine `FBoneContainer`). One
+  // list per set of such arms, so the reads of a second share one posture.
+  const demands: Map<string, readonly AutoMovieMotionHumanChannel[]> =
+    new Map();
+  const demand = (
+    seconds: number,
+  ): readonly AutoMovieMotionHumanChannel[] | undefined => {
+    if (!laid) return undefined;
+    const unread: courseArmGoal.Limb[] = [];
+    for (const arm of arms) {
+      const span: IAutoMovieMotionHumanArmPlanned.ISpan =
+        arm.span ?? props.span;
+      if (
+        arm.tracked !== true &&
+        seconds > span.start &&
+        (seconds <= span.end || props.after === "angles")
+      )
+        unread.push(`${arm.side}Arm`);
+      // An arm whose carry writes this second off its course reads its goal
+      // (`AutoMovieMotionHumanArmCarry.carried`): the whole posture is read
+      // once for both, as before.
+      else if (
+        seconds >= span.start - 1e-9 &&
+        seconds <= span.end + 1e-9
+      )
+        return undefined;
+    }
+    if (unread.length === 0) return undefined;
+    const key: string = unread.join();
+    let found: readonly AutoMovieMotionHumanChannel[] | undefined =
+      demands.get(key);
+    if (found === undefined) {
+      found = HumanChannels.ORDER.filter(
+        (channel: AutoMovieMotionHumanChannel): boolean =>
+          !unread.some((limb: courseArmGoal.Limb): boolean => limb === channel),
+      );
+      demands.set(key, found);
+    }
+    return found;
   };
   const base: IAutoMovieMotionHumanActionPlan = {
     ...plan,
@@ -105,10 +171,12 @@ export function courseArmGoal(
       // A law whose goal reads another performer gives its posture without
       // the coursed goals (`base`), so laying the course never evaluates the
       // live goal, and the other performer is read only as `perceived` says.
+      const channels: readonly AutoMovieMotionHumanChannel[] | undefined =
+        demand(seconds);
       const posture: IAutoMovieMotionHumanPosture =
         props.base === undefined
-          ? read(seconds, resolution, projection)
-          : props.base.posture(seconds, undefined, resolution, projection);
+          ? read(seconds, resolution, projection, channels)
+          : props.base.posture(seconds, channels, resolution, projection);
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
         ...posture.limbs,
       };
@@ -121,24 +189,51 @@ export function courseArmGoal(
         // course that starts after the action does takes over from the arm
         // the plan shows, never from a frozen rest.
         if (seconds < span.start) continue;
-        // After its course the arm is the plan's own again, its goal fitted on
-        // the body as it moves on, unless the law asks the arm to keep the
-        // angles its course ended with (`after: "angles"`).
-        if (seconds > span.end && props.after !== "angles") continue;
-        delete limbs[limb];
-        if (seconds <= span.end) continue;
+        if (seconds <= span.end) {
+          delete limbs[limb];
+          continue;
+        }
 
         // After its course the arm keeps the angles the course ended with,
-        // carried by the body as it moves on.
+        // carried by the body as it moves on (`after: "angles"`), or is the
+        // plan's own again, its goal fitted on the body as it moves on from
+        // the arm the course ended on: the posture's arm joints carry that
+        // arm, so the fit and the display's course of the goal both continue
+        // its swivel and branch (Tolani, Goswami and Badler 2000: the
+        // feasible swivel nearest the previous solution), never another
+        // elbow side for the same goal at the seam.
+        if (props.after === "angles") delete limbs[limb];
         let angles: IAutoMovieMotionHumanPosture["joints"] | undefined =
-          kept.get(limb);
+          laid ? kept.get(limb) : returned.get(limb);
         if (angles === undefined) {
-          const ended: IAutoMovieMotionHumanPosture["joints"] =
-            composed.posture(span.end).joints;
+          // Until the composition is laid, another arm of the group whose
+          // span runs on is planned on this base past this arm's end, before
+          // the composition exists: the arm then stands where its course
+          // returns it, the plan's own arm at the span's end (its `back`),
+          // resolved once.
           angles = {};
-          for (const bone of courseArmGoal.bones(arm.side))
-            if (ended[bone] !== undefined) angles[bone] = ended[bone];
-          kept.set(limb, angles);
+          if (laid) {
+            const ended: IAutoMovieMotionHumanPosture["joints"] =
+              composed.posture(span.end).joints;
+            for (const bone of courseArmGoal.bones(arm.side))
+              if (ended[bone] !== undefined) angles[bone] = ended[bone];
+            kept.set(limb, angles);
+          } else {
+            const back: IAutoMoviePose = resolveHumanPosture(
+              props.body,
+              read(span.end),
+            );
+            const chain: ReadonlySet<AutoMovieHumanoidBone> =
+              new Set<AutoMovieHumanoidBone>(courseArmGoal.bones(arm.side));
+            for (const joint of back.joints)
+              if (chain.has(joint.bone))
+                angles[joint.bone] = [
+                  joint.flexion ?? 0,
+                  joint.abduction ?? 0,
+                  joint.twist ?? 0,
+                ];
+            returned.set(limb, angles);
+          }
         }
         joints = { ...joints, ...angles };
       }
@@ -152,12 +247,15 @@ export function courseArmGoal(
         arm.span ?? props.span;
       return AutoMovieMotionHumanArm.carried({
         ...(group === undefined ? {} : { together: group }),
-        ...(props.beside === undefined ? {} : { beside: props.beside }),
+        ...(beside === undefined ? {} : { beside }),
         ...(arm.disc === undefined ? {} : { disc: arm.disc }),
         ...(arm.skinDistance === undefined
           ? {}
           : { skinDistance: arm.skinDistance }),
         ...(arm.grasp === undefined ? {} : { grasp: arm.grasp }),
+        // A hand on an implement the other hand carries rides that hand's
+        // planned site (`IAutoMovieMotionHumanArmCarry.ICarry.on`).
+        ...(arm.on === undefined ? {} : { on: arm.on }),
         ...(props.pace === undefined ? {} : { pace: props.pace }),
         ...(arm.perceived === undefined ? {} : { perceived: arm.perceived }),
         ...(arm.tracked === undefined ? {} : { tracked: arm.tracked }),
@@ -167,17 +265,20 @@ export function courseArmGoal(
         to: span.end,
         span,
         // A course that starts after its action does leaves the plan's own arm
-        // there, the arm shown before it, so the seam before the span meets it.
+        // there, the arm shown before it, so the seam before the span meets it;
+        // a caller whose plan already writes the goal at that instant gives
+        // the arm shown just before it (`shown`).
         rest:
-          span.start > 1e-9
+          span.start > 1e-9 && props.shown !== true
             ? AutoMovieMotionHumanArm.angles(
                 resolveHumanPosture(props.body, read(span.start)),
                 arm.side,
               )
             : arm.rest,
         // A return ends on the plan's own arm at the span's end, which the
-        // plan shows from there on, so the seam after the span meets it.
-        ...(span.relax < span.end - 1e-9 && props.after !== "angles"
+        // plan shows from there on, or whose angles the arm keeps after it
+        // (`after: "angles"`), so the seam after the span meets it.
+        ...(span.relax < span.end - 1e-9
           ? {
               back: AutoMovieMotionHumanArm.angles(
                 resolveHumanPosture(props.body, read(span.end)),
@@ -225,15 +326,27 @@ export function courseArmGoal(
       ),
       primitives,
     });
+  laid = true;
+  // An arm that follows its partner live (`tracked`) is planned by its
+  // follower; the composition names it (`IAutoMovieMotionHumanActionPlan.follows`),
+  // so a plan-level reading of the plan's own goals never reads the partner.
   const coursed: IAutoMovieMotionHumanActionPlan = {
     ...plan,
     posture: composed.posture,
+    ...(composed.follows === undefined ? {} : { follows: composed.follows }),
   };
   courseArmGoal.SOURCES.set(coursed, plan);
   return coursed;
 }
 
-/** Companion types of `courseArmGoal`. */
+/**
+ * Companion types, records and readers of `courseArmGoal`.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning and unit: the law plan a coursed plan's goal is read from, the arm and course records, the last read posture, the written bones and the borrowed readers.
+ * @evidence contracts/development/design.md#principled-representation An arm's task and the course in the carry's own terms, by `Pick`; the goal stays the law plan's, held weakly by its coursed plan.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the course and its readers use; `IRead` is written and read only by `courseArmGoal`.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated; a posture read with other readers is never reused, and a copied coursed plan reads as itself.
+ */
 export namespace courseArmGoal {
   /** Each coursed plan's law plan, whose posture still writes the arm's goal (`goals`). */
   export const SOURCES: WeakMap<
@@ -249,14 +362,6 @@ export namespace courseArmGoal {
    *
    * @param plan A plan, coursed or not.
    * @returns The plan that writes the goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is returned for either kind of plan and who reads it.
-   * @evidence contracts/development/implementation.md#principled-implementation The goal is the law's; the course only places the arm.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A copied coursed plan is not registered and reads as itself.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure lookup.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The map holds plans weakly.
    */
   export function goals(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -267,16 +372,11 @@ export namespace courseArmGoal {
   /**
    * One arm a course lays: its side, its rest, its span and the carry's own
    * per-arm members.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation An arm's task in the carry's own terms, by `Pick`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what each carry reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated.
    */
   export interface IArm extends Partial<
     Pick<
       IAutoMovieMotionHumanArmCarry.ICarry,
-      "disc" | "skinDistance" | "grasp" | "perceived" | "tracked"
+      "disc" | "skinDistance" | "grasp" | "perceived" | "tracked" | "on"
     >
   > {
     /** The arm. */
@@ -285,17 +385,12 @@ export namespace courseArmGoal {
     /** The arm's angles before the span, which the reach leaves. */
     rest: IAutoMovieMotionHumanArmAngles.IAngles;
 
-    /** The arm's own instants, for an arm of `with` whose span differs; the course's `span` when absent. */
+    /** The arm's own instants, for an arm of `with` whose span differs; the course's `span` when absent. Arms laid together whose spans differ stay one trajectory problem, each arm's site read on its own hold (`AutoMovieMotionHumanArmPlanned.planned`). */
     span?: IAutoMovieMotionHumanArmPlanned.ISpan;
   }
 
   /**
    * A plan whose arm goals are to be planned as one course.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The law's plan, its first arm and the four instants of its course, the arms laid with it, and the carry's own group members by `Pick`.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Only what the course reads; the goals and the weights come from the plan and the spans.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The optional members are the carry's own, not restated.
    */
   export interface IProps
     extends
@@ -340,14 +435,18 @@ export namespace courseArmGoal {
      * holds what it lifted while the body straightens under it.
      */
     after?: After;
+
+    /**
+     * Whether each arm's `rest` is the arm the plan shows just before a span
+     * that starts after the action, for a plan that already writes the goal
+     * at the span's start (a rescuer's crawl arm at the arrival, where the
+     * plan writes the hold). Absent, such a course leaves the plan's own arm
+     * read at the span's start.
+     */
+    shown?: boolean;
   }
   /**
    * The last posture of the plan read, and what it was read with.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is kept.
-   * @evidence contracts/development/design.md#principled-representation The posture with the second and borrowed readers that identify it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Written and read only by `courseArmGoal`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The readers are compared by identity, so a posture read with other readers is never reused.
    */
   export interface IRead {
     /** Seconds since the plan's start. */
@@ -358,6 +457,9 @@ export namespace courseArmGoal {
 
     /** The borrowed range-of-motion projector, if any. */
     projection: Projection | undefined;
+
+    /** The channels demanded of the plan; every channel when absent. */
+    channels: readonly AutoMovieMotionHumanChannel[] | undefined;
 
     /** The plan's posture at the second. */
     posture: IAutoMovieMotionHumanPosture;
@@ -374,14 +476,6 @@ export namespace courseArmGoal {
    *
    * @param side The arm.
    * @returns The upper arm, the forearm and the hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the bones and why they are listed.
-   * @evidence contracts/development/implementation.md#principled-implementation The three joints a carried arm writes (`AutoMovieMotionHumanArmCarry`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One literal.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No input is judged.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function bones(side: AutoMovieHumanSide): readonly Bone[] {
     return [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`];

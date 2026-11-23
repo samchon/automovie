@@ -1,4 +1,8 @@
-import { ArchetypeFrame, ArchetypeUnits, createCannon } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  createCannon,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeExtent } from "../internal/archetypeExtent";
@@ -20,7 +24,7 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios and what each pins.
  */
 export function test_archetype_weapon_field_gun(): void {
-  const inch: number = ArchetypeUnits.INCH;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
   const findings: string[] = [];
   const near: (name: string, got: number, wanted: number) => void = (
     name: string,
@@ -30,25 +34,36 @@ export function test_archetype_weapon_field_gun(): void {
     if (Math.abs(got - wanted) > 1e-9)
       findings.push(`${name}: ${got}, ${wanted} expected`);
   };
-  const gun: ReturnType<typeof createCannon> = createCannon({ kind: "fieldGun" });
+  const gun: ReturnType<typeof createCannon> = createCannon({
+    kind: "fieldGun",
+  });
 
   // 1. The trunnions, the wheels and the weight.
-  const trunnions: ReturnType<typeof gun.affordance> = gun.affordance("elevation");
+  const trunnions: ReturnType<typeof gun.affordance> =
+    gun.affordance("elevation");
   near("trunnions' height", trunnions.frame.translation.y, 43.1 * inch);
   near("trunnions behind the axle", trunnions.frame.translation.z, -0.5 * inch);
-  near("wheel height", archetypeExtent(gun, "y", ["wheel-left"]).size, 57 * inch);
+  near(
+    "wheel height",
+    archetypeExtent(gun, "y", ["wheel-left"]).size,
+    57 * inch,
+  );
   near(
     "track",
     gun.affordance("leftSpin").frame.translation.x -
       gun.affordance("rightSpin").frame.translation.x,
     60 * inch,
   );
-  near("weight", gun.body.mass, (884 + 900) * ArchetypeUnits.POUND);
+  near("weight", gun.body.mass, (884 + 900) * AutoMovieArchetypeUnits.POUND);
 
   // 2. The muzzle ahead of the wheels' front, by both tables.
   const front: number = archetypeExtent(gun, "z", ["wheel-left"]).high;
   const muzzle: ReturnType<typeof gun.affordance> = gun.affordance("muzzle");
-  near("muzzle ahead of the wheels", muzzle.frame.translation.z - front, 5.91 * inch);
+  near(
+    "muzzle ahead of the wheels",
+    muzzle.frame.translation.z - front,
+    5.91 * inch,
+  );
   near(
     "muzzle by the tube's table",
     muzzle.frame.translation.z,
@@ -66,30 +81,39 @@ export function test_archetype_weapon_field_gun(): void {
   // 4. The vent.
   const vent: ReturnType<typeof gun.affordance> = gun.affordance("vent");
   const lean: number = (80 * Math.PI) / 180;
-  near("vent on the breech's top", vent.frame.translation.y, (43.1 + 10.3 / 2) * inch);
+  near(
+    "vent on the breech's top",
+    vent.frame.translation.y,
+    (43.1 + 10.3 / 2) * inch,
+  );
   near(
     "vent's orifice",
     vent.frame.translation.z,
-    ((34.91 - 0.5) - 57.5 + 3.67 / 4 - (10.3 / 2 - 3.67 / 2) / Math.tan(lean)) * inch,
+    (34.91 - 0.5 - 57.5 + 3.67 / 4 - (10.3 / 2 - 3.67 / 2) / Math.tan(lean)) *
+      inch,
   );
-  const out: ReturnType<typeof ArchetypeFrame.axis> = ArchetypeFrame.axis(
-    vent.frame,
-    "y",
-  );
+  const out: ReturnType<typeof AutoMovieArchetypeFrame.axis> =
+    AutoMovieArchetypeFrame.axis(vent.frame, "y");
   near("vent leans up", out.y, Math.sin(lean));
   near("vent leans to the rear", out.z, -Math.cos(lean));
 
   // 5. The elevation.
-  const raised: ReturnType<typeof createCannon> = gun.articulate({ elevation: 12 });
+  const raised: ReturnType<typeof createCannon> = gun.articulate({
+    elevation: 12,
+  });
   near(
     "muzzle raised at 12 degrees",
-    raised.affordance("muzzle").frame.translation.y - muzzle.frame.translation.y,
+    raised.affordance("muzzle").frame.translation.y -
+      muzzle.frame.translation.y,
     34.91 * inch * Math.sin((12 * Math.PI) / 180),
   );
-  const lowered: ReturnType<typeof createCannon> = gun.articulate({ elevation: -8 });
+  const lowered: ReturnType<typeof createCannon> = gun.articulate({
+    elevation: -8,
+  });
   near(
     "muzzle lowered at 8 degrees of depression",
-    muzzle.frame.translation.y - lowered.affordance("muzzle").frame.translation.y,
+    muzzle.frame.translation.y -
+      lowered.affordance("muzzle").frame.translation.y,
     34.91 * inch * Math.sin((8 * Math.PI) / 180),
   );
   for (const beyond of [13, -9]) {
@@ -99,8 +123,13 @@ export function test_archetype_weapon_field_gun(): void {
     } catch {
       refused = true;
     }
-    if (!refused) findings.push(`an elevation of ${beyond} degrees was not refused`);
+    if (!refused)
+      findings.push(`an elevation of ${beyond} degrees was not refused`);
   }
 
-  TestValidator.equals("the field gun is the 1862 Ordnance Manual's", findings, []);
+  TestValidator.equals(
+    "the field gun is the 1862 Ordnance Manual's",
+    findings,
+    [],
+  );
 }

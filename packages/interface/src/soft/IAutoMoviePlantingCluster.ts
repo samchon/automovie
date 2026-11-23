@@ -6,11 +6,6 @@ import type { IAutoMoviePlantingScaleRange } from "./IAutoMoviePlantingScaleRang
  * A deterministic arrangement of one planting recipe: a planter group, a green wall, a bed of reeds, a row of potted ferns.
  *
  * Repetition is generated, never hand-duplicated. Every member is a seeded placement of the same recipe, and members are refused rather than overlapped when they cannot honour {@link minSpacing}, so a cluster is a stated arrangement with a stated collision rule instead of a list of coordinates somebody typed.
- *
- * @evidence contracts/development/design.md#principled-representation Bounded slot/attempt sampling generates candidates in a world-XZ rectangle; a minSpacing-sized grid checks neighboring accepted points before full TRS emission. Exhaustive-test equivalence requires representable cell indices and finite distance-square arithmetic, while zero spacing bypasses rejection; extreme numeric inputs are not universally certified.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One cluster defines recipe repetition and placement variability independently from recursive growth and architecture installation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Acceptance depends on earlier accepted slots in stable authored order; exhausted attempts produce counted refusal rather than overlap or an invented requested count.
- * @evidence contracts/development/common.md#meaningful-documentation Defines count, world anchor and half-extents, safe seed, spacing and attempt bounds, axis scale and normalized-quaternion yaw jitter.
  */
 export interface IAutoMoviePlantingCluster {
   /** Stable cluster identity within the production. */

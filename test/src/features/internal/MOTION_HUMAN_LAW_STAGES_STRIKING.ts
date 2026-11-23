@@ -13,7 +13,7 @@ const guard = (
   params: object = {},
 ): MotionHumanSweepChain =>
   S.chain(subject).act("guard", {
-    seconds,
+    duration: seconds,
     facing: S.person(subject === "a" ? "b" : "a", "face"),
     ...params,
   });
@@ -48,7 +48,7 @@ const kicking = (
  * @evidence contracts/development/common.md#meaningful-documentation States the family, every range and what each defence answers.
  * @evidence contracts/development/design.md#principled-representation One stage per law, keyed by the law's name, each asking the row for the parameters it can set.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Ten laws, the fighting ones.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A feint row is passed as the law's own type (a share for a punch, a flag for a kick); nothing else is converted.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts A feint row is passed as the law's own share (0.5, below the kick's chamber share for every practical seed); nothing else is converted.
  */
 export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
   Record<string, motionHumanLawSweep.Stage>
@@ -57,7 +57,10 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
-    S.solo(a, S.chain().act("guard", { seconds: 1, ...S.set(pick, "stance") })),
+    S.solo(
+      a,
+      S.chain().act("guard", { duration: 1, ...S.set(pick, "stance") }),
+    ),
   step: (
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
@@ -65,7 +68,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     S.solo(
       a,
       S.chain()
-        .act("guard", { seconds: 0.8 })
+        .act("guard", { duration: 0.8 })
         .act("step", { direction: pick("direction") ?? "forward" }),
     ),
   punch: (
@@ -109,7 +112,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
         technique: pick("technique") ?? "round",
         at: S.person("b", motionKickTarget(pick("technique"), pick("leg"))),
         ...S.set(pick, "leg", "accuracy"),
-        ...(feint === undefined ? {} : { feint: feint === "true" }),
+        ...(feint === "true" ? { feint: 0.5 } : {}),
       }),
       guard("b", 3),
     ]);
@@ -159,7 +162,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     S.solo(
       a,
       S.chain().act("flinch", {
-        from: S.point(0, a.measure.shoulderHeight, 1),
+        target: S.point(0, a.measure.shoulderHeight, 1),
       }),
     ),
   stagger: (
@@ -169,7 +172,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     S.solo(
       a,
       S.chain().act("stagger", {
-        from: S.point(0, a.measure.shoulderHeight, 1),
+        target: S.point(0, a.measure.shoulderHeight, 1),
         speed: 1,
       }),
     ),
@@ -180,7 +183,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     S.solo(
       a,
       S.chain().act("knockdown", {
-        from: S.point(0, a.measure.shoulderHeight, 1),
+        target: S.point(0, a.measure.shoulderHeight, 1),
       }),
     ),
   // A scene carries no forces, so `perturb` meets no impulse and absorbs
@@ -189,7 +192,7 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
     _pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
   ): motionHumanLawSweep.IScene =>
-    S.solo(a, S.chain().act("stand", { seconds: 0.3 }).act("perturb", {})),
+    S.solo(a, S.chain().act("stand", { hold: 0.3 }).act("perturb", {})),
   clinch: (
     pick: motionHumanLawSweep.Pick,
     a: IAutoMovieMotionHumanBody,
@@ -200,6 +203,6 @@ export const MOTION_HUMAN_LAW_STAGES_STRIKING: Readonly<
         partner: "b",
         ...S.set(pick, "grip", "hand"),
       }),
-      S.chain("b").act("stand", { seconds: 4, sway: 0 }),
+      S.chain("b").act("stand", { hold: 4, sway: 0 }),
     ]),
 };

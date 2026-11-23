@@ -1,9 +1,9 @@
 import {
-  ArchetypeCourse,
-  ArchetypeManoeuvre,
-  ArchetypePassage,
-  type ArchetypeRide,
-  QuadrupedGait,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeManoeuvre,
+  AutoMovieArchetypePassage,
+  AutoMovieArchetypeQuadrupedGait,
+  type AutoMovieArchetypeRide,
   createHorse,
   createQuadruped,
   rideQuadruped,
@@ -28,7 +28,7 @@ const STEP: number = 0.2;
  * 2. No two riders' posed envelopes meet at any instant.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the loop and the two scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Plans the loop with `ArchetypeManoeuvre.arc` against the canter's speeds, rides each rider with `rideQuadruped` and measures `ArchetypePassage` on posed envelopes.
+ * @evidence contracts/development/testing.md#behavioral-verification Plans the loop with `AutoMovieArchetypeManoeuvre.arc` against the canter's speeds, rides each rider with `rideQuadruped` and measures `AutoMovieArchetypePassage` on posed envelopes.
  * @evidence contracts/development/testing.md#independent-expectations The loop's radius puts its even speed inside the canter's declared range; even spacing round the loop keeps a third of its length between riders.
  * @evidence contracts/development/testing.md#distinguishing-cases Every rider and both laps. Loosing windows and the loop-radius refusal are pinned by test_world_mounted_manoeuvres.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec over real rides.
@@ -38,20 +38,21 @@ export function test_world_cantabrian_circle(): void {
     { withersHeight: 1.6, tempo: 0 },
     "javelin",
   );
-  const canter: ArchetypeManoeuvre.ISpeedRange = QuadrupedGait.range(
-    createQuadruped.species(horse),
-    "canter",
-    1.6,
-  );
+  const canter: AutoMovieArchetypeManoeuvre.ISpeedRange =
+    AutoMovieArchetypeQuadrupedGait.range(
+      createQuadruped.species(horse),
+      "canter",
+      1.6,
+    );
   const speed: number = (canter.minimum + canter.maximum) / 2;
   const radius: number = (speed * LAP) / (2 * Math.PI);
-  const rides: ArchetypeRide.IRide<string, string>[] = Array.from(
+  const rides: AutoMovieArchetypeRide.IRide<string, string>[] = Array.from(
     { length: RIDERS },
-    (_: unknown, k: number): ArchetypeRide.IRide<string, string> =>
+    (_: unknown, k: number): AutoMovieArchetypeRide.IRide<string, string> =>
       rideQuadruped(horse, {
-        plan: ArchetypeCourse.timed(
+        plan: AutoMovieArchetypeCourse.timed(
           `rider${k}`,
-          ArchetypeManoeuvre.arc(
+          AutoMovieArchetypeManoeuvre.arc(
             "loop",
             {
               centre: { x: 0, y: 0, z: 0 },
@@ -91,15 +92,15 @@ export function test_world_cantabrian_circle(): void {
   // 2. No two bodies meet as the loop closes.
   TestValidator.equals(
     "no two riders' bodies meet",
-    ArchetypePassage.conflicts("loop", {
+    AutoMovieArchetypePassage.conflicts("loop", {
       participants: rides.map(
         (
-          ride: ArchetypeRide.IRide<string, string>,
+          ride: AutoMovieArchetypeRide.IRide<string, string>,
           k: number,
-        ): ArchetypePassage.IParticipant => ({
+        ): AutoMovieArchetypePassage.IParticipant => ({
           id: `rider${k}`,
           plan: ride.plan,
-          footprint: ArchetypePassage.envelope(ride, 0, 2 * LAP, STEP),
+          footprint: AutoMovieArchetypePassage.envelope(ride, 0, 2 * LAP, STEP),
           margin: 0.5,
         }),
       ),

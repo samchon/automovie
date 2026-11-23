@@ -1,4 +1,7 @@
-import { ArchetypeArticulation, createDoor } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeArticulation,
+  createDoor,
+} from "@automovie/archetypes";
 import { validateModel } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -29,7 +32,7 @@ function faults(model: IAutoMovieModel): string[] {
  * 4. `rides` naming no affordance, naming itself, naming a fixed kind, or closing a cycle of two articulations is refused at the `rides` field.
  * 5. The produced door, whose handle rides a latch that rides the hinge, is admitted unchanged.
  * 6. A chain that runs into a cycle further up (`a` rides `b`, `b` rides `c`, `c` rides `b`) is reported at `a` as never ending, circling through the cycle, while `b` and `c`, which are on the cycle, are each reported as returning to itself.
- * 7. For every one of the nineteen affordance kinds, a single affordance of that kind binding one part is admitted when the kind's travel moves parts and refused at its `parts` otherwise, and the package's `ArchetypeArticulation.KINDS` holds exactly the admitted kinds.
+ * 7. For every one of the nineteen affordance kinds, a single affordance of that kind binding one part is admitted when the kind's travel moves parts and refused at its `parts` otherwise, and the package's `AutoMovieArchetypeArticulation.KINDS` holds exactly the admitted kinds.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the engine's model admission on a valid model and on copies each broken in one way, and reads the violation paths and, for the two kinds of endless chain, their messages; an admission that lets a dangling part, a cycle or a non-positive dimension through, or an engine and a package that disagree on which kinds travel, is caught.
  * @evidence contracts/development/testing.md#independent-expectations The rules are those `IAutoMovieAffordance` states for `parts`, `rides` and the optional dimensions; each broken copy is written by hand here. Which kinds travel is written here from `AutoMovieAffordanceKind`'s descriptions: the eight whose part turns, slides or is pressed.
@@ -163,7 +166,7 @@ export function test_archetype_contract_validation(): void {
     const expected: string = KINDS[kind] ? "" : "$input.affordances[0].parts";
     if (paths !== expected)
       bound.push(`${kind}: the engine reports [${paths}], not [${expected}]`);
-    if (ArchetypeArticulation.KINDS.has(kind) !== KINDS[kind])
+    if (AutoMovieArchetypeArticulation.KINDS.has(kind) !== KINDS[kind])
       bound.push(`${kind}: the package's articulation kinds disagree`);
   }
   TestValidator.equals(

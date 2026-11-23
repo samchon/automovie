@@ -2,21 +2,11 @@ import type { IAutoMovieRecoverySlabConnectivityGroup } from "./IAutoMovieRecove
 
 /**
  * Derive closed-loop continuation and isolate source defects by clipped-slab connectivity. Triangle and edge addresses are transient observation evidence and never leave the result.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Local boundary-support indices at the lower cut. Local boundary-support indices at the upper cut.
- * @evidence contracts/development/design.md#principled-representation Null for supported continuation; otherwise a local omission reason.
- * @evidence contracts/development/design.md#minimal-and-owned-surface extractRecoveryMeshSections, observeRecoverySourceTerminals, prepareRecoveryOpenSlabGraph share IAutoMovieRecoverySlabGraph's canonical records; the referenced quantities retain one declaration owner.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts False identifies an open, ambiguous or unsupported source preimage.
  */
 
 export namespace IAutoMovieRecoverySlabGraph {
   /**
    * Derive closed-loop continuation and isolate source defects by clipped-slab connectivity. Triangle and edge addresses are transient observation evidence and never leave the result.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs. One in-range canonical connectivity index per original vertex; this does not move source coordinates.
-   * @evidence contracts/development/design.md#principled-representation Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface extractRecoveryMeshSections, observeRecoverySourceTerminals, prepareRecoveryOpenSlabGraph share IAutoMovieRecoverySlabGraph's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
    */
 
   export type Observe = (input: {
@@ -53,11 +43,6 @@ export namespace IAutoMovieRecoverySlabGraph {
 
   /**
    * Admit immutable source incidence and scalar heights once for multiple slabs. Queries supply complete original face IDs in strictly increasing order, including every face with maximum height above beforeMm and minimum height below afterMm. Omitting candidates observes every source face. Boundary supports retain original IDs. Optional private probes query those same components with a separate ordinal namespace; a probe never supplies a missing physical boundary or makes a hidden component supported.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs. One in-range canonical connectivity index per original vertex; this does not move source coordinates.
-   * @evidence contracts/development/design.md#principled-representation Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface extractRecoveryMeshSections, observeRecoverySourceTerminals, prepareRecoveryOpenSlabGraph share IAutoMovieRecoverySlabGraph's canonical records; the referenced quantities retain one declaration owner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Oriented triangle vertex-index triples addressing the paired position array; indices are not control IDs.
    */
 
   export type Prepare = (source: {

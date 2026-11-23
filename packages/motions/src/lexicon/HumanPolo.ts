@@ -32,7 +32,8 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanPoloHand } from "./HumanPoloHand";
 
 /** The law's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPolo>;
+type Context =
+  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPolo.IPolo>;
 
 /** The phases' durations, seconds (provisional stage readings of a polo swing). */
 const PHASES: Readonly<
@@ -93,7 +94,7 @@ const PITCH: number = 20;
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The ball is the ball prop's own place at the contact; the mallet's length is its held geometry.
  */
-export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo> =
+export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo.IPolo> =
   {
     name: "polo",
     interrupts: {},
@@ -115,7 +116,7 @@ export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo
 
 /** Admit, lay the plane and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
-  const params: IAutoMovieMotionHumanPolo = context.params;
+  const params: IAutoMovieMotionHumanPolo.IPolo = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
   if (entered.kind !== "seated")
     throw new HumanRefusal({

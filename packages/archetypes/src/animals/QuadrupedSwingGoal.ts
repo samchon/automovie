@@ -1,47 +1,41 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeCourse } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineFlightClock } from "./EquineFlightClock";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
-import type { QuadrupedGait } from "./QuadrupedGait";
 import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import type { QuadrupedPoleSwing } from "./QuadrupedPoleSwing";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 
 /**
  * One limb's ride goal at a sample: its hoof track's foothold or swing point, carried by the flying body in a jump's flight, lifted by its gait's arc, the footing's extra lift and the poles it crosses, and folded at the carpus or hock by its gait.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the goal's parts and where each comes from.
- * @evidence contracts/development/design.md#principled-representation The limb's sample state in, one pose goal out.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `rideQuadruped` for each limb at each sample.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace QuadrupedSwingGoal {
-  /** A limb's step at a phase: its stance, whether it is planted, its swing's progress and rise (`QuadrupedHoofTrack.step`). */
+  /**
+   * A limb's step at a phase: its stance, whether it is planted, its swing's progress and rise (`QuadrupedHoofTrack.step`).
+   */
   export type Step = ReturnType<typeof QuadrupedHoofTrack.step>;
 
-  /** The end of the body a limb belongs to, as the gait's lift and fold name it. */
-  export type End = keyof QuadrupedGait.IGait["lift"];
+  /**
+   * The end of the body a limb belongs to, as the gait's lift and fold name it.
+   */
+  export type End = keyof AutoMovieArchetypeQuadrupedGait.IGait["lift"];
 
   /**
    * One limb's state at a sample.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit or role.
-   * @evidence contracts/development/design.md#principled-representation The values the ride already reads for the limb.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by `rideQuadruped`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IInput {
     /** The limb. */
-    limb: QuadrupedBody.Limb;
+    limb: AutoMovieArchetypeQuadrupedBody.Limb;
     /** The landing index of the stance it is in or has just left. */
     index: number;
     /** The gait of that stance's stride. */
-    gait: QuadrupedGait.IGait;
+    gait: AutoMovieArchetypeQuadrupedGait.IGait;
     /** The animal's height at the withers, metres. */
     withers: number;
-    /** The limb's five actual neutral joints, model metres. */
+    /** The limb's five neutral joints, model metres. */
     rest: readonly IAutoMovieVector3[];
     /** The limb's step. */
     step: Step;
@@ -50,23 +44,29 @@ export namespace QuadrupedSwingGoal {
     /** Whether footholds are anchored in the world. */
     worldAnchors: boolean;
     /** The authored footing, absent on level ground. */
-    ground: QuadrupedFooting.IPlan | undefined;
+    ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined;
     /** Whether this is a jump's trial assembly, which reads no footing for its footholds. */
     trial: boolean;
-    /** The hoof's foothold mover, clear of the footing's concave edges. */
+    /**
+     * The hoof's foothold mover, clear of the footing's concave edges.
+     */
     clear: (point: IAutoMovieVector3) => IAutoMovieVector3;
     /** Whether the swing is carried by the flying body of a jump. */
     carried: boolean;
-    /** The course state at a second with the body's displayed placement. */
-    shown: (seconds: number) => ArchetypeCourse.IState;
+    /**
+     * The course state at a second with the body's displayed placement.
+     */
+    shown: (seconds: number) => AutoMovieArchetypeCourse.IState;
     /** The current course state with the body's displayed placement. */
-    current: ArchetypeCourse.IState;
+    current: AutoMovieArchetypeCourse.IState;
     /** The swing's liftoff second. */
     off: number;
     /** The swing's landing second. */
     on: number;
     /** The share of the gait's lift and fold the speed calls for, 0 to 1. */
     going: number;
+    /** The share of a stance's peak load the hoof bears, 0 to 1 (`QuadrupedRidePose.IGoal.load`); a flying hoof bears none whatever is given. */
+    load: number;
     /** The ride's pole apexes, absent when its footing has no poles. */
     crossings: QuadrupedPoleSwing.Crossings | undefined;
   }
@@ -76,14 +76,6 @@ export namespace QuadrupedSwingGoal {
    *
    * @param input The limb's state at the sample.
    * @returns The goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the output.
-   * @evidence contracts/development/implementation.md#principled-implementation The hoof track's target, carried in a jump's flight (`EquineFlightClock.swing`); the lift is the gait's height, by landmark when stated, plus the footing's lift, raised to a crossed pole's apex (`QuadrupedPoleSwing`), times the swing's rise; the fold the gait's times the rise.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One aim, one goal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A planted or flying hoof reads no pole apex.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work beside the track and pole reads.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The pole apex is cached by its reader.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
   export function of(input: IInput): QuadrupedRidePose.IGoal {
     const { gait, rest, step, carried, going, off, on }: IInput = input;
@@ -94,7 +86,7 @@ export namespace QuadrupedSwingGoal {
         ? gait.lift[end] * input.withers
         : QuadrupedHoofTrack.elevation(rest, gait.elevation, fore);
     const aim = (
-      moment: ArchetypeCourse.IState,
+      moment: AutoMovieArchetypeCourse.IState,
       amount: number,
     ): EquineFlightClock.IAim =>
       QuadrupedHoofTrack.target(
@@ -128,6 +120,7 @@ export namespace QuadrupedSwingGoal {
                 0),
         ) * step.rise,
       fold: going * gait.fold[end] * step.rise,
+      load: carried ? 0 : input.load,
     };
   }
 }

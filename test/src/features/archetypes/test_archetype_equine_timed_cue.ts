@@ -1,6 +1,6 @@
 import {
-  ArchetypeCourse,
-  ArchetypeRefusal,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -24,7 +24,7 @@ const STRIDE: number = 0.6;
  * Scenarios:
  * 1. Uncued at 7 m/s, the hazel horse never changes from canter to gallop.
  * 2. Cued gallop from 4 s to 10 s: `gait:canter-gallop` at the first stride start at or after 4 s, within one stride, and no planted hoof moves.
- * 3. A cue ending before it starts refuses as an ArchetypeRefusal.
+ * 3. A cue ending before it starts refuses as an AutoMovieArchetypeRefusal.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the path, the cue and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public ride's instants and every planted hoof's world position.
@@ -34,10 +34,13 @@ const STRIDE: number = 0.6;
  */
 export function test_archetype_equine_timed_cue(): void {
   const horse = createHorse({}, "hazel");
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.timed("hazel", [
-    { seconds: 0, x: 0, z: 0 },
-    { seconds: 12, x: 0, z: SPEED * 12 },
-  ]);
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
+    "hazel",
+    [
+      { seconds: 0, x: 0, z: 0 },
+      { seconds: 12, x: 0, z: SPEED * 12 },
+    ],
+  );
   const issues: string[] = [];
   const changes = (ride: ReturnType<typeof rideQuadruped>): number[] =>
     ride.instants
@@ -67,7 +70,7 @@ export function test_archetype_equine_timed_cue(): void {
   } catch (error) {
     refusal = error;
   }
-  if (!(refusal instanceof ArchetypeRefusal))
+  if (!(refusal instanceof AutoMovieArchetypeRefusal))
     issues.push(`a backward cue raises ${String(refusal)}`);
   TestValidator.equals("timed gait cue", issues, []);
 }

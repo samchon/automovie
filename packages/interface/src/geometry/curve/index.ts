@@ -12,7 +12,6 @@ export type { IAutoMovieBicubicAtlasTessellation64 } from "./IAutoMovieBicubicAt
 export type { IAutoMovieBicubicAtlasVertex64 } from "./IAutoMovieBicubicAtlasVertex64";
 export type { IAutoMovieCanonicalBoundary64 } from "./IAutoMovieCanonicalBoundary64";
 export type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBoundaryPhase64";
-export type { IAutoMovieClampedTailField64 } from "./IAutoMovieClampedTailField64";
 export type { IAutoMovieContourLoft64 } from "./IAutoMovieContourLoft64";
 export type { IAutoMovieContourLoftCurves64 } from "./IAutoMovieContourLoftCurves64";
 export type { IAutoMovieContourLoftEmission64 } from "./IAutoMovieContourLoftEmission64";
@@ -46,7 +45,6 @@ export type { IAutoMovieLocalHermiteStream64FaceRange } from "./IAutoMovieLocalH
 export type { IAutoMovieMeasureContourFace64 } from "./IAutoMovieMeasureContourFace64";
 export type { IAutoMovieMeasureCurveLength64 } from "./IAutoMovieMeasureCurveLength64";
 export type { IAutoMovieObservation } from "./IAutoMovieObservation";
-export type { IAutoMoviePchip64 } from "./IAutoMoviePchip64";
 export type { IAutoMoviePchipField64 } from "./IAutoMoviePchipField64";
 export type { IAutoMoviePlanContourSlabs64Group } from "./IAutoMoviePlanContourSlabs64Group";
 export type { IAutoMoviePlanContourSlabs64Props } from "./IAutoMoviePlanContourSlabs64Props";

@@ -4,50 +4,38 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeCourse, ArchetypeRefusal } from "../core";
-import { EquineBank } from "./EquineBank";
+import {
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+} from "../core";
+import { AutoMovieArchetypeEquineBank } from "./AutoMovieArchetypeEquineBank";
+import { AutoMovieArchetypeEquineScramble } from "./AutoMovieArchetypeEquineScramble";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineEdge } from "./EquineEdge";
 import { EquineJump } from "./EquineJump";
 import { EquineLateral } from "./EquineLateral";
-import { EquineScramble } from "./EquineScramble";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import type { QuadrupedFooting } from "./QuadrupedFooting";
-import type { QuadrupedGait } from "./QuadrupedGait";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import type { rideQuadruped } from "./rideQuadruped";
 
 /**
  * Admission and sample goals for individually authored equine footwork.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the supported film techniques, trust boundary and existing body/ground ownership.
- * @evidence contracts/development/design.md#principled-representation Rein-back is a diagonal phase choice. An arena stop is an authored finite interval and a geometric displacement within the actual floor-support solve.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps equine-specific authored positions and times out of the general gait table and Engine. Only the existing ride calls this planning seam.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Supplies no anatomical limits, clinical measurements or real-horse guidance.
  */
 export namespace EquineFootwork {
   /**
    * Named equine film-animation technique on one course leg.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines both techniques and the authored slide values and units.
-   * @evidence contracts/development/design.md#principled-representation Each legal variant has the fields necessary for its motion and no fields for the other variant.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The ride already declares travel and speed. This type adds only the footwork performed over it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies the brief motion window. The documented kinematic form does not imply a default measured duration or fit.
    */
   export type Technique =
     | IReinBack
     | ISlideStop
     | EquineLateral.Technique
     | EquineJump.Technique
-    | EquineBank.ISlide
-    | EquineScramble.IScramble;
+    | AutoMovieArchetypeEquineBank.ISlide
+    | AutoMovieArchetypeEquineScramble.IScramble;
 
   /**
    * A named film-second cue a technique adds to the ride.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the units.
-   * @evidence contracts/development/design.md#principled-representation The shape of a ride's instants.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the ride's instant list.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IInstant {
     /** Film second. */
@@ -58,11 +46,6 @@ export namespace EquineFootwork {
 
   /**
    * Backing on alternating diagonals from rest to rest.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the technique.
-   * @evidence contracts/development/design.md#principled-representation A marker; the reversed walk leg carries the travel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
   export interface IReinBack {
     /** The discriminator. */
@@ -71,11 +54,6 @@ export namespace EquineFootwork {
 
   /**
    * A terminal arena slide on both hind feet.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each authored value's unit.
-   * @evidence contracts/development/design.md#principled-representation Two durations in seconds and an advance in metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface A member of `Technique`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The caller supplies the window; no measured duration is implied.
    */
   export interface ISlideStop {
     /** The discriminator. */
@@ -100,11 +78,6 @@ export namespace EquineFootwork {
 
   /**
    * Admit a reusable individual film-footwork plan and its authored timed cues.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines phase and goal sampling as well as event ownership.
-   * @evidence contracts/development/design.md#principled-representation A fixed set of per-leg rein-back flags and an optional terminal slide replace only the contact pattern that the author requests.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The horse phase reader and pose emitter share one admitted technique plan.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The flag and geometric goals come from the admitted course. No call inspects eventual render output to select a result.
    */
   export interface IPlan {
     /** Original course leg numbers, zero-based, explicitly authored for rein-back. */
@@ -118,12 +91,14 @@ export namespace EquineFootwork {
     /** The admitted jump, when a leg names one. */
     readonly jump?: EquineJump.IRequest;
     /** Admitted slides down steep banks, in leg order. */
-    readonly bank: readonly EquineBank.IWindow[];
+    readonly bank: readonly AutoMovieArchetypeEquineBank.IWindow[];
     /** Admitted scrambles up steep banks, in leg order. */
-    readonly scramble: readonly EquineScramble.IWindow[];
+    readonly scramble: readonly AutoMovieArchetypeEquineScramble.IWindow[];
     /** The bank faces' edges, whose crossing pitches the trunk along its support. */
     readonly edges: readonly EquineEdge.IEdge[];
-    /** The root's course distance at a film second. */
+    /**
+     * The root's course distance at a film second.
+     */
     readonly distance: (second: number) => number;
   }
 
@@ -132,37 +107,33 @@ export namespace EquineFootwork {
    *
    * @param archetype Exact source archetype identity.
    * @param course Caller-owned course before sampling.
-   * @param plan Its actual admitted geometry and speed profile.
+   * @param plan Its admitted geometry and speed profile.
    * @param gait Optional fixed gait in the public ride request.
-   * @param hooves The actual neutral hoof endpoints in model metres, which fix the pirouette heading.
+   * @param hooves The neutral hoof endpoints in model metres, which fix the pirouette heading.
    * @param centred The moving stance centres, under each attachment, which fix the shoulder-in heading.
    * @param reach The fore limb's length, attachment to hoof, metres, which bounds a scramble's climb per bound.
    * @param tail The rigid tail, which bounds a bank slide's sit.
    * @returns Independent registration for the gait selector, event reader, goal sampler, lateral headings and the jump request.
-   * @throws {ArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the source identity, route and typed refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation Read actual route boundaries and ensure the diagonal backing is on a reversed level straight walk leg and a slide consumes only an independently authored terminal deceleration.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Inspect each explicitly authored technique at its own typed leg and use the native plan to validate its applicability.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No generated measurements substitute for authored input and no other species receives horse footwork.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(L) pass over L legs plus the bounded native plan queries for explicitly selected techniques.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the checked course plan's times and speeds rather than constructing another trajectory.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains one flag per backing leg and at most one terminal slide and its three cues.
+   * @throws {AutoMovieArchetypeRefusal} For an unsupported animal, travel context, inconsistent authored timing, an inadmissible lateral figure, jump or baulk, or a second jump.
    */
   export function prepare(
     archetype: string,
     course: rideQuadruped.ICourse,
-    plan: ArchetypeCourse.IPlan,
-    gait: QuadrupedGait.Gait | undefined,
-    hooves: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
-    centred: Readonly<Record<QuadrupedBody.Limb, IAutoMovieVector3>>,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined,
+    hooves: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >,
+    centred: Readonly<
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
+    >,
     reach: number,
-    tail: EquineBank.ITail,
+    tail: AutoMovieArchetypeEquineBank.ITail,
   ): IPlan {
     const backing: Set<number> = new Set();
     const lateral: EquineLateral.IWindow[] = [];
-    const bank: EquineBank.IWindow[] = [];
-    const scramble: EquineScramble.IWindow[] = [];
+    const bank: AutoMovieArchetypeEquineBank.IWindow[] = [];
+    const scramble: AutoMovieArchetypeEquineScramble.IWindow[] = [];
     const edges: EquineEdge.IEdge[] = [];
     const cues: IInstant[] = [];
     let jump: EquineJump.IRequest | undefined;
@@ -175,7 +146,7 @@ export namespace EquineFootwork {
         refuse(index, "Equine footwork requires an authored technique record");
       if (archetype !== "horse" && archetype !== "pony")
         refuse(index, "Equine footwork requires a horse or pony source");
-      const span: ArchetypeCourse.ILegSpan = plan.legSpans[index]!;
+      const span: AutoMovieArchetypeCourse.ILegSpan = plan.legSpans[index]!;
       const first: number = plan.when(span.from);
       const end: number = plan.when(span.from + span.span);
       if (
@@ -219,17 +190,18 @@ export namespace EquineFootwork {
         continue;
       }
       if (technique.kind === "bank-slide") {
-        const window: EquineBank.IWindow = EquineBank.admit(
-          archetype,
-          index,
-          leg,
-          technique,
-          course.legs.length,
-          plan,
-          course.footing,
-          hooves.leftHind.z,
-          tail,
-        );
+        const window: AutoMovieArchetypeEquineBank.IWindow =
+          AutoMovieArchetypeEquineBank.admit(
+            archetype,
+            index,
+            leg,
+            technique,
+            course.legs.length,
+            plan,
+            course.footing,
+            hooves.leftHind.z,
+            tail,
+          );
         bank.push(window);
         edges.push(...EquineEdge.of(course.legs, index, plan, hooves));
         cues.push(
@@ -241,23 +213,26 @@ export namespace EquineFootwork {
         continue;
       }
       if (technique.kind === "bank-scramble") {
-        const window: EquineScramble.IWindow = EquineScramble.admit(
-          archetype,
-          index,
-          leg,
-          technique,
-          course.legs.length,
-          plan,
-          course.footing,
-          reach,
-        );
+        const window: AutoMovieArchetypeEquineScramble.IWindow =
+          AutoMovieArchetypeEquineScramble.admit(
+            archetype,
+            index,
+            leg,
+            technique,
+            course.legs.length,
+            plan,
+            course.footing,
+            reach,
+          );
         scramble.push(window);
         edges.push(...EquineEdge.of(course.legs, index, plan, hooves));
         cues.push(
           { seconds: window.from, label: "bankScrambleStart" },
-          ...window.bounds.slice(1, -1).map(
-            (seconds: number): IInstant => ({ seconds, label: "bankBound" }),
-          ),
+          ...window.bounds
+            .slice(1, -1)
+            .map(
+              (seconds: number): IInstant => ({ seconds, label: "bankBound" }),
+            ),
           { seconds: window.to, label: "bankScrambleEnd" },
         );
         continue;
@@ -335,7 +310,7 @@ export namespace EquineFootwork {
 
     /** Report the authored leg that cannot supply the requested footwork. */
     function refuse(index: number, reason: string): never {
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
         axis: `legs[${index}].equineFootwork`,
@@ -350,18 +325,12 @@ export namespace EquineFootwork {
   /**
    * Return the two alternating diagonal phases of a rein-back stride.
    *
-   * @param limb The named actual hoof.
+   * @param limb The named hoof.
    * @returns Stride fraction, zero for the left fore and right hind, one half for the opposite diagonal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the origin and normalized phases.
-   * @evidence contracts/development/implementation.md#principled-implementation FEI Dressage Rules Article 406 defines a two-beat rearward diagonal without aerial time. The ride uses a duty greater than one half to retain ground support. https://inside.fei.org/system/files/FEI_Dressage_Rules_2022_Clean_Version_V2.pdf
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One division into the two named diagonal pairs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The result names contact order. It supplies no invented measured speed or stride period.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the actual quadruped limb vocabulary.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds no sample or external resource.
    */
-  export function reinBackPhase(limb: QuadrupedBody.Limb): number {
+  export function reinBackPhase(
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
+  ): number {
     return limb === "leftFore" || limb === "rightHind" ? 0 : 0.5;
   }
 
@@ -371,16 +340,8 @@ export namespace EquineFootwork {
    * @param slide Admitted sliding window, if supplied.
    * @param second The film second for the current pose.
    * @param neutral The neutral terminal point in model metres.
-   * @param goal Current gait's actual candidate foot goal.
+   * @param goal Current gait's candidate foot goal.
    * @returns Current foot goal, with the two stance channels blended only inside the authored slide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States time, model metres and the scope of the slide.
-   * @evidence contracts/development/implementation.md#principled-implementation The NRHA Judges' Guide depicts sliding ground contact at both hind feet while the horse proceeds straight into the stop. Minimum-jerk progress transitions the existing gait into that authored model-space stance. The admitted deceleration carries it to zero world speed. https://nrha.com/wp-content/uploads/2026/05/2026-NRHA-Handbook.pdf
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Compute one blend and retain a fixed terminal pose after contact.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The candidate still goes through the actual geometric contact solver and will refuse an infeasible foot placement.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work and output per hind hoof.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Blends the existing gait goal and uses the same prepared terminal solver.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Changes no history and retains no caller state.
    */
   export function slideGoal(
     slide: ISlide | undefined,
@@ -414,23 +375,15 @@ export namespace EquineFootwork {
   }
 
   /**
-   * The trunk's pitch a technique adds at a film second, degrees, positive nose-down: a bank slide sits the horse back on its haunches by `EquineBank.SIT`, and a bank face's edges pitch the trunk along its support as it crosses them (`EquineEdge`).
+   * The trunk's pitch a technique adds at a film second, degrees, positive nose-down: a bank slide sits the horse back on its haunches by `AutoMovieArchetypeEquineBank.SIT`, and a bank face's edges pitch the trunk along its support as it crosses them (`EquineEdge`).
    *
    * @param plan The admitted technique plan.
    * @param second The film second.
    * @returns The pitch, zero outside a slide.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the unit, sign and source of the pitch.
-   * @evidence contracts/development/implementation.md#principled-implementation The sit's share of `EquineBank.SIT`, nose-up.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One product.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the few slides.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `EquineBank.share`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
    */
   export function sit(plan: IPlan, second: number): number {
     return (
-      EquineBank.pitch(plan.bank, second) +
+      AutoMovieArchetypeEquineBank.pitch(plan.bank, second) +
       (plan.edges.length === 0
         ? 0
         : EquineEdge.pitch(plan.edges, plan.distance(second)))
@@ -449,14 +402,6 @@ export namespace EquineFootwork {
    * @param placement The body's world placement.
    * @param footing The course's prepared footing.
    * @returns The goal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the frames and the order the techniques apply in.
-   * @evidence contracts/development/implementation.md#principled-implementation Each technique replaces the gait's goal only inside its own window.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A chain of compositions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work outside a technique's window.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work `EquineScramble.goal`, `slideGoal` and `EquineBank.goal`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns one goal.
    */
   export function limbGoal(
     plan: IPlan,
@@ -466,21 +411,22 @@ export namespace EquineFootwork {
     attachment: IAutoMovieVector3,
     goal: QuadrupedRidePose.IGoal,
     placement: IAutoMovieTransform,
-    footing: QuadrupedFooting.IPlan | undefined,
+    footing: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined,
   ): QuadrupedRidePose.IGoal {
-    const bounding: QuadrupedRidePose.IGoal = EquineScramble.goal(
-      plan.scramble,
-      second,
-      fore,
-      neutral,
-      attachment,
-      goal,
-      placement,
-      footing,
-    );
+    const bounding: QuadrupedRidePose.IGoal =
+      AutoMovieArchetypeEquineScramble.goal(
+        plan.scramble,
+        second,
+        fore,
+        neutral,
+        attachment,
+        goal,
+        placement,
+        footing,
+      );
     return fore
-      ? EquineBank.step(plan.bank, second, bounding)
-      : EquineBank.goal(
+      ? AutoMovieArchetypeEquineBank.step(plan.bank, second, bounding)
+      : AutoMovieArchetypeEquineBank.goal(
           plan.bank,
           second,
           neutral,

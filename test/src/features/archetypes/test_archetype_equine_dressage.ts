@@ -1,7 +1,8 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  QuadrupedBody,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -74,9 +75,8 @@ export function test_archetype_equine_dressage(): void {
     withersHeight: 1.72,
     tempo: 0,
   });
-  const rig: ReturnType<typeof createHorse.rig> = createHorse.rig(
-    horse.dimensions,
-  );
+  const rig: ReturnType<typeof AutoMovieArchetypeEquine.rig> =
+    AutoMovieArchetypeEquine.rig(horse.dimensions);
   const issues: string[] = [];
 
   // 1. Lateral figures, mirrored.
@@ -141,13 +141,13 @@ export function test_archetype_equine_dressage(): void {
   );
   const begin: number = cue(pirouette, "pirouetteStart");
   const end: number = cue(pirouette, "pirouetteEnd");
-  const centre: IAutoMovieVector3 = ArchetypeFrame.point(
+  const centre: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(
     pirouette.plan.at(begin).placement,
     { x: radius, y: 0, z: 0 },
   );
   let inside: number = 0;
   let outside: number = Infinity;
-  for (const limb of QuadrupedBody.LIMBS)
+  for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS)
     for (const at of archetypeHorseRide.footfalls(pirouette, limb)) {
       if (at < begin + 0.6 || at > end - 0.6) continue;
       const hoof: IAutoMovieVector3 = archetypeHorseRide.hoof(
@@ -317,7 +317,7 @@ export function test_archetype_equine_dressage(): void {
     }
     if (
       !(
-        refusal instanceof ArchetypeRefusal &&
+        refusal instanceof AutoMovieArchetypeRefusal &&
         refusal.axis.endsWith("equineFootwork")
       )
     )
@@ -349,8 +349,8 @@ export function test_archetype_equine_dressage(): void {
   function crossing(take: IFigureTake, toward: Side, label: string): void {
     const sign: number = toward === "left" ? 1 : -1;
     for (const end of ["Fore", "Hind"] as const) {
-      const mover: QuadrupedBody.Limb = `${toward === "left" ? "right" : "left"}${end}`;
-      const partner: QuadrupedBody.Limb = `${toward}${end}`;
+      const mover: AutoMovieArchetypeQuadrupedBody.Limb = `${toward === "left" ? "right" : "left"}${end}`;
+      const partner: AutoMovieArchetypeQuadrupedBody.Limb = `${toward}${end}`;
       let count: number = 0;
       for (const at of archetypeHorseRide.footfalls(take.ride, mover)) {
         const straight: boolean = at < take.from - 0.9;
@@ -376,11 +376,11 @@ export function test_archetype_equine_dressage(): void {
 
   /** In shoulder-in the inside hind steps in the outside fore's track. */
   function sharedTrack(take: IFigureTake, toward: Side, label: string): void {
-    const fore: QuadrupedBody.Limb =
+    const fore: AutoMovieArchetypeQuadrupedBody.Limb =
       toward === "left" ? "leftFore" : "rightFore";
-    const hind: QuadrupedBody.Limb =
+    const hind: AutoMovieArchetypeQuadrupedBody.Limb =
       toward === "left" ? "rightHind" : "leftHind";
-    const lateralOf = (limb: QuadrupedBody.Limb): number[] =>
+    const lateralOf = (limb: AutoMovieArchetypeQuadrupedBody.Limb): number[] =>
       archetypeHorseRide
         .footfalls(take.ride, limb)
         .filter((at: number): boolean => at >= take.from && at <= take.to)
@@ -480,13 +480,15 @@ function suspended(ride: Ride, from: number, stride: number): boolean {
   for (let at: number = from; at < from + stride; at += 0.005) {
     const sample: ReturnType<Ride["at"]> = ride.at(at);
     if (
-      QuadrupedBody.LIMBS.every((limb: QuadrupedBody.Limb): boolean => {
-        const part: IAutoMovieModelPart = sample.archetype.parts.find(
-          (p: IAutoMovieModelPart): boolean =>
-            p.id === QuadrupedBody.BONES[limb][3],
-        )!;
-        return animalTerminalSole(part, sample.placement) > 1e-6;
-      })
+      AutoMovieArchetypeQuadrupedBody.LIMBS.every(
+        (limb: AutoMovieArchetypeQuadrupedBody.Limb): boolean => {
+          const part: IAutoMovieModelPart = sample.archetype.parts.find(
+            (p: IAutoMovieModelPart): boolean =>
+              p.id === AutoMovieArchetypeQuadrupedBody.BONES[limb][3],
+          )!;
+          return animalTerminalSole(part, sample.placement) > 1e-6;
+        },
+      )
     )
       return true;
   }

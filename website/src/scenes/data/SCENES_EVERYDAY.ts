@@ -17,7 +17,7 @@ const MEETING: SceneBuild.Composition = {
       proficiency: "trained",
       actions: [
         { name: "walk", params: { to: to(0, 1.25) } },
-        { name: "stand", params: { seconds: 0.6 } },
+        { name: "stand", params: { hold: 0.6 } },
         {
           name: "handshake",
           params: { partner: "ben" },
@@ -27,13 +27,13 @@ const MEETING: SceneBuild.Composition = {
         { name: "highFive", params: { partner: "ben" } },
         {
           name: "look",
-          params: { target: at("cal", "face"), cue: "signal", seconds: 1 },
+          params: { target: at("cal", "face"), cue: "signal", duration: 1 },
           anchor: "mt-look",
         },
         { name: "gesture", params: { kind: "wave" } },
         { name: "gesture", params: { kind: "nod" } },
         { name: "gesture", params: { kind: "palmsUp" } },
-        { name: "stand", params: { seconds: 0.6 } },
+        { name: "stand", params: { hold: 0.6 } },
       ],
     },
     {
@@ -44,9 +44,9 @@ const MEETING: SceneBuild.Composition = {
       yaw: 180,
       proficiency: "trained",
       actions: [
-        { name: "look", params: { target: at("ana", "face"), seconds: 0.8 } },
+        { name: "look", params: { target: at("ana", "face"), duration: 0.8 } },
         { name: "gesture", params: { kind: "nod" } },
-        { name: "stand", params: { seconds: 2 } },
+        { name: "stand", params: { hold: 2 } },
         {
           name: "handshake",
           params: { partner: "ana" },
@@ -57,7 +57,7 @@ const MEETING: SceneBuild.Composition = {
         { name: "gesture", params: { kind: "shrug" } },
         {
           name: "look",
-          params: { target: at("cal", "face"), cue: "signal", seconds: 1 },
+          params: { target: at("cal", "face"), cue: "signal", duration: 1 },
         },
         { name: "gesture", params: { kind: "raiseHand" } },
         { name: "gesture", params: { kind: "nod" } },
@@ -72,12 +72,12 @@ const MEETING: SceneBuild.Composition = {
       yaw: 0,
       proficiency: "trained",
       actions: [
-        { name: "checkPhone", params: { seconds: 1.5 } },
+        { name: "checkPhone", params: { hold: 1.5 } },
         {
           name: "approach",
           params: { target: at("ben", "face"), at: "social" },
         },
-        { name: "stand", params: { seconds: 3 } },
+        { name: "stand", params: { hold: 3 } },
         {
           name: "gesture",
           params: { kind: "wave" },
@@ -90,7 +90,7 @@ const MEETING: SceneBuild.Composition = {
         },
         {
           name: "rest",
-          params: { left: "pocket", right: "hip", seconds: 1.4 },
+          params: { left: "pocket", right: "hip", hold: 1.4 },
         },
         { name: "gesture", params: { kind: "palmsUp" } },
         { name: "gesture", params: { kind: "nod" } },
@@ -115,7 +115,7 @@ const FALL: SceneBuild.Composition = {
         { name: "walk", params: { to: to(0, 1) } },
         // The swapped body's recovery limit on this approach is 0.85 m/s.
         { name: "stagger", params: { speed: 0.8 } },
-        { name: "knockdown", params: { seconds: 1 } },
+        { name: "knockdown", params: { hold: 1 } },
         { name: "getUp", params: {} },
       ],
     },
@@ -127,8 +127,8 @@ const FALL: SceneBuild.Composition = {
       yaw: 270,
       proficiency: "trained",
       actions: [
-        { name: "stand", params: { seconds: 1.2 } },
-        { name: "brace", params: { kind: "impact", seconds: 0.6 } },
+        { name: "stand", params: { hold: 1.2 } },
+        { name: "brace", params: { kind: "impact", hold: 0.6 } },
         { name: "crouch", params: { hold: 1 } },
         { name: "kneel", params: { kind: "one", hold: 1.2 } },
         {
@@ -137,7 +137,7 @@ const FALL: SceneBuild.Composition = {
             target: { kind: "self", region: "hipRight" },
             // A lower aim lets the palm close against the hip on both bodies.
             site: { up: -0.035 },
-            side: "right",
+            hand: "right",
             kind: "hold",
           },
         },
@@ -149,7 +149,7 @@ const FALL: SceneBuild.Composition = {
               at: { x: -0.15, y: 0.85, z: 0.3 },
               frame: "performer",
             },
-            cycles: 2,
+            count: 2,
           },
         },
       ],
@@ -170,7 +170,7 @@ const LINEUP: SceneBuild.Composition = {
       z: 0,
       yaw: 0,
       proficiency: "trained",
-      actions: [{ name: "stand", params: { seconds: 2 } }],
+      actions: [{ name: "stand", params: { hold: 2 } }],
     }),
   ),
   mutuals: [],

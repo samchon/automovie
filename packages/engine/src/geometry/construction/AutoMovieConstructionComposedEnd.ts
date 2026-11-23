@@ -22,11 +22,6 @@ const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
  * the pair's forks: the composed outline is each curve's arcs outside its neighbours, so a lobe's extremes are the child's own and the
  * valley between two lobes ends in the forks. The pair's seam plane passes through both forks and holds the unit bisector of the two
  * children's axes, so it is a function of both children's frames; its normal points from the lower child toward the upper one.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the sections, the forks, the lobes and the seam plane with its orientation.
- * @evidence contracts/development/design.md#principled-representation A branch node's surface is made of its children's root sections (Ji, Liu and Wang 2010); the union outline of closed curves is their arcs outside one another, and the plane through two crossing points that holds the axes' bisector is the mirror plane of two equal children, in which their skins meet.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The section record, the input, the composition with its forks, seams and lobes, the builder and the section of a cut skin.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Neighbours that do not cross twice, others that overlap and a bisector along the forks' chord are refused by name; no fork is tabulated or snapped.
  */
 export namespace AutoMovieConstructionComposedEnd {
   /**
@@ -38,14 +33,6 @@ export namespace AutoMovieConstructionComposedEnd {
    *
    * @param input The plane and the sections.
    * @returns The composition, or the refusal naming the sections.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Crossings of two closed curves solved on the curves with their own tangents; lobes are the arcs between a section's forks whose middle lies outside its neighbours; the seam plane is spanned by the forks' chord and the axes' bisector.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Polygons, crossings pair by pair, seams, then lobes.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a wrong crossing count, an overlap of sections that are not neighbours, a crossing the iteration cannot settle and a bisector along the chord. Two crossings inside one pair of polygon edges are not seen at the given sample count.
-   * @evidence contracts/development/common.md#meaningful-documentation States the search, the solve and the refusals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `samples` readings per section, a quadratic edge test per pair of sections, and a few readings per fork.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each section's polygon serves every pair it belongs to and its lobes.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The polygons are released; the result is caller-owned.
    */
   export function create(input: IAutoMovieConstructionComposedEnd.IInput): IAutoMovieConstructionComposedEnd.IComposition | string {
     const { sections, normal }: IAutoMovieConstructionComposedEnd.IInput = input;
@@ -266,14 +253,6 @@ export namespace AutoMovieConstructionComposedEnd {
    * @param into The station's sign into the child.
    * @param samples Phases over which the axis is averaged.
    * @returns The section, or the refusal when the stations have no mean direction.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The curve is the skin on the cut, its tangent the chain rule on the cut's slope; the axis is the mean unit station direction round the section, the axis itself on a straight part.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader and one average.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a section whose station directions cancel; nothing is fitted.
-   * @evidence contracts/development/common.md#meaningful-documentation States the curve, its tangent and the axis.
-   * @evidence contracts/development/implementation.md#efficient-algorithms `samples` skin jets for the axis; one cut reading and one jet per section reading.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reader over the cut coordinates no further work.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The section retains the skin and the cut.
    */
   export function section(
     name: string,

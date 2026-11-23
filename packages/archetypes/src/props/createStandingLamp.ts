@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { PracticalLightConstruction } from "./PracticalLightConstruction";
 import type { createLight } from "./createLight";
 
@@ -8,7 +8,7 @@ import type { createLight } from "./createLight";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A freestanding table or floor lamp with a positioned light binding.
  * @evidence contracts/development/implementation.md#principled-implementation The measured stem holds the light in the shade. The side grip follows the shade itself.
@@ -21,7 +21,10 @@ import type { createLight } from "./createLight";
 export function createStandingLamp(
   params: createStandingLamp.IParams,
   seed?: number | string,
-): Archetype<createStandingLamp.Affordance, createStandingLamp.Dimension> {
+): AutoMovieArchetype<
+  createStandingLamp.Affordance,
+  createStandingLamp.Dimension
+> {
   return PracticalLightConstruction.standing(
     ArchetypeDraw.choice(
       "light",

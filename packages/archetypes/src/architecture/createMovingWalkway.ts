@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The planning guide read for every autowalk figure below. */
@@ -37,7 +37,7 @@ const LANDING: number = 1;
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
  * @returns The walkway with its landing, band and handrail contacts.
- * @throws {ArchetypeRefusal} For a dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, the drawn structure and the separate moving band.
  * @evidence contracts/development/implementation.md#principled-implementation One level band of the drawn length and pallet width between two landings, handrails at the drawn height.
@@ -50,9 +50,12 @@ const LANDING: number = 1;
 export function createMovingWalkway(
   params: createMovingWalkway.IParams = {},
   seed?: number | string,
-): Archetype<createMovingWalkway.Affordance, createMovingWalkway.Dimension> {
-  const draw: ArchetypeDrawSession<createMovingWalkway.Dimension> =
-    new ArchetypeDrawSession(
+): AutoMovieArchetype<
+  createMovingWalkway.Affordance,
+  createMovingWalkway.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createMovingWalkway.Dimension> =
+    new AutoMovieArchetypeDrawSession(
       "movingWalkway",
       createMovingWalkway.UNITS,
       seed,
@@ -66,10 +69,10 @@ export function createMovingWalkway(
   }: Record<createMovingWalkway.Dimension, number> = draw.dimensions(
     createMovingWalkway.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createMovingWalkway.Affordance,
     createMovingWalkway.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "moving walkway",
     material: "steel",
@@ -106,7 +109,7 @@ export function createMovingWalkway(
   builder.affordance({
     id: "entryLanding",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, -LANDING / 2)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, -LANDING / 2)),
     extent: null,
     width,
     depth: LANDING,
@@ -114,7 +117,9 @@ export function createMovingWalkway(
   builder.affordance({
     id: "exitLanding",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, length + LANDING / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, 0, length + LANDING / 2),
+    ),
     extent: null,
     width,
     depth: LANDING,
@@ -122,7 +127,7 @@ export function createMovingWalkway(
   builder.affordance({
     id: "band",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, length / 2)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, length / 2)),
     extent: null,
     width,
     depth: length,
@@ -133,7 +138,7 @@ export function createMovingWalkway(
       kind: "handle",
       symmetry: "round",
       grip: "power",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(side * rail, handrail, length / 2),
         Vector3.create(0, 1, 0),
         Vector3.create(0, 0, 1),
@@ -178,7 +183,9 @@ export namespace createMovingWalkway {
   export const RAIL_OFFSET: number = 0.1;
 
   /** Units recorded in the model's draw provenance. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     handrail: "m",
@@ -186,23 +193,23 @@ export namespace createMovingWalkway {
   };
 
   /** The dimensions' bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(
       10,
       250,
       `${KONE}, 5.8 horizontal autowalk lengths`,
     ),
-    width: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
       1,
       1.4,
       `${KONE}, 5.3 horizontal autowalk pallet widths`,
     ),
-    handrail: ArchetypeBand.metres(
+    handrail: AutoMovieArchetypeBand.metres(
       0.9,
       1.1,
       `${KONE}, 5.12 balustrade heights`,
     ),
-    mass: ArchetypeBand.of("kg", 3000, 30000, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 3000, 30000, ESTIMATE, true),
   };
 
   /**
@@ -214,22 +221,23 @@ export namespace createMovingWalkway {
    * @returns The band model.
    */
   export function belt(
-    walkway: Pick<Archetype<Affordance, Dimension>, "dimensions">,
-  ): Archetype<"band", BeltDimension> {
+    walkway: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
+  ): AutoMovieArchetype<"band", BeltDimension> {
     const length: number = walkway.dimensions.length!;
     const width: number = walkway.dimensions.width!;
-    const draw: ArchetypeDrawSession<BeltDimension> = new ArchetypeDrawSession(
-      "walkwayBelt",
-      { width: "m", length: "m", mass: "kg" },
-      undefined,
-      {},
-    );
+    const draw: AutoMovieArchetypeDrawSession<BeltDimension> =
+      new AutoMovieArchetypeDrawSession(
+        "walkwayBelt",
+        { width: "m", length: "m", mass: "kg" },
+        undefined,
+        {},
+      );
     draw.derive("width", width);
     draw.derive("length", length);
     // 40 kg a metre of band: a provisional construction estimate.
     const mass: number = draw.derive("mass", 40 * length);
-    const builder: ArchetypeBuilder<"band", BeltDimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<"band", BeltDimension> =
+      new AutoMovieArchetypeBuilder({
         name: "walkway belt",
         material: "aluminium",
         draw,
@@ -243,7 +251,7 @@ export namespace createMovingWalkway {
     builder.affordance({
       id: "band",
       kind: "surface",
-      frame: ArchetypeFrame.upright(Vector3.create(0, 0, length / 2)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, length / 2)),
       extent: null,
       width,
       depth: length,

@@ -1,6 +1,7 @@
 import type {
   IAutoMovieChain,
   IAutoMovieMotionHumanChainCore,
+  IAutoMovieMotionHumanStageFight,
   IAutoMovieMotionHumanStageProp,
 } from "@automovie/interface";
 
@@ -32,7 +33,7 @@ export function composeHumanStageProp(
   performer: IAutoMovieMotionHumanChainCore,
   beat: IAutoMovieMotionHumanStageProp,
   cue: string,
-  response?: composeHumanStageProp.IResponse,
+  response?: IAutoMovieMotionHumanStageFight.IResponse,
 ): IAutoMovieChain {
   if (cue.trim() === "") throw new Error("Name the visual prop beat");
   if (response !== undefined) {
@@ -54,22 +55,4 @@ export function composeHumanStageProp(
       .act("flinch", {}, `${cue}.response`)
       .sync({ of: cue, event: "stroke", offset: response.delay ?? 0 }),
   );
-}
-
-/**
- * An independent performer answering a visual mark.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the chain and optional delay in seconds.
- * @evidence contracts/development/design.md#principled-representation Uses the existing performer chain and the ordered screen cue.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The composer consumes both members directly.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Physical contact and outcome are outside this cue record.
- */
-export namespace composeHumanStageProp {
-  /** The optional authored partner response. */
-  export interface IResponse {
-    /** The other performer's chain. */
-    performer: IAutoMovieMotionHumanChainCore;
-    /** Seconds after the visual cue. Defaults to zero. */
-    delay?: number;
-  }
 }

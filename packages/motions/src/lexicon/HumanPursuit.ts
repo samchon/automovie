@@ -17,13 +17,16 @@ import { approach } from "../everyday/approach";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HUMAN_GAIT_CONFRONT } from "../next/presets/HUMAN_GAIT_CONFRONT";
+import { HUMAN_GAIT_ESCORT } from "../next/presets/HUMAN_GAIT_ESCORT";
+import { HUMAN_GAIT_FOLLOW } from "../next/presets/HUMAN_GAIT_FOLLOW";
 
 /**
  * Travel relative to another person, each a row of `approach`: the
  * composition gives the person as the target. Register the ones a film
  * uses.
  *
- * `follow`, `escort` and `chase` go where the person goes: the stop is
+ * `follow` and `escort` go where the person goes: the stop is
  * taken where the person comes to rest, read from their placed actions, and
  * the pursuer sets off late enough to arrive just after them. So the person
  * pursued is composed before the pursuer (`leader.with(follower)`), and a
@@ -31,7 +34,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * the pursuer does not match the person's speed on the way or keep a gap
  * through their turns. `confront` steps up to a person where they stand.
  *
- * `intercept` heads a moving person off, running to where they will be.
+ * `intercept` heads a moving person off, running to where they will be,
+ * and `chase` is a row of it: a chase runs.
  * `flee` is the opposite travel: a run straight away from a person, read
  * where they are when it begins. It is a law of its own over the run,
  * since its destination comes from the person and not from the scene.
@@ -45,37 +49,17 @@ export namespace HumanPursuit {
   /** Come up behind a person at the social distance, as a follower closes the gap. */
   export const follow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["follow"]
-  > = HumanActionRow.of("follow", approach, {
-    side: "behind",
-    at: "social",
-    track: "pace",
-  });
+  > = HumanActionRow.of("follow", approach, HUMAN_GAIT_FOLLOW);
 
   /** Come to a person's left side at the personal distance, as an escort takes station. */
   export const escort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["escort"]
-  > = HumanActionRow.of("escort", approach, {
-    side: "left",
-    at: "personal",
-    track: "pace",
-  });
-
-  /** Close on a person fast, to arm's length, as a chase ends. */
-  export const chase: IAutoMovieMotionHumanActionLaw<
-    IAutoMovieMotionHumanLexiconParams["pursuit"]["chase"]
-  > = HumanActionRow.of("chase", approach, {
-    pace: "fast",
-    at: "handing",
-    track: true,
-  });
+  > = HumanActionRow.of("escort", approach, HUMAN_GAIT_ESCORT);
 
   /** Step up face to face, as a confrontation begins. */
   export const confront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["confront"]
-  > = HumanActionRow.of("confront", approach, {
-    side: "front",
-    at: "faceToFace",
-  });
+  > = HumanActionRow.of("confront", approach, HUMAN_GAIT_CONFRONT);
 
   /**
    * Head a moving person off: a run to where they will be when the runner
@@ -149,6 +133,11 @@ export namespace HumanPursuit {
         });
       },
     };
+
+  /** Run after a person to arm's length of where they will be, as a chase ends: a chase runs, so it is a row of `intercept` (the run's `run` pace when none is given), never a walk. */
+  export const chase: IAutoMovieMotionHumanActionLaw<
+    IAutoMovieMotionHumanLexiconParams["pursuit"]["chase"]
+  > = HumanActionRow.of("chase", intercept, {});
 
   /** Seconds one glance back at a pursuer lasts before the eyes return ahead (provisional: no study of fleeing gaze was read). */
   export const GLANCE: number = 0.6;
@@ -225,7 +214,7 @@ export namespace HumanPursuit {
   export function search<
     Chain extends {
       walk(params: { to: IAutoMovieVector3 }): Chain;
-      stand(params: { seconds: number }, anchor?: string): Chain;
+      stand(params: { hold: number }, anchor?: string): Chain;
     },
   >(
     chain: Chain,
@@ -235,7 +224,7 @@ export namespace HumanPursuit {
   ): Chain {
     let out: Chain = chain;
     places.forEach((to: IAutoMovieVector3, index: number): void => {
-      out = out.walk({ to }).stand({ seconds: pause }, `${name}${index}`);
+      out = out.walk({ to }).stand({ hold: pause }, `${name}${index}`);
     });
     return out;
   }

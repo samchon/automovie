@@ -47,6 +47,24 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * hand rotation prefers a nearby forearm twist. The bounded candidate law is
  * retained; it does not globally minimize over both joints. Every candidate
  * is ranked through the same effector projection that final orientation uses.
+ * A continued solve (`reference`, the twist a fit of a nearby pose chose)
+ * starts from that twist itself, clamped to the range, and keeps its basin:
+ * the feasible value nearest the previous solution (Tolani, Goswami and
+ * Badler 2000, section 3.2.4), the frame-to-frame coherence an animation
+ * system's IK keeps (Aristidou et al. 2018, "Inverse kinematics techniques
+ * in computer graphics: a survey", Comput. Graph. Forum 37:35, section 7),
+ * where the least miss over all candidates jumps between the range's ends
+ * as an unreachable request moves. The basin is the effector's twist share
+ * `φ` beyond its zero, which the wrist misses by `|φ|` before its own range
+ * clamps; `|φ|` peaks where `φ` is a half turn (the equation's other root)
+ * and where `φ` turns back from zero (a second first-order equation), so the
+ * peaks around the start bound its basin in closed form, and of the start,
+ * the basin's root, its turning twist and the range ends inside it, the one
+ * that misses least is taken. The estimate is no start there: the fit hands
+ * the forearm in at its hinge's own twist, so the estimate reads the change
+ * from that twist, and for a hand turned about half a turn from it
+ * (pointing down a vertical sleeve beside the shoulder) it falls on either
+ * side of the peak between the two ends, frame by frame.
  *
  * @param props The mid joint's and the effector's current clinical angles;
  *   `above`, the world rotation the mid joint's articulation composes after
@@ -77,12 +95,12 @@ import { prepareJointRotationProjection } from "./prepareJointRotationProjection
  * @returns The mid joint with its twist solved, clamped to the rig's range.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the degree-valued lower/effector articulations, model/local rotation frames, bounded roots/range/start law and tie. withProjection's child documentation defines the selected lower joint plus copied actual effector joint/raw quaternion/local demand, exact-demand reuse condition and caller ownership; prepare documents lazy unchanged fixed-frame readings.
- * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer.
+ * @evidence contracts/development/implementation.md#principled-implementation Rodrigues' formula makes the clinical-zero twist condition a first-order trigonometric equation. Its at most two roots, range ends and reference are ranked by the actual rotation from prepareJointRotationProjection, the same effector owner final display uses; this finite outer law is not a global combined-joint optimizer. A continued solve keeps the start's basin (Tolani, Goswami and Badler 2000, nearest feasible to the previous solution), bounded in closed form by the peaks of the effector's twist share (its half-turn root and its turning points, both first-order sinusoid zeros), so the twist is continuous where the least miss would cross between the range's ends and no candidate across a peak is taken.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Both ordinary and withProjection entries use one private bounded search; only paired mode retains the actual winning projection. prepare delegates fixed axis/clinical-zero readers to prepareDistalTwistEffector, leaving one equation/root/ranking owner here.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every lower twist is clamped to actual ROM, and every miss is read from actual projected articulation. The existing angular TIE policy chooses nearer starts among small differences; it is not a roundoff proof or a claim that the residual is zero. The chosen twist always owns its stored score.
- * @evidence contracts/development/implementation.md#efficient-algorithms Setup is O(B) without shared clamps/projector. At most five distinct clamped twists query the projector; eligible queries score at most nineteen unique articulations and generic queries keep their bounded refinement. Paired mode additionally copies one fixed-size actual reading per query, retaining only current/selected readings, so matching immediate consumers avoid another complete query. Original TIE stopping and all candidate counts remain, with unmeasured speedup.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Setup is O(B) without shared clamps/projector. At most five distinct clamped twists query the projector, seven in a continued solve (the start, two ends, at most two roots and two turning twists, in practice the few inside one basin), whose peaks cost two closed-form root pairs; eligible queries score at most nineteen unique articulations and generic queries keep their bounded refinement. Paired mode additionally copies one fixed-size actual reading per query, retaining only current/selected readings, so matching immediate consumers avoid another complete query. Original TIE stopping and all candidate counts remain, with unmeasured speedup.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Matching source bases/clamps/inverses/projector and fixed effector readings share unchanged dependencies. Raw/untwisted/held readers keep first-use order; component-identical rotations share needed as K after both reads. Only clampJointToSkeleton's genuine nonretaining factory callables may memoize Object.is-identical twists, preserving signed zero. Unknown/wrapped lower callbacks retain a fresh input and actual callback on every original at invocation, so a reused mutable callback output cannot stand for an older reading. Paired projection preserves actual demand/raw articulation and angleAfterNormalize keeps both normalization/Hamilton/atan2 boundaries. No answer crosses solves.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources With a genuine lower factory, one solve retains at most eight requested-twist/clamped-joint rows; foreign callbacks allocate no memo rows. Five candidate twists, harmonic data and current/selected paired readings remain bounded. Everything releases on return/throw except the selected caller-owned result; source preparation remains its caller's, without growing history or handles.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources With a genuine lower factory, one solve retains at most ten requested-twist/clamped-joint rows; foreign callbacks allocate no memo rows. Seven candidate twists, the basin's peaks and troughs, harmonic data and current/selected paired readings remain bounded. Everything releases on return/throw except the selected caller-owned result; source preparation remains its caller's, without growing history or handles.
  */
 export function solveDistalTwist(
   props: solveDistalTwist.IProps,
@@ -221,14 +239,19 @@ function solve(
     )),
     props.lowerBasis.twist,
   );
-  const start: number =
-    at(
-      decomposeJointRotationOnBasis(
-        Quaternion.normalize(Quaternion.multiply(articulated, twist)),
-        props.lowerBasis,
-        props.lowerFrame,
-      ).twist ?? 0,
+  const turned: number =
+    decomposeJointRotationOnBasis(
+      Quaternion.normalize(Quaternion.multiply(articulated, twist)),
+      props.lowerBasis,
+      props.lowerFrame,
     ).twist ?? 0;
+  // A continued solve starts from the twist it continues (Tolani, Goswami
+  // and Badler 2000: the feasible value nearest the previous solution), not
+  // from the estimate: the fit hands the forearm in at its hinge's own twist,
+  // so the estimate reads the change from that twist, and for a hand turned
+  // about half a turn from it the estimate falls on either side of the
+  // barrier between the range's ends, frame by frame.
+  const start: number = at(props.reference ?? turned).twist ?? 0;
 
   // K: the request seen from the mid bone's articulation before its twist.
   const untwisted: IAutoMovieQuaternion = props.readUntwisted?.() ?? lowerRotation(
@@ -301,17 +324,12 @@ function solve(
   const low: number = at(-1e6).twist ?? 0;
   const high: number = at(1e6).twist ?? 0;
   const candidates: number[] = [low, high, start];
-  const radius: number = Math.hypot(B!, C!);
-  if (radius > 1e-12 && Math.abs(A!) <= radius) {
-    const centre: number = Math.atan2(C!, B!);
-    const spread: number = Math.acos(Math.max(-1, Math.min(1, -A! / radius)));
-    for (const r of [centre + spread, centre - spread]) {
-      const clinical: number =
-        toClinicalAngle((r * 180) / Math.PI, props.lowerFrame?.twist) ?? 0;
-      // The alias of the solution nearest the range's middle.
-      const middle: number = (low + high) / 2;
-      candidates.push(clinical - 360 * Math.round((clinical - middle) / 360));
-    }
+  for (const r of sinusoidZeros([A!, B!, C!])) {
+    const clinical: number =
+      toClinicalAngle((r * 180) / Math.PI, props.lowerFrame?.twist) ?? 0;
+    // The alias of the solution nearest the range's middle.
+    const middle: number = (low + high) / 2;
+    candidates.push(clinical - 360 * Math.round((clinical - middle) / 360));
   }
 
   // The candidate whose clamped effector misses least; between equals, the
@@ -324,6 +342,79 @@ function solve(
   // miss is below zero, nor tied by a twist nearer to itself.
   if (least <= TIE && at(start).twist === start)
     return { joint: at(start), projection: chosenProjection };
+
+  // A continued solve keeps the start's basin (Tolani, Goswami and Badler
+  // 2000: the feasible value nearest the previous solution), the basin of
+  // the effector's twist share `φ = atan2(E, G)` beyond its clinical zero,
+  // `E = R sin φ` the equation above and `G = R cos φ`: the wrist cannot
+  // twist, so it misses its request by `|φ|` before its own range clamps.
+  // `|φ|` peaks where `φ` is a half turn (the equation's root with `G < 0`)
+  // and where `φ` turns back away from zero (`E G' - G E' = 0`, itself
+  // first-order in the twist), so those twists bound the start's basin, in
+  // closed form. Its least, at its other root, its other turning twist or a
+  // range end it meets, is taken against the start by the actual miss. The
+  // least miss over every candidate jumps from one end of the range to the
+  // other where an unreachable request's two ends cross, between two frames,
+  // and a descent over sparse candidates hops a peak between neighbours;
+  // the basin moves with the request instead.
+  if (props.reference !== undefined) {
+    const G: number[] = [0, 1, 2].map(
+      (i: number): number => (charted ? -P[i]! : P[i]!) * sine + Q[i]! * cosine,
+    );
+    const E: number[] = [A!, B!, C!];
+    // E G' - G E' = k0 + k1 cos r + k2 sin r (both first-order sinusoids).
+    const turning: number[] = [
+      B! * G[2]! - C! * G[1]!,
+      A! * G[2]! - G[0]! * C!,
+      G[0]! * B! - A! * G[1]!,
+    ];
+    const clinicalOf = (r: number): number =>
+      toClinicalAngle((r * 180) / Math.PI, props.lowerFrame?.twist) ?? 0;
+    const peaks: number[] = [];
+    const troughs: number[] = [];
+    for (const r of sinusoidZeros(E)) {
+      const g: number = sinusoidAt(G, r);
+      if (g !== 0) (g < 0 ? peaks : troughs).push(clinicalOf(r));
+    }
+    for (const r of sinusoidZeros(turning)) {
+      // φ' = -(E G' - G E') / R², so φ'' there has the sign of
+      // k1 sin r - k2 cos r: a peak of |φ| where it and φ differ in sign.
+      const side: number =
+        Math.atan2(sinusoidAt(E, r), sinusoidAt(G, r)) *
+        (turning[1]! * Math.sin(r) - turning[2]! * Math.cos(r));
+      if (side !== 0) (side < 0 ? peaks : troughs).push(clinicalOf(r));
+    }
+    let below: number = -Infinity;
+    let above: number = Infinity;
+    for (const peak of peaks) {
+      const under: number = peak + 360 * Math.floor((start - peak) / 360);
+      below = Math.max(below, under);
+      above = Math.min(above, under + 360);
+    }
+    const from: number = Math.max(low, below);
+    const to: number = Math.min(high, above);
+    const basin: number[] = [start];
+    if (from === low) basin.push(low);
+    if (to === high) basin.push(high);
+    for (const t of troughs) {
+      const alias: number = t - 360 * Math.round((t - start) / 360);
+      if (alias >= from && alias <= to) basin.push(alias);
+    }
+    for (const t of new Set<number>(basin)) {
+      if (t === chosen) continue;
+      const m: number = missed(t);
+      if (
+        m < least - TIE ||
+        (Math.abs(m - least) <= TIE &&
+          Math.abs(t - start) < Math.abs(chosen - start))
+      ) {
+        chosen = t;
+        least = m;
+        chosenProjection = latestProjection;
+      }
+    }
+    return { joint: at(chosen), projection: chosenProjection };
+  }
 
   // A candidate that clamps to a twist already read is the same pose: the
   // same miss, never strictly nearer, so it is not read again.
@@ -359,6 +450,24 @@ function solve(
 
 /** Existing distal-candidate angular tie policy, radians; this is not a numerical-roundoff bound or a reached-target threshold. */
 const TIE: number = 1e-6;
+
+/** `h[0] + h[1] cos r + h[2] sin r`, `r` radians. */
+function sinusoidAt(h: readonly number[], r: number): number {
+  return h[0]! + h[1]! * Math.cos(r) + h[2]! * Math.sin(r);
+}
+
+/**
+ * The at most two angles, radians, where `h[0] + h[1] cos r + h[2] sin r`
+ * is zero: `atan2(h[2], h[1]) ± acos(-h[0] / R)`, `R` the harmonic's
+ * amplitude; none where it never reaches zero or has no amplitude.
+ */
+function sinusoidZeros(h: readonly number[]): number[] {
+  const radius: number = Math.hypot(h[1]!, h[2]!);
+  if (!(radius > 1e-12) || Math.abs(h[0]!) > radius) return [];
+  const centre: number = Math.atan2(h[2]!, h[1]!);
+  const spread: number = Math.acos(Math.max(-1, Math.min(1, -h[0]! / radius)));
+  return [centre + spread, centre - spread];
+}
 
 /** Internal joint-only and paired modes share one candidate search. */
 interface ISolution {

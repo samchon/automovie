@@ -36,7 +36,12 @@ import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGrasp
  *    and the grasped width, with the performer's timing variability; the
  *    hand comes in the last stretch along the approach axis from a setback
  *    equal to the peak aperture, so the open hand clears the object, and the
- *    aperture peaks inside Jeannerod's 60 to 70 % band.
+ *    aperture peaks inside Jeannerod's 60 to 70 % band. The time is
+ *    `-0.31 + 0.30 log10(reach in mm) + 0.00065 (width in mm)` seconds
+ *    (`HumanPrehension.nominal`; never under its value at 170 mm,
+ *    0.40 s for a 6 cm width): about 0.5 s for a 0.4 m reach to a 6 cm grip and 0.56 s
+ *    for 0.6 m. This is the family's model for `pickUp`, `putDown` and
+ *    every other reach to a place.
  * 2. Load: the hand holds still for 0.15 s with the fingers closed, the
  *    preload and load phases that precede lift-off in a precision lift
  *    (Johansson and Westling 1984, Exp. Brain Res. 56:550); the duration is
@@ -64,22 +69,18 @@ import type { IAutoMovieMotionHumanGraspUse } from "./IAutoMovieMotionHumanGrasp
  * into a stand before `gripClosed` abandons the reach; after `lifted` it continues into a stand, a walk, a put down or
  * a hand over. A grip no lowering brings within the arm, or one beyond the
  * arm of a body that is not standing, is refused with the step named.
- *
- * @evidence contracts/development/common.md#meaningful-documentation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
- * @evidence contracts/development/design.md#principled-representation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.pickUp, params); handling/pickUp.ts (pickUp.plan, context); handling/pickUpSearch.ts (pickUpSearch.of, context); handling/pickUpStance.ts (pickUpStance.of, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPickUp {
   /**
+   * A place along a grip's band: the share of the band's length from its
+   * end against the grip's wrapped axis (0) to its end along it (1), the
+   * middle 0.5, so a long bar is taken where the act needs it (a vaulter's
+   * top hand on the shaft).
+   */
+  export type Along = number;
+
+  /**
    * Parameters.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
-   * @evidence contracts/development/design.md#principled-representation hand: The grasping hand; `right` when absent. lift: How far the wrist rises after the grasp, metres; 0 when the other hand already holds the prop, otherwise 0.1 when absent. A steadying hand cannot lift independently. use: What the prop is taken up for, when it is a tool: the grasp is then chosen for the use and not only for the reach. A handle can be wrapped from any side, and the side the hanging arm reaches most easily leaves a blade or a barrel where the wrist cannot later aim it. With a use, the grasp must also hold with the tool presented ahead of the shoulder on the line the use names, and a handle no grasp serves so is refused. Absent, the grasp is chosen for the reach and the lift alone.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainMutual.ts (HumanChainMutual.pickUp, params); handling/pickUp.ts (pickUp.plan, context); handling/pickUpSearch.ts (pickUpSearch.of, context); handling/pickUpStance.ts (pickUpStance.of, context).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** The prop's subject id. */
@@ -87,6 +88,9 @@ export namespace IAutoMovieMotionHumanPickUp {
 
     /** The grip affordance's id. */
     handle: string;
+
+    /** Where along the grip's band the hand takes it (`IAutoMovieMotionHumanPickUp.Along`); the band's middle when absent. */
+    along?: IAutoMovieMotionHumanPickUp.Along;
 
     /** The grasping hand; `right` when absent. */
     hand?: AutoMovieHumanSide;

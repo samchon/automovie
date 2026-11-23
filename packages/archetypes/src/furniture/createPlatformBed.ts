@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { BedConstruction } from "./BedConstruction";
 import type { createBed } from "./createBed";
 
@@ -8,7 +8,7 @@ import type { createBed } from "./createBed";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A single or double household bed with a lying surface and opposed side seats.
  * @evidence contracts/development/implementation.md#principled-implementation The mattress is supported by a base at the admitted height, with a headboard at negative Z.
@@ -21,7 +21,10 @@ import type { createBed } from "./createBed";
 export function createPlatformBed(
   params: createPlatformBed.IParams,
   seed?: number | string,
-): Archetype<createPlatformBed.Affordance, createPlatformBed.Dimension> {
+): AutoMovieArchetype<
+  createPlatformBed.Affordance,
+  createPlatformBed.Dimension
+> {
   return BedConstruction.platform(
     ArchetypeDraw.choice("bed", "kind", params.kind, createPlatformBed.KINDS),
     params,

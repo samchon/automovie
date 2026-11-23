@@ -1,6 +1,6 @@
 import {
-  ArchetypeUnits,
-  ArchetypeFrame,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createHandgun,
   createMagazine,
   createPolearm,
@@ -58,34 +58,35 @@ export function test_archetype_weapon_magazine(): void {
     ),
     row(
       "pistol magazine mass",
-      1.4 * ArchetypeUnits.OUNCE,
-      1.4 * ArchetypeUnits.OUNCE,
+      1.4 * AutoMovieArchetypeUnits.OUNCE,
+      1.4 * AutoMovieArchetypeUnits.OUNCE,
       "Strike Industries SI-G-MAG-17",
       (seed: number): number =>
         createMagazine({ kind: "pistol" }, seed).body.mass,
     ),
     row(
       "rifle magazine length",
-      7.5 * ArchetypeUnits.INCH,
-      7.5 * ArchetypeUnits.INCH,
+      7.5 * AutoMovieArchetypeUnits.INCH,
+      7.5 * AutoMovieArchetypeUnits.INCH,
       "Magpul PMAG 30",
       (seed: number): number =>
         archetypeExtent(createMagazine({ kind: "rifle" }, seed), "y").size,
     ),
     row(
       "rifle magazine grip",
-      0.87 * ArchetypeUnits.INCH,
-      0.87 * ArchetypeUnits.INCH,
+      0.87 * AutoMovieArchetypeUnits.INCH,
+      0.87 * AutoMovieArchetypeUnits.INCH,
       "T.REX Arms' PMAG table",
       (seed: number): number =>
         createMagazine({ kind: "rifle" }, seed).affordance("grip").aperture!,
     ),
     row(
       "rifle magazine mass",
-      5 * ArchetypeUnits.OUNCE,
+      5 * AutoMovieArchetypeUnits.OUNCE,
       0.146,
       "Magpul and T.REX Arms",
-      (seed: number): number => createMagazine({ kind: "rifle" }, seed).body.mass,
+      (seed: number): number =>
+        createMagazine({ kind: "rifle" }, seed).body.mass,
     ),
     row(
       "pistol rounds",
@@ -140,16 +141,19 @@ export function test_archetype_weapon_magazine(): void {
 
     // The magazine's placement P with P * base = well: P = well * base^-1, base^-1 turning by the inverse rotation and shifting by -R^-1 t.
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(base.rotation);
-    const placement: IAutoMovieTransform = ArchetypeFrame.compose(well, {
-      translation: Vector3.scale(
-        Quaternion.rotateVector(inverse, base.translation),
-        -1,
-      ),
-      rotation: inverse,
-      scale: { x: 1, y: 1, z: 1 },
-    });
+    const placement: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
+      well,
+      {
+        translation: Vector3.scale(
+          Quaternion.rotateVector(inverse, base.translation),
+          -1,
+        ),
+        rotation: inverse,
+        scale: { x: 1, y: 1, z: 1 },
+      },
+    );
     const seat = (local: IAutoMovieVector3): IAutoMovieVector3 =>
-      ArchetypeFrame.point(placement, local);
+      AutoMovieArchetypeFrame.point(placement, local);
     const feed: IAutoMovieVector3 = seat(
       magazine.affordance("feed").frame.translation,
     );

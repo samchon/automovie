@@ -2,14 +2,14 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** White oak's size at maturity, read in the USDA silvics manual. */
@@ -52,7 +52,7 @@ const BRANCHES: string =
  * @param params The kind, the branch count and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The tree.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  * @throws {RangeError} For a branch count that is not a whole number from 0 to `MAX_BRANCHES`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the tree stands, its parts, its contact, how its mass and balance follow and why it carries no friction.
@@ -66,9 +66,9 @@ const BRANCHES: string =
 export function createTree(
   params: createTree.IParams,
   seed?: number | string,
-): Archetype<createTree.Affordance, createTree.Dimension> {
-  const draw: ArchetypeDrawSession<createTree.Dimension> =
-    new ArchetypeDrawSession<createTree.Dimension>(
+): AutoMovieArchetype<createTree.Affordance, createTree.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTree.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTree.Dimension>(
       "tree",
       createTree.UNITS,
       seed,
@@ -83,17 +83,19 @@ export function createTree(
   const d: Record<createTree.TreeDimension, number> = draw.dimensions(
     createTree.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<createTree.Affordance, createTree.Dimension> =
-    new ArchetypeBuilder({
-      material: "wood",
-      id: params.id,
-      name: kind === "whiteOak" ? "white oak" : "Douglas-fir",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createTree.Affordance,
+    createTree.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "wood",
+    id: params.id,
+    name: kind === "whiteOak" ? "white oak" : "Douglas-fir",
+    draw,
+  });
   const v: typeof Vector3.create = Vector3.create;
 
   // The green mass from the diameter in centimetres, and the trunk's share: its stem wood and bark.
-  const dbh: number = d.dbh / ArchetypeUnits.CENTIMETRE;
+  const dbh: number = d.dbh / AutoMovieArchetypeUnits.CENTIMETRE;
   const equation: createTree.IEquation = createTree.JENKINS[kind];
   const dry: number = Math.exp(equation.b0 + equation.b1 * Math.log(dbh));
   const ratio: (component: readonly [number, number]) => number = (
@@ -136,7 +138,7 @@ export function createTree(
       builder.affordance({
         id: `branch${k}`,
         kind: "bar",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.add(v(0, h, 0), Vector3.scale(dir, r + b.branchLength / 2)),
           v(0, 1, 0),
           dir,
@@ -154,7 +156,7 @@ export function createTree(
       builder.affordance({
         id: `seat${k}`,
         kind: "seat",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.add(
             v(0, h + rb, 0),
             Vector3.scale(dir, r + createTree.SEAT_OUT),
@@ -177,7 +179,11 @@ export function createTree(
     builder.affordance({
       id: "bole",
       kind: "bar",
-      frame: ArchetypeFrame.facing(v(0, base / 2, 0), v(0, 0, 1), v(0, 1, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, base / 2, 0),
+        v(0, 0, 1),
+        v(0, 1, 0),
+      ),
       extent: null,
       length: base,
       radius: r,
@@ -187,7 +193,7 @@ export function createTree(
     id: "trunk",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, createTree.BREAST_HEIGHT, r),
       v(0, 0, 1),
       v(1, 0, 0),
@@ -249,7 +255,7 @@ export namespace createTree {
     },
   };
   /** Breast height, metres: the 4.5 ft the USDA Forest Service's FIA National Core Field Guide (version 5.0, 2010, 5.9.2, p. 113) measures DBH at, "initially attempt to measure DBH at 4.5 ft" (https://ww2.arb.ca.gov/sites/default/files/cap-and-trade/protocols/usforest/references/fia_nationalcorefieldguide.pdf). */
-  export const BREAST_HEIGHT: number = 4.5 * ArchetypeUnits.FOOT;
+  export const BREAST_HEIGHT: number = 4.5 * AutoMovieArchetypeUnits.FOOT;
 
   /**
    * The affordance ids:
@@ -293,7 +299,9 @@ export namespace createTree {
   export type Dimension = TreeDimension | BranchDimension;
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     dbh: "m",
     crownBase: "",
@@ -325,14 +333,6 @@ export namespace createTree {
    * @param value The count asked for.
    * @returns It, or 0 when absent.
    * @throws {RangeError} For a count that is not a whole number from 0 to `MAX_BRANCHES`.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the default and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A whole number inside the admitted range.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One check.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses rather than clamps.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function branchCount(value: number | undefined): number {
     const count: number = value ?? 0;
@@ -364,14 +364,6 @@ export namespace createTree {
    * @param diameter The branch's diameter, metres.
    * @param distance The load's distance from the trunk face, metres.
    * @returns The load, newtons.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the beam rule and the units.
-   * @evidence contracts/development/implementation.md#principled-implementation The elementary bending stress of a round section at the root of a cantilever.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed form.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No safety factor: the load is where the root fails.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function cantilever(
     rupture: number,
@@ -382,29 +374,30 @@ export namespace createTree {
   }
 
   /** Each branch dimension's band, provisional: no forestry source states a climbable tree's lower limbs, so the bands stage one, the lowest branch from a standing reach to beyond a jump's. */
-  export const BRANCH_BANDS: Readonly<Record<BranchDimension, IArchetypeBand>> =
-    {
-      branchHeight: ArchetypeBand.of("m", 1.4, 3.2, BRANCHES, true),
-      branchGap: ArchetypeBand.of("m", 0.6, 0.9, BRANCHES, true),
-      branchDiameter: ArchetypeBand.of("m", 0.1, 0.18, BRANCHES, true),
-      branchLength: ArchetypeBand.of("m", 1.5, 2.5, BRANCHES, true),
-    };
+  export const BRANCH_BANDS: Readonly<
+    Record<BranchDimension, IAutoMovieArchetypeBand>
+  > = {
+    branchHeight: AutoMovieArchetypeBand.of("m", 1.4, 3.2, BRANCHES, true),
+    branchGap: AutoMovieArchetypeBand.of("m", 0.6, 0.9, BRANCHES, true),
+    branchDiameter: AutoMovieArchetypeBand.of("m", 0.1, 0.18, BRANCHES, true),
+    branchLength: AutoMovieArchetypeBand.of("m", 1.5, 2.5, BRANCHES, true),
+  };
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<TreeDimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<TreeDimension, IAutoMovieArchetypeBand>>>
   > = {
     whiteOak: {
-      height: ArchetypeBand.metres(24, 30, SILVICS),
-      dbh: ArchetypeBand.metres(0.91, 1.22, SILVICS),
-      crownBase: ArchetypeBand.of("", 0.5, 0.6, CROWN, true),
-      moisture: ArchetypeBand.of("", 0.64, 0.78, MOISTURE),
+      height: AutoMovieArchetypeBand.metres(24, 30, SILVICS),
+      dbh: AutoMovieArchetypeBand.metres(0.91, 1.22, SILVICS),
+      crownBase: AutoMovieArchetypeBand.of("", 0.5, 0.6, CROWN, true),
+      moisture: AutoMovieArchetypeBand.of("", 0.64, 0.78, MOISTURE),
     },
     douglasFir: {
-      height: ArchetypeBand.metres(50.8, 61.6, WIND_RIVER),
-      dbh: ArchetypeBand.metres(0.871, 1.535, WIND_RIVER),
-      crownBase: ArchetypeBand.of("", 1 - 0.64, 1 - 0.45, LIVE_CROWN),
-      moisture: ArchetypeBand.of("", 0.37, 1.15, FIR_MOISTURE),
+      height: AutoMovieArchetypeBand.metres(50.8, 61.6, WIND_RIVER),
+      dbh: AutoMovieArchetypeBand.metres(0.871, 1.535, WIND_RIVER),
+      crownBase: AutoMovieArchetypeBand.of("", 1 - 0.64, 1 - 0.45, LIVE_CROWN),
+      moisture: AutoMovieArchetypeBand.of("", 0.37, 1.15, FIR_MOISTURE),
     },
   };
 }

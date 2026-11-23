@@ -5,11 +5,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * A finite solid collider placed in its segment's bone frame.
  *
  * A kind discriminator chooses sphere, local-Y capsule, oriented box or convex hull dimensions. The hull is the convex hull of its supplied shape-local points; interior points are refused by physical admission. Every shape references a profile material and has an identity unique within its segment. Dimensions are metres; soft-layer depth must leave a positive solid core.
- *
- * @evidence contracts/development/design.md#principled-representation The closed kind union admits only dimensions needed by each solid while sharing local rigid placement, identity and physical material.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Profile validation, native collider creation and geometric audits consume the same four solid descriptions.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No renderer mesh or arbitrary nonconvex triangle soup is presented as a supported physical solid; hull admission verifies a three-dimensional boundary.
- * @evidence contracts/development/common.md#meaningful-documentation Specifies shape-local coordinates, metre extents, capsule direction, material identity and solid-core obligations.
  */
 export type IAutoMoviePhysicalShape = {
   /** Unique within its segment. */

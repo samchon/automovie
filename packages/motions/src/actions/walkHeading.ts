@@ -57,6 +57,55 @@ export namespace walkHeading {
     return STEP.at(-1)![1];
   }
 
+  /** The footfalls an ordinary arrival turns over: the two before the closing pair turn a third and two thirds of the arrival's turn, and the pair faces it. */
+  export const CLOSING: number = 3;
+
+  /**
+   * The footfalls a walk turns its arrival over: `CLOSING`, or, for an
+   * arrival turned about further than `CLOSING` step turns carry, as many
+   * step turns as it needs, the extra ones taken in place at the arrival,
+   * so no footfall turns further from the one before than a step turn and
+   * the feet never cross (a step turn, Hase and Stein 1999).
+   *
+   * @param turn The arrival's heading less the way in, degrees.
+   * @param stepTurn The most one footfall turns from the one before, degrees.
+   * @returns The footfalls, at least `CLOSING`.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the rule.
+   * @evidence contracts/development/implementation.md#principled-implementation The turn over the step turn, rounded up, never under the ordinary ramp.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One division and one bound.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An arrival the ordinary ramp carries keeps it exactly.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function closing(turn: number, stepTurn: number): number {
+    return Math.max(CLOSING, Math.ceil(Math.abs(turn) / stepTurn));
+  }
+
+  /**
+   * A heading turned from another toward a target by no more than a bound:
+   * a footfall of a walk facing off its entry turns from the entry by at
+   * most as many step turns as it is footfalls in.
+   *
+   * @param from The heading turned from, degrees.
+   * @param target The heading asked, degrees, unwrapped near `from`.
+   * @param most The largest turn, degrees.
+   * @returns The heading, degrees.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and the rule.
+   * @evidence contracts/development/implementation.md#principled-implementation The asked turn clamped to the bound, its sign kept.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clamp.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target within the bound is returned as asked.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function capped(from: number, target: number, most: number): number {
+    const turn: number = target - from;
+    return from + Math.sign(turn) * Math.min(Math.abs(turn), most);
+  }
+
   /**
    * How many opening footfalls a walk steps in place to turn about: when a
    * foot's first swing cannot face the way the walk sets off (turning at
@@ -268,6 +317,44 @@ export namespace walkHeading {
     if (apart >= gap) return point;
     const shift: number = sign * (gap - apart);
     return { x: point.x + shift * lx, y: point.y, z: point.z + shift * lz };
+  }
+
+  /**
+   * A step turn's footprint (Hase and Stein 1999): the turning foot steps
+   * round the standing foot's last footprint to its own side of it at the
+   * new facing, the two feet their offsets apart across that facing, so a
+   * turn about at an arrival pivots on the standing foot instead of
+   * orbiting the arrival point.
+   *
+   * @param other The standing foot's last footprint and its own offset across the facing.
+   * @param toward The footprint's facing, degrees.
+   * @param side The stepping foot.
+   * @param lateral The footprint's own offset across the facing, metres.
+   * @param height The footprint's ankle height, world metres.
+   * @returns The footprint's ankle, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the step turn, its source and each input.
+   * @evidence contracts/development/implementation.md#principled-implementation The two feet's offsets laid along the new facing's own +X from the standing footprint, as `separated` reads them.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One axis and one offset.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The separation is the feet's own offsets, the same `separated` keeps.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function around(
+    other: ISeparated,
+    toward: number,
+    side: "left" | "right",
+    lateral: number,
+    height: number,
+  ): IAutoMovieVector3 {
+    const a: number = (toward * Math.PI) / 180;
+    // The facing's +X, the body's left.
+    const lx: number = Math.cos(a);
+    const lz: number = -Math.sin(a);
+    const sign: number = side === "left" ? 1 : -1;
+    const gap: number = Math.abs(lateral) + Math.abs(other.lateral);
+    return { x: other.point.x + sign * gap * lx, y: height, z: other.point.z + sign * gap * lz };
   }
 
   /**

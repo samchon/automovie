@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  ArchetypeUnits,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
   createBow,
 } from "@automovie/archetypes";
 import type { IAutoMovieVector3 } from "@automovie/interface";
@@ -27,7 +27,7 @@ export function test_archetype_weapon_crossbow_span(): void {
   const findings: string[] = [];
   const bow: ReturnType<typeof createBow> = createBow({ kind: "crossbow" });
   const full: number = 30 * 360;
-  const ratio: number = (5.5 * ArchetypeUnits.INCH) / full;
+  const ratio: number = (5.5 * AutoMovieArchetypeUnits.INCH) / full;
   const braced: IAutoMovieVector3 = bow.affordance("nock").frame.translation;
   const distance: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
     a: IAutoMovieVector3,
@@ -69,7 +69,7 @@ export function test_archetype_weapon_crossbow_span(): void {
     !(
       Math.abs(
         bow.articulate({ crank: full }).travel("string") -
-          5.5 * ArchetypeUnits.INCH,
+          5.5 * AutoMovieArchetypeUnits.INCH,
       ) <= 1e-12
     )
   )
@@ -77,7 +77,8 @@ export function test_archetype_weapon_crossbow_span(): void {
   if (
     !(
       Math.abs(
-        bow.affordance("trigger").travel! - 0.125 * ArchetypeUnits.INCH,
+        bow.affordance("trigger").travel! -
+          0.125 * AutoMovieArchetypeUnits.INCH,
       ) <= 1e-12
     )
   )
@@ -109,7 +110,7 @@ export function test_archetype_weapon_crossbow_span(): void {
     try {
       bow.articulate(state);
     } catch (error) {
-      refused = error instanceof ArchetypeRefusal;
+      refused = error instanceof AutoMovieArchetypeRefusal;
     }
     if (!refused) findings.push(`${label} was not refused`);
   }

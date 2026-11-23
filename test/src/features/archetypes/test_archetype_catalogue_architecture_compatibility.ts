@@ -1,6 +1,6 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeRefusal,
   createAppliance,
   createAtm,
   createBathtub,
@@ -42,10 +42,13 @@ interface IIdentity {
 }
 
 /** A named fixture producer reached through one import path. */
-type NamedProducer = (params?: IIdentity, seed?: string | number) => Archetype;
+type NamedProducer = (
+  params?: IIdentity,
+  seed?: string | number,
+) => AutoMovieArchetype;
 
 /** A saved recipe replayed at one seed. */
-type SavedRecipe = (seed: string | number) => Archetype;
+type SavedRecipe = (seed: string | number) => AutoMovieArchetype;
 
 /**
  * The 21 named architectural fixtures use the saved kinds' exact seeded recipes.
@@ -72,147 +75,147 @@ export function test_archetype_catalogue_architecture_compatibility(): void {
       createRefrigerator,
       architecture.createRefrigerator,
       createAppliance.PRODUCERS.refrigerator,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createAppliance({ kind: "refrigerator" }, seed),
     ],
     [
       createRange,
       architecture.createRange,
       createAppliance.PRODUCERS.cooker,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createAppliance({ kind: "cooker" }, seed),
     ],
     [
       createMicrowave,
       architecture.createMicrowave,
       createAppliance.PRODUCERS.microwave,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createAppliance({ kind: "microwave" }, seed),
     ],
     [
       createWashingMachine,
       architecture.createWashingMachine,
       createAppliance.PRODUCERS.washingMachine,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createAppliance({ kind: "washingMachine" }, seed),
     ],
     [
       createVendingMachine,
       architecture.createVendingMachine,
       createMachine.PRODUCERS.vendingMachine,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createMachine({ kind: "vendingMachine" }, seed),
     ],
     [
       createPayStation,
       architecture.createPayStation,
       createMachine.PRODUCERS.payStation,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createMachine({ kind: "payStation" }, seed),
     ],
     [
       createAtm,
       architecture.createAtm,
       createMachine.PRODUCERS.atm,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createMachine({ kind: "atm" }, seed),
     ],
     [
       createWashbasin,
       architecture.createWashbasin,
       createSanitary.PRODUCERS.washbasin,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createSanitary({ kind: "washbasin" }, seed),
     ],
     [
       createToilet,
       architecture.createToilet,
       createSanitary.PRODUCERS.toilet,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createSanitary({ kind: "toilet" }, seed),
     ],
     [
       createBathtub,
       architecture.createBathtub,
       createSanitary.PRODUCERS.bathtub,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createSanitary({ kind: "bathtub" }, seed),
     ],
     [
       createShower,
       architecture.createShower,
       createSanitary.PRODUCERS.shower,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createSanitary({ kind: "shower" }, seed),
     ],
     [
       createTrafficCone,
       architecture.createTrafficCone,
       createStreetFixture.PRODUCERS.trafficCone,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createStreetFixture({ kind: "trafficCone" }, seed),
     ],
     [
       createBollard,
       architecture.createBollard,
       createStreetFixture.PRODUCERS.bollard,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createStreetFixture({ kind: "bollard" }, seed),
     ],
     [
       createFireHydrant,
       architecture.createFireHydrant,
       createStreetFixture.PRODUCERS.hydrant,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createStreetFixture({ kind: "hydrant" }, seed),
     ],
     [
       createLampPost,
       architecture.createLampPost,
       createStreetFixture.PRODUCERS.lampPost,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createStreetFixture({ kind: "lampPost" }, seed),
     ],
     [
       createSignPost,
       architecture.createSignPost,
       createStreetFixture.PRODUCERS.signPost,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createStreetFixture({ kind: "signPost" }, seed),
     ],
     [
       createCrosstie,
       architecture.createCrosstie,
       createObstacle.PRODUCERS.crosstie,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createObstacle({ kind: "crosstie" }, seed),
     ],
     [
       createSandbag,
       architecture.createSandbag,
       createObstacle.PRODUCERS.sandbag,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createObstacle({ kind: "sandbag" }, seed),
     ],
     [
       createJerseyBarrier,
       architecture.createJerseyBarrier,
       createObstacle.PRODUCERS.jerseyBarrier,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createObstacle({ kind: "jerseyBarrier" }, seed),
     ],
     [
       createCrowdBarrier,
       architecture.createCrowdBarrier,
       createObstacle.PRODUCERS.crowdBarrier,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createObstacle({ kind: "crowdBarrier" }, seed),
     ],
     [
       createRopeStanchions,
       architecture.createRopeStanchions,
       createObstacle.PRODUCERS.ropeAndPosts,
-      (seed: number | string): Archetype =>
+      (seed: number | string): AutoMovieArchetype =>
         createObstacle({ kind: "ropeAndPosts" }, seed),
     ],
   ];
@@ -222,8 +225,8 @@ export function test_archetype_catalogue_architecture_compatibility(): void {
       named === subpath && named === mapped,
     );
     for (const seed of [0, "architectural-recipe"]) {
-      const after: Archetype = named({}, seed);
-      const before: Archetype = saved(seed);
+      const after: AutoMovieArchetype = named({}, seed);
+      const before: AutoMovieArchetype = saved(seed);
       const label: string = named.name + " at " + seed;
       TestValidator.equals(
         label + " identity",
@@ -313,7 +316,7 @@ export function test_archetype_catalogue_architecture_compatibility(): void {
   );
 
   const refusals: readonly [
-    run: () => Archetype,
+    run: () => AutoMovieArchetype,
     family: string,
     axis: string,
   ][] = [
@@ -358,7 +361,7 @@ export function test_archetype_catalogue_architecture_compatibility(): void {
     }
     TestValidator.predicate(
       family + " refuses " + axis,
-      caught instanceof ArchetypeRefusal &&
+      caught instanceof AutoMovieArchetypeRefusal &&
         caught.archetype === family &&
         caught.axis === axis,
     );

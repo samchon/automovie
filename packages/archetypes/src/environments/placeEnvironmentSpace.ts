@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
 
 /**
  * Place authored support patches in a scoped upright rigid world frame.
@@ -19,14 +19,6 @@ import { ArchetypeFrame } from "../core/ArchetypeFrame";
  * @param frame The already admitted rigid world frame.
  * @returns A world space with the same support and walkability.
  * @throws If the authored space is invalid, the frame is tilted, or a turned lattice would need resampling.
- *
- * @evidence contracts/development/implementation.md#principled-implementation An upright rigid pose maps XZ rings by yaw and translation and preserves holes. Legacy ramp anchors are points under that same pose. A plane's XZ gradient rotates with its footprint, and translating the lattice and its heights retains the bilinear rule.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Reuses validateSpace for source geometry and ArchetypeFrame for placement. The one height dispatcher owns which transform preserves each height representation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses tilt and a yawed sampled lattice instead of discarding orientation or changing its interpolation law. The world-space contribution path can place an explicitly sampled lattice.
- * @evidence contracts/development/implementation.md#efficient-algorithms Aside from canonical space validation, placement visits each ring point, walkable id and retained lattice sample once. A plane case rotates one gradient and allocates no samples.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The helper produces fresh world geometry from one authored space and pose and holds no lookup cache.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Only the returned support and its arrays survive the call and no external resources are acquired.
- * @evidence contracts/development/common.md#meaningful-documentation States the spaces, metre units, identity and rotation restrictions.
  */
 export function placeEnvironmentSpace(
   id: string,
@@ -47,7 +39,7 @@ export function placeEnvironmentSpace(
 
   /** Project a footprint vertex into world XZ, whose ring Y carries no height. */
   function point(vertex: IAutoMovieVector3): IAutoMovieVector3 {
-    const placed: IAutoMovieVector3 = ArchetypeFrame.point(frame, {
+    const placed: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(frame, {
       x: vertex.x,
       y: 0,
       z: vertex.z,
@@ -75,10 +67,10 @@ export function placeEnvironmentSpace(
             }
           : {}),
         ...(surface.anchor !== undefined
-          ? { anchor: ArchetypeFrame.point(frame, surface.anchor) }
+          ? { anchor: AutoMovieArchetypeFrame.point(frame, surface.anchor) }
           : {}),
         ...(surface.rampTo !== undefined && surface.rampTo !== null
-          ? { rampTo: ArchetypeFrame.point(frame, surface.rampTo) }
+          ? { rampTo: AutoMovieArchetypeFrame.point(frame, surface.rampTo) }
           : {}),
         ...(surface.height !== undefined
           ? {

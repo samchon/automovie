@@ -1,10 +1,10 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type ArchetypeSpan,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type AutoMovieArchetypeSpan,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3, validateModel } from "@automovie/engine";
 import type {
@@ -29,13 +29,16 @@ const REST: number = 0.85;
  * @returns The fixture at rest.
  */
 function fixture(
-  from: ArchetypeSpan.End = { part: "arm", at: { x: 0.25, y: 0, z: 0 } },
-): Archetype<Id, never> {
+  from: AutoMovieArchetypeSpan.End = {
+    part: "arm",
+    at: { x: 0.25, y: 0, z: 0 },
+  },
+): AutoMovieArchetype<Id, never> {
   const v: typeof Vector3.create = Vector3.create;
-  return new ArchetypeBuilder<Id, never>({
+  return new AutoMovieArchetypeBuilder<Id, never>({
     material: "steel",
     name: "fixture",
-    draw: new ArchetypeDrawSession<never>("fixture", {}, undefined),
+    draw: new AutoMovieArchetypeDrawSession<never>("fixture", {}, undefined),
   })
     .box("post", v(0.05, 1, 0.05), v(0, 0.5, 0))
     .box("arm", v(0.5, 0.05, 0.05), v(0.25, 1, 0))
@@ -43,7 +46,7 @@ function fixture(
     .affordance({
       id: "arm",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, 1, 0), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(v(0, 1, 0), v(0, 1, 0), v(1, 0, 0)),
       extent: null,
       travel: 90,
       parts: ["arm"],
@@ -51,7 +54,11 @@ function fixture(
     .affordance({
       id: "carriage",
       kind: "slider",
-      frame: ArchetypeFrame.facing(v(0, 0.5, 0.6), v(0, 1, 0), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, 0.5, 0.6),
+        v(0, 1, 0),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: 0.6,
       parts: ["block"],
@@ -59,7 +66,7 @@ function fixture(
     .affordance({
       id: "hook",
       kind: "hook",
-      frame: ArchetypeFrame.upright(v(0, 0.55, 0.6)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, 0.55, 0.6)),
       extent: null,
       rides: "carriage",
     })
@@ -86,14 +93,14 @@ function fixture(
  * 6. A span whose ends coincide at rest, one that ends on a part the model lacks, and asking for a span the model does not declare are each refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds an archetype with a span, articulates it across a grid and reads the drawn part, the colliders and the span state; a line left where it was laid, drawn at the wrong length, missing from the colliders or slack at the wrong poses is caught.
- * @evidence contracts/development/testing.md#independent-expectations The ends are placed here: the arm's tip turned about the hinge's upright by its travel with the engine's quaternions, the hook shifted along the slider's axis by its travel. Slack is the definition `ArchetypeSpan` states: ends closer than the rest length.
+ * @evidence contracts/development/testing.md#independent-expectations The ends are placed here: the arm's tip turned about the hinge's upright by its travel with the engine's quaternions, the hook shifted along the slider's axis by its travel. Slack is the definition `AutoMovieArchetypeSpan` states: ends closer than the rest length.
  * @evidence contracts/development/testing.md#distinguishing-cases An end on a part and an end on a riding affordance, poses on both sides of the rest length, and three refusals; spans on real producers belong to their producers' tests (the bow of #3481).
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
 export function test_archetype_contract_span(): void {
   const findings: string[] = [];
-  const rest: Archetype<Id, never> = fixture();
+  const rest: AutoMovieArchetype<Id, never> = fixture();
   const tip: IAutoMovieVector3 = { x: 0.5, y: 1, z: 0 };
   const hook: IAutoMovieVector3 = { x: 0, y: 0.55, z: 0.6 };
   let slack: number = 0;
@@ -102,7 +109,10 @@ export function test_archetype_contract_span(): void {
     for (let j: number = 0; j <= 4; j++) {
       const arm: number = 22.5 * i;
       const carriage: number = 0.15 * j;
-      const posed: Archetype<Id, never> = rest.articulate({ arm, carriage });
+      const posed: AutoMovieArchetype<Id, never> = rest.articulate({
+        arm,
+        carriage,
+      });
       const from: IAutoMovieVector3 = Vector3.add(
         { x: 0, y: 1, z: 0 },
         Quaternion.rotateVector(
@@ -140,7 +150,7 @@ export function test_archetype_contract_span(): void {
         !vclose(Vector3.add(line.transform!.translation, half), to, 1e-9)
       )
         findings.push(`${label}: the line is not drawn between its ends`);
-      const state: ArchetypeSpan.IState = posed.span("line");
+      const state: AutoMovieArchetypeSpan.IState = posed.span("line");
       if (
         Math.abs(state.length - distance) > 1e-9 ||
         Math.abs(shape.height - distance) > 1e-9
@@ -179,16 +189,19 @@ export function test_archetype_contract_span(): void {
     fixture({ part: "ghost", at: { x: 0, y: 0, z: 0 } }),
   );
   const unknown: unknown = caught(() => rest.span("rope"));
-  if (!(coincident instanceof ArchetypeRefusal) || coincident.axis !== "line")
+  if (
+    !(coincident instanceof AutoMovieArchetypeRefusal) ||
+    coincident.axis !== "line"
+  )
     findings.push(`ends at one point: ${String(coincident)}`);
   if (
-    !(ghost instanceof ArchetypeRefusal) ||
+    !(ghost instanceof AutoMovieArchetypeRefusal) ||
     ghost.feasible?.kind !== "alternatives" ||
     !ghost.feasible.values.includes("arm")
   )
     findings.push(`an end on a missing part: ${String(ghost)}`);
   if (
-    !(unknown instanceof ArchetypeRefusal) ||
+    !(unknown instanceof AutoMovieArchetypeRefusal) ||
     unknown.feasible?.kind !== "alternatives" ||
     unknown.feasible.values.join() !== "line"
   )

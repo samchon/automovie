@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createBin } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createBin } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,14 +23,14 @@ const WASTEQUIP: Readonly<
   Record<"2yd" | "3yd", readonly [number, number, number]>
 > = {
   "2yd": [
-    (81 + 7 / 8) * ArchetypeUnits.INCH,
-    (39 + 3 / 4) * ArchetypeUnits.INCH,
-    34 * ArchetypeUnits.INCH,
+    (81 + 7 / 8) * AutoMovieArchetypeUnits.INCH,
+    (39 + 3 / 4) * AutoMovieArchetypeUnits.INCH,
+    34 * AutoMovieArchetypeUnits.INCH,
   ],
   "3yd": [
-    (82 + 7 / 16) * ArchetypeUnits.INCH,
-    (46 + 3 / 4) * ArchetypeUnits.INCH,
-    42 * ArchetypeUnits.INCH,
+    (82 + 7 / 16) * AutoMovieArchetypeUnits.INCH,
+    (46 + 3 / 4) * AutoMovieArchetypeUnits.INCH,
+    42 * AutoMovieArchetypeUnits.INCH,
   ],
 };
 

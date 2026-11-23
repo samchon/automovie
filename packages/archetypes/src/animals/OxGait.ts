@@ -1,6 +1,6 @@
-import { HorseGait } from "./HorseGait";
-import { OxBody } from "./OxBody";
-import type { QuadrupedGait } from "./QuadrupedGait";
+import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
+import { AutoMovieArchetypeOxBody } from "./AutoMovieArchetypeOxBody";
+import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 
 /**
  * An ox walk with one observed species-specific speed and clock.
@@ -24,16 +24,11 @@ import type { QuadrupedGait } from "./QuadrupedGait";
  * to zero. Both observed fore delays are retained. The opposite hind contact
  * is authored at half a stride because the source describes roughly
  * symmetric gaits but publishes no separate contralateral-hind phase here.
- * The gait cohort is distinct from OxBody's Kathani morphology reference.
+ * The gait cohort is distinct from AutoMovieArchetypeOxBody's Kathani morphology reference.
  * Absolute scaling preserves the observed clock without inventing a shared
  * experimental height. Horse fold, clearance, bob and top-joint follow are
  * explicit construction proxies. Neck nod is authored zero; faster ox gaits
  * and a continuous speed range remain unsupported by this walking point.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the actual ox cohort, source tables and units, row-name admission, representative stance calculation, phase rebasing, authored symmetry and every unmeasured transfer or shape quantity.
- * @evidence contracts/development/design.md#principled-representation A singleton speed, period, separate fore/hind contact fractions and observed fore delays enter the shared closed walk representation; absolute scaling avoids a fabricated trial height.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The ox species supplies its data to the shared ride; existing body and gait owners provide the prototype reference and explicitly borrowed construction kinematics.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No cross-study phase/clock combination, invented speed interval, SEM-to-SD conversion, claimed anatomical ROM or solver branch substitutes for the measured walking point.
  */
 export namespace OxGait {
   /** Figure 2 supplement 2D, Bostaurus row: mean stride period, seconds. */
@@ -52,11 +47,11 @@ export namespace OxGait {
   const OPPOSITE_FORE_PHASE: number = 0.7169512028591289;
 
   /** The observed walk point; zero timing spread is an authored deterministic choice. */
-  export const TABLE: QuadrupedGait.ITable = {
+  export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
     order: ["walk"],
     gaits: {
       walk: {
-        ...HorseGait.TABLE.gaits.walk!,
+        ...AutoMovieArchetypeEquineGait.TABLE.gaits.walk!,
         nod: { range: 0, timing: "support" },
         phases: {
           leftFore: 0,
@@ -75,9 +70,9 @@ export namespace OxGait {
         ],
       },
     },
-    reference: OxBody.MEASURES.withers,
+    reference: AutoMovieArchetypeOxBody.MEASURES.withers,
     scaling: "absolute",
     hysteresis: 0,
-    follow: HorseGait.FOLLOW,
+    follow: AutoMovieArchetypeEquineGait.FOLLOW,
   };
 }

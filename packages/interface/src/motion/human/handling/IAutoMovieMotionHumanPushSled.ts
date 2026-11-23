@@ -35,22 +35,10 @@ import type { IAutoMovieMotionHumanWalkFacing } from "../actions/IAutoMovieMotio
  * First pass: the load slides with the grip and is not dragged by a
  * friction; the push's force and the slowing it brings to the walk are not
  * modelled.
- *
- * @evidence contracts/development/common.md#meaningful-documentation to: Where the walk goes, world metres. left: The handle the left hand takes, an affordance id; `left` when absent. right: The handle the right hand takes, an affordance id; `right` when absent.
- * @evidence contracts/development/design.md#principled-representation to: Where the walk goes, world metres. left: The handle the left hand takes, an affordance id; `left` when absent. right: The handle the right hand takes, an affordance id; `right` when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: handling/pushSled.ts (pushSled.plan, context); handling/pushSled.ts (pushSled.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanWalkFacing.IFacing identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanPushSled {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, unit and default.
-   * @evidence contracts/development/design.md#principled-representation The load, its two handles, the lean and the length.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The handles are named affordances of the prop.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The pushed prop's subject id. */
@@ -75,7 +63,7 @@ export namespace IAutoMovieMotionHumanPushSled {
     facing?: IAutoMovieMotionHumanWalkFacing.IFacing;
 
     /** Seconds to stand in place against the load instead of walking to `to`, the hands on the handles throughout; absent, the body walks. */
-    seconds?: number;
+    duration?: number;
 
     /** Whether the load moves with the hands; `false` presses the handles without gripping, so the load stays where it stands (a stuck door, a car that will not move); `true` when absent. */
     moves?: boolean;

@@ -111,7 +111,7 @@ export function climbStairsRail(
   if (levelSquared < 0.25)
     return refuse("the selected bar does not run along the flight");
   const end: number = Math.max(0, bar.length / 2 - (bar.aperture ?? 0) / 2);
-  const side: AutoMovieHumanSide = rail.side;
+  const side: AutoMovieHumanSide = rail.hand;
   const arm: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
   const body: IAutoMovieMotionHumanBody = context.body;
   const place: ReturnType<typeof HumanHandTarget.prepareFrame> =

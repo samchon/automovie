@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
+import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
+import type { IAutoMovieMotionHumanGait } from "../next/IAutoMovieMotionHumanGait";
 import type { IAutoMovieMotionHumanEffort } from "./IAutoMovieMotionHumanEffort";
 import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProxemics";
 
@@ -11,7 +12,7 @@ import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProx
  * The goal is the stop, not the steps: the front of the performer's chest
  * (the sternum region) must end `gap` short of the target, horizontally,
  * along the line from where the performer stands to the target
- * ({@link HumanProxemics}). The law turns that goal into the floor point the
+ * (`HumanProxemics`). The law turns that goal into the floor point the
  * feet's midpoint must reach, `gap` plus the chest's lead over the feet back
  * from the target, and lets the walk law place whole steps to it, so the stop
  * is exact without sliding (the walk's footprints are inverse-kinematics
@@ -39,7 +40,7 @@ import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProx
  * waypoint abeam that person takes the walk round on the side that deviates
  * least. Walkers moving past each other are not avoided here; reciprocal
  * avoidance belongs to the engine. An Effort sets the walk's step length,
- * arm swing and elbow width ({@link HumanEffort}); bound flow's elbows held
+ * arm swing and elbow width (`HumanEffort`); bound flow's elbows held
  * in cannot be shown, since the walk only widens them.
  *
  * With `track`, a person who moves is followed: their placed root is read
@@ -54,11 +55,6 @@ import type { IAutoMovieMotionHumanProxemics } from "./IAutoMovieMotionHumanProx
  *
  * Events are the walk's (each foot's toe-offs and heel strikes,
  * `lastFootfall`, `arrive`), and `depart` where the walk waited.
- *
- * @evidence contracts/development/common.md#meaningful-documentation at: The gap: a named band or metres; `personal` when absent. side: Where around a person target to stop, in that person's own frame: `front`, `left`, `right` or `behind`; along the line from the start when absent (and always for a prop or point). pace: The pace; `normal` when absent.
- * @evidence contracts/development/design.md#principled-representation at: The gap: a named band or metres; `personal` when absent. side: Where around a person target to stop, in that person's own frame: `front`, `left`, `right` or `behind`; along the line from the start when absent (and always for a prop or point). pace: The pace; `normal` when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainTravel.ts (HumanChainTravel.approach, params); everyday/approach.ts (approach.plan, context); everyday/approach.ts (approach.to, context); everyday/approach.ts (approach.to, aimed); everyday/approach.ts (approach.to); everyday/approach.ts (approach.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanProxemics.Band, IAutoMovieMotionHumanWalkParams, IAutoMovieMotionHumanEffort.IEffort, IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanApproach {
   /**
@@ -66,19 +62,12 @@ export namespace IAutoMovieMotionHumanApproach {
    * side to stop on, the pace, the movement quality, the manner and the people
    * to walk round. Every field but the target is optional with the default its doc
    * names.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, frame and the default an absent value takes.
-   * @evidence contracts/development/design.md#principled-representation The target is the shared motion target union; the gap is a named proxemic band or metres; the side is a closed union in the person's own frame; invalid metres and a side on a non-person target are refused at plan time.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by this law and read only by its plan; the band, pace, manner and Effort types are imported from their owners (HumanProxemics, walk, HumanEffort).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No field names one scene or body; `side` and `avoid` combine freely, and the one meaningless combination, a side of a prop or point, is refused rather than encoded.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** What to approach. */
     target: IAutoMovieMotionTarget;
 
-    /** The gap: a named band or metres; `personal` when absent. */
+    /** The gap from the performer's chest to the target, metres or a named band ({@link IAutoMovieMotionHumanProxemics.Band} gives the metres of each band); `personal` when absent. */
     at?: IAutoMovieMotionHumanProxemics.Band | number;
 
     /**
@@ -86,16 +75,16 @@ export namespace IAutoMovieMotionHumanApproach {
      * `front`, `left`, `right` or `behind`; along the line from the start
      * when absent (and always for a prop or point).
      */
-    side?: "front" | "left" | "right" | "behind";
+    from?: "front" | "left" | "right" | "behind";
 
-    /** The pace; `normal` when absent. */
-    pace?: IAutoMovieMotionHumanWalkParams["pace"];
+    /** The walk's pace (`IAutoMovieMotionHumanWalkParams.pace` gives the speeds); `normal` when absent. An approach never runs: for a charge or a chase use `run` or `sprint`. */
+    pace?: IAutoMovieMotionHumanGait.WalkPace;
 
-    /** Movement quality: steps, arm swing and elbow width of the walk. */
+    /** Movement quality: Flow shortens the step by `0.15 flow`, Weight and Flow scale the arm swing, Flow draws the elbows in (`HumanEffort.modifiers`); its `time` factor is not read. */
     effort?: IAutoMovieMotionHumanEffort.IEffort;
 
     /** How the walk there is performed (`IAutoMovieMotionHumanWalkParams.manner`); neutral when absent. */
-    manner?: IAutoMovieMotionHumanWalkParams["manner"];
+    manner?: IAutoMovieMotionManner;
 
     /** People to walk round on the way, by subject id. */
     avoid?: string[];
@@ -115,11 +104,6 @@ export namespace IAutoMovieMotionHumanApproach {
 
   /**
    * A target's world point and outward unit normal.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: The point, world metres.
-   * @evidence contracts/development/design.md#principled-representation point: The point, world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: everyday/approach.ts (approach.to, aimed); everyday/approach.ts (approach.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3 identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IAim {
     /** The point, world metres. */

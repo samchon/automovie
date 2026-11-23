@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createSanitary,
 } from "@automovie/archetypes";
 import type {
@@ -180,22 +180,22 @@ export function test_archetype_sanitary_placed(): void {
       ),
       row(
         "bath length",
-        60 * ArchetypeUnits.INCH,
-        60 * ArchetypeUnits.INCH,
+        60 * AutoMovieArchetypeUnits.INCH,
+        60 * AutoMovieArchetypeUnits.INCH,
         "Kohler K-837, 60 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "x").size,
       ),
       row(
         "bath apron",
-        14 * ArchetypeUnits.INCH,
-        14 * ArchetypeUnits.INCH,
+        14 * AutoMovieArchetypeUnits.INCH,
+        14 * AutoMovieArchetypeUnits.INCH,
         "Kohler K-837, 14 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "y").high,
       ),
       row(
         "bath width",
-        30 * ArchetypeUnits.INCH,
-        (30 + 1 / 4) * ArchetypeUnits.INCH,
+        30 * AutoMovieArchetypeUnits.INCH,
+        (30 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
         "American Standard Princeton 30 in to Kohler K-837 30-1/4 in",
         (s: number): number => archetypeExtent(make("bathtub", s), "z").size,
       ),
@@ -222,7 +222,7 @@ export function test_archetype_sanitary_placed(): void {
     ["toilet", 0, 1],
     ["shower", -1, 0],
   ] as const) {
-    const facing: IAutoMovieVector3 = ArchetypeFrame.axis(
+    const facing: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
       make(kind, 3).affordance("seat").frame,
       "z",
     );

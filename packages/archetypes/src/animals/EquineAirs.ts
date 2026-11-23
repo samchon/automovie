@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import { QuadrupedBody } from "./QuadrupedBody";
 
 /** Standard gravity, m/s². */
 const GRAVITY: number = 9.80665;
@@ -33,12 +33,7 @@ const TUCK: Readonly<Record<Tuck, Turns>> = {
 /**
  * The school airs above the ground, as stance rows: the held pesade and levade, the courbette's hind-leg leaps and the capriole's leap with its hind kick.
  *
- * The pesade and levade are a rear held at their sources' trunk angles: 45 degrees and about 30 to 35 degrees with the ground (Airs above the ground, Wikipedia; IFCE Equipedia), the levade taken at 32.5, the middle of its range. The courbette starts as a levade and, through its hold, leaps forward on the hind legs: each leap is a ballistic flight whose height follows from its duration, h = g T² / 8, with the hind limbs tucked and the forelegs kept off the floor; the forehand then comes down where the leaps end. The capriole gathers, then the whole horse flies for its hold, its height again g T² / 8, the forelegs tucked and the hind legs kicking out at the top, and lands on all four where it took off. The Spanish walk is `EquineSpanishWalk`'s layer over a walk. Leap travel, the gathering drop and the tucked joint turns are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each air, its sourced angle or ballistic height and which values are authored.
- * @evidence contracts/development/design.md#principled-representation Each air is a stance plan: a start and end state, a pose by share and, for the leaps, a pose by second of the hold.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineStanceRows.plan` for the school cues.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No flight is simulated: heights are the closed-form ballistic apex of the authored flight time.
+ * The pesade and levade are a rear held at their sources' trunk angles: 45 degrees and about 30 to 35 degrees with the ground (Airs above the ground, Wikipedia; IFCE Equipedia), the levade taken at 32.5, the middle of its range. The courbette starts as a levade and, through its hold, leaps forward on the hind legs: each leap is a ballistic flight whose height follows from its duration, h = g T² / 8, with the hind limbs tucked and the forelegs kept off the floor; the forehand then comes down where the leaps end. The capriole gathers, then the whole horse flies for its hold, its height again g T² / 8, the forelegs tucked and the hind legs kicking out at the top, and lands on all four where it took off. The Spanish walk is `AutoMovieArchetypeEquineSpanishWalk`'s layer over a walk. Leap travel, the gathering drop and the tucked joint turns are authored.
  */
 export namespace EquineAirs {
   /**
@@ -46,16 +41,8 @@ export namespace EquineAirs {
    *
    * @param air The air.
    * @returns Its pitch, degrees.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the source of each angle.
-   * @evidence contracts/development/implementation.md#principled-implementation A lookup of the sourced angles.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shared by the held airs and the courbette's levade.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function pitch(air: EquineStanceCue.Air): number {
+  export function pitch(air: AutoMovieArchetypeEquineStanceCue.Air): number {
     return air === "pesade" ? 45 : 32.5;
   }
 
@@ -67,19 +54,15 @@ export namespace EquineAirs {
    * @param rear The stance rows' rear planner from the same start.
    * @returns The air's plan: the rear at its pitch for a held air, the leaps from a levade for a courbette.
    * @throws {RangeError} As `courbette` refuses.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation A held air is the rear at `pitch` with the air as its cue; a courbette leaps from the levade's rear.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rear, one branch.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One rear plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the stance's own rear.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the rear's plan.
    */
   export function held<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
-    cue: EquineStanceCue.IAir | EquineStanceCue.ICourbette,
-    rear: (cue: EquineStanceCue.IRear) => EquineStanceRows.IPlan,
+    cue:
+      | AutoMovieArchetypeEquineStanceCue.IAir
+      | AutoMovieArchetypeEquineStanceCue.ICourbette,
+    rear: (
+      cue: AutoMovieArchetypeEquineStanceCue.IRear,
+    ) => EquineStanceRows.IPlan,
   ): EquineStanceRows.IPlan {
     const levade: EquineStanceRows.IPlan = rear({
       kind: "rear",
@@ -102,18 +85,10 @@ export namespace EquineAirs {
    * @param levade The levade planned from the same start over the courbette's phases.
    * @returns The courbette's plan, ending displaced forward by its leaps.
    * @throws {RangeError} For a leap count that is not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the displaced end.
-   * @evidence contracts/development/implementation.md#principled-implementation The entry is the levade's; each leap of the hold translates the levade's trunk along the horse's heading by the leap's share of `LEAP` and up on the ballistic parabola of its duration, the hind limbs tucked from their chains at the leap's start; the exit is the levade's played back from the displaced place.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Entry, leaps, exit, each from the levade.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height is the ballistic apex of the leap time, never fitted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the levade's plan and its held hind chains.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the levade's plan.
    */
   export function courbette<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
-    cue: EquineStanceCue.ICourbette,
+    cue: AutoMovieArchetypeEquineStanceCue.ICourbette,
     levade: EquineStanceRows.IPlan,
   ): EquineStanceRows.IPlan {
     if (!(Number.isInteger(cue.leaps) && cue.leaps > 0))
@@ -128,7 +103,10 @@ export namespace EquineAirs {
     const held: EquineBodyPose.IGoal = levade.goal(1);
     const period: number = cue.hold / cue.leaps;
     const apex: number = (GRAVITY * period * period) / 8;
-    const hind: readonly QuadrupedBody.Limb[] = ["leftHind", "rightHind"];
+    const hind: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
+      "leftHind",
+      "rightHind",
+    ];
     return {
       cue,
       start: levade.start,
@@ -144,7 +122,10 @@ export namespace EquineAirs {
           held,
           Vector3.scale(forward, k),
         );
-        const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> = {
+        const limbs: Record<
+          AutoMovieArchetypeQuadrupedBody.Limb,
+          EquineBodyPose.Limb
+        > = {
           ...base.limbs,
         };
         for (const limb of hind)
@@ -175,28 +156,22 @@ export namespace EquineAirs {
    * @param start The stance it starts from.
    * @param cue The capriole.
    * @returns Its plan, returning to the start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and that it lands where it took off.
-   * @evidence contracts/development/implementation.md#principled-implementation The entry lowers the trunk by `GATHER` over the planted hooves; the hold is a ballistic flight of the hold's duration from the gathered stance, every limb tucked from its gathered chain on a half-sine share and the hind legs kicking out at the top; the exit rises from the gathering.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Gather, fly, rise.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height is the ballistic apex of the flight time, never fitted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four gathered chains once; constant work per pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the shared support rules and gathered chains.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the gathered chains.
    */
   export function capriole<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineStanceCue.ICapriole,
+    cue: AutoMovieArchetypeEquineStanceCue.ICapriole,
   ): EquineStanceRows.IPlan {
-    const gathered: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const gathered: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       { x: 0, y: -GATHER, z: 0 },
     );
-    const placed: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> =
-      EquineStanceSupport.placed(start.anchors);
+    const placed: Record<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      EquineBodyPose.Limb
+    > = EquineStanceSupport.placed(start.anchors);
     const chains: Readonly<
-      Record<QuadrupedBody.Limb, readonly IAutoMovieVector3[]>
+      Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
     > = {
       leftFore: body.chain("leftFore", gathered, placed.leftFore),
       rightFore: body.chain("rightFore", gathered, placed.rightFore),
@@ -217,7 +192,10 @@ export namespace EquineAirs {
       hold: (seconds: number): EquineBodyPose.IGoal => {
         const u: number = Math.max(0, Math.min(1, seconds / cue.hold));
         const tuck: number = Math.sin(Math.PI * u);
-        const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> = {
+        const limbs: Record<
+          AutoMovieArchetypeQuadrupedBody.Limb,
+          EquineBodyPose.Limb
+        > = {
           leftFore: EquineStanceSupport.folded(
             chains.leftFore,
             TUCK.fore,
@@ -256,10 +234,13 @@ export namespace EquineAirs {
     goal: EquineBodyPose.IGoal,
     by: IAutoMovieVector3,
   ): EquineBodyPose.IGoal {
-    const limbs: Record<QuadrupedBody.Limb, EquineBodyPose.Limb> = {
+    const limbs: Record<
+      AutoMovieArchetypeQuadrupedBody.Limb,
+      EquineBodyPose.Limb
+    > = {
       ...goal.limbs,
     };
-    for (const limb of QuadrupedBody.LIMBS) {
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const state: EquineBodyPose.Limb = goal.limbs[limb];
       if (state.kind === "placed")
         limbs[limb] = { ...state, anchor: Vector3.add(state.anchor, by) };

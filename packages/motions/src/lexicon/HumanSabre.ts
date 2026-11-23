@@ -104,7 +104,7 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
           reason: `a sabre is carried from the saddle, and the performer is ${entered.kind}`,
           fix: "ride the horse first",
         });
-      HumanBound.above("seconds", params.seconds, 0, "s");
+      HumanBound.above("duration", params.duration, 0, "s");
       HumanBound.above("transition", params.transition, 0, "s");
       if (params.transition > STRIDE)
         throw new HumanRefusal({
@@ -165,7 +165,7 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
         const charge: number | undefined = context
           .cue(params.cue)
           .map((c) => c.seconds - context.start)
-          .filter((t: number): boolean => t >= 0 && t <= params.seconds)
+          .filter((t: number): boolean => t >= 0 && t <= params.duration)
           .sort((a: number, b: number): number => a - b)[0];
         if (charge === undefined)
           throw new HumanRefusal({
@@ -271,7 +271,7 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
         0,
         most,
       );
-      const duration: number = params.seconds;
+      const duration: number = params.duration;
       // The slope: the historical slope rests the back of the blade on the right shoulder with the grip loosened, the hilt pivoting in the palm between the thumb and the fingers. The hand holds the carry, and the blade turns in the hand about the grip until its back lies along the front of the shoulder; it turns back as the fingers close to the full grip over the first half of the charge's transition, before the engage.
       const rested: IAutoMovieVector3 = Vector3.normalize(
         Vector3.subtract(

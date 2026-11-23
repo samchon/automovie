@@ -1,8 +1,8 @@
 import {
-  EquineFord,
-  EquineFordPlan,
-  type QuadrupedBody,
-  type QuadrupedFooting,
+  AutoMovieArchetypeEquineFord,
+  AutoMovieArchetypeEquineFordPlan,
+  type AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedFooting,
   createHorse,
 } from "@automovie/archetypes";
 import type { IAutoMovieModelPart } from "@automovie/interface";
@@ -36,11 +36,10 @@ export function test_archetype_equine_swim(): void {
   });
   const level: number =
     equineFordScene.WATER - equineFordScene.IMMERSION - BACK * 1.72;
-  const params: EquineFordPlan.IParams = equineFordScene.params(level - 0.05);
-  const crossing: EquineFordPlan.IClip<string, string> = EquineFord(
-    horse,
-    params,
-  );
+  const params: AutoMovieArchetypeEquineFordPlan.IParams =
+    equineFordScene.params(level - 0.05);
+  const crossing: AutoMovieArchetypeEquineFordPlan.IClip<string, string> =
+    AutoMovieArchetypeEquineFord(horse, params);
   const issues: string[] = [];
 
   // 1 and 2. One steady cycle after the stroke is established.
@@ -52,16 +51,15 @@ export function test_archetype_equine_swim(): void {
   const steps: number = 440;
   const traces: Record<string, number[]> = {};
   for (let k: number = 0; k < steps; k++) {
-    const sample: EquineFordPlan.ISample<string, string> = crossing.sample(
-      start + (k / steps) * equineFordScene.CYCLE,
-    );
+    const sample: AutoMovieArchetypeEquineFordPlan.ISample<string, string> =
+      crossing.sample(start + (k / steps) * equineFordScene.CYCLE);
     if (sample.phase !== "swimming")
       issues.push(`${k}: the steady cycle is not swimming but ${sample.phase}`);
     for (const limb of ["leftFore", "leftHind"] as const) {
       const bones: readonly IAutoMovieModelPart[] = equineFordScene.BONES[
         limb
       ].map(
-        (id: QuadrupedBody.Bone): IAutoMovieModelPart =>
+        (id: AutoMovieArchetypeQuadrupedBody.Bone): IAutoMovieModelPart =>
           sample.archetype.parts.find(
             (part: IAutoMovieModelPart): boolean => part.id === id,
           )!,
@@ -98,7 +96,9 @@ export function test_archetype_equine_swim(): void {
     flexed[key] = trace.indexOf(least) / steps;
   }
   const hindStart: number =
-    (((EquineFordPlan.PHASES.leftFore - EquineFordPlan.PHASES.leftHind) % 1) +
+    (((AutoMovieArchetypeEquineFordPlan.PHASES.leftFore -
+      AutoMovieArchetypeEquineFordPlan.PHASES.leftHind) %
+      1) +
       1) %
     1;
   const hindFlexed = (key: string): number =>
@@ -126,13 +126,14 @@ export function test_archetype_equine_swim(): void {
     );
 
   // 3 and 4. Every floating second.
-  const planes: readonly QuadrupedFooting.IPlane[] = params.footing.planes;
+  const planes: readonly AutoMovieArchetypeQuadrupedFooting.IPlane[] =
+    params.footing.planes;
   for (
     let seconds: number = crossing.events.float + 1e-3;
     seconds < crossing.events.land;
     seconds += 0.05
   ) {
-    const sample: EquineFordPlan.ISample<string, string> =
+    const sample: AutoMovieArchetypeEquineFordPlan.ISample<string, string> =
       crossing.sample(seconds);
     for (const part of sample.archetype.parts) {
       if (part.geometry.type !== "primitive") continue;

@@ -2,13 +2,13 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeUnits,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeUnits,
 } from "../core";
 import { DOOR_BANDS } from "./DOOR_BANDS";
 import { DOOR_SIZES } from "./DOOR_SIZES";
@@ -26,7 +26,7 @@ const BAR: number = 0.011;
  * @param params The kind, the hinge side, the hardware, the leaf's standard sizes, a latch's backset, a lever's style and any dimension the author fixes.
  * @param seed The seed that draws each size and style not given and every dimension left free inside its band; absent, the first of each list and the middle of each band.
  * @returns The door.
- * @throws {ArchetypeRefusal} For a size or style the standard or the maker does not list, a backset or lever named for hardware without one, a fixed dimension outside its band or one the door's hardware lacks, or hardware named for a sliding door.
+ * @throws {AutoMovieArchetypeRefusal} For a size or style the standard or the maker does not list, a backset or lever named for hardware without one, a fixed dimension outside its band or one the door's hardware lacks, or hardware named for a sliding door.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the door's plane and origin, which way it opens, what moves with what and what each hand contact is.
  * @evidence contracts/development/implementation.md#principled-implementation A leaf box in a three-piece frame, which a sliding door has without the jamb on the side its leaf runs out past; the hinge axis points down for a left hinge and up for a right one so that a positive travel swings the leaf toward `+Z`, and the latch's axis points so that a positive travel presses the levers down. A left-hinged door is the mirror image of a right-hinged one in the `YZ` plane.
@@ -39,9 +39,9 @@ const BAR: number = 0.011;
 export function createDoor(
   params: createDoor.IParams = {},
   seed?: number | string,
-): Archetype<createDoor.Affordance, createDoor.Dimension> {
-  const draw: ArchetypeDrawSession<createDoor.Dimension> =
-    new ArchetypeDrawSession<createDoor.Dimension>(
+): AutoMovieArchetype<createDoor.Affordance, createDoor.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createDoor.Dimension> =
+    new AutoMovieArchetypeDrawSession<createDoor.Dimension>(
       "door",
       createDoor.UNITS,
       seed,
@@ -54,7 +54,7 @@ export function createDoor(
     createDoor.KINDS,
   );
   if (kind === "sliding" && params.hardware !== undefined)
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "door",
       axis: "hardware",
@@ -109,13 +109,15 @@ export function createDoor(
   const width: number = d.width!;
   const height: number = d.height!;
   const thick: number = d.thickness!;
-  const builder: ArchetypeBuilder<createDoor.Affordance, createDoor.Dimension> =
-    new ArchetypeBuilder({
-      material: "composite",
-      id: params.id,
-      name: kind === "sliding" ? "sliding door" : "hinged door",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createDoor.Affordance,
+    createDoor.Dimension
+  > = new AutoMovieArchetypeBuilder({
+    material: "composite",
+    id: params.id,
+    name: kind === "sliding" ? "sliding door" : "hinged door",
+    draw,
+  });
 
   // The frame: two jambs and a head round the leaf.
   const jamb: number = 0.05;
@@ -152,7 +154,7 @@ export function createDoor(
   builder.affordance({
     id: "aperture",
     kind: "aperture",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create((-s * (kind === "sliding" ? 0.1 : thick)) / 2, 0, 0),
     ),
     extent: null,
@@ -192,12 +194,12 @@ export function createDoor(
         symmetry: "none",
         frame:
           hardware === "lever"
-            ? ArchetypeFrame.facing(
+            ? AutoMovieArchetypeFrame.facing(
                 Vector3.create(x + (s * d.grip!) / 2, y, off),
                 Vector3.create(0, 1, 0),
                 Vector3.create(s, 0, 0),
               )
-            : ArchetypeFrame.facing(
+            : AutoMovieArchetypeFrame.facing(
                 Vector3.create(x, y, off),
                 out,
                 Vector3.create(0, 1, 0),
@@ -228,7 +230,11 @@ export function createDoor(
       builder.affordance({
         id,
         kind: "surface",
-        frame: ArchetypeFrame.facing(plate, out, Vector3.create(-z, 0, 0)),
+        frame: AutoMovieArchetypeFrame.facing(
+          plate,
+          out,
+          Vector3.create(-z, 0, 0),
+        ),
         extent: null,
         width: createDoor.PLATE.width,
         depth: createDoor.PLATE.height,
@@ -249,7 +255,7 @@ export function createDoor(
       id,
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(x, y, off),
         out,
         Vector3.create(0, 1, 0),
@@ -269,7 +275,7 @@ export function createDoor(
     builder.affordance({
       id: "latch",
       kind: "knob",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(x, y, (-s * thick) / 2),
         Vector3.create(0, 0, -s),
         Vector3.create(s, 0, 0),
@@ -284,7 +290,7 @@ export function createDoor(
     builder.affordance({
       id: "slide",
       kind: "slider",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(x, y, thick / 2),
         Vector3.create(0, 0, 1),
         Vector3.create(s, 0, 0),
@@ -297,7 +303,7 @@ export function createDoor(
     builder.affordance({
       id: "hinge",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create((s * width) / 2, y, thick / 2),
         Vector3.create(0, s, 0),
         Vector3.create(-s, 0, 0),
@@ -341,15 +347,15 @@ export namespace createDoor {
   export const HARDWARE: readonly Hardware[] = ["lever", "knob", "plate"];
 
   /** A pull bar's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5, centreline of grip at 42 in. */
-  export const PULL_HEIGHT: number = 42 * ArchetypeUnits.INCH;
+  export const PULL_HEIGHT: number = 42 * AutoMovieArchetypeUnits.INCH;
 
   /** A push plate's centre above the floor, metres: ANSI/SDI A250.8-2017 Table 5, centreline at 45 in. */
-  export const PLATE_HEIGHT: number = 45 * ArchetypeUnits.INCH;
+  export const PLATE_HEIGHT: number = 45 * AutoMovieArchetypeUnits.INCH;
 
   /** A push plate's width and height, metres: a 4 by 16 in plate, a common catalogue size, not read at a source. */
   export const PLATE: Readonly<{ width: number; height: number }> = {
-    width: 4 * ArchetypeUnits.INCH,
-    height: 16 * ArchetypeUnits.INCH,
+    width: 4 * AutoMovieArchetypeUnits.INCH,
+    height: 16 * AutoMovieArchetypeUnits.INCH,
   };
 
   /** A pull bar's grip length and its clearance from the leaf's face, metres: estimates, not read at a source. */
@@ -403,7 +409,9 @@ export namespace createDoor {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     height: "m",
     thickness: "m",

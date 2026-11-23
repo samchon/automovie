@@ -1,6 +1,7 @@
-﻿import {
-  type ArchetypeRide,
-  EquineExpression,
+import {
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeEquineExpression,
+  type AutoMovieArchetypeRide,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -18,12 +19,15 @@ import { equineExpressionObservation as Look } from "../internal/equineExpressio
 type Horse = ReturnType<typeof createHorse>;
 
 /** A horse ride. */
-type Ride = ArchetypeRide.IRide<createHorse.Affordance, createHorse.Dimension>;
+type Ride = AutoMovieArchetypeRide.IRide<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
+>;
 
 /** A sample of a horse ride. */
-type Sample = ArchetypeRide.ISample<
-  createHorse.Affordance,
-  createHorse.Dimension
+type Sample = AutoMovieArchetypeRide.ISample<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension
 >;
 
 /**
@@ -74,7 +78,7 @@ export function test_archetype_equine_expression_social(): void {
   const b: Ride = halt(0.2, 3.4, 180);
   const t: number = Math.max(a.duration, b.duration) + 1;
   const poll: IAutoMovieVector3 = Look.bar(a.at(t), "head").from;
-  const attending: Ride = EquineExpression.layer(horse, b, [
+  const attending: Ride = AutoMovieArchetypeEquineExpression.layer(horse, b, [
     {
       kind: "attend",
       from: t,
@@ -89,7 +93,7 @@ export function test_archetype_equine_expression_social(): void {
     { x: -1, y: 0, z: 0 },
     neck.radius,
   );
-  const greeting: Ride = EquineExpression.layer(horse, a, [
+  const greeting: Ride = AutoMovieArchetypeEquineExpression.layer(horse, a, [
     {
       kind: "reach",
       act: "greet",
@@ -146,34 +150,42 @@ export function test_archetype_equine_expression_social(): void {
   const offset: number = leftRoot.z - withers(probe.at(probe.duration + 1)).z;
   const right: Ride = halt(0.95, offset, 180);
   const s: number = Math.max(left.duration, right.duration) + 1;
-  const groomLeft: Ride = EquineExpression.layer(horse, left, [
-    {
-      kind: "reach",
-      act: "groom",
-      from: s,
-      to: s + 5,
-      ease: 0.8,
-      target: {
-        kind: "track",
-        at: (at: number): IAutoMovieVector3 => withers(right.at(at)),
+  const groomLeft: Ride = AutoMovieArchetypeEquineExpression.layer(
+    horse,
+    left,
+    [
+      {
+        kind: "reach",
+        act: "groom",
+        from: s,
+        to: s + 5,
+        ease: 0.8,
+        target: {
+          kind: "track",
+          at: (at: number): IAutoMovieVector3 => withers(right.at(at)),
+        },
+        gap: 0,
       },
-      gap: 0,
-    },
-  ]);
-  const groomRight: Ride = EquineExpression.layer(horse, right, [
-    {
-      kind: "reach",
-      act: "groom",
-      from: s + 0.3,
-      to: s + 5.3,
-      ease: 0.8,
-      target: {
-        kind: "track",
-        at: (at: number): IAutoMovieVector3 => withers(left.at(at)),
+    ],
+  );
+  const groomRight: Ride = AutoMovieArchetypeEquineExpression.layer(
+    horse,
+    right,
+    [
+      {
+        kind: "reach",
+        act: "groom",
+        from: s + 0.3,
+        to: s + 5.3,
+        ease: 0.8,
+        target: {
+          kind: "track",
+          at: (at: number): IAutoMovieVector3 => withers(left.at(at)),
+        },
+        gap: 0,
       },
-      gap: 0,
-    },
-  ]);
+    ],
+  );
   for (const at of [s + 1.2, s + 2.5, s + 4.1]) {
     const l: Sample = groomLeft.at(at);
     const r: Sample = groomRight.at(at);
@@ -195,7 +207,7 @@ export function test_archetype_equine_expression_social(): void {
     Quaternion.rotateVector(still.placement.rotation, { x: 1, y: 0, z: 0 }),
     arm.radius,
   );
-  const rubbing: Ride = EquineExpression.layer(horse, left, [
+  const rubbing: Ride = AutoMovieArchetypeEquineExpression.layer(horse, left, [
     {
       kind: "reach",
       act: "rub",

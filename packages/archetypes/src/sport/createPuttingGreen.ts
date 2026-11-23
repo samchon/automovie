@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
 } from "../core";
 
 /** Turf sectors around the cup; each spans 22.5 degrees, so square corners fall on sector edges. */
@@ -37,27 +37,25 @@ const SECTORS: number = 16;
 export function createPuttingGreen(
   params: createPuttingGreen.IParams = {},
   seed?: number | string,
-): Archetype<createPuttingGreen.Affordance, "side"> {
-  const draw: ArchetypeDrawSession<"side"> = new ArchetypeDrawSession(
-    "puttingGreen",
-    { side: "m" },
-    seed,
-    {},
-  );
+): AutoMovieArchetype<createPuttingGreen.Affordance, "side"> {
+  const draw: AutoMovieArchetypeDrawSession<"side"> =
+    new AutoMovieArchetypeDrawSession("puttingGreen", { side: "m" }, seed, {});
   const { side }: Record<"side", number> = draw.dimensions({
-    side: ArchetypeBand.metres(
+    side: AutoMovieArchetypeBand.metres(
       6,
       10,
       "Provisional practice putting green side, metres",
     ),
   });
-  const builder: ArchetypeBuilder<createPuttingGreen.Affordance, "side"> =
-    new ArchetypeBuilder({
-      material: "fabric",
-      id: params.id,
-      name: "putting green",
-      draw,
-    });
+  const builder: AutoMovieArchetypeBuilder<
+    createPuttingGreen.Affordance,
+    "side"
+  > = new AutoMovieArchetypeBuilder({
+    material: "fabric",
+    id: params.id,
+    name: "putting green",
+    draw,
+  });
   const radius: number = createPuttingGreen.CUP_DIAMETER / 2;
   const depth: number = createPuttingGreen.CUP_DEPTH;
   const base: number = 0.02;
@@ -92,7 +90,7 @@ export function createPuttingGreen(
   builder.affordance({
     id: "green",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
     width: side,
     depth: side,
@@ -100,7 +98,7 @@ export function createPuttingGreen(
   builder.affordance({
     id: "cup",
     kind: "socket",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
   });
 
@@ -127,8 +125,8 @@ export namespace createPuttingGreen {
   }
 
   /** The hole's diameter, metres: Rules of Golf definition of Hole, 4.25 in. */
-  export const CUP_DIAMETER: number = 4.25 * ArchetypeUnits.INCH;
+  export const CUP_DIAMETER: number = 4.25 * AutoMovieArchetypeUnits.INCH;
 
   /** The hole's depth, metres: Rules of Golf definition of Hole, at least 4 in. */
-  export const CUP_DEPTH: number = 4 * ArchetypeUnits.INCH;
+  export const CUP_DEPTH: number = 4 * AutoMovieArchetypeUnits.INCH;
 }

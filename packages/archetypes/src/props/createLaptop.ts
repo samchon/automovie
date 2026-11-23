@@ -1,7 +1,11 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import { KeyboardHardware } from "./KeyboardHardware";
 
 /**
@@ -11,7 +15,7 @@ import { KeyboardHardware } from "./KeyboardHardware";
  * @param params The manufacturer's model and optional model identifier.
  * @param seed The seed used to select a model when omitted.
  * @returns The input device and its named contacts.
- * @throws {ArchetypeRefusal} When the requested input is inadmissible.
+ * @throws {AutoMovieArchetypeRefusal} When the requested input is inadmissible.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the input device, its frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation Draw the original model figures and place the standard key field, then add the raised lid and its screen and grasp.
@@ -24,7 +28,7 @@ import { KeyboardHardware } from "./KeyboardHardware";
 export function createLaptop(
   params: createLaptop.IParams = {},
   seed?: number | string,
-): Archetype<createLaptop.Affordance, createLaptop.Dimension> {
+): AutoMovieArchetype<createLaptop.Affordance, createLaptop.Dimension> {
   const {
     builder,
     d,
@@ -33,7 +37,7 @@ export function createLaptop(
   const v: typeof Vector3.create = Vector3.create;
   const tilt: number = KeyboardHardware.LID;
   const thick: number = KeyboardHardware.LID_THICKNESS;
-  const rad: number = tilt * ArchetypeUnits.DEGREE;
+  const rad: number = tilt * AutoMovieArchetypeUnits.DEGREE;
   // The lid's bottom edge on the base's back edge, turned up from the base's forward line by the tilt, so its top leans back.
   const up: IAutoMovieVector3 = v(0, Math.sin(rad), Math.cos(rad));
   const out: IAutoMovieVector3 = v(0, -Math.cos(rad), Math.sin(rad));
@@ -49,7 +53,7 @@ export function createLaptop(
   builder.affordance({
     id: "screen",
     kind: "surface",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.add(hinge, Vector3.scale(up, d.depth / 2)),
       out,
       v(1, 0, 0),
@@ -66,7 +70,7 @@ export function createLaptop(
     id: "lid",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(top, out, v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(top, out, v(1, 0, 0)),
     extent: null,
     grip: "precision",
     aperture: thick,

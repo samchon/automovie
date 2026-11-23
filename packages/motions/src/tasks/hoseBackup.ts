@@ -36,6 +36,10 @@ const FRAME: number = 24;
 /** Both hands. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
+/** The only entry bones the backup reads: the shoulders that choose the far hand and roll each grip. */
+const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>(["leftUpperArm", "rightUpperArm"]);
+
 /**
  * The backup member of a hose team (`hoseLine`'s `backup` role): both hands
  * on the line's grip without carrying it, each a power grip rolled about
@@ -153,7 +157,7 @@ export function hoseBackup(
     z: 0,
   });
   const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    poseBones(context.body, context.entry.pose);
+    poseBones(context.body, context.entry.pose, undefined, SHOULDERS);
   // The hand whose shoulder lies farther from the grip reaches across the
   // body, so it takes the line ahead, where the trunk leaves it room.
   const far: AutoMovieHumanSide =
@@ -204,7 +208,6 @@ export function hoseBackup(
         to: clock.duration,
         span: { start: 0, ready, relax: done, end: clock.duration },
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-        disc: 0,
         weight: (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds),
         // The hand keeps that grip as the line carries it.

@@ -17,6 +17,7 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { fitClearArmPose } from "../compose/fitClearArmPose";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBlade } from "../striking/StrikingBlade";
@@ -24,6 +25,7 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingSupport } from "../striking/StrikingSupport";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
+import { holdPrecisionSwing } from "./holdPrecisionSwing";
 import { precisionStrokeTool } from "./precisionStrokeTool";
 
 /**
@@ -170,6 +172,119 @@ export namespace PrecisionStrokeForms {
     return Vector3.add(
       Vector3.scale(across, reach * Math.cos(down)),
       Vector3.scale(up, -Math.sin(down)),
+    );
+  }
+
+  /** What a stroke's swing is laid from. */
+  export interface ISwing {
+    /** The striker's body. */
+    body: IAutoMovieMotionHumanBody;
+
+    /** The row's form. */
+    form: IForm;
+
+    /** The striking hand. */
+    side: AutoMovieHumanSide;
+
+    /** The implement as the striking hand holds it, or the bare hand. */
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool;
+
+    /** Where the working point meets the ball, world metres. */
+    contact: IAutoMovieVector3;
+
+    /** The shot's horizontal direction, unit. */
+    direction: IAutoMovieVector3;
+
+    /** The stance the stroke enters from: its root and its facing. */
+    entry: IAutoMovieMotionHumanPosture;
+
+    /** The striking shoulder at that stance, world metres. */
+    shoulder: IAutoMovieVector3;
+  }
+
+  /**
+   * A stroke's striking hand frame by its swing's progress: the backswing
+   * from 0 to the contact at 1 and the follow-through on to 2, along the
+   * shot for a linear row (its draw, in forearm lengths) and about the
+   * working point's pivot for a swinging one (its sweep). A swinging row's
+   * backswing and follow-through keep the whole arm in front of the trunk and
+   * within reach: the swing goes back and on only while the arm's line from
+   * its shoulder to the hand stays ahead of the trunk's front (the shoulder
+   * lies on the root's frontal plane, so the line's middle is half the
+   * chest's depth ahead when the hand is a whole depth ahead) and the hand
+   * within the arm's reach of the striking shoulder as it stood, and holds
+   * where the arm would pass into the trunk or out of reach
+   * (`holdPrecisionSwing`). A linear row's short draw is laid as it is.
+   *
+   * @param props The swing's body, row, hand, implement, contact, shot and stance.
+   * @returns The hand frame by progress, world metres.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the progress domain, the two path kinds and which is held.
+   * @evidence contracts/development/implementation.md#principled-implementation A line along the shot or an arc about the pivot one implement length and a quarter forearm behind the contact, the arc held at the trunk's front and the arm's reach by the shared bisection.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The path, its clearance, the hold.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts One path for the stroke and its address.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Closed-form frames and two fixed bisections, once per stroke or stance.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Read by `createPrecisionSportStroke` and by the address (`contact`).
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned path retains its inputs and the two edges.
+   */
+  export function swing(
+    props: ISwing,
+  ): (progress: number) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+    const { body, form, side, tool, contact, direction } = props;
+    const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+    const cue: boolean = form.point === "tip";
+    const working: IAutoMovieVector3 = axis(form, side, direction);
+    const arc: IAutoMovieVector3 = Vector3.cross(working, direction);
+    const radius: number = tool.length + body.measure.forearm * 0.25;
+    const pivot: IAutoMovieVector3 = Vector3.subtract(
+      contact,
+      Vector3.scale(working, radius),
+    );
+    const path = (
+      progress: number,
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+      if (form.sweep === 0)
+        return StrikingHeld.hand(
+          tool,
+          0,
+          Vector3.add(
+            contact,
+            Vector3.scale(
+              direction,
+              (progress - 1) * form.draw * body.measure.forearm,
+            ),
+          ),
+          working,
+          cue ? up : direction,
+        );
+      const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+        arc,
+        (progress - 1) * form.sweep,
+      );
+      return StrikingHeld.hand(
+        tool,
+        0,
+        Vector3.add(
+          pivot,
+          Vector3.scale(Quaternion.rotateVector(rotation, working), radius),
+        ),
+        Quaternion.rotateVector(rotation, working),
+        Quaternion.rotateVector(rotation, direction),
+      );
+    };
+    if (form.sweep === 0) return path;
+    const forward: IAutoMovieVector3 = HumanFrame.forward(props.entry.yaw);
+    return holdPrecisionSwing(
+      path,
+      (progress: number): number =>
+        Math.min(
+          Vector3.dot(
+            Vector3.subtract(path(progress).point, props.entry.root),
+            forward,
+          ) - body.measure.chestDepth,
+          reach(body) -
+            Vector3.length(Vector3.subtract(path(progress).point, props.shoulder)),
+        ),
     );
   }
 
@@ -338,7 +453,8 @@ export namespace PrecisionStrokeForms {
         props,
         form,
         stroke,
-        frame,
+        contact,
+        direction,
         Vector3.add(at, Vector3.scale(back, s)),
       );
     const first: fitClearArmPose.Verdict = judge(0);
@@ -370,21 +486,22 @@ export namespace PrecisionStrokeForms {
    * The planner's verdict on a stroke's contact pose from one stance: the
    * quiet stance there, turned toward the shot by the row's turn and hinged
    * to the grip as the stroke turns and hinges it at the contact, with the
-   * striking hand holding the tool on its contact frame and a second hand on
-   * the handle where one grips it.
+   * striking hand holding the tool on its swing's contact frame (`swing`)
+   * and a second hand on the handle where one grips it.
    *
    * @param props The address asked.
    * @param form The row's form.
    * @param stroke The stroke's tool.
-   * @param frame The striking hand's frame at the contact.
+   * @param contacted Where the working point meets the ball, world metres.
+   * @param direction The shot's horizontal direction, unit.
    * @param at The stance's floor point, world metres.
    * @returns The planner's verdict (`fitClearArmPose`).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the pose judged and by whom.
-   * @evidence contracts/development/implementation.md#principled-implementation The pose is the stroke's own at its contact: the stance, the row's turn, the address hinge and the stroke's two hand goals (`StrikingHeld.goal`, `StrikingSupport.goal`), judged with the stroke's own grasp, the hold seeded from the pose's own limb fit.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stance, turn, hinge, goals, verdict.
+   * @evidence contracts/development/implementation.md#principled-implementation The pose is the stroke's own at its contact (`swing`): the stance, the row's turn, the address hinge and the stroke's two hand goals (`StrikingHeld.goal`, `StrikingSupport.goal`), judged with the stroke's own grasp, the hold seeded from the pose's own limb fit.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Stance, swing, hinge, turn, goals, verdict.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals are never loosened; the planner's verdict stands.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One stance, one hinge search and one one-instant course per stance.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One stance, one hinge and one one-instant course per stance.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Every term is the stroke's own reader.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
@@ -392,7 +509,8 @@ export namespace PrecisionStrokeForms {
     props: IAddress,
     form: IForm,
     stroke: precisionStrokeTool.IStrokeTool,
-    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    contacted: IAutoMovieVector3,
+    direction: IAutoMovieVector3,
     at: IAutoMovieVector3,
   ): fitClearArmPose.Verdict {
     const stance: IAutoMovieMotionHumanPosture = stand.posture(
@@ -401,48 +519,70 @@ export namespace PrecisionStrokeForms {
       props.yaw,
     );
     const sign: number = props.side === "right" ? 1 : -1;
-    const posture: IAutoMovieMotionHumanPosture = addressPrecisionStroke(
+    const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
+    // The swing as the stroke lays it from this stance (`swing`), its grip
+    // judged at the contact with the row's turn.
+    const path: (
+      progress: number,
+    ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame = swing({
+      body: props.body,
+      form,
+      side: props.side,
+      tool: stroke.tool,
+      contact: contacted,
+      direction,
+      entry: stance,
+      shoulder: poseBones(
+        props.body,
+        resolveHumanPosture(props.body, stance),
+      ).get(`${props.side}UpperArm`)!.worldPosition,
+    });
+    const hinge: ReturnType<typeof addressPrecisionStroke> = addressPrecisionStroke(
       props.body,
       stance,
       AutoMovieMotionHumanTrunk.footing(props.body, stance),
       props.side,
-      frame.point,
+      path(1).point,
       undefined,
       0,
       Infinity,
-    )(StrikingBlade.turned(stance, sign * form.turn), 1);
-    const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
+    );
+    const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = path(1);
+    const posture: IAutoMovieMotionHumanPosture = hinge(
+      StrikingBlade.turned(stance, sign * form.turn),
+      1,
+    );
     return fitClearArmPose({
-      body: props.body,
-      posture: {
-        ...posture,
-        limbs: {
-          ...posture.limbs,
-          [`${props.side}Arm`]: StrikingHeld.goal(
-            props,
-            stroke.tool,
-            frame,
-            0,
-            AutoMovieMotionHumanBend.hang(props.body, posture, props.side),
-          ),
-          ...(stroke.support === null
-            ? {}
-            : {
-                [`${other}Arm`]: StrikingSupport.goal(
-                  props.body,
-                  posture,
-                  stroke.tool,
-                  frame,
-                  stroke.support,
-                ),
-              }),
+        body: props.body,
+        posture: {
+          ...posture,
+          limbs: {
+            ...posture.limbs,
+            [`${props.side}Arm`]: StrikingHeld.goal(
+              props,
+              stroke.tool,
+              frame,
+              0,
+              AutoMovieMotionHumanBend.hang(props.body, posture, props.side),
+            ),
+            ...(stroke.support === null
+              ? {}
+              : {
+                  [`${other}Arm`]: StrikingSupport.goal(
+                    props.body,
+                    posture,
+                    stroke.tool,
+                    frame,
+                    stroke.support,
+                  ),
+                }),
+          },
         },
-      },
-      side: props.side,
-      ...(stroke.support === null
-        ? {}
-        : { second: other, grasp: coursePrecisionStroke.GRASP }),
-    });
+        side: props.side,
+        ...(stroke.support === null
+          ? {}
+          : { second: other, grasp: coursePrecisionStroke.GRASP }),
+      });
   }
 
   /**

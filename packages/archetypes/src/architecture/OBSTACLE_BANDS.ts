@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createObstacle } from "./createObstacle";
 
 /** The crosstie read. */
@@ -27,144 +31,150 @@ const LAVI: string =
 export const OBSTACLE_BANDS: Readonly<
   Record<
     createObstacle.Kind,
-    Readonly<Partial<Record<createObstacle.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createObstacle.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   crosstie: {
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       70,
       110,
-      `${ArchetypeBand.TYPICAL_MASS}; its sizes by ${TIE}`,
+      `${AutoMovieArchetypeBand.TYPICAL_MASS}; its sizes by ${TIE}`,
       true,
     ),
   },
   sandbag: {
-    length: ArchetypeBand.metres(
-      ArchetypeUnits.FOOT,
-      ArchetypeUnits.FOOT,
+    length: AutoMovieArchetypeBand.metres(
+      AutoMovieArchetypeUnits.FOOT,
+      AutoMovieArchetypeUnits.FOOT,
       SANDBAG,
     ),
-    height: ArchetypeBand.metres(
-      ArchetypeUnits.FOOT / 3,
-      ArchetypeUnits.FOOT / 3,
+    height: AutoMovieArchetypeBand.metres(
+      AutoMovieArchetypeUnits.FOOT / 3,
+      AutoMovieArchetypeUnits.FOOT / 3,
       `${SANDBAG}: a third of a foot`,
     ),
-    width: ArchetypeBand.metres(
-      (2.5 * ArchetypeUnits.FOOT) / 3,
-      (2.5 * ArchetypeUnits.FOOT) / 3,
+    width: AutoMovieArchetypeBand.metres(
+      (2.5 * AutoMovieArchetypeUnits.FOOT) / 3,
+      (2.5 * AutoMovieArchetypeUnits.FOOT) / 3,
       `${SANDBAG}: a third of 2-1/2 ft`,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      35 * ArchetypeUnits.POUND,
-      50 * ArchetypeUnits.POUND,
+      35 * AutoMovieArchetypeUnits.POUND,
+      50 * AutoMovieArchetypeUnits.POUND,
       "filled sandbags of 35 to 50 lb, as search results give USACE district brochures; not read",
       true,
     ),
   },
   jerseyBarrier: {
-    length: ArchetypeBand.metres(
-      3 * ArchetypeUnits.FOOT,
-      30 * ArchetypeUnits.FOOT,
+    length: AutoMovieArchetypeBand.metres(
+      3 * AutoMovieArchetypeUnits.FOOT,
+      30 * AutoMovieArchetypeUnits.FOOT,
       JERSEY,
     ),
-    height: ArchetypeBand.metres(
-      32 * ArchetypeUnits.INCH,
-      32 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      32 * AutoMovieArchetypeUnits.INCH,
+      32 * AutoMovieArchetypeUnits.INCH,
       JERSEY,
     ),
-    width: ArchetypeBand.metres(
-      24 * ArchetypeUnits.INCH,
-      24 * ArchetypeUnits.INCH,
+    width: AutoMovieArchetypeBand.metres(
+      24 * AutoMovieArchetypeUnits.INCH,
+      24 * AutoMovieArchetypeUnits.INCH,
       JERSEY,
     ),
-    top: ArchetypeBand.metres(
-      6 * ArchetypeUnits.INCH,
-      6 * ArchetypeUnits.INCH,
+    top: AutoMovieArchetypeBand.metres(
+      6 * AutoMovieArchetypeUnits.INCH,
+      6 * AutoMovieArchetypeUnits.INCH,
       JERSEY,
     ),
-    curb: ArchetypeBand.metres(
-      3 * ArchetypeUnits.INCH,
-      3 * ArchetypeUnits.INCH,
+    curb: AutoMovieArchetypeBand.metres(
+      3 * AutoMovieArchetypeUnits.INCH,
+      3 * AutoMovieArchetypeUnits.INCH,
       JERSEY,
     ),
-    lowerFace: ArchetypeBand.metres(
-      10 * ArchetypeUnits.INCH,
-      10 * ArchetypeUnits.INCH,
+    lowerFace: AutoMovieArchetypeBand.metres(
+      10 * AutoMovieArchetypeUnits.INCH,
+      10 * AutoMovieArchetypeUnits.INCH,
       JERSEY,
     ),
-    massPerMetre: ArchetypeBand.of(
+    massPerMetre: AutoMovieArchetypeBand.of(
       "kg",
-      (450 * ArchetypeUnits.POUND) / ArchetypeUnits.FOOT,
-      (550 * ArchetypeUnits.POUND) / ArchetypeUnits.FOOT,
+      (450 * AutoMovieArchetypeUnits.POUND) / AutoMovieArchetypeUnits.FOOT,
+      (550 * AutoMovieArchetypeUnits.POUND) / AutoMovieArchetypeUnits.FOOT,
       `${JERSEY}, per metre`,
     ),
   },
   crowdBarrier: {
-    length: ArchetypeBand.metres(
-      7.5 * ArchetypeUnits.FOOT,
-      7.5 * ArchetypeUnits.FOOT,
+    length: AutoMovieArchetypeBand.metres(
+      7.5 * AutoMovieArchetypeUnits.FOOT,
+      7.5 * AutoMovieArchetypeUnits.FOOT,
       CROWD,
       true,
     ),
-    height: ArchetypeBand.metres(
-      43 * ArchetypeUnits.INCH,
-      43 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      43 * AutoMovieArchetypeUnits.INCH,
+      43 * AutoMovieArchetypeUnits.INCH,
       CROWD,
       true,
     ),
-    tube: ArchetypeBand.metres(
-      1.5 * ArchetypeUnits.INCH,
-      1.5 * ArchetypeUnits.INCH,
+    tube: AutoMovieArchetypeBand.metres(
+      1.5 * AutoMovieArchetypeUnits.INCH,
+      1.5 * AutoMovieArchetypeUnits.INCH,
       CROWD,
       true,
     ),
-    spacing: ArchetypeBand.metres(
-      4 * ArchetypeUnits.INCH,
-      4 * ArchetypeUnits.INCH,
+    spacing: AutoMovieArchetypeBand.metres(
+      4 * AutoMovieArchetypeUnits.INCH,
+      4 * AutoMovieArchetypeUnits.INCH,
       CROWD,
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
-      23.5 * ArchetypeUnits.POUND,
-      34 * ArchetypeUnits.POUND,
+      23.5 * AutoMovieArchetypeUnits.POUND,
+      34 * AutoMovieArchetypeUnits.POUND,
       CROWD,
       true,
     ),
   },
   ropeAndPosts: {
-    length: ArchetypeBand.metres(
-      6 * ArchetypeUnits.FOOT,
-      6 * ArchetypeUnits.FOOT,
+    length: AutoMovieArchetypeBand.metres(
+      6 * AutoMovieArchetypeUnits.FOOT,
+      6 * AutoMovieArchetypeUnits.FOOT,
       LAVI,
       true,
     ),
-    height: ArchetypeBand.metres(
-      40 * ArchetypeUnits.INCH,
-      40 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      40 * AutoMovieArchetypeUnits.INCH,
+      40 * AutoMovieArchetypeUnits.INCH,
       LAVI,
       true,
     ),
-    post: ArchetypeBand.metres(
-      (2 + 3 / 4) * ArchetypeUnits.INCH,
-      (2 + 3 / 4) * ArchetypeUnits.INCH,
+    post: AutoMovieArchetypeBand.metres(
+      (2 + 3 / 4) * AutoMovieArchetypeUnits.INCH,
+      (2 + 3 / 4) * AutoMovieArchetypeUnits.INCH,
       LAVI,
       true,
     ),
-    base: ArchetypeBand.metres(
-      (14 + 1 / 2) * ArchetypeUnits.INCH,
-      (14 + 1 / 2) * ArchetypeUnits.INCH,
+    base: AutoMovieArchetypeBand.metres(
+      (14 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
+      (14 + 1 / 2) * AutoMovieArchetypeUnits.INCH,
       LAVI,
       true,
     ),
-    ropeDiameter: ArchetypeBand.metres(
-      1.5 * ArchetypeUnits.INCH,
-      1.5 * ArchetypeUnits.INCH,
+    ropeDiameter: AutoMovieArchetypeBand.metres(
+      1.5 * AutoMovieArchetypeUnits.INCH,
+      1.5 * AutoMovieArchetypeUnits.INCH,
       LAVI,
       true,
     ),
-    mass: ArchetypeBand.of("kg", 15, 25, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      15,
+      25,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
 };

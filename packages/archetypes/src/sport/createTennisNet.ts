@@ -1,13 +1,17 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { GoalBuild } from "./GoalBuild";
 import { buildTennisNet } from "./buildTennisNet";
 import type { createGoal } from "./createGoal";
 
 /** The builder for this field or court apparatus. */
-type Builder = ArchetypeBuilder<
+type Builder = AutoMovieArchetypeBuilder<
   createTennisNet.Affordance,
   createGoal.Dimension
 >;
@@ -36,7 +40,7 @@ const NET_THICKNESS: number = 0.005;
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Use the retained court span, cord heights and post section to make the supports, visible lattice and separate collision panels.
@@ -49,7 +53,7 @@ const NET_THICKNESS: number = 0.005;
 export function createTennisNet(
   params: createTennisNet.IParams = {},
   seed?: number | string,
-): Archetype<createTennisNet.Affordance, createTennisNet.Dimension> {
+): AutoMovieArchetype<createTennisNet.Affordance, createTennisNet.Dimension> {
   const {
     builder,
     d,
@@ -106,7 +110,11 @@ function tennis(builder: Builder, d: Drawn): void {
   builder.affordance({
     id: "top",
     kind: "ledge",
-    frame: ArchetypeFrame.facing(v(0, centre, 0), v(0, 1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, centre, 0),
+      v(0, 1, 0),
+      v(1, 0, 0),
+    ),
     extent: null,
     length: STRAP,
   });

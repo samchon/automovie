@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createBroom,
   createFishingRod,
   createHammer,
@@ -32,7 +32,7 @@ interface INamedParams {
 type NamedProducer = (
   params: INamedParams,
   seed?: number | string,
-) => Archetype;
+) => AutoMovieArchetype;
 
 /** The saved kind a dispatcher reads, typed per family by the loop's caller. */
 interface ISavedParams {
@@ -47,7 +47,7 @@ interface ISavedParams {
 type SavedDispatcher = (
   params: ISavedParams,
   seed?: number | string,
-) => Archetype;
+) => AutoMovieArchetype;
 
 /** The saved tool and personal-prop recipes checked through both SDK entry points. */
 const FAMILIES = [
@@ -100,7 +100,10 @@ const FAMILIES = [
       "createPaper",
     ],
   ],
-  [props.createWearable, ["createWatch", "createHat", "createSpectacles"]],
+  [
+    props.createWearable,
+    ["createWatch", "createHat", "createSpectacles", "createCyclingHelmet"],
+  ],
   [props.createSmoking, ["createCigarette", "createLighter"]],
 ] as const;
 
@@ -148,8 +151,11 @@ export function test_archetype_catalogue_tools_personal(): void {
         ["prop", 0],
         [undefined, "catalogue-props"],
       ] as const) {
-        const named: Archetype = produce({ id, format }, seed);
-        const saved: Archetype = legacy({ kind: kind as never, id }, seed);
+        const named: AutoMovieArchetype = produce({ id, format }, seed);
+        const saved: AutoMovieArchetype = legacy(
+          { kind: kind as never, id },
+          seed,
+        );
         TestValidator.predicate(
           `${kind}@${seed} preserves identity, dimensions and mass`,
           named.id === saved.id &&
@@ -241,7 +247,7 @@ export function test_archetype_catalogue_tools_personal(): void {
           ground.affordance("shaft").length!,
           archetypeExtent(ground, "y", ["shaft"]).size,
         ) &&
-        vclose(ArchetypeFrame.axis(ground.site("face"), "y"), {
+        vclose(AutoMovieArchetypeFrame.axis(ground.site("face"), "y"), {
           x: 0,
           y: -1,
           z: 0,
@@ -297,7 +303,7 @@ export function test_archetype_catalogue_tools_personal(): void {
     }
     TestValidator.predicate(
       "invalid recipes are refused",
-      error instanceof ArchetypeRefusal,
+      error instanceof AutoMovieArchetypeRefusal,
     );
   }
 }

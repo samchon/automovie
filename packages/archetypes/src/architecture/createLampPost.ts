@@ -1,21 +1,21 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype } from "../core";
+import { type AutoMovieArchetype } from "../core";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
 /**
  * A lamp post with a ground base, upright grip and post-top luminaire.
  *
- * The mounting height and base and luminaire dimensions locate the grip on the actual shaft.
+ * The mounting height and base and luminaire dimensions locate the grip on the shaft.
  * The lowest point of the fixture stands on Y = 0.
  *
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
- * @evidence contracts/development/implementation.md#principled-implementation The mounting height and base and luminaire dimensions locate the grip on the actual shaft.
+ * @evidence contracts/development/implementation.md#principled-implementation The mounting height and base and luminaire dimensions locate the grip on the shaft.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw the fixed measurements, then record the parts and their typed contacts.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original measurements, fixed input checks and contact/part geometry are used by both APIs.
  * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Builds a single fixture with a bounded number of parts and contacts.
@@ -25,7 +25,7 @@ import { StreetFixtureDraw } from "./StreetFixtureDraw";
 export function createLampPost(
   params: createLampPost.IParams = {},
   seed?: number | string,
-): Archetype<createLampPost.Affordance, createLampPost.Dimension> {
+): AutoMovieArchetype<createLampPost.Affordance, createLampPost.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createLampPost.Affordance> =
     StreetFixtureDraw.begin("lampPost", "lamp post", "composite", params, seed);
   const v: typeof Vector3.create = Vector3.create;

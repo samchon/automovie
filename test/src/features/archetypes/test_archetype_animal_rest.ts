@@ -1,10 +1,11 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  QuadrupedBody,
-  QuadrupedLateralRest,
-  QuadrupedRest,
-  type QuadrupedRestPlan,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedLateralRest,
+  AutoMovieArchetypeQuadrupedRest,
+  type AutoMovieArchetypeQuadrupedRestPlan,
   createDog,
   createHorse,
 } from "@automovie/archetypes";
@@ -74,7 +75,7 @@ export function test_archetype_animal_rest(): void {
     stirrupDrop: 0.575,
     tempo: 0,
   });
-  const dogParams: QuadrupedRestPlan.IParams = {
+  const dogParams: AutoMovieArchetypeQuadrupedRestPlan.IParams = {
     floorY: 0,
     loweringSeconds: 2,
     restingSeconds: 1,
@@ -108,7 +109,7 @@ export function test_archetype_animal_rest(): void {
     )!,
     1,
   );
-  const horseParams: QuadrupedRestPlan.IParams = {
+  const horseParams: AutoMovieArchetypeQuadrupedRestPlan.IParams = {
     ...dogParams,
     restPitch:
       (Math.atan2(
@@ -128,6 +129,7 @@ export function test_archetype_animal_rest(): void {
       "stirrup-right": "trunk",
       "rein-left": "head",
       "rein-right": "head",
+      mane: "trunk",
       lead: "head",
       leftEar: "head",
       rightEar: "head",
@@ -144,13 +146,14 @@ export function test_archetype_animal_rest(): void {
       rightStirrup: "trunk",
       leftRein: "head",
       rightRein: "head",
+      mane: "trunk",
       lead: "head",
     },
   };
   const cases: readonly {
     name: string;
-    animal: Archetype;
-    params: QuadrupedRestPlan.IParams;
+    animal: AutoMovieArchetype;
+    params: AutoMovieArchetypeQuadrupedRestPlan.IParams;
   }[] = [
     { name: "dog", animal: dog, params: dogParams },
     { name: "horse", animal: horse, params: horseParams },
@@ -163,7 +166,7 @@ export function test_archetype_animal_rest(): void {
     withersHeight: 1.72,
     tempo: 0,
   });
-  const bareParams: QuadrupedRestPlan.IParams = {
+  const bareParams: AutoMovieArchetypeQuadrupedRestPlan.IParams = {
     ...horseParams,
     parts: {
       withers: "trunk",
@@ -185,7 +188,7 @@ export function test_archetype_animal_rest(): void {
     TestValidator.error(
       `admission refuses first contact on ${side} saddle gear`,
       () =>
-        QuadrupedLateralRest(horse, horseParams, {
+        AutoMovieArchetypeQuadrupedLateralRest(horse, horseParams, {
           side,
           rollDegrees: 90,
           tuckDegrees: 35,
@@ -195,8 +198,11 @@ export function test_archetype_animal_rest(): void {
         }),
     );
     const roll: ReturnType<
-      typeof QuadrupedLateralRest<createHorse.Affordance, createHorse.Dimension>
-    > = QuadrupedLateralRest(bare, bareParams, {
+      typeof AutoMovieArchetypeQuadrupedLateralRest<
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
+      >
+    > = AutoMovieArchetypeQuadrupedLateralRest(bare, bareParams, {
       side,
       rollDegrees: 90,
       tuckDegrees: 35,
@@ -234,13 +240,15 @@ export function test_archetype_animal_rest(): void {
           const shape: IAutoMovieModelPart["geometry"] = part.geometry;
           if (shape.type === "primitive" && shape.shape.type === "sphere")
             return (
-              ArchetypeFrame.point(pose.placement, part.transform!.translation)
-                .y - shape.shape.radius
+              AutoMovieArchetypeFrame.point(
+                pose.placement,
+                part.transform!.translation,
+              ).y - shape.shape.radius
             );
 
           // A box, such as an ear plate, reaches down by each half-extent times its local axis's vertical share.
           if (shape.type === "primitive" && shape.shape.type === "box") {
-            const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+            const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
               pose.placement,
               part.transform!,
             );
@@ -269,8 +277,9 @@ export function test_archetype_animal_rest(): void {
       `${side} rolling transfers support to the side limbs`,
       () => [...support].some((id: string): boolean => id.startsWith(side)),
     );
-    for (const limb of QuadrupedBody.LIMBS) {
-      const id: QuadrupedBody.Bone = QuadrupedBody.BONES[limb][3];
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
+      const id: AutoMovieArchetypeQuadrupedBody.Bone =
+        AutoMovieArchetypeQuadrupedBody.BONES[limb][3];
       const bar: IAutoMovieModelPart = returned.animal.parts.find(
         (part: IAutoMovieModelPart): boolean => part.id === id,
       )!;
@@ -305,17 +314,20 @@ export function test_archetype_animal_rest(): void {
     );
   }
 
-  const clip: QuadrupedRestPlan.IClip<
+  const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     createDog.Affordance,
-    QuadrupedBody.Dimension
-  > = QuadrupedRest(dog, dogParams);
-  const shifted: QuadrupedRestPlan.ISample<
+    AutoMovieArchetypeQuadrupedBody.Dimension
+  > = AutoMovieArchetypeQuadrupedRest(dog, dogParams);
+  const shifted: AutoMovieArchetypeQuadrupedRestPlan.ISample<
     createDog.Affordance,
-    QuadrupedBody.Dimension
-  > = QuadrupedRest(dog, { ...dogParams, floorY: 0.25 }).sample(2.5);
-  const resting: QuadrupedRestPlan.ISample<
+    AutoMovieArchetypeQuadrupedBody.Dimension
+  > = AutoMovieArchetypeQuadrupedRest(dog, {
+    ...dogParams,
+    floorY: 0.25,
+  }).sample(2.5);
+  const resting: AutoMovieArchetypeQuadrupedRestPlan.ISample<
     createDog.Affordance,
-    QuadrupedBody.Dimension
+    AutoMovieArchetypeQuadrupedBody.Dimension
   > = clip.sample(2.5);
   for (let index: number = 0; index < resting.animal.parts.length; index++)
     TestValidator.predicate(
@@ -330,10 +342,10 @@ export function test_archetype_animal_rest(): void {
         1e-9,
       ),
     );
-  const windowed: QuadrupedRestPlan.IClip<
+  const windowed: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     createDog.Affordance,
-    QuadrupedBody.Dimension
-  > = QuadrupedRest(dog, {
+    AutoMovieArchetypeQuadrupedBody.Dimension
+  > = AutoMovieArchetypeQuadrupedRest(dog, {
     ...dogParams,
     windows: { body: [0.1, 0.8], fore: [0.1, 0.8], hind: [0.1, 0.8] },
   });
@@ -355,11 +367,13 @@ export function test_archetype_animal_rest(): void {
   );
   TestValidator.predicate(
     "zero hold has a supported transition boundary",
-    QuadrupedRest(dog, { ...dogParams, restingSeconds: 0 }).sample(2)
-      .bellySupported,
+    AutoMovieArchetypeQuadrupedRest(dog, {
+      ...dogParams,
+      restingSeconds: 0,
+    }).sample(2).bellySupported,
   );
 
-  const invalid: readonly QuadrupedRestPlan.IParams[] = [
+  const invalid: readonly AutoMovieArchetypeQuadrupedRestPlan.IParams[] = [
     { ...dogParams, floorY: NaN },
     { ...dogParams, loweringSeconds: 0 },
     { ...dogParams, restingSeconds: -1 },
@@ -376,7 +390,7 @@ export function test_archetype_animal_rest(): void {
     TestValidator.predicate(
       "malformed rest input refuses",
       archetypeRestObservation.refuses((): void => {
-        QuadrupedRest(dog, params);
+        AutoMovieArchetypeQuadrupedRest(dog, params);
       }),
     );
   for (const seconds of [-1, NaN, 5.001])
@@ -393,7 +407,7 @@ export function test_archetype_animal_rest(): void {
     TestValidator.predicate(
       "incomplete actual carrier map refuses",
       archetypeRestObservation.refuses((): void => {
-        QuadrupedRest(dog, params).sample(2.5);
+        AutoMovieArchetypeQuadrupedRest(dog, params).sample(2.5);
       }),
     );
 
@@ -419,7 +433,7 @@ export function test_archetype_animal_rest(): void {
   TestValidator.predicate(
     "actual impossible geometry refuses instead of stretching",
     archetypeRestObservation.refuses((): void => {
-      QuadrupedRest(impossible, dogParams).sample(2.5);
+      AutoMovieArchetypeQuadrupedRest(impossible, dogParams).sample(2.5);
     }),
   );
 }

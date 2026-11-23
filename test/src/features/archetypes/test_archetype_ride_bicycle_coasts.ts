@@ -1,6 +1,6 @@
 import {
-  ArchetypeCourse,
-  ArchetypeRefusal,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
   createBicycle,
   rideBicycle,
 } from "@automovie/archetypes";
@@ -28,18 +28,21 @@ import { nclose } from "../internal/nclose";
  */
 export function test_archetype_ride_bicycle_coasts(): void {
   const bicycle: ReturnType<typeof createBicycle> = createBicycle({}, 8);
-  const plan: ArchetypeCourse.IPlan = ArchetypeCourse.plan("bicycle", {
-    start: { x: 0, z: 0, heading: 0 },
-    legs: [
-      { kind: "straight", length: 6 },
-      { kind: "straight", length: 20 },
-      { kind: "straight", length: 8 },
-    ],
-    speeds: [2, 5, 0],
-    cruise: 5,
-    acceleration: 2,
-    deceleration: 2,
-  });
+  const plan: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.plan(
+    "bicycle",
+    {
+      start: { x: 0, z: 0, heading: 0 },
+      legs: [
+        { kind: "straight", length: 6 },
+        { kind: "straight", length: 20 },
+        { kind: "straight", length: 8 },
+      ],
+      speeds: [2, 5, 0],
+      cruise: 5,
+      acceleration: 2,
+      deceleration: 2,
+    },
+  );
   const ride: ReturnType<typeof rideBicycle> = rideBicycle(bicycle, plan, {
     chainring: 34,
     sprocket: 17,
@@ -93,7 +96,7 @@ export function test_archetype_ride_bicycle_coasts(): void {
     }
     TestValidator.predicate(
       "overlapping or unordered coasts are refused",
-      refusal instanceof ArchetypeRefusal,
+      refusal instanceof AutoMovieArchetypeRefusal,
     );
   }
 }

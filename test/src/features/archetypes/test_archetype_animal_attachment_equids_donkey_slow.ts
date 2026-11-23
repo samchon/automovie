@@ -1,4 +1,7 @@
-import { createDonkey, type createHorse } from "@automovie/archetypes";
+import {
+  type AutoMovieArchetypeEquine,
+  createDonkey,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { equidAttachmentMatrix } from "../internal/equidAttachmentMatrix";
@@ -29,7 +32,7 @@ import { equidAttachmentMatrix } from "../internal/equidAttachmentMatrix";
 export function test_archetype_animal_attachment_equids_donkey_slow(): void {
   const findings: string[] = [];
   equidAttachmentMatrix(
-    (tack: createHorse.Tack): ReturnType<typeof createDonkey> =>
+    (tack: AutoMovieArchetypeEquine.Tack): ReturnType<typeof createDonkey> =>
       createDonkey(
         { withersHeight: 1.1262, tack, tempo: 0, stirrupDrop: 0.575 },
         43,

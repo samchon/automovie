@@ -68,29 +68,23 @@ export function planBendStrategy(
   alignTrunk: boolean = false,
 ): IAutoMovieMotionHumanActionPlan {
   const body: IAutoMovieMotionHumanBody = context.body;
-  const side: AutoMovieHumanSide = context.params.side ?? "right";
+  const side: AutoMovieHumanSide = context.params.hand ?? "right";
   const hold: number = context.params.hold ?? bend.HOLD;
   HumanBound.least("hold", hold, 0, "s");
   const probe: IAutoMovieMotionHumanActionPlan = stand.plan(
-    { ...context, params: { seconds: 1 } },
+    { ...context, params: { hold: 1 } },
     side,
   );
   const upright: IAutoMovieMotionHumanPosture = probe.posture(0);
   // When the sagittal course is obstructed, direct the upper trunk's
   // inclination toward the unilateral contact. The angle is the lateral
   // displacement of the contact over the pelvis-to-shoulder lever.
-  const hips: IAutoMovieVector3 = body.rest.get("hips")!;
-  const armBase: IAutoMovieVector3 = body.rest.get(`${side}UpperArm`)!;
-  const local: IAutoMovieVector3 = HumanFrame.local(
-    { origin: upright.root, yaw: upright.yaw },
-    target,
-  );
   const lateralTilt: number = alignTrunk
-    ? (Math.atan2(hips.x - local.x, armBase.y - hips.y) * 180) / Math.PI
+    ? bendLower.lateralTilt(body, upright, target, side)
     : 0;
   const region: IAutoMovieHumanoidSurfaces.IFrame | undefined =
-    context.params.toward.kind === "self"
-      ? body.surfaces.regions[context.params.toward.region]
+    context.params.target.kind === "self"
+      ? body.surfaces.regions[context.params.target.region]
       : undefined;
   const floorContact: boolean =
     region === undefined &&
@@ -153,7 +147,7 @@ export function planBendStrategy(
   // The body stands under the bend, its sway signed in the bending side's
   // frame, so a left bend mirrors a right one (`stand.plan`).
   const standing: IAutoMovieMotionHumanActionPlan = stand.plan(
-    { ...context, params: { seconds: 2 * down } },
+    { ...context, params: { hold: 2 * down } },
     side,
   );
   const atContact: IAutoMovieMotionHumanPosture = standing.posture(down);

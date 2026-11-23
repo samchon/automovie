@@ -29,7 +29,8 @@ import type { IAutoMovieMotionHumanSeated } from "./IAutoMovieMotionHumanSeated"
  * `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal height
  * (provisional coefficients; a lower seat needs more trunk flexion and more
  * time, Janssen, Bussmann and Stam 2002, and sit-to-stand takes about 1.5 to
- * 2.5 s in healthy adults). Contact comes at 75 % of the descent. The seated
+ * 2.5 s in healthy adults): 2 s for a seat at the popliteal height (`r` = 1),
+ * 2.5 s for a low seat at 0.7 of it. Contact comes at 75 % of the descent. The seated
  * back is `upright` (pitch 0), `lean` (12 degrees back onto a backrest, which
  * the seat must have) or `slump` (pelvis 10 degrees back, chest 12 and spine
  * 8 flexed), all provisional.
@@ -43,22 +44,10 @@ import type { IAutoMovieMotionHumanSeated } from "./IAutoMovieMotionHumanSeated"
  * A seat above 1.2 of the popliteal height, or one sat astride, is got onto
  * instead ({@link HumanMountOn}): the feet leave the floor for the seat's
  * rests or hang, under the same parameters, events and cancel table.
- *
- * @evidence contracts/development/common.md#meaningful-documentation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
- * @evidence contracts/development/design.md#principled-representation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.sit, params); everyday/sit.ts (sit.plan, context); everyday/sit.ts (sit.plan).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanSit {
   /**
    * Parameters.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
-   * @evidence contracts/development/design.md#principled-representation back: The seated back; `upright` when absent. seconds: Seconds to stay seated after `seated`; 1 when absent. Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas. legs: How the legs rest once seated on a seat inside the band: `parallel`, both feet where they stood, or `crossed`, the left ankle lifted and set down across the right one over `CROSS` seconds after `seated`, which the time seated must cover. `parallel` when absent; ignored on a high seat.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainPosture.ts (HumanChainPosture.sit, params); everyday/sit.ts (sit.plan, context); everyday/sit.ts (sit.plan).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSeated.ISeat, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /**
@@ -76,10 +65,8 @@ export namespace IAutoMovieMotionHumanSit {
     /** The seated back; `upright` when absent. */
     back?: "upright" | "lean" | "slump";
 
-    /** Seconds to stay seated after `seated`; 1 when absent.
-     * Inclusive minimum: 0. Unit: "s". Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
-    seconds?: number;
+    /** Seconds to stay seated after `seated`, at least 0; 1 when absent. */
+    hold?: number;
 
     /**
      * How the legs rest once seated on a seat inside the band: `parallel`,

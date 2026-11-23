@@ -1,4 +1,8 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import { PRIMING_WIRE } from "./PRIMING_WIRE";
 import type { createTool } from "./createTool";
 
@@ -32,7 +36,7 @@ const LADLE: string =
 
 /** A field gun's priming wire, read; its weight is read only for the garrison wire. */
 const PRIMING: string =
-  "1862 Ordnance Manual, p. 134 (https://archive.org/details/ordnancemanualfo00unitrich): \"Priming-wire; iron wire 0.175 inch diameter, formed with a ring 2 inches diameter at the head, and pointed; length of stem, for siege and garrison guns, 14 inches; length for field-guns, 8 inches. Weight 0.08 lb. for garrison guns.\"";
+  '1862 Ordnance Manual, p. 134 (https://archive.org/details/ordnancemanualfo00unitrich): "Priming-wire; iron wire 0.175 inch diameter, formed with a ring 2 inches diameter at the head, and pointed; length of stem, for siege and garrison guns, 14 inches; length for field-guns, 8 inches. Weight 0.08 lb. for garrison guns."';
 
 /** The precision handle band applied to a handle no maker sizes. */
 const PRECISION: string =
@@ -44,83 +48,107 @@ const PRECISION: string =
 export const TOOL_BANDS: Readonly<
   Record<
     createTool.Kind,
-    Readonly<Partial<Record<createTool.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createTool.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
-    hammer: {
-      length: ArchetypeBand.metres(13 * ArchetypeUnits.INCH, 13 * ArchetypeUnits.INCH, HAMMER, true),
-      gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.6,
-        0.75,
-        `${HAMMER}: the 448 g head with a handle, the whole not read at a source`,
-        true,
-      ),
-    },
-    saw: {
-      length: ArchetypeBand.metres(0.61, 0.62, SAW, true),
-      blade: ArchetypeBand.metres(0.5, 0.55, SAW, true),
-      gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 0.35, 0.5, ArchetypeBand.TYPICAL_MASS, true),
-    },
-    screwdriver: {
-      length: ArchetypeBand.metres(8.25 * ArchetypeUnits.INCH, 8.25 * ArchetypeUnits.INCH, SCREWDRIVER),
-      blade: ArchetypeBand.metres(4 * ArchetypeUnits.INCH, 4 * ArchetypeUnits.INCH, SCREWDRIVER),
-      gripDiameter: ArchetypeBand.metres(0.03, 0.04, POWER, true),
-      mass: ArchetypeBand.of("kg", 4 * ArchetypeUnits.OUNCE, 4 * ArchetypeUnits.OUNCE, SCREWDRIVER),
-    },
-    spoon: {
-      length: ArchetypeBand.metres(0.13, 0.17, SPOON, true),
-      gripDiameter: ArchetypeBand.metres(
-        0.006,
-        0.013,
-        "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a spoon handle",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.03,
-        0.05,
-        ArchetypeBand.TYPICAL_MASS,
-        true,
-      ),
-    },
-    fork: {
-      length: ArchetypeBand.metres(0.19, 0.19, FORK),
-      gripDiameter: ArchetypeBand.metres(
-        0.006,
-        0.013,
-        "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a fork handle",
-        true,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        0.045,
-        0.045,
-        `${FORK}: a quarter of the pack`,
-      ),
-    },
-    ladle: {
-      length: ArchetypeBand.metres(0.32, 0.32, LADLE),
-      bowl: ArchetypeBand.metres(0.09, 0.09, LADLE),
-      gripDiameter: ArchetypeBand.metres(0.006, 0.013, PRECISION, true),
-      mass: ArchetypeBand.of("kg", 0.218, 0.218, LADLE),
-    },
-    knife: {
-      gripDiameter: ArchetypeBand.metres(0.006, 0.013, PRECISION, true),
-    },
-    primingWire: {
-      length: ArchetypeBand.metres(
-        PRIMING_WIRE.ring + PRIMING_WIRE.field,
-        PRIMING_WIRE.ring + PRIMING_WIRE.field,
-        `${PRIMING}: the 2 in ring and the 8 in field stem`,
-      ),
-      mass: ArchetypeBand.of(
-        "kg",
-        PRIMING_WIRE.mass,
-        PRIMING_WIRE.mass,
-        `${PRIMING}: the garrison wire's 0.08 lb scaled by the length of wire in the field wire's ring and 8 in stem over the garrison wire's ring and 14 in stem, a derivation`,
-      ),
-    },
+  hammer: {
+    length: AutoMovieArchetypeBand.metres(
+      13 * AutoMovieArchetypeUnits.INCH,
+      13 * AutoMovieArchetypeUnits.INCH,
+      HAMMER,
+      true,
+    ),
+    gripDiameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      0.6,
+      0.75,
+      `${HAMMER}: the 448 g head with a handle, the whole not read at a source`,
+      true,
+    ),
+  },
+  saw: {
+    length: AutoMovieArchetypeBand.metres(0.61, 0.62, SAW, true),
+    blade: AutoMovieArchetypeBand.metres(0.5, 0.55, SAW, true),
+    gripDiameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      0.35,
+      0.5,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
+  },
+  screwdriver: {
+    length: AutoMovieArchetypeBand.metres(
+      8.25 * AutoMovieArchetypeUnits.INCH,
+      8.25 * AutoMovieArchetypeUnits.INCH,
+      SCREWDRIVER,
+    ),
+    blade: AutoMovieArchetypeBand.metres(
+      4 * AutoMovieArchetypeUnits.INCH,
+      4 * AutoMovieArchetypeUnits.INCH,
+      SCREWDRIVER,
+    ),
+    gripDiameter: AutoMovieArchetypeBand.metres(0.03, 0.04, POWER, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      4 * AutoMovieArchetypeUnits.OUNCE,
+      4 * AutoMovieArchetypeUnits.OUNCE,
+      SCREWDRIVER,
+    ),
+  },
+  spoon: {
+    length: AutoMovieArchetypeBand.metres(0.13, 0.17, SPOON, true),
+    gripDiameter: AutoMovieArchetypeBand.metres(
+      0.006,
+      0.013,
+      "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a spoon handle",
+      true,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      0.03,
+      0.05,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
+  },
+  fork: {
+    length: AutoMovieArchetypeBand.metres(0.19, 0.19, FORK),
+    gripDiameter: AutoMovieArchetypeBand.metres(
+      0.006,
+      0.013,
+      "the 6 to 13 mm precision handle band of NIOSH 2004-164 (https://www.cdc.gov/niosh/docs/2004-164/pdfs/2004-164.pdf), applied to a fork handle",
+      true,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      0.045,
+      0.045,
+      `${FORK}: a quarter of the pack`,
+    ),
+  },
+  ladle: {
+    length: AutoMovieArchetypeBand.metres(0.32, 0.32, LADLE),
+    bowl: AutoMovieArchetypeBand.metres(0.09, 0.09, LADLE),
+    gripDiameter: AutoMovieArchetypeBand.metres(0.006, 0.013, PRECISION, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.218, 0.218, LADLE),
+  },
+  knife: {
+    gripDiameter: AutoMovieArchetypeBand.metres(0.006, 0.013, PRECISION, true),
+  },
+  primingWire: {
+    length: AutoMovieArchetypeBand.metres(
+      PRIMING_WIRE.ring + PRIMING_WIRE.field,
+      PRIMING_WIRE.ring + PRIMING_WIRE.field,
+      `${PRIMING}: the 2 in ring and the 8 in field stem`,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      PRIMING_WIRE.mass,
+      PRIMING_WIRE.mass,
+      `${PRIMING}: the garrison wire's 0.08 lb scaled by the length of wire in the field wire's ring and 8 in stem over the garrison wire's ring and 14 in stem, a derivation`,
+    ),
+  },
 };

@@ -259,7 +259,7 @@ export namespace ropeSupport {
         ...support.plan({
           ...context,
           params: { stances: oneFootAtATime(climb) },
-          aim: ropeLine.aim(context, p.rope, staged),
+          aim: ropeLine.aim(context, p.rope, staged, line),
         }),
         base: { kind: "standing" },
       };
@@ -356,7 +356,7 @@ export namespace ropeSupport {
       ...support.plan({
         ...context,
         params: { stances: oneFootAtATime(descent) },
-        aim: ropeLine.aim(context, p.rope, staged),
+        aim: ropeLine.aim(context, p.rope, staged, line),
       }),
       base: { kind: "standing" },
     };

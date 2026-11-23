@@ -1,8 +1,8 @@
 import {
-  type Archetype,
-  ArchetypeRefusal,
-  type QuadrupedBody,
-  QuadrupedSkeleton,
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeQuadrupedSkeleton,
+  AutoMovieArchetypeRefusal,
   createCamel,
   createDeer,
   createOx,
@@ -103,7 +103,7 @@ export function test_archetype_animal_reference_species(): void {
         createDeer({ cohort: "boso-adult-male" }, seed),
     },
   ];
-  const bones: readonly QuadrupedBody.Bone[] = [
+  const bones: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
     "trunk",
     "hindquarters",
     "neck",
@@ -140,7 +140,7 @@ export function test_archetype_animal_reference_species(): void {
       const animal: Animal = reference.make(seed);
       const original: string = JSON.stringify(animal);
       const repeat: Animal = reference.make(seed);
-      const dispatched: Archetype<
+      const dispatched: AutoMovieArchetype<
         createQuadruped.Affordance,
         createQuadruped.Dimension
       > = createQuadruped(reference.params, seed);
@@ -207,8 +207,8 @@ export function test_archetype_animal_reference_species(): void {
         findings.push(
           `${label}: complete head capsule differs from its source control`,
         );
-      const rig: ReturnType<typeof QuadrupedSkeleton.of> =
-        QuadrupedSkeleton.of(animal);
+      const rig: ReturnType<typeof AutoMovieArchetypeQuadrupedSkeleton.of> =
+        AutoMovieArchetypeQuadrupedSkeleton.of(animal);
       if (
         rig.bones
           .map((bone: (typeof rig.bones)[number]): string => bone.bone)
@@ -217,7 +217,7 @@ export function test_archetype_animal_reference_species(): void {
           )
           .join("|") !== expectedBones ||
         bones.some(
-          (bone: QuadrupedBody.Bone): boolean =>
+          (bone: AutoMovieArchetypeQuadrupedBody.Bone): boolean =>
             !animal.parts.some(
               (candidate: IAutoMovieModelPart): boolean =>
                 candidate.id === bone,
@@ -337,7 +337,7 @@ function refusal(
     findings.push(`${label}: the invalid request was accepted`);
   } catch (error) {
     if (
-      !(error instanceof ArchetypeRefusal) ||
+      !(error instanceof AutoMovieArchetypeRefusal) ||
       error.kind !== "parameter" ||
       error.archetype !== archetype ||
       error.axis !== axis ||

@@ -1,10 +1,11 @@
 import type {
-  AutoMovieMotionHumanTuckHairParams,
   IAutoMovieMotionHumanActionLaw,
+  IAutoMovieMotionHumanHandToBody,
 } from "@automovie/interface";
 
 import { armPhrase } from "../everyday/armPhrase";
 import { HumanActionRow } from "../law/HumanActionRow";
+import { HUMAN_HAND_TO_BODY_TUCK_HAIR } from "../next/presets/HUMAN_HAND_TO_BODY_TUCK_HAIR";
 
 /**
  * The relaxed index fingertip sweeps from in front of the same-side ear to
@@ -20,13 +21,5 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * @evidence contracts/development/design.md#minimal-and-owned-surface The row leaves the acting side and manner open and owns only the tuck's geometry.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The row uses the canonical ear landmarks and shared arm phrase without new motion code or mesh dependency.
  */
-export const tuckHair: IAutoMovieMotionHumanActionLaw<AutoMovieMotionHumanTuckHairParams> =
-  HumanActionRow.of("tuckHair", armPhrase, {
-    phrase: "stroke",
-    target: { kind: "self", region: "earRight" },
-    mirror: true,
-    surface: "indexTip",
-    shape: "relaxed",
-    offset: { out: 0.035, up: 0.018, forward: -0.055 },
-    from: { out: 0, up: 0.065, forward: 0.135 },
-  });
+export const tuckHair: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.ITuckHair> =
+  HumanActionRow.of("tuckHair", armPhrase, HUMAN_HAND_TO_BODY_TUCK_HAIR);

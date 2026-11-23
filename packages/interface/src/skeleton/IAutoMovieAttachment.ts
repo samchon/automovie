@@ -5,11 +5,6 @@ import type { AutoMovieHumanoidBone } from "./AutoMovieHumanoidBone";
  * A rigid coupling of one model's root to a **bone of another model**: the cross-skeleton joint that lets a rider sit a horse, a passenger ride a cart, or a sword stay in a hand.
  *
  * resolveAttachment composes the offset with forward kinematics in the parent's skeleton model frame. compileAttach separately composes the parent's staged translation and rotation and samples a follow clip; parent scale is not inherited, and interpolation between baked samples is approximate. This coupling is not a dynamic fixed-joint simulation.
- *
- * @evidence contracts/development/design.md#principled-representation resolveAttachment applies parent-bone forward kinematics then rigidly composes the child offset, rotating translation, multiplying unit rotations and copying offset scale in the parent's model frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Parent bone and local offset describe one cross-rig coupling while scene node identity and world placement belong to the surrounding attachment action.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing or unreachable parent bones throw, and the bone frame carries no inherited scale; renderer and resolver must use matching clinical axes and rest frames.
- * @evidence contracts/development/common.md#meaningful-documentation Defines parent-skeleton bone ownership, local offset composition and rigid following with model-versus-world placement distinction.
  */
 export interface IAutoMovieAttachment {
   /**

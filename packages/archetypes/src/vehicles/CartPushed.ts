@@ -1,15 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { createCart } from "./createCart";
 
 /**
  * The carriers pushed by hand: a shopping trolley and a wheelbarrow, each built on its drawn dimensions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what it builds.
- * @evidence contracts/development/design.md#principled-representation A basket or tray box on wheels with handle bars at the drawn height.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The two builders `createCart` calls for its pushed kinds.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Each kind is its own builder; no shared shape is forced on both.
  */
 export namespace CartPushed {
   /**
@@ -17,17 +15,12 @@ export namespace CartPushed {
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built.
-   * @evidence contracts/development/implementation.md#principled-implementation The basket stands over its chassis on two rear uprights and carries the push bar on two arms from its rear rim; the handle's frame lies on the bar's axis with the bar's diameter as its `aperture`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Basket, chassis, castors, then what joins them.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The basket is one solid box held at its rear, its wire mesh, child seat and front supports not modelled.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Eleven parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function trolley(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -105,7 +98,7 @@ export namespace CartPushed {
       id: "handle",
       kind: "bar",
       symmetry: "round",
-      frame: ArchetypeFrame.upright(v(0, handleHeight, bar)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, handleHeight, bar)),
       extent: null,
       grip: "power",
       aperture: d.gripDiameter!,
@@ -119,7 +112,9 @@ export namespace CartPushed {
         id,
         kind: "bar",
         symmetry: "round",
-        frame: ArchetypeFrame.upright(v((sign * width) / 4, handleHeight, bar)),
+        frame: AutoMovieArchetypeFrame.upright(
+          v((sign * width) / 4, handleHeight, bar),
+        ),
         extent: null,
         grip: "power",
         aperture: d.gripDiameter!,
@@ -128,7 +123,7 @@ export namespace CartPushed {
     builder.affordance({
       id: "load",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, floor, 0.075)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, floor, 0.075)),
       extent: null,
       width,
       depth: length - 0.15,
@@ -140,17 +135,12 @@ export namespace CartPushed {
    *
    * @param builder The carrier under construction.
    * @param d The drawn dimensions.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what is built.
-   * @evidence contracts/development/implementation.md#principled-implementation Each handle's frame lies on its grip's axis with the grip's diameter as its `aperture`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Tray, wheel, then each side's shaft, grip, leg and handle.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The wheelbarrow rests on its legs, handles at rest height; lifting it is the pushing act's to pose.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Eight parts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one model.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function wheelbarrow(
-    builder: ArchetypeBuilder<createCart.Affordance, createCart.Dimension>,
+    builder: AutoMovieArchetypeBuilder<
+      createCart.Affordance,
+      createCart.Dimension
+    >,
     d: Readonly<Partial<Record<createCart.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -158,6 +148,8 @@ export namespace CartPushed {
     const wheel: number = d.wheelDiameter! / 2;
     const length: number = d.length!;
     const handleHeight: number = d.handleHeight!;
+
+    // The tray's 0.88 m length and 0.3 m depth are authored.
     const tray: number = 0.88;
     const rear: number = -length / 2 + createCart.GRIP;
     const middle: number = length / 2 - d.wheelDiameter! - tray / 2 + 0.2;
@@ -207,7 +199,7 @@ export namespace CartPushed {
         id: `${side}Handle`,
         kind: "handle",
         symmetry: "round",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(x, handleHeight, -length / 2 + createCart.GRIP / 2),
           v(0, 1, 0),
           v(0, 0, 1),
@@ -221,7 +213,7 @@ export namespace CartPushed {
     builder.affordance({
       id: "load",
       kind: "surface",
-      frame: ArchetypeFrame.upright(v(0, handleHeight - 0.2, middle)),
+      frame: AutoMovieArchetypeFrame.upright(v(0, handleHeight - 0.2, middle)),
       extent: null,
       width: d.width!,
       depth: tray,

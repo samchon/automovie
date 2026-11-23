@@ -10,11 +10,6 @@ import type { IAutoMovieAffordanceCoupling } from "./IAutoMovieAffordanceCouplin
  * Bone attachments couple to a posed skeleton; an affordance instead marks a model-local contact used by prop anchoring and support consumers. propSupportFace transforms a stack-top footprint through the full affordance and staged matrices for placement support. The separate rigid-only affordanceSupportContacts helper currently has no product caller and does not establish a wired toppling pipeline.
  *
  * The optional `grip`, `aperture`, `depth`, `back`, `astride`, `mount`, `length`, `width`, `height`, `radius`, `load`, `travel` and `reverse` are the few dimensions and seat flags human action laws read from an environment contact (#3201 A8, the grasping section; #3368); each names the kinds that read it, and the rest ignore it. `direction` states what a held object's working point's `+Y` is, for the grasp that presents the object for its use. `parts` and `rides` declare articulation on the model: which parts and which other affordances move with an articulation's travel (#3365 decision 6); `follows` couples one articulation's travel to another's (#3475). They are flat optional fields of this existing record, the additive form an authored contact can grow without rewriting every affordance; engine admission owns the dimensions' positivity and the references' resolution.
- *
- * @evidence contracts/development/design.md#principled-representation A model-local contact transform and optional convex XZ footprint separate point seating from support geometry; prop anchoring composes the frame with the staged model and propSupportFace uses full affine footprint placement.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Contact identity, kind, frame and extent form one record beside the model's body; bone attachments use their own skeleton-based representation rather than mixing rig references into a model contact.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Point contacts require null extent. Stack-top admission checks finite XZ points and a noncollinear convex hull, without certifying the authored order as a simple convex polygon; propSupportFace constructs the transformed hull, so an authored concavity is not preserved as a support notch.
- * @evidence contracts/development/common.md#meaningful-documentation States model-local frame ownership, contact-axis convention, coincident seating, model-scoped ids, the stack-top convex XZ extent with null for point contacts, each optional dimension's unit and reader kinds, the seat's astride and mount flags, and what the articulation references name and require.
  */
 export interface IAutoMovieAffordance {
   /** Stable id, unique within the model; action targets cite it by this. */
@@ -76,7 +71,7 @@ export interface IAutoMovieAffordance {
   /** An `aperture`'s clear height along `+Y` from the frame, metres, positive; other kinds ignore it. */
   height?: number;
 
-  /** A `crank`'s arm length from the axle to its site along `+X`, a `wheel`'s rim radius in the frame's XZ plane, or a `bar`'s cross-section radius about its `+X` axis (absent, a hand-sized bar), metres, positive; other kinds ignore it. */
+  /** A `crank`'s arm length from the axle to its site along `+X`, a `wheel`'s rim radius in the frame's XZ plane, a `bar`'s cross-section radius about its `+X` axis (absent, a hand-sized bar), or the radius of the contact a `socket` that is a tool's working point makes (a brush's bristles, a needle's point; absent, a point), metres, positive; other kinds ignore it. */
   radius?: number;
 
   /** The most weight a `bar`, `ledge`, `seat` or `surface` bears at its frame before it fails, newtons, positive; absent, the contact bears any load. A support law refuses a stance that loads it past this. Other kinds ignore it. */

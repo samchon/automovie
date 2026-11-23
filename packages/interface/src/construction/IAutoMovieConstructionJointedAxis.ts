@@ -9,11 +9,6 @@ import type { IAutoMovieConstructionAxisRoll } from "./IAutoMovieConstructionAxi
  * A nonzero turn is symmetric about the bisector of its corner, so its straight ends lie on the two segments' lines, each at the set-back `d` from the centre that the half length and angle fix. An exactly straight joint has no turn, consumes no half arclength and has zero set-back, including when its caller supplied a positive half length.
  *
  * Engine admission: at least two finite centres with finite positive consecutive separations and no opposite consecutive segments; one finite nonnegative half length per interior centre, strictly positive for a nonzero turn; the set-backs on each segment summing to less than its length; finite `up` with finite norm and a normal projection longer than 1e-9 of that norm. The last condition is the existing numerical direction-conditioning policy, which also refuses some finite nonparallel inputs; it is not an anatomical or exact-zero rule. A small nonzero bend angle is retained rather than treated as straight by a tolerance.
- *
- * @evidence contracts/development/design.md#principled-representation A limb is straight along each bone and turns at each joint about the joint's hinge axis; the quintic smoothstep of the angle is C2 at both ends of the turn, so the frames and the sections they carry are C2 along the whole course, where a natural spline through the centres rings beside each joint.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Centres, half lengths and the initial up fix the base frame; an optional explicit material roll changes only its in-plane orientation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A turn that overruns its segment is refused, never shortened; a straight joint (parallel segments) has no turn.
- * @evidence contracts/development/common.md#meaningful-documentation States the course, the turn law and its continuity, the station, the corner cut, the carried axes and the admission rules.
  */
 export interface IAutoMovieConstructionJointedAxis {
   /** Discriminator. */

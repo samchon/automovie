@@ -12,7 +12,6 @@
     "bake": "ttsx --no-plugins -P build/tsconfig.json build/bake.ts",
     "bundles": "ttsx --no-plugins -P build/tsconfig.json build/bundles.ts",
     "check": "ttsx --no-plugins -P build/tsconfig.json build/imports.ts && ttsx --no-plugins -P build/tsconfig.json build/contrast.ts",
-    "deploy": "ttsx --no-plugins -P build/tsconfig.json build/deploy.ts",
     "dev": "next dev",
     "serve": "ttsx --no-plugins -P build/tsconfig.json build/serve.ts",
     "posters": "ttsx --no-plugins -P build/tsconfig.json build/posters.ts",

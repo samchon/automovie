@@ -1,4 +1,8 @@
-import { AutoMovieGravity, preparePoseResolution } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Vector3,
+  preparePoseResolution,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -8,6 +12,7 @@ import type {
   IAutoMovieMotionHumanWalkFoot,
   IAutoMovieMotionHumanWalkGait,
   IAutoMovieMotionHumanWalkParams,
+  IAutoMovieMotionHumanWalkSteps,
   IAutoMovieMotionManner,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -17,6 +22,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanSkill } from "../skill/HumanSkill";
+import { WALK_TICK } from "./WALK_TICK";
 import { runStance } from "./runStance";
 import { walk } from "./walk";
 import { walkCarriage } from "./walkCarriage";
@@ -28,6 +34,7 @@ import { walkFoot } from "./walkFoot";
 import { walkHorizontalRoot } from "./walkHorizontalRoot";
 import { walkLeg } from "./walkLeg";
 import { walkPlayback } from "./walkPlayback";
+import { walkPoleCarriage } from "./walkPoleCarriage";
 import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkStation } from "./walkStation";
@@ -204,6 +211,7 @@ export function walkLocomote(
     u: number,
     resolution?: ReturnType<typeof preparePoseResolution>,
     current?: IReachAt,
+    ankle?: IAutoMovieVector3,
   ): number {
     const t: number = swing.off + u * (swing.on - swing.off);
     const frame: walkReach.IPelvis =
@@ -220,7 +228,10 @@ export function walkLocomote(
             },
             resolution,
           );
-    return claim(frame.hips[side], scheduledAt(side, swing)(u).placement.ankle);
+    return claim(
+      frame.hips[side],
+      ankle ?? scheduledAt(side, swing)(u).placement.ankle,
+    );
   }
 
   // A swing's scheduled descent, kept per swing by its foot and toe-off.
@@ -254,7 +265,12 @@ export function walkLocomote(
       if (swing === undefined) continue;
 
       // A foot in flight bears nothing: it claims what its stance claimed
-      // when it left and what the next claims when it lands, blended.
+      // when it left and what the next claims when it lands, blended. What
+      // its stance claimed is its settled stance's, a tick before the
+      // toe-off as the swing departs from it (`walkSwing`): the schedule's
+      // toe-off ankle stands below the heel the stance's rule raises, and
+      // claimed from it the pelvis dropped at every toe-off. The stance is
+      // settled at an earlier second, so the read never returns here.
       if (gait.swing > 1) {
         const key: string = `${side}:${swing.off}`;
         let held: [number, number] | undefined = flights.get(key);
@@ -262,7 +278,14 @@ export function walkLocomote(
           const sampled: ReturnType<typeof preparePoseResolution> =
             read ?? preparePoseResolution();
           held = [
-            reaching(side, swing, 0, sampled),
+            reaching(
+              side,
+              swing,
+              0,
+              sampled,
+              undefined,
+              end(side, swing.off - WALK_TICK, resolution).ankle,
+            ),
             reaching(side, swing, 1, sampled),
           ];
           flights.set(key, held);
@@ -351,6 +374,56 @@ export function walkLocomote(
   const ranged: Partial<
     Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>
   > = {};
+  // The landings of footfalls taken in place at the arrival, by foot and heel strike.
+  const turning: ReadonlySet<string> = new Set(
+    steps.stances
+      .filter(
+        (s: IAutoMovieMotionHumanWalkSteps.IStance): boolean =>
+          s.inPlace === true,
+      )
+      .map(
+        (s: IAutoMovieMotionHumanWalkSteps.IStance): string =>
+          `${s.side}:${s.from}`,
+      ),
+  );
+  // Each swing's departure excess: how far its leg's reach moves the stance
+  // it leaves, settled at its toe-off; none for a stance left inside it. A
+  // constant of the step, settled once per swing and kept by its foot and
+  // toe-off.
+  const leavings: Map<string, IAutoMovieVector3> = new Map();
+  function leaving(
+    side: "left" | "right",
+    swing: NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ): IAutoMovieVector3 {
+    const key: string = `${side}:${swing.off}`;
+    let known: IAutoMovieVector3 | undefined = leavings.get(key);
+    if (known === undefined) {
+      const departure: IAutoMovieMotionHumanWalkFoot.IFoot = reachedAt(
+        side,
+        swing,
+        resolution,
+      )(0);
+      known = Vector3.subtract(
+        (ranged[side] ??= walkReach.prepareSwing(body, side))(
+          settle(
+            swing.off,
+            {
+              left: steps.foot("left", swing.off),
+              right: steps.foot("right", swing.off),
+            },
+            undefined,
+            undefined,
+            resolution,
+          ),
+          departure,
+        ).ankle,
+        departure.placement.ankle,
+      );
+      leavings.set(key, known);
+    }
+    return known;
+  }
   function solve(
     t: number,
     legs: readonly ("left" | "right")[],
@@ -393,8 +466,15 @@ export function walkLocomote(
         reachedAt(side, swing, resolution)(swing.u),
         // The bounds fade in from the stance left, which a turning pelvis can
         // leave outside them; the stance reached is settled inside them, so a
-        // walk's swing keeps them to its landing (an in-place turn fades both).
-        steps.inPlace === true ? swing.u : Math.min(swing.u, 0.5),
+        // walk's swing keeps them to its landing. A turn in place, or a
+        // footfall taken in place at the arrival, lands with the leg folded
+        // under the turning body, where those ranges and the stance's rockers
+        // disagree: it fades both, so it lands on the stance it reaches.
+        steps.inPlace === true || turning.has(`${side}:${swing.on}`)
+          ? swing.u
+          : Math.min(swing.u, 0.5),
+        // A running swing holds its reach from the stance it leaves.
+        gait.swing > 1 ? leaving(side, swing, resolution) : undefined,
       );
     }
     return { feet, hips, settled, reached };
@@ -412,10 +492,21 @@ export function walkLocomote(
   // thighs no nearer than they hang beside them, by one abduction read
   // over one of its strides (`walkCarriage`).
   let carried: Record<"left" | "right", number> | undefined;
+  // A hand carrying a long prop is driven by the walk, which takes the prop
+  // over with a grip window, so the performance lets the walk's carriage
+  // reach it (`walkPoleCarriage`).
+  const poles: walkPoleCarriage.IHold[] = walkPoleCarriage.prepare(
+    context,
+    events,
+    duration,
+  );
   const planned: walkStation.IPlan = {
     duration,
     events,
-    contacts,
+    contacts: [...contacts, ...walkPoleCarriage.grips(poles)],
+    ...(poles.length === 0
+      ? {}
+      : { holds: walkPoleCarriage.kept(context, poles) }),
     horizontalRoot: walkHorizontalRoot(body, gait, steps),
     posture: (
       seconds: number,
@@ -443,23 +534,30 @@ export function walkLocomote(
         !channels.includes("rightArm")
       )
         return posture;
-      return HumanArmSwing.carry(
-        posture,
-        (carried ??= walkCarriage.of(
-          body,
-          steps.events,
-          duration,
-          (
-            at: number,
-            _channels?: Parameters<
-              IAutoMovieMotionHumanActionPlan["posture"]
-            >[1],
-            read?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-          ): IAutoMovieMotionHumanPosture =>
-            unswung(at, undefined, undefined, read),
-          resolution,
-          projection,
-        )),
+      // A long held prop is carried tip raised ahead, lowered to a plant
+      // the walk is cut into (`walkPoleCarriage`).
+      return walkPoleCarriage.write(
+        body,
+        HumanArmSwing.carry(
+          posture,
+          (carried ??= walkCarriage.of(
+            body,
+            steps.events,
+            duration,
+            (
+              at: number,
+              _channels?: Parameters<
+                IAutoMovieMotionHumanActionPlan["posture"]
+              >[1],
+              read?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+            ): IAutoMovieMotionHumanPosture =>
+              unswung(at, undefined, undefined, read),
+            resolution,
+            projection,
+          )),
+        ),
+        poles,
+        seconds,
       );
     },
   };

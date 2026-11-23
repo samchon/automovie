@@ -12,7 +12,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../../core/ArchetypeFrame";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { createEnvironmentProp } from "./createEnvironmentProp";
 
 /** XZ occupancy in the room frame, in metres. */
@@ -264,11 +264,14 @@ export function furnishRoom(
   const uses: Map<IAutoMovieModel, IAutoMovieEnvironmentModule> = new Map();
   for (const role of roles.keys()) {
     const p: IPlacement = placed.get(role)!;
-    const frame: IAutoMovieTransform = ArchetypeFrame.move(context.frame, {
-      translation: { x: p.x, y: -p.item.bounds.min.y, z: p.z },
-      rotation: p.rotation,
-      scale: ArchetypeFrame.UNIT,
-    });
+    const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.move(
+      context.frame,
+      {
+        translation: { x: p.x, y: -p.item.bounds.min.y, z: p.z },
+        rotation: p.rotation,
+        scale: AutoMovieArchetypeFrame.UNIT,
+      },
+    );
     let use: IAutoMovieEnvironmentModule | undefined = uses.get(p.item.model);
     if (use === undefined) {
       use = createEnvironmentProp({ model: p.item.model });
@@ -377,7 +380,7 @@ function obstruction(
   return undefined;
 }
 
-/** Accept a fixed or overridden position only when its actual proxy fits. */
+/** Accept a fixed or overridden position only when its proxy fits. */
 function claim(
   id: string,
   role: string,

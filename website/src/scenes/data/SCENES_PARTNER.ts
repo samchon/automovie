@@ -126,7 +126,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
               frame: "world",
               at: { x: 0, y: 1.7, z: 0.45 },
             },
-            seconds: 0.8,
+            duration: 0.8,
           },
           { anchor: "greet-seen" },
         ),
@@ -137,10 +137,10 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("gesture", { kind: "nod" }),
       ]),
       person("b", "m1", 0, 0.45, 180, [
-        act("look", { target: at("a", "face"), seconds: 0.6 }),
+        act("look", { target: at("a", "face"), duration: 0.6 }),
         act(
           "gesture",
-          { kind: "wave", side: "left" },
+          { kind: "wave", hand: "left" },
           { sync: { of: "greet-wave", event: "strokeStart", offset: 0.1 } },
         ),
         act("gesture", { kind: "beckon" }),
@@ -172,7 +172,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
           "gesture",
           {
             kind: "raiseHand",
-            side: "left",
+            hand: "left",
             hold: 0.6,
             effort: { time: -0.5 },
           },
@@ -198,7 +198,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         ),
         act("approach", {
           target: at("lea", "upperArmRight"),
-          side: "right",
+          from: "right",
           at: 0.2,
         }),
         act("danceHold", { target: at("lea", "shoulderRight") }),
@@ -230,7 +230,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act(
           "look",
           {
-            with: "trunk",
+            recruit: "trunk",
             cue: "seen",
             target: {
               kind: "point",
@@ -247,14 +247,14 @@ export const SCENES_PARTNER: readonly IScene[] = [
             frame: "world",
             at: { x: 0, y: 1.6, z: 0.9 },
           },
-          seconds: 1,
+          duration: 1,
         }),
         act("gesture", { kind: "wave" }, { anchor: "goodnight-wave" }),
       ]),
       person("kid", "f2", 0, 0.9, 180, [
-        act("look", { target: at("par", "face"), cue: "seen", seconds: 1 }),
+        act("look", { target: at("par", "face"), cue: "seen", duration: 1 }),
         act("gesture", { kind: "wave" }),
-        act("stand", { seconds: 2.5, sway: 0 }),
+        act("stand", { hold: 2.5, sway: 0 }),
         act(
           "flickOff",
           { target: at("par", "shoulderLeft") },
@@ -264,7 +264,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         ),
         act(
           "gesture",
-          { kind: "wave", side: "left" },
+          { kind: "wave", hand: "left" },
           {
             sync: {
               of: "goodnight-wave",
@@ -298,7 +298,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
               frame: "world",
               at: { x: 0, y: 1.3, z: 0.35 },
             },
-            with: "trunk",
+            recruit: "trunk",
             cue: "seen",
           },
           { anchor: "faint-seen" },
@@ -310,7 +310,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
           { to: to(0, -5.5) },
           {
             anchor: "carry",
-            over: [act("bearing", { carry: "overShoulder", seconds: 6.5 })],
+            over: [act("bearing", { carry: "overShoulder", hold: 6.5 })],
           },
         ),
       ]),
@@ -320,7 +320,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("wince"),
         act(
           "borne",
-          { by: "fir", carry: "overShoulder", seconds: 6.5, lift: 1 },
+          { partner: "fir", carry: "overShoulder", hold: 6.5, lift: 1 },
           { sync: { of: "carry" } },
         ),
       ]),
@@ -346,14 +346,14 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("selfAction", { kind: "shoulderRoll" }),
         act("selfAction", { kind: "neckRoll" }),
         act("gesture", { kind: "squareShoulders" }),
-        act("stand", { seconds: 1.5, sway: 0 }),
+        act("stand", { hold: 1.5, sway: 0 }),
       ]),
       person("uke", "m1", 0.09, 0.27, 188, [
         act("gesture", { kind: "bow", depth: 30 }),
         act("selfAction", { kind: "neckRoll" }),
         act("selfAction", { kind: "shoulderRoll" }),
         act("gesture", { kind: "squareShoulders" }),
-        act("stand", { seconds: 1.5, sway: 0 }),
+        act("stand", { hold: 1.5, sway: 0 }),
       ]),
     ],
     // The tiles' tops are flush with the exchange's ground support plane.
@@ -399,18 +399,18 @@ export const SCENES_PARTNER: readonly IScene[] = [
     "exercise-grapple-singleLeg",
     [
       person("red", "m1", 0, -2, 0, [
-        act("bounce", { beats: 7 }),
+        act("bounce", { count: 7 }),
         act("walk", { to: to(0, -0.21), face: 0 }),
         act("handshake", { partner: "blue" }, { anchor: "wr-shake" }),
         act("crouch", { hold: 0.6 }),
-        act("stand", { seconds: 0.3, sway: 0 }),
+        act("stand", { hold: 0.3, sway: 0 }),
       ]),
       person("blue", "m2", -0.46, 0.82, 165, [
         act("selfAction", { kind: "shoulderRoll" }),
         act("selfAction", { kind: "neckRoll" }),
         act("handshake", { partner: "red" }, { sync: { of: "wr-shake" } }),
         act("crouch", { hold: 0.6 }),
-        act("stand", { seconds: 0.3, sway: 0 }),
+        act("stand", { hold: 0.3, sway: 0 }),
       ]),
     ],
     [],
@@ -443,7 +443,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
               frame: "world",
               at: { x: 0, y: 1.2, z: 1.6 },
             },
-            with: "trunk",
+            recruit: "trunk",
             cue: "seen",
           },
           { anchor: "rescue-seen" },
@@ -455,7 +455,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
           { to: to(0, -4.3) },
           {
             anchor: "carry",
-            over: [act("bearing", { carry: "overShoulder", seconds: 5.8 })],
+            over: [act("bearing", { carry: "overShoulder", hold: 5.8 })],
           },
         ),
       ]),
@@ -475,7 +475,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         }),
         act(
           "borne",
-          { by: "res", carry: "overShoulder", seconds: 5.8, lift: 1 },
+          { partner: "res", carry: "overShoulder", hold: 5.8, lift: 1 },
           { sync: { of: "carry" } },
         ),
       ]),
@@ -498,7 +498,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("sit", { seat: seat("horse") }),
         act(
           "ride",
-          { on: "horse", seconds: 10 },
+          { on: "horse", duration: 10 },
           {
             over: [
               act("look", {
@@ -507,8 +507,8 @@ export const SCENES_PARTNER: readonly IScene[] = [
                   frame: "world",
                   at: { x: 3, y: 2, z: 3 },
                 },
-                with: "head",
-                seconds: 1.5,
+                recruit: "head",
+                duration: 1.5,
               }),
               act("gesture", { kind: "wave", count: 3 }),
               act("gesture", {
@@ -556,7 +556,11 @@ export const SCENES_PARTNER: readonly IScene[] = [
         [
           act("pickUp", { prop: `s${k}`, handle: "grip", hand: "right" }),
           act("sit", { seat: seat(`h${k}`) }),
-          act("ride", { on: `h${k}`, seconds: 1, hands: { left: "leftRein" } }),
+          act("ride", {
+            on: `h${k}`,
+            duration: 1,
+            hands: { left: "leftRein" },
+          }),
           // The sabre law carries the seat itself, at the slope until the charge.
           act("sabre", {
             on: `h${k}`,
@@ -565,7 +569,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
             cue: "charge",
             gaits: `h${k}:gaits`,
             transition: 0.4,
-            seconds: CHARGE_RIDE,
+            duration: CHARGE_RIDE,
           }),
         ],
       ),
@@ -623,7 +627,7 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("openDoor", {
           door: "car",
           handle: "driverDoorHandle",
-          seconds: 0.9,
+          duration: 0.9,
         }),
         act("walk", { to: to(0.75, -0.2), face: 90 }),
         act("getIn", {
@@ -633,12 +637,12 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("gesture", { kind: "nod" }),
       ]),
       person("pas", "f1", -1.6, -3.4, 0, [
-        act("checkPhone", { seconds: 2 }),
+        act("checkPhone", { hold: 2 }),
         act("walk", { to: to(-1.15, -0.2), face: 90 }),
         act("openDoor", {
           door: "car",
           handle: "passengerDoorHandle",
-          seconds: 0.9,
+          duration: 0.9,
         }),
         act("walk", { to: to(-0.75, -0.2), face: 270 }),
         act("getIn", {
@@ -667,19 +671,19 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("hammer", { prop: "hammerA", on: work(-1.05) }),
         act("putDown", {
           prop: "hammerA",
-          at: { ...HAMMER_A, y: SceneBuild.COUNTER_TOP },
+          to: { ...HAMMER_A, y: SceneBuild.COUNTER_TOP },
         }),
         taken("sawA", "saw"),
-        act("saw", { prop: "sawA", on: work(-1.05), cycles: 5 }),
+        act("saw", { prop: "sawA", on: work(-1.05), count: 5 }),
         act("putDown", {
           prop: "sawA",
-          at: { ...SAW_A, y: SceneBuild.COUNTER_TOP },
+          to: { ...SAW_A, y: SceneBuild.COUNTER_TOP },
         }),
         taken("hammerA", "hammer"),
         act("hammer", { prop: "hammerA", on: work(-1.05) }),
         act("putDown", {
           prop: "hammerA",
-          at: { ...HAMMER_A, y: SceneBuild.COUNTER_TOP },
+          to: { ...HAMMER_A, y: SceneBuild.COUNTER_TOP },
         }),
       ]),
       person("w2", "f1", -0.05, 0.12, 0, [
@@ -687,9 +691,9 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("useTool", { tool: "hammer", prop: "hammerB", on: work(-0.15) }),
         act("putDown", {
           prop: "hammerB",
-          at: { ...HAMMER_B, y: SceneBuild.COUNTER_TOP },
+          to: { ...HAMMER_B, y: SceneBuild.COUNTER_TOP },
         }),
-        act("wipe", { on: work(-0.05), cycles: 4 }),
+        act("wipe", { on: work(-0.05), count: 4 }),
         act("gesture", { kind: "touchFace", region: "forehead" }),
         taken("hammerB", "hammer"),
         act("useTool", { tool: "hammer", prop: "hammerB", on: work(-0.15) }),
@@ -701,9 +705,9 @@ export const SCENES_PARTNER: readonly IScene[] = [
         act("gesture", { kind: "nod" }),
       ]),
       person("w4", "f2", -2.5, 1, 0, [
-        act("carry", { to: to(-2.5, 1.8), how: "twoHands" }),
+        act("carry", { to: to(-2.5, 1.8), kind: "twoHands" }),
         act("carryOnHip", { to: to(-2.5, 2.5) }),
-        act("toss", { at: at("w3", "sternum") }),
+        act("toss", { target: at("w3", "sternum") }),
         act("walk", { to: to(-2.5, 1.3) }),
         act("haul", { to: to(-2.5, 2.2) }),
         act("gesture", { kind: "touchFace", region: "forehead" }),

@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The handheld microphone read: the one whose length, head, tail and mass were all read, so it is built whole. */
@@ -29,7 +29,7 @@ const AURAY: string =
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The microphone or stand.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, or one only the other kind has.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how each kind lies or stands and every contact, with the slider's direction.
  * @evidence contracts/development/implementation.md#principled-implementation A handle rod of the tail's diameter and a grille ball of the head's, spanning the length, all one microphone's; three legs to the cited spread, a lower and an upper tube at the stand's lowest height, a level boom of the cited length and a clip at its end, the upper tube, boom and clip bound to the height slider whose travel is the cited range.
@@ -42,9 +42,9 @@ const AURAY: string =
 export function createMicrophone(
   params: createMicrophone.IParams,
   seed?: number | string,
-): Archetype<createMicrophone.Affordance, createMicrophone.Dimension> {
-  const draw: ArchetypeDrawSession<createMicrophone.Dimension> =
-    new ArchetypeDrawSession<createMicrophone.Dimension>(
+): AutoMovieArchetype<createMicrophone.Affordance, createMicrophone.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createMicrophone.Dimension> =
+    new AutoMovieArchetypeDrawSession<createMicrophone.Dimension>(
       "microphone",
       createMicrophone.UNITS,
       seed,
@@ -58,10 +58,10 @@ export function createMicrophone(
   );
   const d: Partial<Record<createMicrophone.Dimension, number>> =
     draw.dimensions(createMicrophone.BANDS[kind], createMicrophone.BANDS);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createMicrophone.Affordance,
     createMicrophone.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: kind === "handheld" ? "microphone" : "microphone stand",
@@ -85,7 +85,7 @@ export function createMicrophone(
       id: "grip",
       kind: "handle",
       symmetry: "round",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(neck / 2, axis, 0),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -99,7 +99,11 @@ export function createMicrophone(
       id: "head",
       kind: "socket",
       direction: "along",
-      frame: ArchetypeFrame.facing(v(length, axis, 0), v(1, 0, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(length, axis, 0),
+        v(1, 0, 0),
+        v(0, 0, 1),
+      ),
       extent: null,
     });
     return builder.build(d.mass!);
@@ -144,7 +148,7 @@ export function createMicrophone(
   builder.affordance({
     id: "height",
     kind: "slider",
-    frame: ArchetypeFrame.facing(v(0, low, 0), v(0, 0, 1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, low, 0), v(0, 0, 1), v(0, 1, 0)),
     extent: null,
     travel: d.maxHeight! - low,
     parts: ["upper-tube", "boom", "clip"],
@@ -152,7 +156,7 @@ export function createMicrophone(
   builder.affordance({
     id: "clip",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0, low, d.boom!)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, low, d.boom!)),
     extent: null,
     rides: "height",
   });
@@ -219,7 +223,9 @@ export namespace createMicrophone {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     head: "m",
     tail: "m",
@@ -241,20 +247,24 @@ export namespace createMicrophone {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     handheld: {
-      length: ArchetypeBand.metres(0.1805, 0.1805, HANDHELD),
-      head: ArchetypeBand.metres(0.0492, 0.0492, HANDHELD),
-      tail: ArchetypeBand.metres(0.02508, 0.02508, HANDHELD),
-      mass: ArchetypeBand.of("kg", 0.33, 0.33, HANDHELD),
+      length: AutoMovieArchetypeBand.metres(0.1805, 0.1805, HANDHELD),
+      head: AutoMovieArchetypeBand.metres(0.0492, 0.0492, HANDHELD),
+      tail: AutoMovieArchetypeBand.metres(0.02508, 0.02508, HANDHELD),
+      mass: AutoMovieArchetypeBand.of("kg", 0.33, 0.33, HANDHELD),
     },
     boomStand: {
-      minHeight: ArchetypeBand.metres(0.914, 0.919, AURAY),
-      maxHeight: ArchetypeBand.metres(1.6, 1.6, AURAY),
-      boom: ArchetypeBand.metres(31 * ArchetypeUnits.INCH, 0.8, AURAY),
-      spread: ArchetypeBand.metres(0.65, 0.65, AURAY),
-      mass: ArchetypeBand.of("kg", 2, 2, AURAY),
+      minHeight: AutoMovieArchetypeBand.metres(0.914, 0.919, AURAY),
+      maxHeight: AutoMovieArchetypeBand.metres(1.6, 1.6, AURAY),
+      boom: AutoMovieArchetypeBand.metres(
+        31 * AutoMovieArchetypeUnits.INCH,
+        0.8,
+        AURAY,
+      ),
+      spread: AutoMovieArchetypeBand.metres(0.65, 0.65, AURAY),
+      mass: AutoMovieArchetypeBand.of("kg", 2, 2, AURAY),
     },
   };
 }

@@ -2,12 +2,12 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Visual reference for the flared bell and its raised bands. */
@@ -23,7 +23,7 @@ const BELL: string =
  * @param params Dimensions the author fixes, and an optional scene id.
  * @param seed Seed for dimensions left free, or the band midpoints when absent.
  * @returns The scenery, including its front step contact.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the floor origin, front direction, step position and fixed pose.
  * @evidence contracts/development/implementation.md#principled-implementation Four posts leave an open bay below a convex gabled canopy. Convex flared sections and narrow cylindrical bands give the bell's visible outline. The step frame and extent derive from the plinth's unobstructed front strip.
@@ -36,14 +36,19 @@ const BELL: string =
 export function createBellFrame(
   params: createBellFrame.IParams = {},
   seed?: number | string,
-): Archetype<"step", createBellFrame.Dimension> {
-  const draw: ArchetypeDrawSession<createBellFrame.Dimension> =
-    new ArchetypeDrawSession("bell frame", createBellFrame.UNITS, seed, params);
+): AutoMovieArchetype<"step", createBellFrame.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createBellFrame.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "bell frame",
+      createBellFrame.UNITS,
+      seed,
+      params,
+    );
   const d: Record<createBellFrame.Dimension, number> = draw.dimensions(
     createBellFrame.BANDS,
   );
-  const builder: ArchetypeBuilder<"step", createBellFrame.Dimension> =
-    new ArchetypeBuilder({
+  const builder: AutoMovieArchetypeBuilder<"step", createBellFrame.Dimension> =
+    new AutoMovieArchetypeBuilder({
       id: params.id,
       name: "bell frame",
       material: "composite",
@@ -68,7 +73,7 @@ export function createBellFrame(
   builder.affordance({
     id: "step",
     kind: "surface",
-    frame: ArchetypeFrame.upright(
+    frame: AutoMovieArchetypeFrame.upright(
       Vector3.create(0, plinthHeight, halfDepth + stepDepth / 2),
     ),
     extent: null,
@@ -184,7 +189,9 @@ export namespace createBellFrame {
   /**
    * Model lengths are metres and mass is kilograms.
    */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     width: "m",
     depth: "m",
     height: "m",
@@ -194,16 +201,34 @@ export namespace createBellFrame {
   /**
    * Scene blockout bands for fictional freestanding scenery.
    */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    width: ArchetypeBand.of(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    width: AutoMovieArchetypeBand.of(
       "m",
       1.3,
       1.8,
       `Fictional frame width. Bell outline reference: ${BELL}`,
       true,
     ),
-    depth: ArchetypeBand.of("m", 1.1, 1.5, "Fictional frame depth", true),
-    height: ArchetypeBand.of("m", 2.45, 3.1, "Fictional ridge height", true),
-    mass: ArchetypeBand.of("kg", 120, 190, ArchetypeBand.TYPICAL_MASS, true),
+    depth: AutoMovieArchetypeBand.of(
+      "m",
+      1.1,
+      1.5,
+      "Fictional frame depth",
+      true,
+    ),
+    height: AutoMovieArchetypeBand.of(
+      "m",
+      2.45,
+      3.1,
+      "Fictional ridge height",
+      true,
+    ),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      120,
+      190,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

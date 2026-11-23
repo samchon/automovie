@@ -1,6 +1,10 @@
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
-import { createTap } from "./createTap";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createSanitary } from "./createSanitary";
+import { createTap } from "./createTap";
 
 /** The accessibility standard, read. */
 const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
@@ -22,12 +26,13 @@ const PRINCETON: string =
   "American Standard Princeton recess bath, 60 x 30 x 14 in and 50 kg, as search results summarise its sheets; not read";
 
 /** The bands of a basin's mixer: the basin mixer `createTap` cites. */
-const TAP: Readonly<Partial<Record<createSanitary.Dimension, IArchetypeBand>>> =
-  {
-    tapHeight: createTap.BANDS.height,
-    tapReach: createTap.BANDS.reach,
-    tapOutlet: createTap.BANDS.outlet,
-  };
+const TAP: Readonly<
+  Partial<Record<createSanitary.Dimension, IAutoMovieArchetypeBand>>
+> = {
+  tapHeight: createTap.BANDS.height,
+  tapReach: createTap.BANDS.reach,
+  tapOutlet: createTap.BANDS.outlet,
+};
 
 /**
  * The band of each free dimension of {@link createSanitary}, by kind.
@@ -35,55 +40,75 @@ const TAP: Readonly<Partial<Record<createSanitary.Dimension, IArchetypeBand>>> =
 export const SANITARY_BANDS: Readonly<
   Record<
     createSanitary.Kind,
-    Readonly<Partial<Record<createSanitary.Dimension, IArchetypeBand>>>
+    Readonly<Partial<Record<createSanitary.Dimension, IAutoMovieArchetypeBand>>>
   >
 > = {
   washbasin: {
-    rim: ArchetypeBand.metres(
+    rim: AutoMovieArchetypeBand.metres(
       0.865,
       0.865,
       `${ADA} 606.3, the front of the rim or counter at most 34 in (865 mm) above the floor; the model takes the limit`,
     ),
-    width: ArchetypeBand.metres(0.54, 0.54, KINGSTON),
-    depth: ArchetypeBand.metres(0.46, 0.46, KINGSTON),
-    bowlWidth: ArchetypeBand.metres(0.406, 0.406, KINGSTON),
-    bowlDepth: ArchetypeBand.metres(0.254, 0.254, KINGSTON),
-    basinDepth: ArchetypeBand.metres(0.257, 0.257, KINGSTON),
+    width: AutoMovieArchetypeBand.metres(0.54, 0.54, KINGSTON),
+    depth: AutoMovieArchetypeBand.metres(0.46, 0.46, KINGSTON),
+    bowlWidth: AutoMovieArchetypeBand.metres(0.406, 0.406, KINGSTON),
+    bowlDepth: AutoMovieArchetypeBand.metres(0.254, 0.254, KINGSTON),
+    basinDepth: AutoMovieArchetypeBand.metres(0.257, 0.257, KINGSTON),
     ...TAP,
-    mass: ArchetypeBand.of("kg", 12, 20, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      12,
+      20,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   toilet: {
-    seat: ArchetypeBand.metres(
+    seat: AutoMovieArchetypeBand.metres(
       0.43,
       0.485,
       `${ADA} 604.4, the seat 17 to 19 in (430 to 485 mm) above the floor`,
     ),
-    length: ArchetypeBand.metres(0.756, 0.756, HIGHLINE),
-    seatDepth: ArchetypeBand.metres(0.422, 0.422, HIGHLINE),
-    width: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(0.756, 0.756, HIGHLINE),
+    seatDepth: AutoMovieArchetypeBand.metres(0.422, 0.422, HIGHLINE),
+    width: AutoMovieArchetypeBand.metres(
       0.432,
       0.432,
       "American Standard Cadet 3 elongated, nominal 724 x 432 x 768 mm, as a search result gives it; not read",
       true,
     ),
-    tankWidth: ArchetypeBand.metres(0.46, 0.46, HIGHLINE),
-    tankDepth: ArchetypeBand.metres(0.219, 0.219, HIGHLINE),
-    tankTop: ArchetypeBand.metres(0.794, 0.794, HIGHLINE),
-    mass: ArchetypeBand.of("kg", 30, 45, ArchetypeBand.TYPICAL_MASS, true),
+    tankWidth: AutoMovieArchetypeBand.metres(0.46, 0.46, HIGHLINE),
+    tankDepth: AutoMovieArchetypeBand.metres(0.219, 0.219, HIGHLINE),
+    tankTop: AutoMovieArchetypeBand.metres(0.794, 0.794, HIGHLINE),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      30,
+      45,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
   bathtub: {
-    rim: ArchetypeBand.metres(14 * ArchetypeUnits.INCH, 14 * ArchetypeUnits.INCH, `${BATH}; ${PRINCETON}`),
-    length: ArchetypeBand.metres(60 * ArchetypeUnits.INCH, 60 * ArchetypeUnits.INCH, `${BATH}; ${PRINCETON}`),
-    width: ArchetypeBand.metres(
-      30 * ArchetypeUnits.INCH,
-      (30 + 1 / 4) * ArchetypeUnits.INCH,
+    rim: AutoMovieArchetypeBand.metres(
+      14 * AutoMovieArchetypeUnits.INCH,
+      14 * AutoMovieArchetypeUnits.INCH,
+      `${BATH}; ${PRINCETON}`,
+    ),
+    length: AutoMovieArchetypeBand.metres(
+      60 * AutoMovieArchetypeUnits.INCH,
+      60 * AutoMovieArchetypeUnits.INCH,
+      `${BATH}; ${PRINCETON}`,
+    ),
+    width: AutoMovieArchetypeBand.metres(
+      30 * AutoMovieArchetypeUnits.INCH,
+      (30 + 1 / 4) * AutoMovieArchetypeUnits.INCH,
       `${PRINCETON} (30 in), to ${BATH} (30-1/4 in)`,
       true,
     ),
-    wellLength: ArchetypeBand.metres(1.238, 1.238, BATH),
-    wellWidth: ArchetypeBand.metres(0.491, 0.491, BATH),
-    waterDepth: ArchetypeBand.metres(0.229, 0.229, BATH),
-    mass: ArchetypeBand.of(
+    wellLength: AutoMovieArchetypeBand.metres(1.238, 1.238, BATH),
+    wellWidth: AutoMovieArchetypeBand.metres(0.491, 0.491, BATH),
+    waterDepth: AutoMovieArchetypeBand.metres(0.229, 0.229, BATH),
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       50,
       140.6,
@@ -92,37 +117,43 @@ export const SANITARY_BANDS: Readonly<
     ),
   },
   shower: {
-    interior: ArchetypeBand.metres(
+    interior: AutoMovieArchetypeBand.metres(
       0.915,
       0.915,
       `${ADA} 608.2.1, a transfer shower 36 x 36 in (915 x 915 mm) inside`,
     ),
-    wallHeight: ArchetypeBand.metres(
-      78 * ArchetypeUnits.INCH,
-      (80 + 7 / 16) * ArchetypeUnits.INCH,
+    wallHeight: AutoMovieArchetypeBand.metres(
+      78 * AutoMovieArchetypeUnits.INCH,
+      (80 + 7 / 16) * AutoMovieArchetypeUnits.INCH,
       "one-piece 36 x 36 in transfer stalls, 78 in (Aqua Bath) to 80-7/16 in (Frank Webb) high, as search results give them; not read",
       true,
     ),
-    threshold: ArchetypeBand.metres(
+    threshold: AutoMovieArchetypeBand.metres(
       0.013,
       0.013,
       `${ADA} 608.7, a transfer shower's threshold at most 1/2 in (13 mm) high; the model takes the limit`,
     ),
-    seat: ArchetypeBand.metres(
+    seat: AutoMovieArchetypeBand.metres(
       0.43,
       0.485,
       `${ADA} 610.3, a shower seat's top 17 to 19 in (430 to 485 mm) above the floor`,
     ),
-    seatDepth: ArchetypeBand.metres(
+    seatDepth: AutoMovieArchetypeBand.metres(
       0.38,
       0.405,
       `${ADA} 610.3.1, the seat's front edge 15 to 16 in (380 to 405 mm) from the seat wall`,
     ),
-    control: ArchetypeBand.metres(
+    control: AutoMovieArchetypeBand.metres(
       0.965,
       1.22,
       `${ADA} 608.5.1, a transfer shower's controls 38 to 48 in (965 to 1220 mm) above the shower floor`,
     ),
-    mass: ArchetypeBand.of("kg", 60, 120, ArchetypeBand.TYPICAL_MASS, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      60,
+      120,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   },
 };

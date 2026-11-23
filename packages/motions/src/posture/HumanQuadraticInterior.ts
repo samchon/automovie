@@ -469,8 +469,8 @@ export function HumanQuadraticInterior(
   return run().state;
 }
 
-/** Iterations at most, a guard behind the residual test: this solver's value, provisional and unsourced (a predictor-corrector iteration count does not grow with the conditioning that slows a first-order method, so a solve that needs more is treated as failed and left to OSQP). */
-const ITERATIONS: number = 50;
+/** Iterations at most, a guard behind the residual test: ECOS's documented default `max_iters` of 100 (Domahidi, Chu and Boyd 2013, "ECOS: An SOCP solver for embedded systems", ECC; the solver's settings), an interior-point method of the same predictor-corrector kind, whose iteration count does not grow with the conditioning that slows a first-order method; a solve that needs more is treated as failed and left to OSQP. */
+const ITERATIONS: number = 100;
 
 /** The share of the longest positive step taken, so no slack or multiplier reaches zero: this solver's value, provisional and unsourced, the customary fraction to the boundary. */
 const BOUNDARY: number = 0.995;

@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { GroomingPropDraw } from "./GroomingPropDraw";
 
 /**
@@ -9,7 +9,7 @@ import { GroomingPropDraw } from "./GroomingPropDraw";
  * @param params The optional scene ID and any fixed free dimension in metres or kilograms.
  * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
  * @returns The model with its named contact frames in model space.
- * @throws {ArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Flat tissue sheet with a centered pinch and a wiping surface above it.
  * @evidence contracts/development/implementation.md#principled-implementation The sheet's top carries the working face while its center plane holds the pinch.
@@ -25,7 +25,7 @@ export function createTissue(
     "id" | "length" | "width" | "mass" | "thickness"
   > = {},
   seed?: number | string,
-): Archetype<createTissue.Affordance, createTissue.Dimension> {
+): AutoMovieArchetype<createTissue.Affordance, createTissue.Dimension> {
   const {
     builder,
     d,
@@ -45,7 +45,7 @@ export function createTissue(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.upright(Vector3.create(0, thick / 2, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick / 2, 0)),
     extent: null,
     grip: "precision",
     aperture: thick,
@@ -54,7 +54,7 @@ export function createTissue(
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick, 0)),
     extent: null,
     width,
     depth: length,
@@ -67,7 +67,7 @@ export function createTissue(
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
  * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through Archetype.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
  */
 export namespace createTissue {

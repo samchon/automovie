@@ -1,7 +1,7 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  ArchetypeRefusal,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
   createBicycle,
   createCar,
   createDoor,
@@ -26,7 +26,10 @@ import { nclose, vclose } from "../internal/predicates";
 const MM: number = 1e-3;
 
 /** Where a part's centre is in its model. */
-function centre(archetype: Archetype, part: string): IAutoMovieVector3 {
+function centre(
+  archetype: AutoMovieArchetype,
+  part: string,
+): IAutoMovieVector3 {
   return archetype.parts.find(
     (p: IAutoMovieModelPart): boolean => p.id === part,
   )!.transform!.translation;
@@ -339,7 +342,10 @@ export function test_archetype_contract_articulation(): void {
   // 9. A wheel turns either way: a rim site and the spoke go round the column by the travel, opposite ways for opposite signs.
   const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" }, 6);
   const steering: IAutoMovieAffordance = car.affordance("wheel");
-  const column: IAutoMovieVector3 = ArchetypeFrame.axis(steering.frame, "y");
+  const column: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
+    steering.frame,
+    "y",
+  );
   const spoke = (posed: ReturnType<typeof createCar>): IAutoMovieVector3 =>
     Quaternion.rotateVector(
       posed.parts.find(
@@ -422,14 +428,14 @@ export function test_archetype_contract_articulation(): void {
     { kind: "motorcycle" },
     3,
   );
-  const stuck: (ArchetypeRefusal | null)[] = [
+  const stuck: (AutoMovieArchetypeRefusal | null)[] = [
     refused(() => bicycle.articulate({ leftPedal: 0.01 })),
     refused(() => bicycle.articulate({ rightPedal: -0.01 })),
     refused(() => machine.articulate({ leftFootrest: 0.01 })),
   ];
   if (
     stuck.some(
-      (r: ArchetypeRefusal | null): boolean =>
+      (r: AutoMovieArchetypeRefusal | null): boolean =>
         r === null ||
         r.kind !== "articulation" ||
         r.feasible?.kind !== "range" ||
@@ -450,7 +456,7 @@ export function test_archetype_contract_articulation(): void {
 
 /** How far a part moves when the articulation that binds it goes to its full travel, with that travel and the direction out of the articulation's rest frame. */
 function pressedBy<Id extends string, Dimension extends string>(
-  archetype: Archetype<Id, Dimension>,
+  archetype: AutoMovieArchetype<Id, Dimension>,
   id: Id,
   part: string,
 ): [IAutoMovieVector3, number, IAutoMovieVector3] {
@@ -464,16 +470,16 @@ function pressedBy<Id extends string, Dimension extends string>(
       centre(archetype, part),
     ),
     travel,
-    ArchetypeFrame.axis(affordance.frame, "y"),
+    AutoMovieArchetypeFrame.axis(affordance.frame, "y"),
   ];
 }
 
 /** Run an operation and return the refusal it raises, or null when it raises none or something else. */
-function refused(operation: () => unknown): ArchetypeRefusal | null {
+function refused(operation: () => unknown): AutoMovieArchetypeRefusal | null {
   try {
     operation();
   } catch (error) {
-    return error instanceof ArchetypeRefusal ? error : null;
+    return error instanceof AutoMovieArchetypeRefusal ? error : null;
   }
   return null;
 }

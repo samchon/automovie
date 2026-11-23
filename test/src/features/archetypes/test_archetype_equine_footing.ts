@@ -1,8 +1,8 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  QuadrupedBody,
-  type QuadrupedFooting,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeQuadrupedFooting,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -42,7 +42,7 @@ export function test_archetype_equine_footing(): void {
     endSpeed: 1.6,
     legs: [{ kind: "straight", length: 8 }],
   };
-  const plane: QuadrupedFooting.IPlane = {
+  const plane: AutoMovieArchetypeQuadrupedFooting.IPlane = {
     id: "level",
     origin: { x: 0, y: 0, z: 0 },
     x: [-4, 4],
@@ -52,7 +52,7 @@ export function test_archetype_equine_footing(): void {
   const issues: string[] = [];
 
   for (const slope of [0.025, -0.025]) {
-    const incline: QuadrupedFooting.IPlane = {
+    const incline: AutoMovieArchetypeQuadrupedFooting.IPlane = {
       ...plane,
       id: slope > 0 ? "incline" : "decline",
       origin: { x: 0, y: 0.12, z: 0 },
@@ -64,7 +64,7 @@ export function test_archetype_equine_footing(): void {
         { ...course, footing: { planes: [incline] } },
         "walk",
       );
-      for (const limb of QuadrupedBody.LIMBS) {
+      for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
         const landings: number[] = archetypeHorseRide.footfalls(ride, limb);
         for (const at of landings.filter(
           (time: number): boolean => time > 0.4 && time < ride.duration - 0.4,
@@ -87,7 +87,7 @@ export function test_archetype_equine_footing(): void {
     });
   }
 
-  const rise: QuadrupedFooting.IPlane = {
+  const rise: AutoMovieArchetypeQuadrupedFooting.IPlane = {
     ...plane,
     id: "step",
     origin: { x: 0, y: 0.028, z: 2.8 },
@@ -105,8 +105,8 @@ export function test_archetype_equine_footing(): void {
       },
       "walk",
     );
-    const touched: Set<QuadrupedBody.Limb> = new Set();
-    for (const limb of QuadrupedBody.LIMBS)
+    const touched: Set<AutoMovieArchetypeQuadrupedBody.Limb> = new Set();
+    for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS)
       for (const at of archetypeHorseRide.footfalls(ride, limb)) {
         if (at <= 0.4 || at >= ride.duration - 0.4) continue;
         const position: IAutoMovieVector3 = archetypeHorseRide.hoof(
@@ -122,7 +122,7 @@ export function test_archetype_equine_footing(): void {
     for (let i: number = 0; i <= 30; i++) ride.at(0.4 + i * 0.13);
   });
 
-  const pole: QuadrupedFooting.IPole = {
+  const pole: AutoMovieArchetypeQuadrupedFooting.IPole = {
     id: "raised-pole",
     from: { x: -0.8, y: 0.04, z: 3.8 },
     to: { x: 0.8, y: 0.04, z: 3.8 },
@@ -156,7 +156,7 @@ export function test_archetype_equine_footing(): void {
         );
         if (distance < -1e-8)
           issues.push(`pole clearance ${part.id} ${at} = ${distance}`);
-        const centre: IAutoMovieVector3 = ArchetypeFrame.point(
+        const centre: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(
           sample.placement,
           part.transform!.translation,
         );
@@ -182,7 +182,7 @@ export function test_archetype_equine_footing(): void {
   }
   if (
     !(
-      missing instanceof ArchetypeRefusal &&
+      missing instanceof AutoMovieArchetypeRefusal &&
       missing.axis === "footing" &&
       missing.reason.includes("No authored surface")
     )
@@ -212,7 +212,7 @@ export function test_archetype_equine_footing(): void {
   if (
     !(
       unreachable instanceof RangeError ||
-      unreachable instanceof ArchetypeRefusal
+      unreachable instanceof AutoMovieArchetypeRefusal
     )
   )
     issues.push("the impossible mixed-height footholds must refuse");
@@ -221,12 +221,13 @@ export function test_archetype_equine_footing(): void {
   /** Compare a specific actual hoof to the author's full world plane. */
   function closePlane(
     ride: ReturnType<typeof rideHorse>,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     at: number,
-    surface: QuadrupedFooting.IPlane,
+    surface: AutoMovieArchetypeQuadrupedFooting.IPlane,
   ): void {
     const current: ReturnType<typeof ride.at> = ride.at(at);
-    const name: QuadrupedBody.Bone = QuadrupedBody.BONES[limb][3];
+    const name: AutoMovieArchetypeQuadrupedBody.Bone =
+      AutoMovieArchetypeQuadrupedBody.BONES[limb][3];
     const part: IAutoMovieModelPart = current.archetype.parts.find(
       (candidate: IAutoMovieModelPart): boolean => candidate.id === name,
     )!;
@@ -236,7 +237,7 @@ export function test_archetype_equine_footing(): void {
     )
       throw new Error(`The ${name} must use the actual cylindrical hoof`);
     const shape: typeof part.geometry.shape = part.geometry.shape;
-    const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+    const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
       current.placement,
       part.transform!,
     );
@@ -281,7 +282,7 @@ function capsuleClearance(
   if (part.geometry.type !== "primitive")
     throw new Error("The fixture expects actual primitive geometry");
   const shape: typeof part.geometry.shape = part.geometry.shape;
-  const frame: IAutoMovieTransform = ArchetypeFrame.compose(
+  const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.compose(
     placement,
     part.transform!,
   );

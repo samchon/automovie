@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeCourse,
-  ArchetypeRefusal,
-  ArchetypeRide,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
 } from "../core";
 import type { createWheelchair } from "./createWheelchair";
 import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
@@ -21,20 +21,23 @@ import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
  * @param chair The wheelchair.
  * @param course The course its root follows, or its plan.
  * @returns The ride, with the course's instants.
- * @throws {ArchetypeRefusal} As `ArchetypeRide.along` does for a malformed course.
+ * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeRide.along` does for a malformed course.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what moves, the rolling relation and how a performer can follow the rim.
  * @evidence contracts/development/implementation.md#principled-implementation A plan of legs gives the signed heading change, so the outer and inner axle ends travel different signed distances. Each spin is signed travel over circumference and wrapped to the knob range.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose function over `ArchetypeRide.along`.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose function over `AutoMovieArchetypeRide.along`.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The unwrapped heading accumulates exact authored arc fractions on courses of legs. Both wheels still turn alike on timed curves, which do not expose unwrapped heading. Casters do not swivel.
  * @evidence contracts/development/implementation.md#efficient-algorithms Prepares the turns once. Sampling sums each turn's clamped extent with no integration or previous sample.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The ride's plan is shared by every sample.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds the chair and the plan for as long as the caller keeps the ride.
  */
 export function rideWheelchair(
-  chair: Archetype<createWheelchair.Affordance, createWheelchair.Dimension>,
-  course: ArchetypeCourse.ICourse | ArchetypeCourse.IPlan,
-): ArchetypeRide.IRide<
+  chair: AutoMovieArchetype<
+    createWheelchair.Affordance,
+    createWheelchair.Dimension
+  >,
+  course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
+): AutoMovieArchetypeRide.IRide<
   createWheelchair.Affordance,
   createWheelchair.Dimension
 > {
@@ -43,20 +46,20 @@ export function rideWheelchair(
     (chair.affordance("leftSpin").frame.translation.x -
       chair.affordance("rightSpin").frame.translation.x) /
     2;
-  const plan: ArchetypeCourse.IPlan =
+  const plan: AutoMovieArchetypeCourse.IPlan =
     course.kind === "plan"
       ? course
-      : ArchetypeCourse.plan("wheelchair", course);
+      : AutoMovieArchetypeCourse.plan("wheelchair", course);
   const turns: readonly { from: number; span: number; outer: number }[] =
     plan.course.kind === "timed"
       ? []
       : plan.course.legs.flatMap(
           (
-            leg: ArchetypeCourse.Leg,
+            leg: AutoMovieArchetypeCourse.Leg,
             index: number,
           ): { from: number; span: number; outer: number }[] => {
             if (leg.kind !== "turn") return [];
-            const { from, span }: ArchetypeCourse.ILegSpan =
+            const { from, span }: AutoMovieArchetypeCourse.ILegSpan =
               plan.legSpans[index]!;
             return [
               { from, span, outer: (halfTrack * leg.angle * Math.PI) / 180 },
@@ -67,12 +70,12 @@ export function rideWheelchair(
   /** Signed tyre travel into the wheel's nonnegative knob range. */
   const spin = (travel: number): number =>
     ((((travel / circumference) * 360) % 360) + 360) % 360;
-  return ArchetypeRide.along(
+  return AutoMovieArchetypeRide.along(
     chair,
     plan,
     (
-      state: ArchetypeCourse.IState,
-    ): ArchetypeRide.IPose<
+      state: AutoMovieArchetypeCourse.IState,
+    ): AutoMovieArchetypeRide.IPose<
       createWheelchair.Affordance,
       createWheelchair.Dimension
     > => {
@@ -131,7 +134,7 @@ export namespace rideWheelchair {
    * @param ride The chair ride. Contact times use the same clock as its placement.
    * @param holds The authored contact intervals, including their catch angles. Input order is immaterial.
    * @returns A point reader that follows one rim material point per active hand. Other contacts read the ride's usual frame.
-   * @throws {ArchetypeRefusal} If a window has invalid times, angle or side, if the chair lacks the selected rim, or if two windows select the same rim at a common second.
+   * @throws {AutoMovieArchetypeRefusal} If a window has invalid times, angle or side, if the chair lacks the selected rim, or if two windows select the same rim at a common second.
    *
    * Prepares chronologically ordered windows for each rim. The existing
    * single-catch reader resolves each selected point into wheel coordinates
@@ -230,7 +233,7 @@ interface IPreparedHold {
 
 /** Explain which of the staged holds must change. */
 function refuse(hold: rideWheelchair.IHandrimHold, reason: string): never {
-  throw new ArchetypeRefusal({
+  throw new AutoMovieArchetypeRefusal({
     kind: "parameter",
     archetype: "wheelchair",
     axis: "handrims",

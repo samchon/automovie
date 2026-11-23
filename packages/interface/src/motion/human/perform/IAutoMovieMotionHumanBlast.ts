@@ -14,20 +14,10 @@ import type { AutoMovieMotionHumanScheduledInstant } from "../law/AutoMovieMotio
  * blast-loading source has been read for it (Kingery and Bulmash's scaled
  * impulse curves are the reference to read), so the falloff is provisional
  * and only its monotone fall is relied on.
- *
- * @evidence contracts/development/common.md#meaningful-documentation point: Its centre, world metres. radius: How far it reaches, metres; positive. impulse: The impulse it delivers one metre from its centre, newton seconds; positive.
- * @evidence contracts/development/design.md#principled-representation point: Its centre, world metres. radius: How far it reaches, metres; positive. impulse: The impulse it delivers one metre from its centre, newton seconds; positive.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanBlast.ts (HumanBlast.impulse, blast); perform/HumanPerformanceState.ts (HumanPerformanceState).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieMotionHumanScheduledInstant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanBlast {
   /**
    * The impulse's magnitude at a distance from the centre: the reference impulse within the reference distance, falling as the inverse square of the distance beyond it (provisional). A blast.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation point: Its centre, world metres. radius: How far it reaches, metres; positive. impulse: The impulse it delivers one metre from its centre, newton seconds; positive.
-   * @evidence contracts/development/design.md#principled-representation point: Its centre, world metres. radius: How far it reaches, metres; positive. impulse: The impulse it delivers one metre from its centre, newton seconds; positive.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: perform/HumanBlast.ts (HumanBlast.impulse, blast); perform/HumanPerformanceState.ts (HumanPerformanceState).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, AutoMovieMotionHumanScheduledInstant identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IBlast {
     /** Its id, unique among the blasts; the hit's `object`. */

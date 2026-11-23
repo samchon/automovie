@@ -17,22 +17,10 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * a target that leaves the arc the arms present to is still followed and
  * the arm's fit then gives way silently; no lead is taken ahead of a moving
  * target, and the tracking has no lag or tremor by skill.
- *
- * @evidence contracts/development/common.md#meaningful-documentation track: Whether the aim follows the target while the carriage is held; `false` when absent.
- * @evidence contracts/development/design.md#principled-representation track: Whether the aim follows the target while the carriage is held; `false` when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponTrack.ts (HumanWeaponTrack.path, context).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanWeaponTrack {
   /**
    * What tracking adds to presenting a weapon.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation track: Whether the aim follows the target while the carriage is held; `false` when absent.
-   * @evidence contracts/development/design.md#principled-representation track: Whether the aim follows the target while the carriage is held; `false` when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanWeaponTrack.ts (HumanWeaponTrack.path, context).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IParams {
     /** What it is aimed at. */

@@ -16,11 +16,6 @@ import type { IAutoMovieMotionHumanClearance } from "@automovie/interface";
  * within `RADIUS` so the foot's direction turns smoothly, which lowers the
  * path by at most half the radius at a corner; the caller's clearance
  * carries that.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what the path is, why the hull is the shortest clearing path, and what the rounding costs.
- * @evidence contracts/development/design.md#principled-representation A path in the step's vertical plane as a function of its share of arc length, from a required-height function.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The point type, two named constants and one builder; read by the stairs law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No obstacle shape is assumed: any required-height function is cleared.
  */
 export namespace AutoMovieMotionHumanClearance {
   /** The most a corner of the path is cut back along each of its sides, metres (provisional). */
@@ -35,27 +30,25 @@ export namespace AutoMovieMotionHumanClearance {
    * @param from Where the path starts.
    * @param to Where it ends; farther along the step than `from`.
    * @param required The least height at a distance along the step, metres; read strictly between the two ends.
-   * @returns The path's point at a share of its arc length in [0, 1].
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the ends, the required height and what the returned function reads.
-   * @evidence contracts/development/implementation.md#principled-implementation The upper convex hull of the sampled profile and the two ends by a monotone chain, each corner replaced by a quadratic Bezier arc, read by arc length.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Sample, hull, round, measure, then one lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A step with no length is the straight line between its ends; the sampling spacing and the radius are named.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the samples to build; a binary search per read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The path is built once and read at every instant of the swing.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the rounded polyline and its lengths, a few dozen points.
+   * @returns The path's point at a share of its arc length in [0, 1], with the share at which it first stands a height above its start (`IPath.lifted`).
    */
   export function path(
     from: IAutoMovieMotionHumanClearance.IPoint,
     to: IAutoMovieMotionHumanClearance.IPoint,
     required: (z: number) => number,
-  ): (share: number) => IAutoMovieMotionHumanClearance.IPoint {
+  ): IPath {
     const span: number = to.z - from.z;
     if (!(span > 1e-6))
-      return (share: number): IAutoMovieMotionHumanClearance.IPoint => ({
-        z: from.z + span * share,
-        y: from.y + (to.y - from.y) * share,
-      });
+      return Object.assign(
+        (share: number): IAutoMovieMotionHumanClearance.IPoint => ({
+          z: from.z + span * share,
+          y: from.y + (to.y - from.y) * share,
+        }),
+        {
+          lifted: (height: number): number =>
+            to.y - from.y >= height ? Math.min(1, height / (to.y - from.y)) : 1,
+        },
+      );
 
     // The upper hull of the ends and the profile between them.
     const count: number = Math.ceil(span / SPACING);
@@ -115,22 +108,60 @@ export namespace AutoMovieMotionHumanClearance {
           Math.hypot(line[i]!.z - line[i - 1]!.z, line[i]!.y - line[i - 1]!.y),
       );
     const total: number = lengths[lengths.length - 1]!;
-    return (share: number): IAutoMovieMotionHumanClearance.IPoint => {
-      const s: number = Math.max(0, Math.min(1, share)) * total;
-      let lo: number = 0;
-      let hi: number = line.length - 1;
-      while (hi - lo > 1) {
-        const mid: number = (lo + hi) >> 1;
-        if (lengths[mid]! <= s) lo = mid;
-        else hi = mid;
-      }
-      const piece: number = lengths[hi]! - lengths[lo]!;
-      return toward(
-        line[lo]!,
-        line[hi]!,
-        piece > 0 ? (s - lengths[lo]!) / piece : 0,
-      );
-    };
+    return Object.assign(
+      (share: number): IAutoMovieMotionHumanClearance.IPoint => {
+        const s: number = Math.max(0, Math.min(1, share)) * total;
+        let lo: number = 0;
+        let hi: number = line.length - 1;
+        while (hi - lo > 1) {
+          const mid: number = (lo + hi) >> 1;
+          if (lengths[mid]! <= s) lo = mid;
+          else hi = mid;
+        }
+        const piece: number = lengths[hi]! - lengths[lo]!;
+        return toward(
+          line[lo]!,
+          line[hi]!,
+          piece > 0 ? (s - lengths[lo]!) / piece : 0,
+        );
+      },
+      {
+        // The first share of arc length at which the path stands `height`
+        // above its start: one walk along the rounded polyline to the first
+        // piece that reaches it, interpolated within that piece.
+        lifted: (height: number): number => {
+          for (let i: number = 1; i < line.length; i++) {
+            const rise: number = line[i]!.y - from.y;
+            if (rise < height) continue;
+            const before: number = line[i - 1]!.y - from.y;
+            const within: number =
+              rise > before ? (height - before) / (rise - before) : 0;
+            return total > 0
+              ? (lengths[i - 1]! + within * (lengths[i]! - lengths[i - 1]!)) /
+                  total
+              : 1;
+          }
+          return 1;
+        },
+      },
+    );
+  }
+
+  /**
+   * A clearing path: its point at a share of its arc length, and the first
+   * share at which it stands a height above its start.
+   */
+  export interface IPath {
+    /** The path's point at a share of its arc length in [0, 1]. */
+    (share: number): IAutoMovieMotionHumanClearance.IPoint;
+
+    /**
+     * The first share of arc length at which the path stands `height`
+     * metres above its start, interpolated within the polyline piece that
+     * first reaches it; 1 when it never does, and 1 for a path of zero
+     * length.
+     */
+    lifted: (height: number) => number;
   }
 
   /** Segments of a corner's arc. */

@@ -12,19 +12,12 @@
  * the ground, or walks down the bole. A lowest branch beyond the standing
  * reach, or a stance that loads a branch past its rupture load, is refused.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the three moves, what each reads and the refusals.
- * @evidence contracts/development/design.md#principled-representation A discriminated union on kind; each names the tree and a branch by its index from the lowest.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One registered vocabulary entry; planTreeClimb in motions is the only consumer.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every hold, seat and load comes from the tree's affordances.
+ * Each hand or foot move takes 0.6 s (provisional), the support-climbing beat
+ * of {@link IAutoMovieMotionHumanLadder}.
  */
 export namespace IAutoMovieMotionHumanTreeClimb {
   /**
    * Climb from the ground to stand on a branch.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The tree and the branch stood on at the end.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the climb reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The branch's place comes from the tree.
    */
   export interface IClimb {
     /** Discriminant: a climb. */
@@ -39,11 +32,6 @@ export namespace IAutoMovieMotionHumanTreeClimb {
 
   /**
    * Sit astride the branch stood on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member.
-   * @evidence contracts/development/design.md#principled-representation The tree and the branch sat on.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the sit reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The seat comes from the tree.
    */
   export interface ISit {
     /** Discriminant: a sit. */
@@ -58,11 +46,6 @@ export namespace IAutoMovieMotionHumanTreeClimb {
 
   /**
    * Climb down from the branch stood on.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member and default.
-   * @evidence contracts/development/design.md#principled-representation The tree, the branch left and how the ground is reached.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The fields the descent reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The branches' places come from the tree.
    */
   export interface IDescend {
     /** Discriminant: a descent. */
@@ -80,13 +63,6 @@ export namespace IAutoMovieMotionHumanTreeClimb {
 
   /**
    * Parameters: a climb, a sit or a descent.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; planTreeClimb owns the reach and load refusals.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the variants and the admission owners.
-   * @evidence contracts/development/design.md#principled-representation A closed discriminated union on kind.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The variants planTreeClimb dispatches on.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Alternatives are separated by kind rather than optional fields.
    */
   export type IParams = IClimb | ISit | IDescend;
 }

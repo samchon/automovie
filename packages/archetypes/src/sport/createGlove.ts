@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -19,7 +19,7 @@ import {
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The glove.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the glove lies, its two contacts and how it is worn.
  * @evidence contracts/development/implementation.md#principled-implementation One padded box of the drawn width and length, as thick as the kind's padding; the pocket at the palm's centre on top, the opening at the wrist's end.
@@ -32,9 +32,9 @@ import {
 export function createGlove(
   params: createGlove.IParams,
   seed?: number | string,
-): Archetype<createGlove.Affordance, createGlove.Dimension> {
-  const draw: ArchetypeDrawSession<createGlove.Dimension> =
-    new ArchetypeDrawSession<createGlove.Dimension>(
+): AutoMovieArchetype<createGlove.Affordance, createGlove.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createGlove.Dimension> =
+    new AutoMovieArchetypeDrawSession<createGlove.Dimension>(
       "glove",
       createGlove.UNITS,
       seed,
@@ -49,10 +49,10 @@ export function createGlove(
   const d: Record<createGlove.Dimension, number> = draw.dimensions(
     createGlove.BANDS[kind],
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createGlove.Affordance,
     createGlove.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "leather",
     id: params.id,
     name: kind === "fielder" ? "fielder's glove" : "catcher's mitt",
@@ -68,7 +68,7 @@ export function createGlove(
   builder.affordance({
     id: "hand",
     kind: "socket",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, thick / 2, -d.length / 2),
       Vector3.create(0, 0, -1),
       Vector3.create(1, 0, 0),
@@ -79,7 +79,7 @@ export function createGlove(
     id: "pocket",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.upright(Vector3.create(0, thick, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, thick, 0)),
     extent: null,
     width: d.width / 2,
     depth: d.length / 3,
@@ -126,7 +126,9 @@ export namespace createGlove {
   export type Dimension = "length" | "width" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     width: "m",
     mass: "kg",
@@ -150,24 +152,25 @@ export namespace createGlove {
     minimum: number,
     maximum: number,
     source: string,
-  ): IArchetypeBand => ArchetypeBand.metres(minimum, maximum, source);
+  ): IAutoMovieArchetypeBand =>
+    AutoMovieArchetypeBand.metres(minimum, maximum, source);
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Record<Dimension, IArchetypeBand>>>
+    Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
     fielder: {
       length: m(
-        13 * ArchetypeUnits.INCH,
-        13 * ArchetypeUnits.INCH,
+        13 * AutoMovieArchetypeUnits.INCH,
+        13 * AutoMovieArchetypeUnits.INCH,
         `${OBR}, 3.06: a fielder's glove not more than 13 in from a finger's tip to the heel, the limit the model takes`,
       ),
       width: m(
-        7.75 * ArchetypeUnits.INCH,
-        7.75 * ArchetypeUnits.INCH,
+        7.75 * AutoMovieArchetypeUnits.INCH,
+        7.75 * AutoMovieArchetypeUnits.INCH,
         `${OBR}, 3.06: not more than 7 3/4 in wide, the limit the model takes`,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.5,
         0.7,
@@ -177,20 +180,20 @@ export namespace createGlove {
     },
     catcher: {
       length: m(
-        15.5 * ArchetypeUnits.INCH,
-        15.5 * ArchetypeUnits.INCH,
+        15.5 * AutoMovieArchetypeUnits.INCH,
+        15.5 * AutoMovieArchetypeUnits.INCH,
         `${OBR}, 3.04: a catcher's mitt not more than 15 1/2 in from top to bottom, the limit the model takes`,
       ),
       width: m(
         2 *
-          ((38 * ArchetypeUnits.INCH) / Math.PI -
-            (15.5 * ArchetypeUnits.INCH) / 2),
+          ((38 * AutoMovieArchetypeUnits.INCH) / Math.PI -
+            (15.5 * AutoMovieArchetypeUnits.INCH) / 2),
         2 *
-          ((38 * ArchetypeUnits.INCH) / Math.PI -
-            (15.5 * ArchetypeUnits.INCH) / 2),
+          ((38 * AutoMovieArchetypeUnits.INCH) / Math.PI -
+            (15.5 * AutoMovieArchetypeUnits.INCH) / 2),
         `${OBR}, 3.04: not more than 38 in round and 15 1/2 in long, the width of an ellipse of that round and that length`,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         0.6,
         0.9,

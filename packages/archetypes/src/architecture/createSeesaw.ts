@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** Construction sizes no source read gives, provisional. */
@@ -41,7 +41,7 @@ const RISE: number = 0.45;
  * @param params Fixed dimensions.
  * @param seed The seed for any unfixed dimension.
  * @returns The seesaw's post.
- * @throws {ArchetypeRefusal} For a dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, the pivot axis and the separate beam.
  * @evidence contracts/development/implementation.md#principled-implementation A post to the pivot height and a ground contact.
@@ -54,15 +54,20 @@ const RISE: number = 0.45;
 export function createSeesaw(
   params: createSeesaw.IParams = {},
   seed?: number | string,
-): Archetype<createSeesaw.Affordance, createSeesaw.Dimension> {
-  const draw: ArchetypeDrawSession<createSeesaw.Dimension> =
-    new ArchetypeDrawSession("seesaw", createSeesaw.UNITS, seed, params);
+): AutoMovieArchetype<createSeesaw.Affordance, createSeesaw.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createSeesaw.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "seesaw",
+      createSeesaw.UNITS,
+      seed,
+      params,
+    );
   const { pivot, length, mass }: Record<createSeesaw.Dimension, number> =
     draw.dimensions(createSeesaw.BANDS);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createSeesaw.Affordance,
     createSeesaw.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "seesaw",
     material: "steel",
@@ -77,7 +82,7 @@ export function createSeesaw(
   builder.affordance({
     id: "ground",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
     extent: null,
     width: 1,
     depth: length,
@@ -119,17 +124,19 @@ export namespace createSeesaw {
   }
 
   /** Units recorded in the model's draw provenance. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     pivot: "m",
     length: "m",
     mass: "kg",
   };
 
   /** The dimensions' bands. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    pivot: ArchetypeBand.metres(0.45, 0.65, ESTIMATE, true),
-    length: ArchetypeBand.metres(2.8, 3.8, ESTIMATE, true),
-    mass: ArchetypeBand.of("kg", 20, 60, ESTIMATE, true),
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    pivot: AutoMovieArchetypeBand.metres(0.45, 0.65, ESTIMATE, true),
+    length: AutoMovieArchetypeBand.metres(2.8, 3.8, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 20, 60, ESTIMATE, true),
   };
 
   /**
@@ -141,20 +148,25 @@ export namespace createSeesaw {
    * @returns The beam model.
    */
   export function beam(
-    seesaw: Pick<Archetype<Affordance, Dimension>, "dimensions">,
-  ): Archetype<BeamAffordance, BeamDimension> {
+    seesaw: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
+  ): AutoMovieArchetype<BeamAffordance, BeamDimension> {
     const length: number = seesaw.dimensions.length!;
-    const draw: ArchetypeDrawSession<BeamDimension> = new ArchetypeDrawSession(
-      "seesawBeam",
-      { length: "m", mass: "kg" },
-      undefined,
-      {},
-    );
+    const draw: AutoMovieArchetypeDrawSession<BeamDimension> =
+      new AutoMovieArchetypeDrawSession(
+        "seesawBeam",
+        { length: "m", mass: "kg" },
+        undefined,
+        {},
+      );
     draw.derive("length", length);
     // 12 kg a metre of steel beam: a provisional construction estimate.
     const mass: number = draw.derive("mass", 12 * length);
-    const builder: ArchetypeBuilder<BeamAffordance, BeamDimension> =
-      new ArchetypeBuilder({ name: "seesaw beam", material: "steel", draw });
+    const builder: AutoMovieArchetypeBuilder<BeamAffordance, BeamDimension> =
+      new AutoMovieArchetypeBuilder({
+        name: "seesaw beam",
+        material: "steel",
+        draw,
+      });
     builder.box(
       "beam",
       Vector3.create(0.12, 0.08, length),
@@ -170,7 +182,7 @@ export namespace createSeesaw {
       builder.affordance({
         id: end > 0 ? "frontSeat" : "rearSeat",
         kind: "seat",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create(0, SEAT, seatZ - end * 0.15),
           Vector3.create(0, 1, 0),
           Vector3.create(-end, 0, 0),
@@ -195,7 +207,7 @@ export namespace createSeesaw {
           kind: "handle",
           symmetry: "round",
           grip: "power",
-          frame: ArchetypeFrame.facing(
+          frame: AutoMovieArchetypeFrame.facing(
             Vector3.create(x, SEAT + RISE, handleZ),
             Vector3.create(0, 0, end),
             Vector3.create(1, 0, 0),

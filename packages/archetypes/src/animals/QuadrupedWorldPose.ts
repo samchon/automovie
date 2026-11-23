@@ -13,9 +13,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame } from "../core";
-import type { QuadrupedBody } from "./QuadrupedBody";
-import { QuadrupedSkeleton } from "./QuadrupedSkeleton";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
+import { AutoMovieArchetypeQuadrupedSkeleton } from "./AutoMovieArchetypeQuadrupedSkeleton";
 
 /** World components in their decay order. */
 const AXES: readonly QuadrupedWorldPose.Axis[] = ["x", "y", "z"];
@@ -23,7 +23,7 @@ const AXES: readonly QuadrupedWorldPose.Axis[] = ["x", "y", "z"];
 /**
  * A quadruped's displayed pose as a world root frame and parent-local bone rotations, the form an inertialized cut between two of its performances is blended in.
  *
- * A performance of the shared quadruped body poses its 21 bars about fixed parent-local attachments (`QuadrupedSkeleton`), so its pose at one second is the trunk's world frame and each bone's rotation relative to its parent. `read` takes that pose from any emitted model and its placement; `emit` lays a pose back onto the source animal through the same carriers, under a chosen placement. `capture` and `blend` inertialize a cut between two performances (Bollo, Inertialization: High-Performance Animation Transitions in Gears of War, GDC 2018): at the cut the offset of the source from the target and the offset's velocity are taken once, every rotation as a rotation vector and the root translation per axis, and each decays to zero on the engine's quintic (`inertializeOffset`), applied before the target, so the displayed pose and its velocity are continuous at the cut and reach the target at the decay's end. The full decay runs even for an offset already heading to zero (`inertializeOffset`'s `through`): Bollo's overshoot clamp would stop such a channel within milliseconds, a velocity step in all but name, so the bounded follow-through is taken instead.
+ * A performance of the shared quadruped body poses its 21 bars about fixed parent-local attachments (`AutoMovieArchetypeQuadrupedSkeleton`), so its pose at one second is the trunk's world frame and each bone's rotation relative to its parent. `read` takes that pose from any emitted model and its placement; `emit` lays a pose back onto the source animal through the same carriers, under a chosen placement. `capture` and `blend` inertialize a cut between two performances (Bollo, Inertialization: High-Performance Animation Transitions in Gears of War, GDC 2018): at the cut the offset of the source from the target and the offset's velocity are taken once, every rotation as a rotation vector and the root translation per axis, and each decays to zero on the engine's quintic (`inertializeOffset`), applied before the target, so the displayed pose and its velocity are continuous at the cut and reach the target at the decay's end. The full decay runs even for an offset already heading to zero (`inertializeOffset`'s `through`): Bollo's overshoot clamp would stop such a channel within milliseconds, a velocity step in all but name, so the bounded follow-through is taken instead.
  *
  * @param animal The source animal in its neutral pose, never changed.
  * @param carriers The bone carrying each non-bone part and each contact, as `QuadrupedCarriage.of` gives them.
@@ -39,16 +39,18 @@ const AXES: readonly QuadrupedWorldPose.Axis[] = ["x", "y", "z"];
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the neutral frames and attachments of one animal; every returned pose and model is the caller's.
  */
 export function QuadrupedWorldPose<Id extends string, D extends string>(
-  animal: Archetype<Id, D>,
+  animal: AutoMovieArchetype<Id, D>,
   carriers: QuadrupedWorldPose.ICarriers,
 ): QuadrupedWorldPose.IPrepared<Id, D> {
-  const rig: IAutoMovieArticulatedRig<QuadrupedBody.Bone> =
-    QuadrupedSkeleton.of(animal);
-  const neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform> =
-    prepareArticulatedRig(rig).read();
+  const rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone> =
+    AutoMovieArchetypeQuadrupedSkeleton.of(animal);
+  const neutral: ReadonlyMap<
+    AutoMovieArchetypeQuadrupedBody.Bone,
+    IAutoMovieTransform
+  > = prepareArticulatedRig(rig).read();
   const bones: readonly QuadrupedWorldPose.ILink[] = rig.bones.map(
     (
-      bone: IAutoMovieArticulatedRig<QuadrupedBody.Bone>["bones"][number],
+      bone: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>["bones"][number],
     ): QuadrupedWorldPose.ILink => ({
       bone: bone.bone,
       parent: bone.parent,
@@ -59,14 +61,17 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
 
   /** The trunk's world frame and every bone's rotation relative to its parent. */
   function read(
-    model: Archetype<Id, D>,
+    model: AutoMovieArchetype<Id, D>,
     placement: IAutoMovieTransform,
   ): QuadrupedWorldPose.IPose {
-    const local: Map<QuadrupedBody.Bone, IAutoMovieQuaternion> = new Map();
+    const local: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieQuaternion
+    > = new Map();
     let root: IAutoMovieTransform | undefined;
-    for (const bone of QuadrupedSkeleton.of(model).bones)
+    for (const bone of AutoMovieArchetypeQuadrupedSkeleton.of(model).bones)
       if (bone.parent === null)
-        root = ArchetypeFrame.compose(placement, bone.rest);
+        root = AutoMovieArchetypeFrame.compose(placement, bone.rest);
       else local.set(bone.bone, { ...bone.rest.rotation });
     return { root: root!, local };
   }
@@ -75,8 +80,8 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
   function emit(
     pose: QuadrupedWorldPose.IPose,
     placement: IAutoMovieTransform,
-  ): Archetype<Id, D> {
-    return QuadrupedSkeleton.apply(
+  ): AutoMovieArchetype<Id, D> {
+    return AutoMovieArchetypeQuadrupedSkeleton.apply(
       animal,
       neutral,
       QuadrupedWorldPose.frames(bones, pose, placement),
@@ -108,8 +113,10 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
         v: Vector3.scale(Vector3.subtract(ws, wt), 1 / step),
       };
     };
-    const local: Map<QuadrupedBody.Bone, QuadrupedWorldPose.IChannel> =
-      new Map();
+    const local: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      QuadrupedWorldPose.IChannel
+    > = new Map();
     for (const [bone, rotation] of source.local)
       local.set(
         bone,
@@ -155,7 +162,10 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
     target: QuadrupedWorldPose.IPose,
   ): QuadrupedWorldPose.IPose {
     const shift: IAutoMovieVector3 = decay(offset.shift, duration, elapsed);
-    const local: Map<QuadrupedBody.Bone, IAutoMovieQuaternion> = new Map();
+    const local: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieQuaternion
+    > = new Map();
     for (const [bone, rotation] of target.local) {
       const channel: QuadrupedWorldPose.IChannel | undefined =
         offset.local.get(bone);
@@ -202,19 +212,19 @@ export namespace QuadrupedWorldPose {
   /** The bone carrying each non-bone part and each contact. */
   export interface ICarriers {
     /** Carrier bone by non-bone part id. */
-    parts: Readonly<Record<string, QuadrupedBody.Bone>>;
+    parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
 
     /** Carrier bone by contact id. */
-    contacts: Readonly<Record<string, QuadrupedBody.Bone>>;
+    contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
   }
 
   /** A bone, its parent and its fixed attachment in the parent's frame, metres. */
   export interface ILink {
     /** The bone. */
-    bone: QuadrupedBody.Bone;
+    bone: AutoMovieArchetypeQuadrupedBody.Bone;
 
     /** Its parent, null for the trunk. */
-    parent: QuadrupedBody.Bone | null;
+    parent: AutoMovieArchetypeQuadrupedBody.Bone | null;
 
     /** Its joint origin in the parent's frame, metres. */
     attachment: IAutoMovieVector3;
@@ -226,7 +236,10 @@ export namespace QuadrupedWorldPose {
     root: IAutoMovieTransform;
 
     /** Each non-trunk bone's rotation in its parent's frame. */
-    local: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieQuaternion>;
+    local: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieQuaternion
+    >;
   }
 
   /** One channel's offset at a cut and the offset's rate, per world or parent axis. */
@@ -247,19 +260,28 @@ export namespace QuadrupedWorldPose {
     turn: IChannel;
 
     /** Each bone's local rotation offset. */
-    local: ReadonlyMap<QuadrupedBody.Bone, IChannel>;
+    local: ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Bone, IChannel>;
   }
 
   /** The prepared operations over one source animal. */
   export interface IPrepared<Id extends string, D extends string> {
     /** The source's neutral model-space bone frames. */
-    neutral: ReadonlyMap<QuadrupedBody.Bone, IAutoMovieTransform>;
+    neutral: ReadonlyMap<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    >;
 
     /** The world pose of an emitted model of this animal under its placement. */
-    read: (model: Archetype<Id, D>, placement: IAutoMovieTransform) => IPose;
+    read: (
+      model: AutoMovieArchetype<Id, D>,
+      placement: IAutoMovieTransform,
+    ) => IPose;
 
     /** The source animal laid in a world pose, in the model space of a placement. */
-    emit: (pose: IPose, placement: IAutoMovieTransform) => Archetype<Id, D>;
+    emit: (
+      pose: IPose,
+      placement: IAutoMovieTransform,
+    ) => AutoMovieArchetype<Id, D>;
 
     /** The offsets of a source pose from a target pose at a cut, rates from one-sided differences of `step` seconds: the source before the cut, the target after it. */
     capture: (
@@ -311,11 +333,14 @@ export namespace QuadrupedWorldPose {
     links: readonly ILink[],
     pose: IPose,
     placement: IAutoMovieTransform,
-  ): Map<QuadrupedBody.Bone, IAutoMovieTransform> {
+  ): Map<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       placement.rotation,
     );
-    const result: Map<QuadrupedBody.Bone, IAutoMovieTransform> = new Map();
+    const result: Map<
+      AutoMovieArchetypeQuadrupedBody.Bone,
+      IAutoMovieTransform
+    > = new Map();
     for (const link of links) {
       if (link.parent === null) {
         result.set(link.bone, {
@@ -338,7 +363,7 @@ export namespace QuadrupedWorldPose {
           parent.rotation,
           pose.local.get(link.bone)!,
         ),
-        scale: { ...ArchetypeFrame.UNIT },
+        scale: { ...AutoMovieArchetypeFrame.UNIT },
       });
     }
     return result;

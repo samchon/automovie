@@ -202,15 +202,23 @@ export namespace balletJete {
       t: number,
     ): number => {
       const top: number = split / 2;
-      const last: number = front ? LAND : OPEN;
       const u: number = (t - take) / (apex - take);
-      return t <= apex
-        ? OPEN + (top - OPEN) * minimumJerk.share(Math.max(0, Math.min(1, u)))
-        : top +
-            (last - top) *
+      if (t <= apex)
+        return (
+          OPEN + (top - OPEN) * minimumJerk.share(Math.max(0, Math.min(1, u)))
+        );
+      // The leading leg reaches down to land; the other stays extended
+      // behind at the split's half through the landing, as a grand jeté
+      // lands in arabesque, and closes from there to fourth behind over the
+      // give and the closing beat: closed to `OPEN` by the landing, its
+      // pointed foot reached the floor as the knee gave.
+      return front
+        ? top +
+            (LAND - top) *
               minimumJerk.share(
                 Math.max(0, Math.min(1, (t - apex) / (land - apex))),
-              );
+              )
+        : top;
     };
     const airborne: (
       side: AutoMovieHumanSide,
@@ -339,7 +347,7 @@ export namespace balletJete {
           airborne(other, t),
       },
       {
-        at: settled,
+        at: end,
         leave: end,
         place: behind,
         bears: true,

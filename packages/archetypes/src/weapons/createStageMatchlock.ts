@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
 /**
@@ -49,9 +53,12 @@ const PROFILE: Readonly<StagePeriodGunConstruction.IProfile> = {
  */
 export function createStageMatchlock(
   params: createStageMatchlock.IParams = {},
-): Archetype<createStageMatchlock.Affordance, createStageMatchlock.Dimension> {
+): AutoMovieArchetype<
+  createStageMatchlock.Affordance,
+  createStageMatchlock.Dimension
+> {
   const v: typeof Vector3.create = Vector3.create;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStageMatchlock.Affordance,
     createStageMatchlock.Dimension
   > = StagePeriodGunConstruction.lay<createStageMatchlock.Lock>(
@@ -83,14 +90,14 @@ export function createStageMatchlock(
   builder.affordance({
     id: "pan",
     kind: "socket",
-    frame: ArchetypeFrame.upright(v(0.02, 0.009, breech + 0.02)),
+    frame: AutoMovieArchetypeFrame.upright(v(0.02, 0.009, breech + 0.02)),
     extent: null,
   });
   builder.affordance({
     id: "serpentine",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0.029, -0.03, breech - 0.04),
       v(1, 0, 0),
       v(0, 1, 0),
@@ -101,7 +108,7 @@ export function createStageMatchlock(
     id: "match",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.upright(v(0.022, 0.012, breech + 0.02)),
+    frame: AutoMovieArchetypeFrame.upright(v(0.022, 0.012, breech + 0.02)),
     extent: null,
   });
   return StagePeriodGunConstruction.build(builder, PROFILE);

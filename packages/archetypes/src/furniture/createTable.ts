@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 import { TABLE_BANDS } from "./TABLE_BANDS";
 
@@ -35,7 +35,7 @@ const KNEE: number = 0.305;
  * @param params The kind, a service counter's or a pupil desk's listed size, and any dimension the author fixes.
  * @param seed The seed that picks a listed size when none is given and draws every dimension left free inside its band; absent, the first size and the middle of each band.
  * @returns The table.
- * @throws {ArchetypeRefusal} For a size the kind does not list, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a size the kind does not list, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is modelled and which edge is the front.
  * @evidence contracts/development/implementation.md#principled-implementation A top slab at the drawn height on legs or a plinth; the top is declared twice, as the `surface` a person works and leans at and as the `stack-top` an object is set on, and each edge is a `ledge` facing out.
@@ -48,9 +48,9 @@ const KNEE: number = 0.305;
 export function createTable(
   params: createTable.IParams,
   seed?: number | string,
-): Archetype<createTable.Affordance, createTable.Dimension> {
-  const draw: ArchetypeDrawSession<createTable.Dimension> =
-    new ArchetypeDrawSession<createTable.Dimension>(
+): AutoMovieArchetype<createTable.Affordance, createTable.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createTable.Dimension> =
+    new AutoMovieArchetypeDrawSession<createTable.Dimension>(
       "table",
       createTable.UNITS,
       seed,
@@ -77,10 +77,10 @@ export function createTable(
   const height: number = sized.height!;
   const length: number = sized.length!;
   const depth: number = sized.depth!;
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createTable.Affordance,
     createTable.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
     name: NAMES[kind],
@@ -150,7 +150,7 @@ export function createTable(
   builder.affordance({
     id: "top",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: null,
     width: length,
     depth,
@@ -158,7 +158,7 @@ export function createTable(
   builder.affordance({
     id: "stack",
     kind: "stack-top",
-    frame: ArchetypeFrame.upright(Vector3.create(0, height, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, height, 0)),
     extent: [
       Vector3.create(-length / 2, 0, -depth / 2),
       Vector3.create(length / 2, 0, -depth / 2),
@@ -177,7 +177,7 @@ export function createTable(
     builder.affordance({
       id,
       kind: "ledge",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create((x * length) / 2, height, (z * depth) / 2),
         Vector3.create(0, 1, 0),
         Vector3.create(z, 0, -x),
@@ -253,24 +253,24 @@ export namespace createTable {
     >
   > = {
     serviceCounter: {
-      length30: { length: 30 * ArchetypeUnits.INCH },
-      length36: { length: 36 * ArchetypeUnits.INCH },
-      length50: { length: 50 * ArchetypeUnits.INCH },
+      length30: { length: 30 * AutoMovieArchetypeUnits.INCH },
+      length36: { length: 36 * AutoMovieArchetypeUnits.INCH },
+      length50: { length: 50 * AutoMovieArchetypeUnits.INCH },
     },
     pupilDesk: {
-      height19: { height: 19 * ArchetypeUnits.INCH },
-      height20: { height: 20 * ArchetypeUnits.INCH },
-      height21: { height: 21 * ArchetypeUnits.INCH },
-      height22: { height: 22 * ArchetypeUnits.INCH },
-      height23: { height: 23 * ArchetypeUnits.INCH },
-      height24: { height: 24 * ArchetypeUnits.INCH },
-      height25: { height: 25 * ArchetypeUnits.INCH },
-      height26: { height: 26 * ArchetypeUnits.INCH },
-      height27: { height: 27 * ArchetypeUnits.INCH },
-      height28: { height: 28 * ArchetypeUnits.INCH },
-      height29: { height: 29 * ArchetypeUnits.INCH },
-      height30: { height: 30 * ArchetypeUnits.INCH },
-      height31: { height: 31 * ArchetypeUnits.INCH },
+      height19: { height: 19 * AutoMovieArchetypeUnits.INCH },
+      height20: { height: 20 * AutoMovieArchetypeUnits.INCH },
+      height21: { height: 21 * AutoMovieArchetypeUnits.INCH },
+      height22: { height: 22 * AutoMovieArchetypeUnits.INCH },
+      height23: { height: 23 * AutoMovieArchetypeUnits.INCH },
+      height24: { height: 24 * AutoMovieArchetypeUnits.INCH },
+      height25: { height: 25 * AutoMovieArchetypeUnits.INCH },
+      height26: { height: 26 * AutoMovieArchetypeUnits.INCH },
+      height27: { height: 27 * AutoMovieArchetypeUnits.INCH },
+      height28: { height: 28 * AutoMovieArchetypeUnits.INCH },
+      height29: { height: 29 * AutoMovieArchetypeUnits.INCH },
+      height30: { height: 30 * AutoMovieArchetypeUnits.INCH },
+      height31: { height: 31 * AutoMovieArchetypeUnits.INCH },
     },
   };
 
@@ -284,7 +284,7 @@ export namespace createTable {
   export const COUNTER_OVERHANG: number = 0.05;
 
   /** A pupil desk's top thickness, metres: its sheet's 5/8 in. */
-  export const PUPIL_TOP: number = (5 / 8) * ArchetypeUnits.INCH;
+  export const PUPIL_TOP: number = (5 / 8) * AutoMovieArchetypeUnits.INCH;
 
   /** An altar's two pedestals as shares of its top's length and depth: construction estimates no act reads, since the catalog draws but does not size them. */
   export const ALTAR_PEDESTAL: Readonly<{ width: number; depth: number }> = {
@@ -318,7 +318,9 @@ export namespace createTable {
   export type Dimension = "height" | "length" | "depth" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     length: "m",
     depth: "m",
@@ -341,12 +343,14 @@ export namespace createTable {
   export const BANDS: Readonly<
     Record<
       Exclude<Kind, "serviceCounter" | "pupilDesk">,
-      Readonly<Record<Dimension, IArchetypeBand>>
+      Readonly<Record<Dimension, IAutoMovieArchetypeBand>>
     > & {
       serviceCounter: Readonly<
-        Record<Exclude<Dimension, "length">, IArchetypeBand>
+        Record<Exclude<Dimension, "length">, IAutoMovieArchetypeBand>
       >;
-      pupilDesk: Readonly<Record<Exclude<Dimension, "height">, IArchetypeBand>>;
+      pupilDesk: Readonly<
+        Record<Exclude<Dimension, "height">, IAutoMovieArchetypeBand>
+      >;
     }
   > = TABLE_BANDS;
 }

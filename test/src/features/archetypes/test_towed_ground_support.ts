@@ -1,11 +1,11 @@
 import {
-  type Archetype,
-  ArchetypeBuilder,
-  type ArchetypeCourse,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  ArchetypeRide,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeCourse,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeRide,
   createCannon,
   createCart,
 } from "@automovie/archetypes";
@@ -27,7 +27,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_towed_ground_support(): void {
   const findings: string[] = [];
-  const course: ArchetypeCourse.ICourse = {
+  const course: AutoMovieArchetypeCourse.ICourse = {
     start: { x: 0, z: 0, heading: 0 },
     legs: [
       { kind: "straight", length: 4 },
@@ -39,19 +39,21 @@ export function test_towed_ground_support(): void {
     endSpeed: 1,
   };
   const limber: ReturnType<typeof createCart> = createCart({ kind: "limber" });
-  const leader: ArchetypeRide.IRide<
+  const leader: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.along(limber, course);
+  > = AutoMovieArchetypeRide.along(limber, course);
   const trailer: ReturnType<typeof createCart> = createCart({ kind: "limber" });
   const support: ReturnType<typeof createCart.towing> =
     createCart.towing(trailer);
-  const towed: ArchetypeRide.IRide<
+  const towed: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.towed(leader, "pintle", trailer, "coupling", { support });
+  > = AutoMovieArchetypeRide.towed(leader, "pintle", trailer, "coupling", {
+    support,
+  });
   const expectedPitch: number = Math.atan2(0.04, 144.58 * 0.0254);
-  const axis: IAutoMovieVector3 = ArchetypeFrame.axis(
+  const axis: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
     towed.at(0).placement,
     "z",
   );
@@ -77,10 +79,10 @@ export function test_towed_ground_support(): void {
       "mutating a caller support descriptor changed a prepared ride",
     );
   refuses("missing support cannot translate the limber downward", (): unknown =>
-    ArchetypeRide.towed(leader, "pintle", trailer, "coupling"),
+    AutoMovieArchetypeRide.towed(leader, "pintle", trailer, "coupling"),
   );
   refuses("conflicting explicit axle", (): unknown =>
-    ArchetypeRide.towed(leader, "pintle", trailer, "coupling", {
+    AutoMovieArchetypeRide.towed(leader, "pintle", trailer, "coupling", {
       support: createCart.towing(trailer),
       axle: { x: 0, y: 0, z: 0 },
     }),
@@ -88,10 +90,10 @@ export function test_towed_ground_support(): void {
   const gun: ReturnType<typeof createCannon> = createCannon({
     kind: "fieldGun",
   });
-  const limbered: ArchetypeRide.IRide<
+  const limbered: AutoMovieArchetypeRide.IRide<
     createCannon.Affordance,
     createCannon.Dimension
-  > = ArchetypeRide.towed(leader, "pintle", gun, "limber", {
+  > = AutoMovieArchetypeRide.towed(leader, "pintle", gun, "limber", {
     support: createCannon.towing(gun),
   });
   inspect(gun, limbered, leader, "pintle", "limber", [
@@ -99,16 +101,14 @@ export function test_towed_ground_support(): void {
     "wheel-right",
   ]);
   const wagon: ReturnType<typeof createCart> = createCart({ kind: "wagon" });
-  const draw: ArchetypeRide.IRide<"hitch", never> = ArchetypeRide.along(
-    hitched(1),
-    course,
-  );
+  const draw: AutoMovieArchetypeRide.IRide<"hitch", never> =
+    AutoMovieArchetypeRide.along(hitched(1), course);
   const wagonSupport: ReturnType<typeof createCart.towing> =
     createCart.towing(wagon);
-  const drawn: ArchetypeRide.IRide<
+  const drawn: AutoMovieArchetypeRide.IRide<
     createCart.Affordance,
     createCart.Dimension
-  > = ArchetypeRide.towed(draw, "hitch", wagon, "coupling", {
+  > = AutoMovieArchetypeRide.towed(draw, "hitch", wagon, "coupling", {
     support: wagonSupport,
   });
   inspect(wagon, drawn, draw, "hitch", "coupling", [
@@ -119,7 +119,7 @@ export function test_towed_ground_support(): void {
   ]);
   near(
     "four-wheel body stays level",
-    ArchetypeFrame.axis(drawn.at(1.137).placement, "y").y,
+    AutoMovieArchetypeFrame.axis(drawn.at(1.137).placement, "y").y,
     1,
   );
   if (Math.abs(drawn.at(1.137).archetype.travel("drawbarPitch")) < 1)
@@ -147,17 +147,15 @@ export function test_towed_ground_support(): void {
       front: wagonSupport.front,
     };
     refuses("rigid four-wheel support cannot fake a lift", (): unknown =>
-      ArchetypeRide.towed(draw, "hitch", wagon, "coupling", {
+      AutoMovieArchetypeRide.towed(draw, "hitch", wagon, "coupling", {
         support: rigid,
       }),
     );
   }
-  const unreachable: ArchetypeRide.IRide<"hitch", never> = ArchetypeRide.along(
-    hitched(100),
-    course,
-  );
+  const unreachable: AutoMovieArchetypeRide.IRide<"hitch", never> =
+    AutoMovieArchetypeRide.along(hitched(100), course);
   refuses("unreachable rigid lever height", (): unknown =>
-    ArchetypeRide.towed(unreachable, "hitch", trailer, "coupling", {
+    AutoMovieArchetypeRide.towed(unreachable, "hitch", trailer, "coupling", {
       support: createCart.towing(trailer),
     }),
   );
@@ -181,7 +179,10 @@ export function test_towed_ground_support(): void {
     } catch (caught) {
       error = caught;
     }
-    if (!(error instanceof ArchetypeRefusal) || error.axis.length === 0)
+    if (
+      !(error instanceof AutoMovieArchetypeRefusal) ||
+      error.axis.length === 0
+    )
       findings.push(`${label}: missing structured refusal (${String(error)})`);
   }
 
@@ -192,9 +193,9 @@ export function test_towed_ground_support(): void {
     L extends string,
     E extends string,
   >(
-    source: Archetype<I, D>,
-    ride: ArchetypeRide.IRide<I, D>,
-    lead: ArchetypeRide.IRide<L, E>,
+    source: AutoMovieArchetype<I, D>,
+    ride: AutoMovieArchetypeRide.IRide<I, D>,
+    lead: AutoMovieArchetypeRide.IRide<L, E>,
     hitch: L,
     coupling: I,
     wheels: readonly string[],
@@ -207,7 +208,7 @@ export function test_towed_ground_support(): void {
       7.213,
       ride.duration - 0.137,
     ]) {
-      const sample: ArchetypeRide.ISample<I, D> = ride.at(seconds);
+      const sample: AutoMovieArchetypeRide.ISample<I, D> = ride.at(seconds);
       const actual: IAutoMovieVector3 = ride.frame(
         coupling,
         seconds,
@@ -260,8 +261,8 @@ export function test_towed_ground_support(): void {
           findings.push(`${source.id}/${id}: actual wheel cylinder is missing`);
           continue;
         }
-        const frame: ReturnType<typeof ArchetypeFrame.compose> =
-          ArchetypeFrame.compose(sample.placement, part.transform);
+        const frame: ReturnType<typeof AutoMovieArchetypeFrame.compose> =
+          AutoMovieArchetypeFrame.compose(sample.placement, part.transform);
         const direction: IAutoMovieVector3 = Quaternion.rotateVector(
           frame.rotation,
           { x: 0, y: 1, z: 0 },
@@ -278,11 +279,11 @@ export function test_towed_ground_support(): void {
 }
 
 /** A real generic fixed-height hitch for the independent four-wheel support case. */
-function hitched(height: number): Archetype<"hitch", never> {
-  return new ArchetypeBuilder<"hitch", never>({
+function hitched(height: number): AutoMovieArchetype<"hitch", never> {
+  return new AutoMovieArchetypeBuilder<"hitch", never>({
     material: "steel",
     name: "towing support fixture",
-    draw: new ArchetypeDrawSession<never>(
+    draw: new AutoMovieArchetypeDrawSession<never>(
       "towingSupportFixture",
       {},
       undefined,
@@ -292,7 +293,7 @@ function hitched(height: number): Archetype<"hitch", never> {
     .affordance({
       id: "hitch",
       kind: "hook",
-      frame: ArchetypeFrame.upright({ x: 0, y: height, z: -1 }),
+      frame: AutoMovieArchetypeFrame.upright({ x: 0, y: height, z: -1 }),
       extent: null,
     })
     .build(20);

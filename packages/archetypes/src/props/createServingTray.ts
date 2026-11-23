@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { TrayConstruction } from "./TrayConstruction";
 import type { createTray } from "./createTray";
 
@@ -9,7 +9,7 @@ import type { createTray } from "./createTray";
  * @param params The optional identifier, the admitted settings and any fixed dimensions in the inherited units.
  * @param seed Draws remaining dimensions and any model choice. Omit it for the first model and band midpoints.
  * @returns The generated model and its named local contacts.
- * @throws {ArchetypeRefusal} For a setting this producer cannot admit.
+ * @throws {AutoMovieArchetypeRefusal} For a setting this producer cannot admit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation A low serving tray with a real floor and side grips at its short ends.
  * @evidence contracts/development/implementation.md#principled-implementation The grips close over the two short side rims. The inside surface is measured up from the bottom box.
@@ -22,7 +22,10 @@ import type { createTray } from "./createTray";
 export function createServingTray(
   params: createServingTray.IParams = {},
   seed?: number | string,
-): Archetype<createServingTray.Affordance, createServingTray.Dimension> {
+): AutoMovieArchetype<
+  createServingTray.Affordance,
+  createServingTray.Dimension
+> {
   return TrayConstruction.servingTray(params, seed);
 }
 

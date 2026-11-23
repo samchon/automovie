@@ -5,7 +5,7 @@ import type { IAutoMovieMotionHumanDefenceOutcome } from "./IAutoMovieMotionHuma
  * where the incoming weapon will be, or the head moved off its line.
  *
  * When the defence starts comes from the defence outcome law
- * ({@link DefenceOutcome}): the defender reacts to the strike's launch after a
+ * (`DefenceOutcome`): the defender reacts to the strike's launch after a
  * seeded reaction time, earlier by the anticipation lead the strike's
  * preparation allows (its telegraph), and the author may force the outcome
  * (in time, late or fail), which the law realises with plausible timing.
@@ -41,40 +41,33 @@ import type { IAutoMovieMotionHumanDefenceOutcome } from "./IAutoMovieMotionHuma
  *
  * The defence holds until just after the strike's contact and returns to the
  * guard over one hand recovery. The geometry itself is built by
- * {@link defendGeometry} on the first posture after the read.
- *
- * @evidence contracts/development/common.md#meaningful-documentation outcome: The forced outcome; drawn from the defender's skill when absent.
- * @evidence contracts/development/design.md#principled-representation outcome: The forced outcome; drawn from the defender's skill when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: chain/HumanChainStriking.ts (HumanChainStriking.defend, params); striking/defend.ts (defend.plan, context); striking/defend.ts (defend.idle, context); striking/defendGeometry.ts (defendGeometry.build, context); striking/defend.ts (defend.plan); striking/defendGeometry.ts (defendGeometry.build).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanDefenceOutcome.Outcome identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
+ * `defendGeometry` on the first posture after the read.
  */
 export namespace IAutoMovieMotionHumanDefend {
   /**
    * Parameters.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the kind, the answered strike's anchor and the outcome's default.
-   * @evidence contracts/development/design.md#principled-representation A closed union of defence kinds, the strike as its anchor (checked when planning to strike this performer) and an optional forced outcome.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The three values the plan reads.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the outcome union.
-   *
-   * HumanPerformanceParams checks supplied parameters against the motions schema before planning; the action law owns reach and contact refusals.
    */
   export interface IParams {
     /** The defence. */
-    kind:
-      | "cover"
-      | "parry"
-      | "elbowBlock"
-      | "highBlock"
-      | "slip"
-      | "roll"
-      | "sway"
-      | "check";
+    kind: IAutoMovieMotionHumanDefend.Kind;
 
     /** The anchor of the strike it answers. */
     against: string;
 
-    /** The forced outcome; drawn from the defender's skill when absent. */
+    /** The forced outcome; drawn from the defender's skill when absent. The defender starts after a reaction time drawn around 0.335 s at novice to 0.29 s at elite (the ex-Gaussian mu, Liu et al. 2018, `StrikingSkill.reaction`), less the anticipation the strike's preparation shows, and its limb or head takes 0.30 s at novice to 0.20 s at elite to move (`StrikingSkill.defence`, provisional). `inTime`: in place at the contact, the strike lands on the glove; `late`: caught half-made within half the movement time, the strike lands through the guard; `fail`: the strike lands as if undefended. A forced outcome is refused when no plausible timing reaches it. Against a kick or a fast strike a reactive defence is late: only anticipation, which skill buys, makes it in time. */
     outcome?: IAutoMovieMotionHumanDefenceOutcome.Outcome;
   }
+
+  /**
+   * The defence: `cover`, `parry`, `elbowBlock`, `highBlock`, `slip`, `roll`, `sway` or `check`, each as the namespace's list of kinds describes.
+   */
+  export type Kind =
+    | "cover"
+    | "parry"
+    | "elbowBlock"
+    | "highBlock"
+    | "slip"
+    | "roll"
+    | "sway"
+    | "check";
 }

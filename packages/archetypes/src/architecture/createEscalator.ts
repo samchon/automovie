@@ -2,13 +2,13 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
-  type Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** The planning guide read for every escalator figure below. */
@@ -52,7 +52,7 @@ const LANDING: number = 1;
  * @param params Fixed dimensions, the inclination and the rated speed.
  * @param seed The seed for any unfixed dimension.
  * @returns The escalator with its landings and handrail contacts.
- * @throws {ArchetypeRefusal} For a dimension outside its band, an
+ * @throws {AutoMovieArchetypeRefusal} For a dimension outside its band, an
  * inclination or speed EN 115-1 does not admit at the rise, or a rise too
  * low for both transition curves.
  *
@@ -67,15 +67,20 @@ const LANDING: number = 1;
 export function createEscalator(
   params: createEscalator.IParams = {},
   seed?: number | string,
-): Archetype<createEscalator.Affordance, createEscalator.Dimension> {
-  const draw: ArchetypeDrawSession<createEscalator.Dimension> =
-    new ArchetypeDrawSession("escalator", createEscalator.UNITS, seed, params);
+): AutoMovieArchetype<createEscalator.Affordance, createEscalator.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createEscalator.Dimension> =
+    new AutoMovieArchetypeDrawSession(
+      "escalator",
+      createEscalator.UNITS,
+      seed,
+      params,
+    );
   const { rise, width, handrail, mass }: Record<createEscalator.Drawn, number> =
     draw.dimensions(createEscalator.BANDS);
   const incline: createEscalator.Incline = params.incline ?? 30;
   const speed: createEscalator.Speed = params.speed ?? 0.5;
   if (incline === 35 && (rise > 6 || speed > 0.5))
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "escalator",
       axis: "incline",
@@ -106,10 +111,10 @@ export function createEscalator(
     ),
     lowerRadius: draw.derive("lowerRadius", speed > 0.65 ? 2 : 1),
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createEscalator.Affordance,
     createEscalator.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     id: params.id,
     name: "escalator",
     material: "steel",
@@ -183,7 +188,7 @@ export function createEscalator(
   builder.affordance({
     id: "lowerLanding",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, 0, -LANDING / 2)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, -LANDING / 2)),
     extent: null,
     width,
     depth: LANDING,
@@ -191,7 +196,9 @@ export function createEscalator(
   builder.affordance({
     id: "upperLanding",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, rise, top.z + LANDING / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      Vector3.create(0, rise, top.z + LANDING / 2),
+    ),
     extent: null,
     width,
     depth: LANDING,
@@ -202,7 +209,7 @@ export function createEscalator(
       kind: "handle",
       symmetry: "round",
       grip: "power",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         Vector3.create(
           side * (width / 2 + RAIL_OFFSET),
           handrail,
@@ -272,7 +279,9 @@ export namespace createEscalator {
   }
 
   /** Units recorded in the model's draw provenance. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     rise: "m",
     width: "m",
     handrail: "m",
@@ -285,29 +294,28 @@ export namespace createEscalator {
   };
 
   /** The drawn dimensions' bands. */
-  export const BANDS: Readonly<Record<Drawn, IArchetypeBand>> = {
-    rise: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Drawn, IAutoMovieArchetypeBand>> = {
+    rise: AutoMovieArchetypeBand.metres(
       2,
       12,
       `${KONE}, Table 5.2 retail, office and airport rises`,
     ),
-    width: ArchetypeBand.metres(0.58, 1.1, `${KONE}, 5.3 EN 115-1 step widths`),
-    handrail: ArchetypeBand.metres(
+    width: AutoMovieArchetypeBand.metres(
+      0.58,
+      1.1,
+      `${KONE}, 5.3 EN 115-1 step widths`,
+    ),
+    handrail: AutoMovieArchetypeBand.metres(
       0.9,
       1.1,
       `${KONE}, 5.12 balustrade heights`,
     ),
-    mass: ArchetypeBand.of("kg", 4000, 12000, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 4000, 12000, ESTIMATE, true),
   };
 
   /**
    * The step band in the escalator's frame: metres along the band from
    * the lower comb to each transition and to the upper comb.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each length and angle with its unit.
-   * @evidence contracts/development/design.md#principled-representation The closed-form band derived once from the model's dimensions.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `station` and `rideEscalator`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Derived only from the recorded dimensions.
    */
   export interface IProfile {
     /** Step pitch along the band, metres. */
@@ -349,10 +357,10 @@ export namespace createEscalator {
    *
    * @param escalator The escalator, or its recorded dimensions.
    * @returns The band's lengths in metres.
-   * @throws {ArchetypeRefusal} When the rise is too low for both transitions.
+   * @throws {AutoMovieArchetypeRefusal} When the rise is too low for both transitions.
    */
   export function profile(
-    escalator: Pick<Archetype<Affordance, Dimension>, "dimensions">,
+    escalator: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
   ): IProfile {
     const d: Readonly<Partial<Record<Dimension, number>>> =
       escalator.dimensions;
@@ -361,7 +369,7 @@ export namespace createEscalator {
       (d.lowerRadius! + d.upperRadius!) * (1 - Math.cos(angle));
     const straight: number = (d.rise! - curves) / Math.sin(angle);
     if (!(straight > 0))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "escalator",
         axis: "rise",
@@ -449,21 +457,22 @@ export namespace createEscalator {
    * @returns The tread model.
    */
   export function tread(
-    escalator: Pick<Archetype<Affordance, Dimension>, "dimensions">,
-  ): Archetype<TreadAffordance, TreadDimension> {
+    escalator: Pick<AutoMovieArchetype<Affordance, Dimension>, "dimensions">,
+  ): AutoMovieArchetype<TreadAffordance, TreadDimension> {
     const width: number = escalator.dimensions.width!;
     const handrail: number = escalator.dimensions.handrail!;
-    const draw: ArchetypeDrawSession<TreadDimension> = new ArchetypeDrawSession(
-      "escalatorTread",
-      { width: "m", depth: "m", mass: "kg" },
-      undefined,
-      {},
-    );
+    const draw: AutoMovieArchetypeDrawSession<TreadDimension> =
+      new AutoMovieArchetypeDrawSession(
+        "escalatorTread",
+        { width: "m", depth: "m", mass: "kg" },
+        undefined,
+        {},
+      );
     draw.derive("width", width);
     draw.derive("depth", PITCH);
     draw.derive("mass", 15);
-    const builder: ArchetypeBuilder<TreadAffordance, TreadDimension> =
-      new ArchetypeBuilder({
+    const builder: AutoMovieArchetypeBuilder<TreadAffordance, TreadDimension> =
+      new AutoMovieArchetypeBuilder({
         name: "escalator tread",
         material: "aluminium",
         draw,
@@ -477,7 +486,7 @@ export namespace createEscalator {
     builder.affordance({
       id: "tread",
       kind: "surface",
-      frame: ArchetypeFrame.upright(Vector3.create(0, 0, 0)),
+      frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, 0, 0)),
       extent: null,
       width,
       depth: PITCH,
@@ -491,7 +500,7 @@ export namespace createEscalator {
         kind: "handle",
         symmetry: "round",
         grip: "power",
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           Vector3.create(side * (width / 2 + RAIL_OFFSET), handrail, 0),
           Vector3.create(0, 1, 0),
           Vector3.create(0, 0, 1),

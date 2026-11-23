@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticProgram";
-import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
+import { AutoMovieXpbdSupportRows as Rows } from "./AutoMovieXpbdSupportRows";
 import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
 import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
 
@@ -267,8 +267,8 @@ function level(
 
 /**
  * The rows whose holds are independent. A row reads its body's velocity
- * change through the functional `(r x d, d)`, the same spatial vector as a
- * unit impulse along it, so the rows of one patch on one rigid body are
+ * change through its own unit impulse, `(r x d, d)`, so the rows of one
+ * patch on one rigid body are
  * dependent exactly when those functionals are: four coplanar points span
  * three. Gram-Schmidt over each patch's functionals, normals first, keeps a
  * row whose functional leaves more than `sqrt(eps)` of itself outside the
@@ -281,10 +281,7 @@ function independent(set: Contacts.ISet): Set<number> {
     const basis: number[][] = [];
     for (const r of [...patch.normals, ...patch.tangents]) {
       const row: Contacts.IRow = set.rows[r]!;
-      const functional: number[] = AutoMovieXpbdArticulation.spatialImpulse(
-        row.point,
-        row.direction,
-      );
+      const functional: number[] = Rows.impulse(row);
       let rest: number[] = functional;
       for (const unit of basis) {
         const share: number = product(rest, unit);

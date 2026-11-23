@@ -1,4 +1,4 @@
-import { ArchetypeBand, type IArchetypeBand } from "../core";
+import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../core";
 import type { createScenicContainer } from "./createScenicContainer";
 
 /** Middle Kingdom basket with a fitted lid, used as a silhouette reference. */
@@ -29,37 +29,37 @@ const MASS: string = "Estimated prop mass for scene use.";
 export const SCENIC_CONTAINER_BANDS: Readonly<
   Record<
     createScenicContainer.Kind,
-    Readonly<Record<createScenicContainer.Dimension, IArchetypeBand>>
+    Readonly<Record<createScenicContainer.Dimension, IAutoMovieArchetypeBand>>
   >
 > = {
   coilBasket: {
-    width: ArchetypeBand.metres(0.24, 0.4, COIL, true),
-    depth: ArchetypeBand.metres(0.24, 0.4, COIL, true),
-    height: ArchetypeBand.metres(0.15, 0.27, COIL, true),
-    mass: ArchetypeBand.of("kg", 0.25, 0.7, MASS, true),
+    width: AutoMovieArchetypeBand.metres(0.24, 0.4, COIL, true),
+    depth: AutoMovieArchetypeBand.metres(0.24, 0.4, COIL, true),
+    height: AutoMovieArchetypeBand.metres(0.15, 0.27, COIL, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.25, 0.7, MASS, true),
   },
   woodenFishBasket: {
-    width: ArchetypeBand.metres(0.4, 0.62, WILLOW, true),
-    depth: ArchetypeBand.metres(0.31, 0.48, WILLOW, true),
-    height: ArchetypeBand.metres(0.35, 0.56, WILLOW, true),
-    mass: ArchetypeBand.of("kg", 0.7, 2.3, MASS, true),
+    width: AutoMovieArchetypeBand.metres(0.4, 0.62, WILLOW, true),
+    depth: AutoMovieArchetypeBand.metres(0.31, 0.48, WILLOW, true),
+    height: AutoMovieArchetypeBand.metres(0.35, 0.56, WILLOW, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.7, 2.3, MASS, true),
   },
   plankCoffer: {
-    width: ArchetypeBand.metres(0.58, 0.94, COFFER, true),
-    depth: ArchetypeBand.metres(0.33, 0.53, COFFER, true),
-    height: ArchetypeBand.metres(0.32, 0.54, COFFER, true),
-    mass: ArchetypeBand.of("kg", 6, 14, MASS, true),
+    width: AutoMovieArchetypeBand.metres(0.58, 0.94, COFFER, true),
+    depth: AutoMovieArchetypeBand.metres(0.33, 0.53, COFFER, true),
+    height: AutoMovieArchetypeBand.metres(0.32, 0.54, COFFER, true),
+    mass: AutoMovieArchetypeBand.of("kg", 6, 14, MASS, true),
   },
   moldedCrate: {
-    width: ArchetypeBand.metres(0.31, 0.39, CRATE, true),
-    depth: ArchetypeBand.metres(0.31, 0.39, CRATE, true),
-    height: ArchetypeBand.metres(0.25, 0.31, CRATE, true),
-    mass: ArchetypeBand.of("kg", 0.65, 1.4, MASS, true),
+    width: AutoMovieArchetypeBand.metres(0.31, 0.39, CRATE, true),
+    depth: AutoMovieArchetypeBand.metres(0.31, 0.39, CRATE, true),
+    height: AutoMovieArchetypeBand.metres(0.25, 0.31, CRATE, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.65, 1.4, MASS, true),
   },
   cargoPod: {
-    width: ArchetypeBand.metres(0.68, 1.14, POD, true),
-    depth: ArchetypeBand.metres(0.44, 0.76, POD, true),
-    height: ArchetypeBand.metres(0.42, 0.7, POD, true),
-    mass: ArchetypeBand.of("kg", 8, 20, MASS, true),
+    width: AutoMovieArchetypeBand.metres(0.68, 1.14, POD, true),
+    depth: AutoMovieArchetypeBand.metres(0.44, 0.76, POD, true),
+    height: AutoMovieArchetypeBand.metres(0.42, 0.7, POD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 8, 20, MASS, true),
   },
 };

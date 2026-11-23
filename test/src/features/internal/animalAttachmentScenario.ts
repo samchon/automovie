@@ -1,7 +1,7 @@
 import type {
-  Archetype,
-  ArchetypeRide,
-  QuadrupedBody,
+  AutoMovieArchetype,
+  AutoMovieArchetypeQuadrupedBody,
+  AutoMovieArchetypeRide,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
@@ -32,8 +32,11 @@ import { nclose } from "./nclose";
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources All models, maps and returned samples are scenario-local; only caller-owned diagnostic strings escape, without a process, renderer, cache or global state.
  */
 export function animalAttachmentScenario<Id extends string, D extends string>(
-  animal: Archetype<Id, D | QuadrupedBody.Dimension>,
-  prepare: () => ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension>,
+  animal: AutoMovieArchetype<Id, D | AutoMovieArchetypeQuadrupedBody.Dimension>,
+  prepare: () => AutoMovieArchetypeRide.IRide<
+    Id,
+    D | AutoMovieArchetypeQuadrupedBody.Dimension
+  >,
   clock: animalAttachmentScenario.IClock,
   label: string,
   findings: string[],
@@ -41,8 +44,10 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
 ): void {
   try {
     const source: string = JSON.stringify(animal);
-    const ride: ArchetypeRide.IRide<Id, D | QuadrupedBody.Dimension> =
-      prepare();
+    const ride: AutoMovieArchetypeRide.IRide<
+      Id,
+      D | AutoMovieArchetypeQuadrupedBody.Dimension
+    > = prepare();
     const epsilon: number = 1e-6;
     const times: Set<number> = new Set([
       0,
@@ -51,7 +56,7 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
       ride.duration - 0.137,
     ]);
     const windows: {
-      limb: QuadrupedBody.Limb;
+      limb: AutoMovieArchetypeQuadrupedBody.Limb;
       touch: number;
       lift: number;
       early: number;
@@ -100,7 +105,7 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
     }
     const observed: Map<
       number,
-      ReadonlyMap<QuadrupedBody.Limb, observe.IFoot>
+      ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Limb, observe.IFoot>
     > = new Map();
     const snapshots: Map<number, string> = new Map();
     let headMoved: boolean = false;
@@ -112,13 +117,10 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
     );
     for (const time of ordered) {
       const sample: ReturnType<typeof ride.at> = ride.at(time);
-      const feet: ReadonlyMap<QuadrupedBody.Limb, observe.IFoot> = observe(
-        animal,
-        sample,
-        `${label}@${time}`,
-        findings,
-        handContacts,
-      );
+      const feet: ReadonlyMap<
+        AutoMovieArchetypeQuadrupedBody.Limb,
+        observe.IFoot
+      > = observe(animal, sample, `${label}@${time}`, findings, handContacts);
       observed.set(time, feet);
       snapshots.set(time, JSON.stringify(sample));
       for (const [limb, foot] of feet)
@@ -218,7 +220,10 @@ export function animalAttachmentScenario<Id extends string, D extends string>(
     );
 
     /** All inspected support times were explicitly requested above. */
-    function foot(at: number, limb: QuadrupedBody.Limb): observe.IFoot {
+    function foot(
+      at: number,
+      limb: AutoMovieArchetypeQuadrupedBody.Limb,
+    ): observe.IFoot {
       const value: observe.IFoot | undefined = observed.get(at)?.get(limb);
       if (value === undefined)
         throw new Error(`Missing independent observation ${at}/${limb}`);

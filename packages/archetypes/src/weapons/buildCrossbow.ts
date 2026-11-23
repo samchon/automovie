@@ -1,6 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, type ArchetypeBuilder, ArchetypeFrame } from "../core";
+import {
+  type AutoMovieArchetype,
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+} from "../core";
 import { createBow } from "./createBow";
 
 /**
@@ -9,19 +13,11 @@ import { createBow } from "./createBow";
  * @param builder The bow under construction.
  * @param d The drawn dimensions.
  * @returns The crossbow.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is built, where it lies and where its places come from.
- * @evidence contracts/development/implementation.md#principled-implementation The stock a box of its fore-end's section, split at the nut into the butt-stock and the fore-stock the bow hand closes across, its aperture the stock's read thickness; the bow's halves straight from its centre, braced its read height ahead of the string at rest; the string a slider following the crank by the cranequin's travel over its turns, the halves hinges following the string by `createBow.limbs`, and the string's halves spans from the tips to the nock.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The parts, then the crank, the string and the limbs that follow, then the contacts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The stock's taper is not drawn; the cranequin's axle direction and the stirrup's height are unread and placed provisionally, as `createBow.CROSSBOW` states.
- * @evidence contracts/development/implementation.md#efficient-algorithms Nine parts; the limbs' table is bisected once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `createBow.limbs` and `ArchetypeBuilder.span`, as a bow does.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
  */
 export function buildCrossbow(
-  builder: ArchetypeBuilder<createBow.Affordance, createBow.Dimension>,
+  builder: AutoMovieArchetypeBuilder<createBow.Affordance, createBow.Dimension>,
   d: Partial<Record<createBow.Dimension, number>>,
-): Archetype<createBow.Affordance, createBow.Dimension> {
+): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
   const v: typeof Vector3.create = Vector3.create;
   const c: typeof createBow.CROSSBOW = createBow.CROSSBOW;
   const top: number = c.fore;
@@ -72,7 +68,7 @@ export function buildCrossbow(
   builder.affordance({
     id: "crank",
     kind: "crank",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(d.depth! / 2, top, nut - c.axle),
       v(1, 0, 0),
       v(0, 0, -1),
@@ -84,7 +80,11 @@ export function buildCrossbow(
   builder.affordance({
     id: "string",
     kind: "slider",
-    frame: ArchetypeFrame.facing(v(0, top, rest), v(0, 1, 0), v(0, 0, -1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, top, rest),
+      v(0, 1, 0),
+      v(0, 0, -1),
+    ),
     extent: null,
     travel: c.travel,
     parts: ["nockingPoint"],
@@ -93,7 +93,11 @@ export function buildCrossbow(
   builder.affordance({
     id: "nock",
     kind: "socket",
-    frame: ArchetypeFrame.facing(v(0, top, rest), v(0, 0, 1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, top, rest),
+      v(0, 0, 1),
+      v(0, 1, 0),
+    ),
     extent: null,
     rides: "string",
   });
@@ -105,7 +109,7 @@ export function buildCrossbow(
     builder.affordance({
       id,
       kind: "hinge",
-      frame: ArchetypeFrame.facing(centre, v(0, sign, 0), v(0, 0, 1)),
+      frame: AutoMovieArchetypeFrame.facing(centre, v(0, sign, 0), v(0, 0, 1)),
       extent: null,
       travel: table[table.length - 1]![1],
       parts: [id],
@@ -127,7 +131,7 @@ export function buildCrossbow(
     id: "grip",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, top / 2, nut - c.trigger),
       v(1, 0, 0),
       v(0, 0, 1),
@@ -140,7 +144,11 @@ export function buildCrossbow(
     id: "foreEnd",
     kind: "handle",
     symmetry: "none",
-    frame: ArchetypeFrame.facing(v(0, top / 2, fore), v(1, 0, 0), v(0, 0, 1)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, top / 2, fore),
+      v(1, 0, 0),
+      v(0, 0, 1),
+    ),
     extent: null,
     grip: "power",
     aperture: d.depth!,
@@ -149,13 +157,13 @@ export function buildCrossbow(
   builder.affordance({
     id: "rail",
     kind: "socket",
-    frame: ArchetypeFrame.facing(centre, v(0, 0, 1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(centre, v(0, 0, 1), v(0, 1, 0)),
     extent: null,
   });
   builder.affordance({
     id: "rest",
     kind: "surface",
-    frame: ArchetypeFrame.upright(v(0, top, (nut + centre.z) / 2)),
+    frame: AutoMovieArchetypeFrame.upright(v(0, top, (nut + centre.z) / 2)),
     extent: null,
     width: d.depth!,
     depth: centre.z - nut,
@@ -163,7 +171,11 @@ export function buildCrossbow(
   builder.affordance({
     id: "butt",
     kind: "surface",
-    frame: ArchetypeFrame.facing(v(0, top / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, top / 2, 0),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
     extent: null,
     width: top,
     depth: d.depth!,
@@ -171,7 +183,7 @@ export function buildCrossbow(
   builder.affordance({
     id: "trigger",
     kind: "trigger",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, -c.triggerDiameter / 2, nut - c.trigger / 2),
       v(0, -1, 0),
       v(1, 0, 0),
@@ -183,7 +195,9 @@ export function buildCrossbow(
   builder.affordance({
     id: "stirrup",
     kind: "stirrup",
-    frame: ArchetypeFrame.upright(v(0, top + r / 2, c.stock + c.stirrup / 2)),
+    frame: AutoMovieArchetypeFrame.upright(
+      v(0, top + r / 2, c.stock + c.stirrup / 2),
+    ),
     extent: null,
     width: c.stirrup,
   });

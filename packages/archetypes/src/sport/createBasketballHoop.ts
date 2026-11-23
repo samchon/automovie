@@ -1,4 +1,4 @@
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { GoalBuild } from "./GoalBuild";
 import { buildBasketballHoop } from "./buildBasketballHoop";
 import type { createGoal } from "./createGoal";
@@ -10,7 +10,7 @@ import type { createGoal } from "./createGoal";
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Place the bracket and sixteen rim tangents from the drawn rim diameter, board offset and height.
@@ -23,7 +23,10 @@ import type { createGoal } from "./createGoal";
 export function createBasketballHoop(
   params: createBasketballHoop.IParams = {},
   seed?: number | string,
-): Archetype<createBasketballHoop.Affordance, createBasketballHoop.Dimension> {
+): AutoMovieArchetype<
+  createBasketballHoop.Affordance,
+  createBasketballHoop.Dimension
+> {
   const {
     builder,
     d,

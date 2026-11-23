@@ -20,11 +20,11 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
-import { AutoMovieMotionHumanGaze } from "../compose/AutoMovieMotionHumanGaze";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { lookPrimitive } from "../compose/lookPrimitive";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
@@ -190,7 +190,7 @@ export function ballCourt(
   const dribble: boolean = kind === "dribbleRelease";
   const one: boolean = dribble || kind === "handballThrow";
   const hands: readonly AutoMovieHumanSide[] = one
-    ? [params.side ?? "right"]
+    ? [params.hand ?? "right"]
     : ["left", "right"];
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.phrase({
@@ -341,7 +341,7 @@ export function ballCourt(
     );
   if (target !== undefined)
     primitives.push(
-      AutoMovieMotionHumanGaze.look({
+      lookPrimitive({
         body,
         recruit: "head",
         from: 0,

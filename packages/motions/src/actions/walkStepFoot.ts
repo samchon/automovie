@@ -1,8 +1,9 @@
-import { wrapDegrees } from "@automovie/engine";
+import { Vector3, wrapDegrees } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
@@ -57,6 +58,23 @@ export namespace walkStepFoot {
 
     /** Whether the foot travels backward to this footfall: its stances' rockers run in reverse (`walkFoot.prepareStance`). False when absent. */
     backward?: boolean;
+  }
+
+  /**
+   * A foot that enters a walk in the air, as a hurdler's trail leg comes
+   * over the bar: where it is and how fast it moves at the start.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation Each member states its meaning, frame and unit.
+   * @evidence contracts/development/design.md#principled-representation The entry's own foot record: its placement and toes, and its world velocity.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two members, both read by the schedule's first swing.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the walk foot and vector types.
+   */
+  export interface IAirborne {
+    /** The foot at the start: its placement, world metres, and toes. */
+    foot: IAutoMovieMotionHumanWalkFoot.IFoot;
+
+    /** Its ankle's velocity at the start, world metres per second. */
+    velocity: IAutoMovieVector3;
   }
 
   /**
@@ -160,7 +178,8 @@ export namespace walkStepFoot {
     for (const side of ["left", "right"] as const) {
       let from: number = 0;
       for (const step of steps.filter((s: IStep): boolean => s.side === side)) {
-        stances.push({ side, from, to: step.toeOff });
+        // A foot entered in the air swings from the start: no stance before it.
+        if (step.toeOff > from) stances.push({ side, from, to: step.toeOff });
         from = step.heelStrike;
       }
       stances.push({ side, from, to: duration });
@@ -178,6 +197,7 @@ export namespace walkStepFoot {
    * @param typical The gait's cruising stance, seconds, which an opening or closing stance's rockers take their shares of (`walkFoot.prepareStance`).
    * @param raised How far the gait holds the heels off the floor, degrees.
    * @param inPlace A stepping turn without a heel strike or forefoot push.
+   * @param airborne A foot entered in the air, its first footfall's toe-off at the start: its first swing leaves from where it is, with the velocity it entered with, instead of from an opening stance. Absent for a foot standing at the start.
    * @returns The foot's scheduled stance at a second, with its swing while it swings.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
@@ -196,6 +216,7 @@ export namespace walkStepFoot {
     typical: number,
     raised: number,
     inPlace: boolean = false,
+    airborne?: IAirborne,
   ): (t: number) => IAutoMovieMotionHumanWalkFoot.IScheduled {
     const stances: ((t: number) => IAutoMovieMotionHumanWalkFoot.IFoot)[] = [];
     for (let i: number = 0; i <= own.length; i++) {
@@ -231,7 +252,16 @@ export namespace walkStepFoot {
     }
     const ends: { from: IAutoMovieMotionHumanWalkFoot.IFoot; to: IAutoMovieMotionHumanWalkFoot.IFoot }[] = own.map(
       (step: IStep, i: number): { from: IAutoMovieMotionHumanWalkFoot.IFoot; to: IAutoMovieMotionHumanWalkFoot.IFoot } => ({
-        from: stances[i]!(step.toeOff),
+        from:
+          i === 0 && airborne !== undefined
+            ? {
+                placement: {
+                  ankle: { ...airborne.foot.placement.ankle },
+                  rotation: { ...airborne.foot.placement.rotation },
+                },
+                toes: airborne.foot.toes,
+              }
+            : stances[i]!(step.toeOff),
         to: stances[i + 1]!(step.heelStrike),
       }),
     );
@@ -244,6 +274,19 @@ export namespace walkStepFoot {
         else low = middle + 1;
       }
       const step: IStep | undefined = own[low];
+      // Before the start a foot entered in the air was moving as it entered,
+      // so its swing leaves with the entry's velocity.
+      if (low === 0 && airborne !== undefined && step !== undefined && t < step.toeOff)
+        return {
+          placement: {
+            ankle: Vector3.add(
+              airborne.foot.placement.ankle,
+              Vector3.scale(airborne.velocity, t - step.toeOff),
+            ),
+            rotation: { ...airborne.foot.placement.rotation },
+          },
+          toes: airborne.foot.toes,
+        };
       if (step === undefined || t < step.toeOff) return stances[low]!(t);
       const u: number = (t - step.toeOff) / (step.heelStrike - step.toeOff);
       const end: IAutoMovieMotionHumanWalkFoot.IFoot = u < 0.5 ? ends[low]!.from : ends[low]!.to;

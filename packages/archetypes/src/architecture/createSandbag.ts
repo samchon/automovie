@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { ObstacleDraw } from "./ObstacleDraw";
 
 /**
@@ -12,7 +12,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
  * @param params The scene identifier and any dimensions to fix inside their bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {ArchetypeRefusal} If a supplied override lies outside the selected profile.
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The laid bag's nominal section defines the crossing rise and depth; end grasps keep their own centres.
@@ -25,7 +25,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
 export function createSandbag(
   params: createSandbag.IParams = {},
   seed?: number | string,
-): Archetype<createSandbag.Affordance, createSandbag.Dimension> {
+): AutoMovieArchetype<createSandbag.Affordance, createSandbag.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<createSandbag.Affordance> =
     ObstacleDraw.begin("sandbag", "sandbag", "composite", params, seed);
   const v: typeof Vector3.create = Vector3.create;
@@ -51,7 +51,7 @@ export function createSandbag(
       id,
       kind: "handle",
       symmetry: "none",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v((sign * length) / 2, height, width / 2),
         v(0, 1, 0),
         v(0, 0, 1),

@@ -4,11 +4,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * One member-local deviation from the unit that member stands in.
  *
  * A group cue moves every member alike. This is what one named member does differently: whether it is there at all, how far it has come off the place its layout put it, and how far it has turned out of the heading its unit holds. The offset and the heading are stated in the unit's own frame, so a member that steps left keeps stepping left after its unit turns.
- *
- * @evidence contracts/development/design.md#principled-representation A presence bit plus unit-local displacement and heading offset represents one member's deviation after shared unit placement; the local frame ensures a later unit turn also turns the deviation.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Three channels cover sparse removal and displacement without copying the unit transform or rewriting immutable compact design metadata.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Absent members stop drawing and instantaneous measurement but remain in designed count, bounds and centroid; no rewritten design disguises a temporary exception.
- * @evidence contracts/development/common.md#meaningful-documentation Defines absence effects, immutable designed metadata, local-meter displacement and degree heading offset.
  */
 export interface IAutoMovieFormationSlotState {
   /**

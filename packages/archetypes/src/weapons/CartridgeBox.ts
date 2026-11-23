@@ -4,16 +4,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type ArchetypeBuilder, ArchetypeFrame, ArchetypeUnits } from "../core";
+import {
+  type AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+} from "../core";
 import type { createHolster } from "./createHolster";
 
 /**
  * The soldier's cartridge box among the holsters: the 1841 Ordnance Manual's infantry box, its two tins and its flap, and the builder that lays them, kept apart from `createHolster` so each file stays within its size.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is laid and why it is its own file.
- * @evidence contracts/development/design.md#principled-representation The tins' read parts and the flap's estimates as named members, and one builder.
- * @evidence contracts/development/design.md#minimal-and-owned-surface `TINS`, `FLAP` and `lay`, which `createHolster` calls for `pouch`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Every unread size is a named estimate with its search.
  */
 export namespace CartridgeBox {
   /**
@@ -31,14 +30,14 @@ export namespace CartridgeBox {
     count: 2,
     parts: [
       {
-        length: 2 * ArchetypeUnits.INCH,
-        across: 1.35 * ArchetypeUnits.INCH,
+        length: 2 * AutoMovieArchetypeUnits.INCH,
+        across: 1.35 * AutoMovieArchetypeUnits.INCH,
         rows: 3,
         columns: 2,
       },
       {
-        length: 1.35 * ArchetypeUnits.INCH,
-        across: 1.35 * ArchetypeUnits.INCH,
+        length: 1.35 * AutoMovieArchetypeUnits.INCH,
+        across: 1.35 * AutoMovieArchetypeUnits.INCH,
         rows: 2,
         columns: 2,
       },
@@ -58,17 +57,9 @@ export namespace CartridgeBox {
    * @param d The drawn dimensions: the box's length, depth, thickness and the flap's width.
    * @param slots How many cartridge slots to declare.
    * @param hang The frame facing the wearer at a point, which the strap and belt loops take.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lays and where.
-   * @evidence contracts/development/implementation.md#principled-implementation The box of the read size, the flap of the read width on its hinge, and each tin's upper parts side by side along the box with the spare length shared at both ends, each part's cells in rows along the box and columns across it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The box, the flap, the slots, the loops.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tins are not drawn, only their cartridges' places; the flap's thickness and opening are named estimates.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two parts and one contact per slot.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Builds one box.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
   export function lay(
-    builder: ArchetypeBuilder<
+    builder: AutoMovieArchetypeBuilder<
       createHolster.Affordance,
       createHolster.Dimension
     >,
@@ -93,7 +84,11 @@ export namespace CartridgeBox {
     builder.affordance({
       id: "lid",
       kind: "hinge",
-      frame: ArchetypeFrame.facing(v(0, deep, 0), v(0, 0, 1), v(1, 0, 0)),
+      frame: AutoMovieArchetypeFrame.facing(
+        v(0, deep, 0),
+        v(0, 0, 1),
+        v(1, 0, 0),
+      ),
       extent: null,
       travel: FLAP.open,
       parts: ["lid"],
@@ -125,7 +120,7 @@ export namespace CartridgeBox {
       builder.affordance({
         id: `slot${k + 1}`,
         kind: "socket",
-        frame: ArchetypeFrame.upright(at),
+        frame: AutoMovieArchetypeFrame.upright(at),
         extent: null,
       });
     });

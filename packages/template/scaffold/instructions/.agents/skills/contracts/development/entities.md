@@ -34,7 +34,7 @@ Is the entity immutable and constructed from its subject's facts? Do its capabil
 
 Compose the class from small fragments, cited facts and immutable configuration. Use `readonly` fields and keep other entities outside its imports.
 
-A capability returns an immutable action and target. The vocabulary resolves poses, offsets and contact times within the chosen action. People and crowds use vocabulary compositions and [registered extensions](../../motion/laws/extension.md), or a commissioned or user-chosen clip after [retargeting](../../motion/retargeting.md).
+A capability returns an immutable action and target. The vocabulary resolves poses, offsets and contact times within the chosen action. People and crowds use vocabulary compositions and [registered laws](../../motion/laws/SKILL.md), or a commissioned or user-chosen clip after [retargeting](../../motion/retargeting.md).
 
 Resolve equipment, fatigue and habits into explicit schedule snapshots. Connect a habit's trigger and response as its fact describes, at a timing supported by its research.
 

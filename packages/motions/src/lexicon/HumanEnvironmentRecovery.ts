@@ -12,6 +12,8 @@ import { planEnvironmentRecovery } from "../reaction/planEnvironmentRecovery";
  * (`planEnvironmentRecovery`). Register
  * `HumanEnvironmentRecovery.environmentalRecovery` to use it.
  *
+ * Timing: the walk keeps its own speed (`IAutoMovieMotionHumanWalkParams.pace`) up to the cue; the lost foot is released over at most 0.14 s (provisional) and the capture step, rail catch or fall take the perturbation law's own times, on the same clock. A trip or a slip on an ordinary walk; a stumble over a kerb, a slip on a wet floor.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation States the cut, the outcomes and the registration.
  * @evidence contracts/development/design.md#principled-representation A law record that accepts the same entries as the perturbation it delegates to.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The one registered law.

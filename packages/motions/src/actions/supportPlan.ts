@@ -1,5 +1,6 @@
 import { minimumJerk } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieMotionHumanChannelClaim,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -11,6 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import { HumanArmClearance } from "../posture/HumanArmClearance";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
@@ -93,19 +95,23 @@ export namespace supportPlan {
     );
     const contacts: IAutoMovieMotionHumanActionPlan["contacts"] =
       supportWindows.of(context, keys, duration, course?.observe, socket);
-    // Contact windows own the arm that reaches and the hand that holds.
+    // Contact windows own the arm that reaches and the hand that holds; an
+    // arm no window names hangs.
     const yields: AutoMovieMotionHumanChannelClaim[] = ["head"];
+    const hanging: AutoMovieHumanSide[] = [];
     for (const side of ["left", "right"] as const)
       if (
         !contacts.some(
           (contact: IAutoMovieMotionHumanContactWindow): boolean =>
             contact.part === side + "Hand",
         )
-      )
+      ) {
+        hanging.push(side);
         yields.push(
           side === "left" ? "leftArm" : "rightArm",
           side === "left" ? "leftHand" : "rightHand",
         );
+      }
     const follow: ReturnType<typeof prepareSupportHelperGrip> =
       prepareSupportHelperGrip(context, contacts, duration);
     const intervals: ReturnType<typeof prepareSupportInterval>[] = keys
@@ -150,8 +156,51 @@ export namespace supportPlan {
       keys,
     );
 
-    /** Carry a support interval after the containing transfer has been selected. */
+    // An arm hangs through an interval where neither of its keys lays its
+    // hand on anything, though the hand may take a hold later (a wall run's
+    // hands before the catch).
+    const free: AutoMovieHumanSide[][] = intervals.map(
+      (_: ReturnType<typeof prepareSupportInterval>, index: number): AutoMovieHumanSide[] =>
+        (["left", "right"] as const).filter((side: AutoMovieHumanSide): boolean =>
+          [keys[index]!, keys[Math.min(index + 1, keys.length - 1)]!].every(
+            (key: IKey): boolean =>
+              !key.contacts.some(
+                (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
+                  contact.part === `${side}Hand`,
+              ),
+          ),
+        ),
+    );
+
+    /** Carry a support interval, its hanging arms let out of the legs and trunk the keys move under them (`HumanArmClearance.swung`). */
     const transfer = (
+      index: number,
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
+      const carried: IAutoMovieMotionHumanPosture = interval(
+        index,
+        seconds,
+        channels,
+        resolution,
+        projection,
+      );
+      const sides: AutoMovieHumanSide[] = free[index] ?? hanging;
+      return sides.length === 0
+        ? carried
+        : HumanArmClearance.swung(
+            body,
+            carried,
+            sides,
+            resolution,
+            projection,
+          );
+    };
+
+    /** Carry a support interval after the containing transfer has been selected. */
+    const interval = (
       index: number,
       seconds: number,
       channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -167,7 +216,13 @@ export namespace supportPlan {
         return index === 0
           ? entry
           : supportCourse.apply(flat?.keys[index], a.posture, 0);
-      if (w === 1)
+      // A key between two intervals is the key itself on both sides; the
+      // last key, which no interval leaves, is where the last interval
+      // arrives, so the course ends on the posture it arrived with and the
+      // display does not trade it for the key's own joints at its instant
+      // (a near-straight arm's twist split one way by the interval's fit,
+      // the other by the key's).
+      if (w === 1 && index + 1 < intervals.length)
         return supportCourse.apply(
           flat?.keys[Math.min(index + 1, keys.length - 1)],
           b.posture,

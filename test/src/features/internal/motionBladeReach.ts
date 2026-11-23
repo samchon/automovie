@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanObject, HumanSword } from "@automovie/motions";
+import { AutoMovieMotionHumanBlade, HumanObject } from "@automovie/motions";
 
 /**
  * Where a pell stands for a sword's lunge at it to need a given share of a
@@ -50,7 +50,8 @@ export namespace motionBladeReach {
   ): { at: IAutoMovieVector3; yaw: number } {
     const stature: number = body.measure.stature;
     const reach: number =
-      HumanSword.REACH * (body.measure.upperArm + body.measure.forearm) +
+      AutoMovieMotionHumanBlade.HumanSword.REACH *
+      (body.measure.upperArm + body.measure.forearm) +
       Vector3.length(
         Vector3.subtract(
           sword.affordance("point").frame.translation,

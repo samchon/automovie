@@ -5,15 +5,17 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 import {
-  HUMAN_LEXICON,
+  AutoMovieMotionHumanTouch,
   HumanChain,
   HumanPerformance,
-  HumanSocial,
 } from "@automovie/motions";
+import { HUMAN_LEXICON } from "@automovie/motions/internal";
 
 import { lexiconRowInputs } from "./lexiconRowInputs";
 import { motionHumanBody } from "./motionHumanBody";
 import { profileHumanMotion } from "./profileHumanMotion";
+
+const { HumanSocial } = AutoMovieMotionHumanTouch;
 
 /**
  * The net every lexicon family's test casts over its rows: each row is
@@ -114,7 +116,7 @@ export namespace LexiconRowNet {
 
   /** A performer's chain out of a short stand. */
   const starting = (subject: string): IAutoMovieMotionHumanChain =>
-    HumanChain.subject(subject).stand({ seconds: 0.3 });
+    HumanChain.subject(subject).stand({ hold: 0.3 });
 
   /** Build one performance and note its refusal or its misplaced name. */
   const check = (
@@ -388,7 +390,9 @@ export namespace LexiconRowNet {
         () =>
           starting("a")
             .walk({ to: { x: 0, y: 0, z: -2 } })
-            .with(starting("b").registered("carried", { by: "a", seconds: 2 })),
+            .with(
+              starting("b").registered("carried", { partner: "a", hold: 2 }),
+            ),
         HUMAN_LEXICON.carried!,
       );
       check(

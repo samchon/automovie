@@ -47,21 +47,21 @@ export const SCENES_LABOUR: readonly IScene[] = [
         act("stir", { prop: "spoon", on: PAN }),
         act("look", { target: at("lev", "face"), cue: "seen" }),
         act("gesture", { kind: "nod" }),
-        act("stir", { prop: "spoon", on: PAN, cycles: 6 }),
+        act("stir", { prop: "spoon", on: PAN, count: 6 }),
         act("look", { target: at("mak", "face"), cue: "seen" }),
-        act("stir", { prop: "spoon", on: PAN, cycles: 6 }),
+        act("stir", { prop: "spoon", on: PAN, count: 6 }),
       ]),
       person("lev", "m2", 0, 0.12, 0, [
         act("scrub", { on: point(0, SceneBuild.COUNTER_TOP, 0.45) }),
         act("gesture", { kind: "touchFace" }),
         act("wipe", {
           on: point(-0.1, SceneBuild.COUNTER_TOP, 0.42),
-          cycles: 3,
+          count: 3,
         }),
         act("gesture", { kind: "squareShoulders" }),
         act("wipe", {
           on: point(-0.2, SceneBuild.COUNTER_TOP, 0.4),
-          cycles: 1,
+          count: 1,
         }),
       ]),
       person("mak", "m2", 2, -1, 0, [
@@ -77,10 +77,10 @@ export const SCENES_LABOUR: readonly IScene[] = [
         act("checkWatch"),
         act("gesture", { kind: "rubHands" }),
         act("gesture", { kind: "raiseHand" }),
-        act("stand", { seconds: 1.5 }),
+        act("stand", { hold: 1.5 }),
         act(
           "hurl",
-          { at: at("mak", "sternum") },
+          { target: at("mak", "sternum") },
           {
             sync: {
               of: "ky-ready",

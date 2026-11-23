@@ -135,7 +135,7 @@ export namespace closeStrike {
 
     // The punch's delivery and recovery; a spin adds one delivery.
     const delivery: number =
-      StrikingSkill.JAB_DELIVERY *
+      StrikingSkill.CROSS_DELIVERY *
       StrikingSkill.strike(context.skill) *
       (spinning ? 2 : 1);
     const shown: number = p.feint === undefined ? delivery : p.feint * delivery;

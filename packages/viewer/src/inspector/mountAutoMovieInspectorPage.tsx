@@ -13,14 +13,6 @@ import { createAutoMovieInspectorAddressWriter } from "./createAutoMovieInspecto
  * ```ts
  * mountAutoMovieInspectorPage({ root: document.getElementById("root")!, subjects, location, history });
  * ```
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what is rendered, where the first request comes from, how the address follows it, that nothing global is read, and what `unmount` releases.
- * @evidence contracts/development/implementation.md#principled-implementation `createRoot` is React 19's client entry, and StrictMode runs the canvas effect twice in development, which the scene mount is built to survive, so a page always exercises that path.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Three steps: build the address writer, create the root, render the component with the address's query.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No subject, request or address is chosen here; they are the host's.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work beyond React's own render.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A page is mounted once.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The React root owns the component tree until `unmount`, which unmounts it and so releases the scene, renderer and frame loop the component holds.
  */
 export function mountAutoMovieInspectorPage(props: {
   /** The element the page renders into. */

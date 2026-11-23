@@ -1,7 +1,7 @@
 import {
-  ArchetypeCourse,
-  ArchetypeRefusal,
-  EquineCutting,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeEquineCutting,
+  AutoMovieArchetypeRefusal,
   createHorse,
   createQuadruped,
   rideQuadruped,
@@ -9,7 +9,11 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /** The declared cutting work: 0.3 s reaction, 2 m off the cow, the herd beyond z = 10. */
-const CUT: EquineCutting.ICut = { reaction: 0.3, offset: 2, herd: 10 };
+const CUT: AutoMovieArchetypeEquineCutting.ICut = {
+  reaction: 0.3,
+  offset: 2,
+  herd: 10,
+};
 
 /**
  * A cutting horse mirrors a cow along the herd's line after its declared reaction, staying between the cow and the herd, and refuses a cow it cannot answer.
@@ -29,23 +33,19 @@ export function test_archetype_equine_cutting(): void {
   const horse = createHorse({ withersHeight: 1.6, tempo: 0 }, 1);
   const species = createQuadruped.species(horse);
   const issues: string[] = [];
-  const cow: ArchetypeCourse.ISample[] = Array.from(
+  const cow: AutoMovieArchetypeCourse.ISample[] = Array.from(
     { length: 21 },
-    (_: unknown, k: number): ArchetypeCourse.ISample => ({
+    (_: unknown, k: number): AutoMovieArchetypeCourse.ISample => ({
       seconds: k * 0.5,
       x: 3 * Math.sin(0.5 * k * 0.5),
       y: 0,
       z: 0,
     }),
   );
-  const marks: ArchetypeCourse.ISample[] = EquineCutting.plan(
-    species,
-    1.6,
-    cow,
-    CUT,
-  );
-  marks.forEach((mark: ArchetypeCourse.ISample, k: number): void => {
-    const source: ArchetypeCourse.ISample = cow[k]!;
+  const marks: AutoMovieArchetypeCourse.ISample[] =
+    AutoMovieArchetypeEquineCutting.plan(species, 1.6, cow, CUT);
+  marks.forEach((mark: AutoMovieArchetypeCourse.ISample, k: number): void => {
+    const source: AutoMovieArchetypeCourse.ISample = cow[k]!;
     if (
       !(
         Math.abs(mark.seconds - source.seconds - CUT.reaction) < 1e-12 &&
@@ -56,7 +56,10 @@ export function test_archetype_equine_cutting(): void {
     )
       issues.push(`mark ${k} does not mirror the cow`);
   });
-  const ride = rideQuadruped(horse, ArchetypeCourse.timed("horse", marks));
+  const ride = rideQuadruped(
+    horse,
+    AutoMovieArchetypeCourse.timed("horse", marks),
+  );
   for (let at: number = 0; at <= ride.duration; at += 0.05)
     try {
       ride.at(at);
@@ -77,7 +80,7 @@ export function test_archetype_equine_cutting(): void {
     [
       "over-quick reversal",
       [0, 0.1, 0.2, 0.3].map(
-        (seconds: number, k: number): ArchetypeCourse.ISample => ({
+        (seconds: number, k: number): AutoMovieArchetypeCourse.ISample => ({
           seconds,
           x: k % 2 === 0 ? 0 : 0.1,
           y: 0,
@@ -88,11 +91,11 @@ export function test_archetype_equine_cutting(): void {
   ] as const) {
     let refusal: unknown;
     try {
-      EquineCutting.plan(species, 1.6, path, CUT);
+      AutoMovieArchetypeEquineCutting.plan(species, 1.6, path, CUT);
     } catch (error) {
       refusal = error;
     }
-    if (!(refusal instanceof ArchetypeRefusal))
+    if (!(refusal instanceof AutoMovieArchetypeRefusal))
       issues.push(`the ${label} cow raises ${String(refusal)}`);
   }
   TestValidator.equals("cutting work", issues, []);

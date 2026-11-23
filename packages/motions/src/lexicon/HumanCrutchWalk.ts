@@ -1,6 +1,5 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
-  IAutoMovieHumanLimbReference,
   AutoMovieHumanSide,
   IAutoMovieAffordance,
   IAutoMovieMotionEvent,
@@ -11,7 +10,6 @@ import type {
   IAutoMovieMotionHumanCrutchWalk,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanSupport,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,18 +17,13 @@ import type {
 import { support } from "../actions/support";
 import { supportContact } from "../actions/supportContact";
 import { getUp } from "../floor/getUp";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-
-/** The crutch's visible lift as it swings forward, metres (provisional, as the aided walk's). */
-const LIFT: number = 0.04;
+import { carryCrutchHands } from "./carryCrutchHands";
+import { crutchHeldLeg } from "./crutchHeldLeg";
+import { crutchWalkCourse } from "./crutchWalkCourse";
 
 /** How far a staged crutch tip may stand off the floor, metres. */
 const FLOOR: number = 0.01;
-
-/** The share of each station the crutches take to advance before the body swings (provisional: the crutches lead, the swing follows). */
-const ADVANCE: number = 1 / 3;
 
 /** How far a swung-through foot lands past the crutch tips, metres (provisional: a short step past the tripod). */
 const THROUGH: number = 0.15;
@@ -38,29 +31,14 @@ const THROUGH: number = 0.15;
 /** The hip's and knee's flexion that hold a three-point gait's injured foot off the floor, degrees (provisional: the knee bent near a right angle and the hip a little forward, so the foot clears the floor by a hand's breadth even as the sound knee gives under the swing). */
 const HELD: Readonly<Record<"hip" | "knee", number>> = { hip: 30, knee: 80 };
 
+/** How far above the crutch pads the axillae stay while the body swings, metres: two to three finger widths (provisional, the axillary crutch fitting's clearance). */
+const PAD: number = 0.05;
+
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** One crutch advance: when it lifts, when its tip plants, and its two floor frames. */
-interface IAdvance {
-  /** Lift begins, action seconds. */
-  from: number;
-
-  /** The tip plants, action seconds. */
-  to: number;
-
-  /** The floor frames before and after. */
-  floor: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
-}
-
-/** The crutches' common clock: when the grip is settled and each station's advance and swing. */
-interface IClock {
-  /** The opening stance's seconds, a quarter of the first station's. */
-  ready: number;
-
-  /** Each station's crutch advance window and its body swing's end, action seconds. */
-  stations: readonly IStationClock[];
-}
+/** No offset: a planted crutch's grip lies on the support course. */
+const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** One staged crutch: its entry frame, its grip in its own frame and its advances. */
 interface ICrutch {
@@ -71,139 +49,7 @@ interface ICrutch {
   grip: IAutoMovieVector3;
 
   /** Its advances over the walk. */
-  moves: IAdvance[];
-}
-
-/** One station's instants, action seconds. */
-interface IStationClock {
-  /** The crutches lift. */
-  lift: number;
-
-  /** The crutches plant. */
-  plant: number;
-
-  /** The feet land. */
-  land: number;
-}
-
-/** Refuse a crutch or route setting with its reason. */
-function refuse(axis: string, value: unknown, reason: string): never {
-  throw new HumanRefusal({
-    kind: "affordance",
-    axis,
-    value,
-    reason,
-    fix: "stage both crutches on the floor beside the body, each with a grip and a tip, and give finite stations",
-  });
-}
-
-/** The common clock of a crutch walk's stations. */
-function clock(params: IAutoMovieMotionHumanCrutchWalk): IClock {
-  if (!Array.isArray(params.stations) || params.stations.length === 0)
-    return refuse("stations", 0, "a crutch walk needs at least one station");
-  const ready: number = params.stations[0]!.seconds / 4;
-  let t: number = ready;
-  return {
-    ready,
-    stations: params.stations.map(
-      (station: IAutoMovieMotionHumanAidWalk.IStation, i: number): IStationClock => {
-        if (
-          ![station.x, station.z, station.turn ?? 0, station.seconds].every(
-            Number.isFinite,
-          ) ||
-          station.seconds <= 0
-        )
-          return refuse(
-            "stations",
-            i,
-            "the station coordinates and heading must be finite and its time positive",
-          );
-        const at: IStationClock = {
-          lift: t,
-          plant: t + ADVANCE * station.seconds,
-          land: t + station.seconds,
-        };
-        t += station.seconds;
-        return at;
-      },
-    ),
-  };
-}
-
-/** A frame carried from its entry pose by a station's displacement and turn. */
-function stationed(
-  start: IAutoMovieRigidTransform,
-  centre: IAutoMovieVector3,
-  station: IAutoMovieMotionHumanAidWalk.IStation | undefined,
-): IAutoMovieRigidTransform {
-  if (station === undefined) return start;
-  const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    UP,
-    station.turn ?? 0,
-  );
-  return {
-    position: Vector3.add(
-      Vector3.add(centre, { x: station.x, y: 0, z: station.z }),
-      Quaternion.rotateVector(turn, Vector3.subtract(start.position, centre)),
-    ),
-    rotation: Quaternion.multiply(turn, start.rotation),
-  };
-}
-
-/** One crutch's advances over the walk, from its staged frame. */
-function advances(
-  start: IAutoMovieRigidTransform,
-  centre: IAutoMovieVector3,
-  params: IAutoMovieMotionHumanCrutchWalk,
-  timing: IClock,
-): IAdvance[] {
-  let old: IAutoMovieRigidTransform = start;
-  return params.stations.map(
-    (station: IAutoMovieMotionHumanAidWalk.IStation, i: number): IAdvance => {
-      const next: IAutoMovieRigidTransform = stationed(start, centre, station);
-      const move: IAdvance = {
-        from: timing.stations[i]!.lift,
-        to: timing.stations[i]!.plant,
-        floor: [old, next],
-      };
-      old = next;
-      return move;
-    },
-  );
-}
-
-/** A crutch's frame at an action second: planted, or on one minimum-jerk swing between plants. */
-function frameAt(
-  moves: readonly IAdvance[],
-  start: IAutoMovieRigidTransform,
-  seconds: number,
-): IAutoMovieRigidTransform {
-  let stable: IAutoMovieRigidTransform = start;
-  for (const move of moves) {
-    if (seconds <= move.from) return stable;
-    if (seconds < move.to) {
-      const share: number = (seconds - move.from) / (move.to - move.from);
-      const blend: number = minimumJerk.share(share);
-      const position: IAutoMovieVector3 = Vector3.lerp(
-        move.floor[0].position,
-        move.floor[1].position,
-        blend,
-      );
-      return {
-        position: {
-          ...position,
-          y: position.y + LIFT * minimumJerk.share(2 * Math.min(share, 1 - share)),
-        },
-        rotation: Quaternion.slerp(
-          move.floor[0].rotation,
-          move.floor[1].rotation,
-          blend,
-        ),
-      };
-    }
-    stable = move.floor[1];
-  }
-  return stable;
+  moves: crutchWalkCourse.IAdvance[];
 }
 
 /** The crutches' common centre at entry: midway between their staged tips, on the floor. */
@@ -211,7 +57,11 @@ function centreOf(
   left: IAutoMovieRigidTransform,
   right: IAutoMovieRigidTransform,
 ): IAutoMovieVector3 {
-  const mid: IAutoMovieVector3 = Vector3.lerp(left.position, right.position, 0.5);
+  const mid: IAutoMovieVector3 = Vector3.lerp(
+    left.position,
+    right.position,
+    0.5,
+  );
   return { ...mid, y: 0 };
 }
 
@@ -222,16 +72,24 @@ function centreOf(
  * Each station first advances both crutch tips (`ADVANCE` of its time),
  * the feet standing; then the hands bear on the planted handgrips while the
  * feet swing. In a three-point gait only the sound foot bears and steps, the
- * injured leg held off the floor (`HELD`); in a swing-to gait both feet land
+ * injured leg held off the floor (`HELD`), its foot first lifted clear over
+ * its place before the leg folds; in a swing-to gait both feet land
  * level with the tips, and in a swing-through gait `THROUGH` past them
  * (Physiopedia, Crutches, https://www.physio-pedia.com/Crutches). The crutch
  * props share the walk's clock (`track`), so a scene's crutches and the body
- * read one course.
+ * read one course. Each station carries both crutches and the feet rigidly
+ * with the walker: displaced by the station and turned about the walk's
+ * `origin` (each crutch about its own tip and the feet about the tips'
+ * midpoint when none is given). The hands hold their grips where the crutch
+ * stands at each support key and ride the crutch's lift between them
+ * (`carryCrutchHands`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the order of each gait, where the weight goes and how the props share the clock.
  * @evidence contracts/development/design.md#principled-representation Support stances whose contacts are the bearing feet and hands, and one track per crutch derived from the same stations.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One law and its crutch track.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The hands bear at the crutches' own grips; no hand or foot place is authored apart from the stations.
+ *
+ * Each station's `seconds` is the author's, so the speed is its distance over them; no natural value is defined (provisional, missing a study of crutch gait). A crutch advances through the first third of each station and the body swings through the rest; the opening stance takes a quarter of the first station's time.
  */
 export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
   name: "crutchWalk",
@@ -243,13 +101,17 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     _side: AutoMovieHumanSide,
     startsAt: number = 0,
   ): ((filmSecond: number) => IAutoMovieRigidTransform) => {
-    const timing: IClock = clock(params);
-    // Each crutch turns about the body's centre, which it cannot see alone;
-    // a crutch is carried by the stations' displacement and turns about its
-    // own tip, as the body's centre carries it to first order.
-    const moves: IAdvance[] = advances(start, { ...start.position, y: 0 }, params, timing);
+    const timing: crutchWalkCourse.IClock = crutchWalkCourse.clock(params);
+    // A crutch moves rigidly with the walker: displaced by each station and
+    // turned about the entry station (`origin`). Both crutches advance on one
+    // clock, so the side selects no phase of its own.
+    const moves: crutchWalkCourse.IAdvance[] = crutchWalkCourse.advances(
+      start,
+      params,
+      timing,
+    );
     return (filmSecond: number): IAutoMovieRigidTransform =>
-      frameAt(moves, start, filmSecond - startsAt);
+      crutchWalkCourse.frameAt(moves, start, filmSecond - startsAt);
   },
 
   plan: (
@@ -260,12 +122,15 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
       params.pattern ?? "threePoint";
     const injured: AutoMovieHumanSide = params.injured ?? "left";
     const sound: AutoMovieHumanSide = injured === "left" ? "right" : "left";
-    const timing: IClock = clock(params);
-    const crutch: (side: AutoMovieHumanSide) => ICrutch = (side: AutoMovieHumanSide): ICrutch => {
+    const timing: crutchWalkCourse.IClock = crutchWalkCourse.clock(params);
+    const crutch: (side: AutoMovieHumanSide) => ICrutch = (
+      side: AutoMovieHumanSide,
+    ): ICrutch => {
       const subject: string = side === "left" ? params.left : params.right;
       const read: ReturnType<typeof context.prop> = context.prop(subject);
       const start: IAutoMovieRigidTransform = read.frame(context.start);
-      const affordances: readonly IAutoMovieAffordance[] = read.prop.affordances ?? [];
+      const affordances: readonly IAutoMovieAffordance[] =
+        read.prop.affordances ?? [];
       const grip: IAutoMovieAffordance | undefined = affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === "grip",
       );
@@ -273,17 +138,25 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
         (a: IAutoMovieAffordance): boolean => a.id === "tip",
       );
       if (grip === undefined || tip === undefined)
-        return refuse(side, subject, "a crutch declares a grip and a tip");
+        return crutchWalkCourse.refuse(
+          side,
+          subject,
+          "a crutch declares a grip and a tip",
+        );
       const foot: IAutoMovieVector3 = Vector3.add(
         start.position,
         Quaternion.rotateVector(start.rotation, tip.frame.translation),
       );
       if (Math.abs(foot.y) > FLOOR)
-        return refuse(side, subject, "the crutch does not start on its tip on the floor");
+        return crutchWalkCourse.refuse(
+          side,
+          subject,
+          "the crutch does not start on its tip on the floor",
+        );
       return {
         start,
         grip: grip.frame.translation,
-        moves: advances(start, { ...start.position, y: 0 }, params, timing),
+        moves: crutchWalkCourse.advances(start, params, timing),
       };
     };
     const crutches: Record<AutoMovieHumanSide, ICrutch> = {
@@ -295,10 +168,18 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     // rails, the palm turned in: pressed palm down onto a point at the hip's
     // height instead, the wrist would extend past its range and the arm flip.
     // The grip is read where the crutch's track has it at each key.
-    const hand: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanSupport.IContact = (side: AutoMovieHumanSide): IAutoMovieMotionHumanSupport.IContact => ({
+    const hand: (
+      side: AutoMovieHumanSide,
+    ) => IAutoMovieMotionHumanSupport.IContact = (
+      side: AutoMovieHumanSide,
+    ): IAutoMovieMotionHumanSupport.IContact => ({
       part: `${side}Hand`,
       kind: "grip",
-      target: { kind: "prop", subject: side === "left" ? params.left : params.right, point: "grip" },
+      target: {
+        kind: "prop",
+        subject: side === "left" ? params.left : params.right,
+        point: "grip",
+      },
     });
 
     // The feet: the bearing ones, at entry and carried by each station.
@@ -308,20 +189,39 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     const initial: readonly IAutoMovieVector3[] = supportContact.onFloors(
       body,
       entry,
-      feet.map((side: AutoMovieHumanSide): `${AutoMovieHumanSide}Foot` => `${side}Foot`),
+      feet.map(
+        (side: AutoMovieHumanSide): `${AutoMovieHumanSide}Foot` =>
+          `${side}Foot`,
+      ),
     );
-    const centre: IAutoMovieVector3 = centreOf(crutches.left.start, crutches.right.start);
-    const tipsAt: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 =>
+    // The feet turn with the crutches about the entry station, or about the
+    // tips' midpoint when the walk gives none.
+    const centre: IAutoMovieVector3 =
+      params.origin ?? centreOf(crutches.left.start, crutches.right.start);
+    const tipsAt: (seconds: number) => IAutoMovieVector3 = (
+      seconds: number,
+    ): IAutoMovieVector3 =>
       Vector3.lerp(
-        frameAt(crutches.left.moves, crutches.left.start, seconds).position,
-        frameAt(crutches.right.moves, crutches.right.start, seconds).position,
+        crutchWalkCourse.frameAt(
+          crutches.left.moves,
+          crutches.left.start,
+          seconds,
+        ).position,
+        crutchWalkCourse.frameAt(
+          crutches.right.moves,
+          crutches.right.start,
+          seconds,
+        ).position,
         0.5,
       );
-    const footAt: (i: number, station: number) => IAutoMovieMotionHumanSupport.IContact = (
+    const footAt: (
+      i: number,
+      station: number,
+    ) => IAutoMovieMotionHumanSupport.IContact = (
       i: number,
       station: number,
     ): IAutoMovieMotionHumanSupport.IContact => {
-      const carried: IAutoMovieVector3 = stationed(
+      const carried: IAutoMovieVector3 = crutchWalkCourse.stationed(
         { position: initial[i]!, rotation: Quaternion.identity() },
         centre,
         params.stations[station],
@@ -335,7 +235,10 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
         pattern === "threePoint"
           ? 0
           : Vector3.dot(
-              Vector3.subtract(tipsAt(timing.stations[station]!.plant), carried),
+              Vector3.subtract(
+                tipsAt(timing.stations[station]!.plant),
+                carried,
+              ),
               forward,
             ) + (pattern === "swingThrough" ? THROUGH : 0);
       return {
@@ -348,9 +251,38 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
           normal: UP,
         },
       };
-    };    const prefer: IAutoMovieMotionHumanSupport.IStance["prefer"] = getUp.quiet(body);
+    };
+    const prefer: IAutoMovieMotionHumanSupport.IStance["prefer"] =
+      getUp.quiet(body);
+    // The body swings on its pushing arms, the axillae kept PAD above the
+    // higher crutch pad, which a crutch on the floor holds at its entry
+    // height (the pad is never hung on).
+    const padAt: (side: AutoMovieHumanSide) => number = (
+      side: AutoMovieHumanSide,
+    ): number => {
+      const read: ReturnType<typeof context.prop> = context.prop(
+        side === "left" ? params.left : params.right,
+      );
+      const pad: IAutoMovieAffordance | undefined = (
+        read.prop.affordances ?? []
+      ).find((a: IAutoMovieAffordance): boolean => a.id === "pad");
+      return pad === undefined
+        ? -Infinity
+        : crutches[side].start.position.y +
+            Quaternion.rotateVector(
+              crutches[side].start.rotation,
+              pad.frame.translation,
+            ).y;
+    };
+    const padTop: number = Math.max(padAt("left"), padAt("right"));
+    const shoulders: number | undefined = Number.isFinite(padTop)
+      ? padTop + PAD
+      : undefined;
     let standing: IAutoMovieMotionHumanSupport.IContact[] = feet.map(
-      (side: AutoMovieHumanSide, i: number): IAutoMovieMotionHumanSupport.IContact => ({
+      (
+        side: AutoMovieHumanSide,
+        i: number,
+      ): IAutoMovieMotionHumanSupport.IContact => ({
         part: `${side}Foot`,
         kind: "bear",
         target: { kind: "point", frame: "world", at: initial[i]!, normal: UP },
@@ -360,13 +292,16 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     // lifts its injured foot only once the hands bear (`HELD`).
     const both: IAutoMovieMotionHumanSupport.IContact[] =
       pattern === "threePoint"
-        ? supportContact
-            .onFloors(body, entry, ["leftFoot", "rightFoot"])
-            .map((at: IAutoMovieVector3, i: number): IAutoMovieMotionHumanSupport.IContact => ({
+        ? supportContact.onFloors(body, entry, ["leftFoot", "rightFoot"]).map(
+            (
+              at: IAutoMovieVector3,
+              i: number,
+            ): IAutoMovieMotionHumanSupport.IContact => ({
               part: i === 0 ? "leftFoot" : "rightFoot",
               kind: "bear",
               target: { kind: "point", frame: "world", at, normal: UP },
-            }))
+            }),
+          )
         : standing;
     const stances: IAutoMovieMotionHumanSupport.IStance[] = [
       {
@@ -378,7 +313,7 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     ];
     params.stations.forEach(
       (station: IAutoMovieMotionHumanAidWalk.IStation, i: number): void => {
-        const at: IStationClock = timing.stations[i]!;
+        const at: crutchWalkCourse.IStationClock = timing.stations[i]!;
         // The crutches advance while the feet stand.
         stances.push({
           contacts: [...standing, hand("left"), hand("right")],
@@ -389,7 +324,10 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
         });
         // The feet swing on the planted crutches.
         standing = feet.map(
-          (_side: AutoMovieHumanSide, f: number): IAutoMovieMotionHumanSupport.IContact => footAt(f, i),
+          (
+            _side: AutoMovieHumanSide,
+            f: number,
+          ): IAutoMovieMotionHumanSupport.IContact => footAt(f, i),
         );
         stances.push({
           contacts: [...standing, hand("left"), hand("right")],
@@ -397,6 +335,7 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
           turn: station.turn ?? 0,
           event: `footLand${i + 1}`,
           prefer,
+          ...(shoulders !== undefined ? { shoulders } : {}),
         });
       },
     );
@@ -405,49 +344,76 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
       params: { stances },
     });
 
-    // A three-point gait holds the injured leg off the floor once the hands bear.
-    const lifted: number = timing.ready;
-    const held: number = timing.stations[0]!.plant;
-    let raised: IAutoMovieHumanLimbReference | undefined;
+    // The support keys hold each hand on its grip where the crutch stands at
+    // that key; between the keys of an advance the crutch rises over its own
+    // lift, so each hand is carried by the grip's offset from the support's
+    // minimum-jerk chord (the same share the advance blends by).
+    const gripAt = (
+      side: AutoMovieHumanSide,
+      seconds: number,
+    ): IAutoMovieVector3 => {
+      const frame: IAutoMovieRigidTransform = crutchWalkCourse.frameAt(
+        crutches[side].moves,
+        crutches[side].start,
+        seconds,
+      );
+      return Vector3.add(
+        frame.position,
+        Quaternion.rotateVector(frame.rotation, crutches[side].grip),
+      );
+    };
+    const offset =
+      (seconds: number): ((side: AutoMovieHumanSide) => IAutoMovieVector3) =>
+      (side: AutoMovieHumanSide): IAutoMovieVector3 => {
+        const move: crutchWalkCourse.IAdvance | undefined = crutches[
+          side
+        ].moves.find(
+          (m: crutchWalkCourse.IAdvance): boolean =>
+            seconds > m.from && seconds < m.to,
+        );
+        if (move === undefined) return STILL;
+        return Vector3.subtract(
+          gripAt(side, seconds),
+          Vector3.lerp(
+            gripAt(side, move.from),
+            gripAt(side, move.to),
+            minimumJerk.share((seconds - move.from) / (move.to - move.from)),
+          ),
+        );
+      };
+    const carried: IAutoMovieMotionHumanActionPlan["posture"] = (
+      seconds,
+      channels,
+      resolution,
+      projection,
+    ): IAutoMovieMotionHumanPosture =>
+      carryCrutchHands(
+        plan.posture(seconds, channels, resolution, projection),
+        offset(seconds),
+      );
+
+    // A three-point gait holds the injured leg off the floor once the hands
+    // bear, held by the end of the first advance (`crutchHeldLeg`).
+    const hold: ReturnType<typeof crutchHeldLeg> = crutchHeldLeg({
+      body,
+      side: injured,
+      lifted: timing.ready,
+      held: timing.stations[0]!.plant,
+      hip: HELD.hip,
+      knee: HELD.knee,
+      read: (seconds: number): IAutoMovieMotionHumanPosture =>
+        plan.posture(seconds),
+    });
     const posture: IAutoMovieMotionHumanActionPlan["posture"] =
       pattern !== "threePoint"
-        ? plan.posture
-        : (seconds, channels, resolution, projection): IAutoMovieMotionHumanPosture => {
-            const base: IAutoMovieMotionHumanPosture = plan.posture(
-              seconds,
-              channels,
-              resolution,
-              projection,
-            );
-            // Standing on both feet until the hands bear, then raised from
-            // the leg's own angles there to `HELD` over the first advance.
-            if (seconds <= lifted) return base;
-            raised ??= resolveHumanPosture.reference(
-              resolveHumanPosture(body, plan.posture(lifted)),
-              `${injured}Leg`,
-            );
-            const s: number = minimumJerk(Math.min(1, (seconds - lifted) / (held - lifted))).s;
-            const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
-            delete limbs[`${injured}Leg`];
-            const from: IAutoMovieHumanLimbReference = raised;
-            return {
-              ...base,
-              limbs,
-              joints: {
-                ...base.joints,
-                [`${injured}UpperLeg`]: [
-                  from.upper[0] + (HELD.hip - from.upper[0]) * s,
-                  from.upper[1] * (1 - s),
-                  from.upper[2] * (1 - s),
-                ],
-                [`${injured}LowerLeg`]: [
-                  from.lower[0] + (HELD.knee - from.lower[0]) * s,
-                  from.lower[1] * (1 - s),
-                  from.lower[2] * (1 - s),
-                ],
-              },
-            };
-          };
+        ? carried
+        : (
+            seconds,
+            channels,
+            resolution,
+            projection,
+          ): IAutoMovieMotionHumanPosture =>
+            hold(carried(seconds, channels, resolution, projection), seconds);
     return {
       ...plan,
       posture,
@@ -475,4 +441,3 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     };
   },
 };
-

@@ -56,7 +56,7 @@ const CLEAR: number = 0.02;
  * The trunk leans in over the partner as far as the beats need
  * (`HumanTrunkLean`). Refusals: a hand that does not hold the cloth, a cloth
  * without a `face`, a non-positive whole count, and a region beyond the arm
- * at the deepest lean.
+ * at every hinge the hips' range allows.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the beat, the clearance, the timing and the refusals.
  * @evidence contracts/development/design.md#principled-representation A law record over the held cloth's face and the partner's region.
@@ -187,15 +187,23 @@ function plan(
     context,
     clock.duration,
   );
+  const free: HumanTrunkLean.IHanging = HumanTrunkLean.hang(
+    context.body,
+    context.entry.pose,
+    side === "left" ? "right" : "left",
+  );
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base: {
-        ...base,
+        ...HumanTrunkLean.moving(base, forward),
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
           const posture: IAutoMovieMotionHumanPosture = HumanTrunkLean.lean(
+            context.body,
             base.posture(seconds),
             forward *
               clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+            // The free arm hangs plumb as the trunk leans over it.
+            [free],
           );
           return { ...posture, joints: { ...posture.joints, ...kept.fingers } };
         },
@@ -215,7 +223,6 @@ function plan(
             context.tempo,
           ),
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-          disc: 0,
           weight: (seconds: number): number =>
             clock.envelope(["start", "ready"], ["relax", "end"], seconds),
           goal: (

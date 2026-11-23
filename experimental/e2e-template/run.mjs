@@ -284,7 +284,7 @@ import { HumanChain } from "@automovie/motions";
 
 // E2E-only: execute published SDK imports in the inspector's browser graph.
 if (createRing({ id: "browser-sdk" }).parts.length === 0 ||
-    !HumanChain.subject("browser-sdk").stand({ seconds: 1 }).node)
+    !HumanChain.subject("browser-sdk").stand({ hold: 1 }).node)
   throw new Error("Installed SDK returned an incomplete model or motion");
 document.documentElement.dataset.sdkSmoke = "ready";
 `,

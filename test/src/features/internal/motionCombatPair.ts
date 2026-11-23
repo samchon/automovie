@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChainCore,
@@ -8,14 +8,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  HumanFoot,
+  AutoMovieMotionHumanGrapple,
+  AutoMovieMotionHumanStageFight,
+  AutoMovieMotionHumanStrike,
+  AutoMovieMotionHumanThrowCatch,
   HumanPerformance,
   HumanSignature,
-  HumanSportThrow,
-  HumanStageFight,
-  HumanStrike,
-  grapple,
 } from "@automovie/motions";
+import { HumanFoot } from "@automovie/motions/internal";
 
 /**
  * The combat-style specs' shared staging: two performers facing at a
@@ -44,16 +44,16 @@ export namespace motionCombatPair {
   export function pair(
     body: IAutoMovieMotionHumanBody,
     distance: number,
-    composition: IAutoMovieMotionHumanChainCore,
+    composition: Pick<IAutoMovieMotionHumanChainCore, "node">,
     seed: string,
   ): HumanPerformance {
     return new HumanPerformance({
       seed,
       laws: [
-        ...Object.values(HumanStrike),
-        ...Object.values(HumanStageFight),
-        ...Object.values(HumanSportThrow),
-        grapple,
+        ...Object.values(AutoMovieMotionHumanStrike.HumanStrike),
+        AutoMovieMotionHumanStageFight.stageBladeFootwork,
+        ...Object.values(AutoMovieMotionHumanThrowCatch.HumanSportThrow),
+        AutoMovieMotionHumanGrapple.grapple,
       ],
       performers: [
         {

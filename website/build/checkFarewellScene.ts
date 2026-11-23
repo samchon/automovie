@@ -11,11 +11,11 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { HumanRefusal } from "@automovie/motions";
 import {
   AutoMovieMotionHumanAuditPartner,
   HumanHand,
-  HumanRefusal,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { strict as assert } from "node:assert";
 
 import { PlaygroundPerformance } from "../src/playground/package/PlaygroundPerformance";

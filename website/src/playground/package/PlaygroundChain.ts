@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as motions from "@automovie/motions";
 import { HUMAN_ACTIONS, HumanChain } from "@automovie/motions";
+import * as internal from "@automovie/motions/internal";
 
 import { PLAYGROUND_BODIES } from "../data/PLAYGROUND_BODIES";
 import { playgroundActionParams } from "../data/playgroundActionParams";
@@ -71,9 +72,10 @@ export namespace PlaygroundChain {
   }
 
   /** The package's exports by name, for the tables only some releases have. */
-  const EXPORTS: Readonly<Record<string, unknown>> = motions as Readonly<
-    Record<string, unknown>
-  >;
+  const EXPORTS: Readonly<Record<string, unknown>> = {
+    ...(motions as Readonly<Record<string, unknown>>),
+    ...(internal as Readonly<Record<string, unknown>>),
+  };
 
   /** A chain's prototype, which shows the operators the installed package has. */
   const PROTOTYPE: Record<string, unknown> =
@@ -190,8 +192,14 @@ export namespace PlaygroundChain {
     for (const [key, space] of Object.entries(EXPORTS)) {
       if (typeof space !== "object" || space === null) continue;
       register(space, key);
-      for (const [member, value] of Object.entries(space))
+      for (const [member, value] of Object.entries(space)) {
         register(value, `${key}.${member}`);
+        // A family namespace holds a law that carries its mutual action, as
+        // `AutoMovieMotionHumanCarryPerson.HumanAssistedTransfer.mutual`.
+        if (typeof value !== "object" || value === null) continue;
+        for (const [inner, nested] of Object.entries(value))
+          register(nested, `${key}.${member}.${inner}`);
+      }
     }
     return found;
   }

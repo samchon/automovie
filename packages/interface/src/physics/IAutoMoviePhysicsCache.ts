@@ -9,11 +9,6 @@ import type { IAutoMoviePhysicalSupportWrench } from "./IAutoMoviePhysicalSuppor
  * Fixed-step display/audit frames and complete state needed to restart the same physical performance.
  *
  * Frames use local film seconds at cached rate; checkpoint keys count cached intervals, while ownership and contact samples may carry finer native times. AutoMoviePhysicalSimulation fills this cache and freezes published ordinary records. Methods allocate samples, but public arrays, Maps and snapshot buffers are borrowed producer state. readonly prevents property reassignment, not Map or typed-buffer mutation. Consumers must preserve snapshots and records; frames alone cannot restore native/controller state.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Fixed-step display/audit frames and complete state needed to restart the same physical performance.
- * @evidence contracts/development/design.md#principled-representation Frames use local film seconds at cached rate; checkpoint keys count cached intervals, while ownership and contact samples may carry finer native times.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMoviePhysicalSimulation fills this cache and freezes published ordinary records. Methods allocate samples, but public arrays, Maps and snapshot buffers are borrowed producer state.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts readonly prevents property reassignment, not Map or typed-buffer mutation. Consumers must preserve snapshots and records; frames alone cannot restore native/controller state.
  */
 export interface IAutoMoviePhysicsCache {
   /** Stored with replay data so incompatible checkpoints never resume. */
@@ -59,26 +54,10 @@ export interface IAutoMoviePhysicsCache {
   readonly duration: number;
 
   /** Read finite local seconds in [0,duration] without advancing a solver. Returns a detached mutable frame using linear position/velocity and shortest-arc quaternion interpolation. Throws for invalid time or unavailable bounding frames.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the at callback or sampling contract, including its clock and ownership obligations.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
    */
   at(seconds: number): IAutoMoviePhysicalFrame;
 
   /** Return the last causal ownership event for body/bone at or before finite local seconds in [0,duration], including substep transitions. Throws for invalid time or absent matching history.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the ownershipAt callback or sampling contract, including its clock and ownership obligations.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
    */
   ownershipAt(
     body: string,

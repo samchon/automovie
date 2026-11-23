@@ -1,25 +1,23 @@
-import { Quaternion, Vector3, hingedArmSwivel } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMovieMotionHumanSupport,
   IAutoMovieQuaternion,
-  IAutoMovieSwivelNear,
-  IAutoMovieSwivelSeed,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../posture/HumanColliders";
-import { poseBones } from "../posture/poseBones";
+import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { prepareSupportHeldFrames } from "./prepareSupportHeldFrames";
+import { prepareSupportHeldLegs } from "./prepareSupportHeldLegs";
+import { prepareSupportLiftCourse } from "./prepareSupportLiftCourse";
 import { prepareSupportPinFloor } from "./prepareSupportPinFloor";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
@@ -31,6 +29,9 @@ interface IKey {
 
   /** The ordered contacts that choose the interval's first common pin. */
   contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
+
+  /** When the key is reached, seconds since the action's start. */
+  seconds: number;
 }
 
 /** One interval's writer and standard scheduling invalidation boundary. */
@@ -49,9 +50,6 @@ interface IInterval {
 /** A contact the root can keep through an interval. */
 type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
 
-/** A held leg's limb goal name: the legs are the limbs a floor lift clears. */
-type HeldLeg = `${AutoMovieHumanSide}Leg`;
-
 /**
  * Prepare one support interval: the joint blend between its two keys, the
  * root translation that keeps its common knee or trunk contact, or the
@@ -68,7 +66,9 @@ type HeldLeg = `${AutoMovieHumanSide}Leg`;
  * bound is checked after limiting hip height to the reach of any elevated
  * foot, then confirmed on the held legs as their goals fit them, reading only
  * their chains, and the root lifted by what they still sink: with a foot
- * planted, a hip the blend carries lower folds the knee toward the floor. A
+ * planted, a hip the blend carries lower folds the knee toward the floor.
+ * That lift is planned on the interval's share at knots and read between them
+ * within the solver's millimetre (`prepareSupportLiftCourse`). A
  * held knee or trunk contact has no two-bone chain ending at it and stays
  * held only through the root pin and the floor bound.
  *
@@ -78,14 +78,6 @@ type HeldLeg = `${AutoMovieHumanSide}Leg`;
  * @param place The entry-time contact lookup, which may observe an unsettled schedule.
  * @param socket The sole socket each floor foot holds through its window (`supportHeldSocket`); the lower of its heel and ball at the key before when absent.
  * @returns The interior writer and invalidation of its target observations at plan settlement.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the keys, the root pin, the held-limb fit, the floor bound, what stays unpinned and the settlement invalidation.
- * @evidence contracts/development/implementation.md#principled-implementation supportKey.prepareBlended's ROM/root interpolation, then the first common contact's root pin (the source key's achieved contact point against the current one), then per held hand or foot an end-joint goal interpolated between the keys' achieved frames (above-floor contacts use their canonical toe, palm or grip datum, floor hands use the wrist and floor feet roll on their starting bearing socket) with the keys' middle joints as the bend pole, fitted by resolveHumanPosture's analytic limb fit, then applies the planted leg reach bound when an elevated toe bears, then checks floor nonpenetration, confirmed on the held legs' own fitted chains and the root lifted by their remaining sink.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare the blend and common pin, measure the held limbs' key frames once, then per share blend, pin, add the held-limb goals and bound the root.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No contact is moved off its achieved place to keep the root's path; no whole-body solve or sampled pose replaces the per-limb fit. Knee and trunk contacts are not limb-pinned, which the documentation states.
- * @evidence contracts/development/implementation.md#efficient-algorithms The C-by-D common-contact search and the held limbs' key FK run once per interval. The admitted direct blend shares one FK for the pin and collider minimum. The actual held-leg chains are read at the bounded root and after any lift (at most `LIFTS`), continuing from the two endpoint swivels prepared once per interval.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Held key frames and the legs' endpoint swivels serve every write in the current schedule. Both clear on settle along with the entry-space contact lookup because the resolved support level selects the pivot.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The interval owns one blend, the common contact, at most four held-limb frame records, one collider reader and one held-leg chain reader until release, plus one schedule-dependent target/source record until settle or release. A stationary interval retains its first requested planted posture until settle or release. Moving shares release their interpolated pose and query FK/ROM workspaces after each write.
  */
 export function prepareSupportInterval(
   body: IAutoMovieMotionHumanBody,
@@ -223,7 +215,7 @@ export function prepareSupportInterval(
     // chains are read, at the bounded root and again after each lift, until
     // their lowest collider is clear (raising the hip with the foot planted
     // raises the knee, so the reading only rises with the root).
-    legs ??= prepareLegs(body, frames);
+    legs ??= prepareSupportHeldLegs(body, frames);
     if (legs === null) return bounded;
     // The keys' own held legs may rest within the fit's tolerance under the
     // floor; the bound is theirs carried between them, so the course meets
@@ -240,24 +232,37 @@ export function prepareSupportInterval(
       legs.seeds(placed(0), read, project),
       legs.seeds(placed(1), read, project),
     ];
-    const near: IAutoMovieMotionHumanResolveHumanPosture.INear = legs.between(
-      ends[0],
-      ends[1],
-      w,
-    );
-    const allowed: number = sunk[0] + (sunk[1] - sunk[0]) * w;
-    let lifted: IAutoMovieMotionHumanPosture = bounded;
-    for (let pass: number = 0; pass < LIFTS; ++pass) {
-      const low: number = legs.lowest(lifted, read, project, near);
-      if (!(low < allowed - SINK)) break;
-      lifted = {
-        ...lifted,
-        root: { ...lifted.root, y: lifted.root.y + allowed - low },
-      };
-    }
-    return lifted;
+    const chains: prepareSupportHeldLegs.IReader = legs;
+    const reach: readonly [number, number] = sunk;
+    const swivels: NonNullable<typeof ends> = ends;
+    // The exact lift at a share: the held legs fitted at the bounded root,
+    // continuing the ends' swivels carried by the share, and the root raised
+    // by what they still sink, at most LIFTS times.
+    const exact: prepareSupportLiftCourse.Exact = (s: number): number => {
+      const start: IAutoMovieMotionHumanPosture = s === w ? bounded : placed(s);
+      const near: IAutoMovieMotionHumanResolveHumanPosture.INear =
+        chains.between(swivels[0], swivels[1], s);
+      const allowed: number = reach[0] + (reach[1] - reach[0]) * s;
+      let lifted: IAutoMovieMotionHumanPosture = start;
+      for (let pass: number = 0; pass < LIFTS; ++pass) {
+        const low: number = chains.lowest(lifted, read, project, near);
+        if (!(low < allowed - SINK)) break;
+        lifted = {
+          ...lifted,
+          root: { ...lifted.root, y: lifted.root.y + allowed - low },
+        };
+      }
+      return lifted.root.y - start.root.y;
+    };
+    // The lift is planned once on the share and read by every sample
+    // (`prepareSupportLiftCourse`): the held legs are fitted at its knots
+    // alone, not at every displayed second.
+    return {
+      ...bounded,
+      root: { ...bounded.root, y: bounded.root.y + lifts.read(w, exact) },
+    };
   };
-  let legs: ReturnType<typeof prepareLegs> | undefined;
+  let legs: prepareSupportHeldLegs.IReader | null | undefined;
   let sunk: readonly [number, number] | undefined;
   let ends:
     | readonly [
@@ -266,6 +271,11 @@ export function prepareSupportInterval(
       ]
     | undefined;
   let settled: IAutoMovieMotionHumanPosture | undefined;
+  // The lift course splits no finer than the frame grid's share of the
+  // interval's seconds.
+  const lifts: prepareSupportLiftCourse.ICourse = prepareSupportLiftCourse(
+    AutoMovieMotionHumanArmCourse.STEP / Math.max(b.seconds - a.seconds, AutoMovieMotionHumanArmCourse.STEP),
+  );
   return {
     // A stationary key keeps the same planted goals through compositing.
     write:
@@ -282,122 +292,7 @@ export function prepareSupportInterval(
       fixed = undefined;
       frames = undefined;
       ends = undefined;
-    },
-  };
-}
-
-/** A reader of the lowest collider of the held legs as their goals fit them, reading only their chains; null where no leg is held. */
-function prepareLegs(
-  body: IAutoMovieMotionHumanBody,
-  frames: readonly prepareSupportHeldFrames.IHeldFrames[],
-): {
-  lowest: (
-    posture: IAutoMovieMotionHumanPosture,
-    read: ReturnType<typeof prepareHumanPoseResolution>,
-    project: ReturnType<typeof prepareHumanPostureProjection>,
-    near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
-  ) => number;
-  seeds: (
-    posture: IAutoMovieMotionHumanPosture,
-    read: ReturnType<typeof prepareHumanPoseResolution>,
-    project: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IAutoMovieMotionHumanResolveHumanPosture.INear;
-  between: (
-    a: IAutoMovieMotionHumanResolveHumanPosture.INear,
-    b: IAutoMovieMotionHumanResolveHumanPosture.INear,
-    w: number,
-  ) => IAutoMovieMotionHumanResolveHumanPosture.INear;
-} | null {
-  const requested: Set<AutoMovieHumanoidBone> = new Set();
-  for (const frame of frames) {
-    if (!frame.limb.endsWith("Leg")) continue;
-    const side: AutoMovieHumanSide = frame.limb.startsWith("left")
-      ? "left"
-      : "right";
-    for (const bone of ["UpperLeg", "LowerLeg", "Foot", "Toes"] as const)
-      requested.add(`${side}${bone}`);
-  }
-  if (requested.size === 0) return null;
-  const placed: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
-    body,
-    requested,
-  );
-  const minimum: ReturnType<typeof HumanColliders.prepareMinima> =
-    HumanColliders.prepareMinima(body, [requested]);
-  const held: HeldLeg[] = frames.flatMap(
-    (frame: prepareSupportHeldFrames.IHeldFrames): HeldLeg[] =>
-      frame.limb === "leftLeg" || frame.limb === "rightLeg" ? [frame.limb] : [],
-  );
-  return {
-    lowest: (
-      posture: IAutoMovieMotionHumanPosture,
-      read: ReturnType<typeof prepareHumanPoseResolution>,
-      project: ReturnType<typeof prepareHumanPostureProjection>,
-      near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
-    ): number =>
-      minimum(
-        placed(
-          resolveHumanPosture.seeded(
-            body,
-            posture,
-            undefined,
-            near,
-            read,
-            requested,
-            project,
-          ).pose,
-          read(),
-        ),
-      )[0]!,
-    seeds: (
-      posture: IAutoMovieMotionHumanPosture,
-      read: ReturnType<typeof prepareHumanPoseResolution>,
-      project: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanResolveHumanPosture.INear => {
-      const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] =
-        resolveHumanPosture.seeded(
-          body,
-          posture,
-          undefined,
-          undefined,
-          read,
-          requested,
-          project,
-        ).seeds;
-      const out: Partial<Record<HeldLeg, IAutoMovieSwivelNear>> = {};
-      for (const limb of held) {
-        const seed: IAutoMovieSwivelSeed | null | undefined = seeds[limb];
-        if (seed !== null && seed !== undefined)
-          out[limb] = {
-            branch: seed.branch,
-            swivel: seed.swivel,
-            tolerance: hingedArmSwivel.RESOLUTION,
-          };
-      }
-      return out;
-    },
-    between: (
-      a: IAutoMovieMotionHumanResolveHumanPosture.INear,
-      b: IAutoMovieMotionHumanResolveHumanPosture.INear,
-      w: number,
-    ): IAutoMovieMotionHumanResolveHumanPosture.INear => {
-      // The swivel the shorter way round on the ends' common branch; a leg
-      // whose ends differ in branch, or lack a seed, is swept as before.
-      const out: Partial<Record<HeldLeg, IAutoMovieSwivelNear>> = {};
-      for (const limb of held) {
-        const from: IAutoMovieSwivelNear | undefined = a[limb];
-        const to: IAutoMovieSwivelNear | undefined = b[limb];
-        if (from === undefined || to === undefined || from.branch !== to.branch)
-          continue;
-        const turn: number = to.swivel - from.swivel;
-        const delta: number = turn - 360 * Math.round(turn / 360);
-        out[limb] = {
-          branch: from.branch,
-          swivel: from.swivel + w * delta,
-          tolerance: hingedArmSwivel.RESOLUTION,
-        };
-      }
-      return out;
+      lifts.clear();
     },
   };
 }

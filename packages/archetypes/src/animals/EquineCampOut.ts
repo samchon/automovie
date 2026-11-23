@@ -4,12 +4,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineComfortCue } from "./AutoMovieArchetypeEquineComfortCue";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineComfortCue } from "./EquineComfortCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import type { QuadrupedBody } from "./QuadrupedBody";
 
 /** The share of a lifting step spent moving the weight off the hoof before it leaves the floor: authored, as the stance rows' own. */
 const LOAD: number = 0.35;
@@ -30,17 +30,15 @@ const ROOM: number = 0.03;
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /** The two hinds, in stepping order. */
-const HINDS: readonly QuadrupedBody.Limb[] = ["leftHind", "rightHind"];
+const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
+  "leftHind",
+  "rightHind",
+];
 
 /**
  * The camped-out stance of urination: the hindquarters lowered, then each hind hoof stepped back in turn.
  *
  * A hind limb standing square is nearly straight, so stepping its hoof back with the hips where they were would take it out of its reach. The hindquarters are first lowered by pitching the trunk up about the shoulders, through the least angle that brings each hind's hip to within its halt distance of its stepped-back ankle, less `ROOM`: a circle-to-point distance on the sagittal plane, solved in closed form by the law of cosines. Each hind then steps back like any lifted hoof, the weight first moved inside the other three (`EquineStanceSupport.transfer`). The exit plays the entry back. The step length, swing height and room are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States why the hindquarters lower, the closed-form angle, the stepping and what is authored.
- * @evidence contracts/development/design.md#principled-representation A stance plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineComfortRows.plan` for the camp row.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No search: the pitch is closed form; reach is still admitted by the stance.
  */
 export namespace EquineCampOut {
   /**
@@ -50,19 +48,11 @@ export namespace EquineCampOut {
    * @param start The state it starts from.
    * @param cue The camp row.
    * @returns Its plan, returning to the start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the output.
-   * @evidence contracts/development/implementation.md#principled-implementation Lower the hindquarters by the closed-form pitch, then step each hind back after its weight transfer.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Pitch, two steps, one pose function.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan and pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.ICamp,
+    cue: AutoMovieArchetypeEquineComfortCue.ICamp,
   ): EquineStanceRows.IPlan {
     const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
       start.trunk,
@@ -80,21 +70,22 @@ export namespace EquineCampOut {
       ),
     );
     const pitch: number = Math.max(
-      ...HINDS.map((limb: QuadrupedBody.Limb): number =>
+      ...HINDS.map((limb: AutoMovieArchetypeQuadrupedBody.Limb): number =>
         lowering(body, start, limb, offset, shoulders, heading),
       ),
     );
-    const lowered: ArchetypeFrame.IMotion = ArchetypeFrame.chain(
-      EquineBodyPose.turn(pitch, 0, shoulders, ZERO, heading),
-      start.trunk,
-    );
+    const lowered: AutoMovieArchetypeFrame.IMotion =
+      AutoMovieArchetypeFrame.chain(
+        EquineBodyPose.turn(pitch, 0, shoulders, ZERO, heading),
+        start.trunk,
+      );
     const states: EquineStanceRows.IState[] = [
       { trunk: lowered, anchors: start.anchors },
     ];
-    const loads: ArchetypeFrame.IMotion[] = [];
+    const loads: AutoMovieArchetypeFrame.IMotion[] = [];
     for (const limb of HINDS) {
       const before: EquineStanceRows.IState = states.at(-1)!;
-      const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+      const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
         before.trunk,
         EquineStanceSupport.transfer(body, before, limb),
       );
@@ -114,14 +105,19 @@ export namespace EquineCampOut {
       end: start,
       keys: [
         LOWER,
-        ...HINDS.flatMap((_: QuadrupedBody.Limb, k: number): number[] => [
-          LOWER + (k + LOAD) * half,
-          LOWER + (k + (1 + LOAD) / 2) * half,
-          LOWER + (k + 1) * half,
-        ]),
+        ...HINDS.flatMap(
+          (_: AutoMovieArchetypeQuadrupedBody.Limb, k: number): number[] => [
+            LOWER + (k + LOAD) * half,
+            LOWER + (k + (1 + LOAD) / 2) * half,
+            LOWER + (k + 1) * half,
+          ],
+        ),
       ],
       events: HINDS.flatMap(
-        (limb: QuadrupedBody.Limb, k: number): EquineStanceRows.IEvent[] => [
+        (
+          limb: AutoMovieArchetypeQuadrupedBody.Limb,
+          k: number,
+        ): EquineStanceRows.IEvent[] => [
           {
             label: `${limb}Off`,
             entry: true,
@@ -137,7 +133,7 @@ export namespace EquineCampOut {
       goal: (share: number): EquineBodyPose.IGoal => {
         if (share <= LOWER)
           return {
-            trunk: ArchetypeFrame.chain(
+            trunk: AutoMovieArchetypeFrame.chain(
               EquineBodyPose.turn(
                 (pitch * share) / LOWER,
                 0,
@@ -153,7 +149,7 @@ export namespace EquineCampOut {
         const k: number = Math.min(HINDS.length - 1, Math.floor(step));
         const local: number = step - k;
         const before: EquineStanceRows.IState = states[k]!;
-        const limb: QuadrupedBody.Limb = HINDS[k]!;
+        const limb: AutoMovieArchetypeQuadrupedBody.Limb = HINDS[k]!;
         if (local <= LOAD)
           return {
             trunk: EquineStanceSupport.blend(
@@ -191,7 +187,7 @@ export namespace EquineCampOut {
   function lowering<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    limb: QuadrupedBody.Limb,
+    limb: AutoMovieArchetypeQuadrupedBody.Limb,
     offset: IAutoMovieVector3,
     shoulders: IAutoMovieVector3,
     heading: IAutoMovieQuaternion,

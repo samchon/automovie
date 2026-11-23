@@ -1,4 +1,4 @@
-import { ArchetypeUnits, createTable } from "@automovie/archetypes";
+import { AutoMovieArchetypeUnits, createTable } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeBandSweep } from "../internal/archetypeBandSweep";
@@ -82,7 +82,7 @@ export function test_archetype_table_bar(): void {
     findings.push("the service counter is not 30 in (76 cm) deep");
   // Over 200 seeds every service counter is one of Delfield's three lengths exactly, and each is drawn.
   const lengths: readonly number[] = [30, 36, 50].map(
-    (inches: number): number => inches * ArchetypeUnits.INCH,
+    (inches: number): number => inches * AutoMovieArchetypeUnits.INCH,
   );
   const drawn: Set<number> = new Set<number>();
   for (let seed: number = 0; seed < 200; seed++) {
@@ -95,7 +95,9 @@ export function test_archetype_table_bar(): void {
       (read: number): boolean => Math.abs(read - length) <= 1e-9,
     );
     if (listed < 0)
-      findings.push(`service counter ${seed}: ${length} m is no Delfield length`);
+      findings.push(
+        `service counter ${seed}: ${length} m is no Delfield length`,
+      );
     else drawn.add(listed);
   }
   if (drawn.size !== lengths.length)
@@ -106,18 +108,23 @@ export function test_archetype_table_bar(): void {
       {
         name: "workbench height",
         measure: (seed: number): number =>
-          createTable({ kind: "workbench" }, seed).affordance("top").frame.translation.y,
+          createTable({ kind: "workbench" }, seed).affordance("top").frame
+            .translation.y,
         minimum: 0.9,
         maximum: 0.94,
         source: "IKEA RIMFORSA",
       },
     ]),
   );
-  const bench: ReturnType<typeof createTable> = createTable({ kind: "workbench" }, 5);
+  const bench: ReturnType<typeof createTable> = createTable(
+    { kind: "workbench" },
+    5,
+  );
   if (!(Math.abs(archetypeExtent(bench, "x", ["top"]).size - 1.2) <= MM))
     findings.push("the workbench is not 120 cm long");
   if (!(Math.abs(archetypeExtent(bench, "z", ["top"]).size - 0.635) <= MM))
-    findings.push("the workbench is not 63.5 cm deep");  TestValidator.equals(
+    findings.push("the workbench is not 63.5 cm deep");
+  TestValidator.equals(
     "a bar counter stands at the guideline's height with its knee space",
     findings,
     [],

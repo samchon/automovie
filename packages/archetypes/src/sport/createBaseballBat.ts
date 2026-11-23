@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import type { Archetype } from "../core";
+import type { AutoMovieArchetype } from "../core";
 import { ClubBuild } from "../weapons/ClubBuild";
 import type { createClub } from "../weapons/createClub";
 
@@ -11,7 +11,7 @@ import type { createClub } from "../weapons/createClub";
  * @param params The identifier, measured bat profile, and any free diameters set within their bands.
  * @param seed The seed selects an unspecified profile and draws free dimensions. Without a seed, it uses the first profile and band midpoints.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Stack cylindrical knob, handle, taper and barrel sections so the model's mass properties follow from its shape.
@@ -24,7 +24,10 @@ import type { createClub } from "../weapons/createClub";
 export function createBaseballBat(
   params: createBaseballBat.IParams = {},
   seed?: number | string,
-): Archetype<createBaseballBat.Affordance, createBaseballBat.Dimension> {
+): AutoMovieArchetype<
+  createBaseballBat.Affordance,
+  createBaseballBat.Dimension
+> {
   const { builder, d }: ReturnType<typeof ClubBuild.draw> = ClubBuild.draw(
     "bat",
     params,

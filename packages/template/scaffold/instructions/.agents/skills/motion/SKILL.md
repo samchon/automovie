@@ -16,7 +16,6 @@ description: Composes and verifies performance through the installed motion voca
 | [Segment review](segment-review.md) | Reviewing staged intervals and joins |
 | [Frame evaluation](frame-evaluation.md) | Mapping clocks, seeking or splitting renders |
 | [Control channels](control-channels.md) | Preparing the commissioned motion inputs |
-| [Vocabulary extension](laws/extension.md) | Choosing how to supply a missing action or body |
 | [Motion laws](laws/SKILL.md) | Implementing and testing a new action law |
 | [Physical feedback](physical-feedback.md) | Realizing a scripted simulated response |
 | [Retargeting](retargeting.md) | Adapting a supplied clip or a changed rig |

@@ -4,20 +4,10 @@ import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPar
 
 /**
  * Original and projected material-axis records.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Original and projected material-axis records.
- * @evidence contracts/development/design.md#principled-representation Physical lengths are millimetres, source identity is explicit, and a speed bound accompanies the projected axis.
- * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNativeProjectionCourse owns the preparation and native-scale evaluation.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The representation retains the straight-frame premise at the actual caller.
  */
 export namespace IAutoMovieHumanNativeProjectionCourse {
   /**
    * One projected material course and the sampling bounds of the same preparation.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation One projected material course and the sampling bounds of the same preparation.
-   * @evidence contracts/development/design.md#principled-representation Material breakpoints use millimetres and the speed bound uses world millimetres per material millimetre. The projection owner validates its straight-frame premise.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface AutoMovieHumanNativeProjectionCourse publishes the axis and its bound so downstream readers sample the same source.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The sampling bound describes the axis origin. Surface positions and their own speed are outside this record.
    */
   export interface IPrepared {
     /** Same original axis on identity, otherwise the common projected source axis. */
@@ -32,11 +22,6 @@ export namespace IAutoMovieHumanNativeProjectionCourse {
 
   /**
    * Original endpoint projection and a reader tied to its immutable source.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Original endpoint projection and a reader tied to its immutable source.
-   * @evidence contracts/development/design.md#principled-representation The chord is in world millimetres. Read attempts count the two kinds of source query separately. The project callback admits only its original source identity.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Native breast generation reuses the original calibration while creating candidate axes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Source identity and the known straight-frame premise stay with the producer and are checked within its documented scope.
    */
   export interface IProjectionOwner {
     /** Original rail-to-native-pole endpoint chord, world mm, measured once. */
@@ -60,14 +45,6 @@ export namespace IAutoMovieHumanNativeProjectionCourse {
      * @param origin Material station held fixed by the scale, mm; the rail when absent.
      * @param shift World translation of the whole scaled course, mm; none when absent. A part that rides a
      *   host whose skin moves takes the host's displacement here, so scale and carriage stay one rigid-affine map.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation The original captured source and current axis produce a projected axis under a physical chord and optional translation.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNativeProjectionCourse owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for project. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNativeProjectionCourse owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNativeProjectionCourse owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNativeProjectionCourse owns borrowed-data lifetime.
      */
     project(
       originalSource: IAutoMovieViewPart,

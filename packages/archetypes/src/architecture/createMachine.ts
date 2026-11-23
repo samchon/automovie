@@ -1,4 +1,4 @@
-import { type Archetype, ArchetypeDraw } from "../core";
+import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { ServiceCabinet } from "./ServiceCabinet";
 import { createAtm } from "./createAtm";
@@ -11,7 +11,7 @@ import { createVendingMachine } from "./createVendingMachine";
  * @param params The saved kind and its recorded model, dimensions or identifier.
  * @param seed The seed used by the selected producer under the original draw key.
  * @returns The selected fixture in its original frame.
- * @throws {ArchetypeRefusal} For an unknown kind or a rejected model or dimension.
+ * @throws {AutoMovieArchetypeRefusal} For an unknown kind or a rejected model or dimension.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the saved recipe and draw namespace.
  * @evidence contracts/development/implementation.md#principled-implementation Resolve the old kind, then let its canonical producer admit the original inputs.
@@ -24,7 +24,7 @@ import { createVendingMachine } from "./createVendingMachine";
 export function createMachine(
   params: createMachine.IParams,
   seed?: number | string,
-): Archetype<createMachine.Affordance, createMachine.Dimension> {
+): AutoMovieArchetype<createMachine.Affordance, createMachine.Dimension> {
   const kind: createMachine.Kind = ArchetypeDraw.choice(
     "machine",
     "kind",
@@ -36,7 +36,7 @@ export function createMachine(
   const produce: (
     params: createMachine.IParams,
     seed?: number | string,
-  ) => Archetype<createMachine.Affordance, createMachine.Dimension> =
+  ) => AutoMovieArchetype<createMachine.Affordance, createMachine.Dimension> =
     createMachine.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);
 }
@@ -109,5 +109,7 @@ export namespace createMachine {
     vendingMachine: createVendingMachine,
     payStation: createPayStation,
     atm: createAtm,
-  } as const satisfies Readonly<Record<Kind, (...args: never[]) => Archetype>>;
+  } as const satisfies Readonly<
+    Record<Kind, (...args: never[]) => AutoMovieArchetype>
+  >;
 }

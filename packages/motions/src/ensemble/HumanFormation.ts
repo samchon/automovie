@@ -321,7 +321,7 @@ export namespace HumanFormation {
   /**
    * A slot's way between two film seconds, sampled every `step` seconds and at
    * both ends: the samples a march's `via` or a timed course
-   * (`ArchetypeCourse.timed`) takes.
+   * (`AutoMovieArchetypeCourse.timed`) takes.
    *
    * @param formation The formation.
    * @param index The slot.

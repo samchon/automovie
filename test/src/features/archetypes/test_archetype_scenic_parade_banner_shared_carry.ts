@@ -16,15 +16,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
-  AutoMovieMotionHumanSharedCarry,
+  AutoMovieMotionHumanStance,
   HumanChain,
-  HumanHand,
   HumanObject,
   HumanPerformance,
+} from "@automovie/motions";
+import {
+  AutoMovieMotionHumanSharedCarry,
+  HumanHand,
   poseBones,
   resolveHumanPosture,
-  stand,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../internal/motionHumanBody";
@@ -197,7 +199,8 @@ function readyGrip(
   body: IAutoMovieMotionHumanBody,
   at: IAutoMovieVector3,
 ): IAutoMovieMotionHumanPosture {
-  const standing: IAutoMovieMotionHumanPosture = stand.posture(body, at, 0);
+  const standing: IAutoMovieMotionHumanPosture =
+    AutoMovieMotionHumanStance.stand.posture(body, at, 0);
   const shoulder: IAutoMovieVector3 = poseBones(
     body,
     resolveHumanPosture(body, standing),

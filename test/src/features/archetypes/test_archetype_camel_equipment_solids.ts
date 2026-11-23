@@ -1,6 +1,6 @@
 import {
-  ArchetypeRefusal,
-  QuadrupedEquipment,
+  AutoMovieArchetypeQuadrupedEquipment,
+  AutoMovieArchetypeRefusal,
   createCamel,
 } from "@automovie/archetypes";
 import { Quaternion, validateModel } from "@automovie/engine";
@@ -43,7 +43,9 @@ import { nclose } from "../internal/nclose";
  */
 export function test_archetype_camel_equipment_solids(): void {
   const findings: string[] = [];
-  const pack: NonNullable<QuadrupedEquipment.IParams["pack"]> = {
+  const pack: NonNullable<
+    AutoMovieArchetypeQuadrupedEquipment.IParams["pack"]
+  > = {
     length: 0.45,
     width: 0.2,
     thickness: 0.06,
@@ -90,7 +92,7 @@ export function test_archetype_camel_equipment_solids(): void {
   );
 
   const reference: ReturnType<typeof equipment.create> = equipment.create();
-  QuadrupedEquipment.lay(
+  AutoMovieArchetypeQuadrupedEquipment.lay(
     reference.builder,
     reference.rig,
     { pack },
@@ -100,7 +102,7 @@ export function test_archetype_camel_equipment_solids(): void {
     reference.builder.build(300);
   const occupied: IAutoMovieModelPart = equipment.part(actual, "pack-left-pad");
   const blocked: ReturnType<typeof equipment.create> = equipment.create();
-  const sphere: QuadrupedEquipment.ISphere = {
+  const sphere: AutoMovieArchetypeQuadrupedEquipment.ISphere = {
     id: "actual-extra-body-sphere",
     radius: 0.025,
     centre: { ...occupied.transform!.translation },
@@ -110,9 +112,12 @@ export function test_archetype_camel_equipment_solids(): void {
   refuse(
     "actual occupied side pad",
     (): unknown =>
-      QuadrupedEquipment.prepare(blocked.rig, { pack }, "equipment-fixture", [
-        sphere,
-      ]),
+      AutoMovieArchetypeQuadrupedEquipment.prepare(
+        blocked.rig,
+        { pack },
+        "equipment-fixture",
+        [sphere],
+      ),
     "equipment.pack-left-pad",
   );
   if (JSON.stringify(blocked.builder.build(300)) !== before)
@@ -121,16 +126,20 @@ export function test_archetype_camel_equipment_solids(): void {
     );
 
   const capped: ReturnType<typeof equipment.create> = equipment.create();
-  const endSphere: QuadrupedEquipment.ISphere = {
+  const endSphere: AutoMovieArchetypeQuadrupedEquipment.ISphere = {
     id: "actual-end-sphere",
     radius: 0.1,
     centre: { x: 0, y: 3.25, z: 0 },
   };
   capped.builder.ball(endSphere.id, endSphere.radius, endSphere.centre);
-  const capPlan: ReturnType<typeof QuadrupedEquipment.prepare> =
-    QuadrupedEquipment.prepare(capped.rig, {}, "equipment-fixture", [
-      endSphere,
-    ]);
+  const capPlan: ReturnType<
+    typeof AutoMovieArchetypeQuadrupedEquipment.prepare
+  > = AutoMovieArchetypeQuadrupedEquipment.prepare(
+    capped.rig,
+    {},
+    "equipment-fixture",
+    [endSphere],
+  );
   capPlan.rod(
     "flat-cap",
     0.1,
@@ -281,7 +290,7 @@ export function test_archetype_camel_equipment_solids(): void {
       findings.push(`${label}: unexpectedly admitted`);
     } catch (error) {
       if (
-        !(error instanceof ArchetypeRefusal) ||
+        !(error instanceof AutoMovieArchetypeRefusal) ||
         error.kind !== "parameter" ||
         error.axis !== axis ||
         error.feasible !== null

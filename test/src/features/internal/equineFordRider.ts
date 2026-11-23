@@ -1,9 +1,9 @@
 import {
-  type Archetype,
-  ArchetypeFrame,
-  EquineFord,
-  type EquineFordPlan,
-  type QuadrupedFooting,
+  type AutoMovieArchetype,
+  AutoMovieArchetypeEquineFord,
+  type AutoMovieArchetypeEquineFordPlan,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeQuadrupedFooting,
   createHorse,
 } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -18,15 +18,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
+  AutoMovieMotionHumanSwim,
   HumanChain,
-  HumanFloatBeside,
-  HumanFrame,
-  HumanLeadHorse,
-  HumanMounted,
   HumanObject,
   HumanPerformance,
-  HumanRide,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 
 import { equineFordScene } from "./equineFordScene";
 
@@ -35,7 +33,7 @@ import { equineFordScene } from "./equineFordScene";
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stages and who reads them.
  * @evidence contracts/development/design.md#principled-representation A mount record, the ford stage and their builders.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_archetype_equine_ford_rider, test_archetype_equine_ford_float and equineLeadOut.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Read by test_motion_mount_equine_ford_rider, test_motion_mount_equine_ford_float and equineLeadOut.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
  */
 export namespace equineFordRider {
@@ -88,7 +86,7 @@ export namespace equineFordRider {
     placement: IAutoMovieTransform;
 
     /** The posed horse. */
-    archetype: Archetype<string, string>;
+    archetype: AutoMovieArchetype<string, string>;
   }
 
   /**
@@ -179,7 +177,7 @@ export namespace equineFordRider {
     };
     const part = (id: string, film: number): IAutoMovieTransform => {
       const instant: IInstant = at(film);
-      return ArchetypeFrame.compose(
+      return AutoMovieArchetypeFrame.compose(
         instant.placement,
         instant.archetype.affordance(id).frame,
       );
@@ -189,7 +187,8 @@ export namespace equineFordRider {
       prop: HumanObject.prop("horse", at(0).archetype, place(0), place, part),
       place,
       part,
-      seat: HumanObject.seat(at(0).archetype, place(0)),
+      // The saddle is the horse's, so a sit that is still settling as the horse sets off is carried with it.
+      seat: HumanObject.seat(at(0).archetype, place(0), undefined, "horse"),
       floor,
       halt: WAIT + duration,
     };
@@ -225,38 +224,40 @@ export namespace equineFordRider {
       from: number,
       to: number,
       slope: number,
-    ): QuadrupedFooting.IPlane => ({
+    ): AutoMovieArchetypeQuadrupedFooting.IPlane => ({
       id,
       origin: { x: 0, y, z: from },
       x: [-6, 6],
       z: [from, to],
       slope: { x: 0, z: slope },
     });
-    const authored: EquineFordPlan.IParams = equineFordScene.params(shelf);
-    const crossing: EquineFordPlan.IClip<string, string> = EquineFord(horse, {
-      ...authored,
-      water: WATER,
-      footing: {
-        planes: [
-          plane("bank", BED, -6, BANK, 0),
-          plane("ford", BED, BANK, float + 1.5, -DESCENT),
-          plane("channel", -3, float + 1.5, float + 3, 0),
-          plane("shelf", shelf, float + 3, float + SWIM + 30, 0),
-        ],
-      },
-      entry: {
-        ...authored.entry,
-        legs: [
-          { kind: "straight", length: BANK },
-          { kind: "straight", length: wade, rise: -DESCENT * wade },
-        ],
-      },
-      swim: { ...authored.swim, length: SWIM },
-      recovery: {
-        ...authored.recovery,
-        legs: [{ kind: "straight", length: SHORE }],
-      },
-    });
+    const authored: AutoMovieArchetypeEquineFordPlan.IParams =
+      equineFordScene.params(shelf);
+    const crossing: AutoMovieArchetypeEquineFordPlan.IClip<string, string> =
+      AutoMovieArchetypeEquineFord(horse, {
+        ...authored,
+        water: WATER,
+        footing: {
+          planes: [
+            plane("bank", BED, -6, BANK, 0),
+            plane("ford", BED, BANK, float + 1.5, -DESCENT),
+            plane("channel", -3, float + 1.5, float + 3, 0),
+            plane("shelf", shelf, float + 3, float + SWIM + 30, 0),
+          ],
+        },
+        entry: {
+          ...authored.entry,
+          legs: [
+            { kind: "straight", length: BANK },
+            { kind: "straight", length: wade, rise: -DESCENT * wade },
+          ],
+        },
+        swim: { ...authored.swim, length: SWIM },
+        recovery: {
+          ...authored.recovery,
+          legs: [{ kind: "straight", length: SHORE }],
+        },
+      });
     return {
       ...carry(
         horse,
@@ -298,10 +299,10 @@ export namespace equineFordRider {
   /** The sit and the settling ride before the mounted figures. */
   const settle = (staged: IMount): IAutoMovieMotionHumanChain =>
     HumanChain.subject("rider")
-      .sit({ seat: staged.seat, seconds: SAT })
+      .sit({ seat: staged.seat, hold: SAT })
       .registered("ride", {
         on: "horse",
-        seconds: SETTLE,
+        duration: SETTLE,
         seat: "seat",
         feet: { left: "leftStirrup", right: "rightStirrup" },
         hands: { left: "mane", right: "rightRein" },
@@ -367,7 +368,12 @@ export namespace equineFordRider {
     return new HumanPerformance({
       seed: "equine-ford-rider",
       props: [staged.prop],
-      laws: [HumanRide.ride, HumanMounted, HumanLeadHorse, HumanFloatBeside],
+      laws: [
+        AutoMovieMotionHumanMount.rideHorse.ride,
+        AutoMovieMotionHumanMount.mounted,
+        AutoMovieMotionHumanMount.leadHorse,
+        AutoMovieMotionHumanSwim.HumanFloatBeside,
+      ],
       performers: [
         {
           subject: "rider",

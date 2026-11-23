@@ -2,11 +2,6 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
  * A rider leaving a moving saddle against their will (#3941): released at an authored instant or on a hit, carrying the saddle's own velocity, then thrown backward over the croup, sideways over the shoulder, forward over the neck or pulled down from the ground, landing on the floor; dragged by a foot held in a stirrup until a breakaway stirrup lets go; stepping clear on the high side as the horse goes down; or slumped over the neck, wounded or unconscious, staying on or sliding off.
- *
- * @evidence contracts/development/common.md#meaningful-documentation on: The carrier's subject id. frame: The carrier contact the rider sits on. fall: How the rider leaves. side: The side the rider falls, is dragged or slides to. release: Seconds into the act the saddle lets go. cue: A cue track whose first instant inside the act is the release, as a hit. push: The rider's speed away from the saddle the fall adds, metres per second. stirrup: The drag's stirrup contact. free: Seconds after the release a breakaway stirrup lets the dragged foot go. mane: The mane contact a slumped rider's hand holds. stays: Whether a slumped rider stays on. lie: Seconds lying after the landing.
- * @evidence contracts/development/design.md#principled-representation A closed fall vocabulary, a side, instants in seconds, a speed in metres per second and the carrier's own contact ids.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters `HumanUnseat` reads.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The release velocity is the carrier's own, read from its moving contact.
  */
 export interface IAutoMovieMotionHumanUnseat {
   /** The carrier's subject id. */

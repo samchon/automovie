@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** No source read gives a stall's depth, height or doors: estimates that hold a saddle horse of 1.58 to 1.80 m at the withers standing in the stall with its head over the front doors and a seated rider above. */
@@ -22,7 +22,7 @@ const ESTIMATE: string =
  * @param params The number of stalls and any dimension the author fixes.
  * @param seed The seed that draws every free dimension inside its band; absent, the middle of each band.
  * @returns The gate.
- * @throws {ArchetypeRefusal} For a number of stalls that is not a whole number from 1 to 20, or a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a number of stalls that is not a whole number from 1 to 20, or a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the gate stands, how the stalls are laid and numbered, how the front doors open together and each contact.
  * @evidence contracts/development/implementation.md#principled-implementation The read stall pitch; each front leaf half the clear width between partitions, hinged at its partition, so at 90 degrees the leaves lie along the partitions and leave the clear width open; the followers' one-to-one coupling is the single release a gate's doors share.
@@ -35,7 +35,10 @@ const ESTIMATE: string =
 export function createStartingGate(
   params: createStartingGate.IParams = {},
   seed?: number | string,
-): Archetype<createStartingGate.Affordance, createStartingGate.Dimension> {
+): AutoMovieArchetype<
+  createStartingGate.Affordance,
+  createStartingGate.Dimension
+> {
   const stalls: number = params.stalls ?? createStartingGate.STALLS;
   if (
     !(
@@ -44,7 +47,7 @@ export function createStartingGate(
       stalls <= createStartingGate.MOST_STALLS
     )
   )
-    throw new ArchetypeRefusal({
+    throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "startingGate",
       axis: "stalls",
@@ -58,8 +61,8 @@ export function createStartingGate(
       reason: `a gate of ${stalls} stalls is not a whole number from 1 to ${createStartingGate.MOST_STALLS}`,
       fix: "give a whole number of stalls a racing gate carries",
     });
-  const draw: ArchetypeDrawSession<createStartingGate.Dimension> =
-    new ArchetypeDrawSession<createStartingGate.Dimension>(
+  const draw: AutoMovieArchetypeDrawSession<createStartingGate.Dimension> =
+    new AutoMovieArchetypeDrawSession<createStartingGate.Dimension>(
       "startingGate",
       createStartingGate.UNITS,
       seed,
@@ -69,10 +72,10 @@ export function createStartingGate(
     ...draw.dimensions(createStartingGate.BANDS),
     pitch: createStartingGate.PITCH,
   };
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createStartingGate.Affordance,
     createStartingGate.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "steel",
     id: params.id,
     name: `starting gate of ${stalls} stalls`,
@@ -136,7 +139,7 @@ export function createStartingGate(
 
         // The axis turns the leaf, which reaches from its hinge toward the
         // stall's middle, out toward +Z under a positive travel.
-        frame: ArchetypeFrame.facing(
+        frame: AutoMovieArchetypeFrame.facing(
           v(hinge, door, 0),
           v(0, sign, 0),
           v(-sign, 0, 0),
@@ -158,7 +161,7 @@ export function createStartingGate(
       kind: "hinge",
 
       // Hinged at the +X partition and reaching toward -X, it swings back toward -Z.
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(middle + clear / 2, door, -d.depth),
         v(0, -1, 0),
         v(-1, 0, 0),
@@ -170,7 +173,7 @@ export function createStartingGate(
     builder.affordance({
       id: `stall${k}`,
       kind: "surface",
-      frame: ArchetypeFrame.facing(
+      frame: AutoMovieArchetypeFrame.facing(
         v(middle, 0, -d.depth / 2),
         v(0, 1, 0),
         v(1, 0, 0),
@@ -222,7 +225,9 @@ export namespace createStartingGate {
     | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     pitch: "m",
     depth: "m",
     height: "m",
@@ -258,14 +263,20 @@ export namespace createStartingGate {
 
   /** The band of each free dimension, every one an estimate (`ESTIMATE`). */
   export const BANDS: Readonly<
-    Record<Exclude<Dimension, "pitch">, IArchetypeBand>
+    Record<Exclude<Dimension, "pitch">, IAutoMovieArchetypeBand>
   > = {
-    depth: ArchetypeBand.metres(2.6, 3, ESTIMATE, true),
-    height: ArchetypeBand.metres(2.6, 3, ESTIMATE, true),
-    doorHeight: ArchetypeBand.metres(1.2, 1.5, ESTIMATE, true),
-    doorFoot: ArchetypeBand.metres(0.3, 0.45, ESTIMATE, true),
-    partition: ArchetypeBand.metres(0.08, 0.12, ESTIMATE, true),
-    leafThickness: ArchetypeBand.metres(0.03, 0.05, ESTIMATE, true),
-    mass: ArchetypeBand.of("kg", 250, 400, ArchetypeBand.TYPICAL_MASS, true),
+    depth: AutoMovieArchetypeBand.metres(2.6, 3, ESTIMATE, true),
+    height: AutoMovieArchetypeBand.metres(2.6, 3, ESTIMATE, true),
+    doorHeight: AutoMovieArchetypeBand.metres(1.2, 1.5, ESTIMATE, true),
+    doorFoot: AutoMovieArchetypeBand.metres(0.3, 0.45, ESTIMATE, true),
+    partition: AutoMovieArchetypeBand.metres(0.08, 0.12, ESTIMATE, true),
+    leafThickness: AutoMovieArchetypeBand.metres(0.03, 0.05, ESTIMATE, true),
+    mass: AutoMovieArchetypeBand.of(
+      "kg",
+      250,
+      400,
+      AutoMovieArchetypeBand.TYPICAL_MASS,
+      true,
+    ),
   };
 }

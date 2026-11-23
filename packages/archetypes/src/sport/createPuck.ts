@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 
-import { type Archetype, ArchetypeFrame } from "../core";
+import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
 import { BallBuild } from "./BallBuild";
 import type { createBall } from "./createBall";
 
@@ -11,7 +11,7 @@ import type { createBall } from "./createBall";
  * @param params The optional identifier and dimensions fixed within their recorded bands.
  * @param seed The seed for free dimensions. The band midpoints apply without a seed.
  * @returns The model with its named contacts in its local frame.
- * @throws {ArchetypeRefusal} When a supplied dimension or choice cannot be realized.
+ * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice cannot be realized.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the local frame, input defaults and the contacts consumed by motion.
  * @evidence contracts/development/implementation.md#principled-implementation Build a disc with the rulebook diameter and thickness. Place the grip and rim midway up its side.
@@ -24,7 +24,7 @@ import type { createBall } from "./createBall";
 export function createPuck(
   params: createPuck.IParams = {},
   seed?: number | string,
-): Archetype<createPuck.Affordance, createPuck.Dimension> {
+): AutoMovieArchetype<createPuck.Affordance, createPuck.Dimension> {
   const {
     builder,
     d,
@@ -50,7 +50,7 @@ export function createPuck(
     id: "rim",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, high / 2, radius),
       Vector3.create(0, 0, 1),
       Vector3.create(1, 0, 0),

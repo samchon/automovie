@@ -18,9 +18,9 @@ import type {
 import {
   HumanObject,
   HumanPerformance,
-  HumanPropFrame,
   HumanRefusal,
 } from "@automovie/motions";
+import { HumanPropFrame } from "@automovie/motions/internal";
 
 import { assertTakeClean } from "./assertTakeClean";
 

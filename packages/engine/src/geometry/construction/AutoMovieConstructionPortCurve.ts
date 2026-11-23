@@ -19,23 +19,10 @@ const { add, cross, dot, norm, scale, sub, unit } = AutoMovieSolidVector;
 
 /**
  * The existing radial port chart and angle/length clock correspondence.
- *
- * @evidence contracts/development/design.md#principled-representation Extracts the actual operator's mixed mm/radian chart and admitted monotone clock rules without changing their geometry.
- * @evidence contracts/development/design.md#minimal-and-owned-surface PortRealize, SplitBand and native shared-root construction consume the same chart and correspondence.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No nearest fitting, new inverse, frame replacement or anatomical interpretation is added.
- * @evidence contracts/development/common.md#meaningful-documentation The chart input uses public metres/radians while emitted stations and surface points use kernel mm.
  */
 export namespace AutoMovieConstructionPortCurve {
   /**
    * The admitted loop's existing column addresses and unscaled inward chart directions.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the original ellipse-ray share and inward vector formulas in their original arithmetic order; shape derivatives are not asserted.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock and two column maps replace the same PortRealize block.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Caller admission retains count/loop validity; this extraction adds no clamp, inverse or geometry correction.
-   * @evidence contracts/development/common.md#meaningful-documentation Stations/directions along station use mm and phase components radians per normalized radial variable.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(count) arithmetic and retained address/direction pairs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure chart pass has no cross-call work to retain.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Both returned arrays belong to the caller; no surface, cache or process is retained.
    */
   export function chart(
     loop: IAutoMovieConstructionPortLoop,
@@ -73,14 +60,6 @@ export namespace AutoMovieConstructionPortCurve {
    * @param count The columns.
    * @param period The host's phase period, under which a chart phase is read on the branch nearest the centre; absent, as given.
    * @returns The curve, or the refusal when a share between columns is not positive.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The node's ellipse with its per-column shares joined by the periodic cubic, the same law the curved rail uses for its distances; the columns keep their existing addresses, which this curve interpolates to rounding.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One share field and closed-form readers.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refuses a share field whose controls reach zero instead of clamping it; no sampled inverse.
-   * @evidence contracts/development/common.md#meaningful-documentation States the polar form, the foot and the inside test.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(count) to prepare, constant per reading.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work One share field serves every reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the share field and the column arrays.
    */
   export function curve(
     loop: IAutoMovieConstructionPortLoop,
@@ -142,14 +121,6 @@ export namespace AutoMovieConstructionPortCurve {
 
   /**
    * The actual operator's child phases, preserving its samples, searches and refusal reasons.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Delegates to the verbatim extracted angle/length correspondence; original Newell, arclength and48-step inverse arithmetic is unchanged.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One closed selection serves the real strip and original root calibration.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not accept a nonmonotone angle graph, fabricate missing surface data or fit a new physical cut.
-   * @evidence contracts/development/common.md#meaningful-documentation Surface/loop points use mm; output phases use the original unwrapped radians and direction.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Preserves the existing8n surface samples,48 angle bisections and bounded arclength matching work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both consumers share this sole formula owner; each call retains only its own original reading.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary ring arrays are released at return and only phases or the original refusal survive.
    */
   export function correspondence(
     child: ISide,

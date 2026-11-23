@@ -1,4 +1,6 @@
+import { hingedArmSwivel } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
@@ -10,11 +12,17 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
   IAutoMoviePose,
+  IAutoMovieSwivelNear,
+  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmGeometry } from "../posture/HumanArmGeometry";
+import { HumanArmSeed } from "../posture/HumanArmSeed";
 import { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
+import { HumanArmTrajectoryContext } from "../posture/HumanArmTrajectoryContext";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { certifyHumanArmTracks } from "../posture/certifyHumanArmTracks";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -39,11 +47,6 @@ const PEAK: number = 0.55;
  * its reach from rest, its hold on the goal's site and its return, read off
  * the posture so far and solved once, alone or with the other arm of the
  * same span.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the planned trajectory and fixed span; reaching/moved alias the physical observations documented at AutoMovieMotionHumanArmObservation while this namespace owns trajectory construction.
- * @evidence contracts/development/design.md#principled-representation The action's four instants, the group of arms solved together, each arm's task and the reach's duration, the inputs of one trajectory problem.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The span, the group and its constructor, the planned arm, the planner and the reach's duration, read by the carry, the touch law and the gesture law.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The trajectory's problem is the planner's own (`HumanArmTrajectory`); this file only reads it off the action.
  */
 export namespace AutoMovieMotionHumanArmPlanned {
   /** The least waypoints a second of a reach, a return or a hold: a site moving as fast as a daily reach's peak travels at most `SPACING` between two of them. */
@@ -52,11 +55,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
   /**
    * An earlier plan's solution of a group's arms, handed to the next plan
    * of the same action (`IAutoMovieMotionHumanArmPlanned.IWarm`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the record and its owner.
-   * @evidence contracts/development/design.md#principled-representation The interface's own record, read under the planner's name.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface One alias, read by the group and the planner.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No second definition: the alias is the interface record.
    */
   export type IWarm = IAutoMovieMotionHumanArmPlanned.IWarm;
 
@@ -67,14 +65,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @param stretches Whether the group's span is its law's own, lengthened by a slower tempo (`ITogether.stretches`).
    * @param tempo The explicit replanning multiplier on elapsed time, 1 by default.
    * @returns The empty group.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A group starts empty; its carries join it as they are built. Its `warm` and `last` are the action's handover maps themselves, so every group of one plan writes where the next plan of the action reads; inside a plan (`within`) the group also takes its place among the plan's groups (`ITogether.ordinal`), which keys its solutions.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One literal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None: no member is assumed, and a handed solution is only a start (`planned`).
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The group holds its carries and their solution, released with the primitives that close over it; the handover maps are the performance's.
    */
   export function together(
     handover?: IAutoMovieMotionHumanActionContext.IHandover,
@@ -105,27 +95,27 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * place among the plan's groups, so a replan at a slower time
    * (`HumanPerformanceTempo`) starts each solve where the last plan's ended.
    * Scopes nest: an inner plan's groups are its own, and the enclosing
-   * scope is restored on return or throw.
+   * scope is restored on return or throw. A group of the plan whose solve
+   * refuses names itself in `refusal`, so the replan can tell one group's
+   * need from another's.
    *
    * @param handover The action's handover (`IHumanActionContext.handover`); absent, the plan runs with no scope.
    * @param run The plan.
+   * @param refusal Where the group whose solve refused is named; absent, none is named.
    * @returns What the plan returns.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the scope gives each group, why, and how scopes nest.
-   * @evidence contracts/development/implementation.md#principled-implementation A replan of one law at a slower time makes the same groups in the same order, so a group's place keys the solution of the same problem; a handed solution is only a start (`HumanArmTrajectory.solve`'s `warm`).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scoped record, saved and restored in finally, as `HumanLimbIncumbent.within` scopes its seeds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing of a handed solution is trusted; a group made outside any plan keeps no handover.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The handover maps are the action's own.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The scope lives for the synchronous plan and is restored on return or throw.
    */
   export function within<T>(
     handover: IAutoMovieMotionHumanActionContext.IHandover | undefined,
     run: () => T,
+    refusal?: IRefusal,
   ): T {
     if (handover === undefined) return run();
     const enclosing: IScope | undefined = scope;
-    scope = { handover, made: 0 };
+    scope = {
+      handover,
+      made: 0,
+      ...(refusal === undefined ? {} : { refusal }),
+    };
     try {
       return run();
     } finally {
@@ -133,13 +123,27 @@ export namespace AutoMovieMotionHumanArmPlanned {
     }
   }
 
-  /** The plan in scope (`within`): its action's handover and how many groups it has made. */
+  /**
+   * The group of a plan whose solve refused (`within`).
+   */
+  export interface IRefusal {
+    /** The refusing group's handover key (`IWarm`'s key with its ordinal); absent until a group of the plan refuses. */
+    group?: string;
+
+    /** What that group's solve threw. */
+    error?: unknown;
+  }
+
+  /** The plan in scope (`within`): its action's handover, how many groups it has made and where a refusing group is named. */
   interface IScope {
     /** The action's handover. */
     handover: IAutoMovieMotionHumanActionContext.IHandover;
 
     /** The groups the plan has made so far. */
     made: number;
+
+    /** Where a refusing group is named. */
+    refusal?: IRefusal;
   }
 
   /** The plan in scope, while one runs (`within`). */
@@ -163,6 +167,60 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export const reaching: typeof AutoMovieMotionHumanArmObservation.reaching =
     AutoMovieMotionHumanArmObservation.reaching;
+  /**
+   * One instant of a hold to check: the arms holding there and the second.
+   */
+  export interface IStill {
+    /** The arms, each with its goal on its hold at the second. */
+    carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
+
+    /** The second, the plan's own. */
+    seconds: number;
+  }
+
+  /**
+   * Whether the arms can hold at one instant: the course's own still
+   * problem there (`HumanArmSeed.held`), on the bases, sites and starts the
+   * course would read at that instant (`planned` with `still`), so what a law
+   * admits by it is what the course can place.
+   *
+   * @param body The body.
+   * @param still The arms and the second.
+   * @param before The prefix posture at any second, the arms' goals read off it.
+   * @returns Whether a configuration holds every hand on its site with every arm clear there.
+   */
+  export function stands(
+    body: IAutoMovieMotionHumanBody,
+    still: IStill,
+    before: IAutoMovieMotionHumanActionPlan["posture"],
+  ): boolean {
+    const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
+      start: still.seconds - STEP,
+      ready: still.seconds,
+      relax: still.seconds,
+      end: still.seconds + STEP,
+    };
+    try {
+      planned(
+        body,
+        span,
+        still.carries.map(
+          (
+            c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+          ): IAutoMovieMotionHumanArmPlanned.IPlanned => ({ ...c, span }),
+        ),
+        before,
+        undefined,
+        undefined,
+        true,
+      );
+      return true;
+    } catch (error: unknown) {
+      if (error instanceof HumanRefusal) return false;
+      throw error;
+    }
+  }
+
   /**
    * Arms solved as one trajectory problem over their span
    * (`HumanArmTrajectory`), against the posture so far with every one of
@@ -189,16 +247,9 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * @param before The prefix posture at any second, accepting this same-body plan's synchronous FK/ROM loans through the shared posture signature.
    * @param plan The group's handover: its `warm` read for an earlier plan's solution of these arms, its `last` written with this plan's own when the optimiser ran, or with the path a refusal for time was reached at (`IMirrorTold.state`), which the replan at the slower time starts from. Absent, nothing is read or kept.
    * @param inheritedPace Exact original group pace, supplied only for a trial of one member.
+   * @param still Whether only the hold's instant (`span.ready`) is solved as the course's still problem, refusing as the course would there, and no course is laid (`stands`).
    * @returns Each arm's trajectory.
    * @throws {HumanRefusal} When no trajectory meets the constraints (`HumanArmTrajectory.solve`).
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the problem, the waypoints and their spacing, the sites and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The arms' whole action is first laid as an animation system lays it (`AutoMovieMotionHumanArmCourse`: a minimum-jerk effector course with a closed-form via-point, the rig's analytic fit at every instant continued from the last) and kept when the trajectory model's own reading admits it (`HumanArmTrajectory.admitted`); otherwise it seeds one trajectory optimisation (TrajOpt). Either is read off the very postures it is written on, so the plan is a constant of the action.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the common laid course, then try independent paths for a pair with separate sites when the course fails on collision. One coupled certificate precedes the original fallback optimiser.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Goals are read at every waypoint and the full coupled site, sweep, ROM and speed checks admit any new candidate. A warm solution, linked grip, perceived target or unresolved trial retains the original coupled solve.
-   * @evidence contracts/development/implementation.md#efficient-algorithms An admitted first course needs no optimiser. A collision on independent sites can add at most two single-arm plans and one coupled grid certificate. The coupled optimiser's waypoints are cut only on fallback. Postures, removed-arm bases, perceived goals and endpoint fits are computed once per exact instant within their own plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Same body, cached raw posture/goal and endpoint second prove fit equivalence within this synchronous plan. The retry borrows completed base and goal seconds and the original group pace. Other candidate samples do not call the supplied posture or goal reader.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources This synchronous plan owns raw/base/site maps, at most two endpoint angle records per arm and one exact FK preparation until return/throw. Only completed fits publish; no global result/time cache is added. Returned trajectories use their existing playback factory and solved-waypoint data, retaining none of these maps/getters or preparation callbacks.
    */
   export function planned(
     body: IAutoMovieMotionHumanBody,
@@ -210,6 +261,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
       "warm" | "last" | "stretches" | "tempo" | "ordinal"
     >,
     inheritedPace?: (seconds: number) => number,
+    still?: boolean,
   ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Trajectory> {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
@@ -250,6 +302,14 @@ export namespace AutoMovieMotionHumanArmPlanned {
       number,
       { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose }
     > = new Map();
+    // The instant resolved last and its limbs' seeds: an instant within a
+    // frame of it continues those fits instead of sweeping every swivel
+    // again, the frame-to-frame coherence an animation system's IK keeps
+    // (Aristidou et al. 2018, "Inverse kinematics techniques in computer
+    // graphics: a survey", Comput. Graph. Forum 37:35, section 7; the
+    // feasible swivel nearest the previous one, Tolani, Goswami and Badler
+    // 2000, section 3.2.4). An instant farther from it is solved cold.
+    let latest: ILatest | undefined;
     const at = (
       t: number,
     ): { posture: IAutoMovieMotionHumanPosture; pose: IAutoMoviePose } => {
@@ -263,18 +323,22 @@ export namespace AutoMovieMotionHumanArmPlanned {
           resolution,
           projection,
         );
-        found = {
-          posture,
-          pose: resolveHumanPosture.seeded(
+        const near: IAutoMovieMotionHumanResolveHumanPosture.INear =
+          latest !== undefined && Math.abs(t - latest.seconds) <= CONTINUED
+            ? continuing(latest.seeds)
+            : {};
+        const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+          resolveHumanPosture.seeded(
             body,
             without(posture),
             undefined,
-            undefined,
+            near,
             resolution,
             undefined,
             projection,
-          ).pose,
-        };
+          );
+        found = { posture, pose: solved.pose };
+        latest = { seconds: t, seeds: solved.seeds };
         read.set(t, found);
       }
       return found;
@@ -427,6 +491,17 @@ export namespace AutoMovieMotionHumanArmPlanned {
         spaced(span.end - span.relax, travel(span.relax, -1)),
         true,
       );
+      // An arm's own hold begins and ends on waypoints of its own.
+      for (const c of carries)
+        if (c.span !== undefined)
+          for (const t of [c.span.ready, c.span.relax])
+            if (
+              t > span.start &&
+              t < span.end &&
+              !times.some((u: number): boolean => Math.abs(u - t) < 1e-9)
+            )
+              times.push(t);
+      times.sort((a: number, b: number): number => a - b);
     };
 
     // Each instant's base, one record however often the refinement reads it,
@@ -454,23 +529,18 @@ export namespace AutoMovieMotionHumanArmPlanned {
               ...(goal.clearExternal ?? []),
             ],
           );
-        const rests: IAutoMovieMotionHumanColliders.IPlaced[] = holding(t)
-          ? goals.flatMap(
-              (
-                goal: IAutoMovieHumanLimbGoal,
-              ): IAutoMovieMotionHumanColliders.IPlaced[] => [
-                ...(goal.rests ?? []),
-              ],
-            )
-          : [];
+        const rests: IAutoMovieMotionHumanColliders.IPlaced[] = goals.flatMap(
+          (
+            goal: IAutoMovieHumanLimbGoal,
+            a: number,
+          ): IAutoMovieMotionHumanColliders.IPlaced[] =>
+            holding(carries[a]!, t) ? [...(goal.rests ?? [])] : [],
+        );
         // The performer's own segments the hand is laid on, on the hold.
-        const restsOwn: AutoMovieHumanoidBone[] = holding(t)
-          ? goals.flatMap(
-              (goal: IAutoMovieHumanLimbGoal): AutoMovieHumanoidBone[] => [
-                ...(goal.restsOwn ?? []),
-              ],
-            )
-          : [];
+        const restsOwn: AutoMovieHumanoidBone[] = goals.flatMap(
+          (goal: IAutoMovieHumanLimbGoal, a: number): AutoMovieHumanoidBone[] =>
+            holding(carries[a]!, t) ? [...(goal.restsOwn ?? [])] : [],
+        );
         found = {
           pose: at(t).pose,
           others: goals.flatMap(
@@ -489,8 +559,15 @@ export namespace AutoMovieMotionHumanArmPlanned {
       }
       return found;
     };
-    const holding = (t: number): boolean =>
-      t >= span.ready - 1e-9 && t <= span.relax + 1e-9;
+    // Each arm holds over its own span where it states one (a hold handed
+    // from one hand to the other), the group's otherwise.
+    const holding = (
+      c: IAutoMovieMotionHumanArmPlanned.IPlanned,
+      t: number,
+    ): boolean => {
+      const own: IAutoMovieMotionHumanArmPlanned.ISpan = c.span ?? span;
+      return t >= own.ready - 1e-9 && t <= own.relax + 1e-9;
+    };
 
     // Each arm's own fit at the hold's start, the optimiser's seed's first
     // start: fitted only once the laid course is refused, since an admitted
@@ -530,7 +607,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
                 );
           // The site where the arm's goal puts it at an instant, on the hold.
           const located = (t: number): HumanArmTrajectory.ISite | undefined => {
-            if (!holding(t)) return undefined;
+            if (!holding(c, t)) return undefined;
             const pose: IAutoMoviePose = at(t).pose;
             const own: HumanArmTrajectory.ISite =
               AutoMovieMotionHumanArmObservation.site(
@@ -599,6 +676,36 @@ export namespace AutoMovieMotionHumanArmPlanned {
         (t: number): HumanArmTrajectory.IProblem["bases"][number] => base(t),
       ),
     });
+    // A still check (`stands`) solves the hold's one instant as the course's
+    // own still problem (`HumanArmSeed.held`), on the course's own bases and
+    // sites, from each arm's own fit there, and lays no course.
+    if (still === true) {
+      const instants: number[] = [span.start, span.ready, span.end];
+      const read: HumanArmTrajectory.IProblem = problem(instants);
+      const context: ReturnType<
+        ReturnType<typeof HumanArmTrajectoryContext.prepare>
+      > = HumanArmTrajectoryContext.prepare(
+        body,
+        carries.map(
+          (c: IAutoMovieMotionHumanArmPlanned.IPlanned): AutoMovieHumanSide =>
+            c.side,
+        ),
+      )(read);
+      HumanArmSeed.held(
+        read,
+        context,
+        carries.map(
+          (c: IAutoMovieMotionHumanArmPlanned.IPlanned, a: number): number[][] =>
+            instants.map((t: number): number[] =>
+              HumanArmGeometry.encode(
+                context.setups[a]!,
+                t === span.ready ? fitted(a, t) : c.rest,
+              ),
+            ),
+        ),
+      );
+      return new Map();
+    }
     // The course an animation system lays (`AutoMovieMotionHumanArmCourse`),
     // kept when the model's own reading admits it; otherwise the
     // optimiser's seed.
@@ -607,7 +714,6 @@ export namespace AutoMovieMotionHumanArmPlanned {
         {
           body,
           span,
-          stretches: plan?.stretches === true,
           tempo: plan?.tempo,
           arms: carries,
           at,
@@ -617,8 +723,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
         },
         inheritedPace,
       );
-    let solved: IAutoMovieMotionHumanArmTrajectory.Trajectory[];
-    if (laid?.admitted === true) solved = laid.trajectories;
+    let solved: IAutoMovieMotionHumanArmTrajectory.Trajectory[];    if (laid?.admitted === true) solved = laid.trajectories;
     else {
       // An earlier plan's solution of these arms, carried onto this span,
       // starts the solve; this plan's own is left for the next. Both are
@@ -675,6 +780,11 @@ export namespace AutoMovieMotionHumanArmPlanned {
         } catch (error: unknown) {
           if (plan !== undefined && told.state !== undefined)
             (plan.last ??= new Map()).set(key, { span, state: told.state });
+          // The plan's replan reads which group refused (`within`).
+          if (scope?.refusal !== undefined) {
+            scope.refusal.group = key;
+            scope.refusal.error = error;
+          }
           throw error;
         }
         if (plan !== undefined)
@@ -753,6 +863,32 @@ export namespace AutoMovieMotionHumanArmPlanned {
 
 /** The spacing of the trajectory's waypoints, seconds at most: the frame grid (`AutoMovieMotionHumanArmCourse.STEP`). */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
+
+/** How far from the instant resolved last an instant's base continues its fits, seconds: a frame of the grid and a half, so the next frame does and a refinement's far instant does not. */
+const CONTINUED: number = 1.5 * STEP;
+
+/** The instant whose base was resolved last and the seed each of its limbs' fits chose. */
+interface ILatest {
+  /** Its second. */
+  seconds: number;
+
+  /** Each fitted limb's seed there. */
+  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
+}
+
+/** Each limb's fit a frame away continued from its seed, refined to the cold sweep's own resolution; a limb with no seed is solved cold. */
+function continuing(
+  seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"],
+): IAutoMovieMotionHumanResolveHumanPosture.INear {
+  const out: Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelNear>> = {};
+  for (const [limb, seed] of Object.entries(seeds) as [
+    AutoMovieHumanLimb,
+    IAutoMovieSwivelSeed | null | undefined,
+  ][])
+    if (seed !== null && seed !== undefined)
+      out[limb] = { ...seed, tolerance: hingedArmSwivel.RESOLUTION };
+  return out;
+}
 
 /** The intervals a reach or a return is first cut into at most, by its arc: TrajOpt plans an arm's whole path on eleven timesteps, ten intervals (Schulman et al. 2013, section VI); the solve adds knots where the played trajectory's frame-grid reading asks (`HumanArmTrajectoryAdmission`). */
 const TRANSPORT: number = 10;

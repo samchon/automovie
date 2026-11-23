@@ -9,15 +9,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { ArchetypeFrame } from "../core";
+import { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineComfortCue } from "./AutoMovieArchetypeEquineComfortCue";
+import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
+import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineBodyPose } from "./EquineBodyPose";
 import { EquineCampOut } from "./EquineCampOut";
-import type { EquineComfortCue } from "./EquineComfortCue";
 import { EquineHoofRows } from "./EquineHoofRows";
-import type { EquineStanceCue } from "./EquineStanceCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import { QuadrupedBody } from "./QuadrupedBody";
 
 /** The zero vector. */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -37,14 +37,9 @@ const REST: Readonly<IRestShape> = {
 const SHAKE: Readonly<IShakeShape> = { roll: 6, hertz: 3 };
 
 /** The comfort rows' kinds. */
-const KINDS: ReadonlySet<string> = new Set<EquineComfortCue.Row["kind"]>([
-  "rest",
-  "paw",
-  "stamp",
-  "cowKick",
-  "shake",
-  "camp",
-]);
+const KINDS: ReadonlySet<string> = new Set<
+  AutoMovieArchetypeEquineComfortCue.Row["kind"]
+>(["rest", "paw", "stamp", "cowKick", "shake", "camp"]);
 
 /** The standing rest's authored shape. */
 interface IRestShape {
@@ -74,11 +69,6 @@ interface IShakeShape {
  * The comfort rows of the stance: the standing rest on a tipped hind hoof, pawing, stamping, the cow-kick, the trunk shake and the camped-out stance.
  *
  * Each row follows the stance's shares and support rules (`EquineStanceRows`): before a hoof leaves the floor the weight moves inside the other three (`EquineStanceSupport.transfer`); every authored shift and turn is in the horse's own heading. The rest locks one hind and tilts the hips about its hip joint toward the resting side, setting the other hoof down on its toe with its terminal bar turned past vertical, its lower end behind its upper, so only the rim's front touches the floor (Equine posture ethogram, Animals 2021; the stay apparatus). A shake rolls the trunk over four planted hooves in whole cycles through its hold. Pawing, stamping and the cow-kick are `EquineHoofRows`' and camping out `EquineCampOut`'s. Every row returns to its start through its exit. All amplitudes are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each row, the shared support rules and that amplitudes are authored.
- * @evidence contracts/development/design.md#principled-representation Each row is a stance plan: start and end states, a pose by share and, for the paw and the shake, a pose by second of the hold.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineStanceRows.plan` for the comfort rows.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sliding support: a planted hoof keeps its anchor and a moving hoof is lifted or scrapes on the floor plane by intent.
  */
 export namespace EquineComfortRows {
   /**
@@ -86,16 +76,10 @@ export namespace EquineComfortRows {
    *
    * @param cue The cue.
    * @returns Whether `plan` owns it.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the result.
-   * @evidence contracts/development/implementation.md#principled-implementation A set of the rows' kinds.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The kinds are built once.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function owns(cue: EquineStanceCue.Cue): cue is EquineComfortCue.Row {
+  export function owns(
+    cue: AutoMovieArchetypeEquineStanceCue.Cue,
+  ): cue is AutoMovieArchetypeEquineComfortCue.Row {
     return KINDS.has(cue.kind);
   }
 
@@ -107,19 +91,11 @@ export namespace EquineComfortRows {
    * @param cue The row.
    * @returns Its plan, returning to the start.
    * @throws {RangeError} For a paw whose strokes are not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation One branch per row, each moving the weight before any release.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A dispatch over private rows.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per plan.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states and chains.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.Row,
+    cue: AutoMovieArchetypeEquineComfortCue.Row,
   ): EquineStanceRows.IPlan {
     if (cue.kind === "rest") return rest(body, start, cue);
     if (cue.kind === "paw") return EquineHoofRows.paw(body, start, cue);
@@ -133,15 +109,15 @@ export namespace EquineComfortRows {
   function rest<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.IRest,
+    cue: AutoMovieArchetypeEquineComfortCue.IRest,
   ): EquineStanceRows.IPlan {
-    const resting: QuadrupedBody.Limb = `${cue.side}Hind`;
-    const locked: QuadrupedBody.Limb =
+    const resting: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Hind`;
+    const locked: AutoMovieArchetypeQuadrupedBody.Limb =
       cue.side === "left" ? "rightHind" : "leftHind";
     const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
       start.trunk,
     );
-    const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       EquineStanceSupport.transfer(body, start, resting),
     );
@@ -207,7 +183,7 @@ export namespace EquineComfortRows {
           };
         const s: number = minimumJerk.share((share - LOAD) / (1 - LOAD));
         return {
-          trunk: ArchetypeFrame.chain(
+          trunk: AutoMovieArchetypeFrame.chain(
             EquineBodyPose.turn(0, roll * s, pivot, ZERO, heading),
             loaded,
           ),
@@ -229,7 +205,7 @@ export namespace EquineComfortRows {
   function shake<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.IShake,
+    cue: AutoMovieArchetypeEquineComfortCue.IShake,
   ): EquineStanceRows.IPlan {
     const heading: IAutoMovieQuaternion = EquineStanceSupport.heading(
       start.trunk,
@@ -237,12 +213,14 @@ export namespace EquineComfortRows {
     const pivot: IAutoMovieVector3 = EquineBodyPose.point(
       start.trunk,
       Vector3.scale(
-        QuadrupedBody.LIMBS.reduce(
-          (sum: IAutoMovieVector3, limb: QuadrupedBody.Limb) =>
-            Vector3.add(sum, body.chains[limb][0]!),
+        AutoMovieArchetypeQuadrupedBody.LIMBS.reduce(
+          (
+            sum: IAutoMovieVector3,
+            limb: AutoMovieArchetypeQuadrupedBody.Limb,
+          ) => Vector3.add(sum, body.chains[limb][0]!),
           ZERO,
         ),
-        1 / QuadrupedBody.LIMBS.length,
+        1 / AutoMovieArchetypeQuadrupedBody.LIMBS.length,
       ),
     );
     const cycles: number = Math.max(1, Math.round(cue.hold * SHAKE.hertz));
@@ -258,7 +236,7 @@ export namespace EquineComfortRows {
       events: [],
       goal: (): EquineBodyPose.IGoal => still,
       hold: (seconds: number): EquineBodyPose.IGoal => ({
-        trunk: ArchetypeFrame.chain(
+        trunk: AutoMovieArchetypeFrame.chain(
           EquineBodyPose.turn(
             0,
             SHAKE.roll * Math.sin((2 * Math.PI * cycles * seconds) / cue.hold),

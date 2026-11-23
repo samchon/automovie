@@ -1,12 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -23,7 +23,7 @@ import {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The rope.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it hangs and the contact.
  * @evidence contracts/development/implementation.md#principled-implementation One rope rod from the anchor down its length.
@@ -36,9 +36,12 @@ import {
 export function createClimbingRope(
   params: createClimbingRope.IParams = {},
   seed?: number | string,
-): Archetype<createClimbingRope.Affordance, createClimbingRope.Dimension> {
-  const draw: ArchetypeDrawSession<createClimbingRope.Dimension> =
-    new ArchetypeDrawSession<createClimbingRope.Dimension>(
+): AutoMovieArchetype<
+  createClimbingRope.Affordance,
+  createClimbingRope.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<createClimbingRope.Dimension> =
+    new AutoMovieArchetypeDrawSession<createClimbingRope.Dimension>(
       "climbingRope",
       createClimbingRope.UNITS,
       seed,
@@ -48,10 +51,10 @@ export function createClimbingRope(
     createClimbingRope.BANDS,
   );
   const length: number = Math.min(d.length, d.anchor);
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createClimbingRope.Affordance,
     createClimbingRope.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "fabric",
     id: params.id,
     name: "climbing rope",
@@ -68,7 +71,7 @@ export function createClimbingRope(
     id: "line",
     kind: "bar",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       Vector3.create(0, d.anchor - length / 2, 0),
       Vector3.create(0, 0, 1),
       Vector3.create(0, 1, 0),
@@ -103,7 +106,9 @@ export namespace createClimbingRope {
   export type Dimension = "anchor" | "length" | "diameter" | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     anchor: "m",
     length: "m",
     diameter: "m",
@@ -117,26 +122,26 @@ export namespace createClimbingRope {
   }
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    anchor: ArchetypeBand.metres(
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    anchor: AutoMovieArchetypeBand.metres(
       4,
       12,
       "an estimate: a gym's beam to a helicopter boom over a fast-rope; no rigging sheet was read",
       true,
     ),
-    length: ArchetypeBand.metres(
+    length: AutoMovieArchetypeBand.metres(
       4,
       12,
       "an estimate: a gym climbing rope to a fast-rope; no rigging sheet was read",
       true,
     ),
-    diameter: ArchetypeBand.metres(
+    diameter: AutoMovieArchetypeBand.metres(
       0.03,
       0.045,
       "an estimate: a gym climbing rope to a fast-rope's thickness; no rigging sheet was read",
       true,
     ),
-    mass: ArchetypeBand.of(
+    mass: AutoMovieArchetypeBand.of(
       "kg",
       3,
       15,

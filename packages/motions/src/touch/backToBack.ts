@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanBackToBack,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanJoints,
   IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
@@ -20,6 +21,7 @@ import type {
 
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
+import { AutoMovieMotionHumanHead } from "../compose/AutoMovieMotionHumanHead";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
@@ -41,10 +43,15 @@ const TOGETHER: number = 1 / 24;
 
 /**
  * Lean back against a seated partner's back (#4012). Each of the two reads
- * the other's upper back where it is at the start and leans its trunk back
+ * its own and the other's upper back on the displayed bodies at the start
+ * and leans its trunk back
  * from the hips over the seat (the kiss's lean, `kissBody`, seated) by the
- * least pitch that brings its own upper back to the point halfway between
- * the two, so the two leans meet there and neither presses into the other.
+ * least pitch that moves its own upper back (by the lean model's change from
+ * upright) to half a skin contact short of the upright plane halfway between
+ * the two across the floor, each back at its own height, so the two backs
+ * rest a skin contact apart and neither presses into the other; the neck
+ * flexes by the lean so the head stays upright and does not pass that plane
+ * first.
  * The trunk's weight leans onto the partner: the window's load is the
  * trunk's share of the body's mass times the tangent of the lean
  * (moments about the hips with the contact taken at the trunk's mass
@@ -68,7 +75,7 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
     ): IAutoMovieMotionHumanActionPlan => {
       const p: IAutoMovieMotionHumanBackToBack = context.params;
       const body: IAutoMovieMotionHumanBody = context.body;
-      HumanBound.above("seconds", p.seconds, 0, "s");
+      HumanBound.above("hold", p.hold, 0, "s");
       if (p.partner === context.subject)
         throw new HumanRefusal({
           kind: "parameter",
@@ -116,14 +123,39 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
         bones,
         "upperBack",
       ).point;
-      const mine: IAutoMovieVector3 = own(entry, resolution);
-      const meet: IAutoMovieVector3 = Vector3.lerp(mine, theirs, 0.5);
-      const toward: IAutoMovieVector3 = Vector3.normalize(
-        Vector3.subtract(theirs, mine),
+      // Both backs on the displayed bodies at the start, the same reading for
+      // both; the lean's own model gives only how far the back moves.
+      const upright: IAutoMovieVector3 = own(entry, resolution);
+      const mine: IAutoMovieVector3 = StrikingBody.region(
+        body,
+        context.performer(context.subject).bones(context.start),
+        "upperBack",
+      ).point;
+      // The backs meet on the upright plane halfway between them across the
+      // floor: each back stays at its own height (two bodies of unequal
+      // stature carry their upper backs at unequal heights), so only the
+      // horizontal reach toward the partner counts, never the height
+      // between the two backs, which no lean closes.
+      const across: IAutoMovieVector3 = {
+        x: theirs.x - mine.x,
+        y: 0,
+        z: theirs.z - mine.z,
+      };
+      const half: number = Vector3.length(across) / 2;
+      const meet: IAutoMovieVector3 = Vector3.add(
+        mine,
+        Vector3.scale(across, 0.5),
       );
+      const toward: IAutoMovieVector3 = Vector3.normalize(across);
       const gap = (pitch: number): number =>
         Vector3.dot(
-          Vector3.subtract(meet, own(leaned(pitch), resolution)),
+          Vector3.subtract(
+            meet,
+            Vector3.add(
+              mine,
+              Vector3.subtract(own(leaned(pitch), resolution), upright),
+            ),
+          ),
           toward,
         );
 
@@ -139,17 +171,21 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
             maximum: BACK,
             unit: "deg",
           },
-          reason: `the upper back stays ${(gap(-BACK) * 1000).toFixed(0)} mm short of the halfway point at a ${BACK} degree lean`,
+          reason: `the upper back stays ${(gap(-BACK) * 1000).toFixed(0)} mm short of the halfway point at a ${BACK} degree lean, the point ${(half * 1000).toFixed(0)} mm off the upright back across the floor`,
           fix: "sit nearer back to back",
         });
+      // Each back stops half a skin contact short of the plane, so the two
+      // rest a skin contact apart: backs of unequal heights meet obliquely,
+      // and reaching the plane itself pressed one trunk into the other.
+      const short: number = NEAR / 2;
       let lo: number = 0;
       let hi: number = -BACK;
       for (let i: number = 0; i < 30; ++i) {
         const mid: number = (lo + hi) / 2;
-        if (gap(mid) > 0) lo = mid;
+        if (gap(mid) > short) lo = mid;
         else hi = mid;
       }
-      const pitch: number = gap(0) <= 0 ? 0 : hi;
+      const pitch: number = gap(0) <= short ? 0 : hi;
 
       const modifiers: IAutoMovieMotionManner.IModifiers =
         AutoMovieMotionManner.of(context, p.manner);
@@ -160,7 +196,7 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
         AutoMovieMotionClock.phrase({
           prepare: approach,
           attack: 0,
-          hold: p.seconds,
+          hold: p.hold,
           retract: approach,
         }),
         modifiers,
@@ -192,8 +228,8 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
         if (mineRelax < at("relax") - TOGETHER)
           throw new HumanRefusal({
             kind: "parameter",
-            axis: "seconds",
-            value: p.seconds,
+            axis: "hold",
+            value: p.hold,
             reason: `this back is withdrawn at ${mineRelax.toFixed(2)} s while the partner still leans on it until ${at("relax").toFixed(2)} s`,
             fix: "hold the lean as long as the partner's",
           });
@@ -222,6 +258,37 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
                   share(seconds),
                   true,
                 ),
+            },
+            // The head stays upright over the leaning trunk, the neck flexing
+            // forward by the lean: leaning back, the head held with the trunk
+            // passes the plane the two backs meet on before the backs do, so
+            // two heads of a height met behind them.
+            {
+              channels: ["head"],
+              from: 0,
+              to: duration,
+              write: (
+                posture: IAutoMovieMotionHumanPosture,
+                seconds: number,
+              ): IAutoMovieMotionHumanPosture => {
+                const upright: IAutoMovieMotionHumanJoints.Angles =
+                  AutoMovieMotionHumanHead.share(0, -pitch * share(seconds));
+                const added = (
+                  bone: "neck" | "head",
+                ): readonly [number, number, number] => {
+                  const held: readonly [number, number, number] = posture
+                    .joints[bone] ?? [0, 0, 0];
+                  return [held[0] + upright[bone]![0], held[1], held[2]];
+                };
+                return {
+                  ...posture,
+                  joints: {
+                    ...posture.joints,
+                    neck: added("neck"),
+                    head: added("head"),
+                  },
+                };
+              },
             },
           ],
           contact: "stroke",

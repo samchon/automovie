@@ -122,16 +122,20 @@ function course(
           "the station coordinates and heading must be finite and its time positive",
         );
       const phase: number = station.seconds / (walker ? 3 : 2);
+      // The aid moves rigidly with the walker: displaced by the station and
+      // turned about the entry station (`origin`), or about its own staged
+      // frame when none is given: p' = p + d + (R - I)(p - origin).
+      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(UP, heading);
+      const pivot: IAutoMovieVector3 = props.origin ?? start.position;
       const pose: IAutoMovieRigidTransform = {
-        position: Vector3.add(start.position, {
-          x: station.x,
-          y: 0,
-          z: station.z,
-        }),
-        rotation: Quaternion.multiply(
-          Quaternion.fromAxisAngle(UP, heading),
-          start.rotation,
+        position: Vector3.add(
+          Vector3.add(pivot, { x: station.x, y: 0, z: station.z }),
+          Quaternion.rotateVector(
+            turn,
+            Vector3.subtract(start.position, pivot),
+          ),
         ),
+        rotation: Quaternion.multiply(turn, start.rotation),
       };
       const move: IAdvance = {
         from: clock,
@@ -191,6 +195,8 @@ function frameAt(
  * @evidence contracts/development/design.md#principled-representation The native prop track and performer use the same seconds and floor stations.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The staged prop provides the collision geometry and grip contacts. The existing support and hand fitters own pose computation.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Rejects a conflicting prop track or unreachable handle. The body plan never replaces the prop owner's motion curve.
+ *
+ * Each station's `seconds` is the author's, so the speed is its distance over them; no natural value is defined (provisional, missing a study of aided walking speed): choose 0.6 m/s or slower for a frail walker (Studenski et al. 2011, the speed below which an older adult is frail). The opening stance takes a quarter of the first station's time.
  */
 export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
   name: "aidWalk",
@@ -245,11 +251,10 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
       entry,
       [`${lead}Foot`, `${trail}Foot`],
     );
-    const center: IAutoMovieVector3 = Vector3.lerp(
-      initial[0]!,
-      initial[1]!,
-      0.5,
-    );
+    // The feet turn with the aid about the entry station, or about their own
+    // midpoint when the walk gives none.
+    const center: IAutoMovieVector3 =
+      params.origin ?? Vector3.lerp(initial[0]!, initial[1]!, 0.5);
     const prefer: IAutoMovieMotionHumanSupport.IStance["prefer"] =
       getUp.quiet(body);
     let leading: IAutoMovieMotionHumanSupport.IContact = foot(

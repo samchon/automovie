@@ -1,7 +1,11 @@
 import { AutoMovieHandAnthropometry } from "@automovie/engine";
 import type { IAutoMovieHandAnthropometry } from "@automovie/interface";
 
-import { ArchetypeBand, ArchetypeUnits, type IArchetypeBand } from "../core";
+import {
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
+} from "../core";
 import type { createDrinkware } from "./createDrinkware";
 
 /** A band in kilograms. */
@@ -10,8 +14,8 @@ const kg = (
   maximum: number,
   source: string,
   provisional?: boolean,
-): IArchetypeBand =>
-  ArchetypeBand.of("kg", minimum, maximum, source, provisional);
+): IAutoMovieArchetypeBand =>
+  AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
 /** The ISO 3591 tasting glass as a maker's conformity sheet reproduces its drawing. */
 const ISO_3591: string =
@@ -60,22 +64,27 @@ const loop = (k: 0 | 1): { tall: number; deep: number } => {
   const middle: IAutoMovieHandAnthropometry.IJoint =
     AutoMovieHandAnthropometry.JOINTS[k][2]![1];
   return {
-    tall: (index.breadth + middle.breadth) * ArchetypeUnits.MILLIMETRE,
-    deep: Math.max(depth(index), depth(middle)) * ArchetypeUnits.MILLIMETRE,
+    tall: (index.breadth + middle.breadth) * AutoMovieArchetypeUnits.MILLIMETRE,
+    deep:
+      Math.max(depth(index), depth(middle)) *
+      AutoMovieArchetypeUnits.MILLIMETRE,
   };
 };
 
 /** A mug's and a cup's handle bands: the loop admitting the women's to the men's two fingers, and the industrial-handle analogue bar. */
 const LOOP: Readonly<
-  Record<"handleDiameter" | "handleOpening" | "handleLoop", IArchetypeBand>
+  Record<
+    "handleDiameter" | "handleOpening" | "handleLoop",
+    IAutoMovieArchetypeBand
+  >
 > = {
-  handleDiameter: ArchetypeBand.metres(0.008, 0.016, BAR, true),
-  handleOpening: ArchetypeBand.metres(
+  handleDiameter: AutoMovieArchetypeBand.metres(0.008, 0.016, BAR, true),
+  handleOpening: AutoMovieArchetypeBand.metres(
     loop(0).deep,
     loop(1).deep,
     `${FINGER_SOURCE}: the thicker finger's depth, the square root of its girth squared over four less its breadth squared`,
   ),
-  handleLoop: ArchetypeBand.metres(
+  handleLoop: AutoMovieArchetypeBand.metres(
     loop(0).tall,
     loop(1).tall,
     `${FINGER_SOURCE}: the two fingers' breadths side by side`,
@@ -88,18 +97,20 @@ const LOOP: Readonly<
 export const DRINKWARE_BANDS: Readonly<
   Record<
     createDrinkware.Kind,
-    Readonly<Partial<Record<createDrinkware.Dimension, IArchetypeBand>>>
+    Readonly<
+      Partial<Record<createDrinkware.Dimension, IAutoMovieArchetypeBand>>
+    >
   >
 > = {
   mug: {
-    height: ArchetypeBand.metres(
-      3.88 * ArchetypeUnits.INCH,
-      3.88 * ArchetypeUnits.INCH,
+    height: AutoMovieArchetypeBand.metres(
+      3.88 * AutoMovieArchetypeUnits.INCH,
+      3.88 * AutoMovieArchetypeUnits.INCH,
       MUG,
     ),
-    diameter: ArchetypeBand.metres(
-      3.5 * ArchetypeUnits.INCH,
-      3.5 * ArchetypeUnits.INCH,
+    diameter: AutoMovieArchetypeBand.metres(
+      3.5 * AutoMovieArchetypeUnits.INCH,
+      3.5 * AutoMovieArchetypeUnits.INCH,
       MUG,
     ),
     ...LOOP,
@@ -111,41 +122,41 @@ export const DRINKWARE_BANDS: Readonly<
     ),
   },
   cup: {
-    height: ArchetypeBand.metres(0.055, 0.055, CUP),
-    diameter: ArchetypeBand.metres(0.09, 0.09, CUP),
+    height: AutoMovieArchetypeBand.metres(0.055, 0.055, CUP),
+    diameter: AutoMovieArchetypeBand.metres(0.09, 0.09, CUP),
     ...LOOP,
     mass: kg(0.18, 0.18, CUP),
   },
   glass: {
-    height: ArchetypeBand.metres(0.14, 0.15, GLASS, true),
-    diameter: ArchetypeBand.metres(0.083, 0.089, GLASS, true),
-    mass: kg(0.3, 0.45, ArchetypeBand.TYPICAL_MASS, true),
+    height: AutoMovieArchetypeBand.metres(0.14, 0.15, GLASS, true),
+    diameter: AutoMovieArchetypeBand.metres(0.083, 0.089, GLASS, true),
+    mass: kg(0.3, 0.45, AutoMovieArchetypeBand.TYPICAL_MASS, true),
   },
   wineGlass: {
-    height: ArchetypeBand.metres(0.15, 0.16, ISO_3591),
-    diameter: ArchetypeBand.metres(0.063, 0.067, ISO_3591),
-    stemLength: ArchetypeBand.metres(0.052, 0.058, ISO_3591),
-    stemDiameter: ArchetypeBand.metres(0.008, 0.01, ISO_3591),
-    baseDiameter: ArchetypeBand.metres(0.06, 0.07, ISO_3591),
-    mass: kg(0.1, 0.15, ArchetypeBand.TYPICAL_MASS, true),
+    height: AutoMovieArchetypeBand.metres(0.15, 0.16, ISO_3591),
+    diameter: AutoMovieArchetypeBand.metres(0.063, 0.067, ISO_3591),
+    stemLength: AutoMovieArchetypeBand.metres(0.052, 0.058, ISO_3591),
+    stemDiameter: AutoMovieArchetypeBand.metres(0.008, 0.01, ISO_3591),
+    baseDiameter: AutoMovieArchetypeBand.metres(0.06, 0.07, ISO_3591),
+    mass: kg(0.1, 0.15, AutoMovieArchetypeBand.TYPICAL_MASS, true),
   },
   beerBottle: {
-    neckDiameter: ArchetypeBand.metres(
+    neckDiameter: AutoMovieArchetypeBand.metres(
       0.026,
       0.026,
       `${LONGNECK}: 26 mm crown finish`,
     ),
   },
   waterBottle: {
-    height: ArchetypeBand.metres(0.197, 0.229, PET, true),
-    diameter: ArchetypeBand.metres(0.065, 0.065, PET),
-    neckDiameter: ArchetypeBand.metres(0.028, 0.028, PET),
+    height: AutoMovieArchetypeBand.metres(0.197, 0.229, PET, true),
+    diameter: AutoMovieArchetypeBand.metres(0.065, 0.065, PET),
+    neckDiameter: AutoMovieArchetypeBand.metres(0.028, 0.028, PET),
     mass: kg(0.0225, 0.043, PET, true),
   },
   wineBottle: {
-    height: ArchetypeBand.metres(0.2895, 0.329, BORDEAUX, true),
-    diameter: ArchetypeBand.metres(0.0733, 0.086, BORDEAUX, true),
-    neckDiameter: ArchetypeBand.metres(
+    height: AutoMovieArchetypeBand.metres(0.2895, 0.329, BORDEAUX, true),
+    diameter: AutoMovieArchetypeBand.metres(0.0733, 0.086, BORDEAUX, true),
+    neckDiameter: AutoMovieArchetypeBand.metres(
       0.029,
       0.031,
       "outer neck round the 18.5 mm bore Wikipedia's Wine bottle article states (https://en.wikipedia.org/wiki/Wine_bottle); the wall is an estimate",

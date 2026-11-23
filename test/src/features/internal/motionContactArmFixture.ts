@@ -13,11 +13,11 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { AutoMovieMotionHumanStance } from "@automovie/motions";
 import {
   AutoMovieMotionClock,
   HumanColliders,
-  stand,
-} from "@automovie/motions";
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "./motionHumanBody";
@@ -38,7 +38,7 @@ import type { motionHumanLaw } from "./motionHumanLaw";
 export function motionContactArmFixture(): motionContactArmFixture.IInputs {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const posture: IAutoMovieMotionHumanPosture = {
-    ...stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+    ...AutoMovieMotionHumanStance.stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
     root: { x: 0, y: 0, z: 0 },
   };
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.phrase({

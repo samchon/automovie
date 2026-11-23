@@ -1,6 +1,6 @@
 import {
-  ArchetypeCourse,
-  ArchetypePassage,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypePassage,
   createHorse,
   rideHorse,
 } from "@automovie/archetypes";
@@ -14,14 +14,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
-  HumanFrame,
-  HumanLeadHorse,
   HumanObject,
   HumanPerformance,
   HumanRefusal,
-  HumanRide,
 } from "@automovie/motions";
+import { HumanFrame } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertTakeClean } from "../internal/assertTakeClean";
@@ -69,7 +68,7 @@ const SAMPLES: number = 120;
  * @evidence contracts/development/common.md#meaningful-documentation Lists the cast, the cue and the four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Composes `sit`, the registered `ride`, `rise`, `walk` and the `leadHorse` overlay through `HumanPerformance` on two real horse rides and reads displayed bones and tack frames.
  * @evidence contracts/development/testing.md#independent-expectations The contact budget is the rider attachment contract's 10 mm. A dismounted rider's hips stand below the saddle's seat. Pure sampling repeats. The groom's crossing route passes through the mounted pair's standing mark while it stands.
- * @evidence contracts/development/testing.md#distinguishing-cases An addressed dismount against an unaffected mounted pair, a lead in reach and out of reach, and a refused groom crossing. The single rider's mount, ride, dismount and lead across bodies and gaits are pinned by test_motion_equestrian_lifecycle.
+ * @evidence contracts/development/testing.md#distinguishing-cases An addressed dismount against an unaffected mounted pair, a lead in reach and out of reach, and a refused groom crossing. The single rider's mount, ride, dismount and lead across bodies and gaits are pinned by test_motion_mount_equestrian_lifecycle.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec through the public performance path.
  */
 export function test_world_mounted_reset(): void {
@@ -137,19 +136,18 @@ export function test_world_mounted_reset(): void {
     "a groom out of reach of the lead refuses with leadReach",
     bad instanceof HumanRefusal && bad.axis === "leadReach",
   );
-  const crossing: ArchetypePassage.IConflict[] = ArchetypePassage.conflicts(
-    "reset",
-    {
+  const crossing: AutoMovieArchetypePassage.IConflict[] =
+    AutoMovieArchetypePassage.conflicts("reset", {
       participants: [
         {
           id: "horseB",
           plan: take.rides.horseB.plan,
-          footprint: ArchetypePassage.footprint(take.horse),
+          footprint: AutoMovieArchetypePassage.footprint(take.horse),
           margin: 0.5,
         },
         {
           id: "groom",
-          plan: ArchetypeCourse.timed("groom", [
+          plan: AutoMovieArchetypeCourse.timed("groom", [
             { seconds: 0, x: -2, y: 0, z: 0 },
             { seconds: 2, x: LANES + 2, y: 0, z: 0 },
           ]),
@@ -158,8 +156,7 @@ export function test_world_mounted_reset(): void {
         },
       ],
       step: 0.1,
-    },
-  );
+    });
   TestValidator.predicate(
     "a groom route across the mounted pair's lane is refused with both named",
     crossing.length > 0 &&
@@ -322,15 +319,15 @@ function stage(body: IAutoMovieMotionHumanBody, aside: number): ITake {
   ];
   const feet = { left: "leftStirrup", right: "rightStirrup" };
   const riderA = HumanChain.subject("riderA")
-    .sit({ seat: saddles[0]!, seconds: 0.5 })
-    .registered("ride", { on: "horseA", seconds: halted, seat: "seat", feet })
+    .sit({ seat: saddles[0]!, hold: 0.5 })
+    .registered("ride", { on: "horseA", duration: halted, seat: "seat", feet })
     .rise({})
     .walk({ to: { x: -3, y: 0, z: groomAt.z - 2 } });
   const riderB = HumanChain.subject("riderB")
-    .sit({ seat: saddles[1]!, seconds: 0.5 })
+    .sit({ seat: saddles[1]!, hold: 0.5 })
     .registered("ride", {
       on: "horseB",
-      seconds: handoff + 40,
+      duration: handoff + 40,
       seat: "seat",
       feet,
     });
@@ -344,8 +341,8 @@ function stage(body: IAutoMovieMotionHumanBody, aside: number): ITake {
         ? walk.over((handler) =>
             handler.registered("leadHorse", {
               on: "horseA",
-              side: "right",
-              seconds: 0.79 * LEAD,
+              hand: "right",
+              duration: 0.79 * LEAD,
               transition: 0.4,
             }),
           )
@@ -359,7 +356,10 @@ function stage(body: IAutoMovieMotionHumanBody, aside: number): ITake {
       seed: "mounted-reset",
       performers,
       cues,
-      laws: [HumanRide.ride, HumanLeadHorse],
+      laws: [
+        AutoMovieMotionHumanMount.rideHorse.ride,
+        AutoMovieMotionHumanMount.leadHorse,
+      ],
       props: ["horseA", "horseB"].map((name: string) =>
         HumanObject.prop(
           name,

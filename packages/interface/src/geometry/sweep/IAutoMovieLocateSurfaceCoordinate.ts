@@ -3,11 +3,6 @@ import type { IAutoMovieSurfaceCoordinate } from "./IAutoMovieSurfaceCoordinate"
 
 /**
  * A network chart address and the sampled tier in which to locate it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation A dimensionless patch s/t address locates a quad in one sampled cage chart without projecting physical positions. Missing patches and out-of-range coordinates are runtime failures; transition inversion need not find a containing face.
- * @evidence contracts/development/design.md#principled-representation A dimensionless patch s/t address locates a quad in one sampled cage chart without projecting physical positions.
- * @evidence contracts/development/design.md#minimal-and-owned-surface locateAutoMovieSurfaceCoordinate consumes existing surface-coordinate and cage contracts for subdivision binding.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Missing patches and out-of-range coordinates are runtime failures; transition inversion need not find a containing face.
  */
 export namespace IAutoMovieLocateSurfaceCoordinate {
   /**
@@ -24,11 +19,6 @@ export namespace IAutoMovieLocateSurfaceCoordinate {
    * convention: `(0, 0)` at corner 0, `u` toward corner 1 along `s`, `v` toward
    * corner 3 along `t`, so the result addresses `subdivideAutoMovieSurface`'s
    * output of this cage directly.
-   *
-   * @evidence contracts/development/design.md#principled-representation Dimensionless patch s/t addresses are separate from cage-face u/v; the locator checks patch presence and [0,1] bounds before chart inversion.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface mapAutoMovieSurfaceTier reuses this locator on its destination cage; canonical cage and coordinate contracts own the topology and chart data.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The lookup uses supplied patch charts rather than inferring correspondence from spatial proximity; non-grid inversion can refuse an unmatched coordinate.
-   * @evidence contracts/development/common.md#meaningful-documentation Gives quad convention, borrowed chart ownership, range admission and lookup failure.
    */
   export type IProps = {
     /** Borrowed sampled tier whose patch grids and face-corner charts define the lookup. Cage geometry is not projected or read; callers must preserve the chart topology. */

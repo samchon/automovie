@@ -1,13 +1,13 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /**
@@ -18,7 +18,7 @@ import {
  * @param params Any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The mallet.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the mallet stands, its four contacts and what reads them.
  * @evidence contracts/development/implementation.md#principled-implementation A cigar head as a round-ended rod across the shaft's foot, a cane rod up from its middle, a grip rod of the drawn diameter at the top and a sling loop of four rods at the grip's end.
@@ -31,9 +31,9 @@ import {
 export function createPoloMallet(
   params: createPoloMallet.IParams = {},
   seed?: number | string,
-): Archetype<createPoloMallet.Affordance, createPoloMallet.Dimension> {
-  const draw: ArchetypeDrawSession<createPoloMallet.Dimension> =
-    new ArchetypeDrawSession<createPoloMallet.Dimension>(
+): AutoMovieArchetype<createPoloMallet.Affordance, createPoloMallet.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createPoloMallet.Dimension> =
+    new AutoMovieArchetypeDrawSession<createPoloMallet.Dimension>(
       "poloMallet",
       createPoloMallet.UNITS,
       seed,
@@ -42,10 +42,10 @@ export function createPoloMallet(
   const d: Record<createPoloMallet.Dimension, number> = draw.dimensions(
     createPoloMallet.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createPoloMallet.Affordance,
     createPoloMallet.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: "poloMallet",
@@ -97,7 +97,7 @@ export function createPoloMallet(
     id: "grip",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(
+    frame: AutoMovieArchetypeFrame.facing(
       v(0, d.length - hold / 2, 0),
       v(0, 0, -1),
       v(0, 1, 0),
@@ -111,7 +111,11 @@ export function createPoloMallet(
     id: "sling",
     kind: "handle",
     symmetry: "round",
-    frame: ArchetypeFrame.facing(v(0, top - s / 2, 0), v(0, 0, -1), v(0, 1, 0)),
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, top - s / 2, 0),
+      v(0, 0, -1),
+      v(0, 1, 0),
+    ),
     extent: null,
     grip: "power",
     aperture: s,
@@ -121,14 +125,14 @@ export function createPoloMallet(
     id: "head",
     kind: "surface",
     direction: "along",
-    frame: ArchetypeFrame.facing(v(0, r, 0), v(0, -1, 0), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, r, 0), v(0, -1, 0), v(1, 0, 0)),
     extent: null,
   });
   builder.affordance({
     id: "face",
     kind: "surface",
     direction: "normal",
-    frame: ArchetypeFrame.facing(v(0, r, r), v(0, 0, 1), v(1, 0, 0)),
+    frame: AutoMovieArchetypeFrame.facing(v(0, r, r), v(0, 0, 1), v(1, 0, 0)),
     extent: null,
     width: d.headLength,
   });
@@ -180,7 +184,9 @@ export namespace createPoloMallet {
     | "mass";
 
   /** Each dimension's unit. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     length: "m",
     headLength: "m",
     headDiameter: "m",
@@ -198,16 +204,16 @@ export namespace createPoloMallet {
   const UNREAD: string = "no source read gives it; provisional";
 
   /** The band of each free dimension. */
-  export const BANDS: Readonly<Record<Dimension, IArchetypeBand>> = {
-    length: ArchetypeBand.metres(
-      48 * ArchetypeUnits.INCH,
-      54 * ArchetypeUnits.INCH,
+  export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
+    length: AutoMovieArchetypeBand.metres(
+      48 * AutoMovieArchetypeUnits.INCH,
+      54 * AutoMovieArchetypeUnits.INCH,
       `polo mallets are sold from 48 to 54 in by the pony's height; ${UNREAD}`,
       true,
     ),
-    headLength: ArchetypeBand.metres(0.21, 0.24, UNREAD, true),
-    headDiameter: ArchetypeBand.metres(0.045, 0.055, UNREAD, true),
-    gripDiameter: ArchetypeBand.metres(0.025, 0.03, UNREAD, true),
-    mass: ArchetypeBand.of("kg", 0.45, 0.6, UNREAD, true),
+    headLength: AutoMovieArchetypeBand.metres(0.21, 0.24, UNREAD, true),
+    headDiameter: AutoMovieArchetypeBand.metres(0.045, 0.055, UNREAD, true),
+    gripDiameter: AutoMovieArchetypeBand.metres(0.025, 0.03, UNREAD, true),
+    mass: AutoMovieArchetypeBand.of("kg", 0.45, 0.6, UNREAD, true),
   };
 }

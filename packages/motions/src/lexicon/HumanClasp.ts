@@ -31,6 +31,8 @@ const REACH: number = 0.3;
  * @evidence contracts/development/design.md#principled-representation One law over named holds.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law's name, cut table and planner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Each held point is its owner's own at the second.
+ *
+ * The author gives `seconds`; the hand's reach to its hold is provisional (`HumanClasp`); a handshake, a held hand.
  */
 export const HumanClasp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanClasp> =
   {
@@ -55,7 +57,7 @@ export const HumanClasp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCla
 /** Admit and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanClasp = context.params;
-  HumanBound.above("seconds", params.seconds, 0, "s");
+  HumanBound.above("duration", params.duration, 0, "s");
   const sides: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
     (side: AutoMovieHumanSide): boolean => params[side] !== undefined,
   );
@@ -109,9 +111,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       hold.bone!,
       film,
     );
-
   };
-  const duration: number = params.seconds;
+  const duration: number = params.duration;
   const windows: IAutoMovieMotionHumanContactWindow[] = sides.map(
     (side: AutoMovieHumanSide): IAutoMovieMotionHumanContactWindow => {
       const hold: IAutoMovieMotionHumanClasp.IHold = params[side]!;

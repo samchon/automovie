@@ -10,11 +10,6 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
  * One figure's rest model and ordered rigid parts used to bake its repertoire.
  * Geometry extraction precedes the bake because sampling changes the supplied
  * runtime object's pose and leaves it at the last sampled frame.
- *
- * @evidence contracts/development/design.md#principled-representation Supplies one compiled figure, its rest-positioned built model and ordered rigid parts so bakeFormationCycle can measure posed matrices against exactly the rest geometry extracted for instancing.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Keeps model semantics, mutable playback target and ordered drawable parts explicit rather than rediscovering traversal order inside each gait sample.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Sampling uses the model's actual gait and skeleton through applyPose; no preauthored motion table is embedded in these bake inputs.
- * @evidence contracts/development/common.md#meaningful-documentation States rest/world-matrix prerequisites, extraction-before-bake order, final-pose mutation and default cycle-sample behavior.
  */
 export interface IBakeFormationCycleProps {
   /** Caller-owned compiled figure carrying the skeleton and gait profiles. */

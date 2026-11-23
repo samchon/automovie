@@ -2,11 +2,6 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 
 /**
  * Nullable model-frame rest bounds used by camera subject measurement.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Nullable model-frame rest bounds used by camera subject measurement. Bounds use model metres after part placement and attached-bone rest placement; null denotes no measured three-axis extent. Geometry/skeleton admission is delegated to their engine owners.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The nullable box distinguishes unmeasurable geometry from a valid degenerate extent; external asset bytes and animated deformation are outside this measurement.
- * @evidence contracts/development/design.md#principled-representation Bounds use model metres after part placement and attached-bone rest placement; null denotes no measured three-axis extent. Geometry/skeleton admission is delegated to their engine owners.
- * @evidence contracts/development/design.md#minimal-and-owned-surface computeModelRestExtent produces the three-axis extent consumed by the shot subject framer and the vertical projection computeModelRestExtentY.
  */
 export namespace IAutoMovieComputeModelRestExtent {
   /**
@@ -17,11 +12,6 @@ export namespace IAutoMovieComputeModelRestExtent {
    * {@link computeModelRestExtentY} is this box read on the vertical axis. The horizontal half is what a subject wider than it is tall is framed and graded from: a 60 m facade authored outward from its element origin has a drawn box of `x 0…60, y 0…24, z −1…1`, where the vertical read alone reports `y 0…24`.
    *
    * Returns null when no part has a vertex, leaving the caller's own fallback in charge rather than inventing an extent. Throws, through {@link skeletonRestFrames}, when the model's skeleton is malformed.
-   *
-   * @evidence contracts/development/design.md#principled-representation Bounds use model metres after part placement and attached-bone rest placement; null denotes no measured three-axis extent. Geometry/skeleton admission is delegated to their engine owners.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface computeModelRestExtent produces the three-axis extent consumed by the shot subject framer and the vertical projection computeModelRestExtentY.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The nullable box distinguishes unmeasurable geometry from a valid degenerate extent; external asset bytes and animated deformation are outside this measurement.
-   * @evidence contracts/development/common.md#meaningful-documentation Nullable model-frame rest bounds used by camera subject measurement. Bounds use model metres after part placement and attached-bone rest placement; null denotes no measured three-axis extent. Geometry/skeleton admission is delegated to their engine owners.
    */
   export type IResult = {
     /**

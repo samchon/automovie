@@ -32,23 +32,23 @@ import type { IAutoMovieMotionHumanStrikingHeld } from "../striking/IAutoMovieMo
  * frame's change of the target's predicted place at contact is superposed
  * on the landing one correction latency later (`HumanSwordFollow`).
  *
+ * Timing of every blade attack (`HumanSword.SPEED`, `HumanSwordTiming`):
+ * the hand moves each path as one minimum-jerk unit, lasting 1.875 times the
+ * path over the point's peak speed. The thrust's point peaks at 2.6 m/s at
+ * novice to 3.2 m/s at elite (Chen et al. 2017); the cut's edge peaks at
+ * 6 to 10 m/s (provisional, under the 9.89 m/s of a knife slash, Bleetman et
+ * al. 2003). The performer's `speed` skill reads between them, so a thrust
+ * of 0.8 m takes 0.47 s at elite and 0.58 s at novice. The setting and the
+ * return take the recovery skill's factor, 1.4 at novice to 1.0 at elite;
+ * `manner.pace` stretches the whole clock. A parry's travel is timed the same.
+ *
  * First pass: a body does not stop the blade; binds, winds and redirection
  * are not planned; every pose constant is provisional, from the treatises'
  * figures.
- *
- * @evidence contracts/development/common.md#meaningful-documentation blade: The held blade's prop subject id; the bare hand when absent. hand: The hand that holds it; `right` when absent. tip: The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent.
- * @evidence contracts/development/design.md#principled-representation blade: The held blade's prop subject id; the bare hand when absent. hand: The hand that holds it; `right` when absent. tip: The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.setup, context); lexicon/HumanSword.ts (HumanSword.setup, return); lexicon/HumanSword.ts (HumanSword.aim, s); lexicon/HumanSwordParry.ts (HumanSwordParry.meet, s); lexicon/HumanSword.ts (HumanSword.setup, parts); lexicon/HumanSword.ts (HumanSword.aim, place).
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner, IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingAdvance.Advance, IAutoMovieMotionHumanStrikingHeld.ITool, IAutoMovieMotionHumanStrikingBlade.ISupport identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
  */
 export namespace IAutoMovieMotionHumanSword {
   /**
    * What every blade action takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation blade: The held blade's prop subject id; the bare hand when absent. hand: The hand that holds it; `right` when absent. tip: The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent.
-   * @evidence contracts/development/design.md#principled-representation blade: The held blade's prop subject id; the bare hand when absent. hand: The hand that holds it; `right` when absent. tip: The affordance ids of the held thing's working point and of its edge, for an implement that is no blade (a bat's `barrel`, a racket's `face`, a club's `head`); `point` and `edge` when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.setup, context); lexicon/HumanSword.ts (HumanSword.setup).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical AutoMovieHumanSide, IAutoMovieMotionManner identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IWield {
     /** The held blade's prop subject id; the bare hand when absent. */
@@ -72,11 +72,6 @@ export namespace IAutoMovieMotionHumanSword {
 
   /**
    * Where a cut comes from, as the performer sees it: `forehand` is the blade hand's side.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Where a cut comes from, as the performer sees it: `forehand` is the blade hand's side.
-   * @evidence contracts/development/design.md#principled-representation Closed choices "above", "aboveForehand", "forehand", "belowForehand", "below", "belowBackhand", "backhand", "aboveBackhand" distinguish the admitted cases.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.LINES).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted literal values are declared here directly; runtime handling remains in HumanSword.LINES.
    */
   export type Line =
     | "above"
@@ -90,11 +85,6 @@ export namespace IAutoMovieMotionHumanSword {
 
   /**
    * A direction or a place by its parts: away from the midline on the blade hand's side, up, and forward.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation out: Toward the blade hand's side. up: Up. forward: Forward.
-   * @evidence contracts/development/design.md#principled-representation out: Toward the blade hand's side. up: Up. forward: Forward.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.setup, parts); lexicon/HumanSword.ts (HumanSword.aim, place); lexicon/HumanSwordGuard.ts (HumanSwordGuard.GUARDS).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The admitted fields and units are declared here directly; runtime handling remains in HumanSword.setup.
    */
   export interface IParts {
     /** Toward the blade hand's side. */
@@ -109,11 +99,6 @@ export namespace IAutoMovieMotionHumanSword {
 
   /**
    * Parameters of a cut or a thrust.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation target: What it is aimed at; a place at the blade's reach ahead when absent. advance: How the body goes with it; when absent, the least of none, a step and a lunge that brings the target inside the arm. outcome: Whether it lands or is stopped short for a parry to meet; `lands` when absent.
-   * @evidence contracts/development/design.md#principled-representation target: What it is aimed at; a place at the blade's reach ahead when absent. advance: How the body goes with it; when absent, the least of none, a step and a lunge that brings the target inside the arm. outcome: Whether it lands or is stopped short for a parry to meet; `lands` when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.aim, context); lexicon/HumanSword.ts (HumanSword.stopped, params); lexicon/HumanSwordThrust.ts (HumanSwordThrust.thrust, context); lexicon/HumanSwordTiming.ts (HumanSwordTiming.timed, context); lexicon/HumanSword.ts (HumanSword.aim); lexicon/HumanSwordThrust.ts (HumanSwordThrust.thrust).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionTarget, IAutoMovieMotionHumanStrikingAdvance.Advance identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IAttack extends IAutoMovieMotionHumanSword.IWield {
     /** What it is aimed at; a place at the blade's reach ahead when absent. */
@@ -125,19 +110,15 @@ export namespace IAutoMovieMotionHumanSword {
     /** Whether it lands or is stopped short for a parry to meet; `lands` when absent. */
     outcome?: "lands" | "parried";
 
-    /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried.
-     * Exclusive minimum: 0. Exclusive maximum: 1. Unit: dimensionless. Admission metadata is enforced by HumanPerformanceParams for generated action and row schemas.
-     */
+    /** A feint: the share of the stroke shown before it is withdrawn, in (0, 1); it then neither lands nor is parried. */
     feint?: number;
+
+    /** Whether the parry that meets a `parried` attack takes its blade: the attack then ends where it was stopped, not back in its entry hold, for the parry to carry it aside and a following action to hold it there; false when absent. */
+    taken?: boolean;
   }
 
   /**
    * Parameters of a cut.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation from: Where the cut comes from; `above` when absent.
-   * @evidence contracts/development/design.md#principled-representation from: Where the cut comes from; `above` when absent.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.cut, context); lexicon/HumanSword.ts (HumanSword.cut).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanSword.Line identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ICut extends IAutoMovieMotionHumanSword.IAttack {
     /** Where the cut comes from; `above` when absent. */
@@ -146,11 +127,6 @@ export namespace IAutoMovieMotionHumanSword {
 
   /**
    * The performer's axes and the held blade, read once per plan.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation support: Where the other hand holds the grip, or null for one hand. arm: The upper arm and the forearm together, metres. shoulder: The blade hand's shoulder joint at the entry, world metres.
-   * @evidence contracts/development/design.md#principled-representation support: Where the other hand holds the grip, or null for one hand. arm: The upper arm and the forearm together, metres. shoulder: The blade hand's shoulder joint at the entry, world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.setup, return); lexicon/HumanSword.ts (HumanSword.aim, s); lexicon/HumanSwordParry.ts (HumanSwordParry.meet, s); lexicon/HumanSword.ts (HumanSword.cut); lexicon/HumanSwordGuard.ts (HumanSwordGuard.guard); lexicon/HumanSwordParry.ts (HumanSwordParry.parry).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieMotionHumanStrikingHeld.ITool, IAutoMovieMotionHumanStrikingBlade.ISupport, IAutoMovieVector3, IAutoMovieMotionHumanSword.IParts identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface ISetup {
     /** The held blade in the hand's frame. */
@@ -167,14 +143,6 @@ export namespace IAutoMovieMotionHumanSword {
 
     /**
      * A direction by its parts as a world vector, about a heading in degrees; the entry's heading when absent.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSword.ISetup.world: A direction by its parts as a world vector, about a heading in degrees; the entry's heading when absent.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
      */
     world: (
       parts: IAutoMovieMotionHumanSword.IParts,
@@ -183,25 +151,12 @@ export namespace IAutoMovieMotionHumanSword {
 
     /**
      * A quantity between its novice and elite values at the performer's speed skill.
-     *
-     * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSword.ISetup.skill: A quantity between its novice and elite values at the performer's speed skill.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
      */
     skill: (pair: readonly [number, number]) => number;
   }
 
   /**
    * What an attack's target and advance give its geometry.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation target: The point aimed at, world metres. yaw: That line's heading, degrees. travel: How far it carries the leading foot, metres: the least of its travel that brings the target within reach.
-   * @evidence contracts/development/design.md#principled-representation target: The point aimed at, world metres. yaw: That line's heading, degrees. travel: How far it carries the leading foot, metres: the least of its travel that brings the target within reach.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Runtime boundary references: lexicon/HumanSword.ts (HumanSword.aim, return); lexicon/HumanSword.ts (HumanSword.cut); lexicon/HumanSwordThrust.ts (HumanSwordThrust.thrust).
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Shares the canonical IAutoMovieVector3, IAutoMovieMotionHumanStrikingAdvance.Advance, IAutoMovieMotionHumanPosture identities used at the listed runtime boundaries; input admission and numerical solving stay with those producers and consumers.
    */
   export interface IAim {
     /** The point aimed at, world metres. */

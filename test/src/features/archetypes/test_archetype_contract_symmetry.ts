@@ -1,4 +1,4 @@
-import type { Archetype } from "@automovie/archetypes";
+import type { AutoMovieArchetype } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -48,7 +48,7 @@ export function test_archetype_contract_symmetry(): void {
     };
   const complaints: string[] = [];
   for (const row of archetypeCatalog()) {
-    const model: Archetype = row.create();
+    const model: AutoMovieArchetype = row.create();
     for (const a of model.affordances as readonly IAutoMovieAffordance[]) {
       if (!GRIPS.has(a.kind)) {
         if (a.symmetry !== undefined)

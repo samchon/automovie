@@ -1,6 +1,6 @@
 import {
-  ArchetypeFrame,
-  ArchetypeUnits,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
   createBar,
   createDoor,
   createLadder,
@@ -146,7 +146,7 @@ export function test_archetype_architecture_bands(): void {
       row(
         "door clear width",
         0.815,
-        3 * ArchetypeUnits.FOOT,
+        3 * AutoMovieArchetypeUnits.FOOT,
         `${ADA} 404.2.3`,
         (seed: number): number =>
           createDoor({}, seed).affordance("aperture").width!,
@@ -154,16 +154,16 @@ export function test_archetype_architecture_bands(): void {
       ),
       row(
         "push plate height",
-        45 * ArchetypeUnits.INCH,
-        45 * ArchetypeUnits.INCH,
+        45 * AutoMovieArchetypeUnits.INCH,
+        45 * AutoMovieArchetypeUnits.INCH,
         "ANSI/SDI A250.8 Table 5",
         (seed: number): number =>
           y(createDoor({ hardware: "plate" }, seed).affordance("push").frame),
       ),
       row(
         "pull bar height",
-        42 * ArchetypeUnits.INCH,
-        42 * ArchetypeUnits.INCH,
+        42 * AutoMovieArchetypeUnits.INCH,
+        42 * AutoMovieArchetypeUnits.INCH,
         "ANSI/SDI A250.8 Table 5",
         (seed: number): number =>
           y(createDoor({ hardware: "plate" }, seed).affordance("pull").frame),
@@ -228,7 +228,7 @@ export function test_archetype_architecture_bands(): void {
         1 / 12,
         `${ADA} 405.2`,
         (seed: number): number => {
-          const normal: IAutoMovieVector3 = ArchetypeFrame.axis(
+          const normal: IAutoMovieVector3 = AutoMovieArchetypeFrame.axis(
             createRamp({}, seed).affordance("slope").frame,
             "y",
           );
@@ -393,8 +393,8 @@ export function test_archetype_architecture_bands(): void {
     ]),
     [],
   );
-  const inch: number = ArchetypeUnits.INCH;
-  const foot: number = ArchetypeUnits.FOOT;
+  const inch: number = AutoMovieArchetypeUnits.INCH;
+  const foot: number = AutoMovieArchetypeUnits.FOOT;
   const leaf = (door: ReturnType<typeof createDoor>): number[] => [
     archetypeExtent(door, "x", ["leaf"]).size,
     archetypeExtent(door, "y", ["leaf"]).size,

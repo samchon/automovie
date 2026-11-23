@@ -1,4 +1,7 @@
-import { type IArchetypeBand, createDrinkware } from "@automovie/archetypes";
+import {
+  type IAutoMovieArchetypeBand,
+  createDrinkware,
+} from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -16,12 +19,8 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  HumanChain,
-  HumanColliders,
-  HumanObject,
-  HumanRefusal,
-} from "@automovie/motions";
+import { HumanChain, HumanObject, HumanRefusal } from "@automovie/motions";
+import { HumanColliders } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { archetypeCatalogueRigidGrip } from "./archetypeCatalogueRigidGrip";
@@ -285,7 +284,7 @@ export function archetypeCatalogueVesselContact(
   if (first === 0 && last === 200)
     for (const [axis, bounds] of extrema) {
       const model: Model = createDrinkware({ kind }, 0);
-      const band: IArchetypeBand | undefined =
+      const band: IAutoMovieArchetypeBand | undefined =
         model.provenance.bands[
           axis === "handle bar"
             ? "handleDiameter"
@@ -374,13 +373,13 @@ function vesselFilm(
   const chain: IAutoMovieMotionHumanChain =
     action === "use"
       ? picked.handToFace({
-          task: "drink",
+          kind: "drink",
           prop: "vessel",
           grasp: { handle, line: "square" },
         })
       : action === "carry"
         ? picked.walk({ to: { x: 0, y: 0, z: 1 } })
-        : picked.stand({ seconds: 0.5, sway: 0 });
+        : picked.stand({ hold: 0.5, sway: 0 });
   return motionHumanLaw.perform(seed, [{ subject: ACTOR, body }], chain, [
     placement,
   ]);

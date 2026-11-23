@@ -1,6 +1,7 @@
 import {
-  type ArchetypeRide,
-  type QuadrupedBody,
+  type AutoMovieArchetypeEquine,
+  type AutoMovieArchetypeQuadrupedBody,
+  type AutoMovieArchetypeRide,
   type createHorse,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -21,9 +22,9 @@ type Gait = "walk" | "trot" | "canter" | "gallop";
 type Animal = ReturnType<typeof createHorse>;
 
 /** Complete public ride type; the shared law adds its body dimensions. */
-type Ride = ArchetypeRide.IRide<
-  createHorse.Affordance,
-  createHorse.Dimension | QuadrupedBody.Dimension
+type Ride = AutoMovieArchetypeRide.IRide<
+  AutoMovieArchetypeEquine.Affordance,
+  AutoMovieArchetypeEquine.Dimension | AutoMovieArchetypeQuadrupedBody.Dimension
 >;
 
 /**
@@ -43,7 +44,7 @@ type Ride = ArchetypeRide.IRide<
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Models and rides are retained only for the current tack/case; prior sample maps die inside the scenario. Only caller-owned failure strings escape, with no host, cache or global state.
  */
 export function equidAttachmentMatrix(
-  produce: (tack: createHorse.Tack) => Animal,
+  produce: (tack: AutoMovieArchetypeEquine.Tack) => Animal,
   name: string,
   gaits: readonly Gait[],
   findings: string[],
@@ -56,7 +57,10 @@ export function equidAttachmentMatrix(
   };
   const contactIds: Readonly<
     Record<
-      Exclude<createHorse.Tack, "bare" | createHorse.Alternative>,
+      Exclude<
+        AutoMovieArchetypeEquine.Tack,
+        "bare" | AutoMovieArchetypeEquine.Alternative
+      >,
       readonly string[]
     >
   > = {
@@ -170,7 +174,7 @@ export function equidAttachmentMatrix(
     const sample: ReturnType<Ride["at"]> = ride.at(seconds);
     for (const contact of sample.archetype.affordances) {
       const actual: IAutoMovieTransform = ride.frame(
-        contact.id as createHorse.Affordance,
+        contact.id as AutoMovieArchetypeEquine.Affordance,
         seconds,
       );
       const expected: IAutoMovieTransform["translation"] = Vector3.add(

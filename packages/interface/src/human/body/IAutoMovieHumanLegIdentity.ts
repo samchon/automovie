@@ -6,12 +6,6 @@ import type { IAutoMovieHumanBodyAnatomy } from "./IAutoMovieHumanBodyAnatomy";
  * Thigh length, shank length and ankle height are vertical height intervals in the same standing-surface datum. Their sum is the trochanterion height of that leg, the top of the greater trochanter above the standing surface.
  *
  * A measure `IAutoMovieHumanBodyAnatomy` also declares (the right side there) takes its range from that declaration, so no measure has two ranges.
- *
- *
- * @evidence contracts/development/common.md#meaningful-documentation One leg, measured standing.
- * @evidence contracts/development/design.md#principled-representation `thighLength`: Thigh length: trochanterion height minus tibiale height, the top of the greater trochanter to the upper edge of the medial tibial condyle, millimetres. `shankLength`: Shank length: tibiale height minus lateral malleolus height, millimetres. `ankleHeight`: Lateral malleolus height: the lateral malleolus landmark, the most laterally prominent point of the fibula's lower end, above the standing surface, millimetres (ANSUR II; women 62.7, SD 5.1, men 72.9, SD 5.7).
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMovieHumanLegIdentity is the canonical exchange used by FootGiven.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Required fields are `thighLength`, `shankLength`, `ankleHeight`, `footLength`, `footBreadth`, `navicularHeight`, `thighCircumference`, `lowerThighCircumference`, `calfCircumference`, `ankleCircumference`, `hipFlexion`, `hipExtension`, `kneeFlexion`, `kneeHyperextension`, `ankleDorsiflexion`, `anklePlantarFlexion`; callers supply the complete record.
  */
 export interface IAutoMovieHumanLegIdentity {
   /**

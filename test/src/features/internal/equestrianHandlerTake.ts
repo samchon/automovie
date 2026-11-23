@@ -1,10 +1,11 @@
 import {
-  type ArchetypeRide,
-  EquineCare,
-  EquineExpression,
-  type EquineExpressionCue,
-  EquineStance,
-  HorseSaddleProp,
+  AutoMovieArchetypeEquine,
+  AutoMovieArchetypeEquineCare,
+  AutoMovieArchetypeEquineExpression,
+  type AutoMovieArchetypeEquineExpressionCue,
+  AutoMovieArchetypeEquineSaddleProp,
+  AutoMovieArchetypeEquineStance,
+  type AutoMovieArchetypeRide,
   createGroomingBrush,
   createHalter,
   createHorse,
@@ -23,17 +24,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanMount,
   HumanChain,
-  HumanLeadHorse,
   HumanObject,
   HumanPerformance,
-  HumanTendHorse,
 } from "@automovie/motions";
 
 import { equineLeadOut } from "./equineLeadOut";
 
 /**
- * The staged handler-and-horse takes of `test_motion_equestrian_handler`, one short take per task, each starting where its acceptance begins: leading the horse in, brushing it with a picked-up brush, putting the halter on, saddling it, and holding a lifted hoof through the horse's weight shift and startle.
+ * The staged handler-and-horse takes of `test_motion_mount_equestrian_handler`, one short take per task, each starting where its acceptance begins: leading the horse in, brushing it with a picked-up brush, putting the halter on, saddling it, and holding a lifted hoof through the horse's weight shift and startle.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what each take stages and who reads it.
  * @evidence contracts/development/design.md#principled-representation A scene name, a take record and its builder.
@@ -59,9 +59,9 @@ export namespace equestrianHandlerTake {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the handler test.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None.
    */
-  export type Ride = ArchetypeRide.IRide<
-    createHorse.Affordance,
-    createHorse.Dimension
+  export type Ride = AutoMovieArchetypeRide.IRide<
+    AutoMovieArchetypeEquine.Affordance,
+    AutoMovieArchetypeEquine.Dimension
   >;
 
   /**
@@ -108,7 +108,10 @@ export namespace equestrianHandlerTake {
     /** The horse as displayed, on the take's clock. */
     horse: (
       at: number,
-    ) => ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension>;
+    ) => AutoMovieArchetypeRide.ISample<
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
+    >;
 
     /** The horse's contact frames, care points included, at a take second. */
     part: (id: string, at: number) => IAutoMovieTransform;
@@ -156,10 +159,11 @@ export namespace equestrianHandlerTake {
       { tack: "bareback", withersHeight: 1.6, tempo: 0 },
       5,
     );
-    const saddle: ReturnType<typeof HorseSaddleProp.of> = HorseSaddleProp.of(
-      createHorse({ tack: "saddle", withersHeight: 1.6, tempo: 0 }, 5),
-      horse,
-    );
+    const saddle: ReturnType<typeof AutoMovieArchetypeEquineSaddleProp.of> =
+      AutoMovieArchetypeEquineSaddleProp.of(
+        createHorse({ tack: "saddle", withersHeight: 1.6, tempo: 0 }, 5),
+        horse,
+      );
     // The handler leads the horse in on a straight approach; its progress is matched to the handler's walk in the lead-in.
     const approach = (course: equineLeadOut.IMatchedCourse): Ride =>
       rideHorse(
@@ -182,10 +186,11 @@ export namespace equestrianHandlerTake {
       acceleration: 1,
       deceleration: 1,
     });
-    const care: EquineCare.IPoints = EquineCare.of(horse);
-    const halt: ArchetypeRide.ISample<
-      createHorse.Affordance,
-      createHorse.Dimension
+    const care: AutoMovieArchetypeEquineCare.IPoints =
+      AutoMovieArchetypeEquineCare.of(horse);
+    const halt: AutoMovieArchetypeRide.ISample<
+      AutoMovieArchetypeEquine.Affordance,
+      AutoMovieArchetypeEquine.Dimension
     > = ride.at(ride.duration);
     const girth: IAutoMovieTransform = care.frame(halt, "groomLeft");
     const hoofAt: IAutoMovieVector3 = care.frame(
@@ -269,8 +274,8 @@ export namespace equestrianHandlerTake {
               (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
                 hand.registered("leadHorse", {
                   on: "horse",
-                  side: "right",
-                  seconds: 0.79 * leading,
+                  hand: "right",
+                  duration: 0.79 * leading,
                   transition: 0.1 * leading,
                 }),
             );
@@ -278,7 +283,7 @@ export namespace equestrianHandlerTake {
       if (scene === "brush")
         return handler
           .pickUp({ prop: "brush", handle: "grip", hand: "right" })
-          .stand({ seconds: 4 })
+          .stand({ hold: 4 })
           .over(
             (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
               hand.registered("tendHorse", {
@@ -286,13 +291,13 @@ export namespace equestrianHandlerTake {
                 side: "right",
                 point: brushPoint,
                 task: "brush",
-                seconds: 3.6,
+                duration: 3.6,
                 transition: 0.6,
                 stroke: 0.3,
                 tool: { prop: "brush", face: "face" },
               }),
           )
-          .putDown({ prop: "brush", hand: "right", at: shelf });
+          .putDown({ prop: "brush", hand: "right", to: shelf });
       if (scene === "headgear")
         return handler
           .pickUp({ prop: "halter", handle: "grip", hand: "right" })
@@ -301,7 +306,7 @@ export namespace equestrianHandlerTake {
             hand: "right",
             onto: { prop: "horse", point: "headgear", via: "seat" },
           })
-          .stand({ seconds: 1 });
+          .stand({ hold: 1 });
       if (scene === "saddle")
         return handler
           .pickUp({ prop: "saddle", handle: "grip", hand: "right" })
@@ -311,7 +316,7 @@ export namespace equestrianHandlerTake {
             hand: "right",
             onto: { prop: "horse", point: "saddle", via: "seat" },
           })
-          .stand({ seconds: 1 });
+          .stand({ hold: 1 });
       return handler.crouch({ depth: "full", hold: 4 }, "low").over(
         (hand: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
           hand.registered("tendHorse", {
@@ -319,7 +324,7 @@ export namespace equestrianHandlerTake {
             side: "right",
             point: "leftForeHoof",
             task: "hoof",
-            seconds: 3.4,
+            duration: 3.4,
             transition: 0.6,
           }),
       );
@@ -337,7 +342,7 @@ export namespace equestrianHandlerTake {
       const part = (id: string, at: number): IAutoMovieTransform =>
         care.affordances.some((a: IAutoMovieAffordance): boolean => a.id === id)
           ? care.frame(shown.at(at + offset), id)
-          : shown.frame(id as createHorse.Affordance, at + offset);
+          : shown.frame(id as AutoMovieArchetypeEquine.Affordance, at + offset);
       return { model, place, part };
     };
     const stage = (
@@ -349,7 +354,10 @@ export namespace equestrianHandlerTake {
       return new HumanPerformance({
         seed: "equine-handler",
         performers: [performer],
-        laws: [HumanTendHorse, HumanLeadHorse],
+        laws: [
+          AutoMovieMotionHumanMount.tendHorse,
+          AutoMovieMotionHumanMount.leadHorse,
+        ],
         props: [
           HumanObject.prop("horse", model, place(0), place, part),
           HumanObject.prop("brush", BRUSH, { at: shelf, yaw: 0, fixed: false }),
@@ -367,8 +375,10 @@ export namespace equestrianHandlerTake {
       film,
       horse: (
         at: number,
-      ): ArchetypeRide.ISample<createHorse.Affordance, createHorse.Dimension> =>
-        shown.at(at + offset),
+      ): AutoMovieArchetypeRide.ISample<
+        AutoMovieArchetypeEquine.Affordance,
+        AutoMovieArchetypeEquine.Dimension
+      > => shown.at(at + offset),
       part: prop(shown, offset).part,
       affordances: [...horse.affordances, ...care.affordances],
       halter,
@@ -402,7 +412,9 @@ export namespace equestrianHandlerTake {
       // While the handler puts the halter on, the horse holds its head lowered to the handler's chest.
       const shown: Ride =
         scene === "headgear"
-          ? EquineExpression.layer(horse, ride, [lowered(ride.duration, spot)])
+          ? AutoMovieArchetypeEquineExpression.layer(horse, ride, [
+              lowered(ride.duration, spot),
+            ])
           : ride;
       return finish(shown, offset, stage(shown, offset, null));
     }
@@ -411,7 +423,7 @@ export namespace equestrianHandlerTake {
     const rehearsal: HumanPerformance = stage(ride, offset, null);
     const hold: IAutoMovieMotionHumanSegment =
       rehearsal.overlays("handler")[0]!;
-    const stance: Ride = EquineStance.after(horse, ride, [
+    const stance: Ride = AutoMovieArchetypeEquineStance.after(horse, ride, [
       {
         kind: "hoof",
         limb: "leftFore",
@@ -428,24 +440,28 @@ export namespace equestrianHandlerTake {
         exit: 0.8,
       },
     ]);
-    const shown: Ride = EquineExpression.layer(horse, stance, [
-      {
-        kind: "ear",
-        side: "left",
-        carriage: "lateral",
-        from: offset + hold.start,
-        to: offset + hold.end,
-        ease: 0.3,
-      },
-      {
-        kind: "ear",
-        side: "right",
-        carriage: "forward",
-        from: offset + hold.end + 1.4,
-        to: offset + hold.end + 3,
-        ease: 0.2,
-      },
-    ]);
+    const shown: Ride = AutoMovieArchetypeEquineExpression.layer(
+      horse,
+      stance,
+      [
+        {
+          kind: "ear",
+          side: "left",
+          carriage: "lateral",
+          from: offset + hold.start,
+          to: offset + hold.end,
+          ease: 0.3,
+        },
+        {
+          kind: "ear",
+          side: "right",
+          carriage: "forward",
+          from: offset + hold.end + 1.4,
+          to: offset + hold.end + 3,
+          ease: 0.2,
+        },
+      ],
+    );
     return finish(shown, offset, stage(shown, offset, null));
   }
 
@@ -453,7 +469,7 @@ export namespace equestrianHandlerTake {
   function lowered(
     halt: number,
     spot: IAutoMovieVector3,
-  ): EquineExpressionCue.IReach {
+  ): AutoMovieArchetypeEquineExpressionCue.IReach {
     return {
       kind: "reach",
       act: "sniff",

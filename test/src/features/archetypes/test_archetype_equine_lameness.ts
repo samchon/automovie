@@ -1,7 +1,7 @@
 import {
-  ArchetypeFrame,
-  ArchetypeRefusal,
-  type QuadrupedLameness,
+  AutoMovieArchetypeFrame,
+  type AutoMovieArchetypeQuadrupedLameness,
+  AutoMovieArchetypeRefusal,
   createHorse,
   rideHorse,
   type rideQuadruped,
@@ -16,7 +16,7 @@ interface ICase {
   /** What is checked. */
   label: string;
   /** The authored lameness, if any. */
-  lameness?: QuadrupedLameness.ILameness;
+  lameness?: AutoMovieArchetypeQuadrupedLameness.ILameness;
   /** The part whose height is read: the head or the pelvis (hindquarters). */
   part: string;
   /** The left minus right difference of that part's lowest height over each side's half-stride, metres. */
@@ -100,7 +100,7 @@ export function test_archetype_equine_lameness(): void {
         trot({
           limb: "leftFore",
           grade: "severe",
-        } as unknown as QuadrupedLameness.ILameness),
+        } as unknown as AutoMovieArchetypeQuadrupedLameness.ILameness),
     ],
   ] as const) {
     let refusal: unknown;
@@ -109,14 +109,19 @@ export function test_archetype_equine_lameness(): void {
     } catch (error) {
       refusal = error;
     }
-    if (!(refusal instanceof ArchetypeRefusal && refusal.axis === "lameness"))
+    if (
+      !(
+        refusal instanceof AutoMovieArchetypeRefusal &&
+        refusal.axis === "lameness"
+      )
+    )
       issues.push(`${label} is not refused`);
   }
   TestValidator.equals("lameness asymmetry", issues, []);
 
   /** A straight constant-speed ride. */
   function trot(
-    lameness: QuadrupedLameness.ILameness | undefined,
+    lameness: AutoMovieArchetypeQuadrupedLameness.ILameness | undefined,
     gait: "trot" | "canter" = "trot",
   ): Ride {
     const speed: number = gait === "trot" ? SPEED : 6;
@@ -153,7 +158,10 @@ function lowest(ride: Ride, id: string, limb: string): number {
       )!;
       low = Math.min(
         low,
-        ArchetypeFrame.point(sample.placement, part.transform!.translation).y,
+        AutoMovieArchetypeFrame.point(
+          sample.placement,
+          part.transform!.translation,
+        ).y,
       );
     }
     total += low;

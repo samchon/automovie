@@ -1,5 +1,5 @@
 import {
-  ArchetypeUnits,
+  AutoMovieArchetypeUnits,
   createInstrument,
   createMicrophone,
 } from "@automovie/archetypes";
@@ -88,7 +88,7 @@ export function test_archetype_music_instruments(): void {
     { kind: "guitar" },
     5,
   );
-  const scale: number = 25.4 * ArchetypeUnits.INCH;
+  const scale: number = 25.4 * AutoMovieArchetypeUnits.INCH;
   for (let k: number = 1; k <= 6; k++)
     if (Math.abs(guitar.affordance(`string${k}`).length! - scale) > 3e-4)
       findings.push(
@@ -151,16 +151,16 @@ export function test_archetype_music_instruments(): void {
     ...archetypeBandSweep([
       row(
         "drum diameter",
-        14 * ArchetypeUnits.INCH,
-        14 * ArchetypeUnits.INCH,
+        14 * AutoMovieArchetypeUnits.INCH,
+        14 * AutoMovieArchetypeUnits.INCH,
         "Sonor MP 1412 X",
         (s: number): number =>
           archetypeExtent(createInstrument({ kind: "sideDrum" }, s), "x").size,
       ),
       row(
         "drum depth",
-        ArchetypeUnits.FOOT,
-        ArchetypeUnits.FOOT,
+        AutoMovieArchetypeUnits.FOOT,
+        AutoMovieArchetypeUnits.FOOT,
         "Sonor MP 1412 X",
         (s: number): number =>
           archetypeExtent(createInstrument({ kind: "sideDrum" }, s), "y").size,

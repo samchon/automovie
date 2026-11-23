@@ -1,14 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 
 import {
-  Archetype,
-  ArchetypeBand,
-  ArchetypeBuilder,
   ArchetypeDraw,
-  ArchetypeDrawSession,
-  ArchetypeFrame,
-  ArchetypeUnits,
-  type IArchetypeBand,
+  AutoMovieArchetype,
+  AutoMovieArchetypeBand,
+  AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeDrawSession,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeUnits,
+  type IAutoMovieArchetypeBand,
 } from "../core";
 
 /** What a plyometric box commonly measures. */
@@ -21,12 +21,12 @@ const BOX: string =
  * It stands on the floor with the middle of its footprint at the origin.
  * `surface` is its top.
  *
- * The wooden box rests on its wooden base: wood on concrete (`ArchetypeFriction`).
+ * The wooden box rests on its wooden base: wood on concrete (`AutoMovieArchetypeFriction`).
  *
  * @param params The kind and any dimension the author fixes.
  * @param seed The seed that draws every dimension left free inside its band; absent, each takes the middle of its band.
  * @returns The box.
- * @throws {ArchetypeRefusal} For a fixed dimension outside its band.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how it stands and the contact.
  * @evidence contracts/development/implementation.md#principled-implementation One box of the drawn height, width and depth, its top the contact.
@@ -39,9 +39,9 @@ const BOX: string =
 export function createPlyoBox(
   params: createPlyoBox.IParams,
   seed?: number | string,
-): Archetype<createPlyoBox.Affordance, createPlyoBox.Dimension> {
-  const draw: ArchetypeDrawSession<createPlyoBox.Dimension> =
-    new ArchetypeDrawSession<createPlyoBox.Dimension>(
+): AutoMovieArchetype<createPlyoBox.Affordance, createPlyoBox.Dimension> {
+  const draw: AutoMovieArchetypeDrawSession<createPlyoBox.Dimension> =
+    new AutoMovieArchetypeDrawSession<createPlyoBox.Dimension>(
       "plyoBox",
       createPlyoBox.UNITS,
       seed,
@@ -57,10 +57,10 @@ export function createPlyoBox(
     createPlyoBox.BANDS[kind],
     createPlyoBox.BANDS,
   );
-  const builder: ArchetypeBuilder<
+  const builder: AutoMovieArchetypeBuilder<
     createPlyoBox.Affordance,
     createPlyoBox.Dimension
-  > = new ArchetypeBuilder({
+  > = new AutoMovieArchetypeBuilder({
     material: "wood",
     id: params.id,
     name: "plyometric box",
@@ -75,7 +75,7 @@ export function createPlyoBox(
   builder.affordance({
     id: "surface",
     kind: "surface",
-    frame: ArchetypeFrame.upright(Vector3.create(0, d.height!, 0)),
+    frame: AutoMovieArchetypeFrame.upright(Vector3.create(0, d.height!, 0)),
     extent: null,
     width: d.width!,
     depth: d.depth!,
@@ -112,7 +112,9 @@ export namespace createPlyoBox {
   export type Dimension = "height" | "width" | "depth" | "mass";
 
   /** Each dimension's unit, which its band and any model's figure for it share. */
-  export const UNITS: Readonly<Record<Dimension, ArchetypeDrawSession.Unit>> = {
+  export const UNITS: Readonly<
+    Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
+  > = {
     height: "m",
     width: "m",
     depth: "m",
@@ -130,28 +132,28 @@ export namespace createPlyoBox {
 
   /** The band of each free dimension, by kind. */
   export const BANDS: Readonly<
-    Record<Kind, Readonly<Partial<Record<Dimension, IArchetypeBand>>>>
+    Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
     wood: {
-      height: ArchetypeBand.metres(
-        20 * ArchetypeUnits.INCH,
-        30 * ArchetypeUnits.INCH,
+      height: AutoMovieArchetypeBand.metres(
+        20 * AutoMovieArchetypeUnits.INCH,
+        30 * AutoMovieArchetypeUnits.INCH,
         BOX,
         true,
       ),
-      width: ArchetypeBand.metres(
-        20 * ArchetypeUnits.INCH,
-        30 * ArchetypeUnits.INCH,
+      width: AutoMovieArchetypeBand.metres(
+        20 * AutoMovieArchetypeUnits.INCH,
+        30 * AutoMovieArchetypeUnits.INCH,
         BOX,
         true,
       ),
-      depth: ArchetypeBand.metres(
-        20 * ArchetypeUnits.INCH,
-        30 * ArchetypeUnits.INCH,
+      depth: AutoMovieArchetypeBand.metres(
+        20 * AutoMovieArchetypeUnits.INCH,
+        30 * AutoMovieArchetypeUnits.INCH,
         BOX,
         true,
       ),
-      mass: ArchetypeBand.of(
+      mass: AutoMovieArchetypeBand.of(
         "kg",
         15,
         25,

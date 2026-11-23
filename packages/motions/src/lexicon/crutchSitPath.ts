@@ -24,18 +24,16 @@ const LIFT: number = 0.04;
 
 /**
  * The geometry of sitting and rising with two crutches held in one hand
- * (#3994): the crutches' grip and tip, a crutch's frame tilted about its
- * planted tip, a carried crutch's lifted path, and a prop's offset in the
- * grip frame of the hand that is about to hold it.
+ * (#3994): the crutches' grip and tip, a crutch's frame tilted with its tip
+ * on the floor, a carried crutch's lifted path, a hand's grip socket, and a
+ * crutch's offset in the grip frame of the hand that holds it.
  *
  * A crutch stands on its tip, its shaft along its own `+Y`; the grip lies
- * `length` above the tip. Pivoting on the planted tip, the crutch tilts in
- * the vertical plane of the seat's heading, its top back toward the seated
- * body, so the grip comes down an arc of that radius.
+ * `length` above the tip.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the namespace computes and the crutch's frame.
  * @evidence contracts/development/design.md#principled-representation A crutch is its rigid frame with a grip and a tip; every path is a frame of it.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Five functions the crutch sit reads.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface Six functions the crutch sit reads.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The grip's height is the crutch's own contact, never typed.
  */
 export namespace crutchSitPath {
@@ -98,32 +96,33 @@ export namespace crutchSitPath {
   }
 
   /**
-   * The crutch's frame pivoted on its planted tip by a tilt about a level axis.
+   * A crutch's frame with its tip on a point and its shaft toward another,
+   * its handgrip turned toward a heading: the frame of a crutch tilting as
+   * its tip slides along the floor.
    *
    * @param c The crutch.
-   * @param tip The planted tip, world metres.
-   * @param upright The crutch's rotation standing upright.
-   * @param axis The level axis it tilts about, world.
-   * @param degrees The tilt, degrees by the right-hand rule about the axis.
+   * @param tip The tip, world metres.
+   * @param toward A point the shaft points to from the tip, world metres.
+   * @param forward The level heading the handgrip's axis turns to, world.
    * @returns The crutch's world frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, frames and result.
-   * @evidence contracts/development/implementation.md#principled-implementation The tilt composes before the upright rotation and the tip stays where it is planted.
+   * @evidence contracts/development/implementation.md#principled-implementation The rotation turning the shaft's `+Y` onto the tip-to-point direction and its `+Z` toward the heading (`HumanHand.align`), placed so the tip stays on its point.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one placement.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Exact rigid geometry.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to share.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
    */
-  export function pivoted(
+  export function slid(
     c: ICrutch,
     tip: IAutoMovieVector3,
-    upright: IAutoMovieQuaternion,
-    axis: IAutoMovieVector3,
-    degrees: number,
+    toward: IAutoMovieVector3,
+    forward: IAutoMovieVector3,
   ): IAutoMovieRigidTransform {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(Quaternion.fromAxisAngle(axis, degrees), upright),
+    const rotation: IAutoMovieQuaternion = HumanHand.align(
+      { normal: UP, forward: { x: 0, y: 0, z: 1 } },
+      { normal: Vector3.normalize(Vector3.subtract(toward, tip)), forward },
     );
     return {
       position: Vector3.subtract(tip, Quaternion.rotateVector(rotation, c.tip)),
@@ -161,6 +160,89 @@ export namespace crutchSitPath {
         Vector3.scale(UP, LIFT * minimumJerk.share(2 * Math.min(s, 1 - s))),
       ),
       rotation: Quaternion.slerp(from.rotation, to.rotation, blend),
+    };
+  }
+
+  /**
+   * A hand's grip socket on a pose, world metres.
+   *
+   * @param body The body.
+   * @param pose The pose.
+   * @param side The hand.
+   * @returns The grip socket's world point.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and result.
+   * @evidence contracts/development/implementation.md#principled-implementation The grip socket read by `HumanHand.frame` on the pose's bones.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One pose read.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Read on the displayed entry pose.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One forward kinematics of the hand's chain.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per hand.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function socket(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 {
+    return HumanHand.frame(
+      body,
+      poseBones(
+        body,
+        pose,
+        undefined,
+        HumanHand.frameBones(body, side, "grip"),
+      ),
+      side,
+      "grip",
+    ).point;
+  }
+
+  /**
+   * A crutch in the grip frame of the hand that closes on its handgrip: the
+   * grip socket on the handgrip, the hand turned as it holds a front-to-back
+   * bar at its side, the fingers down and the palm in (the suitcase grasp the
+   * crutch walk's hands take), with the crutch on its world frame.
+   *
+   * @param side The hand.
+   * @param c The crutch.
+   * @param frame The crutch's world frame as the hand closes on it.
+   * @param yaw The heading the hand faces, degrees.
+   * @param prop The crutch's subject.
+   * @param affordances Its contacts.
+   * @returns The crutch in the hand's grip frame.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States the grasp, the frames and the result.
+   * @evidence contracts/development/implementation.md#principled-implementation The inverse of the hand's rigid frame applied to the crutch's: the offset `AutoMovieMotionHumanHeld` keeps while the grip holds.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rotation and one inverse transform.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The socket lies on the crutch's own grip.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Read once per crutch.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   */
+  export function grasped(
+    side: AutoMovieHumanSide,
+    c: ICrutch,
+    frame: IAutoMovieRigidTransform,
+    yaw: number,
+    prop: string,
+    affordances: readonly IAutoMovieAffordance[],
+  ): IAutoMovieMotionHumanHeld.IHeld {
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      HumanHand.facing(side, yaw, { fingers: "down", palm: "in" }),
+    );
+    return {
+      prop,
+      side,
+      frame: {
+        position: Quaternion.rotateVector(
+          inverse,
+          Vector3.scale(Quaternion.rotateVector(frame.rotation, c.grip), -1),
+        ),
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(inverse, frame.rotation),
+        ),
+      },
+      affordances,
     };
   }
 

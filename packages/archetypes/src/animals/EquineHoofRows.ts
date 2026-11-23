@@ -1,12 +1,12 @@
 import { Vector3, minimumJerk } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { ArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeFrame } from "../core";
+import type { AutoMovieArchetypeEquineComfortCue } from "./AutoMovieArchetypeEquineComfortCue";
+import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { EquineBodyPose } from "./EquineBodyPose";
-import type { EquineComfortCue } from "./EquineComfortCue";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
-import type { QuadrupedBody } from "./QuadrupedBody";
 
 /** The share of a lifting row's entry spent moving the weight off the hoof before it leaves the floor: authored, as the stance rows' own. */
 const LOAD: number = 0.35;
@@ -44,11 +44,6 @@ interface IPawShape {
  * The comfort rows that move one hoof: pawing, stamping and the cow-kick.
  *
  * Each first moves the weight inside the other three hooves (`EquineStanceSupport.transfer`) and only then moves its hoof; every row returns to its start through its exit. Pawing scrapes the hoof back along the floor once per stroke, so it meets the floor in each; a stamp strikes the hoof back on its own place; a cow-kick swings the hind hoof forward toward the belly at an insect (Przewalski's horse ethogram, BMC Zoology 2022, Table 3). The amplitudes are authored.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States each row, the weight transfer and that amplitudes are authored.
- * @evidence contracts/development/design.md#principled-representation Each row is a stance plan.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `EquineComfortRows.plan`.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The planted hooves keep their anchors.
  */
 export namespace EquineHoofRows {
   /**
@@ -59,24 +54,16 @@ export namespace EquineHoofRows {
    * @param cue The paw.
    * @returns Its plan, returning to the start.
    * @throws {RangeError} For strokes that are not a positive whole number.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the output and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The weight moves off the fore and the trunk settles; the hoof is lifted behind its place; through the hold each stroke swings it on a lifted path to `PAW.reach` ahead and scrapes it back along the floor to `PAW.drag` behind.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Load, then the hoof's own motion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states and chain.
    */
   export function paw<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.IPaw,
+    cue: AutoMovieArchetypeEquineComfortCue.IPaw,
   ): EquineStanceRows.IPlan {
     if (!(Number.isInteger(cue.strokes) && cue.strokes > 0))
       throw new RangeError("Pawing takes a positive whole number of strokes");
-    const limb: QuadrupedBody.Limb = `${cue.side}Fore`;
-    const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const limb: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Fore`;
+    const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       Vector3.add(EquineStanceSupport.transfer(body, start, limb), {
         x: 0,
@@ -163,21 +150,13 @@ export namespace EquineHoofRows {
    * @param start The state it starts from.
    * @param cue The stamp.
    * @returns Its plan, returning to the start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the output.
-   * @evidence contracts/development/implementation.md#principled-implementation The weight moves off the hoof, the hoof rises `STAMP` straight up and the exit strikes it back down on its own place.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Load, then the hoof's own motion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states and chain.
    */
   export function stamp<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.IStamp,
+    cue: AutoMovieArchetypeEquineComfortCue.IStamp,
   ): EquineStanceRows.IPlan {
-    const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       EquineStanceSupport.transfer(body, start, cue.limb),
     );
@@ -232,22 +211,14 @@ export namespace EquineHoofRows {
    * @param start The state it starts from.
    * @param cue The cow-kick.
    * @returns Its plan, returning to the start.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the output.
-   * @evidence contracts/development/implementation.md#principled-implementation The weight moves off the hind, then its chain at release folds by `COW_KICK`, swinging the hoof forward toward the belly.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Load, then the hoof's own motion.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reach and floor are left to the stance's admission, never clamped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per pose.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the stance's support rules.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan holds its states and chain.
    */
   export function cowKick<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
-    cue: EquineComfortCue.ICowKick,
+    cue: AutoMovieArchetypeEquineComfortCue.ICowKick,
   ): EquineStanceRows.IPlan {
-    const limb: QuadrupedBody.Limb = `${cue.side}Hind`;
-    const loaded: ArchetypeFrame.IMotion = EquineStanceSupport.moved(
+    const limb: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Hind`;
+    const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(
       start.trunk,
       EquineStanceSupport.transfer(body, start, limb),
     );

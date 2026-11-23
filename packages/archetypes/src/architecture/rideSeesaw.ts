@@ -4,7 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { type Archetype, ArchetypeFrame, ArchetypeRefusal } from "../core";
+import {
+  type AutoMovieArchetype,
+  AutoMovieArchetypeFrame,
+  AutoMovieArchetypeRefusal,
+} from "../core";
 import type { createSeesaw } from "./createSeesaw";
 
 /** A unit scale: the rides move rigid frames. */
@@ -29,7 +33,7 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @param placement Its world placement.
  * @param ride The push-off seconds and each rock's duration.
  * @returns The beam's angle, its frame and the low end at each ride second.
- * @throws {ArchetypeRefusal} For push-offs out of order, or closer than one rock.
+ * @throws {AutoMovieArchetypeRefusal} For push-offs out of order, or closer than one rock.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the clock, the rest limits, the push-off rule and the start.
  * @evidence contracts/development/implementation.md#principled-implementation The beam's limits are its ground contacts; each authored push-off starts one rest-to-rest rock between them.
@@ -40,7 +44,7 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the push-off list while the caller keeps the ride.
  */
 export function rideSeesaw(
-  seesaw: Archetype<createSeesaw.Affordance, createSeesaw.Dimension>,
+  seesaw: AutoMovieArchetype<createSeesaw.Affordance, createSeesaw.Dimension>,
   placement: IAutoMovieTransform,
   ride: rideSeesaw.IParams,
 ): rideSeesaw.IRide {
@@ -50,7 +54,7 @@ export function rideSeesaw(
   ride.pushes.forEach((at: number, index: number): void => {
     const before: number = index === 0 ? ride.settle : ride.pushes[index - 1]!;
     if (!(Number.isFinite(at) && at >= before + ride.swing && ride.swing > 0))
-      throw new ArchetypeRefusal({
+      throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "seesaw",
         axis: "pushes",
@@ -81,7 +85,7 @@ export function rideSeesaw(
     limit,
     angle,
     beam: (seconds: number): IAutoMovieTransform =>
-      ArchetypeFrame.compose(placement, {
+      AutoMovieArchetypeFrame.compose(placement, {
         scale: ONE,
         translation: { x: 0, y: seesaw.dimensions.pivot!, z: 0 },
         rotation: Quaternion.fromAxisAngle(AXIS, angle(seconds)),
@@ -100,11 +104,6 @@ export function rideSeesaw(
 export namespace rideSeesaw {
   /**
    * When the riders push off and how long a rock takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit.
-   * @evidence contracts/development/design.md#principled-representation Ride seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `rideSeesaw`.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Push-offs alternate ends by order.
    */
   export interface IParams {
     /** The ride second the beam, held level while the riders sit, is let go; its front end then drops to the ground over one rock. */
@@ -119,11 +118,6 @@ export namespace rideSeesaw {
 
   /**
    * One rocking seesaw's readers.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Each member states its unit and clock.
-   * @evidence contracts/development/design.md#principled-representation Degrees and world frames over ride seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What a rider's composition and the test read.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No reader stores a pose.
    */
   export interface IRide {
     /** The beam's angle with an end on the ground, degrees. */

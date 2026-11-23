@@ -27,13 +27,6 @@ import type { IAutoMovieStagedSet } from "./IAutoMovieStagedSet";
  *
  * Every optional field states what omitting it does; none changes the shot of
  * a caller that omits it beyond what that field documents.
- *
- * @evidence contracts/development/design.md#principled-representation Separates what the shot is made of (script, stage, performance) from the capabilities that realize it (synthesizer, rig, axes, rest frames, live targets) and the evidence that gates it (blocking, gaits, actor context), each a plain value or lookup the caller owns.
- * @evidence contracts/development/design.md#minimal-and-owned-surface IAutoMoviePerformShotProps owns performShot's canonical inputs; caller registry callbacks avoid copying rig authorities, and optional framing/coupling context is read by the corresponding compilation stage.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No field exists for a test or a fixture; every optional field is a real capability or piece of evidence a production caller supplies.
- * @evidence contracts/development/common.md#meaningful-documentation Each field states its meaning, its units or frame where it has one, and what omitting it does.
- *
- * Inputs and registry answers must remain stable for the synchronous compile. Callback exceptions propagate without rollback of caller side effects; the engine retains no callback after returning. Authored object/light clip records can be shared with the returned shot, so callers must not treat the result as a deep copy of every input.
  */
 export interface IAutoMoviePerformShotProps {
   /** The script whose beats the performance may realize. */
@@ -53,14 +46,6 @@ export interface IAutoMoviePerformShotProps {
   /**
    * Rig lookup by node id; null for a node with no skeleton, whose clip skips
    * the range-of-motion gate and whose subject is measured without a rig span.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation A pure lookup the caller owns, so every gate, the stance pass, coupling and the framer read one rig per node; it must answer the same rig for the same id throughout the call.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A lookup rather than a table, because the caller's actor registry already indexes rigs and copying it into the input would add a second authority.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine never substitutes a rig for a null answer; a rig-less node is handled by each stage's stated rule.
-   * @evidence contracts/development/common.md#meaningful-documentation States the key, what null means and its two consequences.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Called a bounded number of times per actor and target, so its cost is the caller's index lookup times a small multiple of the action count.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller's registry is the shared index; the performance stage asks it rather than caching rigs it does not own.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The engine keeps no rig past the call; the returned skeletons belong to the caller's registry.
    */
   skeleton: (node: string) => IAutoMovieSkeleton | null;
 
@@ -109,28 +94,12 @@ export interface IAutoMoviePerformShotProps {
   /**
    * Actor-registry membership; omitted, a bone target's actor is not checked
    * against a registry.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Keeps a missing actor context distinct from a present context with no rig, so a bone target on an unregistered node is refused with the reason that actually applies.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A predicate over the caller's registry, read only by the bone-target check; omitting it skips that one check rather than changing any other rule.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The engine assumes nothing about membership when it is omitted and never fabricates a context for a node.
-   * @evidence contracts/development/common.md#meaningful-documentation States what it answers and what omitting it does.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Asked once per bone target that names a staged node, a handful per beat.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A membership test the caller's registry already indexes; nothing is worth caching across a few calls.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing; the predicate is held only for the call.
    */
   hasActorContext?: (node: string) => boolean;
 
   /**
    * Per-node joint axes the renderer uses, so ground planting and attachment
    * baking read the rig through one basis. Omitted, both use their defaults.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The planted feet and attached props are solved through the same joint frames the renderer animates with, so a pinned foot and a held prop land where they are drawn.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Passed straight through to the stance pass and the coupling baker, the two consumers that pose a rig in world space.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No axis set is invented per actor; an omitted lookup or a node it does not answer uses the solvers' documented default.
-   * @evidence contracts/development/common.md#meaningful-documentation States who reads it, why it must match the renderer, and what omitting it does.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Asked once per planted actor and once per coupling parent.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pass-through lookup into the caller's rig data; no answer is recomputed here.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The answered records belong to the caller and are read, not stored.
    */
   jointAxes?: (
     node: string,
@@ -139,14 +108,6 @@ export interface IAutoMoviePerformShotProps {
   /**
    * Per-node rest frames the renderer uses, so planting and `attachTo` clips
    * read the visible pose rather than raw rig-space forward kinematics.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Ground contact and bone-carried props are measured on the pose the viewer shows, which is rig forward kinematics composed with these clinical rest frames.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Handed unchanged to the stance pass and the coupling baker, with no interpretation of its own in the performance stage.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An omitted lookup falls back to raw rig-space forward kinematics for every node alike, never to a guessed frame.
-   * @evidence contracts/development/common.md#meaningful-documentation States its readers, the pose it aligns them to, and the fallback.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Queried per planted actor and per coupling parent, not per frame.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller's rig data answers it directly, so there is nothing to memoize here.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Frames stay owned by the caller; this stage holds them only during the solve.
    */
   restFrames?: (
     node: string,
@@ -156,14 +117,6 @@ export interface IAutoMoviePerformShotProps {
    * Live resolver for targets whose point changes during the shot; its `null`
    * falls back to the staged placement. Positions are world metres at
    * shot-local seconds.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Lets a target that moves, such as a bone on a walking actor, be aimed and framed where it is at the instant asked, with the staged placement as the stated fallback.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolver shared by the target gate, the launch lead and the subject framer, so a gated target, a lead and a framed subject agree.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A null answer falls back by rule, and a non-finite answer is refused by the target gate rather than accepted.
-   * @evidence contracts/development/common.md#meaningful-documentation States what it resolves, the fallback, and the units and clock of its arguments and result.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Asked once per positional target at gate time, and per sampled instant only for a bone launch lead or a followed bone subject.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each instant is a different question, so answers are not memoized here.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The resolver is held by the launch lead and the framed subject until `performShot` returns, and nothing it answers is stored beyond the shot's baked clips.
    */
   targetAt?: (
     target: IAutoMovieActionTarget,
@@ -173,14 +126,6 @@ export interface IAutoMoviePerformShotProps {
   /**
    * The gait names each actor supplies; a `locomote` naming another gait is a
    * violation. Omitted, or `undefined` for a node, skips the check.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The reference synthesizer resolves a gait by name and produces no motion for an unknown one, so the actor's own vocabulary is the domain a `locomote` gait must belong to.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read only by the `locomote` check, as a lookup into the caller's actor contexts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent vocabulary skips the check rather than assuming one, and no gait name is special-cased.
-   * @evidence contracts/development/common.md#meaningful-documentation States what it lists, the violation it arms, and both ways to skip it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One lookup and one linear membership test per actor of each `locomote`, over a short gait list.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller's contexts index the lists; a beat's few locomotes need no cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned lists are the caller's and are only read.
    */
   gaits?: (node: string) => readonly string[] | undefined;
 

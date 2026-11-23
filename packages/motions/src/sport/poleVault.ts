@@ -6,6 +6,7 @@ import {
   preparePoseResolution,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
   IAutoMovieMotionEvent,
@@ -19,12 +20,13 @@ import type {
   IAutoMovieMotionHumanPoleVault,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionPropLaunch,
-  IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { walkPoleFrame } from "../actions/walkPoleFrame";
+import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
@@ -46,15 +48,21 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  * on to come down lying on the landing surface.
  *
  * The pole is a held prop (`AutoMovieMotionHumanHeld`): taken up before,
- * typically by a pick up with a use, and rigid in the hand. Its planted end
- * is the prop's `tip` affordance, or the one named.
+ * in one hand or two (a vaulter's top hand and lower hand), and rigid in
+ * them. Its planted end is the prop's `tip` affordance, or the one named.
  *
  * 1. Take-off: the jump's push-off (`GymnasticsTakeoff`) at the run's speed,
- *    kept, rising at `ANGLE`. Over it the holding hand carries the pole from
- *    the entry to the plant: the hand as high above the shoulder as the arm
- *    reaches, unless the pole is too short to reach the floor from there
- *    leaning `LEAN` or more, then lower, and the pole's end on the floor
- *    ahead along the run.
+ *    kept, rising at `ANGLE`. Over it the hands carry the pole on from the
+ *    run's drop (`plants`, `walkPoleCarriage`) to the plant: the top arm
+ *    straight, raised until its forearm meets the pole at the grip's own
+ *    neutral angle (`walkPoleFrame.plant`), no higher than lets the pole
+ *    lean `LEAN` from upright, and the pole's end slides along the planting line,
+ *    from where the run left it to the planted point on the floor ahead
+ *    along the run, at the pole's length from that grip, each hand placed
+ *    by its hold (`walkPoleFrame`): the end comes down onto the plant from
+ *    above and never passes through the floor, as a vaulter's tip falls onto
+ *    the box as the top hand rises overhead (Coaches Insider, "Pole carry
+ *    and drop").
  * 2. Swing, about one axis, the body's left one through the planted end:
  *    body and pole turn as one rigid pendulum. At the plant the centre's
  *    velocity across the pendulum's radius is kept, as the angular momentum
@@ -72,17 +80,12 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  * hands, so there is no inversion, no pull and turn and no push off the
  * pole, which a bending pole and a body that rocks back over its hands
  * give a vaulter (the multi-axis case is #3416); the pole's own mass and
- * the body's inertia about its centre are left out of the pendulum; the
- * other hand keeps the jump's arm swing; the released pole flies from the
+ * the body's inertia about its centre are left out of the pendulum; a hand
+ * that does not hold the pole keeps the jump's arm swing; the released pole flies from the
  * velocity of its origin in the swing (`launches`) rather than pivoting on
  * in the box.
  *
  * Events: `takeoff` (the plant), `release`, `touchdown`, `settled`, `relax`.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the figure, the pole, the three phases with their physics, the refusal, the first pass and the events.
- * @evidence contracts/development/design.md#principled-representation The jump's push-off, a pendulum table from the take-off's own centre and velocity, and a parabola; the hand on the pole is its held frame.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The name, the cancel and accept tables, the angles, the parameters and the plan.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The pole's length is the prop's; speeds follow from the run.
  */
 export namespace poleVault {
   /** The action's name. */
@@ -114,20 +117,21 @@ export namespace poleVault {
   /** The number of steps the swing's table is integrated in. */
   const STEPS: number = 200;
 
+  /** The centre's height at the take-off, share of the stature: 1.24 m of a 1.855 m vaulter (Frontiers in Sports and Active Living 2022, 10.3389/fspor.2022.835659, men's take-off CM height and upper grip at 121.3 % of stature). */
+  const CENTRE_HIGH: number = 1.24 / 1.855;
+
+  /** How far the centre stands behind the top hand at the take-off, share of the stature: the take-off foot 0.14 m behind the upper hand, the centre over it (the same study). */
+  const CENTRE_BEHIND: number = 0.14 / 1.855;
+
+  /** The halvings the grip's bisection takes: a pole's length to well under a millimetre. */
+  const SPLITS: number = 24;
+
   /**
    * Plan a pole vault.
    *
    * @param context The action's context.
    * @returns The plan.
    * @throws {HumanRefusal} When no hand holds the pole, the run is slower than `RUN`, the pole cannot reach the floor, the run cannot bring the pole upright, or the body is not above the landing surface at the release.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and the refusals.
-   * @evidence contracts/development/implementation.md#principled-implementation The plant from the arm's reach and the pole's length; the swing from the kept angular momentum and the pendulum's energy; the flight ballistic; the touchdown bisected on the lowest shape.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The pole, the take-off, the plant, the pendulum table, the flight, the landing, then the posture by phase.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every bound refuses with its numbers; the wrist goal is corrected by the solved end's height so the end is on the floor, and the pivot is the end where the solved hand actually puts it.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Four jump plans, STEPS stations and touchdown bisection remain. Station rates serve admission/trapezoids and monotone seconds use O(log STEPS) lookup. Shoulder/grip FK request actual dependencies while wrist goals fit fully. One native floor demand/profile selection serves every actual bisection station; fixed flight COM/joints and scalar easing omit unused work. Speedup is unmeasured.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses held prop, take-off, flight, mat and support owners. The unchanged run fixes requested launch components; every original aim call receives a fresh copy. One fixed take-off raw query supplies shoulder/raw root with local FK/projector loans. Entered hand/root displacement, half-outward pole hint and hand arc prepare once; corrected wrist displacement stays current. Adjacent trapezoids share initial rate squared/endpoint rates; one released raw supplies COM/checked flight preparation. Wrist trials retain real solves/grip demand; push/landing forward synchronous loans.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns take-off, pendulum table, mass model, fixed hand arc, raw take-off root and one released articulation/local COM. Initial raw posture/shoulder map and its local FK/projector end with their IIFE, leaving two owned vectors. Rate arrays and grip demand end with construction; native floor reader/FK/projector end with the local touchdown operation, leaving one second. Borrowed query loans never enter the plan or output evidence.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPoleVault.IParams>,
@@ -137,9 +141,19 @@ export namespace poleVault {
     const model: IAutoMovieResolveCenterOfMass.IModel =
       GymnasticsFlight.model(body);
 
-    // The pole in the hand that holds it.
-    const side: "left" | "right" =
-      context.entry.holds.right === p.pole ? "right" : "left";
+    // The pole in the hands that hold it, the top hand (the farther from
+    // the planted end) carrying it.
+    const found: walkPoleFrame.IPole | undefined = walkPoleFrame.of(
+      context,
+      p.pole,
+      p.end ?? "tip",
+    );
+    const side: AutoMovieHumanSide =
+      found === undefined
+        ? context.entry.holds.right === p.pole
+          ? "right"
+          : "left"
+        : found.hands[0]!.side;
     const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       side,
@@ -149,6 +163,8 @@ export namespace poleVault {
       held,
       p.end ?? "tip",
     ).point;
+    // Held, with its end: the reads above refuse otherwise.
+    const pole: walkPoleFrame.IPole = found!;
     const length: number = Vector3.length(end);
     const readGrip: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       body,
@@ -157,13 +173,6 @@ export namespace poleVault {
     const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       readGrip(context.entry.pose);
     const hand0: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
-    const socket: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(hand0.worldRotation),
-      Vector3.subtract(
-        HumanHand.frame(body, entered, side, "grip").point,
-        hand0.worldPosition,
-      ),
-    );
 
     // The run: its speed kept, rising at `ANGLE`.
     const run: IAutoMovieVector3 = {
@@ -196,17 +205,15 @@ export namespace poleVault {
       );
     const off: number = takeoff.seconds;
 
-    // The plant: the hand as high as the arm reaches over the shoulder, or
-    // as high as lets the pole lean `LEAN` to the floor, ahead of it.
+    // The plant's shoulders, on the take-off's trunk.
     const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> =
-      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
-    const {
-      shoulder,
-      root: rootT,
-    }: { shoulder: IAutoMovieVector3; root: IAutoMovieVector3 } = ((): {
-      shoulder: IAutoMovieVector3;
-      root: IAutoMovieVector3;
-    } => {
+      new Set<AutoMovieHumanoidBone>(
+        pole.hands.map(
+          (hand: walkPoleFrame.IHand): AutoMovieHumanoidBone =>
+            `${hand.side}UpperArm`,
+        ),
+      );
+    const { shoulders, root: rootT }: ITakeoffFrame = ((): ITakeoffFrame => {
       const resolution: ReturnType<typeof preparePoseResolution> =
         preparePoseResolution();
       const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -217,28 +224,42 @@ export namespace poleVault {
         resolution,
         projection,
       );
-      const shoulder: IAutoMovieVector3 = poseBones(
-        body,
-        resolveHumanPosture.seeded(
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(
           body,
-          raw,
-          undefined,
-          undefined,
+          resolveHumanPosture.seeded(
+            body,
+            raw,
+            undefined,
+            undefined,
+            resolution,
+            shoulderBones,
+            projection,
+          ).pose,
           resolution,
           shoulderBones,
-          projection,
-        ).pose,
-        resolution,
-        shoulderBones,
-      ).get(`${side}UpperArm`)!.worldPosition;
-      return { shoulder, root: raw.root };
+        );
+      const shoulders: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> =
+        {};
+      for (const hand of pole.hands)
+        shoulders[hand.side] = bones.get(`${hand.side}UpperArm`)!.worldPosition;
+      return { shoulders, root: raw.root };
     })();
+    const shoulder: IAutoMovieVector3 = shoulders[side]!;
     const reach: number = body.measure.upperArm + body.measure.forearm;
-    const high: number = Math.min(
-      shoulder.y + reach,
-      length * Math.cos((LEAN * Math.PI) / 180),
+    // The top arm straight at the plant, raised so its forearm meets the
+    // pole at the grip's own neutral angle: a power grip holds the pole
+    // across the palm at that angle with the wrist and the forearm twist
+    // neutral, where an arm straight overhead asked the wrist past its
+    // range (`walkPoleFrame.plant`).
+    const stance: walkPoleFrame.IPlant | undefined = walkPoleFrame.plant(
+      shoulder.y,
+      reach,
+      length,
+      walkPoleFrame.neutral(pole),
+      LEAN,
     );
-    if (high < shoulder.y - reach)
+    if (stance === undefined)
       throw new HumanRefusal({
         kind: "reach",
         axis: "pole",
@@ -246,61 +267,55 @@ export namespace poleVault {
         reason: `the pole reaches ${length.toFixed(2)} m from the hand, too short to stand on the floor from a hand the arm can hold`,
         fix: "vault with a longer pole",
       });
-    const grip: IAutoMovieVector3 = Vector3.add(
-      { ...shoulder, y: high },
-      Vector3.scale(
-        ahead,
-        Math.sqrt(Math.max(0, reach * reach - (high - shoulder.y) ** 2)),
-      ),
+    const high: number = stance.high;
+    // The top hand's grip at the plant, along the straight arm ahead, and
+    // the end on the floor ahead of it along the run.
+    const raised: number = (stance.arm * Math.PI) / 180;
+    const plantGrip: IAutoMovieVector3 = Vector3.add(
+      shoulder,
+      Vector3.add(Vector3.scale(ahead, reach * Math.cos(raised)), {
+        x: 0,
+        y: reach * Math.sin(raised),
+        z: 0,
+      }),
     );
     const planted: IAutoMovieVector3 = Vector3.add(
-      { ...grip, y: 0 },
-      Vector3.scale(ahead, Math.sqrt(length * length - high * high)),
-    );
-    const along: IAutoMovieVector3 = Vector3.normalize(end);
-    const wanted: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(planted, grip),
-    );
-    const turning: IAutoMovieVector3 = Quaternion.rotateVector(
-      hand0.worldRotation,
-      along,
-    );
-    const axis: IAutoMovieVector3 = Vector3.cross(turning, wanted);
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        Vector3.length(axis) < 1e-9
-          ? Quaternion.identity()
-          : Quaternion.fromAxisAngle(
-              axis,
-              (Math.acos(
-                Math.max(-1, Math.min(1, Vector3.dot(turning, wanted))),
-              ) *
-                180) /
-                Math.PI,
-            ),
-        hand0.worldRotation,
+      { ...plantGrip, y: 0 },
+      Vector3.scale(
+        ahead,
+        Math.sqrt(Math.max(0, length * length - high * high)),
       ),
     );
-    let wrist: IAutoMovieVector3 = Vector3.subtract(
-      grip,
-      Quaternion.rotateVector(rotation, socket),
-    );
-    const outward: IAutoMovieVector3 = Vector3.scale(
-      Vector3.normalize(Vector3.cross({ x: 0, y: 1, z: 0 }, ahead)),
-      side === "left" ? 1 : -1,
-    );
 
-    // The push-off, its holding arm carrying the pole to the plant. The
-    // wrist's path is laid on the root, which runs on under it: from its
-    // place off the entry's root to its place off the take-off's.
+    // The push-off, both hands carrying the pole on from the run's drop to
+    // the plant: the top hand's grip from the entry's to the plant's, laid
+    // on the root, which runs on under it; the end sliding along the
+    // planting line, from where the entry holds it to the planted point, at
+    // the pole's length from that grip; each hand placed by its hold on the
+    // pole's line (`walkPoleFrame`).
     const root0: IAutoMovieVector3 = context.entry.posture.root;
-    const handFrom: IAutoMovieVector3 = Vector3.subtract(
-      hand0.worldPosition,
-      root0,
+    const gripFrom: IAutoMovieVector3 = HumanHand.frame(
+      body,
+      entered,
+      side,
+      "grip",
+    ).point;
+    const tipFrom: IAutoMovieVector3 = Vector3.add(
+      gripFrom,
+      Quaternion.rotateVector(hand0.worldRotation, end),
     );
-    const poleBend: IAutoMovieVector3 = Vector3.scale(outward, 0.5);
-    const handTurn: ReturnType<typeof Quaternion.prepareSlerp> =
-      Quaternion.prepareSlerp(hand0.worldRotation, rotation);
+    const slide: IAutoMovieVector3 = Vector3.subtract(planted, tipFrom);
+    const pathFrom: IAutoMovieVector3 = Vector3.subtract(gripFrom, root0);
+    const pathTo: IAutoMovieVector3 = Vector3.subtract(plantGrip, rootT);
+    // The plant's correction of the top wrist's height
+    // (`preparePoleVaultPlant`), from the wrist the plant's line places.
+    const wristPlant: IAutoMovieVector3 = walkPoleFrame.place(
+      pole,
+      plantGrip,
+      Vector3.normalize(Vector3.subtract(planted, plantGrip)),
+      (hand: AutoMovieHumanSide): IAutoMovieVector3 => shoulders[hand]!,
+    )[0]!.wrist;
+    let raise: number = 0;
     const pushing: (
       t: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
@@ -317,21 +332,25 @@ export namespace poleVault {
         projection,
       );
       const u: number = minimumJerk.share(t / off);
-      const point: IAutoMovieVector3 = Vector3.add(
-        base.root,
-        Vector3.lerp(handFrom, Vector3.subtract(wrist, rootT), u),
+      const shift: IAutoMovieVector3 = Vector3.subtract(base.root, rootT);
+      const grip: IAutoMovieVector3 = Vector3.add(
+        Vector3.add(base.root, Vector3.lerp(pathFrom, pathTo, u)),
+        { x: 0, y: raise * u, z: 0 },
       );
-      return {
-        ...base,
-        limbs: {
-          ...base.limbs,
-          [`${side}Arm`]: {
-            point,
-            rotation: handTurn(u),
-            bend: Vector3.add(point, poleBend),
-          },
-        },
-      };
+      const tip: IAutoMovieVector3 =
+        onLine(tipFrom, slide, grip, length) ?? planted;
+      return walkPoleFrame.write(
+        base,
+        walkPoleFrame.place(
+          pole,
+          grip,
+          Vector3.normalize(Vector3.subtract(tip, grip)),
+          (hand: AutoMovieHumanSide): IAutoMovieVector3 =>
+            Vector3.add(shoulders[hand]!, shift),
+        ),
+        (hand: AutoMovieHumanSide): IAutoMovieVector3 =>
+          AutoMovieMotionHumanBend.hang(body, base, hand),
+      );
     };
 
     // The plant as solved: the arm may not turn the hand quite as asked, so
@@ -345,14 +364,14 @@ export namespace poleVault {
         model,
         side,
         end,
-        height: wrist.y,
+        height: wristPlant.y,
         passes: PLANT,
         posture: (
           height: number,
           resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
           projection: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
         ): IAutoMovieMotionHumanPosture => {
-          wrist = { ...wrist, y: height };
+          raise = height - wristPlant.y;
           return pushing(off, resolution, projection);
         },
       });
@@ -503,13 +522,17 @@ export namespace poleVault {
     const duration: number = settled + GymnasticsMat.HOLD;
     const contacts: IAutoMovieMotionHumanContactWindow[] = [
       ...GymnasticsTakeoff.contacts(takeoff, duration),
-      {
-        part: `${side}Hand`,
-        kind: "grip",
-        from: 0,
-        to: release / duration,
-        support: { kind: "prop", subject: p.pole },
-      },
+      // Every holding hand grips the pole to the release, the top hand
+      // first so it carries and the lower steadies (`HumanPerformanceHold`).
+      ...pole.hands.map(
+        (hand: walkPoleFrame.IHand): IAutoMovieMotionHumanContactWindow => ({
+          part: hand.side === "left" ? "leftHand" : "rightHand",
+          kind: "grip",
+          from: 0,
+          to: release / duration,
+          support: { kind: "prop", subject: p.pole },
+        }),
+      ),
       {
         part: "back",
         kind: "lie",
@@ -533,7 +556,9 @@ export namespace poleVault {
     // the rigid swing about the planted end gives its origin.
     const releasedGrip: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       readGrip(resolveHumanPosture(body, released));
-    const hand: IAutoMovieResolvedBone = releasedGrip.get(`${side}Hand`)!;
+    const hand: IAutoMovieResolvedBone = releasedGrip.get(
+      side === "left" ? "leftHand" : "rightHand",
+    )!;
     const origin: IAutoMovieVector3 = Vector3.add(
       HumanHand.frame(body, releasedGrip, side, "grip").point,
       Quaternion.rotateVector(hand.worldRotation, held.frame.position),
@@ -571,4 +596,146 @@ export namespace poleVault {
       },
     };
   }
+
+  /**
+   * What a vault plants as it is entered: the pole, by its planted end, at
+   * no less than `LEAN` from upright, so the run cut into the vault lowers
+   * it over its last strides (`walkPoleCarriage`).
+   *
+   * @param params The vault's parameters.
+   * @returns The plant.
+   */
+  export function plants(
+    params: IAutoMovieMotionHumanPoleVault.IParams,
+  ): IAutoMovieMotionHumanActionLaw.IPlant {
+    return { prop: params.pole, end: params.end ?? "tip", lean: LEAN };
+  }
+
+  /**
+   * The farthest from the planted end the top hand can grip a rigid pole
+   * and still swing it upright from a run at `speed`: a rigid pole stands
+   * only as far as the run's energy carries the body over the planted end,
+   * so a slower run grips lower, as coaches set a beginner's grip from the
+   * approach speed.
+   *
+   * Each grip ℓ is planted as the vault plants (`walkPoleFrame.plant`, the
+   * straight top arm at the body's power-grip angle, `walkPoleFrame.power`), and its swing
+   * judged by the vault's own pendulum: the centre at the take-off 0.668
+   * of the stature high and 0.0755 of it behind the top hand (Frontiers in
+   * Sports and Active Living 2022, 10.3389/fspor.2022.835659: take-off CM
+   * height 1.24 m and the take-off foot 0.14 m behind the upper hand in
+   * men, whose upper grip 2.25 m is 121.3 % of stature, 1.855 m), the run's
+   * speed kept and rising at `ANGLE`, ω₀ = (v_f r_y − v_y r_f) / r², and the
+   * pole upright if ω₀² > (2g / r)(cos β − cos β₀) at its highest β. That
+   * holds for every grip up to one and for none past it, so the grip is
+   * found by bisection on that monotone condition.
+   *
+   * @param body The vaulter's body.
+   * @param side The top hand.
+   * @param speed The run's speed, m/s (`run.speed`).
+   * @param length The pole's whole length, metres: the farthest grip.
+   * @returns The grip's distance from the planted end, metres; the whole length when that already swings upright.
+   * @throws {HumanRefusal} When no grip that plants swings upright at that speed.
+   */
+  export function grip(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    speed: number,
+    length: number,
+  ): number {
+    // The body's own power-grip angle, as a grasp of the bar will hold it.
+    const neutral: number = walkPoleFrame.power(body, side);
+    const stature: number = body.measure.stature;
+    const shoulder: number =
+      body.rest.get(side === "left" ? "leftUpperArm" : "rightUpperArm")!.y -
+      body.rest.get(side === "left" ? "leftFoot" : "rightFoot")!.y +
+      body.measure.ankleHeight;
+    const reach: number = body.measure.upperArm + body.measure.forearm;
+    const rise: number = (ANGLE * Math.PI) / 180;
+    const vf: number = speed * Math.cos(rise);
+    const vy: number = speed * Math.sin(rise);
+    const swings = (l: number): boolean => {
+      const at: walkPoleFrame.IPlant | undefined = walkPoleFrame.plant(
+        shoulder,
+        reach,
+        l,
+        neutral,
+        LEAN,
+      );
+      if (at === undefined) return false;
+      // Along the run from the planted end: the grip behind it, the centre
+      // behind the grip.
+      const ahead: number = Math.sqrt(Math.max(0, l * l - at.high * at.high));
+      const rf: number = -ahead - CENTRE_BEHIND * stature;
+      const ry: number = CENTRE_HIGH * stature;
+      const r2: number = rf * rf + ry * ry;
+      const r: number = Math.sqrt(r2);
+      const omega: number = (vf * ry - vy * rf) / r2;
+      const beta: number = Math.atan2(rf, ry);
+      const upright: number = Math.atan2(ahead, at.high);
+      const top: number = beta + upright >= 0 ? 0 : beta + upright;
+      return (
+        omega > 0 &&
+        omega * omega >
+          ((2 * AutoMovieGravity.STANDARD) / r) * (Math.cos(top) - Math.cos(beta))
+      );
+    };
+    if (swings(length)) return length;
+    // The shortest grip that still plants: its end on the floor from the
+    // hand hanging straight down, leaning `LEAN`.
+    let low: number = Math.max(
+      0,
+      (shoulder - reach) / Math.cos((LEAN * Math.PI) / 180),
+    );
+    let high: number = length;
+    if (!swings(low))
+      throw new HumanRefusal({
+        kind: "base",
+        axis: "run",
+        value: speed,
+        reason: `at ${speed.toFixed(2)} m/s no grip on a rigid pole swings it upright`,
+        fix: "run faster into the vault",
+      });
+    for (let k: number = 0; k < SPLITS; k++) {
+      const middle: number = (low + high) / 2;
+      if (swings(middle)) low = middle;
+      else high = middle;
+    }
+    return low;
+  }
+}
+
+/** The take-off's holding shoulders and root. */
+interface ITakeoffFrame {
+  /** Each holding arm's shoulder joint as the take-off solves it, world metres. */
+  shoulders: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
+
+  /** The take-off's root, world metres. */
+  root: IAutoMovieVector3;
+}
+
+/**
+ * The point of the segment from `from` along `slide` at `length` from
+ * `grip`, the farther along it of the two where the sphere about the grip
+ * meets the segment's line, clamped to the segment; undefined when the
+ * sphere misses the line.
+ */
+function onLine(
+  from: IAutoMovieVector3,
+  slide: IAutoMovieVector3,
+  grip: IAutoMovieVector3,
+  length: number,
+): IAutoMovieVector3 | undefined {
+  const a: number = Vector3.dot(slide, slide);
+  if (!(a > 1e-12)) return undefined;
+  const offset: IAutoMovieVector3 = Vector3.subtract(from, grip);
+  const b: number = 2 * Vector3.dot(slide, offset);
+  const c: number = Vector3.dot(offset, offset) - length * length;
+  const discriminant: number = b * b - 4 * a * c;
+  if (discriminant < 0) return undefined;
+  const along: number = Math.max(
+    0,
+    Math.min(1, (-b + Math.sqrt(discriminant)) / (2 * a)),
+  );
+  return Vector3.add(from, Vector3.scale(slide, along));
 }

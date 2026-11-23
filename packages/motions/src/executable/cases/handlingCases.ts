@@ -20,7 +20,6 @@ import type {
 import { HumanChain } from "../../HumanChain";
 import { createHumanBody } from "../../body/createHumanBody";
 import { HumanGrip } from "../../handling/HumanGrip";
-import { handshake } from "../../handling/handshake";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -100,7 +99,7 @@ export function handlingCases(
         ],
         props: [],
         composition: HumanChain.subject("a")
-          .stand({ seconds: 0.4 })
+          .stand({ hold: 0.4 })
           .walk({ to: { x: 0, y: 0, z: 0.6 } }).node,
       });
       const shoulderAt = (t: number): IAutoMovieVector3 =>
@@ -182,11 +181,11 @@ export function handlingCases(
           ],
           props: [bottle],
           composition: HumanChain.subject("a")
-            .stand({ seconds: 0.4 })
+            .stand({ hold: 0.4 })
             .pickUp({ prop: "bottle", handle: "handle", hand: "right" })
             .walk({ to: { x: 0, y: 0, z: 0.6 } })
-            .putDown({ prop: "bottle", at: target, yaw: 0, hand: "right" })
-            .stand({ seconds: 0.4 }).node,
+            .putDown({ prop: "bottle", to: target, yaw: 0, hand: "right" })
+            .stand({ hold: 0.4 }).node,
         });
       const up = performance.segments("a").find((s) => s.name === "pickUp")!;
       const down = performance.segments("a").find((s) => s.name === "putDown")!;
