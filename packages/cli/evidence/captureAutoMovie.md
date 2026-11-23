@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States how options are read and split, both sources, where they write, what is printed, and the exit status with its reason.
+States how options are read and split, both sources, where they write, what is printed, including the finding outcome and each fixed, new, worse or unmatched finding, and the exit status with its reason, which the finding outcome leaves unchanged.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

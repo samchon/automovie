@@ -5,6 +5,7 @@ export type { IAutoMovieCaptureCellRecord } from "./IAutoMovieCaptureCellRecord"
 export type { IAutoMovieCaptureComparison } from "./IAutoMovieCaptureComparison";
 export type { IAutoMovieCaptureComparisonProps } from "./IAutoMovieCaptureComparisonProps";
 export type { IAutoMovieCaptureDrawing } from "./IAutoMovieCaptureDrawing";
+export type { IAutoMovieCaptureFindingDiff } from "./IAutoMovieCaptureFindingDiff";
 export type { IAutoMovieCaptureFolder } from "./IAutoMovieCaptureFolder";
 export type { IAutoMovieCaptureFolderOpenProps } from "./IAutoMovieCaptureFolderOpenProps";
 export type { IAutoMovieCaptureFramePlan } from "./IAutoMovieCaptureFramePlan";

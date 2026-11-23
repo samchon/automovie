@@ -8,7 +8,7 @@ States both matching rules and why the camera matters, when a pair is measured o
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Index the earlier rows by their key, decide every entry, claim the files, then read, measure and lay out each entry in order.
+Index the earlier rows by their key, decide every entry, claim the files, then read, measure and lay out each entry in order; the findings are diffed by diffAutoMovieCaptureFindings from the two records' audits.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

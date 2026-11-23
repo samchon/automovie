@@ -22,16 +22,44 @@ import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
 
 /**
- * Draw a planned capture through the host's draw function and write its stills, contact sheets and record into its opened folder, so every rule of a capture runs the same in a Node host, a page and a test.
+ * Draw a planned capture through the host's draw function and write its stills,
+ * contact sheets and record into its opened folder, so every rule of a capture
+ * runs the same in a Node host, a page and a test.
  *
- * Each cell is drawn in plan order, one at a time. A drawn still gets its labels stamped at their anchors, at a scale that keeps a label's font pixel at least one sheet pixel after the still is reduced into its cell, and is written as `<cell name>.png` with its content hash. A cell whose draw throws, or returns a picture that is not the subject's raster, is recorded with the cause and stands on the sheet as a marked cell, and the run continues. Sheets are written as `sheet-001.png` onwards as each fills. With a `compare` round, `compareAutoMovieCaptureRounds` follows at `match`. Diagnostics supplied by the drawn cells are reduced in film time for the record. The record comes last.
+ * Each cell is drawn in plan order, one at a time. A drawn still gets its
+ * labels stamped at their anchors, at a scale that keeps a label's font pixel
+ * at least one sheet pixel after the still is reduced into its cell, and is
+ * written as `<cell name>.png` with its content hash. A cell whose draw throws,
+ * or returns a picture that is not the subject's raster, is recorded with the
+ * cause and stands on the sheet as a marked cell, and the run continues. Sheets
+ * are written as `sheet-001.png` onwards as each fills. Diagnostics supplied by
+ * the drawn cells are reduced in film time for the record. With a `compare`
+ * round, `compareAutoMovieCaptureRounds` follows at `match` and diffs those
+ * findings against the earlier record's. The record comes last.
  *
- * Files are touched in the order `AutoMovieCaptureFolder` states: the host opens the folder for the plan's round and compared round, which checks both before anything is deleted; every still and sheet is claimed in a `running` record before the first is written, the comparison's files are claimed before it writes, and the `complete` record is written last. It rejects a folder opened for another round, and a storage failure, leaving a record that owns every file written so far.
+ * Files are touched in the order `AutoMovieCaptureFolder` states: the host
+ * opens the folder for the plan's round and compared round, which checks both
+ * before anything is deleted; every still and sheet is claimed in a `running`
+ * record before the first is written, the comparison's files are claimed before
+ * it writes, and the `complete` record is written last. It rejects a folder
+ * opened for another round, and a storage failure, leaving a record that owns
+ * every file written so far.
  *
  * ```ts
  * const plan = planAutoMovieCapture({ request, subject, cuts: [] });
- * const folder = await AutoMovieCaptureFolder.open({ storage: fs, root: "media/capture", round: request.round, compare: request.compare });
- * const record = await runAutoMovieCapture({ plan, draw, folder, revision, match: "cell" });
+ * const folder = await AutoMovieCaptureFolder.open({
+ *   storage: fs,
+ *   root: "media/capture",
+ *   round: request.round,
+ *   compare: request.compare,
+ * });
+ * const record = await runAutoMovieCapture({
+ *   plan,
+ *   draw,
+ *   folder,
+ *   revision,
+ *   match: "cell",
+ * });
  * ```
  */
 export async function runAutoMovieCapture(
@@ -154,7 +182,18 @@ export async function runAutoMovieCapture(
     sheet = await full(sheet, cell, folder, sheets, sheetNames, plan);
   }
 
-  // The comparison, then the record.
+  // The findings, which the comparison diffs, then the comparison, then the record.
+  const diagnostics: IAutoMovieInspectionDiagnostics.IAudit | undefined =
+    packets.length === 0
+      ? undefined
+      : reduceAutoMovieInspectionEpisodes(
+          packets.sort(
+            (
+              left: IAutoMovieInspectionDiagnostics,
+              right: IAutoMovieInspectionDiagnostics,
+            ): number => left.time.filmSeconds - right.time.filmSeconds,
+          ),
+        );
   const comparison: IAutoMovieCaptureComparison | null =
     request.compare === null
       ? null
@@ -166,6 +205,7 @@ export async function runAutoMovieCapture(
           tolerance: request.tolerance,
           budget: request.budget,
           raster: { width: subject.width, height: subject.height },
+          ...(diagnostics === undefined ? {} : { diagnostics }),
         });
   return folder.close({
     subject: {
@@ -186,22 +226,14 @@ export async function runAutoMovieCapture(
     comparison,
     video: props.video ?? null,
     section: props.section ?? null,
-    ...(packets.length === 0
-      ? {}
-      : {
-          diagnostics: reduceAutoMovieInspectionEpisodes(
-            packets.sort(
-              (
-                left: IAutoMovieInspectionDiagnostics,
-                right: IAutoMovieInspectionDiagnostics,
-              ): number => left.time.filmSeconds - right.time.filmSeconds,
-            ),
-          ),
-        }),
+    ...(diagnostics === undefined ? {} : { diagnostics }),
   });
 }
 
-/** Write the sheet when this cell filled it or was the plan's last, and hand back the sheet still being filled. */
+/**
+ * Write the sheet when this cell filled it or was the plan's last, and hand
+ * back the sheet still being filled.
+ */
 async function full(
   sheet: AutoMovieRasterSheet,
   cell: IAutoMovieCaptureCell,

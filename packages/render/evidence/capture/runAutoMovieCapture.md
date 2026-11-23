@@ -8,7 +8,7 @@ States what is drawn and in what order, how labels are scaled and why, what happ
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Claim, then one loop that draws, stamps, writes and lays each cell, then the last sheet, the comparison and the record; folder rules are the folder's and comparison rules the comparison's.
+Claim, then one loop that draws, stamps, writes and lays each cell, then the last sheet, the reduced diagnostics, the comparison that diffs them and the record; folder rules are the folder's and comparison rules the comparison's.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

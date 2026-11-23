@@ -13,6 +13,7 @@ export * from "./buildAutoMovieInspectionMarks.js";
 export * from "./chooseAutoMovieInspectionMarks.js";
 export * from "./collectAutoMovieCollisionParts.js";
 export * from "./colorAutoMovieInspectionObjects.js";
+export * from "./compareAutoMovieInspectionFindings.js";
 export * from "./createAutoMovieInspectionDiagnosticOverlay.js";
 export * from "./createAutoMovieInspectionDots.js";
 export * from "./createAutoMovieInspectionStrokes.js";

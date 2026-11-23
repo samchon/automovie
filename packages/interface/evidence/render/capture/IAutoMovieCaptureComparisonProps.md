@@ -6,7 +6,7 @@ Different or absent backend identities produce side-by-side records instead of n
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-compareAutoMovieCaptureRounds exchanges folder, round, rows, match, tolerance, budget, raster; their canonical owner is this contract and their concrete meanings are documented on the members.
+compareAutoMovieCaptureRounds exchanges folder, round, rows, match, tolerance, budget, raster and this round's reduced diagnostics; their canonical owner is this contract and their concrete meanings are documented on the members.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
