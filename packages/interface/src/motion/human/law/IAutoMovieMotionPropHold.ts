@@ -55,12 +55,6 @@ export namespace IAutoMovieMotionPropHold {
      * Check the displayed world frame at grip closure against the planned interception.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Takes the current displayed world frame and reports admission by the catch.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The catch law supplies the actual interception check.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable declares the check boundary. The catch owns its geometry.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The owning catch sets the interception conditions and preserves the original tolerance.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The catch owns the size and cost of the geometry check.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The catch owns the planned quantities it can share.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The catch owns the interception state until release.
      */
     matches(frame: IAutoMovieRigidTransform): boolean;
   }

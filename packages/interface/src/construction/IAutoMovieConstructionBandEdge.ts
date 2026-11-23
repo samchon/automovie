@@ -16,12 +16,6 @@ export interface IAutoMovieConstructionBandEdge {
    * The child's chart point on its rail at a band clock.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the chart.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the engine's port and split band builders implement it.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
    */
   rail: (clock: number) => [number, number];
 
@@ -29,12 +23,6 @@ export interface IAutoMovieConstructionBandEdge {
    * The band clock whose rail point stands at a child phase, in `[0, 2 pi)`: the inverse of the monotone correspondence.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the range.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the engine's port and split band builders implement it.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
    */
   clock: (phase: number) => number;
 }

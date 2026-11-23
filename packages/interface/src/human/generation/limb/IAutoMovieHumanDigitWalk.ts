@@ -40,12 +40,6 @@ export namespace IAutoMovieHumanDigitWalk {
      * The laws at a site: `base`, `joint <k>` (k from 1, the first joint after the base), `shaft <k>` (the middle of bone k from 0), `end`.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The laws at a site: `base`, `joint <k>` (k from 1, the first joint after the base), `shaft <k>` (the middle of bone k from 0), `end`.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This law signature specifies the documented callback contract without an implementation body; AutoMovieHumanDigitWalk and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes law at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanDigitWalk.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual law provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanDigitWalk determines the work per law call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanDigitWalk's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the law provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     law(site: string): ISiteLaw;
 

@@ -24,12 +24,6 @@ export namespace IAutoMovieHumanBodySurfaceNormals {
      * Actual world value/phase tangent plan, independent of physical station2.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Actual world value/phase tangent plan, independent of physical station2.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanBodySurfaceNormals and the callback provider must satisfy the documented here contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanBodySurfaceNormals and its callback provider own the cost of each here invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanBodySurfaceNormals and the callback provider determine when the inputs to here describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanBodySurfaceNormals and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanBodySurfaceNormals.IStationJet.here callable contract, without an implementation body. AutoMovieHumanBodySurfaceNormals and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanBodySurfaceNormals.IStationJet.here declares only the invocation boundary; decomposition belongs to AutoMovieHumanBodySurfaceNormals and the callback provider.
      */
     here: (phaseRadians: number) => {
       /** Sampled position in the curve's source frame, millimetres. */
@@ -58,12 +52,6 @@ export namespace IAutoMovieHumanBodySurfaceNormals {
      * Actual world point reader retained by this normal calculation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Actual world point reader retained by this normal calculation.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanBodySurfaceNormals and the callback provider must satisfy the documented at contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanBodySurfaceNormals and its callback provider own the cost of each at invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanBodySurfaceNormals and the callback provider determine when the inputs to at describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanBodySurfaceNormals and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanBodySurfaceNormals.IStationSample.at callable contract, without an implementation body. AutoMovieHumanBodySurfaceNormals and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanBodySurfaceNormals.IStationSample.at declares only the invocation boundary; decomposition belongs to AutoMovieHumanBodySurfaceNormals and the callback provider.
      */
     at: (phaseRadians: number) => AutoMovieVector3Tuple;
   }

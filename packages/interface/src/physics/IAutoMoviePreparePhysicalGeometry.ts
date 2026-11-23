@@ -41,12 +41,6 @@ export namespace IAutoMoviePreparePhysicalGeometry {
      * Synchronously query admitted placed colliders. seconds is a finite local-second receipt label; prediction is finite nonnegative metres and defaults to zero. Return null beyond prediction, otherwise a new geometric receipt with null impulse. Positive separation is still separation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Synchronously query admitted placed colliders. seconds is a finite local-second receipt label; prediction is finite nonnegative metres and defaults to zero. Return null beyond prediction, otherwise a new geometric receipt with null impulse. Positive separation is still separation.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; preparePhysicalGeometry owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; preparePhysicalGeometry owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in preparePhysicalGeometry.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; preparePhysicalGeometry owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; preparePhysicalGeometry owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; preparePhysicalGeometry and the documented reader/caller lifetime own retained data and release.
      */
     contact: (
       a: IAutoMoviePreparePhysicalGeometry.ICollider,
@@ -60,12 +54,6 @@ export namespace IAutoMoviePreparePhysicalGeometry {
      * Read the lowest world Y in metres across the admitted sphere, capsule, box or convex-hull shape. The query borrows its collider and delegates bounds calculation without retaining it or advancing dynamics.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Read the lowest world Y in metres across the admitted sphere, capsule, box or convex-hull shape. The query borrows its collider and delegates bounds calculation without retaining it or advancing dynamics.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; the preparePhysicalGeometry/physicalShapeBounds implementation owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; the preparePhysicalGeometry/physicalShapeBounds implementation owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in preparePhysicalGeometry and physicalShapeBounds.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the preparePhysicalGeometry/physicalShapeBounds implementation owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; the preparePhysicalGeometry/physicalShapeBounds implementation owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; preparePhysicalGeometry and physicalShapeBounds and the documented reader/caller lifetime own retained data and release.
      */
     minimumY: (collider: IAutoMoviePreparePhysicalGeometry.ICollider) => number;
     /**
@@ -74,12 +62,6 @@ export namespace IAutoMoviePreparePhysicalGeometry {
      * Return a fresh nearest surface point in world metres, including for an interior query. Collider and point are borrowed synchronously; query admission failures propagate. This projects onto the surface, not into the solid.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Return a fresh nearest surface point in world metres, including for an interior query. Collider and point are borrowed synchronously; query admission failures propagate. This projects onto the surface, not into the solid.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; preparePhysicalGeometry owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; preparePhysicalGeometry owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in preparePhysicalGeometry.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; preparePhysicalGeometry owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; preparePhysicalGeometry owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; preparePhysicalGeometry and the documented reader/caller lifetime own retained data and release.
      */
     project: (
       collider: IAutoMoviePreparePhysicalGeometry.ICollider,

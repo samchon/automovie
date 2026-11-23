@@ -29,12 +29,6 @@ export namespace IAutoMoviePlanLocalHermite64 {
      * Recomputes an owned plan for a zero-based interval on each call. Indices at or beyond courses.length-1 return empty arrays for terminal lookahead; invalid earlier indices and local arithmetic become a reason. Budget exhaustion discards all leaves for that interval.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States interval ordinals, terminal lookahead, owned recomputed plans and reason/empty-leaf behavior for arithmetic or budget failures.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; planAutoMovieLocalHermite64's interval planning closure own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; planAutoMovieLocalHermite64's interval planning closure own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by planAutoMovieLocalHermite64's interval planning closure.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; planAutoMovieLocalHermite64's interval planning closure own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; planAutoMovieLocalHermite64's interval planning closure decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; planAutoMovieLocalHermite64's interval planning closure own references retained by the supplied callable.
      */
     plan: (interval: number) => IAutoMoviePlanLocalHermite64Plan;
   };

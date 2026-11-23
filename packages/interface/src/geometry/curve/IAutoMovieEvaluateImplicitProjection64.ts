@@ -49,12 +49,6 @@ export namespace IAutoMovieEvaluateImplicitProjection64 {
      * Read the immutable scalar field, gradient and Hessian at a millimetre query point. Exceptions propagate; failed continuation may query sixteen additional ray intervals for diagnostics before throwing.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States immutable millimetre queries, scalar/gradient/Hessian units, callback error propagation and extra diagnostic-ray reads after failed continuation.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; evaluateAutoMovieImplicitProjection64 and the caller's immutable field evaluator own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; evaluateAutoMovieImplicitProjection64 and the caller's immutable field evaluator own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by evaluateAutoMovieImplicitProjection64 and the caller's immutable field evaluator.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; evaluateAutoMovieImplicitProjection64 and the caller's immutable field evaluator own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; evaluateAutoMovieImplicitProjection64 and the caller's immutable field evaluator decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; evaluateAutoMovieImplicitProjection64 and the caller's immutable field evaluator own references retained by the supplied callable.
      */
     field: (point: AutoMovieVector3Tuple) => {
       /** Scalar field value at the supplied point, in the same unit as target.value. */

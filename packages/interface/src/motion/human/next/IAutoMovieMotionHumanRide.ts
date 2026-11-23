@@ -26,12 +26,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   travelCar(
     params: IAutoMovieMotionHumanTravelCar.IParams,
@@ -46,12 +40,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   travelCarExit(
     params: IAutoMovieMotionHumanTravelCarExit.IParams,
@@ -66,12 +54,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   travelLeaf(
     params: IAutoMovieMotionHumanTravelLeaf.IParams,
@@ -86,12 +68,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.rideVehicle is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.rideVehicle is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.rideVehicle is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.rideVehicle is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.rideVehicle is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.rideVehicle is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   rideVehicle(
     params: IAutoMovieMotionHumanRide.IParams,
@@ -106,12 +82,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.board is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.board is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.board is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.board is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.board is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.board is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   board(params: IAutoMovieMotionHumanBoard, anchor?: string): Chain;
 
@@ -123,12 +93,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.handrimStroke is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.handrimStroke is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.handrimStroke is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.handrimStroke is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.handrimStroke is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.handrimStroke is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   handrimStroke(
     params: IAutoMovieMotionHumanHandrimStroke,
@@ -143,12 +107,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.bicycleEffort is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.bicycleEffort is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.bicycleEffort is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.bicycleEffort is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.bicycleEffort is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.bicycleEffort is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   bicycleEffort(
     params: IAutoMovieMotionHumanBicycleEffort,
@@ -163,12 +121,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.bikeGuide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.bikeGuide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.bikeGuide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.bikeGuide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.bikeGuide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.bikeGuide is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   bikeGuide(params: IAutoMovieMotionHumanBikeGuide, anchor?: string): Chain;
 
@@ -180,12 +132,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.bikeTransfer is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.bikeTransfer is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.bikeTransfer is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.bikeTransfer is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.bikeTransfer is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.bikeTransfer is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   bikeTransfer(
     params: IAutoMovieMotionHumanBikeTransfer,
@@ -200,12 +146,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRide.spacecraftGlide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRide.spacecraftGlide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRide.spacecraftGlide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRide.spacecraftGlide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.spacecraftGlide is provided by the chain that implements IAutoMovieMotionHumanRide.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.spacecraftGlide is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   spacecraftGlide(
     params: IAutoMovieMotionHumanSpacecraftGlide,

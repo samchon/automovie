@@ -85,12 +85,6 @@ export namespace IAutoMovieMotionHumanChain {
      * @returns The chain.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IConstructor.subject: An empty chain of a person: no action until one is appended.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChain.IConstructor.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChain.IConstructor.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChain.IConstructor.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChain.IConstructor.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChain.IConstructor.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChain.IConstructor.subject is used through packages/motions/src/HumanChain.ts.
      */
     subject(subject: string): IAutoMovieMotionHumanChain;
 
@@ -109,12 +103,6 @@ export namespace IAutoMovieMotionHumanChain {
      * @throws {Error} When a key differs from its law's name, or names something the chain already has.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IConstructor.extend: The chain with a typed method for each law a production registers: the production's own actions are appended exactly like the vocabulary's. ```ts const Chain = HumanChain.extend({ salute }); Chain.subject("a").walk({ to }).salute({ hold: 1.5 }).stand(); new HumanPerformance({ seed, performers, laws: [salute], composition }); ```
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChain.IConstructor.extend is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChain.IConstructor.extend is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChain.IConstructor.extend is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChain.IConstructor.extend is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChain.IConstructor.extend is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChain.IConstructor.extend is used through packages/motions/src/HumanChain.ts.
      */
     extend<
       Laws extends Readonly<
@@ -145,12 +133,6 @@ export namespace IAutoMovieMotionHumanChain {
      * @throws {Error} When one person is cast in two roles.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IConstructor.mutual: Join people's chains in a mutual action: one thing they do together, such as a handshake, a handover or a lift. Every chain of the cast plays first, side by side, and then every role performs its part of the mutual action at once, so each person's earlier actions are placed before any role plans the meeting. `HumanMutual` holds the vocabulary's mutual actions; a production states its own as an `IAutoMovieMotionHumanMutual` over its registered laws. ```ts HumanChain.mutual(HumanMutual.handOver, { giver: a, receiver: b }, { prop: "cup", handle: "body" }); ```
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChain.IConstructor.mutual is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChain.IConstructor.mutual is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChain.IConstructor.mutual is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChain.IConstructor.mutual is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChain.IConstructor.mutual is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChain.IConstructor.mutual is used through packages/motions/src/HumanChain.ts.
      */
     mutual<Params extends object, Role extends string>(
       mutual: IAutoMovieMotionHumanMutual<Params, Role>,
@@ -169,12 +151,6 @@ export namespace IAutoMovieMotionHumanChain {
      * @returns The mutual actions, each returning the joined composition.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IConstructor.pair: Two people's chains joined for a mutual action: `mutual` for the two that every film has, a handshake and a handover.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChain.IConstructor.pair is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChain.IConstructor.pair is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChain.IConstructor.pair is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChain.IConstructor.pair is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChain.IConstructor.pair is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChain.IConstructor.pair is used through packages/motions/src/HumanChain.ts.
      */
     pair(
       a: IAutoMovieMotionHumanChain,
@@ -246,12 +222,6 @@ export namespace IAutoMovieMotionHumanChain {
      * @returns The chain.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChain.IExtension.subject: An empty chain of a person.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChain.IExtension.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChain.IExtension.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChain.IExtension.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChain.IExtension.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChain.IExtension.subject is used through packages/motions/src/HumanChain.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChain.IExtension.subject is used through packages/motions/src/HumanChain.ts.
      */
     subject(subject: string): IAutoMovieMotionHumanChain.Extended<Laws>;
   }

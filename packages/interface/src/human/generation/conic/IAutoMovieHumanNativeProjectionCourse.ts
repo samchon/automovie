@@ -62,12 +62,6 @@ export namespace IAutoMovieHumanNativeProjectionCourse {
      *   host whose skin moves takes the host's displacement here, so scale and carriage stay one rigid-affine map.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The original captured source and current axis produce a projected axis under a physical chord and optional translation.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNativeProjectionCourse owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for project. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNativeProjectionCourse owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNativeProjectionCourse owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNativeProjectionCourse owns borrowed-data lifetime.
      */
     project(
       originalSource: IAutoMovieViewPart,

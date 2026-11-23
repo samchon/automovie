@@ -62,12 +62,6 @@ export namespace IAutoMovieHumanFootWebLine {
      * The forefoot crest's height over the floor at a place along the foot, foot lengths.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The forefoot crest's height over the floor at a place along the foot, foot lengths.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanFootWebLine and the callback provider must satisfy the documented depth contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanFootWebLine and its callback provider own the cost of each depth invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanFootWebLine and the callback provider determine when the inputs to depth describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanFootWebLine and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanFootWebLine.IInput.depth callable contract, without an implementation body. AutoMovieHumanFootWebLine and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootWebLine.IInput.depth declares only the invocation boundary; decomposition belongs to AutoMovieHumanFootWebLine and the callback provider.
      */
     depth: (a: number) => number;
   }

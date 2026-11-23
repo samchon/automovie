@@ -33,12 +33,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
    * @returns World metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase and the result's frame and unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The hips' path is a function of action seconds in world metres, which DanceFootwork samples at the instants it composes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Each keyed dance law owns its hips' path; the shared footwork only samples it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature admits no fixture or scene input, only the action's seconds.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: each keyed dance law supplies the body and answers for its cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: each keyed dance law supplies the body and decides what it shares.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: each keyed dance law supplies the body and owns what it retains.
    */
   hips(seconds: number): IAutoMovieVector3;
 
@@ -49,12 +43,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
    * @returns Degrees about +Y.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase and the result's axis and unit.
-   * @evidence contracts/development/implementation.md#principled-implementation The heading is a function of action seconds in degrees about world +Y, which DanceFootwork samples at the instants it composes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Each keyed dance law owns its heading; the shared footwork only samples it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature admits no fixture or scene input, only the action's seconds.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: each keyed dance law supplies the body and answers for its cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: each keyed dance law supplies the body and decides what it shares.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: each keyed dance law supplies the body and owns what it retains.
    */
   yaw(seconds: number): number;
 
@@ -65,12 +53,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
    * @returns Clinical angles.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase and that the result is the posture's clinical joint angles.
-   * @evidence contracts/development/implementation.md#principled-implementation The carriage above the hips is a function of action seconds in the posture's clinical angles, which DanceFootwork samples at the instants it composes.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Each keyed dance law owns its carriage; the shared footwork only samples it.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature admits no fixture or scene input, only the action's seconds.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: each keyed dance law supplies the body and answers for its cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: each keyed dance law supplies the body and decides what it shares.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: each keyed dance law supplies the body and owns what it retains.
    */
   joints(seconds: number): IAutoMovieMotionHumanPosture["joints"];
 
@@ -85,12 +67,6 @@ export interface IAutoMovieMotionHumanDanceCourse {
    * @returns Each placed hand's target.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when a dance supplies it, the argument's timebase, the result and the default when absent.
-   * @evidence contracts/development/implementation.md#principled-implementation The placed hands are a function of action seconds, so a dance whose hands join or rest on a partner's can follow the partner over the course.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Each keyed dance law that joins hands owns their targets; the shared footwork reaches them and otherwise keeps the joints' arms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature admits no fixture or scene input, only the action's seconds.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: each keyed dance law supplies the body and answers for its cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: each keyed dance law supplies the body and decides what it shares.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: each keyed dance law supplies the body and owns what it retains.
    */
   hands?(seconds: number): IAutoMovieMotionHumanDanceCourse.IHands;
 

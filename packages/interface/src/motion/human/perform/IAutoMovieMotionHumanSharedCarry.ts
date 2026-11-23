@@ -42,12 +42,6 @@ export namespace IAutoMovieMotionHumanSharedCarry {
      * Pure base posture track at film seconds, including an authored elbow direction at the start.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines the film clock, purity and initial posture used to plan the gripping arm.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The author supplies the base posture. The carry planner layers the gripping arm over it.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature separates base posture authoring from arm planning.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Position and posture synthesis belong to the author.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The author owns the cost of evaluating the posture track.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Equal film seconds produce equivalent base postures. Any memoization belongs to the author.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The prepared posture reader borrows the supplied track for its lifetime. The author owns the track's resources.
      */
     posture: (seconds: number) => IAutoMovieMotionHumanPosture;
   }
@@ -78,12 +72,6 @@ export namespace IAutoMovieMotionHumanSharedCarry {
      * Pure prop world-frame track at film seconds in [from, to]. At from it starts at prop.frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines the world frame, closed film interval, initial transform and purity.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The author supplies the rigid motion. The carry planner checks the starting transform against the placed prop.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One path supplies the prop and both arm plans.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Trajectory synthesis belongs to the author.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The author owns the cost of evaluating the prop track.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The planner captures the endpoint transforms once. The author owns any reuse within the supplied track.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The prepared prop reader borrows the track for its lifetime. The author owns the track's resources.
      */
     path: (seconds: number) => IAutoMovieRigidTransform;
   }

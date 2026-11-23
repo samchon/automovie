@@ -43,12 +43,6 @@ export namespace IAutoMovieHumanNail {
      * The skin's point at a station and a phase of the digit's chart, mm in the figure's frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Reads figure-space millimetres at a material station and chart phase.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNail owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for point. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNail owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNail owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNail owns borrowed-data lifetime.
      */
     point: (station: number, phase: number) => readonly number[];
 

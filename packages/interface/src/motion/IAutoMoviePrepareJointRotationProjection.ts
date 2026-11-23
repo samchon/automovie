@@ -27,12 +27,6 @@ export namespace IAutoMoviePrepareJointRotationProjection {
      * Project once and return its joint with the exact unnormalized composition.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationProjection.IProjector.withQuaternion: Project once and return its joint with the exact unnormalized composition.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `prepareJointRotationProjection` supplies withQuaternion and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `prepareJointRotationProjection`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `prepareJointRotationProjection` keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `prepareJointRotationProjection` owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `prepareJointRotationProjection` owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `prepareJointRotationProjection` owns what it retains and releases.
      */
     withQuaternion(rotation: IAutoMovieQuaternion): IProjection;
 
@@ -44,12 +38,6 @@ export namespace IAutoMoviePrepareJointRotationProjection {
      * and its callback order are unaffected. Foreign projectors may omit it.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationProjection.IProjector.swivelCandidates: Propose degree-valued swivels where the algebraic quaternion half-angle circle lies on this native two-axis box's unrestricted product surface.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `prepareJointRotationProjection` supplies swivelCandidates and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `prepareJointRotationProjection`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `prepareJointRotationProjection` keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `prepareJointRotationProjection` owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `prepareJointRotationProjection` owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `prepareJointRotationProjection` owns what it retains and releases.
      */
     swivelCandidates?(
       cosine: IAutoMovieQuaternion,

@@ -88,24 +88,12 @@ export namespace IAutoMovieHumanHandPalm {
      * Project a world-millimetre point on the zero-based source row into [local u, accumulated station, local v], all millimetres. A point more than 1e-6 mm from that row's plane throws.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Project a world-millimetre point on the zero-based source row into [local u, accumulated station, local v], all millimetres. A point more than 1e-6 mm from that row's plane throws.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanHandPalm owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHandPalm.IContourCoordinates.into declares the invocation boundary only; AutoMovieHumanHandPalm and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanHandPalm.IContourCoordinates.into must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanHandPalm.IContourCoordinates.into owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanHandPalm and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanHandPalm producer or caller supplying the callback owns captured state and its lifetime.
      */
     into(row: number, point: AutoMovieVector3Tuple): AutoMovieVector3Tuple;
     /**
      * Return [local u, accumulated station, local v] millimetres to its recorded world plane. The station must match a retained row within 1e-6 mm or the call throws.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Return [local u, accumulated station, local v] millimetres to its recorded world plane. The station must match a retained row within 1e-6 mm or the call throws.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanHandPalm owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHandPalm.IContourCoordinates.out declares the invocation boundary only; AutoMovieHumanHandPalm and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanHandPalm.IContourCoordinates.out must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanHandPalm.IContourCoordinates.out owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanHandPalm and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanHandPalm producer or caller supplying the callback owns captured state and its lifetime.
      */
     out(point: AutoMovieVector3Tuple): AutoMovieVector3Tuple;
   }

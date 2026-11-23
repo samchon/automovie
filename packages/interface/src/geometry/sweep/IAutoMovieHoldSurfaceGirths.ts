@@ -58,24 +58,12 @@ export namespace IAutoMovieHoldSurfaceGirths {
      * Return the sealed compiled rig for an existing network sweep name. The solve installs radial girth factors on these same rigs; do not return unrelated new rigs on successive calls.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States stable named rig identity and mutation of those same rigs by the girth solver.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter own references retained by the supplied callable.
      */
     sweepRig: (name: string) => IAutoMovieSweepRig;
     /**
      * Re-evaluate and fit the complete network at rest using current girth factors, overwriting the supplied packed metre control positions. Called once per solve step; exceptions propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States whole-network rest re-evaluation using current girths, synchronous packed-metre output mutation and propagated exceptions.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; holdAutoMovieSurfaceGirths and the owning network's rig resolver/rest fitter own references retained by the supplied callable.
      */
     rest: (positions: Float64Array) => void;
     /** Writable packed rest control XYZ buffer in metres, with 3*vertices entries. Overwritten by rest evaluations and read by the limit-perimeter measurement; caller retains ownership. A failed solve can leave the rigs and this buffer at its last evaluated trial; there is no whole-solve rollback. */

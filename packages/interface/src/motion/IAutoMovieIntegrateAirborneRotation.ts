@@ -118,12 +118,6 @@ export namespace IAutoMovieIntegrateAirborneRotation {
      * calling the shape history; the caller must not mutate returned state.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateAirborneRotation.IFlight.orientation: The root's world orientation at a second on the integration clock, held at the ends outside the flight. Reads the retained trajectory without calling the shape history; the caller must not mutate returned state.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieIntegrateAirborneRotation.IFlight.orientation is used through packages/engine/src/motion/integrateAirborneRotation.ts.
      */
     orientation: (seconds: number) => IAutoMovieQuaternion;
 
@@ -131,12 +125,6 @@ export namespace IAutoMovieIntegrateAirborneRotation {
      * Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateAirborneRotation.IFlight.variations: Body-frame rotation tangents with respect to the requested momentum directions, in their input order; an empty array when none were requested.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieIntegrateAirborneRotation.IFlight.variations is used through packages/engine/src/motion/integrateAirborneRotation.ts.
      */
     variations: (seconds: number) => readonly IAutoMovieVector3[];
   }

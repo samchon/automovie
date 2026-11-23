@@ -85,12 +85,6 @@ export interface IAutoMovieMotionHumanBody {
    * @returns The shoulder's angles, or null for a rig without an arm chain.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the angles are, what reads them, when they are read and the null.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable member has no algorithm body; `createHumanBody` supplies it from `AutoMovieMotionHumanBend.hanging`.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the provider owns its decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns its cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature defines no cache; the provider owns the once-per-side read.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handle; the provider owns what it keeps.
    */
   hanging: (side: AutoMovieHumanSide) => IAutoMovieResolvedJointAngles | null;
 }

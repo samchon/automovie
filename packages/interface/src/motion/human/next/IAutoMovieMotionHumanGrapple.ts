@@ -24,12 +24,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @returns The chain with the arm wrestle appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the bout's phases and end, how the roles agree, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.armWrestle is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.armWrestle is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.armWrestle is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGrapple.armWrestle is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.armWrestle is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.armWrestle is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   armWrestle(
     params: IAutoMovieMotionHumanArmWrestle.IParams,
@@ -44,12 +38,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   clinch(params: IAutoMovieMotionHumanClinch.IParams, anchor?: string): Chain;
 
@@ -61,12 +49,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   grapple(params: IAutoMovieMotionHumanGrapple.IParams, anchor?: string): Chain;
 
@@ -78,12 +60,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   kuzushi(params: IAutoMovieMotionHumanKuzushi.IParams, anchor?: string): Chain;
 
@@ -95,12 +71,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   lungeGrab(
     params: IAutoMovieMotionHumanLungeGrab.IParams,
@@ -115,12 +85,6 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   forceResponse(
     params: IAutoMovieMotionHumanForceResponse.IParams,

@@ -24,12 +24,6 @@ export namespace IAutoMovieHumanSiteConstraints {
      * Same tuple and diagnostic identity reuse the original result; changed inputs replace only that site's record.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Same tuple and diagnostic identity reuse the original result; changed inputs replace only that site's record.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanSiteConstraints and the callback provider must satisfy the documented solve contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanSiteConstraints and its callback provider own the cost of each solve invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanSiteConstraints and the callback provider determine when the inputs to solve describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanSiteConstraints and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanSiteConstraints.IOwner.solve callable contract, without an implementation body. AutoMovieHumanSiteConstraints and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanSiteConstraints.IOwner.solve declares only the invocation boundary; decomposition belongs to AutoMovieHumanSiteConstraints and the callback provider.
      */
     solve(
       name: string,

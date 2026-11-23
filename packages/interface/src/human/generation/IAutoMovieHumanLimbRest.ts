@@ -61,12 +61,6 @@ export namespace IAutoMovieHumanLimbRest {
      * Resolve only this arm and hand from their direct attachment definition.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Resolve only this arm and hand from their direct attachment definition.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This arm signature specifies the documented callback contract without an implementation body; AutoMovieHumanLimbRest and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes arm at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanLimbRest.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual arm provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanLimbRest determines the work per arm call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanLimbRest's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the arm provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     arm(side: AutoMovieHumanSide): IArm;
 
@@ -74,12 +68,6 @@ export namespace IAutoMovieHumanLimbRest {
      * Resolve only this leg and foot from the shared lower-body datum.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Resolve only this leg and foot from the shared lower-body datum.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This leg signature specifies the documented callback contract without an implementation body; AutoMovieHumanLimbRest and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes leg at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanLimbRest.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual leg provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanLimbRest determines the work per leg call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanLimbRest's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the leg provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     leg(side: AutoMovieHumanSide): ILeg;
   }
@@ -150,12 +138,6 @@ export namespace IAutoMovieHumanLimbRest {
      * Explicit common shoulder definition, requested only by an arm.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Explicit common shoulder definition, requested only by an arm.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This shoulder signature specifies the documented callback contract without an implementation body; AutoMovieHumanLimbRest and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes shoulder at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanLimbRest.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual shoulder provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanLimbRest determines the work per shoulder call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanLimbRest's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the shoulder provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     shoulder(): IShoulder;
 

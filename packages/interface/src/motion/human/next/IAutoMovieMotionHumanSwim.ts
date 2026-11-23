@@ -19,12 +19,6 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
    */
   swim(params: IAutoMovieMotionHumanSwim.IParams, anchor?: string): Chain;
 
@@ -36,12 +30,6 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
    */
   aquatic(params: IAutoMovieMotionHumanAquatic.IParams, anchor?: string): Chain;
 
@@ -53,12 +41,6 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSwim.swimImmersed is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSwim.swimImmersed is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSwim.swimImmersed is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSwim.swimImmersed is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSwim.swimImmersed is provided by the chain that implements IAutoMovieMotionHumanSwim.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSwim.swimImmersed is provided by the chain that implements IAutoMovieMotionHumanSwim.
    */
   swimImmersed(
     params: IAutoMovieMotionHumanSwimImmersed,

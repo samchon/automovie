@@ -78,12 +78,6 @@ export namespace IAutoMovieMotionHumanStrikingAim {
      * @returns The units, start and duration in film seconds.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the order, the causality and the timebase.
-     * @evidence contracts/development/implementation.md#principled-implementation Each observation's change of prediction becomes one minimum-jerk unit from its start one latency later to the contact (Flash and Henis 1991).
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One pass over the observations, stopping at the first unit not yet started.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Retains every original observation in order through the exact start>seconds gate, original prediction differences, latency and impact-start duration; no correction unit, target read, time or displacement is approximated.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the observations started by the second; predictions are memoised.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Each observation's prediction is computed once per tracker.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The memo holds at most one prediction per observation and is released with the tracker.
      */
     units(seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[];
 
@@ -94,12 +88,6 @@ export namespace IAutoMovieMotionHumanStrikingAim {
      * @returns World metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is included and the frame.
-     * @evidence contracts/development/implementation.md#principled-implementation The planned goal plus every started unit's full displacement.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The shared started-observation iterator first collects the actual ordered displacements, then the original left fold adds them to planned.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses every original started correction, snapshots all prediction differences before folding and keeps the exact ordered Vector3.add accumulation; zero corrections still return the exposed planned reference and no goal or fit answer is substituted.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Retains O(K) observation/difference/fold work and temporary displacement vectors for K started observations, omitting K unused timed-unit records while retaining original duration field reads/arithmetic for raw observation order. No measured speedup is claimed.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same actual started-observation owner and memoised predictions as units. All target/timing callbacks, original duration reads and displacement snapshots still precede the original fold, preserving raw observation order and later changes to the exposed planned vector; no accumulated goal is cached.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Temporary displacement vectors/array end on return or failure. The original bounded prediction memo stays tracker-owned; with no started corrections the original planned reference is returned unchanged.
      */
     goal(seconds: number): IAutoMovieVector3;
   }

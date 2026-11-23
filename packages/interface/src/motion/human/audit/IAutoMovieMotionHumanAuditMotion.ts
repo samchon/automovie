@@ -30,12 +30,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @returns The bones, world frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.bones: A person's displayed bones.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.bones is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
    */
   bones(
     subject: string,
@@ -49,12 +43,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @returns The actions; empty for a motion that declares no contact.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.segments: A person's placed actions, in film order.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.segments is used through packages/motions/src/audit/AutoMovieMotionHumanAudit.ts.
    */
   segments(subject: string): readonly IAutoMovieMotionHumanAuditMotion.ISpan[];
 
@@ -71,12 +59,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @returns The support's frame, world metres; the ground's is the identity raised to its height.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.support: the frame a planted contact is read in, and the reading when absent.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.support is used through packages/motions/src/audit/AutoMovieMotionHumanAuditGround.ts.
    */
   support?(
     support: IAutoMovieMotionHumanContactWindow.Support,
@@ -95,12 +77,6 @@ export interface IAutoMovieMotionHumanAuditMotion {
    * @returns Whether the person is in water.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanAuditMotion.water: when the water, not a floor, bears a person, and the reading when absent.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanAuditMotion.water is used through packages/motions/src/audit/AutoMovieMotionHumanAuditMotion.ts.
    */
   water?(subject: string, seconds: number): boolean;
 }

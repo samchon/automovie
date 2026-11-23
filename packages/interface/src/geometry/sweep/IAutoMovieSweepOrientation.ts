@@ -21,13 +21,7 @@ export interface IAutoMovieSweepOrientation {
   /**
    * Recompute every station's turn relative to the carried frame at its `at`.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Each station's turn relative to the carried frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call after the transport updates.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the transport as it stands.
    * @evidence contracts/development/common.md#meaningful-documentation States the call order.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(S) for S stations.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `orientAutoMovieSweep`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `orientAutoMovieSweep`.
    */
   update(): void;
 
@@ -38,13 +32,7 @@ export interface IAutoMovieSweepOrientation {
    * @param out Receives twelve numbers
    * @param at Offset into `out`
    *
-   * @evidence contracts/development/implementation.md#principled-implementation The carried frame turned by the nlerp of station turns.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Writes twelve numbers into a caller array.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Parameters clamp to the spine.
    * @evidence contracts/development/common.md#meaningful-documentation States the layout.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One transport frame and an O(S) bracket.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `orientAutoMovieSweep`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `orientAutoMovieSweep`.
    */
   frame(u: number, out: Float64Array, at: number): void;
 }

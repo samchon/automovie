@@ -36,12 +36,6 @@ export interface IAutoMovieMotionHumanChainCore extends IAutoMovieChain {
    * @returns The chain.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainCore.act: Append an action by name. The parameters are the named action's own, so a misspelt name, a parameter the action does not take and a wrong value are refused by the type checker; an action whose parameters are all optional may be appended without any.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainCore.act is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainCore.act is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainCore.act is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainCore.act is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainCore.act is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainCore.act is used through packages/motions/src/chain/HumanChainCore.ts.
    */
   act<Name extends AutoMovieMotionHumanActionName>(
     name: Name,
@@ -61,12 +55,6 @@ export interface IAutoMovieMotionHumanChainCore extends IAutoMovieChain {
    * @returns The chain.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainCore.registered: Append an action a production registered with the performance (`IAutoMovieMotionHumanPerformance.IInput.laws`), by the name its law carries. The parameters are the registered law's own and are not checked here; `HumanChain.extend` gives the same action a typed method, which is the way to call it from code that knows the law.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainCore.registered is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainCore.registered is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainCore.registered is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainCore.registered is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainCore.registered is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainCore.registered is used through packages/motions/src/chain/HumanChainCore.ts.
    */
   registered(name: string, params?: object, anchor?: string): this;
 
@@ -79,12 +67,6 @@ export interface IAutoMovieMotionHumanChainCore extends IAutoMovieChain {
    * @throws {Error} When the chain ends in no action, or in one already synced (cut it before syncing it).
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainCore.until: Cut the last appended action: at a share, at one of its events, at another action's event, or when a region comes near a target.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainCore.until is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainCore.until is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainCore.until is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainCore.until is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainCore.until is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainCore.until is used through packages/motions/src/chain/HumanChainCore.ts.
    */
   until(until: NonNullable<IAutoMovieIntent["until"]>): this;
 
@@ -112,12 +94,6 @@ export interface IAutoMovieMotionHumanChainCore extends IAutoMovieChain {
    * @throws {Error} When the chain ends in no action, or in one already synced (an action meets one instant).
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainCore.sync: Time the last appended action to an instant of another action or of a cue track, as BML's synchronisation constraints do: one of its own instants (`align`, its start when absent) falls on the instant named (`of` and `event`), `offset` seconds later. The action starts as early as that needs. Where its performer's previous action still runs then, that action is cut there, which its cancel table must allow; an action that would have to start before its performer's previous one, or before the film, is refused with the earliest instant it can meet. What follows in the chain starts when the synced action ends. Cut the action (`until`) and put overlays on it (`over`) before syncing it. ```ts a.stand().gesture({ kind: "beat" }).sync({ of: "dialogue", event: "accent", index: 2, align: "strokeEnd" }); b.stand().flinch().sync({ of: "strike", event: "contact" }); ```
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainCore.sync is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainCore.sync is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainCore.sync is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainCore.sync is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainCore.sync is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainCore.sync is used through packages/motions/src/chain/HumanChainCore.ts.
    */
   sync(sync: IAutoMovieMotionHumanChainCore.ISync): this;
 
@@ -141,12 +117,6 @@ export interface IAutoMovieMotionHumanChainCore extends IAutoMovieChain {
    * @throws {Error} When the chain ends in no action, or in one already synced (put the overlays on it before syncing it).
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanChainCore.over: Perform other actions over the last appended one, at the same time and on other parts of the body: a wave or a phone during a walk. The last action carries the body (its root, its legs and whatever it does not yield); the actions `build` appends to the empty chain it is given start with it, follow one another, and each takes only the channels it claims. The performance refuses an action that cannot ride a carrier, a carrier that does not yield the channels asked, and two overlays that claim one channel at one time, naming both claims. ```ts a.walk({ to }).over((u) => u.handToFace({ task: "phone" })); ```
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanChainCore.over is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanChainCore.over is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanChainCore.over is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanChainCore.over is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanChainCore.over is used through packages/motions/src/chain/HumanChainCore.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanChainCore.over is used through packages/motions/src/chain/HumanChainCore.ts.
    */
   over(build: (overlay: this) => IAutoMovieMotionHumanChainCore): this;
 }

@@ -22,12 +22,6 @@ export namespace IAutoMovieConstructionPortField {
      * The value and its first and second derivatives in the clock, radians.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the returned order.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `periodic` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     at: (psi: number) => [number, number, number];
 
@@ -42,12 +36,6 @@ export namespace IAutoMovieConstructionPortField {
      * hold a reading inside a domain where it is read instead of by the whole loop's extremes.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the interval and what the bounds enclose.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `periodic` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     range: (from: number, to: number) => [number, number];
   }

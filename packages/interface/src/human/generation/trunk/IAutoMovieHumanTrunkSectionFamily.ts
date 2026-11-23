@@ -36,36 +36,18 @@ export namespace IAutoMovieHumanTrunkSectionFamily {
      * Solve this unchanged box/tape once at its first original-source demand.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Solve this unchanged box/tape once at its first original-source demand.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanTrunkSectionFamily owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkSectionFamily.IPlane.resolve declares the invocation boundary only; AutoMovieHumanTrunkSectionFamily and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanTrunkSectionFamily.IPlane.resolve must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanTrunkSectionFamily.IPlane.resolve owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanTrunkSectionFamily and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanTrunkSectionFamily producer or caller supplying the callback owns captured state and its lifetime.
      */
     resolve(): IFullness;
     /**
      * Evaluate that original plane's conic family at the actual candidate shoulder.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Evaluate that original plane's conic family at the actual candidate shoulder.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanTrunkSectionFamily owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkSectionFamily.IPlane.section declares the invocation boundary only; AutoMovieHumanTrunkSectionFamily and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanTrunkSectionFamily.IPlane.section must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanTrunkSectionFamily.IPlane.section owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanTrunkSectionFamily and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanTrunkSectionFamily producer or caller supplying the callback owns captured state and its lifetime.
      */
     section(shoulder: number): IAutoMovieViewSection.ISection;
     /**
      * Admit this exact support box's native shoulder reach once, including a null refusal.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Admit this exact support box's native shoulder reach once, including a null refusal.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanTrunkSectionFamily owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkSectionFamily.IPlane.range declares the invocation boundary only; AutoMovieHumanTrunkSectionFamily and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanTrunkSectionFamily.IPlane.range must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanTrunkSectionFamily.IPlane.range owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanTrunkSectionFamily and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanTrunkSectionFamily producer or caller supplying the callback owns captured state and its lifetime.
      */
     range(): IAutoMovieViewSection.IRange | null;
   }

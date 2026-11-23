@@ -32,12 +32,6 @@ export interface IAutoMovieHumanWebChild {
    * Its point at a depth past the crest, mm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Its point at a depth past the crest, mm.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and the callback provider must satisfy the documented own contract.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and its callback provider own the cost of each own invocation.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and the callback provider determine when the inputs to own describe equivalent work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and the callback provider own any captured source data and the callable's lifetime.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanWebChild.own callable contract, without an implementation body. AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and its supplied callbacks own the numerical method and admission of the documented arguments.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanWebChild.own declares only the invocation boundary; decomposition belongs to AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and the callback provider.
    */
   own: (depth: number) => AutoMovieVector3Tuple;
 
@@ -66,12 +60,6 @@ export namespace IAutoMovieHumanWebChild {
      * The plain column at a chart distance from the pinch, margin radii.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The plain column at a chart distance from the pinch, margin radii.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and the callback provider must satisfy the documented law contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and its callback provider own the cost of each law invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and the callback provider determine when the inputs to law describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanWebChild.IBeside.law callable contract, without an implementation body. AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanWebChild.IBeside.law declares only the invocation boundary; decomposition belongs to AutoMovieHumanWebColumns and AutoMovieHumanWebMesh and the callback provider.
      */
     law: (y: number) => Plain;
 

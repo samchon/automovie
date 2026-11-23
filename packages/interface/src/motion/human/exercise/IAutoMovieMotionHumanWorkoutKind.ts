@@ -36,12 +36,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    * @returns Metres above the floor.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit and the default.
-   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, so a bench is as high as the body's own knee and no furniture size is fixed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One number.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The furniture is not a prop in this pass; the kind's doc says so.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   raise?(body: IAutoMovieMotionHumanBody): number;
 
@@ -75,12 +69,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    * @returns The steps, at least one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the result and what the first step is.
-   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, so an angle two supports share (a split stance's two legs, a plank's pitch over its arms) is solved from the body's lengths.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One list.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Stated angles are provisional and named so in each table.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   route(
     body: IAutoMovieMotionHumanBody,
@@ -96,12 +84,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    * @returns Metres.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit and the default.
-   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, since the height is a joint's own above what its part bears on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One number.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   rise?(body: IAutoMovieMotionHumanBody): number;
 
@@ -117,12 +99,6 @@ export interface IAutoMovieMotionHumanWorkoutKind {
    * @returns Metres above the floor.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the input, the unit, where the bars stand and what a kind without it does.
-   * @evidence contracts/development/implementation.md#principled-implementation A function of the body, so the bars stand at the body's own height and no equipment size is fixed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One number.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only a support exercise, whose bars stand within the standing body's reach, places them; a hanging kind still names its bar.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
    */
   bars?(body: IAutoMovieMotionHumanBody): number;
 }

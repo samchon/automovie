@@ -86,12 +86,6 @@ export namespace IAutoMovieHumanFootBody {
      * The section at a station as a loft sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The section at a station as a loft sample.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanFootBody and the callback provider must satisfy the documented sample contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanFootBody and its callback provider own the cost of each sample invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanFootBody and the callback provider determine when the inputs to sample describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanFootBody and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanFootBody.IBody.sample callable contract, without an implementation body. AutoMovieHumanFootBody and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootBody.IBody.sample declares only the invocation boundary; decomposition belongs to AutoMovieHumanFootBody and the callback provider.
      */
     sample: (station: number) => IAutoMovieHumanLimbFrame.ISample;
 
@@ -99,12 +93,6 @@ export namespace IAutoMovieHumanFootBody {
      * The section at a station.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The section at a station.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanFootBody and the callback provider must satisfy the documented section contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanFootBody and its callback provider own the cost of each section invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanFootBody and the callback provider determine when the inputs to section describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanFootBody and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanFootBody.IBody.section callable contract, without an implementation body. AutoMovieHumanFootBody and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootBody.IBody.section declares only the invocation boundary; decomposition belongs to AutoMovieHumanFootBody and the callback provider.
      */
     section: (station: number) => ISection;
 
@@ -112,12 +100,6 @@ export namespace IAutoMovieHumanFootBody {
      * A guide's point at a station.
      *
      * @evidence contracts/development/common.md#meaningful-documentation A guide's point at a station.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanFootBody and the callback provider must satisfy the documented guide contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanFootBody and its callback provider own the cost of each guide invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanFootBody and the callback provider determine when the inputs to guide describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanFootBody and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanFootBody.IBody.guide callable contract, without an implementation body. AutoMovieHumanFootBody and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootBody.IBody.guide declares only the invocation boundary; decomposition belongs to AutoMovieHumanFootBody and the callback provider.
      */
     guide: (
       name: "crest" | "lateral" | "medial",
@@ -144,12 +126,6 @@ export namespace IAutoMovieHumanFootBody {
      * Phases on the upper and lower boundaries where the across coordinate is `v`.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Phases on the upper and lower boundaries where the across coordinate is `v`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanFootBody and the callback provider must satisfy the documented pinches contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanFootBody and its callback provider own the cost of each pinches invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanFootBody and the callback provider determine when the inputs to pinches describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanFootBody and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanFootBody.ISection.pinches callable contract, without an implementation body. AutoMovieHumanFootBody and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootBody.ISection.pinches declares only the invocation boundary; decomposition belongs to AutoMovieHumanFootBody and the callback provider.
      */
     pinches: (v: number) => {
       /** Upper boundary phase at the requested across coordinate, radians in the section's fixed phase convention. */
@@ -168,12 +144,6 @@ export namespace IAutoMovieHumanFootBody {
      * A world point at a phase.
      *
      * @evidence contracts/development/common.md#meaningful-documentation A world point at a phase.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanFootBody and the callback provider must satisfy the documented at contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanFootBody and its callback provider own the cost of each at invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanFootBody and the callback provider determine when the inputs to at describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanFootBody and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanFootBody.ISection.at callable contract, without an implementation body. AutoMovieHumanFootBody and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootBody.ISection.at declares only the invocation boundary; decomposition belongs to AutoMovieHumanFootBody and the callback provider.
      */
     at: (t: number) => AutoMovieVector3Tuple;
   }

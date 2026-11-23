@@ -70,12 +70,6 @@ export namespace IAutoMovieResolveRelationalGoal {
      * Its prior world pose of every segment at an instant.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveRelationalGoal.IBody.pose: Its prior world pose of every segment at an instant.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieResolveRelationalGoal.IBody.pose is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieResolveRelationalGoal.IBody.pose is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieResolveRelationalGoal.IBody.pose is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieResolveRelationalGoal.IBody.pose is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieResolveRelationalGoal.IBody.pose is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieResolveRelationalGoal.IBody.pose is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
      */
     pose(seconds: number): Record<string, IAutoMovieRigidTransform>;
 
@@ -86,12 +80,6 @@ export namespace IAutoMovieResolveRelationalGoal {
      * Its held support at an instant, for a performer.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveRelationalGoal.IBody.support: Its held support at an instant, for a performer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieResolveRelationalGoal.IBody.support is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieResolveRelationalGoal.IBody.support is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieResolveRelationalGoal.IBody.support is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieResolveRelationalGoal.IBody.support is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieResolveRelationalGoal.IBody.support is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieResolveRelationalGoal.IBody.support is used through packages/engine/src/composition/resolveAutoMovieRelationalGoal.ts.
      */
     support(seconds: number): IAutoMovieResolveRelationalGoal.ISupport;
 

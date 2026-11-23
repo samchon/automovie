@@ -25,12 +25,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      * The right-hand side: the state's rate at a time, and with an orientation the body-frame angular velocity, radians per second. Pure.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.IProps.f: The right-hand side: the state's rate at a time, and with an orientation the body-frame angular velocity, radians per second. Pure.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieIntegrateMotionTrajectory.IProps.f is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieIntegrateMotionTrajectory.IProps.f is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieIntegrateMotionTrajectory.IProps.f is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieIntegrateMotionTrajectory.IProps.f is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieIntegrateMotionTrajectory.IProps.f is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieIntegrateMotionTrajectory.IProps.f is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
      */
     f: (
       t: number,
@@ -73,12 +67,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      * Borrowed numeric records must not be mutated or retained for mutation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.IProps.rotationDefect: Optional continuous rotation-defect admission.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies rotationDefect and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     rotationDefect?: (
       seconds: number,
@@ -178,12 +166,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      * @returns Fresh copies of actual states and derivatives with their adjacent knot times.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.ITrajectory.interval: Read adjacent actual fixed-step Hermite data; absent for adaptive continuous extensions.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieIntegrateMotionTrajectory.ITrajectory.interval is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieIntegrateMotionTrajectory.ITrajectory.interval is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieIntegrateMotionTrajectory.ITrajectory.interval is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieIntegrateMotionTrajectory.ITrajectory.interval is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieIntegrateMotionTrajectory.ITrajectory.interval is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieIntegrateMotionTrajectory.ITrajectory.interval is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
      */
     interval?: (time: number) => IAutoMovieMotionTrajectoryInterval;
 
@@ -192,12 +174,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      * owns its mutable vector and quaternion, including repeated reads.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.ITrajectory.at: The state at a time, held at the ends outside `[t0, t1]`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieIntegrateMotionTrajectory.ITrajectory.at is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieIntegrateMotionTrajectory.ITrajectory.at is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieIntegrateMotionTrajectory.ITrajectory.at is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieIntegrateMotionTrajectory.ITrajectory.at is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieIntegrateMotionTrajectory.ITrajectory.at is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieIntegrateMotionTrajectory.ITrajectory.at is used through packages/engine/src/motion/integrateMotionTrajectory.ts.
      */
     at: (time: number) => IAutoMovieIntegrateMotionTrajectory.IState;
 
@@ -205,12 +181,6 @@ export namespace IAutoMovieIntegrateMotionTrajectory {
      * Optional orientation-only projection of the same solved curve. Each read returns a fresh quaternion or null, without evaluating or copying the vector block.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieIntegrateMotionTrajectory.ITrajectory.orientation: Optional orientation-only projection of the same solved curve.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies orientation and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     orientation?: (time: number) => IAutoMovieQuaternion | null;
   }

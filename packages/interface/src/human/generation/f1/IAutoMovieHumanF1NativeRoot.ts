@@ -112,12 +112,6 @@ export namespace IAutoMovieHumanF1NativeRoot {
      * Original source-owned rail station at child phase, physical mm.
      *
      * @evidence contracts/development/common.md#meaningful-documentation World-space child rail station for an unwrapped phase, in physical millimetres.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1NativeRootLaw owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for childRail. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1NativeRootLaw owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1NativeRootLaw owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1NativeRootLaw owns borrowed-data lifetime.
      */
     childRail: (phase: number) => number;
   }
@@ -184,24 +178,12 @@ export namespace IAutoMovieHumanF1NativeRoot {
      * Re-read the actual final source; target jets are never substituted.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Reads actual source jets at addresses emitted by this root.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1NativeRootLaw owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for inspect. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1NativeRootLaw owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1NativeRootLaw owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1NativeRootLaw owns borrowed-data lifetime.
      */
     inspect: (part: IAutoMovieViewPart) => IInspection[];
     /**
      * Original physical search controls for unchanged bindings; changed roots issue a separate named chart prior.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Transports the original cutter search using the paired native source definitions.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1NativeRootLaw owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for seed. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1NativeRootLaw owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1NativeRootLaw owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1NativeRootLaw owns borrowed-data lifetime.
      */
     seed: (
       original: IAutoMovieViewPart,
@@ -270,24 +252,12 @@ export namespace IAutoMovieHumanF1NativeRoot {
      * Same explicit affine candidate policy for dependent cutter courses.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Applies the candidate's affine axis policy to the cutter axis.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1NativeRootLaw owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for cutterAxis. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1NativeRootLaw owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1NativeRootLaw owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1NativeRootLaw owns borrowed-data lifetime.
      */
     cutterAxis: (axis: IAutoMovieViewAxis.IAxis) => IAutoMovieViewAxis.IAxis;
     /**
      * Generate actual radial/phase controls once from the supplied complete candidate source.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Resolves radial and phase controls from one admitted native candidate.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1NativeRootLaw owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for resolve. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1NativeRootLaw owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1NativeRootLaw owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1NativeRootLaw owns borrowed-data lifetime.
      */
     resolve: (candidate: IAutoMovieViewPart) => IRootSpec;
   }

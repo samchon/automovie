@@ -180,12 +180,6 @@ export namespace IAutoMovieMotionHumanSword {
      * A direction by its parts as a world vector, about a heading in degrees; the entry's heading when absent.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSword.ISetup.world: A direction by its parts as a world vector, about a heading in degrees; the entry's heading when absent.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSword.ISetup.world is used through packages/motions/src/lexicon/HumanSword.ts.
      */
     world: (
       parts: IAutoMovieMotionHumanSword.IParts,
@@ -196,12 +190,6 @@ export namespace IAutoMovieMotionHumanSword {
      * A quantity between its novice and elite values at the performer's speed skill.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSword.ISetup.skill: A quantity between its novice and elite values at the performer's speed skill.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSword.ISetup.skill is used through packages/motions/src/lexicon/HumanSword.ts.
      */
     skill: (pair: readonly [number, number]) => number;
   }

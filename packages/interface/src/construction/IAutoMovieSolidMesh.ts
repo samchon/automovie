@@ -25,13 +25,7 @@ export namespace IAutoMovieSolidMesh {
     /**
      * Read a point in the owner's native chart, returning world millimetres.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Registration reads the original surface's optional Point0 at the supplied u/v, otherwise its existing jet point; an actual pole value does not require physical2.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Stored chart parameters are used directly without a reconstructed projection.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Valid source domain and callback ownership remain the producer's contract; thrown effects propagate.
      * @evidence contracts/development/common.md#meaningful-documentation Distinguishes owner chart parameters from world-mm result.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One original Point0 evaluation, or one jet evaluation when Point0 is absent, supplies the point.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work No replay cache assumes a mutable source stayed unchanged.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The source owns its returned vector policy; the containing owner retains its callback.
      */
     point(a: number, b: number): AutoMovieVector3Tuple;
   }
@@ -129,13 +123,7 @@ export namespace IAutoMovieSolidMesh {
     /**
      * Receive a named planning refusal or partial endpoint diagnostic.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation The face owner reports failed indexed-partition premises before append; partial periodic endpoint arcs are reported and excluded from cap/event output.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure An optional synchronous callback is the explicit recovery seam; absence or undefined preserves the throwing default.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not receive or swallow arbitrary source, keeps or callback exceptions; those propagate with their original object. Recording a refusal leaves a partial figure rather than certifying a complete skin.
      * @evidence contracts/development/common.md#meaningful-documentation States named versus thrown failure, partial output and callback-free default semantics.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Callback cost belongs to its consumer and is paid only for a reported refusal/partial endpoint, not every triangle.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Each face reports its own current failed premise; no callback effects are memoized or shared across faces.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrowed only for the synchronous face call; it must not mutate or reenter the associated mesh. The planner and mesh do not retain it after return or throw.
      */
     onFailure?: (detail: string) => void;
   }

@@ -20,12 +20,6 @@ export interface IAutoMovieHumanWebCrests {
    * Read the retained web for an unordered pair of pinch vertex indices; callers must supply a pair present in webs.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Read the retained web for an unordered pair of pinch vertex indices; callers must supply a pair present in webs.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanWebCrest owns the numerical method described above.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanWebCrests.webOf declares the invocation boundary only; AutoMovieHumanWebCrest and its callback provider own the implementation decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanWebCrests.webOf must justify them.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanWebCrests.webOf owns its time and space costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanWebCrest and the callback's provider own sharing under the stated input and result contract.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanWebCrest producer or caller supplying the callback owns captured state and its lifetime.
    */
   webOf: (a: number, b: number) => IAutoMovieHumanWeb;
 
@@ -33,12 +27,6 @@ export interface IAutoMovieHumanWebCrests {
    * The mesh's point of a vertex, mm.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The mesh's point of a vertex, mm.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanWebCrest owns the numerical method described above.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanWebCrests.position declares the invocation boundary only; AutoMovieHumanWebCrest and its callback provider own the implementation decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanWebCrests.position must justify them.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanWebCrests.position owns its time and space costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanWebCrest and the callback's provider own sharing under the stated input and result contract.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanWebCrest producer or caller supplying the callback owns captured state and its lifetime.
    */
   position: (v: number) => AutoMovieVector3Tuple;
 
@@ -46,12 +34,6 @@ export interface IAutoMovieHumanWebCrests {
    * Outward unit direction estimated between the end ring and its inward station sample at phase t in radians.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Outward unit direction estimated between the end ring and its inward station sample at phase t in radians.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanWebCrest owns the numerical method described above.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanWebCrests.outward declares the invocation boundary only; AutoMovieHumanWebCrest and its callback provider own the implementation decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanWebCrests.outward must justify them.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanWebCrests.outward owns its time and space costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanWebCrest and the callback's provider own sharing under the stated input and result contract.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanWebCrest producer or caller supplying the callback owns captured state and its lifetime.
    */
   outward: (t: number) => AutoMovieVector3Tuple;
 
@@ -59,12 +41,6 @@ export interface IAutoMovieHumanWebCrests {
    * Parent's outward station jet at end-ring phase t in radians, estimated by the producer's one-sided three-point samples; it is not an exact source derivative.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Parent's outward station jet at end-ring phase t in radians, estimated by the producer's one-sided three-point samples; it is not an exact source derivative.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanWebCrest owns the numerical method described above.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanWebCrests.parentJet declares the invocation boundary only; AutoMovieHumanWebCrest and its callback provider own the implementation decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanWebCrests.parentJet must justify them.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanWebCrests.parentJet owns its time and space costs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanWebCrest and the callback's provider own sharing under the stated input and result contract.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanWebCrest producer or caller supplying the callback owns captured state and its lifetime.
    */
   parentJet: (t: number) => IAutoMovieArcLengthJet;
 }

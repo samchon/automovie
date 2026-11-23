@@ -23,12 +23,6 @@ export namespace IAutoMoviePeriodicCubic {
      * Existing periodic value at a phase in radians; controls remain unchanged.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the phase unit, the value's control units and that the controls are not changed.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared member slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared member slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared member slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member slot has no body; `create` states the reader's cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member slot retains nothing; `create` states the closure's retention.
      */
     at(psi: number): number;
 
@@ -36,12 +30,6 @@ export namespace IAutoMoviePeriodicCubic {
      * Finite outward bounds for every finite phase; throws when arithmetic cannot certify them.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what the bounds enclose, their units as the controls' and the thrown failure.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared member slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared member slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared member slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member slot has no body; `create` states the conversion's cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member slot retains nothing; `create` states the closure's retention.
      */
     range(): readonly [number, number];
   }

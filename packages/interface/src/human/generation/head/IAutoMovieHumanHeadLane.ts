@@ -142,12 +142,6 @@ export namespace IAutoMovieHumanHeadLane {
      * Only this immutable invocation retains its original definitions and callbacks; no global registry is added.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Includes valid originals, actual parent/source references, attempt failures and separate existing studies; creates no regional loft.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadLane and the callback provider must satisfy the documented originals contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadLane and its callback provider own the cost of each originals invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadLane and the callback provider determine when the inputs to originals describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadLane and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadLane.IPrepared.originals callable contract, without an implementation body. AutoMovieHumanHeadLane and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadLane.IPrepared.originals declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadLane and the callback provider.
      */
     originals(
       names?: readonly string[],

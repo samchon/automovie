@@ -37,12 +37,6 @@ export interface IAutoMovieMotionHumanStageFight<Chain> {
    * @throws {Error} When the cast coincides, a cue or id is blank, or a time is invalid.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its return and its refusals.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStageFight.bladeExchange is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStageFight.bladeExchange is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStageFight.bladeExchange is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanStageFight.bladeExchange is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStageFight.bladeExchange is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStageFight.bladeExchange is provided by the chain that implements IAutoMovieMotionHumanStageFight.
    */
   bladeExchange(
     opening: IAutoMovieMotionHumanChainCore,
@@ -61,12 +55,6 @@ export interface IAutoMovieMotionHumanStageFight<Chain> {
    * @throws {Error} When the cast coincides, a cue or id is blank, or a time is invalid.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the composition does, its parameters, its return and its refusals.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStageFight.stageProp is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStageFight.stageProp is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStageFight.stageProp is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanStageFight.stageProp is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStageFight.stageProp is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStageFight.stageProp is provided by the chain that implements IAutoMovieMotionHumanStageFight.
    */
   stageProp(
     performer: IAutoMovieMotionHumanChainCore,
@@ -83,12 +71,6 @@ export interface IAutoMovieMotionHumanStageFight<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStageFight.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStageFight.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStageFight.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanStageFight.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStageFight.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanStageFight.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStageFight.stageBladeFootwork is provided by the chain that implements IAutoMovieMotionHumanStageFight.
    */
   stageBladeFootwork(
     params: IAutoMovieMotionHumanStageFight.IStageBladeFootwork,

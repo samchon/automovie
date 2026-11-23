@@ -26,13 +26,7 @@ export interface IAutoMovieBoneBuffer {
    * @returns Its index
    * @throws Error when the rest list lacks the bone
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Bone names resolve once to indices of the rest list.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One lookup.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing bone is refused.
    * @evidence contracts/development/common.md#meaningful-documentation States the return and refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One map read.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   index(bone: AutoMovieHumanoidBone): number;
 
@@ -42,26 +36,14 @@ export interface IAutoMovieBoneBuffer {
    * @param posed The same bones as the rest list, in the same order
    * @throws Error when the lists differ in length or in a bone
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Each bone's rigid motion from rest to pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call per pose.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A posed list out of step with the rest list is refused.
    * @evidence contracts/development/common.md#meaningful-documentation States the expected order.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B) for B bones, no allocation.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   update(posed: readonly IAutoMovieResolvedBone[]): void;
 
   /**
    * Return every motion to the identity, the rest pose.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation The identity motion of the rest pose.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Points are then copied exactly, not transformed.
    * @evidence contracts/development/common.md#meaningful-documentation States the effect.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B).
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   reset(): void;
 
@@ -74,13 +56,7 @@ export interface IAutoMovieBoneBuffer {
    * @param out Target array, which may be the source
    * @param oi Offset to write at
    *
-   * @evidence contracts/development/implementation.md#principled-implementation The rigid transform of a point.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Array and offset in, array and offset out.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts At rest the point is copied exactly.
    * @evidence contracts/development/common.md#meaningful-documentation States the aliasing rule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time, no allocation.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   apply(
     bone: number,
@@ -99,13 +75,7 @@ export interface IAutoMovieBoneBuffer {
    * @param out Target array, which may be the source
    * @param oi Offset to write at
    *
-   * @evidence contracts/development/implementation.md#principled-implementation The rotation of a direction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Array and offset in and out.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts At rest the direction is copied exactly.
    * @evidence contracts/development/common.md#meaningful-documentation States the aliasing rule.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time, no allocation.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `bufferAutoMovieBones`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `bufferAutoMovieBones`.
    */
   turn(
     bone: number,

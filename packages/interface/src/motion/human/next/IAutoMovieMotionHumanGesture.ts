@@ -26,12 +26,6 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
    */
   gesture(params: IAutoMovieMotionHumanGesture.IParams, anchor?: string): Chain;
 
@@ -43,12 +37,6 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
    */
   armPhrase(
     params: IAutoMovieMotionHumanArmPhrase.IParams,

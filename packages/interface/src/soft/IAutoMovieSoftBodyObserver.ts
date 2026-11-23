@@ -20,12 +20,6 @@ export interface IAutoMovieSoftBodyObserver {
    * @param loads The force each held particle bears from the constraints that tie it to the rest of the body, newtons, world frame, by particle: the pull a hand holding it feels. Read from the compliant solver's multipliers (force = lambda times the constraint gradient over the step squared); empty when the domain declares no compliance, since the relaxation weights of the plain solver are not forces.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States completed-step timing, absolute indexing, world units, borrowed buffers, held-particle velocity and the force map's meaning and empty case.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation An observer method signature; each observer owns what it computes from a step.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No observer body is declared here.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature performs no observation or computation.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The observer implementation owns its per-step cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature owns no saved trajectory or coordinated reads.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature retains no buffers; implementations must copy any borrowed data they keep.
    */
   step(
     step: number,

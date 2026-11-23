@@ -39,24 +39,12 @@ export namespace IAutoMovieLoftViewFullSource {
     /**
      * Fresh full world Point0, mm; no axis.jet is requested.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Actual native scalar values and axis.at supply the bare point; the shared relief owner adds the original features including shift.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure A value capability remains separate from physical2 preparation.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A declared collapsed pole has its actual axis-origin value only while its features vanish; no derivative or substitute geometry is invented.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Point0 uses one bounded native station plan plus existing feature evaluation costs.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The reader's exact-station cache shares only immutable scalar/frame value preparation.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every result owns its vector and the retaining reader owns at most eight station plans.
      * @evidence contracts/development/common.md#meaningful-documentation Gives mm/radian coordinates, independent capability and fresh output ownership.
      */
     point(s: number, t: number): AutoMovieVector3Tuple;
     /**
      * Actual world total2: p mm, u per mm, v per radian and corresponding second orders.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation ViewWorldJet owns actual local/frame product rules and the shared relief owner adds the original height/turn/shift total2.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Direct evaluation shares source preparation without acquiring a chain.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent axis2, true pole, failed source or nonfinite composition is refused rather than replaced by zero or Point0.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Each query retains existing scalar/axis/native preparation and O(R) bounded-support feature costs.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The source's immutable scalar preparation is shared; returned numeric jets are fresh.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Query temporaries escape only as the six returned vectors; no physical2 query cache is added.
      * @evidence contracts/development/common.md#meaningful-documentation States station-mm/phase-radian derivative units, error behavior and output ownership.
      */
     jet(s: number, t: number): IAutoMovieSolidSurface.IJet;

@@ -49,12 +49,6 @@ export namespace IAutoMovieMotionHumanStrikingRecord {
      * @returns The contact second, or undefined.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the meaning of undefined.
-     * @evidence contracts/development/implementation.md#principled-implementation Each strike supplies its stroke's stop: the second the performance's joint resolution committed, reported once it is at or before the asked second.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure A comparison with the committed second.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant time once resolved.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads the committed second.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the strike's plan.
      */
     stop(seconds: number): number | undefined;
   }
@@ -75,12 +69,6 @@ export namespace IAutoMovieMotionHumanStrikingRecord {
      * @returns The record.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanStrikingRecord.IPlan.record: What the strike decided, read from its current geometry.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStrikingRecord.IPlan.record is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanStrikingRecord.IPlan.record is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStrikingRecord.IPlan.record is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanStrikingRecord.IPlan.record is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanStrikingRecord.IPlan.record is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanStrikingRecord.IPlan.record is used through packages/motions/src/striking/kick.ts.
      */
     record(): IAutoMovieMotionHumanStrikingRecord.IRecord;
   }

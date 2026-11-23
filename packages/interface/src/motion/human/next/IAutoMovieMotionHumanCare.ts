@@ -25,12 +25,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCare.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCare.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCare.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCare.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCare.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
   holdInfant(
     params: IAutoMovieMotionHumanHoldInfant.IParams,
@@ -44,12 +38,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @returns The chain with the kneel appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCare.kneelBeside is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCare.kneelBeside is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCare.kneelBeside is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCare.kneelBeside is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCare.kneelBeside is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.kneelBeside is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
   kneelBeside(
     chain: Chain,
@@ -63,12 +51,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @returns The chain with the compressions appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCare.compressions is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCare.compressions is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCare.compressions is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCare.compressions is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCare.compressions is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.compressions is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
   compressions(
     chain: Chain,
@@ -82,12 +64,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @returns The chain with the check appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCare.pulse is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCare.pulse is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCare.pulse is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCare.pulse is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCare.pulse is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.pulse is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
   pulse(chain: Chain, params: IAutoMovieMotionHumanCare.IPulse): Chain;
 
@@ -98,12 +74,6 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @returns The chain with the pressure appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCare.pressWound is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCare.pressWound is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCare.pressWound is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCare.pressWound is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCare.pressWound is provided by the chain that implements IAutoMovieMotionHumanCare.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.pressWound is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
   pressWound(
     chain: Chain,

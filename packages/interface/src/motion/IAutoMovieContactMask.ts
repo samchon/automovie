@@ -34,12 +34,6 @@ export namespace IAutoMovieContactMask {
      * Ground height at a plan position.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieContactMask.IProps.groundAt: Ground height at a plan position.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieContactMask.IProps.groundAt is used through packages/engine/src/motion/contactMask.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieContactMask.IProps.groundAt is used through packages/engine/src/motion/contactMask.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieContactMask.IProps.groundAt is used through packages/engine/src/motion/contactMask.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieContactMask.IProps.groundAt is used through packages/engine/src/motion/contactMask.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieContactMask.IProps.groundAt is used through packages/engine/src/motion/contactMask.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieContactMask.IProps.groundAt is used through packages/engine/src/motion/contactMask.ts.
      */
     groundAt: (x: number, z: number) => number;
 

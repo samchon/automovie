@@ -85,12 +85,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @returns The step.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IModel.solve: The model's step within a region.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSequentialConvex.IModel.solve is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSequentialConvex.IModel.solve is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSequentialConvex.IModel.solve is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSequentialConvex.IModel.solve is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSequentialConvex.IModel.solve is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSequentialConvex.IModel.solve is used through packages/motions/src/posture/HumanSequentialConvex.ts.
      */
     solve(radius: number): IAutoMovieMotionHumanSequentialConvex.IStep<X>;
 
@@ -98,12 +92,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * Told that the last step solved was taken, so the caller's next model can start from its solution (its multipliers, for one).
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IModel.taken: Told that the last step solved was taken, so the caller's next model can start from its solution (its multipliers, for one).
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSequentialConvex.IModel.taken is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSequentialConvex.IModel.taken is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSequentialConvex.IModel.taken is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSequentialConvex.IModel.taken is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSequentialConvex.IModel.taken is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSequentialConvex.IModel.taken is used through packages/motions/src/posture/HumanSequentialConvex.ts.
      */
     taken?(): void;
 
@@ -114,12 +102,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @param penalty The new exact l1 penalty, at the same iterate/objective and row domain.
      * @returns A fresh model shell with the original cold/keyed-dual initialization; fixed numeric preparation may be shared sequentially.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Changes only the exact l1 row prices of one unchanged linearization, the same model that convexify would build at this penalty; producers with penalty-dependent geometry or curvature omit this method.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The producer owns its weight formula and fixed numeric data; steering selects this factory when available and otherwise invokes its existing convexify callback.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Requires the same x/objective/domain and original weight calculation, preserves cold/keyed-dual initialization in each new shell, and never substitutes an old step, radius or convergence decision.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Adds O(1) coordinator selection; the stance producer reprices O(m) rows instead of repeating geometric linearization and matrix preparation for m rows, then performs the actual current QP solve.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The producer proves fixed P/q/A and row order while current prices change; immutable preparation and bounded scratch may be shared, but every new model resets its local warm state and recomputes each step.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Repriced shells share only their current linearization's owned data, with no linked model history; the loop releases them when it advances or finishes and each producer owns its bounded preparation/scratch lifetime.
      * @evidence contracts/development/common.md#meaningful-documentation States optional fallback, exact dependency premises, changed penalty, fresh warm-state shell and shared-data ownership.
      */
     reprice?(penalty: number): IAutoMovieMotionHumanSequentialConvex.IModel<X>;
@@ -132,12 +114,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      *
      * @returns The model of the violation alone, with its own cold start.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation The violation's model is the merit's model less the objective's terms; a producer that built the rows once states that by giving the model itself.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The producer owns its rows; the steering selects this member when given and its convexify callback otherwise.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The same iterate, penalty, rows and region; only the objective's curvature and gradient are left out, and no step or decision is carried over.
-     * @evidence contracts/development/implementation.md#efficient-algorithms O(1) selection here; the producer skips a second linearisation of the same iterate.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The linearisation is the producer's value, handed on by the model that holds it, not found again by comparing iterates.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned model shares only its linearisation's data and is released with the round.
      * @evidence contracts/development/common.md#meaningful-documentation States what the model is, when it may be given and the fallback.
      */
     feasibility?(): IAutoMovieMotionHumanSequentialConvex.IModel<X>;
@@ -162,12 +138,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @returns Its objective and violation, and whatever else the caller reads.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IProblem.evaluate: An iterate's reading.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSequentialConvex.IProblem.evaluate is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSequentialConvex.IProblem.evaluate is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSequentialConvex.IProblem.evaluate is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSequentialConvex.IProblem.evaluate is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSequentialConvex.IProblem.evaluate is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSequentialConvex.IProblem.evaluate is used through packages/motions/src/posture/HumanSequentialConvex.ts.
      */
     evaluate(x: X): E;
 
@@ -183,12 +153,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @returns The model.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IProblem.convexify: The convex model about an iterate: the caller's own subproblem, solved by whatever inner solve it chooses.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSequentialConvex.IProblem.convexify is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSequentialConvex.IProblem.convexify is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSequentialConvex.IProblem.convexify is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSequentialConvex.IProblem.convexify is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSequentialConvex.IProblem.convexify is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSequentialConvex.IProblem.convexify is used through packages/motions/src/posture/HumanSequentialConvex.ts.
      */
     convexify(
       x: X,
@@ -205,12 +169,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @returns Whether it is feasible.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IProblem.feasible: Whether a reading meets the constraints, to the caller's tolerance.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSequentialConvex.IProblem.feasible is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSequentialConvex.IProblem.feasible is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSequentialConvex.IProblem.feasible is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSequentialConvex.IProblem.feasible is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSequentialConvex.IProblem.feasible is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSequentialConvex.IProblem.feasible is used through packages/motions/src/posture/HumanSequentialConvex.ts.
      */
     feasible(evaluation: E): boolean;
 
@@ -233,12 +191,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @returns The corrected point `x + p + p^`, or null where the caller has none.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.IProblem.correct: The second-order correction of a rejected step, against the Maratos effect (Nocedal and Wright 2006, section 15.6, pp. 443-444): the step `p` plus a correction `p^` that meets the constraints' linearisation at the trial, `A(x) p^ + c(x + p) = 0` on the rows the step meets, its minimum-norm solution being their (15.36). Asked only for a step whose ratio did not exceed `ISchedule.eta` and whose predicted decrease is positive, once per step and before the region shrinks; the corrected point is judged on the step's own predicted decrease, taken where its ratio exceeds `eta` and dropped otherwise, never searched along (their Algorithm 15.2, p. 443, in the trust region of their Algorithm 18.4, p. 549). Absent, no correction is tried.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSequentialConvex.IProblem.correct is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSequentialConvex.IProblem.correct is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSequentialConvex.IProblem.correct is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSequentialConvex.IProblem.correct is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSequentialConvex.IProblem.correct is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSequentialConvex.IProblem.correct is used through packages/motions/src/posture/HumanSequentialConvex.ts.
      */
     correct?(
       x: X,
@@ -319,12 +271,6 @@ export namespace IAutoMovieMotionHumanSequentialConvex {
      * @returns The decrease.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanSequentialConvex.ISchedule.improved: The predicted decrease below which the solve has settled.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSequentialConvex.ISchedule.improved is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSequentialConvex.ISchedule.improved is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSequentialConvex.ISchedule.improved is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSequentialConvex.ISchedule.improved is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSequentialConvex.ISchedule.improved is used through packages/motions/src/posture/HumanSequentialConvex.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSequentialConvex.ISchedule.improved is used through packages/motions/src/posture/HumanSequentialConvex.ts.
      */
     improved: (merit: number) => number;
   }

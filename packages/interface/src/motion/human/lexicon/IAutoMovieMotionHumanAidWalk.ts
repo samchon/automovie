@@ -97,12 +97,6 @@ export namespace IAutoMovieMotionHumanAidWalk {
      * From the aid's staged floor frame, the walk's parameters and the walk's first film second (zero when absent), the aid's world frame in metres at each film second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the start's default, the reader's timebase and the result's frame and unit.
-     * @evidence contracts/development/implementation.md#principled-implementation HumanAidWalk builds the aid's moves between stations from the same `course` its plan uses, each station frame the staged frame displaced by the station's `x` and `z` and turned by its `turn` about the walk's `origin` (about the aid's own staged frame when no origin is given), and each read holds the aid still between moves and blends one move by minimum jerk with a lift.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The law owns the aid's course; the scene's prop only reads frames from the returned reader.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every frame derives from the stations the law plans, with no separately authored prop path.
-     * @evidence contracts/development/implementation.md#efficient-algorithms The course is built once per call, linear in the stations; each read scans the moves up to the current one, linear in the station count.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned reader reuses its one course for every film second; the plan builds its own course from the same function and inputs.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the start frame and one move per station for as long as the scene holds it.
      */
     track: (
       start: IAutoMovieRigidTransform,

@@ -38,12 +38,6 @@ export namespace IAutoMovieHumanFootSectors {
      * Section point in millimetres at ring phase t in radians, wrapped over a full turn and interpolated by each piece's sampled arclength.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Section point in millimetres at ring phase t in radians, wrapped over a full turn and interpolated by each piece's sampled arclength.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanFootSectors owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootSectors.ISectors.at declares the invocation boundary only; AutoMovieHumanFootSectors and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanFootSectors.ISectors.at must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanFootSectors.ISectors.at owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanFootSectors and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanFootSectors producer or caller supplying the callback owns captured state and its lifetime.
      */
     at: (t: number) => AutoMovieVector2Tuple;
 
@@ -51,12 +45,6 @@ export namespace IAutoMovieHumanFootSectors {
      * Ring phase in radians of a zero-based piece's start; index must address the pieces supplied to join.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Ring phase in radians of a zero-based piece's start; index must address the pieces supplied to join.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanFootSectors owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootSectors.ISectors.start declares the invocation boundary only; AutoMovieHumanFootSectors and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanFootSectors.ISectors.start must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanFootSectors.ISectors.start owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanFootSectors and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanFootSectors producer or caller supplying the callback owns captured state and its lifetime.
      */
     start: (index: number) => number;
 
@@ -64,12 +52,6 @@ export namespace IAutoMovieHumanFootSectors {
      * Find the first crossing or exact vertex of across coordinate v in millimetres, in the listed piece order, returning ring phase in radians. If no crossing exists, notify the join callback and return the vertex with the smallest across-coordinate distance, including terminal endpoints; equal distances keep the first vertex. The listed indices must name nonempty pieces with positive sampled length. This is a one-coordinate polyline query, not Euclidean distance to a continuous source curve.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States crossing order, exact-vertex handling, the complete endpoint fallback, tie behavior, phase units and the valid sampled-piece premise.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanFootSectors owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootSectors.ISectors.find declares the invocation boundary only; AutoMovieHumanFootSectors and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanFootSectors.ISectors.find must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanFootSectors.ISectors.find owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanFootSectors and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanFootSectors producer or caller supplying the callback owns captured state and its lifetime.
      */
     find: (v: number, pieces: number[]) => number;
   }

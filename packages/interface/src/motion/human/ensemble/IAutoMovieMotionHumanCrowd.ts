@@ -42,12 +42,6 @@ export namespace IAutoMovieMotionHumanCrowd {
      * Each member's goals: a point, or points in order.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCrowd.IRequest.goals: Each member's goals: a point, or points in order.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrowd.IRequest.goals is used through packages/motions/src/ensemble/HumanCrowd.ts.
      */
     goals: (
       member: IAutoMovieMotionHumanEnsemble.IMember,

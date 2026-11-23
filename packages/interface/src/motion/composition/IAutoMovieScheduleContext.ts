@@ -24,12 +24,6 @@ export interface IAutoMovieScheduleContext {
    * where the walk places in declaration order only.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the call's effect, its three results and when the member is absent.
-   * @evidence contracts/development/implementation.md#principled-implementation resolveAutoMovieSchedule supplies it as a depth-first topological order over the laws' reads: it places the first pending part holding the subject, and reports a cycle only while a part holding the subject is itself being placed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolver owns the parts' bookkeeping; a law names only the subject it reads and acts on the result, as placeDemandedHumanPerformer does.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cycle is returned to the law, which refuses it; the resolver never breaks it by a default order or a retry.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Each call scans the waiting parts at most twice, linear in their count, plus the placement of the one part it finds.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A part is placed once: its status moves from pending to placing to placed and it leaves the waiting list, so a repeated demand for the same subject finds no pending part to place again.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The resolver's closure retains only the walk's waiting parts and a depth counter; the list only shrinks, and both are dropped with the walk.
    */
   demand?: (subject: string) => IAutoMovieScheduleContext.Demand;
 
@@ -42,12 +36,6 @@ export interface IAutoMovieScheduleContext {
    * order only.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the instant returned, what a law may read up to it and when the member is absent.
-   * @evidence contracts/development/implementation.md#principled-implementation A subject's next action cannot begin before its part does, so up to that start the subject holds the pose its placed actions end on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan of the resolver's waiting parts.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is placed by the query; a read past the start still asks `demand`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the waiting parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the same waiting list `demand` places from.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the resolver's closure.
    */
   horizon?: (subject: string) => number | undefined;
 
@@ -62,12 +50,6 @@ export interface IAutoMovieScheduleContext {
    * declaration order only.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the instant returned, when it is returned, the reading it marks and when the member is absent.
-   * @evidence contracts/development/implementation.md#principled-implementation Within one exchange each actor commits to where the other was when its own action began, the reaction time covering the rest, so two parts of one group never wait on each other.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One walk up the parts being placed, one sibling test each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is placed by the query; whether the partner is placed first is the reader's `demand`.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the nesting depth times each group's parts.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the resolver's own part records.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the resolver's closure.
    */
   meeting?: (subject: string) => number | undefined;
 
@@ -78,12 +60,6 @@ export interface IAutoMovieScheduleContext {
    * declaration order only.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the call's effect, its results and when the member is absent.
-   * @evidence contracts/development/implementation.md#principled-implementation The anchor's own action is placed before the action that reads it, the same depth-first order as `demand`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan for the part declaring the anchor, then its placement.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An anchor no waiting part holds is left to the caller's refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the waiting parts, plus the placement of the one part found.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Places through the same part bookkeeping as `demand`, so a part is placed once.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the resolver's closure.
    */
   demandAnchor?: (anchor: string) => IAutoMovieScheduleContext.Demand;
 }

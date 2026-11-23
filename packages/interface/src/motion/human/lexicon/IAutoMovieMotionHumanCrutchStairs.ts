@@ -44,12 +44,6 @@ export namespace IAutoMovieMotionHumanCrutchStairs {
      * From one crutch's staged floor frame, the climb's parameters and the climb's first film second (zero when absent), the crutch's world frame at each film second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the start's default, the reader's timebase and the result's frame.
-     * @evidence contracts/development/implementation.md#principled-implementation HumanCrutchStairs resolves the same flight its plan climbs, without the body's measures, and each read places the crutch on its tread level or carries it by minimum jerk between two levels along the staged heading.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The law owns the flight; the scene's two crutch props only read frames from the returned reader.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Every crutch frame derives from the flight the law plans, with no separately authored prop path.
-     * @evidence contracts/development/implementation.md#efficient-algorithms The flight is resolved once per call; each read scans the climb's moves up to the current one, linear in the step count.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The returned reader reuses its one resolved flight for every film second; the plan resolves its own from the same parameters.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The reader retains the start frame and the resolved flight, a few moves per step, for as long as the scene holds it.
      */
     track: (
       start: IAutoMovieRigidTransform,

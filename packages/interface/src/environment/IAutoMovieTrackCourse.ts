@@ -53,12 +53,6 @@ export namespace IAutoMovieTrackCourse {
      * @throws When distance is nonfinite or outside the prepared range.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Identifies the distance range and frame and the query refusal.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature; course preparation owns the interpolant.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature; the evaluator is supplied by the course.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature with the evaluator's admission premise.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature; course preparation describes its lookup.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; the prepared course owns stored samples.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; the prepared course owns all retention.
      */
     frame(distance: number): IAutoMovieTransform;
   }

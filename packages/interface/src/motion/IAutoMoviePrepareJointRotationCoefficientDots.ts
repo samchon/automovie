@@ -34,12 +34,6 @@ export namespace IAutoMoviePrepareJointRotationCoefficientDots {
      * Propose degree swivels of q=cosine*cos(psi/2)+sine*sin(psi/2), or decline.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMoviePrepareJointRotationCoefficientDots.IReader.swivels: Propose degree swivels of q=cosine*cos(psi/2)+sine*sin(psi/2), or decline.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `prepareJointRotationCoefficientDots` supplies swivels and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `prepareJointRotationCoefficientDots`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `prepareJointRotationCoefficientDots` keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `prepareJointRotationCoefficientDots` owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `prepareJointRotationCoefficientDots` owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `prepareJointRotationCoefficientDots` owns what it retains and releases.
      */
     swivels(
       reference: IAutoMovieJointPose,

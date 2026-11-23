@@ -87,12 +87,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @returns The aim.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.aim: A target's world point and outward unit normal at a film second.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.aim is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.aim is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.aim is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.aim is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.aim is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.aim is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   aim(
     target: IAutoMovieMotionTarget,
@@ -112,12 +106,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @throws {Error} When no action with that anchor is placed earlier in walk order.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.action: Another action already placed in the performance, by its anchor: a defence reads the attack it answers, a receiver the offer it takes.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.action is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.action is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.action is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.action is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.action is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.action is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   action(anchor: string): IAutoMovieMotionHumanPlacedAction;
 
@@ -129,12 +117,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @throws {Error} When no such performer exists.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.performer: Another person in the performance: their body and their displayed world bones at a film second, so a law can place any region or socket of theirs or sweep against their colliders. Call it only from a posture, for seconds at or before the one evaluated, as with `aim`.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.performer is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.performer is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.performer is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.performer is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.performer is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.performer is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   performer(subject: string): IAutoMovieMotionHumanPerformerReader;
 
@@ -146,12 +128,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @throws {Error} When no such prop exists.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.prop: A prop of the performance with its displayed world frame at a film second, carried by whichever hand grips it then. Unlike `performer`, it may be read at plan time for seconds before the action's start: where an object lies, or the giver's hand it rests in.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.prop is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.prop is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.prop is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.prop is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.prop is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.prop is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   prop(subject: string): IAutoMovieMotionHumanPropReader;
 
@@ -167,12 +143,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @throws {HumanRefusal} When the window closes before the contact can be made.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.meeting: The meeting of an action this performer does with others: the one record every role reads, computed from where all stand at this action's start by whichever role is planned first, and the same whichever that is. With no partner it is this role's own meeting on its default places, which is not solid. It may be read at plan time, so the partners' earlier actions must be placed first, as `HumanChain.mutual` places them.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.meeting is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.meeting is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.meeting is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.meeting is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.meeting is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.meeting is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   meeting(
     kind: IAutoMovieMotionMeetingKind,
@@ -191,12 +161,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @throws {HumanRefusal} A `participant` refusal when the performance has no such track.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.cue: One of the film's cue tracks (`IAutoMovieMotionHumanPerformance.IInput.cues`): its named instants in film seconds, in the track's order, so a law can place its own beats on a score's or its stresses on a line's (a dance's steps on the beats, a nod on an accent). It may be read at plan time. A law that only needs to start at a cue is synced by its composition instead.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.cue is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.cue is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.cue is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.cue is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.cue is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.cue is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   cue(track: string): readonly IAutoMovieScheduleCue[];
 
@@ -207,12 +171,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @returns The obstacles; none when the performance was given none.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.obstacles: What stands in the way in this performance (`IAutoMovieMotionHumanPerformance.IInput.obstacles`): the scene's solids with their openings, which a law that moves the body across the floor asks `HumanObstacle.blocking` about before it plans a stretch of its path.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.obstacles is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.obstacles is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.obstacles is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.obstacles is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.obstacles is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.obstacles is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   obstacles(): readonly IAutoMovieMotionHumanObstacle[];
 
@@ -224,12 +182,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @returns The forces, in the order the performance was given them.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.forces: The forces on this performer in a span of this action (`IAutoMovieMotionHumanPerformance.IInput.forces`, #3429): impulses and sustained forces, known before the action plans because they are inputs. A reaction reads them to size its response; none acts by itself. Absent on a context built outside a performance.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.forces is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.forces is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.forces is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.forces is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.forces is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.forces is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   forces?(from: number, to: number): readonly IAutoMovieMotionHumanForce[];
 
@@ -240,12 +192,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @returns The poses demanded of it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.demands: What the performer's next action on a prop demands of a grip this action is choosing (`IAutoMovieMotionHumanActionLaw.demands`): the poses that action will hold the prop in, so a grasp is chosen for them as well as for its own reach. The action asked is the first later one of the performer that names the prop among its parameters; an action that asks nothing, or none, gives none. Absent on an overlay and on a context built outside a performance.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   demands?(
     grip: IAutoMovieMotionHumanActionLaw.IGrip,
@@ -261,12 +207,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @returns The stream.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.random: This instance's draw stream for one channel.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.random is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.random is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.random is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.random is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.random is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.random is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   random(channel: string): IAutoMovieRandom;
 
@@ -277,12 +217,6 @@ export interface IAutoMovieMotionHumanActionContext<P = object> {
    * @returns The stream and this instance's index.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.series: The draws of one channel across this action's repeats: one stream for every instance of the action's id, keyed by the chain seed, the subject, the action's id and the channel, with this instance's ordinal as the index into it. A low-discrepancy sequence over the repeats reads it, so consecutive repeats land apart.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.series is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.series is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.series is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.series is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.series is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.series is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   series(channel: string): IAutoMovieMotionHumanActionContext.ISeries;
 }
@@ -320,12 +254,6 @@ export namespace IAutoMovieMotionHumanActionContext {
      * @returns The carrier's posture at that instant; its last posture once it has ended. Only requested channels are valid when supplied.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionContext.ICarrier.posture: Its posture under the overlay.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionContext.ICarrier.posture is used through packages/motions/src/perform/HumanPerformancePlace.ts.
      */
     posture(seconds: number,
       channels?: readonly AutoMovieMotionHumanChannel[],

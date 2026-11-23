@@ -26,12 +26,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   lieDown(params: IAutoMovieMotionHumanLieDown.IParams, anchor?: string): Chain;
 
@@ -43,12 +37,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   getUp(params: IAutoMovieMotionHumanGetUp.IParams, anchor?: string): Chain;
 
@@ -60,12 +48,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   roll(params: IAutoMovieMotionHumanRoll.IParams, anchor?: string): Chain;
 
@@ -77,12 +59,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   crawl(params: IAutoMovieMotionHumanCrawl.IParams, anchor?: string): Chain;
 
@@ -94,12 +70,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   crabWalk(
     params: IAutoMovieMotionHumanCrabWalk.IParams,
@@ -114,12 +84,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   dive(params: IAutoMovieMotionHumanDive.IParams, anchor?: string): Chain;
 
@@ -131,12 +95,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   lieOnSurface(
     params: IAutoMovieMotionHumanLieOnSurface,
@@ -151,12 +109,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   turnOver(params: IAutoMovieMotionHumanTurnOver, anchor?: string): Chain;
 
@@ -168,12 +120,6 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   logRoll(params: IAutoMovieMotionHumanLogRoll, anchor?: string): Chain;
 }

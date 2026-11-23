@@ -39,12 +39,6 @@ export namespace IAutoMovieConstructionSplitBand {
      * exceptions. Keep the callback and source surface stable during a build.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit and the absent case.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the caller's curve is the implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the caller's curve.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     along?: (psi: number) => number;
   }

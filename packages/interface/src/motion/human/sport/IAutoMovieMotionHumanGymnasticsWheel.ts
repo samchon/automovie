@@ -86,12 +86,6 @@ export namespace IAutoMovieMotionHumanGymnasticsWheel {
      * @returns World metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGymnasticsWheel.IWheel.root: The root linearly interpolated between neighbouring rows. The supplied angle must be finite; it is clamped to [0, until].
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGymnasticsWheel.IWheel.root is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGymnasticsWheel.IWheel.root is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGymnasticsWheel.IWheel.root is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGymnasticsWheel.IWheel.root is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGymnasticsWheel.IWheel.root is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGymnasticsWheel.IWheel.root is used through packages/motions/src/sport/cartwheel.ts.
      */
     root(angle: number): IAutoMovieVector3;
   }
@@ -111,12 +105,6 @@ export namespace IAutoMovieMotionHumanGymnasticsWheel {
      * Synchronous posture sampler at a rotation angle in degrees, with the root at the origin. Called count + 1 times to construct the table; exceptions propagate and the callback is not retained.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGymnasticsWheel.IRollProps.shaped: Synchronous posture sampler at a rotation angle in degrees, with the root at the origin. Called count + 1 times to construct the table; exceptions propagate and the callback is not retained.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGymnasticsWheel.IRollProps.shaped is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGymnasticsWheel.IRollProps.shaped is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGymnasticsWheel.IRollProps.shaped is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGymnasticsWheel.IRollProps.shaped is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGymnasticsWheel.IRollProps.shaped is used through packages/motions/src/sport/cartwheel.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGymnasticsWheel.IRollProps.shaped is used through packages/motions/src/sport/cartwheel.ts.
      */
     shaped: (angle: number) => IAutoMovieMotionHumanPosture;
     /** Nonempty borrowed list of bearing candidates in preference order. Each candidate must name admitted bones; roll does not validate these preconditions. */

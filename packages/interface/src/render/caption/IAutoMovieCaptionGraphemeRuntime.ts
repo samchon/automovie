@@ -18,12 +18,6 @@ export interface IAutoMovieCaptionGraphemeRuntime {
    
  *
  * @evidence contracts/development/common.md#meaningful-documentation The segment contract states the input meaning, completion or iteration obligation and rejection behavior.
- * @evidenceExclude contracts/development/implementation.md#principled-implementation Erased segment host signature; concrete hosts own its algorithm and resources under the documented protocol.
- * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Erased segment host signature; concrete hosts own its algorithm and resources under the documented protocol.
- * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Erased segment host signature; concrete hosts own its algorithm and resources under the documented protocol.
- * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Erased segment host signature; concrete hosts own its algorithm and resources under the documented protocol.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Erased segment host signature; concrete hosts own its algorithm and resources under the documented protocol.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Erased segment host signature; concrete hosts own its algorithm and resources under the documented protocol.
  */
   segment(value: string): Iterable<unknown>;
 }

@@ -49,12 +49,6 @@ export namespace IAutoMovieHumanHeadTapeStation {
      * Point0 inversion retains its exact prepared frame after a successful first read.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Point0 inversion retains its exact prepared frame after a successful first read.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadTapeStation and the callback provider must satisfy the documented point contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadTapeStation and its callback provider own the cost of each point invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadTapeStation and the callback provider determine when the inputs to point describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadTapeStation and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadTapeStation.IPrepared.point callable contract, without an implementation body. AutoMovieHumanHeadTapeStation and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadTapeStation.IPrepared.point declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadTapeStation and the callback provider.
      */
     point(phase: number): AutoMovieVector3Tuple;
 
@@ -62,12 +56,6 @@ export namespace IAutoMovieHumanHeadTapeStation {
      * Explicit phase demand reads its actual frame and shares only the numeric native source.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Explicit phase demand reads its actual frame and shares only the numeric native source.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadTapeStation and the callback provider must satisfy the documented value contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadTapeStation and its callback provider own the cost of each value invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadTapeStation and the callback provider determine when the inputs to value describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadTapeStation and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadTapeStation.IPrepared.value callable contract, without an implementation body. AutoMovieHumanHeadTapeStation and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadTapeStation.IPrepared.value declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadTapeStation and the callback provider.
      */
     value(phase: number): IReading;
   }
@@ -104,12 +92,6 @@ export namespace IAutoMovieHumanHeadTapeStation {
      * Actual Point0 and the source that produced this bracket trial.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Actual Point0 and the source that produced this bracket trial.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadTapeStation and the callback provider must satisfy the documented point contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadTapeStation and its callback provider own the cost of each point invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadTapeStation and the callback provider determine when the inputs to point describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadTapeStation and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadTapeStation.IOutput.point callable contract, without an implementation body. AutoMovieHumanHeadTapeStation and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadTapeStation.IOutput.point declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadTapeStation and the callback provider.
      */
     point(station: number, phase: number): IValue;
 
@@ -117,12 +99,6 @@ export namespace IAutoMovieHumanHeadTapeStation {
      * Read phase data from the selected trial, or its actual endpoint station.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Read phase data from the selected trial, or its actual endpoint station.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadTapeStation and the callback provider must satisfy the documented value contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadTapeStation and its callback provider own the cost of each value invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadTapeStation and the callback provider determine when the inputs to value describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadTapeStation and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadTapeStation.IOutput.value callable contract, without an implementation body. AutoMovieHumanHeadTapeStation and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadTapeStation.IOutput.value declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadTapeStation and the callback provider.
      */
     value(station: number, phase: number, selected?: IPrepared): IReading;
   }

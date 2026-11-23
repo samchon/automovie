@@ -25,12 +25,6 @@ export namespace IAutoMovieHumanHeadNeckScalars {
      * Actual numeric radius declaration at a selected lower radius.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Actual numeric radius declaration at a selected lower radius.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadNeckScalars and the callback provider must satisfy the documented radius contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadNeckScalars and its callback provider own the cost of each radius invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadNeckScalars and the callback provider determine when the inputs to radius describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadNeckScalars and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadNeckScalars.IOutput.radius callable contract, without an implementation body. AutoMovieHumanHeadNeckScalars and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadNeckScalars.IOutput.radius declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadNeckScalars and the callback provider.
      */
     radius(base: number): IAutoMovieViewPart.IOutline;
 
@@ -75,12 +69,6 @@ export namespace IAutoMovieHumanHeadNeckScalars {
      * Actual point on the declared lower/normal affine primitive; no completed curve is read.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Actual point on the declared lower/normal affine primitive; no completed curve is read.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadNeckScalars and the callback provider must satisfy the documented point contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadNeckScalars and its callback provider own the cost of each point invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadNeckScalars and the callback provider determine when the inputs to point describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadNeckScalars and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadNeckScalars.IAxis.point callable contract, without an implementation body. AutoMovieHumanHeadNeckScalars and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadNeckScalars.IAxis.point declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadNeckScalars and the callback provider.
      */
     point(station: number): [number, number, number];
   }

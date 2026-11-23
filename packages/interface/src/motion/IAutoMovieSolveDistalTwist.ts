@@ -91,12 +91,6 @@ export namespace IAutoMovieSolveDistalTwist {
      * Effector abduction axis rotated by the actual fixed frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.abduction: Effector abduction axis rotated by the actual fixed frame.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies abduction and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     abduction(): IAutoMovieVector3;
 
@@ -104,12 +98,6 @@ export namespace IAutoMovieSolveDistalTwist {
      * Effector flexion axis, needed only for the proximal Euler convention.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.flexion: Effector flexion axis, needed only for the proximal Euler convention.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies flexion and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     flexion(): IAutoMovieVector3;
 
@@ -117,12 +105,6 @@ export namespace IAutoMovieSolveDistalTwist {
      * Handed clinical-zero twist, admitting that frame only when first read.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSolveDistalTwist.IPrepared.zero: Handed clinical-zero twist, admitting that frame only when first read.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies zero and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     zero(): IZero;
   }

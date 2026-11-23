@@ -78,12 +78,6 @@ export namespace IAutoMovieHumanHeadEarRidge {
      * Whole native phase function and its available first/second phase derivatives.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Whole native phase function and its available first/second phase derivatives.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadEarRidge and the callback provider must satisfy the documented phase contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadEarRidge and its callback provider own the cost of each phase invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadEarRidge and the callback provider determine when the inputs to phase describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadEarRidge and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadEarRidge.IPort.phase callable contract, without an implementation body. AutoMovieHumanHeadEarRidge and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadEarRidge.IPort.phase declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadEarRidge and the callback provider.
      */
     phase: (phi: number) => IAutoMovieLoftSectionPhase;
   }

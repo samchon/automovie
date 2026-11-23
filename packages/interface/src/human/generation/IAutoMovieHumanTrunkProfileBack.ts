@@ -20,12 +20,6 @@ export namespace IAutoMovieHumanTrunkProfileBack {
      * The forward place of the back midline at a height, mm.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The forward place of the back midline at a height, mm.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanTrunkProfileBack owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkProfileBack.IProfile.at declares the invocation boundary only; AutoMovieHumanTrunkProfileBack and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanTrunkProfileBack.IProfile.at must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanTrunkProfileBack.IProfile.at owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanTrunkProfileBack and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanTrunkProfileBack producer or caller supplying the callback owns captured state and its lifetime.
      */
     at: (y: number) => number;
 

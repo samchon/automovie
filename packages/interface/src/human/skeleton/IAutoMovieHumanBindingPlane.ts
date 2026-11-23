@@ -23,12 +23,6 @@ export interface IAutoMovieHumanBindingPlane {
    * The step the share climbs on, over -1 to 1.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The step the share climbs on, over -1 to 1.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This step signature specifies the documented callback contract without an implementation body; Human's binding-plane producers and AutoMovieHumanJointTransition and its supplied callbacks own the numerical method and its premises.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes step at the containing contract boundary; decomposition of its implementation remains with Human's binding-plane producers and AutoMovieHumanJointTransition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual step provider is responsible for satisfying the documented semantics.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by Human's binding-plane producers and AutoMovieHumanJointTransition determines the work per step call.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; Human's binding-plane producers and AutoMovieHumanJointTransition's runtime provider owns reuse and must preserve the documented source identity and effects.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the step provider and the caller retaining its containing record own the callback and its captured dependencies.
    */
   step: (x: number) => number;
 

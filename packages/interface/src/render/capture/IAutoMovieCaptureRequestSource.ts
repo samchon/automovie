@@ -13,12 +13,6 @@ export interface IAutoMovieCaptureRequestSource {
    * The text of a key, null or undefined when the key is absent, and the empty string for a key given without a value, which turns a switch on.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what each absence returns and what an empty value means.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; `URLSearchParams`, `Map` or the host's object fixes the behaviour.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; the signature does not constrain an implementation's cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
   get(key: string): string | null | undefined;
 
@@ -26,12 +20,6 @@ export interface IAutoMovieCaptureRequestSource {
    * Every key given, a key given twice listed twice.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is listed and how a repeat appears.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; `URLSearchParams`, `Map` or the host's object fixes the behaviour.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; the signature does not constrain an implementation's cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
   keys(): Iterable<string>;
 }

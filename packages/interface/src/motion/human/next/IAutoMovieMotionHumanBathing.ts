@@ -27,12 +27,6 @@ export interface IAutoMovieMotionHumanBathing<Chain> {
    * @returns The chain with the entry appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBathing.intoTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBathing.intoTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBathing.intoTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanBathing.intoTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBathing.intoTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBathing.intoTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
    */
   intoTub(chain: Chain, params: IAutoMovieMotionHumanBathing.IIntoTub): Chain;
 
@@ -43,12 +37,6 @@ export interface IAutoMovieMotionHumanBathing<Chain> {
    * @returns The chain with the exit appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBathing.outOfTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBathing.outOfTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBathing.outOfTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanBathing.outOfTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBathing.outOfTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBathing.outOfTub is provided by the chain that implements IAutoMovieMotionHumanBathing.
    */
   outOfTub(chain: Chain, params: IAutoMovieMotionHumanBathing.IOutOfTub): Chain;
 
@@ -59,12 +47,6 @@ export interface IAutoMovieMotionHumanBathing<Chain> {
    * @returns The chain with the wash appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBathing.shower is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBathing.shower is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBathing.shower is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanBathing.shower is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBathing.shower is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBathing.shower is provided by the chain that implements IAutoMovieMotionHumanBathing.
    */
   shower(chain: Chain, params: IAutoMovieMotionHumanBathing.IShower): Chain;
 
@@ -75,12 +57,6 @@ export interface IAutoMovieMotionHumanBathing<Chain> {
    * @returns The chain with the drying appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBathing.towelDry is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBathing.towelDry is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBathing.towelDry is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanBathing.towelDry is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBathing.towelDry is provided by the chain that implements IAutoMovieMotionHumanBathing.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBathing.towelDry is provided by the chain that implements IAutoMovieMotionHumanBathing.
    */
   towelDry(chain: Chain, params: IAutoMovieMotionHumanBathing.ITowelDry): Chain;
 }

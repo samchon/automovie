@@ -98,12 +98,6 @@ export namespace IAutoMovieHumanBodyLaw {
      * Explicit engine-evaluated legacy neck interval; ordinary source/metadata reads do not request raw geometry.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Explicit engine-evaluated legacy neck interval; ordinary source/metadata reads do not request raw geometry.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This neckRaw signature specifies the documented callback contract without an implementation body; AutoMovieHumanBodyLaw and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes neckRaw at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanBodyLaw.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual neckRaw provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanBodyLaw determines the work per neckRaw call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanBodyLaw's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the neckRaw provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     neckRaw(): IAutoMovieLoftChain;
 

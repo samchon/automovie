@@ -19,12 +19,6 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    * @returns The chain with the turns appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSleep.sleep is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSleep.sleep is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSleep.sleep is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSleep.sleep is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSleep.sleep is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSleep.sleep is provided by the chain that implements IAutoMovieMotionHumanSleep.
    */
   sleep(params: IAutoMovieMotionHumanSleep.ISleep): Chain;
 
@@ -36,12 +30,6 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSleep.pullCover is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSleep.pullCover is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSleep.pullCover is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSleep.pullCover is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSleep.pullCover is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSleep.pullCover is provided by the chain that implements IAutoMovieMotionHumanSleep.
    */
   pullCover(params: IAutoMovieMotionHumanPullCover, anchor?: string): Chain;
 
@@ -53,12 +41,6 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSleep.lieTogether is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSleep.lieTogether is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSleep.lieTogether is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSleep.lieTogether is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSleep.lieTogether is provided by the chain that implements IAutoMovieMotionHumanSleep.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSleep.lieTogether is provided by the chain that implements IAutoMovieMotionHumanSleep.
    */
   lieTogether(params: IAutoMovieMotionHumanLieTogether, anchor?: string): Chain;
 }

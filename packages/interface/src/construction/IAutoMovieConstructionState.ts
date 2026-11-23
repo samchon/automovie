@@ -86,13 +86,7 @@ export namespace IAutoMovieConstructionState {
     /**
      * Return the chain with the pending endpoint replacement, or a premise string.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation A chain-or-string result lets the realizing view preserve a failed replacement as a named continuation premise rather than substituting geometry.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The callback consumes the already lofted chain and leaves applied/error bookkeeping to its walk owner.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature promises no validation or retry; its producer applies enclosing pending transformations before its own ConstructionContinuation.apply call, preserving each owner's actual result and first refusal.
      * @evidence contracts/development/common.md#meaningful-documentation States successful replacement versus premise-string return and the pending endpoint role.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This callable interface member has no implementation; the concrete continuation transform owns its algorithm.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The current producer reuses its closed-over host boundary and the supplied part chain instead of lofting either again.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Invocation acquires no handle by contract; the pending record's map entry owns the callback lifetime and the returned chain's owner retains its shared data.
      */
     apply(chain: IAutoMovieLoftChain): IAutoMovieLoftChain | string;
 

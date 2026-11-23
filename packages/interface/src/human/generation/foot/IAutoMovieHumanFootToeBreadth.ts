@@ -55,12 +55,6 @@ export namespace IAutoMovieHumanFootToeBreadth {
      * The point at a length along the line.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The point at a length along the line.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This pointAt signature specifies the documented callback contract without an implementation body; AutoMovieHumanFootToeBreadth and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes pointAt at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanFootToeBreadth.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual pointAt provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanFootToeBreadth determines the work per pointAt call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanFootToeBreadth's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the pointAt provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     pointAt: (s: number) => AutoMovieVector3Tuple;
 
@@ -68,12 +62,6 @@ export namespace IAutoMovieHumanFootToeBreadth {
      * The toe's own half breadth at a length along the line, mm, before the neighbours.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The toe's own half breadth at a length along the line, mm, before the neighbours.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This shape signature specifies the documented callback contract without an implementation body; AutoMovieHumanFootToeBreadth and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes shape at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanFootToeBreadth.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual shape provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanFootToeBreadth determines the work per shape call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanFootToeBreadth's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the shape provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     shape: (s: number) => number;
 
@@ -81,12 +69,6 @@ export namespace IAutoMovieHumanFootToeBreadth {
      * The half breadth at a length along the line, mm.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The half breadth at a length along the line, mm.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This half signature specifies the documented callback contract without an implementation body; AutoMovieHumanFootToeBreadth and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes half at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanFootToeBreadth.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual half provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanFootToeBreadth determines the work per half call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanFootToeBreadth's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the half provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     half: (s: number) => number;
   }

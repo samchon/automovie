@@ -49,13 +49,7 @@ export namespace IAutoMovieCurveAssembly64 {
     /**
      * Construct this region from the resolved hierarchy and actual incoming values keyed by boundary ID; thrown failures abort assembly without returning a partial output.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation The callback receives context-authenticated upstream section positions and full longitudinal derivative fields rather than copied selector metadata.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One method is the scheduling boundary between generic dependency routing and region-owned coefficient generation.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No default body, missing-boundary substitute or sampled-curve fallback is defined by this signature.
      * @evidence contracts/development/common.md#meaningful-documentation States upstream ID keys, resolved hierarchy timing, concrete result preservation and the effect of a thrown construction failure.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This abstract signature chooses no generation algorithm; each concrete factory owns and documents its coefficient-generation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no calls itself; the assembly scheduler invokes each factory once and shares its published outputs.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature retains no context or field; implementations own any references or resources they keep after the call.
      */
     construct(
       context: IAutoMovieCurveParentContext,

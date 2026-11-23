@@ -114,12 +114,6 @@ export namespace IAutoMovieHumanHeadComposer {
      * Only this call-owned definition retains its requested results; no cross-input cache is added.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Creates only the requested raw result, with studies separate from production topology.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This loft signature specifies the documented callback contract without an implementation body; AutoMovieHumanHeadOriginalSources and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes loft at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanHeadOriginalSources.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual loft provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanHeadOriginalSources determines the work per loft call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanHeadOriginalSources's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the loft provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     loft(name: string): IAutoMovieViewLoft.IResult;
   }
@@ -168,12 +162,6 @@ export namespace IAutoMovieHumanHeadComposer {
      * Only this invocation retains the actual selected source and attempt.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Separates available guides and observed completion from required public-input geometry.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This closed signature specifies the documented callback contract without an implementation body; AutoMovieHumanHeadComposer and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes closed at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanHeadComposer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual closed provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanHeadComposer determines the work per closed call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanHeadComposer's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the closed provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     closed(): IAutoMovieHumanHeadCanonical.IOutput;
     /** Already requested raw mass, or null; this readonly observation never creates a loft. */
@@ -189,12 +177,6 @@ export namespace IAutoMovieHumanHeadComposer {
      * Only this call-owned source closure retains a requested loft; there is no global cache.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The returned raw result belongs to this immutable source preparation.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This loft signature specifies the documented callback contract without an implementation body; AutoMovieHumanHeadComposer and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes loft at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanHeadComposer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual loft provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanHeadComposer determines the work per loft call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanHeadComposer's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the loft provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     loft(): IAutoMovieViewLoft.IResult;
     /** Same original neck family as the mass; null only without base context. */

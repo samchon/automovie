@@ -65,12 +65,6 @@ export interface IAutoMovieMotionHumanRefusal extends Error {
    * @returns The located refusal; this one when it is located already.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRefusal.locate: This refusal with its place in the film, keeping any place it already names: a law that named its own performer or action is not overwritten.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRefusal.locate is used through packages/motions/src/law/HumanRefusal.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRefusal.locate is used through packages/motions/src/law/HumanRefusal.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRefusal.locate is used through packages/motions/src/law/HumanRefusal.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRefusal.locate is used through packages/motions/src/law/HumanRefusal.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRefusal.locate is used through packages/motions/src/law/HumanRefusal.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRefusal.locate is used through packages/motions/src/law/HumanRefusal.ts.
    */
   locate(
     where: IAutoMovieMotionHumanRefusal.IWhere,
@@ -136,12 +130,6 @@ export namespace IAutoMovieMotionHumanRefusal {
      * @returns The message.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRefusal.IConstructor.message: The message of a refusal: `performer.act#instance axis: reason; feasible: ...; fix: ...`, the place left out until it is known.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRefusal.IConstructor.message is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRefusal.IConstructor.message is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRefusal.IConstructor.message is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRefusal.IConstructor.message is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRefusal.IConstructor.message is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRefusal.IConstructor.message is used through packages/motions/src/law/HumanRefusal.ts.
      */
     message(props: IAutoMovieMotionHumanRefusal.IProps): string;
 
@@ -153,12 +141,6 @@ export namespace IAutoMovieMotionHumanRefusal {
      * @returns The text.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanRefusal.IConstructor.describe: A feasible set as text: `0.12 to 0.71 m`, `at least 1`, or the alternatives listed.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRefusal.IConstructor.describe is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRefusal.IConstructor.describe is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRefusal.IConstructor.describe is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRefusal.IConstructor.describe is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRefusal.IConstructor.describe is used through packages/motions/src/law/HumanRefusal.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRefusal.IConstructor.describe is used through packages/motions/src/law/HumanRefusal.ts.
      */
     describe(feasible: IAutoMovieMotionHumanRefusal.Feasible): string;
   }

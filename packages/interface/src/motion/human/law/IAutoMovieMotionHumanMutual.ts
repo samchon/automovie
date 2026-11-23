@@ -35,12 +35,6 @@ export interface IAutoMovieMotionHumanMutual<
    * @returns The action's name and its own parameters.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanMutual.act: The action one role performs.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanMutual.act is used through packages/motions/src/actions/HumanMutual.ts.
    */
   act(
     role: Role,

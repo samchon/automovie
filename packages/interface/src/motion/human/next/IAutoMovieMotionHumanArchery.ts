@@ -29,12 +29,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.takeArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.takeArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.takeArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.takeArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.takeArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.takeArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   takeArrow(
     params: IAutoMovieMotionHumanArchery.ITakeArrow,
@@ -49,12 +43,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.nockArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.nockArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.nockArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.nockArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.nockArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.nockArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   nockArrow(
     params: IAutoMovieMotionHumanPutDown.IParams,
@@ -69,12 +57,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.presentBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.presentBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.presentBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.presentBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.presentBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.presentBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   presentBow(
     params: IAutoMovieMotionHumanArchery.IPresentBow,
@@ -89,12 +71,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.drawBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.drawBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.drawBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.drawBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.drawBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.drawBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   drawBow(params: IAutoMovieMotionHumanOperate.IParams, anchor?: string): Chain;
 
@@ -106,12 +82,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.loose is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.loose is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.loose is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.loose is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.loose is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.loose is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   loose(params: IAutoMovieMotionHumanArchery.ILoose, anchor?: string): Chain;
 
@@ -123,12 +93,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.spanCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.spanCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.spanCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.spanCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.spanCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.spanCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   spanCrossbow(
     params: IAutoMovieMotionHumanOperate.IParams,
@@ -143,12 +107,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.presentCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.presentCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.presentCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.presentCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.presentCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.presentCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   presentCrossbow(
     params: IAutoMovieMotionHumanArchery.IPresentCrossbow,
@@ -163,12 +121,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.shootCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.shootCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.shootCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.shootCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.shootCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.shootCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   shootCrossbow(
     params: IAutoMovieMotionHumanArchery.IShootCrossbow,
@@ -183,12 +135,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.throwWeapon is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.throwWeapon is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.throwWeapon is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.throwWeapon is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.throwWeapon is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.throwWeapon is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   throwWeapon(
     params: IAutoMovieMotionHumanThrowObjectParams,
@@ -203,12 +149,6 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanArchery.lasso is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanArchery.lasso is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanArchery.lasso is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanArchery.lasso is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.lasso is provided by the chain that implements IAutoMovieMotionHumanArchery.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.lasso is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   lasso(params: IAutoMovieMotionHumanLasso, anchor?: string): Chain;
 }

@@ -19,12 +19,6 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanReaction.flinch is provided by the chain that implements IAutoMovieMotionHumanReaction.
    */
   flinch(params: IAutoMovieMotionHumanFlinch.IParams, anchor?: string): Chain;
 
@@ -36,12 +30,6 @@ export interface IAutoMovieMotionHumanReaction<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanReaction.give is provided by the chain that implements IAutoMovieMotionHumanReaction.
    */
   give(params: IAutoMovieMotionHumanGive.IParams, anchor?: string): Chain;
 }

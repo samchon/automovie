@@ -21,13 +21,7 @@ export interface IAutoMovieSurfaceRegistry {
    *
    * @returns The count
    *
-   * @evidence contracts/development/implementation.md#principled-implementation The number of vertices welded so far.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is counted twice.
    * @evidence contracts/development/common.md#meaningful-documentation States what is counted.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant time.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `registerAutoMovieSurfaceVertices`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `registerAutoMovieSurfaceVertices`.
    */
   count(): number;
 
@@ -37,13 +31,7 @@ export interface IAutoMovieSurfaceRegistry {
    * @param key Identity, not yet registered
    * @returns Its index
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Registers a vertex whose evaluation the caller owns.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The key must be new; callers reserve only unique blend keys.
    * @evidence contracts/development/common.md#meaningful-documentation States the premise.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One map write.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `registerAutoMovieSurfaceVertices`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `registerAutoMovieSurfaceVertices`.
    */
   reserve(key: string): number;
 
@@ -54,13 +42,7 @@ export interface IAutoMovieSurfaceRegistry {
    * @param make Makes the point's writer
    * @returns Its index
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Welds a point by identity and binds its writer once.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Points are never welded by distance.
    * @evidence contracts/development/common.md#meaningful-documentation States when the writer is made.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One map read, and a write when new.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `registerAutoMovieSurfaceVertices`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `registerAutoMovieSurfaceVertices`.
    */
   vertex(
     key: string,
@@ -73,26 +55,14 @@ export interface IAutoMovieSurfaceRegistry {
    * @param sample The sample
    * @returns Its index
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Welds a sampled point, narrowing a sweep point's cell.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call per sampling.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A sweep point's cell does not depend on which patch came first.
    * @evidence contracts/development/common.md#meaningful-documentation States both kinds of point.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One map read and a constant-size update.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `registerAutoMovieSurfaceVertices`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `registerAutoMovieSurfaceVertices`.
    */
   admit(sample: IAutoMovieSurfaceSample): number;
 
   /**
    * Resolve every sweep writer from its finest reported spacing, mirror missing sides and zero wholly unreached axes, then run dependent bindings before sweep sealing. Registration and repeated finalization are refused afterward; temporary records are cleared even if a binding throws.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Makes each sweep point's writer from its final cell.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call after all patches.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A side no sampling reached mirrors the other rather than defaulting.
    * @evidence contracts/development/common.md#meaningful-documentation States the mirror and zero rules.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(S + D) bookkeeping for S sweep samples and D dependent bindings, plus their surface-sample and probe compilation queries.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `registerAutoMovieSurfaceVertices`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `registerAutoMovieSurfaceVertices`.
    */
   finalize(): void;
 
@@ -105,13 +75,7 @@ export interface IAutoMovieSurfaceRegistry {
    * @param bind One-time compile callback; its reference is released after finalization, including failure
    * @throws Error if the registry has been finalized
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Resolves dependent geometric evaluators only after all patch sides have contributed their sampling reaches.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One compile callback binds a direct writer or probe slot; no per-pose registry lookup is required.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the resolved sweep field, never a pin-overwritten target buffer; unknown observation-only identities stay distinct.
    * @evidence contracts/development/common.md#meaningful-documentation States the callback phase, null meaning, ownership, failure lifetime and legal registration boundary.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant-time request registration and one identity lookup during finalization.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; the producer owns finalization and field sharing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The producer clears compile-only callbacks; dependent writers belong to their owning rig.
    */
   bindSweep(
     key: string,
@@ -126,13 +90,7 @@ export interface IAutoMovieSurfaceRegistry {
    * @returns Its index
    * @throws Error when no patch made it
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Looks up a welded identity.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An identity no patch made is refused.
    * @evidence contracts/development/common.md#meaningful-documentation States the refusal.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One map read.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `registerAutoMovieSurfaceVertices`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `registerAutoMovieSurfaceVertices`.
    */
   existing(key: string, what: string): number;
 }
@@ -163,13 +121,7 @@ export namespace IAutoMovieSurfaceRegistry {
      * the scalar offset at; the output buffer is not retained. The owning rig
      * refreshes frames and scales before pose or girth evaluation reads this.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Applies the compiled resolved-footprint radius quadrature, one to three longitudinal terms, in the sweep frame with the current rig scales; the footprint remains fixed while the pose and girth field refresh their frames and scales.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure A direct geometric writer is shared by the emitted sample and its dependent curve endpoint; neither reads a pin-overwritten target slot or performs a registry lookup per pose.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Writes the actual resolved geometric field before control pinning, not a substituted displayed endpoint or cached value from another pose.
      * @evidence contracts/development/common.md#meaningful-documentation States the network frame and metre units, output offset and capacity premise, current-pose meaning, pre-pin stage and output-buffer ownership.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Each call accumulates at most three compiled scale terms and writes three coordinates; profile quadrature and coefficients were prepared when sample compiled, with no per-write allocation.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Emitted and dependent samples share the compiled writer, coefficients and rig frame/scale slots. Calls reevaluate those terms rather than claiming one cached coordinate evaluation across changing poses or output buffers.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The writer closure belongs to its sweep rig and retains at most three coefficient/slot entries plus a frame index; it retains no supplied output buffer, and registry compile-only references are cleared after finalization.
      */
     readonly write: (out: Float64Array, at: number) => void;
   }

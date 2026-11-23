@@ -55,12 +55,6 @@ export interface IAutoMovieMotionHumanProp {
    * @returns The frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.motion: The prop's world frame at a film second, for a prop that moves by itself: a vehicle on its course, a horse at its gait, a lift. While set, the prop is where this says and no grip carries it; what bears on it (a rider's seat, a hand on its wheel) is carried with it.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanProp.motion is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    */
   motion?(seconds: number): IAutoMovieRigidTransform;
 
@@ -77,12 +71,6 @@ export interface IAutoMovieMotionHumanProp {
    * @returns The point and its outward unit normal, world metres; undefined for a point that only moves with the prop's frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.point: A named point in the world at a film second, for a prop whose parts move within it: a pedal on its crank, a stirrup on a trotting horse, a handle on a door that swings. `points` holds a point where it is in the prop at rest, and the prop's frame alone carries it rigidly; a point this knows is read here instead, so a foot or a hand aimed at it follows the part and not the place the part had at rest.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanProp.point is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    */
   point?(
     id: string,
@@ -156,12 +144,6 @@ export interface IAutoMovieMotionHumanProp {
    * @throws {Error} When a travel lies outside its articulation's range.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.articulate: The prop posed at stated travels of its articulations, for a prop whose parts an act moves (a door's leaf, a trigger, a bowstring): its contacts and colliders in its own frame with the parts moved. The performance reads it at the travels the drives and tracks give at a second (`HumanPerformance.state`), so a hand reaching a handle after the door was opened goes to where the handle is. A rigid object's model adapter can also expose this reader.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanProp.articulate is used through packages/motions/src/perform/HumanPerformanceObject.ts.
    */
   articulate?(
     state: Readonly<Record<string, number>>,
@@ -291,12 +273,6 @@ export namespace IAutoMovieMotionHumanProp {
      * The model's authored span endpoints in this posed model's local frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the model identity, posed frame and absence when a model supplies no spans.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The posed model's own reader computes its endpoints.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No fallback frame or inferred line is part of the signature.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Endpoint lookup belongs to the posed model.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature adds no extra pose; its provider already owns the current one.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources.
      */
     span?(id: string): IAutoMovieMotionHumanObject.ISpanEnds;
   }
@@ -323,12 +299,6 @@ export namespace IAutoMovieMotionHumanProp {
      * @returns The travel.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanProp.ITrack.travel: The travel at a second of the track, in the articulation's own unit. Pure.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanProp.ITrack.travel is used through packages/motions/src/perform/HumanPerformanceObject.ts.
      */
     travel(seconds: number): number;
 

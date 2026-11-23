@@ -19,12 +19,6 @@ export interface IAutoMovieMotionHumanBowling<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the method does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBowling.slide is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBowling.slide is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBowling.slide is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanBowling.slide is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBowling.slide is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBowling.slide is provided by the runtime namespace that implements it.
    */
   slide(
     params: IAutoMovieMotionHumanBowlingSlide.IParams,
@@ -39,12 +33,6 @@ export interface IAutoMovieMotionHumanBowling<Chain> {
    * @throws {RangeError} When a pin has no hull base below its centre of mass, or is missing from the cache.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the method does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBowling.readPinfall is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBowling.readPinfall is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBowling.readPinfall is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanBowling.readPinfall is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBowling.readPinfall is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBowling.readPinfall is provided by the runtime namespace that implements it.
    */
   readPinfall(
     params: IAutoMovieMotionHumanBowling.IReadPinfall,

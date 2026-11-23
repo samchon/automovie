@@ -75,12 +75,6 @@ export namespace IAutoMovieBoxExcludedSwivels {
      * Return the bone-local unit rotation for swivel degrees, following one fixed-axis rotation of a fixed base pose. Sampling is synchronous; equal angles must return equivalent rotations without mutating shared inputs. The returned exclusion predicate retains sampled coefficients, not this callback.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Return the bone-local unit rotation for swivel degrees, following one fixed-axis rotation of a fixed base pose. Sampling is synchronous; equal angles must return equivalent rotations without mutating shared inputs. The returned exclusion predicate retains sampled coefficients, not this callback.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; boxExcludedSwivels and hingedArmArticulation owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; boxExcludedSwivels and hingedArmArticulation owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in boxExcludedSwivels and hingedArmArticulation.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; boxExcludedSwivels and hingedArmArticulation owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; boxExcludedSwivels and hingedArmArticulation owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; boxExcludedSwivels and hingedArmArticulation and the documented reader/caller lifetime own retained data and release.
      */
     rotation: (swivel: number) => IAutoMovieQuaternion;
   };

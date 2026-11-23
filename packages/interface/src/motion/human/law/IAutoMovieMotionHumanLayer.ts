@@ -57,12 +57,6 @@ export interface IAutoMovieMotionHumanLayer {
    * target can follow the joint geometry the provider produces at that weight.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Identifies the incoming pose, film second, shared performer context and dimensionless window weight. The implementation returns a posture in the same frame.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This interface defines the weighted call. The layer provider owns its interpolation.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The provider owns the implementation structure.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature contains no algorithm or fitted parameters.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The actual layer determines the required geometry and computational cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The provider owns any shared posture evaluation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The interface retains no values or handles.
    */
   blend?(posture: IAutoMovieMotionHumanPosture, seconds: number, context: IAutoMovieMotionHumanLayer.IContext, weight: number): IAutoMovieMotionHumanPosture;
 
@@ -75,12 +69,6 @@ export interface IAutoMovieMotionHumanLayer {
    * @returns The layered posture.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.apply: The posture with this layer's contribution added.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanLayer.apply is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
    */
   apply(
     posture: IAutoMovieMotionHumanPosture,
@@ -125,12 +113,6 @@ export namespace IAutoMovieMotionHumanLayer {
      * creates an independent fresh reader rather than retaining the source.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.resolution: Exact FK metadata borrowed only during this synchronous layer apply.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies resolution and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     resolution?: () => IAutoMoviePoseResolution;
 
@@ -138,12 +120,6 @@ export namespace IAutoMovieMotionHumanLayer {
      * Genuine same-body direct ROM projection, borrowed only during apply; the host revokes this getter's source on return/throw and later reads create independent cold metadata. Never retain the returned projector.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.projection: Genuine same-body direct ROM projection, borrowed only during apply.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies projection and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     projection?: () => (pose: IAutoMoviePose) => IAutoMoviePose;
 
@@ -155,12 +131,6 @@ export namespace IAutoMovieMotionHumanLayer {
      * @returns The aim.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.aim: A target's world point and outward normal at a film second.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanLayer.IContext.aim is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
      */
     aim(
       target: IAutoMovieMotionTarget,
@@ -179,12 +149,6 @@ export namespace IAutoMovieMotionHumanLayer {
      * @returns The action, or undefined before the person's first.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.action: The action the person performs at the second applied, so a layer can follow it: gaze ahead of a turn, breath after an effort.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanLayer.IContext.action is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
      */
     action(): IAutoMovieMotionHumanLayer.IAction | undefined;
 
@@ -195,12 +159,6 @@ export namespace IAutoMovieMotionHumanLayer {
      * @returns The stream.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanLayer.IContext.random: The layer's draw stream for one channel.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanLayer.IContext.random is used through packages/motions/src/perform/HumanPerformanceLayers.ts.
      */
     random(channel: string): IAutoMovieRandom;
   }

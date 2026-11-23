@@ -39,12 +39,6 @@ export namespace IAutoMovieClampPose {
      * @param twist Its twist, degrees, or null at rest.
      * @returns The joint in range.
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieClampPose.IJoints.values: The record `(joint)` gives for a joint of these values.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `clampPose.prepare` supplies values and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `clampPose.prepare`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `clampPose.prepare` keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `clampPose.prepare` owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `clampPose.prepare` owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `clampPose.prepare` owns what it retains and releases.
      */
     values(
       bone: AutoMovieHumanoidBone,

@@ -59,12 +59,6 @@ export namespace IAutoMovieCrowdAgent {
      * course readers sample stored integration data without calling motion.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States purity, timebase, output units, absence and neighbouring-time reads.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback declaration; its supplied function owns the placement method.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No callback body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature computes no placement.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The callback's implementation owns its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no evaluations or cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires and retains no resources.
      */
     motion?: (seconds: number) => {
       /** World translation in metres; y is ignored. Sampling includes 0.0005 seconds before and after queried times for velocity. */
@@ -90,12 +84,6 @@ export namespace IAutoMovieCrowdAgent {
      * each call returns new position and velocity records.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the timebase, result frames and units, and held-end behavior.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A course-reader signature; the steering pass's supplied function owns sampling.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No sampling body is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration computes no trajectory state.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Evaluation cost belongs to the supplied reader.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature owns no trajectory memo or coordinated reads.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The steering implementation owns the captured trajectory; releasing all course readers releases that retained numerical data.
      */
     at: (seconds: number) => {
       /** Fresh world position in metres, with y = 0. */

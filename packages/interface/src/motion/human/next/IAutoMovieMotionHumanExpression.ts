@@ -20,12 +20,6 @@ export interface IAutoMovieMotionHumanExpression {
    * @throws {HumanRefusal} For a display whose length is not above the display's floor (0 s, more for a sneeze or a gasp).
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the layer adds, its parameters, its refusal and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanExpression.affect is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanExpression.affect is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanExpression.affect is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanExpression.affect is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanExpression.affect is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanExpression.affect is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
    */
   affect(
     params: IAutoMovieMotionHumanExpression.IAffect,
@@ -38,12 +32,6 @@ export interface IAutoMovieMotionHumanExpression {
    * @returns The layer that breathes.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the layer adds, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanExpression.breath is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanExpression.breath is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanExpression.breath is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanExpression.breath is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanExpression.breath is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanExpression.breath is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
    */
   breath(
     params?: IAutoMovieMotionHumanBreath.IOptions,

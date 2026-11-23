@@ -31,12 +31,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @returns The demanded posture, with guard and kicking leg included when demand is omitted.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Defines local seconds, supported observation demand and same-body unchanged-table loan lifetime.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.posture is used through packages/motions/src/striking/kick.ts.
    */
   posture(
     seconds: number,
@@ -63,12 +57,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @returns The posture, both leg goals being the stance's.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.base: The body's posture without the kicking leg's goal, under a given carriage.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.base is used through packages/motions/src/striking/kick.ts.
    */
   base(
     seconds: number,
@@ -86,12 +74,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @returns The carriage.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.shown: The carriage this kick shows in full at a second: the launch plan's, moved by every correction of the aim that has started by then.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.shown is used through packages/motions/src/striking/kick.ts.
    */
   shown(turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage;
 
@@ -106,12 +88,6 @@ export interface IAutoMovieMotionHumanKickGeometry {
    * @returns The leg's goal.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.leg: The kicking leg's goal on its free path, as if the leg met nothing, under a given body.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.leg is used through packages/motions/src/striking/kick.ts.
    */
   leg(
     clock: number,
@@ -156,12 +132,6 @@ export namespace IAutoMovieMotionHumanKickGeometry {
      * @returns The geometry.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanKickGeometry.ISource.geometry: Its geometry, built on demand.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanKickGeometry.ISource.geometry is used through packages/motions/src/striking/kick.ts.
      */
     geometry(): IAutoMovieMotionHumanKickGeometry;
 

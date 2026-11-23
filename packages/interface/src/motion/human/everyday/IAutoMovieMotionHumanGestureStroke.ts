@@ -167,12 +167,6 @@ export namespace IAutoMovieMotionHumanGestureStroke {
      * @returns The varied share record.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGestureStroke.IInput.vary: This repeat's variation of a named place, for `wave` and `stopPalm`; absent, the place is as named.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGestureStroke.IInput.vary is used through packages/motions/src/everyday/gesture.ts.
      */
     vary?(
       record: IAutoMovieMotionHumanTarget.IDefault,

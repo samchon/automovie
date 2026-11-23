@@ -211,36 +211,18 @@ export namespace IAutoMovieHumanConicLoft {
      * Canonical full source in caller cap/relief scope, without loft or turn sampling.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Accepts the logical family whose cap and relief scope to read.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNativeFamily owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for source. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNativeFamily owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNativeFamily owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNativeFamily owns borrowed-data lifetime.
      */
     source: (family: IFamily) => IAutoMovieViewPart;
     /**
      * Original source producer, including every scalar, cap and actual requested relief scope.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Accepts the family and explicit material stations in millimetres.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNativeFamily owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for part. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNativeFamily owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNativeFamily owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNativeFamily owns borrowed-data lifetime.
      */
     part: (family: IFamily, stations: number[]) => IAutoMovieViewPart;
     /**
      * The same original law in the reflected chart, retaining its source clock and all native derivatives.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Accepts the source family and reflected logical name.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanNativeFamily owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for mirror. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanNativeFamily owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanNativeFamily owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanNativeFamily owns borrowed-data lifetime.
      */
     mirror: (family: IFamily, name: string) => IFamily;
   }

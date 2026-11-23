@@ -95,12 +95,6 @@ export namespace IAutoMovieHumanHeadCanonical {
      * Only one placement identity and its actual adapter survive with this preparation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Placement retains its actual calibration-mm domain; the independent upper tape parameter is not read.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanHeadCanonical owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadCanonical.IPrepared.lower declares the invocation boundary only; AutoMovieHumanHeadCanonical and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanHeadCanonical.IPrepared.lower must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanHeadCanonical.IPrepared.lower owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanHeadCanonical and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanHeadCanonical producer or caller supplying the callback owns captured state and its lifetime.
      */
     lower(
       placement: IAutoMovieHumanNeckSource.IOutput,
@@ -109,12 +103,6 @@ export namespace IAutoMovieHumanHeadCanonical {
      * Borrow the same lower original before either consumer requests a loft.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Borrow the same lower original before either consumer requests a loft.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanHeadCanonical owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadCanonical.IPrepared.lowerSource declares the invocation boundary only; AutoMovieHumanHeadCanonical and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanHeadCanonical.IPrepared.lowerSource must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanHeadCanonical.IPrepared.lowerSource owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanHeadCanonical and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanHeadCanonical producer or caller supplying the callback owns captured state and its lifetime.
      */
     lowerSource(
       placement: IAutoMovieHumanNeckSource.IOutput,
@@ -130,12 +118,6 @@ export namespace IAutoMovieHumanHeadCanonical {
      * The result or original error and immutable source dependencies live with this one invocation, without a global failure cache.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Stage observations record actual work, excluding time spent waiting before this demand.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanHeadCanonical owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadCanonical.IPrepared.closed declares the invocation boundary only; AutoMovieHumanHeadCanonical and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanHeadCanonical.IPrepared.closed must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanHeadCanonical.IPrepared.closed owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanHeadCanonical and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanHeadCanonical producer or caller supplying the callback owns captured state and its lifetime.
      */
     closed(): IOutput;
   }

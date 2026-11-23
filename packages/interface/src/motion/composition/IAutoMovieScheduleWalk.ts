@@ -43,12 +43,6 @@ export namespace IAutoMovieScheduleWalk {
      * Places a subject's waiting parallel part on a law's read (`IAutoMovieScheduleContext.demand`); absent where the walk places in declaration order only.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what the member places, the contract it carries and when it is absent.
-     * @evidence contracts/development/implementation.md#principled-implementation resolveAutoMovieSchedule sets it to its depth-first topological placement over the laws' reads, and AutoMovieSchedulePlace hands it on unchanged as the context's demand.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The walk carries the resolver's closure so the placement routines pass it to the laws without knowing the parallel parts.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The walk only carries the closure; a cycle it reports is refused by the law, never resolved by a default order.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Each call scans the waiting parts at most twice, linear in their count, plus the placement of the one part it finds.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work A part is placed once and leaves the waiting list, so a repeated demand never places it again.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains only the walk's shrinking waiting list and a depth counter, dropped with the walk.
      */
     demand?: (subject: string) => IAutoMovieScheduleContext.Demand;
 
@@ -56,12 +50,6 @@ export namespace IAutoMovieScheduleWalk {
      * The start of the first waiting or placing part that holds a subject's next actions (`IAutoMovieScheduleContext.horizon`); absent where the walk places in declaration order only.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the instant the member returns, the contract it carries and when it is absent.
-     * @evidence contracts/development/implementation.md#principled-implementation resolveAutoMovieSchedule sets it to a scan of its waiting parts, and AutoMovieSchedulePlace hands it on unchanged as the context's horizon.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The walk carries the resolver's closure so the placement routines pass it on without knowing the parallel parts.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The walk only carries the closure; nothing is placed by it.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Each call scans the waiting parts at most twice, linear in their count.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the same waiting list the demand places from.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains only the walk's waiting list, dropped with the walk.
      */
     horizon?: (subject: string) => number | undefined;
 
@@ -69,12 +57,6 @@ export namespace IAutoMovieScheduleWalk {
      * The start of the parallel group a subject shares with the action being timed (`IAutoMovieScheduleContext.meeting`); absent where the walk places in declaration order only.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the instant the member returns, the contract it carries and when it is absent.
-     * @evidence contracts/development/implementation.md#principled-implementation resolveAutoMovieSchedule sets it to a walk up its parts being placed, and AutoMovieSchedulePlace hands it on unchanged as the context's meeting.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The walk carries the resolver's closure so the placement routines pass it on without knowing the parallel parts.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The walk only carries the closure; nothing is placed by it.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the nesting depth times each group's parts.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the resolver's own part records.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains only the parts being placed, dropped with the walk.
      */
     meeting?: (subject: string) => number | undefined;
 
@@ -82,12 +64,6 @@ export namespace IAutoMovieScheduleWalk {
      * Places the waiting part that holds an anchored intent (`IAutoMovieScheduleContext.demandAnchor`); absent where the walk places in declaration order only.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what the member places, the contract it carries and when it is absent.
-     * @evidence contracts/development/implementation.md#principled-implementation resolveAutoMovieSchedule sets it to place the waiting part declaring the anchor, the same depth-first order as the demand, and the placement routines read it for an anchor not placed yet.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The walk carries the resolver's closure so the placement routines pass it on without knowing the parallel parts.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The walk only carries the closure; an anchor no waiting part holds is left to the caller's refusal.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Each call scans the waiting parts once, plus the placement of the one part it finds.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work A part is placed once and leaves the waiting list, as by the demand.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure retains only the walk's shrinking waiting list, dropped with the walk.
      */
     demandAnchor?: (anchor: string) => IAutoMovieScheduleContext.Demand;
 

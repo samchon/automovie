@@ -91,12 +91,6 @@ export interface IAutoMovieFitChainToTargetProps {
    * Omitted, `bend` is the hint.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the three quaternion frames, non-negative score, task priority, reported value and absence behavior; the score's scale is the caller's.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A candidate-score callback declaration; its caller owns the strain method.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No strain callback body is declared here.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature computes no candidate score.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The supplied callback owns its per-candidate evaluation cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature owns no candidate cache or shared evaluation.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires and retains nothing.
    */
   strain?: (
     upper: IAutoMovieQuaternion,
@@ -133,12 +127,6 @@ export interface IAutoMovieFitChainToTargetProps {
    * ranges decide.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the two arguments and their frame, the degrees returned, that 0 means allowed and the result is never negative, how it ranks against the range of motion overshoot and what an absent callback means.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller's function owns the method.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller's function owns the structure.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: nothing here computes a value.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the cost is the caller's, once per candidate swivel.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: it shares nothing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
    */
   obstruction?: (mid: IAutoMovieVector3, end: IAutoMovieVector3) => number;
 

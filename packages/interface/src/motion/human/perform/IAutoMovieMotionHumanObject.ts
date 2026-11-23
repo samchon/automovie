@@ -44,12 +44,6 @@ export namespace IAutoMovieMotionHumanObject {
      * Endpoints of a declared span at this model's current articulation state.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the span identity and the current model pose used by the reader.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The model provider owns endpoint resolution.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature introduces no substitute endpoint.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Lookup and placement costs belong to the model provider.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature coordinates no reads or pose lifetimes.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources.
      */
     span?(id: string): ISpanEnds;
 
@@ -57,12 +51,6 @@ export namespace IAutoMovieMotionHumanObject {
      * Its colliders in its own space, for a hand to close on.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObject.IModel.shapes: Its colliders in its own space, for a hand to close on.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanObject.IModel.shapes is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanObject.IModel.shapes is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanObject.IModel.shapes is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanObject.IModel.shapes is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanObject.IModel.shapes is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanObject.IModel.shapes is used through packages/motions/src/perform/HumanObject.ts.
      */
     shapes?(): IAutoMoviePhysicalShape[];
 
@@ -74,12 +62,6 @@ export namespace IAutoMovieMotionHumanObject {
      * @returns The posed object.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObject.IModel.articulate: The object with its articulations at stated travels, for an object whose parts move (an archetype's `articulate`). Providers may expose this method on rigid models with `hasArticulations: false`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanObject.IModel.articulate is used through packages/motions/src/perform/HumanObject.ts.
      */
     articulate?(
       state: Readonly<Record<string, number>>,

@@ -39,13 +39,7 @@ export namespace IAutoMovieSolidJoin {
     /**
      * Read the rails at finite curve parameter t in radians, or null on a local solve failure.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Corrects the same curve at t and solves kept-side chord rails on its actual surface jets.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One Map lookup precedes curve correction and rail preparation on a miss.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Finite queries and unchanged source/law data remain premises; cached nulls are reused and callback throws propagate.
      * @evidence contracts/development/common.md#meaningful-documentation States curve-parameter units and nullable failure rather than assuming every mode uses part phase.
-     * @evidence contracts/development/implementation.md#efficient-algorithms A hit uses expected constant lookup work; a miss includes the existing continuation and rail-solver callback costs.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Map key equality reuses rails including null; it supplies no invalidation after input or cached-record mutation.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each new numeric key retains its rail/null for the join lifetime; no size limit, eviction or release hook exists.
      */
     rail(t: number): IAutoMovieSolidRail.IRail | null;
 
@@ -53,52 +47,28 @@ export namespace IAutoMovieSolidJoin {
      * Solve the rails at radian parameter t again, reporting the quantities read and the failed premise (`AutoMovieSolidRail.explain`);
      * null when the curve has no point at t.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation The same curve point, widths and mode as `rail`, through the same solve.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure A diagnostic reader beside `rail`; it caches nothing.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts It changes no rail: `rail` and the join's checks read their own cache.
      * @evidence contracts/development/common.md#meaningful-documentation States the parameter's units and the null case.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One curve correction and one rail solve per call.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the join's curve and width laws.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing past the call.
      */
     explain(t: number): IAutoMovieSolidRail.IExplanation | null;
 
     /**
      * Read host-first and part-last boundary ribbons at radian parameter t; null means no rail.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Uses the original cached rail and source 2-jets, scaling cross derivatives by rail chord over source cross-speed.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One rail read feeds the same host/part ribbon builder and analytic host outward vector.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nonzero regular cross-speeds remain premises; no zero-speed substitute, new finite guard or mesh normal is supplied.
      * @evidence contracts/development/common.md#meaningful-documentation States parameter, host/part order, borrowed rail, fresh ribbons and null result.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Includes the rail read and four surface jet calls in ribbon preparation; columns are rebuilt for each request.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only the rail cache, not prior ribbon/column objects or their source-jet evaluations.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns fresh ribbons/outward data while the returned column borrows a cached rail; the join keeps no column cache.
      */
     column(t: number): IAutoMovieSolidJoin.IColumn | null;
 
     /**
      * Sample the host chart loop at count uniform radian parameters from the seed, or null on a failed rail.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Reads the host preimage of each original uniformly parameterized rail in traversal order.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One ordered loop returns chart tuples without introducing a second geometric approximation owner.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A positive finite integral count is a caller premise; no count guard or continuous simplicity certificate is added.
      * @evidence contracts/development/common.md#meaningful-documentation States chart coordinates, uniform seed-relative samples and early null; chart tuples are borrowed from cached rails.
-     * @evidence contracts/development/implementation.md#efficient-algorithms For C requested samples, performs C rail reads with their hit/miss costs and O(C) output references.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Repeated parameters share the rail cache; the returned tuples are the same mutable host arrays, not detached copies.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the output container while its tuples alias cached rails; distinct samples can grow the join cache without bound.
      */
     loop(count: number): [number, number][] | null;
 
     /**
      * Read current chord laws at radian t, in mm; part is null for a fixed station.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Reads host then varying part chord from the original laws, preserving the fixed-station null distinction.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One small record separates authored chord values from rail geometry and station coordinates.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No positivity or finiteness admission occurs here; changed laws can disagree with already cached rails.
      * @evidence contracts/development/common.md#meaningful-documentation States t in radians, chord values in mm and the part-null meaning.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Calls the host law and at most one part law, plus a fixed result allocation; arbitrary callback costs remain included.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads live laws on every call without memoizing widths or rebuilding previously cached rails.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The caller owns one scalar record; the reader retains its original input dependency but no query history.
      */
     widths(t: number): {
       /** Current host chord-law value in millimetres, read without a new finite/positive admission check. */
@@ -168,12 +138,6 @@ export namespace IAutoMovieSolidJoin {
      * sides come from the two surfaces' normals and the kept side.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the reading, its null and the default.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `AutoMovieSolidSharedCurve.create` supplies its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     toward?: (point: IAutoMovieSolidIntersection.IPoint) => IAutoMovieSolidRail.IToward | null;
 

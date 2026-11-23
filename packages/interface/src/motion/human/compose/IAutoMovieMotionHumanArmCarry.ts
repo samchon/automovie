@@ -72,12 +72,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * @returns The goal.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States each argument and when the function is called.
-     * @evidence contracts/development/implementation.md#principled-implementation A goal that rides on the trunk is a function of the posture so far, evaluated when the row is written.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One callback slot supplies each actual fallback or attitude-end target; planning and physical fitting remain separate owners.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goal is used as returned, with no second form for a fixed goal.
-     * @evidence contracts/development/implementation.md#efficient-algorithms carried performs each original fallback/attitude-end goal read, while Planned reads and stores each actual refinement-time target once in its existing query map; target-specific FK and fits remain with the callback.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work carried and Observation forward same-body FK/genuine ROM metadata; braceOnThigh and touch callbacks consume it for current actual observations. Different postures, targets and instants retain independent calculations.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains the goal callback; query metadata is borrowed only until that invocation returns or throws and never enters returned goals or retained planning state.
      */
     goal(
       posture: IAutoMovieMotionHumanPosture,
@@ -93,12 +87,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * @returns A value in [0, 1].
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
-     * @evidence contracts/development/implementation.md#principled-implementation The share is a pure function of the seconds, so any time course fits one member and the reader evaluates it at each second it needs.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `carry` clamps the result to [0, 1] instead of trusting the member.
-     * @evidence contracts/development/implementation.md#efficient-algorithms carried invokes the actual scalar callback once per write; stated evaluates its original named-search samples when no explicit span exists, retaining the supplied callback's cost and effects.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Current seconds always reach the supplied time course; no sampled weight cache substitutes for its actual clock/envelope calculation.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive retains the scalar callback with props until release; each returned number is consumed directly and adds no query history or resource.
      */
     weight(seconds: number): number;
 
@@ -117,12 +105,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * @returns The goal.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is perceived, when, why, and the default.
-     * @evidence contracts/development/implementation.md#principled-implementation A reach is planned from what is perceived when it is planned (a reaction time behind), never from a later instant.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Observation.aim selects the perceived callback for planning and the tracked current/perceived comparison; ordinary goal is its default.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Tracking still compares the actual goal with this original perceived target; reaction-time adapters retain their declared perception instant rather than substituting current or future partner state.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Planned reads each perceived arm/time once through its existing target map; tracked feedback still performs its actual current/perceived callback pair per grid step.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Observation selects this callback before goal and forwards only explicit same-body invocation metadata; the perception adapter keeps its original reaction instant rather than substituting a later target.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The carry retains the callback and existing numeric planned goals; no borrowed FK getter or ROM projector enters a goal, context or retained perception closure.
      */
     perceived?(
       posture: IAutoMovieMotionHumanPosture,
@@ -145,12 +127,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * @returns Metres per second, positive.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is bounded, in which unit, what it replaces and the default.
-     * @evidence contracts/development/implementation.md#principled-implementation A ballistic stroke's speed is the law's own delivery profile, not a reach-to-grasp pace.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One function of the action's seconds, the planner's own speed member.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The course is still admitted against a bound: the law's declared one.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Read once per evaluated second by the planner.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the seconds.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The carry retains the callback only.
      */
     pace?(seconds: number): number;
 
@@ -202,12 +178,6 @@ export namespace IAutoMovieMotionHumanArmCarry {
      * @returns The hand's world rotation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is solved, where, and the default.
-     * @evidence contracts/development/implementation.md#principled-implementation A blend of the wrist's angles does not hold a world attitude, since the forearm turns under it; solving the hand on the arm as carried does.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `carried`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither end is touched, so the carry still starts at the held angles and arrives at the goal.
-     * @evidence contracts/development/implementation.md#efficient-algorithms An interior carried write retains all three actual end-hand observations and invokes this attitude callback once before the native held solve; endpoint writes avoid these unnecessary observations.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The enclosing write shares its explicit same-body FK/ROM metadata across actual hand observations and held solve; the attitude callback receives only original numeric rotations and weight, with no world-attitude result cache.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The primitive owns this optional callback until release; its invocation returns one rotation and receives no metadata reader, process or retained query history.
      */
     attitude?(
       posture: IAutoMovieMotionHumanPosture,

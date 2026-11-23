@@ -109,12 +109,6 @@ export namespace IAutoMovieMotionHumanCatchObject {
      * @returns World metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanCatchObject.IPlan.object: The object's centre at a second of the action.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCatchObject.IPlan.object is used through packages/motions/src/actions/HumanMutual.ts.
      */
     object(seconds: number): IAutoMovieVector3;
   }
@@ -135,12 +129,6 @@ export namespace IAutoMovieMotionHumanCatchObject {
      * @returns The plan with its object path.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the input context and that the result carries the object path.
-     * @evidence contracts/development/implementation.md#principled-implementation stageCatch reads the anchored action's one launch of the ball, plans the arms with the base catch law at the realized or authored interception, and admits the hold only when the recorded flight's centre matches the plan's within the 1e-6 m flight parity.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The base catch law owns arm goals and timing; the staged plan adds only the launch check and the capture-bearing holds.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing, foreign or missed launch is refused; no second trajectory or grip proxy replaces the recorded flight.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One base plan and a constant number of flight reads per call, beyond the base catch law's own cost.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The base catch law's plan is reused rather than recomputed; the interception is read from the performance's prop reader.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned plan retains the base plan, the capture's launch reference and its match closure for as long as the performance holds the plan.
      */
     plan(context: IAutoMovieMotionHumanActionContext<IStageParams>): IPlan;
   }

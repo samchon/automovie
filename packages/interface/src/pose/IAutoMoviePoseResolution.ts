@@ -33,12 +33,6 @@ export interface IAutoMoviePoseResolution {
    * @returns A fresh unit quaternion.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the joint's degree/null coordinates, the absent axes and frame cases and the fresh unit result.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `preparePoseResolution` owns the composition and its admission order.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only; the engine reader owns its decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration; the engine reader keeps every original admission check.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; the engine reader owns its shared basis work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; the engine reader owns which pure factors it shares.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the reader's owner releases it with its evaluation.
    */
   joint(
     joint: IAutoMovieJointPose,
@@ -56,12 +50,6 @@ export interface IAutoMoviePoseResolution {
    * @returns The bone's fresh resolved frame.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States each input's frame and unit and the fresh resolved result.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `preparePoseResolution` owns the composition.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only; the engine reader owns its decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration; the engine reader keeps the original reads and arithmetic order.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; the engine reader owns its cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; each call returns a fresh frame.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the reader's owner releases it with its evaluation.
    */
   bone(
     bone: IAutoMovieBone,

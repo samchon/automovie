@@ -34,12 +34,6 @@ export namespace IAutoMovieBicubicAtlasRegistry64 {
      * Compare admitted normalized phase records by exact value, returning -1, 0 or 1. Distinct dyadic keys break equal rounded numeric values. Call only with canonical keys produced by the boundary owner; this optimized comparator does not repeat key admission.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States canonical-key admission, exact ordering, rounded-value tie handling and the -1/0/1 result convention.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; AutoMovieBicubicAtlasRegistry64's admitted exact-phase comparator own references retained by the supplied callable.
      */
     comparePhase: (
       a: IAutoMovieCanonicalBoundaryPhase64,

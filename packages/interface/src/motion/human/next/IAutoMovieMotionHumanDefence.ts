@@ -19,12 +19,6 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
    */
   defend(params: IAutoMovieMotionHumanDefend.IParams, anchor?: string): Chain;
 
@@ -36,12 +30,6 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
    */
   guard(params: IAutoMovieMotionHumanGuard.IParams, anchor?: string): Chain;
 }

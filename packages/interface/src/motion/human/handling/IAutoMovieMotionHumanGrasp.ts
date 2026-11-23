@@ -95,12 +95,6 @@ export namespace IAutoMovieMotionHumanGrasp {
      * @returns Metres, not negative.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is measured, in which unit and when it is absent.
-     * @evidence contracts/development/implementation.md#principled-implementation The placed thing is read off the fitted hand, so the arm's ranges count, as `StrikingRoll.miss` reads a held tool.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member, read by `HumanGraspSearch` for each fitted key.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The caller judges the key in the unit of what it places, never in a mix of degrees and millimetres.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
     judge?(
       bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -174,12 +168,6 @@ export namespace IAutoMovieMotionHumanGrasp {
      * Synchronous candidate score over aligned grasp-then-stroke arrays. keys contains the existing composite degree/millimetre arm-fit scores; judged and bounds are metres, with NaN where no explicit judge/bound exists (including the first grasp). The caller defines score units and must handle sentinels and validity. Its result is compared with bound; callback exceptions propagate, and the borrowed arrays are call-local.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanGrasp.IReachableRequired.measure: Synchronous candidate score over aligned grasp-then-stroke arrays. keys contains the existing composite degree/millimetre arm-fit scores; judged and bounds are metres, with NaN where no explicit judge/bound exists (including the first grasp). The caller defines score units and must handle sentinels and validity. Its result is compared with bound; callback exceptions propagate, and the borrowed arrays are call-local.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGrasp.IReachableRequired.measure is used through packages/motions/src/handling/HumanGrasp.ts.
      */
     measure: (
       keys: readonly number[],

@@ -37,12 +37,6 @@ export namespace IAutoMovieSeedPhysicalChainTarget {
      * Apply a requested incremental joint-coordinate rotation in radians through the caller's ROM-limited subtree update. The callback owns mutation of working targets, runs synchronously and is not retained; exceptions abort seeding.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Apply a requested incremental joint-coordinate rotation in radians through the caller's ROM-limited subtree update. The callback owns mutation of working targets, runs synchronously and is not retained; exceptions abort seeding.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; seedPhysicalChainTarget and solvePhysicalChainTarget owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; seedPhysicalChainTarget and solvePhysicalChainTarget owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in seedPhysicalChainTarget and solvePhysicalChainTarget.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; seedPhysicalChainTarget and solvePhysicalChainTarget owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; seedPhysicalChainTarget and solvePhysicalChainTarget owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; seedPhysicalChainTarget and solvePhysicalChainTarget and the documented reader/caller lifetime own retained data and release.
      */ rotate: (
       joint: IAutoMoviePhysicalJoint,
       axis: IAutoMoviePhysicalJointAxis,

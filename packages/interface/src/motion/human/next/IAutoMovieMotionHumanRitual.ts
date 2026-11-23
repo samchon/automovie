@@ -22,12 +22,6 @@ export interface IAutoMovieMotionHumanRitual<Chain> {
    * @returns The chain with four touches appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order, the hand and the rite.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRitual.signOfCross is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRitual.signOfCross is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRitual.signOfCross is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRitual.signOfCross is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRitual.signOfCross is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRitual.signOfCross is provided by the chain that implements IAutoMovieMotionHumanRitual.
    */
   signOfCross(
     chain: Chain,
@@ -42,12 +36,6 @@ export interface IAutoMovieMotionHumanRitual<Chain> {
    * @returns The chain with the genuflection appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which knee lowers, the rest and the option.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRitual.genuflect is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRitual.genuflect is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRitual.genuflect is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRitual.genuflect is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRitual.genuflect is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRitual.genuflect is provided by the chain that implements IAutoMovieMotionHumanRitual.
    */
   genuflect(
     chain: Chain,
@@ -63,12 +51,6 @@ export interface IAutoMovieMotionHumanRitual<Chain> {
    * @returns The chain with the prayer appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the posture, the hands, the hold and the anchor.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanRitual.kneelingPrayer is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanRitual.kneelingPrayer is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanRitual.kneelingPrayer is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanRitual.kneelingPrayer is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRitual.kneelingPrayer is provided by the chain that implements IAutoMovieMotionHumanRitual.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRitual.kneelingPrayer is provided by the chain that implements IAutoMovieMotionHumanRitual.
    */
   kneelingPrayer(
     chain: Chain,

@@ -53,12 +53,6 @@ export namespace IAutoMovieCompileAttach {
      * the callback nor returned frame is retained. Exceptions abort baking.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The parent's ridden world frame at shot-local second t, or null before its coupling starts. The staged parentTransform applies when no ridden frame exists. Omit for a parent that holds its staged placement throughout. Member documentation states the supplied records, units and absence meanings used by compileAttach.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts parentTransformAt declares a callable signature with no body. The implementation supplied to or returned by compileAttach must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms parentTransformAt declares a callable signature with no body. The implementation supplied to or returned by compileAttach owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work parentTransformAt declares a callable signature with no body. The implementation supplied to or returned by compileAttach owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources parentTransformAt declares a callable signature with no body. The implementation supplied to or returned by compileAttach owns callback captures and their release; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation parentTransformAt declares a callable signature with no body. The implementation supplied to or returned by compileAttach provides the callback body and its numerical method; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure parentTransformAt declares a callable signature with no body. The implementation supplied to or returned by compileAttach owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     parentTransformAt?: (t: number) => IAutoMovieTransform | null;
 

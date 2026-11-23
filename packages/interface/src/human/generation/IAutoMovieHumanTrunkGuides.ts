@@ -54,12 +54,6 @@ export namespace IAutoMovieHumanTrunkGuides {
      * The lateral shares of its first and second guide in a section.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The lateral shares of its first and second guide in a section.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanTrunkGuides and the callback provider must satisfy the documented shares contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanTrunkGuides and its callback provider own the cost of each shares invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanTrunkGuides and the callback provider determine when the inputs to shares describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanTrunkGuides and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanTrunkGuides.ISector.shares callable contract, without an implementation body. AutoMovieHumanTrunkGuides and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkGuides.ISector.shares declares only the invocation boundary; decomposition belongs to AutoMovieHumanTrunkGuides and the callback provider.
      */
     shares: (s: IAutoMovieHumanTrunkSection) => [number, number];
   }

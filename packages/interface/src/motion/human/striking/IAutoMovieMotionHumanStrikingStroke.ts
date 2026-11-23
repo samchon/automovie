@@ -103,12 +103,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      * step corrected over the delivery).
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what is returned and when it is read.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: the caller supplies the function, so no method, structure, cost or retention is declared here.
      */
     back(): IAutoMovieVector3;
 
@@ -128,12 +122,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      * met (a strike at the air).
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the sign and the meaning of absence.
-     * @evidence contracts/development/implementation.md#principled-implementation Supplied by the caller as a signed distance from the weapon to the struck body's colliders at that second.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure A single callback the scan reads.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms The caller's distance query, once per scan sample.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The stroke memoises the scan, not each gap.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callback retains what its caller gives it.
      */
     gap?: (end: IAutoMovieVector3, seconds: number) => number;
 
@@ -171,12 +159,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      * @returns World metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the frame.
-     * @evidence contracts/development/implementation.md#principled-implementation The free path before the stop; after it the met point, held for the dwell and recoiling on minimum-jerk units.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One stop read and one branch.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the units.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Reads the memoised stop.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing beyond the stroke.
      */
     end(seconds: number): IAutoMovieVector3;
 
@@ -187,12 +169,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      * @returns The contact second, or undefined.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the timebase and the meaning of undefined.
-     * @evidence contracts/development/implementation.md#principled-implementation The jointly resolved second when given; otherwise the stroke's own fixed-step scan of the gap, bisected at the first crossing and never reading past the asked second.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The resolved second, the memo, then the scan.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms The scan advances once over its span across all calls.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The scan's progress and its found second are memoised for the stroke's life.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds one scan position and one found second, released with the stroke.
      */
     stop(seconds: number): number | undefined;
 
@@ -204,12 +180,6 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      * @returns World metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what the free path is and who reads it.
-     * @evidence contracts/development/implementation.md#principled-implementation The delivery's units with the corrections started by the second, and after the planned contact the free recoil from where the units settle.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One superposition.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts None.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the units and corrections.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the second and the stroke's input.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
      */
     free(seconds: number): IAutoMovieVector3;
   }

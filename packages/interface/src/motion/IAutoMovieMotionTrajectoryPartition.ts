@@ -25,12 +25,6 @@ export namespace IAutoMovieMotionTrajectoryPartition {
      * Return an existing leaf's exact end, or register the controller's new proposal.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionTrajectoryPartition.IPartition.end: Return an existing leaf's exact end, or register the controller's new proposal.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `MotionTrajectoryPartition` supplies end and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `MotionTrajectoryPartition`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `MotionTrajectoryPartition` keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `MotionTrajectoryPartition` owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `MotionTrajectoryPartition` owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `MotionTrajectoryPartition` owns what it retains and releases.
      */
     end(start: number, proposed: number): number;
 
@@ -38,12 +32,6 @@ export namespace IAutoMovieMotionTrajectoryPartition {
      * Bisect the rejected start leaf until its duration meets the controller's finite positive maximumStep, or once when omitted. False means an invalid reduction or exhausted strict midpoint.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionTrajectoryPartition.IPartition.split: Bisect the rejected start leaf until its duration meets the controller's finite positive maximumStep, or once when omitted.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `MotionTrajectoryPartition` supplies split and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `MotionTrajectoryPartition`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `MotionTrajectoryPartition` keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `MotionTrajectoryPartition` owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `MotionTrajectoryPartition` owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `MotionTrajectoryPartition` owns what it retains and releases.
      */
     split(start: number, maximumStep?: number): boolean;
 
@@ -51,12 +39,6 @@ export namespace IAutoMovieMotionTrajectoryPartition {
      * Release all boundaries after the shooting operation, including failure.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionTrajectoryPartition.IPartition.clear: Release all boundaries after the shooting operation, including failure.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; `MotionTrajectoryPartition` supplies clear and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to `MotionTrajectoryPartition`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; `MotionTrajectoryPartition` keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; `MotionTrajectoryPartition` owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; `MotionTrajectoryPartition` owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; `MotionTrajectoryPartition` owns what it retains and releases.
      */
     clear(): void;
   }

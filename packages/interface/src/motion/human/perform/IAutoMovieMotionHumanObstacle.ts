@@ -29,12 +29,6 @@ export interface IAutoMovieMotionHumanObstacle {
    * Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanObstacle.motion: Where a moving obstacle is at a film second; `footprint` is then in its own frame, placed by `HumanObstacleMotion.at`. Still when absent.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanObstacle.motion is used through packages/motions/src/perform/HumanObstacle.ts.
    */
   motion?: (seconds: number) => {
     /** Obstacle root position in world metres. */

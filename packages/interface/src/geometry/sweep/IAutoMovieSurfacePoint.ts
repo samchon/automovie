@@ -17,13 +17,7 @@ export interface IAutoMovieSurfacePoint {
    * @param at Nonnegative integer scalar offset into out, not a vertex index
    * @throws Any failure from the bound point writer, including reading before registry finalization or an invalid generated sweep sample
    *
-   * @evidence contracts/development/implementation.md#principled-implementation The bound implementation applies the node's rigid bone motion or the finalized sweep sampling writer in the current model frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Writes exactly the node's three XYZ values at the supplied scalar offset without returning another position record.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Sweep nodes refuse pre-finalization reads; the caller refreshes rig state before evaluating a current-pose point.
    * @evidence contracts/development/common.md#meaningful-documentation States output capacity and offset premises, units and propagation of initialization or sample failures.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Bound node writers use one rigid transform or a fixed-size registered sweep quadrature, independent of total network vertex count.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
    */
   write(out: Float64Array, at: number): void;
 

@@ -36,12 +36,6 @@ export namespace IAutoMovieResolveBuiltPlacementBody {
      * while the callback itself is not retained. Lookup exceptions propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Synchronous borrowed world-metre part-box lookup by element id. Null, undefined or empty means unresolved; returned boxes are retained in the result, while the callback itself is not retained. Lookup exceptions propagate. Member documentation states the supplied records, units and absence meanings used by resolveBuiltPlacementBody.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts parts declares a callable signature with no body. The implementation supplied to or returned by resolveBuiltPlacementBody must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms parts declares a callable signature with no body. The implementation supplied to or returned by resolveBuiltPlacementBody owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work parts declares a callable signature with no body. The implementation supplied to or returned by resolveBuiltPlacementBody owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources parts declares a callable signature with no body. The implementation supplied to or returned by resolveBuiltPlacementBody owns callback captures and their release; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation parts declares a callable signature with no body. The implementation supplied to or returned by resolveBuiltPlacementBody provides the callback body and its numerical method; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure parts declares a callable signature with no body. The implementation supplied to or returned by resolveBuiltPlacementBody owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     parts: (
       elementId: string,

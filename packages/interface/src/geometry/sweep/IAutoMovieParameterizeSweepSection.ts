@@ -33,12 +33,6 @@ export namespace IAutoMovieParameterizeSweepSection {
      * Evaluate finite t modulo one; returns a new mutable metre point in section x/y axes. The compiled closure retains authored point/axis/exponent data, so keep the section immutable. This is curve parameter, not generally polar angle or arc-length share.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States modulo-one parameter queries, newly owned metre points, retained immutable section coefficients and distinction from angle or arclength.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; parameterizeAutoMovieSweepSection's retained curve evaluator own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; parameterizeAutoMovieSweepSection's retained curve evaluator own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by parameterizeAutoMovieSweepSection's retained curve evaluator.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; parameterizeAutoMovieSweepSection's retained curve evaluator own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; parameterizeAutoMovieSweepSection's retained curve evaluator decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; parameterizeAutoMovieSweepSection's retained curve evaluator own references retained by the supplied callable.
      */
     point: (t: number) => IAutoMovieSweepSection.IPoint;
 

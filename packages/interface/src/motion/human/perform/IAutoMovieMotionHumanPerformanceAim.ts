@@ -42,12 +42,6 @@ export namespace IAutoMovieMotionHumanPerformanceAim {
      * Their bones.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanPerformanceAim.IFrame.bones: Their bones.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanPerformanceAim.IFrame.bones is used through packages/motions/src/perform/HumanPerformanceAim.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanPerformanceAim.IFrame.bones is used through packages/motions/src/perform/HumanPerformanceAim.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanPerformanceAim.IFrame.bones is used through packages/motions/src/perform/HumanPerformanceAim.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanPerformanceAim.IFrame.bones is used through packages/motions/src/perform/HumanPerformanceAim.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanPerformanceAim.IFrame.bones is used through packages/motions/src/perform/HumanPerformanceAim.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanPerformanceAim.IFrame.bones is used through packages/motions/src/perform/HumanPerformanceAim.ts.
      */
     bones: (
       requested?: ReadonlySet<AutoMovieHumanoidBone>) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

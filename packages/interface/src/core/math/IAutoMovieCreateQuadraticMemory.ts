@@ -25,12 +25,6 @@ export namespace IAutoMovieCreateQuadraticMemory {
      * @param use Synchronous callback borrowing heap getters and views during this invocation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines byte alignment, callback invocation/lifetime, propagated errors, return transfer and retained-view limitations.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This signature specifies borrowing semantics; createAutoMovieQuadraticMemory owns allocation and finally release.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No method body exists here; the memory factory owns admission, allocation, callback and cleanup phases.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The declaration executes no size fallback, recursive borrow or callback branch; the factory enforces the stated refusal policy.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The implementation accounts for byte-count allocation/zeroing and callback cost; the generic return signature chooses no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration owns no pool or retained workspace; fresh storage per borrow is a contractual obligation of the producer.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Runtime buffer lifetime belongs to the factory's active borrow; this signature acquires no storage and explicitly requires copying retained results.
      */
     withWorkspace<T>(
       bytes: number,

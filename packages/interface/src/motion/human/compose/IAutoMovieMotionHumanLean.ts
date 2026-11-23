@@ -52,12 +52,6 @@ export namespace IAutoMovieMotionHumanLean {
      * @returns A value in [0, 1].
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, and that the result is a share in [0, 1].
-     * @evidence contracts/development/implementation.md#principled-implementation The share is a pure function of the seconds, so any time course fits one member and the reader evaluates it at each second it needs.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by the function that writes the part; the builders from a clock fill it.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The reader clamps the result to [0, 1] instead of trusting the member, so an implementation that overshoots cannot push the part past its ends.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     weight(seconds: number): number;
   }
@@ -100,12 +94,6 @@ export namespace IAutoMovieMotionHumanLean {
      * @returns The pitch and the roll, degrees.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, the unit and that the pitch and the roll are added to the posture.
-     * @evidence contracts/development/implementation.md#principled-implementation The pitch and the roll are a pure function of the seconds, so any time course of a tilt fits one member.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `tilt`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tilt is stated as two angles per second and not as a peak with a named easing, so no case of one easing is built in.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     angles(seconds: number): IAutoMovieMotionHumanLean.IAngles;
   }
@@ -135,12 +123,6 @@ export namespace IAutoMovieMotionHumanLean {
      * @returns The pitch and the roll, degrees.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument and its origin, the unit and that the angles are added to the posture.
-     * @evidence contracts/development/implementation.md#principled-implementation The pitch and the roll are a pure function of the seconds, so any time course of a sway fits one member.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `sway`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The tilt is stated as two angles per second and not as a peak with a named easing.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     angles(seconds: number): IAutoMovieMotionHumanLean.IAngles;
 
@@ -152,12 +134,6 @@ export namespace IAutoMovieMotionHumanLean {
      * @returns Metres in the performer's floor frame: `x` left, `z` forward; `y` is not read.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument, the frame, the unit and the component that is not read.
-     * @evidence contracts/development/implementation.md#principled-implementation The travel is a pure function of the seconds in the frame the root primitives use, so a sway composes with a root that already moves.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `sway`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The height is never taken from the member, since the legs decide it.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     shift?(seconds: number): IAutoMovieVector3;
 
@@ -169,12 +145,6 @@ export namespace IAutoMovieMotionHumanLean {
      * @returns The two leg goals at that second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument, the result and what an absent member reads.
-     * @evidence contracts/development/implementation.md#principled-implementation The root is written before the legs, so an action whose own rows move the feet states where they are at each second.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second by `sway`.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The goals are only read for the height and never written, so the leg rows stay the owners of the legs.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body, so it has no algorithm; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work, so it shares none.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state; what an implementation retains is stated by the function that builds it.
      */
     legs?(
       seconds: number,

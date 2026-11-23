@@ -73,12 +73,6 @@ export namespace IAutoMovieMotionHumanArmGeometry {
      * an unconstrained input returns by identity.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States clinical-degree projection, fixed-setup scope and unconstrained input identity.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable field is a type signature; HumanArmGeometry.prepare supplies the shared engine clamp factory's implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared on this callable field; implementation decomposition belongs to its producer and engine clamp owner.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature performs no computation; actual projection and its unchanged-rig premise are documented on the producer and engine clamp owner.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration contains no algorithm; the producer and shared clamp factory document setup and per-joint costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration retains no state; setup-scoped metadata reuse belongs to the supplied clamp implementation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resource; the setup producer documents its actual closure and metadata lifetime.
      */
     clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
 
@@ -87,12 +81,6 @@ export namespace IAutoMovieMotionHumanArmGeometry {
      * diagnostic path; failed admission throws and is not remembered.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States unit-basis output, the first conversion's diagnostic path and failed-admission behavior.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable field is a type signature; HumanArmGeometry.prepare owns the lazy admission implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body is declared on this callable field; its producer owns the per-bone map and normalization delegation.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This signature performs no computation; basis admission and failed-entry handling are implemented by its producer and normalizeJointAxes.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration contains no algorithm; actual one-time admission and map-hit costs belong to the producer.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration retains no state; the supplied reader owns unchanged-setup basis reuse.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resource; the setup producer owns and bounds its basis map until release.
      */
     basis: (bone: AutoMovieHumanoidBone, path: string) => IAutoMovieJointAxes;
   }

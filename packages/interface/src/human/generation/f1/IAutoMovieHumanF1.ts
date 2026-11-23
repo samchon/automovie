@@ -106,12 +106,6 @@ export namespace IAutoMovieHumanF1 {
      * Transport the scoped cutter seed into this assembly's original or changed source chart.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Accepts a logical family, its original search controls and the owning host face.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1NativeRoot owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for nativeSeed?. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1NativeRoot owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1NativeRoot owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1NativeRoot owns borrowed-data lifetime.
      */
     nativeSeed?: (
       family: IAutoMovieHumanConicLoft.IFamily,
@@ -126,12 +120,6 @@ export namespace IAutoMovieHumanF1 {
      * Original family before placement, by logical name, for looking up a material station.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Reads the pre-placement family whose station coordinate is used by the caller.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature records the input and result boundary. AutoMovieHumanF1 owns the numerical method and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature groups arguments for reference. The producer owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature has no executing conditional or fallback.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature fixes no algorithm or complexity. AutoMovieHumanF1 owns the evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature performs no caching. AutoMovieHumanF1 owns reuse of the source preparation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1 owns borrowed-data lifetime.
      */
     reference: (name: string) => IAutoMovieHumanConicLoft.IFamily;
 
@@ -168,12 +156,6 @@ export namespace IAutoMovieHumanF1 {
      * face ends, where a band lands) goes through it; at the reference pose both are the numbers given.
      *
      * @evidence contracts/development/common.md#meaningful-documentation A station of a stored family carried to the pose, mm (`AutoMovieHumanConicPose.map`): `from` when `length` is absent, else the length at the pose of the stretch `length` mm long that starts at `from`. A station constant read along a posed family (where a face ends, where a band lands) goes through it; at the reference pose both are the numbers given.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanF1 and the callback provider must satisfy the documented station contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanF1 and its callback provider own the cost of each station invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanF1 and the callback provider determine when the inputs to station describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1 and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanF1.IAssembly.station callable contract, without an implementation body. AutoMovieHumanF1 and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanF1.IAssembly.station declares only the invocation boundary; decomposition belongs to AutoMovieHumanF1 and the callback provider.
      */
     station: (family: string, from: number, length?: number) => number;
 
@@ -181,12 +163,6 @@ export namespace IAutoMovieHumanF1 {
      * A datum of `AutoMovieHumanF1Placing.POINTS` at the pose, mm in the figure's frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation A datum of `AutoMovieHumanF1Placing.POINTS` at the pose, mm in the figure's frame.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanF1 and the callback provider must satisfy the documented point contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanF1 and its callback provider own the cost of each point invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanF1 and the callback provider determine when the inputs to point describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1 and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanF1.IAssembly.point callable contract, without an implementation body. AutoMovieHumanF1 and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanF1.IAssembly.point declares only the invocation boundary; decomposition belongs to AutoMovieHumanF1 and the callback provider.
      */
     point: (name: string) => [number, number, number];
 
@@ -194,12 +170,6 @@ export namespace IAutoMovieHumanF1 {
      * A direction of `AutoMovieHumanF1Placing.DIRECTIONS` at the pose, in the figure's frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation A direction of `AutoMovieHumanF1Placing.DIRECTIONS` at the pose, in the figure's frame.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanF1 and the callback provider must satisfy the documented direction contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanF1 and its callback provider own the cost of each direction invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanF1 and the callback provider determine when the inputs to direction describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanF1 and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanF1.IAssembly.direction callable contract, without an implementation body. AutoMovieHumanF1 and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanF1.IAssembly.direction declares only the invocation boundary; decomposition belongs to AutoMovieHumanF1 and the callback provider.
      */
     direction: (name: string) => [number, number, number];
   }

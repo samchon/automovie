@@ -63,12 +63,6 @@ export namespace IAutoMovieResolveContactEvents {
      * Actual pair gap at a second, before departure eligibility is applied.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the seconds argument and actual ungated pair gap in metres, independent of departure eligibility.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; resolveAutoMovieContactEvents and the caller's physical-model readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; resolveAutoMovieContactEvents and the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by resolveAutoMovieContactEvents and the caller's physical-model readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; resolveAutoMovieContactEvents and the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; resolveAutoMovieContactEvents and the caller's physical-model readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; resolveAutoMovieContactEvents and the caller's physical-model readers own references retained by the supplied callable.
      */
     at(seconds: number): number;
   }
@@ -178,12 +172,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @returns The bound's reader.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the search grid and stops it is prepared for and the metre-a-second bound reader it returns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the caller's physical-model readers own the certified bound under the documented grid premise.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; an uncertified bound stays undefined by contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; the reader is prepared once a search by the caller.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; the returned reader lives for its search.
      */
     speed?(
       grid: IAutoMovieResolveContactEvents.IGrid,
@@ -213,12 +201,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @returns The centre.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the free-path centre in world metres, seconds clock and current weapon-stop context.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; resolveAutoMovieContactEvents and the caller's physical-model readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; resolveAutoMovieContactEvents and the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by resolveAutoMovieContactEvents and the caller's physical-model readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; resolveAutoMovieContactEvents and the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; resolveAutoMovieContactEvents and the caller's physical-model readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; resolveAutoMovieContactEvents and the caller's physical-model readers own references retained by the supplied callable.
      */
     position(
       seconds: number,
@@ -235,12 +217,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @returns The axis's other end.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the optional capsule axis endpoint in world metres and the shared seconds/stop context; absence selects a sphere.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; resolveAutoMovieContactEvents and the caller's physical-model readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; resolveAutoMovieContactEvents and the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by resolveAutoMovieContactEvents and the caller's physical-model readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; resolveAutoMovieContactEvents and the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; resolveAutoMovieContactEvents and the caller's physical-model readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; resolveAutoMovieContactEvents and the caller's physical-model readers own references retained by the supplied callable.
      */
     tail?(
       seconds: number,
@@ -254,12 +230,6 @@ export namespace IAutoMovieResolveContactEvents {
      * resolver retains no sample across queries or changes to stops.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieResolveContactEvents.IWeapon.sample: Produce the actual endpoints together for this exact second and current stops.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; its producer supplies sample and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the decomposition belongs to its producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature; its producer keeps every admission check.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; its producer owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; its producer owns what it shares between calls.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; its producer owns what it retains and releases.
      */
     sample?(seconds: number, stops: IStops): IWeaponFrame;
   }
@@ -290,12 +260,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @returns The bound's reader.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the search grid and stops it is prepared for and the metre-a-second bound reader it returns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the caller's physical-model readers own the certified bound under the documented grid premise.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; an uncertified bound stays undefined by contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; the reader is prepared once a search by the caller.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; the returned reader lives for its search.
      */
     speed?(
       grid: IAutoMovieResolveContactEvents.IGrid,
@@ -311,12 +275,6 @@ export namespace IAutoMovieResolveContactEvents {
      * at(seconds), and every other body keeps its original eligibility.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States physical-certificate responsibility, clearance validation, search-span scope and the reporting behavior when no certificate is supplied.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; resolveAutoMovieContactEvents and the caller's physical-model readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; resolveAutoMovieContactEvents and the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by resolveAutoMovieContactEvents and the caller's physical-model readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; resolveAutoMovieContactEvents and the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; resolveAutoMovieContactEvents and the caller's physical-model readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; resolveAutoMovieContactEvents and the caller's physical-model readers own references retained by the supplied callable.
      */
     departure?(
       contact: IAutoMovieResolveContactEvents.IInitialContact,
@@ -332,12 +290,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @returns Metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the world-metre query point, seconds clock, current stops and positive-outside signed metre distance.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; resolveAutoMovieContactEvents and the caller's physical-model readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; resolveAutoMovieContactEvents and the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by resolveAutoMovieContactEvents and the caller's physical-model readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; resolveAutoMovieContactEvents and the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; resolveAutoMovieContactEvents and the caller's physical-model readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; resolveAutoMovieContactEvents and the caller's physical-model readers own references retained by the supplied callable.
      */
     distance(
       point: IAutoMovieVector3,
@@ -362,12 +314,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @returns Metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States segment endpoint frames, seconds, optional metre taper radii and the least signed distance convention needed by capsule queries.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; resolveAutoMovieContactEvents and the caller's physical-model readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; resolveAutoMovieContactEvents and the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by resolveAutoMovieContactEvents and the caller's physical-model readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; resolveAutoMovieContactEvents and the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; resolveAutoMovieContactEvents and the caller's physical-model readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; resolveAutoMovieContactEvents and the caller's physical-model readers own references retained by the supplied callable.
      */
     axis?(
       a: IAutoMovieVector3,
@@ -391,12 +337,6 @@ export namespace IAutoMovieResolveContactEvents {
      * @returns The id of one of this body's weapons, or undefined.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States contact-point frames, contact second, prior stops and the optional carried weapon identity returned for a mutual stop.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; resolveAutoMovieContactEvents and the caller's physical-model readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; resolveAutoMovieContactEvents and the caller's physical-model readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by resolveAutoMovieContactEvents and the caller's physical-model readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; resolveAutoMovieContactEvents and the caller's physical-model readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; resolveAutoMovieContactEvents and the caller's physical-model readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; resolveAutoMovieContactEvents and the caller's physical-model readers own references retained by the supplied callable.
      */
     carried?(
       a: IAutoMovieVector3,

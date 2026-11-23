@@ -38,12 +38,6 @@ export namespace IAutoMovieHumanLegSources {
      * Explicit foot input request, using only its actual distal authority.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Explicit foot input request, using only its actual distal authority.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanLegSources owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSources.IOutput.foot declares the invocation boundary only; AutoMovieHumanLegSources and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanLegSources.IOutput.foot must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanLegSources.IOutput.foot owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanLegSources and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanLegSources producer or caller supplying the callback owns captured state and its lifetime.
      */
     foot(): IAutoMovieHumanBodyLane.ISide["foot"];
 
@@ -51,12 +45,6 @@ export namespace IAutoMovieHumanLegSources {
      * Same foot original consumed by its explicit loft.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Same foot original consumed by its explicit loft.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanLegSources owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSources.IOutput.definition declares the invocation boundary only; AutoMovieHumanLegSources and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanLegSources.IOutput.definition must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanLegSources.IOutput.definition owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanLegSources and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanLegSources producer or caller supplying the callback owns captured state and its lifetime.
      */
     definition(): IAutoMovieHumanSourceDefinition;
 
@@ -64,12 +52,6 @@ export namespace IAutoMovieHumanLegSources {
      * Explicit toe originals from the same foot controls.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Explicit toe originals from the same foot controls.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanLegSources owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSources.IOutput.toes declares the invocation boundary only; AutoMovieHumanLegSources and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanLegSources.IOutput.toes must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanLegSources.IOutput.toes owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanLegSources and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanLegSources producer or caller supplying the callback owns captured state and its lifetime.
      */
     toes(): IAutoMovieHumanBodyLane.IToe[];
   }
@@ -108,12 +90,6 @@ export namespace IAutoMovieHumanLegSources {
      * Explicit full-parent demand; ordinary ankle/foot/original reads do not call it.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Explicit full-parent demand; ordinary ankle/foot/original reads do not call it.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanLegSources owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSources.IInput.completeLeg declares the invocation boundary only; AutoMovieHumanLegSources and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanLegSources.IInput.completeLeg must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanLegSources.IInput.completeLeg owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanLegSources and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanLegSources producer or caller supplying the callback owns captured state and its lifetime.
      */
     completeLeg?: () => void;
   }

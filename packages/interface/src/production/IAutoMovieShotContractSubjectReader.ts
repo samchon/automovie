@@ -33,13 +33,7 @@ export interface IAutoMovieShotContractSubjectReader {
    * The compiled scene node with this id, or `undefined` when the scene has
    * none.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation A map read over the scene nodes indexed once, keeping the first node of a repeated id.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The one node lookup the predicate grade, the hero check, the actor check and the event-subject check share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No node id is treated specially; an absent id answers `undefined` and the caller decides the failure.
    * @evidence contracts/development/common.md#meaningful-documentation States the source table and the `undefined` answer for an absent id.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A single read of the node map built from the compiled scene, with no scan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A lookup in a table built once per reader, with no per-call work to share.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a reference into the caller's compiled scene and retains nothing new.
    */
   node(id: string): IAutoMovieSceneNode | undefined;
 
@@ -47,13 +41,7 @@ export interface IAutoMovieShotContractSubjectReader {
    * The compiled formation with this id, or `undefined` when no compiled
    * formation carries it, including when `compiled.formations` is omitted.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation A map read over the compiled formations indexed once, first record winning, so the participant grade and the subject reader see the same formation for an id.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Shared by the formation participant grade, the event-subject check and the formation selector, so all three see one formation per id.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An omitted formation list is read as empty, never as a stand-in formation.
    * @evidence contracts/development/common.md#meaningful-documentation States the source list and both `undefined` cases.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A single read of the formation map built from the compiled formation list, with no scan.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reads a table the reader built once; nothing per call can be shared.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a reference to a caller-owned compiled formation without retaining it.
    */
   formation(id: string): IAutoMovieCompiledFormation | undefined;
 
@@ -61,13 +49,7 @@ export interface IAutoMovieShotContractSubjectReader {
    * The shot's performance of this scene node, or `undefined` when the node
    * is not performed in this shot.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation The shot performances indexed once by node, first entry winning, which is the performance the pose sampling also reads, so the actor check and the pose agree.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The actor participant check asks only whether a performance exists, and the same table drives pose sampling inside the reader.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No node is assumed performed; an unperformed node answers `undefined`.
    * @evidence contracts/development/common.md#meaningful-documentation States what is looked up by which key and what `undefined` means.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A single read of the performance map keyed by node, with no scan of the shot's performances.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A read of the once-built performance table, coordinating no work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a reference into the caller's compiled shot and retains nothing.
    */
   performance(node: string): IAutoMovieShotPerformance | undefined;
 
@@ -75,13 +57,7 @@ export interface IAutoMovieShotContractSubjectReader {
    * The node's rig: its model's skeleton when the model is among the compiled
    * models, otherwise the caller's `skeleton` lookup, otherwise `null`.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation A builder-owned model is the authority for its own rig, so the caller's lookup is consulted only for a node whose model is not compiled, the source-stage case it exists for.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One rig rule read by joint-angle predicates, pose sampling, placement folding and extent measurement, so they cannot disagree about a node's rig.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No default skeleton replaces a missing rig; `null` makes the readers that need one fail.
    * @evidence contracts/development/common.md#meaningful-documentation States the precedence of the two sources and the `null` answer.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms One map read and at most one call of the caller's lookup.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The caller's lookup is not memoized here because its cost and caching are the caller's, as `IAutoMovieEngineShotRuntime.skeleton` states.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a model-owned or caller-owned rig and keeps no reference to it.
    */
   skeleton(node: IAutoMovieSceneNode): IAutoMovieSkeleton | null;
 
@@ -93,13 +69,7 @@ export interface IAutoMovieShotContractSubjectReader {
    *
    * Throws when the node has no rig or its motion is not compiled.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Samples with `sampleMotion` on the clip clock the performance defines, clamping before the start offset to the clip's first instant as every beat reader does, and refuses a rig-less node because a pose has no meaning without one.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The single pose read the joint-angle predicate and the placement fold share.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An uncompiled motion throws instead of falling back to the held pose, so a missing clip fails its predicate.
    * @evidence contracts/development/common.md#meaningful-documentation States the clock for performed and unperformed nodes, the clamp, the held and empty pose fallbacks, and when it throws.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Two map reads and one `sampleMotion`, whose cost is linear in the clip's tracks.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Pose samples are not cached: repeated reads of one node at one instant are rare in a contract, and object-motion sampling, the shared cost, is cached by the placement path.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh sampled pose or the node's own held pose, retaining nothing.
    */
   poseAt(node: IAutoMovieSceneNode, time: number): IAutoMoviePose;
 
@@ -111,13 +81,7 @@ export interface IAutoMovieShotContractSubjectReader {
    * Throws when the landmark, node or compiled formation it names is absent,
    * or the node's pose cannot be sampled.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Each selector kind reads the artifact that owns that point: the world design's landmark, the node placement composed from staged transform, object motion and pose root, or `transformFormationPoint` over the sampled formation cue.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One selector resolver for position and distance predicates and for formation camera subjects.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An absent reference throws for the grade to fail; no origin or staged point stands in for it.
    * @evidence contracts/development/common.md#meaningful-documentation States what each selector kind resolves to, the unit and clock, and every throw.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One map read plus, for a node, one cached object-motion sample and one pose sample, and for a formation one cue sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Reuse is in the object-motion cache the node path reads; the resolved point itself is cheap to recompute.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a point; any sample it causes to be cached is bounded on the factory.
    */
   spatialAt(
     selector: IAutoMovieShotSpatialSelector,
@@ -132,13 +96,7 @@ export interface IAutoMovieShotContractSubjectReader {
    *
    * Throws when the subject cannot be placed.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation A node is boxed through its full placement because a yawed or scaled element fills a different world box; a formation states its own transformed bounds, so only its point is needed.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Separates placing a subject from boxing it, because the camera grade counts a subject as resolved once it is placed, before the box is measured.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The identity orientation of a formation placement is never read, so it changes no measurement; a design without a compiled formation throws.
    * @evidence contracts/development/common.md#meaningful-documentation States how each subject kind is placed, why the formation's orientation is identity, and when it throws.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One design-map test, then either one cue sample or one node placement with a cached object-motion sample.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Shares the object-motion cache with every other node placement at the same second; the placement itself is not cached.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh transform or references to the node's staged vectors, retaining nothing new.
    */
   placementAt(subject: string, time: number): IAutoMovieTransform;
 
@@ -154,13 +112,7 @@ export interface IAutoMovieShotContractSubjectReader {
    * its whole transformed footprint from `formationSubjectBox` at `time`,
    * widened by a member's radius and raised by a member's height.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Reads the subject through the same `nodeSubjectExtent`, `nodeSubjectBox` and `formationSubjectBox` that `performShot` framed from, so a camera solved to hold a mass is graded against that mass and not a segment at the node origin.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The box is the one subject geometry the camera grade needs, kept beside placement so the grade never chooses between node and formation readings itself.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A node with nothing to measure keeps the horizontally degenerate stand-in segment rather than an invented width.
    * @evidence contracts/development/common.md#meaningful-documentation States the source for each subject kind, the fallback order for a node, why the floor and width are kept, and how a formation is widened and raised.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Eight corner transforms for a node, or one formation footprint, after the cached extent; the rest-geometry walk runs once per node subject per reader.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Node extents are cached by subject id and formation member extents by formation id, both pure functions of the reader's immutable inputs, so every camera sample after the first reuses them.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh box; the extent caches it fills are bounded on the factory.
    */
   subjectBox(
     subject: string,

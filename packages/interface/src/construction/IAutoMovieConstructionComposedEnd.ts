@@ -32,12 +32,6 @@ export namespace IAutoMovieConstructionComposedEnd {
      * The section's point at a child phase, mm, with its derivative in the phase; period `2 pi`.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the result, the units and the period.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `section` is its implementation for a cut skin.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     at: (psi: number) => { point: AutoMovieVector3Tuple; first: AutoMovieVector3Tuple; second?: AutoMovieVector3Tuple };
 
@@ -83,12 +77,6 @@ export namespace IAutoMovieConstructionComposedEnd {
      * its first derivative in `t` and, where the section supplies one, its second; the first derivative turns at each whole `t`, a fork.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the parameter, the results and where the tangent turns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     at: (t: number) => { point: AutoMovieVector3Tuple; first: AutoMovieVector3Tuple; second?: AutoMovieVector3Tuple };
 
@@ -97,12 +85,6 @@ export namespace IAutoMovieConstructionComposedEnd {
      * section's own curve from its nearest sample.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the distance, its plane and how it is found.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `create` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     distance: (point: AutoMovieVector3Tuple) => number;
   }

@@ -74,12 +74,6 @@ export namespace IAutoMovieMotionHumanFreedomChoice {
      * @returns The misses, not negative.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument, the unit and the order of the result.
-     * @evidence contracts/development/implementation.md#principled-implementation Each miss is a fit of the body the law poses, read back, so the joints' ranges count.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member, read by `chosen` for each candidate.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts `chosen` stops reading once a candidate cannot win, so an instant's fit is made only when it can still decide.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body; the cost belongs to each implementation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
     judge(values: readonly number[]): Iterable<number>;
   }

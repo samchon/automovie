@@ -31,12 +31,6 @@ export namespace IAutoMovieHumanEventJoinRing {
      * Weight of a phase on the child's arcs, 0 off them and fading to 0 before each pinch.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Weight of a phase on the child's arcs, 0 off them and fading to 0 before each pinch.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanEventJoinRing owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanEventJoinRing.IRing.weight declares the invocation boundary only; AutoMovieHumanEventJoinRing and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanEventJoinRing.IRing.weight must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanEventJoinRing.IRing.weight owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanEventJoinRing and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanEventJoinRing producer or caller supplying the callback owns captured state and its lifetime.
      */
     weight: (t: number) => number;
   }

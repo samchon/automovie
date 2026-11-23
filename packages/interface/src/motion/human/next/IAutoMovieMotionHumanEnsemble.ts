@@ -24,12 +24,6 @@ export interface IAutoMovieMotionHumanEnsemble<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanEnsemble.instance is provided by the chain that implements IAutoMovieMotionHumanEnsemble.
    */
   instance(
     params: IAutoMovieMotionHumanInstance.IParams,
@@ -105,12 +99,6 @@ export namespace IAutoMovieMotionHumanEnsemble {
      * absent.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanEnsemble.detail: How much of each member is performed, by member: `full` performs it, `instanced` displays a template member's pose moved to its place (`HumanEnsemble.instance`), `population` hands it to the instanced population layer (`HumanPopulation`) and leaves it out of the performance. Declared by the author, never by a camera; `full` when absent.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanEnsemble.detail is used through packages/motions/src/ensemble/HumanEnsemble.ts.
      */
     detail?: (
       member: IAutoMovieMotionHumanEnsemble.IMemberRef,
@@ -181,12 +169,6 @@ export namespace IAutoMovieMotionHumanEnsemble {
      * @returns The prop's subject id.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanEnsemble.IMember.prop: A prop of its own, `${subject}.${name}`: its musket, its horse.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanEnsemble.IMember.prop is used through packages/motions/src/ensemble/HumanEnsemble.ts.
      */
     prop(name: string): string;
   }

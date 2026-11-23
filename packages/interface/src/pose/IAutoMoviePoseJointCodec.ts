@@ -26,12 +26,6 @@ export namespace IAutoMoviePoseJointCodec {
      * The codec uses its retained rig axes and rest frames. Supply finite clinical angles; the synchronous conversion returns a fresh quaternion and leaves the tuple unchanged. Errors propagate; keep rig tables stable throughout the codec lifetime.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The codec uses its retained rig axes and rest frames. Supply finite clinical angles; the synchronous conversion returns a fresh quaternion and leaves the tuple unchanged. Errors propagate; keep rig tables stable throughout the codec lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; poseJointCodec owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; poseJointCodec owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in poseJointCodec.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; poseJointCodec owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; poseJointCodec owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; poseJointCodec and the documented reader/caller lifetime own retained data and release.
      */
     rotation: (
       bone: AutoMovieHumanoidBone,
@@ -45,12 +39,6 @@ export namespace IAutoMoviePoseJointCodec {
      * The synchronous inverse reads the same retained rig convention and picks the equivalent angle chart best admitted by ROM; it does not clamp an impossible rotation. Supply a unit quaternion, borrowed without mutation. The returned triple is fresh and errors propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The synchronous inverse reads the same retained rig convention and picks the equivalent angle chart best admitted by ROM; it does not clamp an impossible rotation. Supply a unit quaternion, borrowed without mutation. The returned triple is fresh and errors propagate.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; poseJointCodec owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; poseJointCodec owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in poseJointCodec.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; poseJointCodec owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; poseJointCodec owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; poseJointCodec and the documented reader/caller lifetime own retained data and release.
      */
     angles: (
       bone: AutoMovieHumanoidBone,
@@ -68,12 +56,6 @@ export namespace IAutoMoviePoseJointCodec {
      * This synchronous predicate reads the codec's retained effective ROM table; it performs no pose write or angular conversion. Releasing the codec releases its table references; callers keep the rig stable while using the codec.
      *
      * @evidence contracts/development/common.md#meaningful-documentation This synchronous predicate reads the codec's retained effective ROM table; it performs no pose write or angular conversion. Releasing the codec releases its table references; callers keep the rig stable while using the codec.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; poseJointCodec owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; poseJointCodec owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in poseJointCodec.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; poseJointCodec owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; poseJointCodec owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; poseJointCodec and the documented reader/caller lifetime own retained data and release.
      */
     ball: (bone: AutoMovieHumanoidBone) => boolean;
   }

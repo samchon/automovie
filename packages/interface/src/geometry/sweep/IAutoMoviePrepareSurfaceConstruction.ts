@@ -30,12 +30,6 @@ export namespace IAutoMoviePrepareSurfaceConstruction {
      * Resolve each sweep to its shared unsealed rig so this call can register frame and zero-cell sample slots. The one-use reader retains resulting writers until a successful read; callback errors propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States shared unsealed rigs, registration lifetime, one-use reader retention and callback failure propagation.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers own references retained by the supplied callable.
      */
     sweepRig: (name: string) => IAutoMovieSweepRig;
 
@@ -43,12 +37,6 @@ export namespace IAutoMoviePrepareSurfaceConstruction {
      * Resolve or compile the named network curve using the same endpoint nodes and geometric cells as patch boundaries. Returned rigs are retained until the observation reader runs, after registry finalization and rest evaluation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States shared endpoint/cell geometry and rig retention through registry finalization and rest evaluation.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; prepareAutoMovieSurfaceConstruction and the owning network's live rig resolvers own references retained by the supplied callable.
      */
     curveRig: (
       name: string,

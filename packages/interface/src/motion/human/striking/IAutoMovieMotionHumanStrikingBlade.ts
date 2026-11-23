@@ -67,12 +67,6 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
      * @returns The hand's grip frame, world.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the progress's three marks, what the seconds are for and the result's frame.
-     * @evidence contracts/development/implementation.md#principled-implementation A stroke's path is a pure function of its progress, so the planner alone decides the time course; the seconds are given beside it because a held pose's progress stays at 1 while what it is held on may move.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One member read once per evaluated second.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The planner passes the progress unclamped above 1, so a follow-through is the path's own.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
     path(
       progress: number,
@@ -94,12 +88,6 @@ export namespace IAutoMovieMotionHumanStrikingBlade {
      * @returns The displacement, world metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument's timebase, the result's frame and unit, its purpose and the default when absent.
-     * @evidence contracts/development/implementation.md#principled-implementation The following is a displacement added to the path's hand point at each second, while the arm's reference at the decisive pose is planned on the path alone.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure The path keeps the stroke's own shape and `follow` carries only the target's later motion, so two strokes that follow each other never wait on each other's plan.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The signature admits no fixture or scene input, only the action's seconds.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: the stroke planner that sets it supplies the body and answers for its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: the stroke planner that sets it supplies the body and decides what it shares.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: the stroke planner that sets it supplies the body and owns what it retains.
      */
     follow?(seconds: number): IAutoMovieVector3;
 

@@ -21,12 +21,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFirefighting.extinguish is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFirefighting.extinguish is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFirefighting.extinguish is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFirefighting.extinguish is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFirefighting.extinguish is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.extinguish is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   extinguish(
     params: IAutoMovieMotionHumanFirefight.IExtinguish,
@@ -41,12 +35,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFirefighting.hoseLine is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFirefighting.hoseLine is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFirefighting.hoseLine is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFirefighting.hoseLine is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFirefighting.hoseLine is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.hoseLine is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   hoseLine(
     params: IAutoMovieMotionHumanFirefight.IHoseLine,
@@ -61,12 +49,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFirefighting.beatFlames is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFirefighting.beatFlames is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFirefighting.beatFlames is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFirefighting.beatFlames is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFirefighting.beatFlames is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.beatFlames is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   beatFlames(
     params: IAutoMovieMotionHumanFirefight.IBeatFlames,
@@ -81,12 +63,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFirefighting.stopDropRoll is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFirefighting.stopDropRoll is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFirefighting.stopDropRoll is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFirefighting.stopDropRoll is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFirefighting.stopDropRoll is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.stopDropRoll is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   stopDropRoll(
     params: IAutoMovieMotionHumanFirefight.IStopDropRoll,
@@ -100,12 +76,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @returns The chain with the take, the pin's pull and the sweep appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanFirefighting.pass is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanFirefighting.pass is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanFirefighting.pass is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanFirefighting.pass is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFirefighting.pass is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.pass is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   pass(params: IAutoMovieMotionHumanFirefighting.IPass, anchor?: string): Chain;
 }

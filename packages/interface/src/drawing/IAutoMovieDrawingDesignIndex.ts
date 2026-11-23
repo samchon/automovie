@@ -49,13 +49,7 @@ export interface IAutoMovieDrawingDesignIndex {
    * for a malformed mesh. The returned array is shared between calls and must
    * not be mutated.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Memoizes `autoMovieDrawingPartTriangles` by part object identity, which is sound because a part's tessellation depends only on that part and its model, and the indexed environment does not change during the derivation.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A member function rather than a separate cache object, so every helper that receives the index reaches the one memo without a second argument.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither part nor model is special-cased; a malformed mesh still throws on first request, and a failed tessellation is not cached as an empty list.
    * @evidence contracts/development/common.md#meaningful-documentation The comment states the frame and unit, the memo's key and lifetime, the failure behaviour and that the shared array must not be mutated.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The first request for a part costs one tessellation, linear in its vertex and index counts, and every later request is one map lookup.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Two requests are equivalent exactly when they name the same part object of one index, so a model placed on many elements, filling many openings or pinned by many notes is tessellated once per derivation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each tessellated part keeps one triangle list for the index's lifetime, so retention is bounded by the parts of the models the derivation touches and is released with the index.
    */
   partTriangles: (
     model: IAutoMovieModel,

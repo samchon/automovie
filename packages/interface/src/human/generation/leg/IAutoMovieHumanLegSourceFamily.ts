@@ -26,12 +26,6 @@ export namespace IAutoMovieHumanLegSourceFamily {
      * Latest actual coupled definition, or the base before explicit assembly.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Latest actual coupled definition, or the base before explicit assembly.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanLegSourceFamily owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSourceFamily.IOutput.current declares the invocation boundary only; AutoMovieHumanLegSourceFamily and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanLegSourceFamily.IOutput.current must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanLegSourceFamily.IOutput.current owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanLegSourceFamily and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanLegSourceFamily producer or caller supplying the callback owns captured state and its lifetime.
      */
     current(): IAutoMovieHumanLegWalk.IDefinition;
 
@@ -39,12 +33,6 @@ export namespace IAutoMovieHumanLegSourceFamily {
      * Same bounded calf-to-cap authority without forcing the full leg or upper-parent completion.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Same bounded calf-to-cap authority without forcing the full leg or upper-parent completion.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanLegSourceFamily owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSourceFamily.IOutput.ankle declares the invocation boundary only; AutoMovieHumanLegSourceFamily and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanLegSourceFamily.IOutput.ankle must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanLegSourceFamily.IOutput.ankle owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanLegSourceFamily and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanLegSourceFamily producer or caller supplying the callback owns captured state and its lifetime.
      */
     ankle(): IAnkle;
 
@@ -52,12 +40,6 @@ export namespace IAutoMovieHumanLegSourceFamily {
      * Replace the current coupled definition with a trial or final proximal prefix against this parent at station in calibration millimetres; binding alone does not complete the parent.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Replace the current coupled definition with a trial or final proximal prefix against this parent at station in calibration millimetres; binding alone does not complete the parent.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanLegSourceFamily owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSourceFamily.IOutput.bind declares the invocation boundary only; AutoMovieHumanLegSourceFamily and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanLegSourceFamily.IOutput.bind must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanLegSourceFamily.IOutput.bind owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanLegSourceFamily and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanLegSourceFamily producer or caller supplying the callback owns captured state and its lifetime.
      */
     bind(
       parent: IAutoMovieHumanSourceDefinition,
@@ -105,12 +87,6 @@ export namespace IAutoMovieHumanLegSourceFamily {
      * Successfully complete the owning trunk before full demand, or throw its failure; binding a trial alone is not completion.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Successfully complete the owning trunk before full demand, or throw its failure; binding a trial alone is not completion.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanLegSourceFamily owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSourceFamily.IInput.complete declares the invocation boundary only; AutoMovieHumanLegSourceFamily and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanLegSourceFamily.IInput.complete must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanLegSourceFamily.IInput.complete owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanLegSourceFamily and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanLegSourceFamily producer or caller supplying the callback owns captured state and its lifetime.
      */
     complete?: () => void;
   }

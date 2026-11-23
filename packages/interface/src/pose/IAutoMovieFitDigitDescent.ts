@@ -25,12 +25,6 @@ export namespace IAutoMovieFitDigitDescent {
      * Synchronously return a nonempty finite metre residual vector of fixed length for borrowed coordinate values. The solver evaluates finite-difference probes as well as trials; leave coordinates unchanged and propagate failures. No callback is retained after descent.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Synchronously return a nonempty finite metre residual vector of fixed length for borrowed coordinate values. The solver evaluates finite-difference probes as well as trials; leave coordinates unchanged and propagate failures. No callback is retained after descent.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; fitDigitDescent and fitDigitToTarget owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; fitDigitDescent and fitDigitToTarget owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in fitDigitDescent and fitDigitToTarget.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; fitDigitDescent and fitDigitToTarget owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; fitDigitDescent and fitDigitToTarget owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; fitDigitDescent and fitDigitToTarget and the documented reader/caller lifetime own retained data and release.
      */
     primary: (x: readonly number[]) => number[];
 
@@ -40,12 +34,6 @@ export namespace IAutoMovieFitDigitDescent {
      * Synchronously return a fixed-length finite metre residual vector; an empty vector disables the secondary task. Trial/probe coordinates are borrowed and must not be mutated. Exceptions abort descent and the callback is not retained.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Synchronously return a fixed-length finite metre residual vector; an empty vector disables the secondary task. Trial/probe coordinates are borrowed and must not be mutated. Exceptions abort descent and the callback is not retained.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; fitDigitDescent and fitDigitToTarget owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; fitDigitDescent and fitDigitToTarget owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in fitDigitDescent and fitDigitToTarget.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; fitDigitDescent and fitDigitToTarget owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; fitDigitDescent and fitDigitToTarget owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; fitDigitDescent and fitDigitToTarget and the documented reader/caller lifetime own retained data and release.
      */
     secondary: (x: readonly number[]) => number[];
 
@@ -55,12 +43,6 @@ export namespace IAutoMovieFitDigitDescent {
      * Return a fresh finite coordinate vector with the same length and units as start, projected into its admissible ranges. Leave borrowed inputs unchanged; the initial point, derivative probes and accepted trials all rely on this projection. Exceptions propagate and no callback is retained.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Return a fresh finite coordinate vector with the same length and units as start, projected into its admissible ranges. Leave borrowed inputs unchanged; the initial point, derivative probes and accepted trials all rely on this projection. Exceptions propagate and no callback is retained.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; fitDigitDescent and fitDigitToTarget owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; fitDigitDescent and fitDigitToTarget owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in fitDigitDescent and fitDigitToTarget.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; fitDigitDescent and fitDigitToTarget owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; fitDigitDescent and fitDigitToTarget owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; fitDigitDescent and fitDigitToTarget and the documented reader/caller lifetime own retained data and release.
      */
     project: (x: readonly number[]) => number[];
 
@@ -73,12 +55,6 @@ export namespace IAutoMovieFitDigitDescent {
      * Read borrowed current coordinates and the primary Jacobian and return a finite nonnegative metre residual-norm threshold. The callback is synchronous, leaves both inputs unchanged and is discarded after descent; failures propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Read borrowed current coordinates and the primary Jacobian and return a finite nonnegative metre residual-norm threshold. The callback is synchronous, leaves both inputs unchanged and is discarded after descent; failures propagate.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; fitDigitDescent and fitDigitToTarget owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; fitDigitDescent and fitDigitToTarget owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in fitDigitDescent and fitDigitToTarget.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; fitDigitDescent and fitDigitToTarget owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; fitDigitDescent and fitDigitToTarget owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; fitDigitDescent and fitDigitToTarget and the documented reader/caller lifetime own retained data and release.
      */
     tolerance: (
       x: readonly number[],

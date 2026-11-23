@@ -47,12 +47,6 @@ export namespace IAutoMovieMotionHumanCourse {
      * The posture at a second with the hips a distance along the heading, metres.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the second, hips' place in metres along the heading and returned actual posture. An optional same-body FK source belongs only to this synchronous course solve and must not enter the posture or a retained callback.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the structure is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: nothing here computes a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: its cost is the caller's, once per correction at each knot.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: it shares nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
      */
     posture: (seconds: number, along: number,
       resolution?: IAutoMoviePoseResolution.ISource) => IAutoMovieMotionHumanPosture;
@@ -61,12 +55,6 @@ export namespace IAutoMovieMotionHumanCourse {
      * Where the extrapolated centre of mass is asked at a second, world metres along the heading.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument in seconds and the returned place in world metres along the heading.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A callback type with no body: the caller supplies the function, so no method is declared here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A callback type with no body: the structure is the caller's.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A callback type with no body: nothing here computes a value.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A callback type with no body: its cost is the caller's, once per knot.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A callback type with no body: it shares nothing.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A callback type with no body: it acquires and retains nothing.
      */
     target: (seconds: number) => number;
 

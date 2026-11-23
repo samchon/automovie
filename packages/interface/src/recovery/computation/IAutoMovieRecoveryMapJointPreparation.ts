@@ -24,13 +24,7 @@ export interface IAutoMovieRecoveryMapJointPreparation {
   gradient: number | null;
 
   /** Eliminate the admitted blocks with zero or the caller's valid damping.
-   * @evidence contracts/development/implementation.md#principled-implementation Givens rotations eliminate point coordinates from the same globally scaled original rows, optionally augmented by sqrt(damping) point/camera identity rows.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One call-local action supplies independent original-rank rows and the separate damped operation without a second scale definition.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No normal matrix, floor, dropped residual or damping-derived data rank replaces orthogonal elimination.
    * @evidence contracts/development/common.md#meaningful-documentation The amount must be finite nonnegative and caller admitted; current consumers pass zero or their already admitted coefficient. Returned rows/right/triangles are owned; numerical failures propagate.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Point elimination costs O((E+L)*C), materializing O(E*C+L*C) values under the preparation's original entry admission.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Borrowed current blocks and prepared scales serve both zero and positive amounts; changed-state designs require fresh preparation.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure borrows blocks and scales until the consuming operation returns; each owned elimination expires or transfers its triangles to one current metric.
    */
   eliminate: (amount: number) => IAutoMovieRecoveryMapElimination;
 }

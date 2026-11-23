@@ -38,12 +38,6 @@ export namespace IAutoMovieLoftSectionNative {
      * Read the finite local point in millimetres at phi radians; numerical rejection throws from the native reader.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines polar-radian input, local-mm output and propagated native admission failure.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable signature has no body; AutoMovieLoftSectionNative.curve supplies the geometric evaluation described here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The declaration exposes one reader; AutoMovieLoftSectionNative.curve owns its preparation and helper decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no substitute geometry; AutoMovieLoftSectionNative.curve owns rejection of unavailable or nonfinite native readings.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Runtime traversal and allocation belong to AutoMovieLoftSectionNative.curve; a signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Prepared-data sharing is owned by AutoMovieLoftSectionNative.curve and its caller, not this callable declaration.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller retains the prepared reader and dependencies until release; this signature acquires no resource.
      */
     point(phi: number): AutoMovieVector2Tuple;
 
@@ -51,12 +45,6 @@ export namespace IAutoMovieLoftSectionNative {
      * Read that same point and its first two phase partials at phi radians; numerical rejection throws from the native reader.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines polar-radian input, local-mm output and propagated native admission failure.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable signature has no body; AutoMovieLoftSectionNative.curve supplies the geometric evaluation described here.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The declaration exposes one reader; AutoMovieLoftSectionNative.curve owns its preparation and helper decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature computes no substitute geometry; AutoMovieLoftSectionNative.curve owns rejection of unavailable or nonfinite native readings.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Runtime traversal and allocation belong to AutoMovieLoftSectionNative.curve; a signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Prepared-data sharing is owned by AutoMovieLoftSectionNative.curve and its caller, not this callable declaration.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller retains the prepared reader and dependencies until release; this signature acquires no resource.
      */
     phase(phi: number): IAutoMovieLoftSectionPhase;
   }

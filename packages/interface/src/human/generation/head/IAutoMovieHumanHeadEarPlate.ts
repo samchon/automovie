@@ -84,24 +84,12 @@ export namespace IAutoMovieHumanHeadEarPlate {
      * Actual attachment/posterior original guide point.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Actual attachment/posterior original guide point.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadEarPlate and the callback provider must satisfy the documented point contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadEarPlate and its callback provider own the cost of each point invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadEarPlate and the callback provider determine when the inputs to point describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadEarPlate and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadEarPlate.IOutput.point callable contract, without an implementation body. AutoMovieHumanHeadEarPlate and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadEarPlate.IOutput.point declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadEarPlate and the callback provider.
      */
     point(station: number, posterior: boolean): [number, number, number];
     /**
      * Whole original source section and all available local derivatives.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Whole original source section and all available local derivatives.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanHeadEarPlate and the callback provider must satisfy the documented section contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanHeadEarPlate and its callback provider own the cost of each section invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanHeadEarPlate and the callback provider determine when the inputs to section describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanHeadEarPlate and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanHeadEarPlate.IOutput.section callable contract, without an implementation body. AutoMovieHumanHeadEarPlate and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanHeadEarPlate.IOutput.section declares only the invocation boundary; decomposition belongs to AutoMovieHumanHeadEarPlate and the callback provider.
      */
     section(station: number): ISection;
   }

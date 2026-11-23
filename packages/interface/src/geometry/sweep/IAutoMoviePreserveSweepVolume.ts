@@ -44,12 +44,6 @@ export namespace IAutoMoviePreserveSweepVolume {
      * Synchronous serializer used only during compilation: write twelve scalars at scalar offset at, ordered origin XYZ then x, y and normal axes. Origins use model metres, axes are dimensionless; the destination is borrowed for the call and errors propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States twelve-scalar layout and offset, metre origins, dimensionless axes, synchronous borrowed output and propagated errors.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; preserveAutoMovieSweepVolume and the owning sweep rig's frame serializer own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; preserveAutoMovieSweepVolume and the owning sweep rig's frame serializer own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by preserveAutoMovieSweepVolume and the owning sweep rig's frame serializer.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; preserveAutoMovieSweepVolume and the owning sweep rig's frame serializer own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; preserveAutoMovieSweepVolume and the owning sweep rig's frame serializer decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; preserveAutoMovieSweepVolume and the owning sweep rig's frame serializer own references retained by the supplied callable.
      */
     writeFrame: (
       frame: IAutoMovieSweepFrame,

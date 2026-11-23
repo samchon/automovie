@@ -23,12 +23,6 @@ export namespace IAutoMovieHumanTrunkViewLaws {
      * The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This back signature specifies the documented callback contract without an implementation body; AutoMovieHumanTrunkViews and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes back at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanTrunkViews.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual back provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanTrunkViews determines the work per back call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanTrunkViews's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the back provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     back(y: number): number;
 
@@ -44,12 +38,6 @@ export namespace IAutoMovieHumanTrunkViewLaws {
      * The navel section's box at a girth (top hip).
      *
      * @evidence contracts/development/common.md#meaningful-documentation The navel section's box at a girth (top hip).
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This lumbar signature specifies the documented callback contract without an implementation body; AutoMovieHumanTrunkViews and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes lumbar at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanTrunkViews.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual lumbar provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanTrunkViews determines the work per lumbar call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanTrunkViews's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the lumbar provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     lumbar(girth: number): IBox;
 
@@ -57,12 +45,6 @@ export namespace IAutoMovieHumanTrunkViewLaws {
      * The thorax's box without the breasts at a girth (the underbust).
      *
      * @evidence contracts/development/common.md#meaningful-documentation The thorax's box without the breasts at a girth (the underbust).
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This chestWall signature specifies the documented callback contract without an implementation body; AutoMovieHumanTrunkViews and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes chestWall at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanTrunkViews.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual chestWall provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanTrunkViews determines the work per chestWall call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanTrunkViews's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the chestWall provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     chestWall(girth: number): IBox;
 

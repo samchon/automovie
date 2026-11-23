@@ -67,12 +67,6 @@ export interface IAutoMovieMotionHumanPrimitive {
    * @returns The posture; fields outside the claimed channels are ignored.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the posture and the seconds it is given, that the seconds lie in the primitive's window and that fields outside the claimed channels are ignored.
-   * @evidence contracts/development/implementation.md#principled-implementation A pure function from the posture so far and the time to a posture, so an action is such functions side by side and the order of writing is the channels' order.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One member called once per active primitive per evaluated second by `composeAutoMovieMotionHumanAction`.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The composition keeps only the claimed channels of the result and throws on two primitives that claim one channel over overlapping windows, so an implementation cannot overwrite what another part wrote.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The composer invokes active dependency-relevant writers and shares completed exact-time/prefix/demand results only within the current query; each writer retains its own actual geometry/fit cost and default reads remain conservative.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Optional same-body FK/genuine ROM arguments share fixed metadata with actual nested observations, never sampled poses. before forwards explicit loans through a separate query context and restores the caller's context afterward.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action owns the callback until release; invocation metadata and prefix history end on success/throw through composer finally scopes. Writers may return numeric posture data but must not retain borrowed metadata in postures or plans.
    */
   write(
     posture: IAutoMovieMotionHumanPosture,
@@ -92,12 +86,6 @@ export interface IAutoMovieMotionHumanPrimitive {
    * @param before The posture so far at any second of the action, as `write` is given it.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States when it is called, by whom, why and what it is given.
-   * @evidence contracts/development/implementation.md#principled-implementation A movement's plan is a constant of its action, made when the action is planned.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One member called once per primitive by `composeAutoMovieMotionHumanAction`.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Called before any posture, so an implementation never plans on a read.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The composer calls each present preparation once in writer order; each actual before query evaluates only its demanded dependency prefix, while numerical planning cost remains with that primitive.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work A preparation may share invariant plan data for its declared span; exact before-query results share only within their synchronous scope, with explicit FK/ROM loan changes receiving separate contexts.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The action retains successful primitive plans until release. Each before query drops its prefix history on return/throw and restores reentrant scope state; metadata loans must not enter retained plans or callbacks.
    */
   prepare?(before: IAutoMovieMotionHumanPrimitive.Reader): void;
 }

@@ -19,12 +19,6 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
    */
   disarm(params: IAutoMovieMotionHumanDisarm.IParams, anchor?: string): Chain;
 
@@ -36,12 +30,6 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
    */
   hostageHold(
     params: IAutoMovieMotionHumanHostageHold.IParams,
@@ -56,12 +44,6 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
    */
   heldHostage(
     params: IAutoMovieMotionHumanHostageHold.IHeld,
@@ -76,12 +58,6 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
    */
   disarmed(params: IAutoMovieMotionHumanDisarm.IYield, anchor?: string): Chain;
 }

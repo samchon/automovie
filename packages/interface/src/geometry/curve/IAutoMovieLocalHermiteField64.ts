@@ -57,25 +57,13 @@ export namespace IAutoMovieLocalHermiteField64 {
     /**
      * Increasing local phase cells for one admitted physical station interval.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Exact restrictions and fixed physical derivative weights construct bicubic cells from admitted courses.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One interval address returns caller-owned coefficient cells without observation or topology inference.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No source face, sampled replacement curve or limiter changes the prepared field.
      * @evidence contracts/development/common.md#meaningful-documentation The prepared owner states station indexing, millimetres, immutable course lifetime and unsupported geometric guarantees.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Work sorts the at-most-four incident course partitions and performs constant-degree restriction per resulting cell.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Admitted partitions and station derivative weights are reused by every interval call.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Fresh cell arrays belong to the caller; no additional process-wide state is retained.
      */
     interval: (index: number) => IAutoMovieLocalHermiteField64.Cell[];
     /**
      * Authoritative saved-course value and right-sided partials; u=1 uses the left span.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation The stored course evaluates position once while the same physical station stencil supplies its transverse derivative.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One normalized phase query returns a complete analytic jet from the prepared field.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Unit tangent hints, source normals and coordinate-based neighbor matching do not supply derivatives.
      * @evidence contracts/development/common.md#meaningful-documentation States one-sided knot convention, physical versus normalized derivatives and saved-curve authority.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Binary span lookup and constant-degree evaluation visit at most four incident course spans.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Prepared partitions and physical derivative weights serve every station query.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned jet is newly owned and no query cache or source mesh is retained.
      */
     station: (index: number, u: number) => IAutoMovieLocalHermiteField64.Jet;
   };

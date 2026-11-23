@@ -30,13 +30,7 @@ export interface IAutoMovieMeshCrossingOptions {
    * strict intersection. The connected face and lash clearance readers use it
    * to classify individual insertion witnesses without exempting a pair.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation A predicate over one strict intersection point and its triangle pair, consulted only after the census's own determinant test admitted the point, so classification can narrow the census but never widen it.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A plain callback the census calls inline per witness, which lets the face readers bring their own insertion region without the census knowing anatomy.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Returning false drops only that witness, so a caller cannot exempt a whole triangle pair, and the census does not reinterpret the answer.
    * @evidence contracts/development/common.md#meaningful-documentation States the point's frame, the ordinal space of both triangle arguments, the no-mutation rule, the omitted default, and who uses it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A caller-supplied predicate; its cost per strict witness is the caller's and is counted in the census's per-candidate work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The census calls it once per strict witness and caches no answer, since each point differs.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The census holds the callback only for the duration of one query and retains no point it passed.
    */
   acceptTransversePoint?: (
     point: readonly number[],

@@ -46,12 +46,6 @@ export namespace IAutoMovieCompileLaunch {
      * exceptions propagate and the callback is not retained after compilation.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The target's world position at shot-local second `t`, when it moves during the shot. Supplied, the aim leads the mover to the intercept; omitted, the launch is a static intercept on `target`. Member documentation states the supplied records, units and absence meanings used by compileLaunch.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts targetAt declares a callable signature with no body. The implementation supplied to or returned by compileLaunch must justify constants and special cases in the supplied body; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms targetAt declares a callable signature with no body. The implementation supplied to or returned by compileLaunch owns callback traversal and allocation costs; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work targetAt declares a callable signature with no body. The implementation supplied to or returned by compileLaunch owns any callback memoization and its input equivalence; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources targetAt declares a callable signature with no body. The implementation supplied to or returned by compileLaunch owns callback captures and their release; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation targetAt declares a callable signature with no body. The implementation supplied to or returned by compileLaunch provides the callback body and its numerical method; the invocation and result obligations remain on this member.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure targetAt declares a callable signature with no body. The implementation supplied to or returned by compileLaunch owns the callback body and its decomposition; the invocation and result obligations remain on this member.
      */
     targetAt?: (t: number) => IAutoMovieVector3;
 

@@ -84,12 +84,6 @@ export namespace IAutoMovieMotionHumanPropFracture {
      * The visible pieces at a finite film second, or null before the contact.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Samples replacement geometry in world space on the same film clock as contact.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The plan's producer owns the motion and reads its piece frames.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes one addressed sample.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer owns sample admission and geometric fidelity.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer owns sample cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer owns precomputed trajectory data.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The plan's producer documents whether sampling retains data.
      */
     at(seconds: number): readonly IPlaced<Piece>[] | null;
   }

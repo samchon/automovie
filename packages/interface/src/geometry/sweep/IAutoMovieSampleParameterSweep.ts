@@ -46,36 +46,18 @@ export namespace IAutoMovieSampleParameterSweep {
      * Register a normalized u station and return its integer scale slot. Called during compilation; the slot is retained for every later pose write.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States normalized-u registration timing and integer slot identity retained across later pose writes.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own references retained by the supplied callable.
      */
     scale: (u: number) => number;
     /**
      * Read the current dimensionless scale at a registered slot. Each write requires positive finite scale and representable products; invalid values throw before modifying output.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States live dimensionless slot values, positive finite admission and failure before publishing output.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own references retained by the supplied callable.
      */
     readScale: (slot: number) => number;
     /**
      * Return the current borrowed frame buffer after its owning rig has updated. The writer reads the registered center frame and publishes three finite metre coordinates; it does not retain an earlier returned buffer.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States pose-update ordering, borrowed current frame storage and the writer's refusal to retain an obsolete buffer.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own the numerical method under the documented units and input premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature exposes the callback boundary; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own executable decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration supplies no algorithm, compensation or fallback; the actual behavior is implemented by sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no traversal or allocation strategy; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own its evaluation cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration schedules no work; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers decide whether calls share coefficients, identities or mutable state.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no storage or handles; sampleAutoMovieParameterSweep and the owning sweep rig's live slot readers own references retained by the supplied callable.
      */
     frames: () => Float64Array;
   };

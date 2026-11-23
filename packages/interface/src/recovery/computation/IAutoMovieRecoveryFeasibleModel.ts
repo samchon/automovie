@@ -18,24 +18,12 @@ export interface IAutoMovieRecoveryFeasibleModel {
   width: number;
 
   /** Convert a metric step to increments in the same physical tangent chart.
-   * @evidence contracts/development/implementation.md#principled-implementation The inverse of the current square, rank-qualified metric restores the coordinates used by physical derivatives and actual retraction.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure The model owns this action so the controller need not know camera/point ordering or factor storage.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Coordinate conversion cannot change observations, gauge, nonlinear gates or parameter dimension.
    * @evidence contracts/development/common.md#meaningful-documentation Input is a borrowed metric-coordinate step; output is an owned physical-coordinate vector of width entries.
-   * @evidence contracts/development/implementation.md#efficient-algorithms The camera action costs O(L*C+C^2) and analytic identity charts cost O(width); the numerical owner includes this action in its admitted model/trial work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Backtracks use the same current factor until an accepted state changes the model.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The current model closure retains factors for its lifetime; each returned vector transfers to the controller without mutating the borrowed step.
    */
   fromMetric: (step: readonly number[]) => number[];
 
   /** Push a metric covector into the original physical tangent units.
-   * @evidence contracts/development/implementation.md#principled-implementation The inverse-transpose of fromMetric maps quadratic stationarity back without forming a normal matrix.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional acceleration uses this current factor action; the baseline direction needs no additional action.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing support cannot be replaced by an identity action or a damped data-rank claim.
    * @evidence contracts/development/common.md#meaningful-documentation Borrows a metric covector and returns an owned width-vector; undefined disables optional SQP support.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Camera factors cost O(L*C+C^2), bounded and charged by the optional owner's conservative action reserve.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same current selected triangular factor supplies this multiplication and both triangular solves.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources One factor closure lives with the model; each owned returned vector is call-local.
    */
   toPhysicalCovector?: (value: readonly number[]) => number[];
 }

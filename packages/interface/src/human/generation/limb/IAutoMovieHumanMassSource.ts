@@ -48,12 +48,6 @@ export namespace IAutoMovieHumanMassSource {
      * Same whole-parent reader that determined the root, with its explicit absence.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Same whole-parent reader that determined the root, with its explicit absence.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanMassSource owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanMassSource.IConnection.contact declares the invocation boundary only; AutoMovieHumanMassSource and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanMassSource.IConnection.contact must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanMassSource.IConnection.contact owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanMassSource and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanMassSource producer or caller supplying the callback owns captured state and its lifetime.
      */
     contact(phi: number): IContact | string;
   }

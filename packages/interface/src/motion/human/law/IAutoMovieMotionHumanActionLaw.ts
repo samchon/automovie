@@ -47,12 +47,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    * @returns The parameters planned from.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.resolve: The parameters the plan reads, from those the composition gave: a row adds its fixed ones. The performance records and passes on the result, so whatever reads a placed action's parameters reads the whole set.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.resolve is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   resolve?(given: object): object;
 
@@ -124,12 +118,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    * @returns The plan, whose postures are pure functions of seconds.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.plan: Plan one instance of the action.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.plan is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   plan(
     context: IAutoMovieMotionHumanActionContext<P>,
@@ -151,12 +139,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    * @returns The poses the action demands of the grip.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.demands: The poses this action will hold a prop in, asked before it is planned of the grips an earlier action is still choosing among (`pickUp`): the action's goal postures, computed from its own parameters by the functions its plan reads, so a grip the earlier action takes for them is one this action holds (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen 2001; a task's goal pose as a grasp's constraint). Nothing is planned: the action reads only what is known before it is, with the grip weighed (`IAutoMovieMotionHumanActionLaw.IAhead`). Empty when the action asks nothing of the grip, or would refuse whatever the grip; absent when it never asks.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.demands is used through packages/motions/src/perform/HumanPerformancePlace.ts.
    */
   demands?(
     ahead: IAutoMovieMotionHumanActionLaw.IAhead<P>,
@@ -174,12 +156,6 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
    * @returns The plant, or undefined.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.plants: The held prop this action plants on the floor ahead as it is entered, read from its own parameters before it is planned, so the action cut into it carries the prop down to the plant over its last strides.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.plants is used through packages/motions/src/perform/HumanPerformanceAhead.ts.
    */
   plants?(params: P): IAutoMovieMotionHumanActionLaw.IPlant | undefined;
 }
@@ -212,12 +188,6 @@ export namespace IAutoMovieMotionHumanActionLaw {
      * @returns The tool.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanActionLaw.IGrip.tool: The prop as a tool in that grip, read as `StrikingHeld.of` reads a held one: its working point and edge by affordance id.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanActionLaw.IGrip.tool is used through packages/motions/src/perform/HumanPerformancePlace.ts.
      */
     tool(
       points: IAutoMovieMotionHumanStrikingHeld.IPoints,

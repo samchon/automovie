@@ -17,12 +17,6 @@ export interface IAutoMovieTimedGround {
    * for path admission and feet for stance. Null means no static ground.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Gives the point frame, seconds and metre units, kinds, and null meaning.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation The callable contract has no body. Its supplying locator owns the selection law.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable contract has no body. Its supplying locator owns decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The callable contract has no body. Its supplying locator owns supported geometry.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The callable contract has no body. Its supplying locator owns query cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The callable contract has no body. Its supplying locator owns preparation reuse.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable contract has no body. Its supplying locator owns retained state.
    */
   at: (
     seconds: number,

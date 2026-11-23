@@ -31,12 +31,6 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
   handOver(
     params: IAutoMovieMotionHumanHandoverAction.IParams,
@@ -51,12 +45,6 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
   receive(params: IAutoMovieMotionHumanReceive.IParams, anchor?: string): Chain;
 
@@ -68,12 +56,6 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
   relayPass(
     params: IAutoMovieMotionHumanRelayPass.IParams,
@@ -88,12 +70,6 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
   handshake(
     params: IAutoMovieMotionHumanHandshake.IParams,

@@ -35,12 +35,6 @@ export namespace IAutoMovieSolidCycle {
      * as the chord through them; a vertex inserted later off the curve leaves its segments read as chords. Absent, every segment is a chord.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States which chart the curve is in, which segments read it, and what an inserted off-curve vertex or an absent curve leaves as chords.
-     * @evidence contracts/development/implementation.md#principled-implementation The kept edge is the exact curve the neighbouring band ends on (a port's curved rail), so the two faces share one edge instead of a chord standing off it by its sagitta.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One optional reader on the cycle; kept tests read it only on segments whose both stored vertices lie on it, and every other reader keeps the chords.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no tolerance or widened boundary: a segment off the curve is read exactly as before.
-     * @evidence contracts/development/implementation.md#efficient-algorithms One evaluation per kept test on a qualifying segment, in place of the chord's interpolation.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The builder passes the same rail function that placed the cycle's vertices and the band's column ends.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The cycle holds the builder's function for its own lifetime; copies share it and retain nothing else.
      */
     along?: (v: number) => number;
 
@@ -139,12 +133,6 @@ export namespace IAutoMovieSolidCycle {
      * exact curve (a band's station line).
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the reading and the absent case.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the owner's curve is the implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the owner's.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     kept?: (u: number, v: number) => boolean;
 
@@ -153,12 +141,6 @@ export namespace IAutoMovieSolidCycle {
      * correspondence, read in the neighbour's chart.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the foot and the chart it returns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; the owner's correspondence is the implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body; its cost is the owner's.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     across: (u: number, v: number) => [number, number];
   }

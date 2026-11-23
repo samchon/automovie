@@ -35,12 +35,6 @@ export namespace IAutoMovieSampleContactSurfaceResponse {
      * Synchronously transport the sampled contact event into the same current metre frame as point. Return a finite point without mutating the borrowed event; exceptions propagate. The returned point is read immediately and no callback or point is retained after sampling.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Synchronously transport the sampled contact event into the same current metre frame as point. Return a finite point without mutating the borrowed event; exceptions propagate. The returned point is read immediately and no callback or point is retained after sampling.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; sampleContactSurfaceResponse and its provider owns the numerical method and its runtime premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; sampleContactSurfaceResponse and its provider owns its implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in sampleContactSurfaceResponse and its provider.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; sampleContactSurfaceResponse and its provider owns cost for the supported workload.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; sampleContactSurfaceResponse and its provider owns reuse and invalidation of any retained work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; sampleContactSurfaceResponse and its provider and the documented reader/caller lifetime own retained data and release.
      */
     center: (receipt: IAutoMovieContactReceipt) => IAutoMovieVector3;
     /** Explicit appearance radius, metres. */

@@ -269,12 +269,6 @@ export namespace IAutoMovieMotionHumanPerformanceState {
      * @returns The coordinate's travel, in the articulation's own unit.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the input's frame and the result.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable member has no algorithm body; the placed performance supplies it from the driving action's writer.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; the provider owns its decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constant is implemented by this signature.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns its cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature defines no cache; the provider owns result equivalence.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handle; the provider owns what it keeps.
      */
     travel(seconds: number): number;
 

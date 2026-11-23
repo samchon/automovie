@@ -28,12 +28,6 @@ export interface IAutoMovieMotionHumanPlayback {
    * Optional owned setup after placement, contacts and flight are final.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Setup consumes the native data available at finalized placement. The display waits for setup before borrowing those phases.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation HumanPreparedPlayback owns lifecycle admission. The native law establishes its actual preparation.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature defines the setup boundary. The attached law decomposes its work.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The native provider proves its input ownership and keeps arbitrary callback observation on its ordinary path.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Each enrolled producer owns the amount of setup it runs.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Placement invalidates the provider through HumanPreparedPlayback before new admission.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The creating law owns the data held by the optional hook.
    */
   readonly prepare?: () => void;
 }
@@ -75,12 +69,6 @@ export namespace IAutoMovieMotionHumanPlayback {
      * Transfer the genuine fit to the same unchanged, complete bare leaf at most once.
      *
      * @evidence contracts/development/common.md#meaningful-documentation A consumed or unavailable fit yields undefined. A successful transfer owns the leaf's actual fit and seeds.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The native law produces the fit and owns transfer semantics. The callback declares its result.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure HumanSegmentOverlay owns scope and posture checks. The producer provides the callback.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The consumer decides admissibility against the current ordinary posture and observation.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The producer owns its single-use implementation and cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The producer governs whether this exact leaf fit is still available.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The sample provider owns its fit until transfer or release of the sample.
      */
     readonly takeFit?: () => IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined;
   }

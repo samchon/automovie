@@ -27,13 +27,7 @@ export interface IAutoMovieShotDefinition<Context = undefined> {
    *
    * defineShot stores it unexecuted. After registration-id admission, compileDefinedShot calls it once with the caller's context as a method of the returned registration, so a builder must not rely on the original definition as its `this`. A throw becomes builder-failed at `$shot.build`; production source build refuses returned thenables rather than awaiting them.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation An admitted registration reaches one builder call inside a try; registration refusal makes no call, and a builder throw becomes a located builder-failed diagnostic. The returned program is checked by value; repeat-call determinism remains the author's premise.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A single context argument carries every caller-owned input, so the builder needs no registry or global and the same registration compiles under any host that supplies a context.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Neither caller retries the builder or substitutes a default program after a throw, and an asynchronous result is refused rather than awaited.
    * @evidence contracts/development/common.md#meaningful-documentation States that registration does not run the builder, the call count and argument at compilation, the synchronous return requirement, and the diagnostic code and path a throw produces.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; the cost an implementation may incur is not constrained by this signature.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so it carries no method of its own and each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
   build(context: Context): IAutoMovieShotProgram;
 }

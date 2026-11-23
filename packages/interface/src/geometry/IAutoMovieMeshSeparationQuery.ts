@@ -35,13 +35,7 @@ export interface IAutoMovieMeshSeparationQuery {
    * measurement's for the same feature and options, and it spends no more
    * budget than the full measurement would.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Runs the full measurement's walk with refutation on, returning once the running bound drops below the target; since the bound only decreases, no later triangle could restore certification, so the decision is exact.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A method on the compiled query rather than a separate compile, because hair fitting asks this yes-or-no for every candidate row and shaft ring and needs only the decision and one witness.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The early exit removes only work that cannot change the answer; admission, attachment checks and per-triangle bounds are the same calls the full measurement makes.
    * @evidence contracts/development/common.md#meaningful-documentation States what is decided, when it stops, that it agrees with the full measurement, and that it never costs more budget than the full measurement.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Ends the walk at the first triangle or attachment support that refutes the target, so an unseparated feature usually costs a few leaves; a certified feature still pays the full pruned walk because every box must prove the target.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call decides one feature; equivalent rows are deduplicated by the ribbon fit before calling, and the query keeps no verdict cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Allocates one walk's support set and cap list plus the two-field verdict; all but the verdict are dropped on return and the snapshot is only read.
    */
   separated(
     vertices: readonly IAutoMovieVector3[],

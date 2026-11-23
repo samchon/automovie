@@ -22,12 +22,6 @@ export interface IAutoMovieArticulatedRigReader<Bone extends string> {
    * @returns A fresh map of independently owned world transforms.
    * @throws {RangeError} For unknown names, invalid angles, non-rigid root, a declared degree-box violation or a derived world frame that finite binary64 rigid data cannot represent.
    * @evidence contracts/development/common.md#meaningful-documentation States angle units, null meaning, root domain, independent output and refusal cases.
-   * @evidence contracts/development/implementation.md#principled-implementation Parent-first rigid FK composes each admitted neutral transform with the actual basis-defined joint quaternion.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Validate current names/angles and compose one world transform per prepared bone.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No angle clamp, species case, dummy humanoid slot, stale completed pose or unknown anatomical default is used.
-   * @evidence contracts/development/implementation.md#efficient-algorithms O(B+J) work and O(B) fresh output for B bones and J supplied joints; graph order is already prepared.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses only admitted immutable graph/basis/rest metadata, recomputing each actual current pose.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Output transforms belong to the returned map; no input map, query result, process or external handle is retained by the reader.
    */
   read(
     joints?: ReadonlyMap<

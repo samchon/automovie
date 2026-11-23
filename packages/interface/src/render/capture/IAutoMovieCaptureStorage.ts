@@ -13,12 +13,6 @@ export interface IAutoMovieCaptureStorage {
    * The names of the entries of a folder, files and folders alike. Rejects when the folder does not exist.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is listed and the missing-folder rejection.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; Node's `node:fs/promises` or the host's object fixes the behaviour.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; the signature does not constrain an implementation's cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
   readdir(path: string): Promise<string[]>;
 
@@ -26,12 +20,6 @@ export interface IAutoMovieCaptureStorage {
    * Create a folder and any missing parent; an existing folder is kept.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is created and that an existing folder is kept.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; Node's `node:fs/promises` or the host's object fixes the behaviour.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; the signature does not constrain an implementation's cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
   mkdir(
     path: string,
@@ -45,12 +33,6 @@ export interface IAutoMovieCaptureStorage {
    * The bytes of a file. Rejects when the file does not exist.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is returned and the missing-file rejection.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; Node's `node:fs/promises` or the host's object fixes the behaviour.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; the signature does not constrain an implementation's cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
   readFile(path: string): Promise<Uint8Array>;
 
@@ -58,12 +40,6 @@ export interface IAutoMovieCaptureStorage {
    * Write a file whole, replacing one of the same path; text is written as UTF-8.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the replacement rule and the text encoding.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; Node's `node:fs/promises` or the host's object fixes the behaviour.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; the signature does not constrain an implementation's cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
   writeFile(path: string, data: Uint8Array | string): Promise<void>;
 
@@ -71,12 +47,6 @@ export interface IAutoMovieCaptureStorage {
    * Delete a file; with `force`, a path that does not exist is not an error.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what is deleted and what `force` changes.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; Node's `node:fs/promises` or the host's object fixes the behaviour.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it declares one operation and adds no layer.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; nothing here can special-case a value.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; the signature does not constrain an implementation's cost.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it coordinates no work itself.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Signature only: this declaration has no body, so each implementation answers for its own algorithm, structure and resources; it owns no state, handle or task.
    */
   rm(
     path: string,

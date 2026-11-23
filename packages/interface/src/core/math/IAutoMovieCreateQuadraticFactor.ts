@@ -22,12 +22,6 @@ export namespace IAutoMovieCreateQuadraticFactor {
      * Borrow m diagonal values and refactor. Returns false for a nonfinite/zero pivot, invalidating solve; no explicit length or sign gate exists here. A successful update is required before solving. H is not retained or changed.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents borrowed diagonal lifetime, factor invalidation, refusal and unchecked dimension/sign premises.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature specifies state transitions; createAutoMovieQuadraticFactor owns numeric LDL updates.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No update body is declared here; the factor implementation owns symbolic/numeric separation.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts Pivot stabilization and numeric refusal are implementation obligations, not executable branches in this signature.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Sparse refactor work is measured by the implementation's matrix and fill dimensions.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The signature owns no cache; the enclosing contract states fixed symbolic structure reuse.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Runtime factor storage belongs to the returned factory closure; this declaration acquires none.
      */
     update(h: Float64Array): boolean;
 
@@ -35,12 +29,6 @@ export namespace IAutoMovieCreateQuadraticFactor {
      * Read n+m RHS values in original variable/constraint order and return a fresh mutable solution in that order. Returns undefined before a successful update, on wrong RHS length or nonfinite substitution/refinement. Up to ten correction passes do not guarantee a residual tolerance; RHS is not changed or retained.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents RHS order/borrowing, owned output, unavailable-factor refusal and refinement limits.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature fixes solve/refusal semantics; the factor producer owns substitution and original-system refinement.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure No body or solver phases are implemented in the interface.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This declaration cannot turn finite vectors into convergence or apply hidden tolerances.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The implementation owns sparse substitution and correction cost; no algorithm executes here.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Repeated RHS work and factor reuse belong to the live factor owner, not this signature.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returned vectors must be owned by the caller; this declaration itself retains no RHS or factor storage.
      */
     solve(rhs: Float64Array): Float64Array | undefined;
 

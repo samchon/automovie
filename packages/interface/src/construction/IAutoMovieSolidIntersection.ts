@@ -135,13 +135,7 @@ export namespace IAutoMovieSolidIntersection {
      * @returns The point, its phases on the branch of the traced point it
      *   starts from, or null where Newton fails there.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Corrects from the original nearest stored parameter and restores host/part winding shifts for a finite real t.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One captured arrow reader preserves the same points array, surfaces and law.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Adds no finite-query guard, global branch certificate or intermediate domain repair; original failure/throw behavior remains.
      * @evidence contracts/development/common.md#meaningful-documentation States finite parameter input, periodic shift and nullable local correction.
-     * @evidence contracts/development/implementation.md#efficient-algorithms Constant index selection followed by TraceSolve.advance, bounded by 1024 attempts and its nested Newton/backtracking limits.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses original traced points instead of retracing and does not memoize query outputs.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the original shifted point representation and captures only its curve's existing source dependencies.
      */
     at(t: number): IAutoMovieSolidIntersection.IPoint | null;
   }

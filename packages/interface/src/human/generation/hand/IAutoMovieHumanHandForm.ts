@@ -24,12 +24,6 @@ export interface IAutoMovieHumanHandForm {
    * The heel's target skin at a station and phase, the palm's run handing over to the thumb's.
    *
    * @evidence contracts/development/common.md#meaningful-documentation The heel's target skin at a station and phase, the palm's run handing over to the thumb's.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This opening signature specifies the documented callback contract without an implementation body; AutoMovieHumanHandForm and its supplied callbacks own the numerical method and its premises.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes opening at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanHandForm.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual opening provider is responsible for satisfying the documented semantics.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanHandForm determines the work per opening call.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanHandForm's runtime provider owns reuse and must preserve the documented source identity and effects.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the opening provider and the caller retaining its containing record own the callback and its captured dependencies.
    */
   opening: (a: number, t: number) => AutoMovieVector3Tuple;
 

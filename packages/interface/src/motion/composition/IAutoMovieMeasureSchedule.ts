@@ -22,12 +22,6 @@ export namespace IAutoMovieMeasureSchedule {
      * Whether an entry counts as an action.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.action: Whether an entry counts as an action.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMeasureSchedule.IClassify.action is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMeasureSchedule.IClassify.action is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMeasureSchedule.IClassify.action is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMeasureSchedule.IClassify.action is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMeasureSchedule.IClassify.action is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMeasureSchedule.IClassify.action is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
      */
     action(entry: IAutoMovieScheduleEntry): boolean;
 
@@ -38,12 +32,6 @@ export namespace IAutoMovieMeasureSchedule {
      * Signed displacements in the production's own lateral/linear convention; the measurement sums their absolute values. Omission contributes zero.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.displacement: Signed displacements in the production's own lateral/linear convention; the measurement sums their absolute values. Omission contributes zero.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMeasureSchedule.IClassify.displacement is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMeasureSchedule.IClassify.displacement is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMeasureSchedule.IClassify.displacement is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMeasureSchedule.IClassify.displacement is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMeasureSchedule.IClassify.displacement is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMeasureSchedule.IClassify.displacement is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
      */
     displacement?(entry: IAutoMovieScheduleEntry): {
       /** Lateral displacement in metres under the classifier's chosen frame. */
@@ -56,12 +44,6 @@ export namespace IAutoMovieMeasureSchedule {
      * True excludes the entry from busy time; absent treats every entry as busy.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.idle: True excludes the entry from busy time; absent treats every entry as busy.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMeasureSchedule.IClassify.idle is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMeasureSchedule.IClassify.idle is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMeasureSchedule.IClassify.idle is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMeasureSchedule.IClassify.idle is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMeasureSchedule.IClassify.idle is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMeasureSchedule.IClassify.idle is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
      */
     idle?(entry: IAutoMovieScheduleEntry): boolean;
 
@@ -69,12 +51,6 @@ export namespace IAutoMovieMeasureSchedule {
      * A subject's presence; the whole schedule by default.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.presence: A subject's presence; the whole schedule by default.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMeasureSchedule.IClassify.presence is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMeasureSchedule.IClassify.presence is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMeasureSchedule.IClassify.presence is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMeasureSchedule.IClassify.presence is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMeasureSchedule.IClassify.presence is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMeasureSchedule.IClassify.presence is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
      */
     presence?(subject: string): {
       /** First film second of the subject's presence; defaults to zero when the callback is absent. */
@@ -87,12 +63,6 @@ export namespace IAutoMovieMeasureSchedule {
      * True includes the entry's interval in camera motion; absent includes no interval. Overlapping intervals count once.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.cameraMoves: True includes the entry's interval in camera motion; absent includes no interval. Overlapping intervals count once.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMeasureSchedule.IClassify.cameraMoves is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMeasureSchedule.IClassify.cameraMoves is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMeasureSchedule.IClassify.cameraMoves is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMeasureSchedule.IClassify.cameraMoves is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMeasureSchedule.IClassify.cameraMoves is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMeasureSchedule.IClassify.cameraMoves is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
      */
     cameraMoves?(entry: IAutoMovieScheduleEntry): boolean;
 
@@ -100,12 +70,6 @@ export namespace IAutoMovieMeasureSchedule {
      * True counts one cut; absent counts no cuts.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMeasureSchedule.IClassify.cut: True counts one cut; absent counts no cuts.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMeasureSchedule.IClassify.cut is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMeasureSchedule.IClassify.cut is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMeasureSchedule.IClassify.cut is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMeasureSchedule.IClassify.cut is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMeasureSchedule.IClassify.cut is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMeasureSchedule.IClassify.cut is used through packages/engine/src/composition/measureAutoMovieSchedule.ts.
      */
     cut?(entry: IAutoMovieScheduleEntry): boolean;
   }

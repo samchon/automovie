@@ -35,12 +35,6 @@ export namespace IAutoMovieMeasureRenderPopulation {
      * measureAutoMovieRenderInventory supplies model resolution; measureRenderPopulation calls it synchronously with model identity and diagnostic citation, and propagates failures.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents resolver inputs, synchronous failure and request-owned model lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature specifies the callback result and failure contract; the caller-supplied body owns the method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable member is an injected boundary with no implementation decomposition; the named caller and consumer own their respective bodies.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No executable branch or compensation is implemented by this signature; the supplied body must honor the documented result and failure semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy; callback cost belongs to the supplied implementation and is not bounded by the type.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration coordinates no calls or cache; the consuming operation owns invocation frequency and the supplied body owns any effect-safe reuse.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no handle or task; the callback owner must manage captured state and resources for the documented invocation lifetime.
      */
     model: (id: string, cited: string) => IAutoMovieModel;
     /** Mutable request-local model-cost cache populated by the shared measurer. */
@@ -55,12 +49,6 @@ export namespace IAutoMovieMeasureRenderPopulation {
      * The inventory caller owns owner/source metric accumulation; measureRenderPopulation invokes this synchronous sink and does not roll back prior sink effects on failure.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States metric units, omitted kind and nontransactional exception behavior.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The signature specifies the callback result and failure contract; the caller-supplied body owns the method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable member is an injected boundary with no implementation decomposition; the named caller and consumer own their respective bodies.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No executable branch or compensation is implemented by this signature; the supplied body must honor the documented result and failure semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy; callback cost belongs to the supplied implementation and is not bounded by the type.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration coordinates no calls or cache; the consuming operation owns invocation frequency and the supplied body owns any effect-safe reuse.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no handle or task; the callback owner must manage captured state and resources for the documented invocation lifetime.
      */
     add: (
       owner: string,

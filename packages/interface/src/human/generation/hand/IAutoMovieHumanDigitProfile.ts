@@ -24,12 +24,6 @@ export namespace IAutoMovieHumanDigitProfile {
      * The digit's own section at an arc length along the line: half width, palmar and dorsal depths.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The digit's own section at an arc length along the line: half width, palmar and dorsal depths.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanDigitProfile and the callback provider must satisfy the documented base contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanDigitProfile and its callback provider own the cost of each base invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanDigitProfile and the callback provider determine when the inputs to base describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanDigitProfile and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanDigitProfile.IInput.base callable contract, without an implementation body. AutoMovieHumanDigitProfile and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanDigitProfile.IInput.base declares only the invocation boundary; decomposition belongs to AutoMovieHumanDigitProfile and the callback provider.
      */
     base: (s: number) => [number, number, number];
 

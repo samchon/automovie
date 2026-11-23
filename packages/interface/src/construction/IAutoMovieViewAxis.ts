@@ -27,26 +27,14 @@ export namespace IAutoMovieViewAxis {
      * @param station Station along the part, mm.
      * @returns Origin on the axis and orthonormal chart axes, world mm.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Evaluates the actual source plane at the requested station.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One value callback supports both analytic and numerical source owners.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Values do not imply an available finite station jet.
      * @evidence contracts/development/common.md#meaningful-documentation States source-plane output and kernel station units.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only; its builder states actual query cost.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Calls share the axis's immutable preparation.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned vectors belong to the caller; the axis retains its prepared source.
      */
     at(station: number): IAutoMovieLoftSectionFrame;
 
     /**
      * Analytic value and two derivatives in station or the explicitly selected coordinate, whose endpoints use kernel mm; null at a singular/nonfinite query, absent on numerical frame-value owners.
      *
-     * @evidence contracts/development/implementation.md#principled-implementation Differentiates the same source law rather than resampled frame values.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure Optional support and nullable singular readings are distinct states.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No finite derivative is invented at a parameter pole.
      * @evidence contracts/development/common.md#meaningful-documentation States absence, singularity and derivative-coordinate meaning.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Signature only; the actual source chooses its analytic evaluation.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the immutable source used by at.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned jet vectors belong to the caller; the callback owns no separate cache.
      */
     jet?(
       station: number,

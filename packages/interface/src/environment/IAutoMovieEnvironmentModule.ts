@@ -43,12 +43,6 @@ export namespace IAutoMovieEnvironmentModule {
      * @throws If the referenced name is absent or the requested dependency creates a cycle.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the relative path, world frame and failure cases.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The interface only declares the resolver. The composer owns its resolution.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The interface has no implementation.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The interface has no implementation.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The composer owns the lookup cost.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The composer owns sharing during resolution.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature owns no state.
      */
     anchor(id: string): IAutoMovieTransform;
   }

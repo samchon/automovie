@@ -81,12 +81,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Apply complete edits to the fixed source and return fresh requested frames by name.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the edits, the optional demand and the fresh map.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the forward kinematics.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; the engine owns its changed-subtree work.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the overlay ends with its source operation.
      */
     resolveMap(
       edits: readonly IAutoMovieJointPose[],
@@ -97,12 +91,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Apply complete edits to the fixed source and return fresh requested frames parent-first.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the edits, the optional demand and the fresh list.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the forward kinematics.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; the engine owns its changed-subtree work.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the overlay ends with its source operation.
      */
     resolve(
       edits: readonly IAutoMovieJointPose[],
@@ -123,12 +111,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * The requested reachable bones parent-first, all of them when no names are given, as a fresh map of fresh frames.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the optional demand and the fresh map.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the composition.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm; the engine composes each demanded bone at most once.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the reading's holder releases it.
      */
     map(
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -138,12 +120,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * A bone's row in the reading (the rig's rooted parent-first order), or -1 for a bone the rig does not reach: the index the frame reads take.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States what the row is and the unreached case.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the rig's order.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing.
      */
     index(bone: AutoMovieHumanoidBone): number;
 
@@ -151,12 +127,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * The world position of the bone at a row, model metres, written into the caller's vector: the record `map` returns for it would hold the same numbers.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the row, the unit, the written target and the equivalence to the map's record.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the composition.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's target.
      */
     position(index: number, into: IAutoMovieVector3): IAutoMovieVector3;
 
@@ -164,12 +134,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * The world rotation of the bone at a row, written into the caller's quaternion.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the row, the written target and the equivalence to the map's record.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the composition.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Writes only the caller's target.
      */
     rotation(index: number, into: IAutoMovieQuaternion): IAutoMovieQuaternion;
 
@@ -177,12 +141,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * The bone at a row as a fresh record, for a caller that keeps it.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the row and the fresh record.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the composition.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the record.
      */
     bone(index: number): IAutoMovieResolvedBone;
   }
@@ -200,12 +158,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * The captured bones of a pose this rig already admitted (`IRig.read`), fresh, without admitting again; a reading of another rig or a copied one throws.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the reading's origin, the fresh map and the refusal.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the read.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing.
      */
     read(
       reading: IAutoMovieSkeletonPoseResolution.IReading,
@@ -215,12 +167,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Admit the current complete pose and return the captured bones as a fresh map.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the full admission, the optional lent operation and the fresh map.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the forward kinematics.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; dependency rows belong to the lent operation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing.
      */
     map(
       pose: IAutoMoviePose,
@@ -231,12 +177,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Admit the current complete pose and return the captured bones' fresh model-metre frames in capture order.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the full admission, the optional lent operation and the fresh list.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the forward kinematics.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; dependency rows belong to the lent operation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing.
      */
     resolve(
       pose: IAutoMoviePose,
@@ -257,12 +197,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Bind fixed output names, then stage each current tuple map before root construction.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the optional fixed names and the staged reader it returns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns staging and admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; each staged scan ends with its query.
      */
     prepareTuples(
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -275,12 +209,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * admitted as, since a joint record is not edited after admission.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the joint, the optional lent operation and the fresh rotation.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the conversion.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing.
      */
     joint(
       joint: IAutoMovieJointPose,
@@ -291,12 +219,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Admit and snapshot a fixed source pose, optionally binding names, for baseline-plus-edit queries.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the source, the optional names and lent operation and the overlay it returns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns admission and overlays.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; overlay rows end with the source operation.
      */
     preparePose(
       source: IAutoMoviePose,
@@ -308,12 +230,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Snapshot reachable requested names and their order once for repeated queries.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the requested names and the demand it returns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the snapshot.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the demand lives until its holder releases it.
      */
     prepareBones(
       requested: ReadonlySet<AutoMovieHumanoidBone>,
@@ -323,12 +239,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Admit a complete pose once and return it as a reading for every consumer of that pose's bones.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the pose, the optional lent operation and the reading it returns.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns admission.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the reading's holder releases it.
      */
     read(
       pose: IAutoMoviePose,
@@ -344,12 +254,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Admit the current pose in order and return fresh requested frames directly into a name map.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the pose, the optional lent operation and names and the fresh map.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the forward kinematics.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; dependency rows belong to the lent operation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the caller owns every returned value.
      */
     resolveMap(
       pose: IAutoMoviePose,
@@ -361,12 +265,6 @@ export namespace IAutoMovieSkeletonPoseResolution {
      * Admit the current pose in order and return fresh requested model-metre frames, all when names are absent.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the pose, the optional lent operation and names and the fresh list.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; `prepareSkeletonPoseResolution` owns the forward kinematics.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature fixes the call boundary only.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation occurs in this declaration.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache; dependency rows belong to the lent operation.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires nothing; the caller owns every returned value.
      */
     resolve(
       pose: IAutoMoviePose,

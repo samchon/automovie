@@ -17,12 +17,6 @@ export interface IAutoMovieMotionHumanBilliards {
    * @throws {RangeError} When a ball has no sphere shape, there is no pocket, or a ball is missing from the cache.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the method does, its parameters and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanBilliards.readPocketed is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanBilliards.readPocketed is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanBilliards.readPocketed is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanBilliards.readPocketed is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBilliards.readPocketed is provided by the runtime namespace that implements it.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBilliards.readPocketed is provided by the runtime namespace that implements it.
    */
   readPocketed(
     params: IAutoMovieMotionHumanBilliards.IReadPocketed,

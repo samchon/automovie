@@ -44,13 +44,7 @@ export interface IAutoMovieSubject<TDesign> {
    * derived from. The base class neither checks this nor caches or freezes the
    * result.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation An method returning the plain `TDesign` record, so a subject's tracked value is computed from its constructor inputs on demand and equal inputs give equal records, which is the determinism premise the frames rely on.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A method rather than a stored field, so a subclass derives the record from the members it already holds instead of keeping a second transcribed copy that could drift.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Has no base body to special-case anything; the byte-identity requirement is a stated subclass obligation, with no base-level freeze or cache masking a non-deterministic override.
    * @evidence contracts/development/common.md#meaningful-documentation States that the result is the record the builder reads, that every call must be byte-identical for the same constructor inputs, and that the base neither checks, caches nor freezes it.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Abstract with no body; the time to derive a design record is the overriding subclass's cost and is answered on that override.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The base memoizes no design record, because a cached record could be mutated by a caller; a subclass may cache when its record is immutable.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh record to the caller, who owns it; the base retains nothing between calls.
    */
   design(): TDesign;
 
@@ -63,13 +57,7 @@ export interface IAutoMovieSubject<TDesign> {
    * arrays are read by `mergeAutoMovieSubjectContributions`, which copies their
    * elements into new arrays rather than keeping the subject's arrays.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Returns only the contribution fields this subject owns, a partial record the shot merges, so a shot program is assembled by concatenation in subject order rather than by any subject knowing the whole shot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One context parameter carries every builder-owned runtime fact, so a subject reads model groups, world and formation runtimes from one place instead of taking each as its own argument.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Abstract here, so the base adds no fix-up to a subject's output; collisions between subjects pass through the merge to the builder's own uniqueness checks.
    * @evidence contracts/development/common.md#meaningful-documentation States which builder-owned facts the context supplies and that the merge copies the returned elements into new arrays rather than keeping the subject's arrays.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Abstract with no body; how a subject builds its contribution, and at what cost, is answered on each such as `AutoMovieSubjectGroup.render`.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The base shares no contribution between calls, since the context differs per shot; any per-shot reuse belongs to the overriding subject.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds nothing after returning; the caller owns the returned contribution and the merge keeps only element references, not the subject's arrays.
    */
   render(context: IAutoMovieShotBuildContext): IAutoMovieSubjectContribution;
 }

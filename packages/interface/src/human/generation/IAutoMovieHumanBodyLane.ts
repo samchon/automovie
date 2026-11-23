@@ -129,12 +129,6 @@ export namespace IAutoMovieHumanBodyLane {
      * Prepare just this actual digit original; other digits are not evaluated.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Prepare just this actual digit original; other digits are not evaluated.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanBodyLane and the callback provider must satisfy the documented digit contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanBodyLane and its callback provider own the cost of each digit invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanBodyLane and the callback provider determine when the inputs to digit describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanBodyLane and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanBodyLane.ISide.digit callable contract, without an implementation body. AutoMovieHumanBodyLane and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanBodyLane.ISide.digit declares only the invocation boundary; decomposition belongs to AutoMovieHumanBodyLane and the callback provider.
      */
     digit(name: string): IDigit | undefined;
 

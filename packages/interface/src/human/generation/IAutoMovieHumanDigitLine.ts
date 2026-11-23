@@ -56,12 +56,6 @@ export namespace IAutoMovieHumanDigitLine {
      * Point at an arc length, clamped to the line.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Point at an arc length, clamped to the line.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanDigitLine owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanDigitLine.ILine.at declares the invocation boundary only; AutoMovieHumanDigitLine and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanDigitLine.ILine.at must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanDigitLine.ILine.at owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanDigitLine and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanDigitLine producer or caller supplying the callback owns captured state and its lifetime.
      */
     at: (s: number) => AutoMovieVector3Tuple;
 
@@ -69,12 +63,6 @@ export namespace IAutoMovieHumanDigitLine {
      * Unit tangent at an arc length.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Unit tangent at an arc length.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanDigitLine owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanDigitLine.ILine.tangent declares the invocation boundary only; AutoMovieHumanDigitLine and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanDigitLine.ILine.tangent must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanDigitLine.ILine.tangent owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanDigitLine and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanDigitLine producer or caller supplying the callback owns captured state and its lifetime.
      */
     tangent: (s: number) => AutoMovieVector3Tuple;
   }

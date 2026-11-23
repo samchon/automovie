@@ -91,12 +91,6 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      * @returns The same posture with the holding arms' goals.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the input and the result.
-     * @evidence contracts/development/implementation.md#principled-implementation The key places the body and the holding hand; this turns the hand to level the load and lays the other hand on its handle.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One call per evaluated posture.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A one-handed load changes the holding hand's fingers only, stated on the namespace.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared member has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared member coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared member owns no state.
      */
     apply(
       posture: IAutoMovieMotionHumanPosture,
@@ -112,12 +106,6 @@ export namespace IAutoMovieMotionHumanWorkoutLoad {
      * @throws {HumanRefusal} When either arm cannot keep the support grip in its measured frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Names the authored phase and the supporting hand read in the fitted pose.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The method is declared here and implemented by WorkoutLoad.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The method is declared here and implemented by WorkoutLoad.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The method is declared here and implemented by WorkoutLoad.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The declaration selects no execution strategy.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The declaration owns no state.
      */
     admit?(posture: IAutoMovieMotionHumanPosture): void;
 

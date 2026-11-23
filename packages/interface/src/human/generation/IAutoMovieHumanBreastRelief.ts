@@ -31,12 +31,6 @@ export namespace IAutoMovieHumanBreastRelief {
      * The base's phase at a lateral place on the front at the bust point's height.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The base's phase at a lateral place on the front at the bust point's height.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanBreastRelief and the callback provider must satisfy the documented phaseOf contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanBreastRelief and its callback provider own the cost of each phaseOf invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanBreastRelief and the callback provider determine when the inputs to phaseOf describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanBreastRelief and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanBreastRelief.IInput.phaseOf callable contract, without an implementation body. AutoMovieHumanBreastRelief and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanBreastRelief.IInput.phaseOf declares only the invocation boundary; decomposition belongs to AutoMovieHumanBreastRelief and the callback provider.
      */
     phaseOf: (z: number) => number;
   }

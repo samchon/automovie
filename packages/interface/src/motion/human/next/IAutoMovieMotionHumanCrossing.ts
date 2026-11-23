@@ -17,12 +17,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
   stepOver(
     params: IAutoMovieMotionHumanStepOver.IParams,
@@ -37,12 +31,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
   vault(params: IAutoMovieMotionHumanVault.IParams, anchor?: string): Chain;
 
@@ -54,12 +42,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
   squatVault(
     params: IAutoMovieMotionHumanSquatVault.IParams,
@@ -74,12 +56,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanCrossing.crossObstacle is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanCrossing.crossObstacle is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanCrossing.crossObstacle is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanCrossing.crossObstacle is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrossing.crossObstacle is provided by the chain that implements IAutoMovieMotionHumanCrossing.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.crossObstacle is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
   crossObstacle(
     params: IAutoMovieMotionHumanCrossing.IParams,

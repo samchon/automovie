@@ -24,12 +24,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanJump.jump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanJump.jump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanJump.jump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanJump.jump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanJump.jump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.jump is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
   jump(params: IAutoMovieMotionHumanJump.IParams, anchor?: string): Chain;
 
@@ -41,12 +35,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanJump.horizontalJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanJump.horizontalJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanJump.horizontalJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanJump.horizontalJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanJump.horizontalJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.horizontalJump is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
   horizontalJump(
     params: IAutoMovieMotionHumanHorizontalJump.IParams,
@@ -61,12 +49,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanJump.highJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanJump.highJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanJump.highJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanJump.highJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanJump.highJump is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.highJump is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
   highJump(
     params: IAutoMovieMotionHumanHighJump.IParams,
@@ -81,12 +63,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanJump.poleVault is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanJump.poleVault is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanJump.poleVault is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanJump.poleVault is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanJump.poleVault is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.poleVault is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
   poleVault(
     params: IAutoMovieMotionHumanPoleVault.IParams,
@@ -101,12 +77,6 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanJump.hurdleClear is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanJump.hurdleClear is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanJump.hurdleClear is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanJump.hurdleClear is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanJump.hurdleClear is provided by the chain that implements IAutoMovieMotionHumanJump.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.hurdleClear is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
   hurdleClear(
     params: IAutoMovieMotionHumanHurdleClear.IParams,

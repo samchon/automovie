@@ -22,13 +22,7 @@ export interface IAutoMoviePchipField64 {
   /**
    * Evaluate every component or its first/second derivative, selecting the right interval at an interior knot. False/0 reads values, true/1 reads first derivatives, and 2 reads second derivatives, in component units per coordinate unit squared. Values outside the coordinate range extrapolate the nearest interval; the caller owns a narrower supported domain when needed. Nonfinite queries or generated results throw. Endpoint derivative queries keep the existing Horner arithmetic and may differ from an authored slope by rounding.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation The same retained local power coefficients produce values and their analytic first or second derivatives through Horner arithmetic; no independently fitted derivative field is introduced.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One interval selection serves every component and both query kinds.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Extrapolation is explicit polynomial continuation, without hidden end clamps or spatial renormalization.
    * @evidence contracts/development/common.md#meaningful-documentation States backward-compatible boolean queries, explicit derivative orders, right-interval knot selection, extrapolation, units and endpoint rounding.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear station search plus O(D) component evaluation, with no slope resolution in the query path.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Queries share the constructor's coefficients, including when consumers query derivatives at the same station repeatedly.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the returned component array is allocated; no query coordinate or result is retained by the field.
    */
   at(value: number, derivative?: boolean | 0 | 1 | 2): number[];
 }

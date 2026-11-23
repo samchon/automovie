@@ -55,12 +55,6 @@ export namespace IAutoMovieProjectileFirstContact {
      * Errors propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the world inputs, flight clock, signed scalar, fallback and failure behavior.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The collider producer implements the shape calculation under the documented equality contract.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This callable signature leaves computation structure to the collider producer.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer implements and establishes exact equality with its nearest reader.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The collider producer's geometry determines the work.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature implements no sharing. The collider producer owns any shared computation between its readers.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This signature acquires no resources. The collider producer owns any state captured by its reader.
      */
     distance?(
       a: IAutoMovieVector3,
@@ -71,12 +65,6 @@ export namespace IAutoMovieProjectileFirstContact {
     /** Optional synchronous certificate for an explicitly resolved initial contact, on the supplied flight clock. Return undefined when the model cannot prove departure; shared resolver validation may throw. No callback is retained after the search.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Specifies the departure callback or sampling contract, including its clock and ownership obligations.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
      */
     departure?(
       projectile: IAutoMovieProjectile,
@@ -87,12 +75,6 @@ export namespace IAutoMovieProjectileFirstContact {
     /** Synchronously measure the world centre segment from a to b at launch-relative seconds, using a point when endpoints coincide. Return signed separation in metres and a world surface point/outward unit normal. Errors propagate; hit vectors may borrow this result.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Specifies the nearest callback or sampling contract, including its clock and ownership obligations.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This is a callable contract with no implementation body; its producer owns algorithmic work and resource retention under the documented sampling and lifetime obligations.
      */
     nearest(
       a: IAutoMovieVector3,
@@ -168,12 +150,6 @@ export namespace IAutoMovieProjectileFirstContact {
      * ordinary scalar/nearest queries and the clearance witness use this pose.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Gives the launch clock, world rigid frame and common consumers.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The producer owns the continuous pose calculation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature has no executable body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The producer establishes that the actual path agrees with its bound.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Pose reading cost belongs to the producer.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature contains no work to share.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The caller owns the returned pose and any state.
      */
     at(seconds: number): IAutoMovieRigidTransform;
 
@@ -184,12 +160,6 @@ export namespace IAutoMovieProjectileFirstContact {
      * RangeError and callback errors propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the requested seconds, optional prefix, opt-in pair and refusal.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation The producer proves the motion's continuous bounds.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature has no executable body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The bound covers every instant of its interval and carries no caller-selected clearance time.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Bound construction cost belongs to the producer.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature contains no work to share.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The producer owns any state retained by the reader.
      */
     bound(from: number, to: number): IMotionBound | undefined;
   }

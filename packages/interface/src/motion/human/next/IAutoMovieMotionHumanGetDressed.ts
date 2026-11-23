@@ -26,12 +26,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGetDressed.bindPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGetDressed.bindPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGetDressed.bindPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGetDressed.bindPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.bindPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.bindPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
   bindPartner(params: IAutoMovieMotionHumanBindPartner, anchor?: string): Chain;
 
@@ -43,12 +37,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGetDressed.dressPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGetDressed.dressPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGetDressed.dressPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGetDressed.dressPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.dressPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.dressPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
   dressPartner(
     params: IAutoMovieMotionHumanDressPartner,
@@ -63,12 +51,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGetDressed.coatPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGetDressed.coatPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGetDressed.coatPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGetDressed.coatPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.coatPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.coatPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
   coatPartner(params: IAutoMovieMotionHumanCoatPartner, anchor?: string): Chain;
 
@@ -80,12 +62,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGetDressed.slipRing is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGetDressed.slipRing is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGetDressed.slipRing is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGetDressed.slipRing is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.slipRing is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.slipRing is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
   slipRing(params: IAutoMovieMotionHumanSlipRing, anchor?: string): Chain;
 
@@ -97,12 +73,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGetDressed.presentHand is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGetDressed.presentHand is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGetDressed.presentHand is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGetDressed.presentHand is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.presentHand is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.presentHand is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
   presentHand(params: IAutoMovieMotionHumanPresentHand, anchor?: string): Chain;
 
@@ -114,12 +84,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @returns The chain with the action appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the action does, its parameters, its anchor and its return.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGetDressed.placeOverHead is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGetDressed.placeOverHead is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGetDressed.placeOverHead is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGetDressed.placeOverHead is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.placeOverHead is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.placeOverHead is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
   placeOverHead(
     params: IAutoMovieMotionHumanPlaceOverHead,
@@ -135,12 +99,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @returns The same kind of chain with one touch appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States whose tie, the gesture, the chosen hand and the cue.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGetDressed.straightenPartnerTie is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGetDressed.straightenPartnerTie is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGetDressed.straightenPartnerTie is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGetDressed.straightenPartnerTie is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.straightenPartnerTie is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.straightenPartnerTie is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
   straightenPartnerTie(
     chain: Chain,
@@ -157,12 +115,6 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @returns The same kind of chain with one touch appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States which wrist is presented, which hand reaches and what the cue identifies.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanGetDressed.adjustCuff is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanGetDressed.adjustCuff is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanGetDressed.adjustCuff is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanGetDressed.adjustCuff is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.adjustCuff is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.adjustCuff is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
   adjustCuff(
     chain: Chain,

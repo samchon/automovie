@@ -31,12 +31,6 @@ export namespace IAutoMovieCreateDynamicActorJabClip {
      * Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieCreateDynamicActorJabClip.IProps.poseAt: Resolve an admitted clinical pose at local seconds; null refuses the complete bake and thrown errors propagate.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieCreateDynamicActorJabClip.IProps.poseAt is used through packages/engine/src/perform/createDynamicActorJabClip.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieCreateDynamicActorJabClip.IProps.poseAt is used through packages/engine/src/perform/createDynamicActorJabClip.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieCreateDynamicActorJabClip.IProps.poseAt is used through packages/engine/src/perform/createDynamicActorJabClip.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieCreateDynamicActorJabClip.IProps.poseAt is used through packages/engine/src/perform/createDynamicActorJabClip.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieCreateDynamicActorJabClip.IProps.poseAt is used through packages/engine/src/perform/createDynamicActorJabClip.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieCreateDynamicActorJabClip.IProps.poseAt is used through packages/engine/src/perform/createDynamicActorJabClip.ts.
      */
     poseAt: (time: number) => IAutoMoviePose | null;
   };

@@ -33,12 +33,6 @@ export namespace IAutoMovieHumanGlutealParent {
      * Admitted source-native AP intervals, or the explicit unavailable premise.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Admitted source-native AP intervals, or the explicit unavailable premise.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This chord signature specifies the documented callback contract without an implementation body; AutoMovieHumanGlutealParent and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes chord at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanGlutealParent.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual chord provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanGlutealParent determines the work per chord call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanGlutealParent's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the chord provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     chord(y: number, z: number): IChord[] | string;
   }

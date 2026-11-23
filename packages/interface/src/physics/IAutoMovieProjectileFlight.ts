@@ -25,12 +25,6 @@ export interface IAutoMovieProjectileFlight {
    * @returns Actual adjacent knot times with fresh endpoint states.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Nonfinite seconds throw RangeError; finite negative values select the first interval. Sampling grows the reader's retained integration chunks through the requested time and returns fresh endpoint states. Keep the source projectile unchanged while this identity-cached reader is used.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; projectileDragFlight owns the numerical method and its runtime premises.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; projectileDragFlight owns its implementation decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in projectileDragFlight.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; projectileDragFlight owns cost for the supported workload.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; projectileDragFlight owns reuse and invalidation of any retained work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; projectileDragFlight and the documented reader/caller lifetime own retained data and release.
    */
   interval(seconds: number): IAutoMovieProjectileDragInterval;
 
@@ -43,12 +37,6 @@ export interface IAutoMovieProjectileFlight {
    * @returns Position and velocity.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Nonfinite launch-relative seconds throw RangeError; finite negatives return launch state. The reader retains integrated chunks for later reads and returns fresh world-metre position and m/s velocity. Keep the source projectile unchanged; releasing it and this reader permits their cached data to be collected.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This is a callable signature without a body; projectileDragFlight owns the numerical method and its runtime premises.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The signature only defines the call boundary; projectileDragFlight owns its implementation decomposition.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or compensation occurs in this declaration; review special cases in projectileDragFlight.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; projectileDragFlight owns cost for the supported workload.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The declaration creates no cache or coordinator; projectileDragFlight owns reuse and invalidation of any retained work.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callable type acquires no resources; projectileDragFlight and the documented reader/caller lifetime own retained data and release.
    */
   at(seconds: number): IAutoMovieProjectileState;
 }

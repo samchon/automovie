@@ -206,12 +206,6 @@ export namespace IAutoMovieSpeedProfile {
      * The state at a film second: at rest at the path's start before `start`, at the start speed at `start`, and the end state after `end`.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSpeedProfile.IProfile.at: The state at a film second: at rest at the path's start before `start`, at the start speed at `start`, and the end state after `end`.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieSpeedProfile.IProfile.at is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieSpeedProfile.IProfile.at is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieSpeedProfile.IProfile.at is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieSpeedProfile.IProfile.at is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieSpeedProfile.IProfile.at is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieSpeedProfile.IProfile.at is used through packages/engine/src/motion/speedProfile.ts.
      */
     at: (seconds: number) => IAutoMovieSpeedProfile.IState;
 
@@ -221,12 +215,6 @@ export namespace IAutoMovieSpeedProfile {
      * including a trailing hold at length; an empty profile returns start.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieSpeedProfile.IProfile.when: The film second a distance is first reached, after clamping distance to [0, length]. A held distance is reached at the beginning of the hold, including a trailing hold at length; an empty profile returns start.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieSpeedProfile.IProfile.when is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieSpeedProfile.IProfile.when is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieSpeedProfile.IProfile.when is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieSpeedProfile.IProfile.when is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieSpeedProfile.IProfile.when is used through packages/engine/src/motion/speedProfile.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieSpeedProfile.IProfile.when is used through packages/engine/src/motion/speedProfile.ts.
      */
     when: (distance: number) => number;
   }

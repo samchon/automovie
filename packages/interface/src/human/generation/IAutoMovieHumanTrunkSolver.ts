@@ -39,12 +39,6 @@ export namespace IAutoMovieHumanTrunkSolver {
      * Explicit legacy raw supplier; original solving and metadata never call it.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Explicit legacy raw supplier; original solving and metadata never call it.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no body; the Human producer or supplied callback used by AutoMovieHumanTrunkSolver owns the numerical method described above.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanTrunkSolver.IFixed.rawNeck declares the invocation boundary only; AutoMovieHumanTrunkSolver and its callback provider own the implementation decomposition.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or substitutions execute in this signature; the Human implementation supplying IAutoMovieHumanTrunkSolver.IFixed.rawNeck must justify them.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature selects no algorithm or allocation strategy; the implementation supplying IAutoMovieHumanTrunkSolver.IFixed.rawNeck owns its time and space costs.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no work coordination; AutoMovieHumanTrunkSolver and the callback's provider own sharing under the stated input and result contract.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the AutoMovieHumanTrunkSolver producer or caller supplying the callback owns captured state and its lifetime.
      */
     rawNeck?: () => IAutoMovieLoftChain;
 

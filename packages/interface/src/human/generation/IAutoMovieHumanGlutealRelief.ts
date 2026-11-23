@@ -29,12 +29,6 @@ export namespace IAutoMovieHumanGlutealRelief {
      * The base's phase at a lateral place on the back at the buttock point's height.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The base's phase at a lateral place on the back at the buttock point's height.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This phaseOf signature specifies the documented callback contract without an implementation body; AutoMovieHumanGlutealRelief and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes phaseOf at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanGlutealRelief.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual phaseOf provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanGlutealRelief determines the work per phaseOf call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanGlutealRelief's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the phaseOf provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     phaseOf: (z: number) => number;
   }

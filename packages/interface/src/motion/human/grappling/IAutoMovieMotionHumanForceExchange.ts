@@ -59,12 +59,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
      * The centre's angle from the vertical through the fulcrum at a second since the break, radians.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceExchange.ISwing.angle: The centre's angle from the vertical through the fulcrum at a second since the break, radians.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanForceExchange.ISwing.angle is used through packages/motions/src/grappling/HumanForceExchange.ts.
      */
     angle(seconds: number): number;
 
@@ -72,12 +66,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
      * The angular rate at a second since the break, radians per second.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Documents IAutoMovieMotionHumanForceExchange.ISwing.rate: The angular rate at a second since the break, radians per second.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanForceExchange.ISwing.rate is used through packages/motions/src/grappling/HumanForceExchange.ts.
      */
     rate(seconds: number): number;
 
@@ -88,12 +76,6 @@ export namespace IAutoMovieMotionHumanForceExchange {
      * @returns A fresh angle and rate record, held at release afterward.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the argument, units, release clamp and fresh result.
-     * @evidence contracts/development/implementation.md#principled-implementation Reads the same integrated state as angle and rate once for consumers needing both.
-     * @evidence contracts/development/implementation.md#clear-and-simple-structure One trajectory reading and two scalar fields.
-     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Does not expose or retain the trajectory's state array.
-     * @evidence contracts/development/implementation.md#efficient-algorithms swing selects one span by index and reads its trajectory once for both scalar components, replacing the two separate release reads in HumanForceThrow.
-     * @evidence contracts/development/implementation.md#reuse-equivalent-work The angle and rate share one actual state at the same clamped second of this swing's fixed physical trajectory; no reading is shared across calls or swings.
-     * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan owns the captured trajectories; each call returns a fresh scalar record without exposing state arrays or adding query history.
      */
     sample?(seconds: number): { angle: number; rate: number };
   }

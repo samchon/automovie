@@ -20,12 +20,6 @@ export interface IAutoMovieMotionHumanSearch<Chain> {
    * @returns The chain with the search appended.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the order, the lift out of the bag and the hand.
-   * @evidenceExclude contracts/development/implementation.md#principled-implementation This callable contract has no algorithm body; the provider supplies the method and its premises; IAutoMovieMotionHumanSearch.searchBag is provided by the chain that implements IAutoMovieMotionHumanSearch.
-   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure This signature fixes the call boundary only; provider decomposition belongs to the implementation; IAutoMovieMotionHumanSearch.searchBag is provided by the chain that implements IAutoMovieMotionHumanSearch.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no handles or retained state; the callable provider and its caller own lifetime and release; IAutoMovieMotionHumanSearch.searchBag is provided by the chain that implements IAutoMovieMotionHumanSearch.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration selects no execution strategy; the provider owns traversal and allocation costs; IAutoMovieMotionHumanSearch.searchBag is provided by the chain that implements IAutoMovieMotionHumanSearch.
-   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSearch.searchBag is provided by the chain that implements IAutoMovieMotionHumanSearch.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSearch.searchBag is provided by the chain that implements IAutoMovieMotionHumanSearch.
    */
   searchBag(
     chain: Chain,

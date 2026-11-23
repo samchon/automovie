@@ -39,12 +39,6 @@ export namespace IAutoMovieConstructionPortCurve {
      * The curve's chart point at a clock with its first and second clock derivatives.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the three results and their units.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `curve` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     at: (psi: number) => { point: [number, number]; first: [number, number]; second: [number, number] };
 
@@ -52,12 +46,6 @@ export namespace IAutoMovieConstructionPortCurve {
      * The band's inward chart direction at a clock, `(-a cos c, -sense b sin c)`, with its first and second clock derivatives.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the direction and its derivatives.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `curve` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     direction: (psi: number) => { d: [number, number]; first: [number, number]; second: [number, number] };
 
@@ -65,12 +53,6 @@ export namespace IAutoMovieConstructionPortCurve {
      * The clock of a chart point's foot on the curve along the ray from the centre, in `[0, 2 pi)`: the correspondence across the seam.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the foot and the range.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `curve` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     clock: (u: number, v: number) => number;
 
@@ -78,12 +60,6 @@ export namespace IAutoMovieConstructionPortCurve {
      * Whether a chart point lies strictly inside the curve, on the side the host removes.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the strict inequality.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation A declared callback slot; `curve` is its implementation.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A declared callback slot has no body.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A declared callback slot coordinates no work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A declared callback slot retains nothing.
      */
     inside: (u: number, v: number) => boolean;
   }

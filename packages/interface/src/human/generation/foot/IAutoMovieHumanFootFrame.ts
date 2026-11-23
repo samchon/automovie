@@ -55,12 +55,6 @@ export namespace IAutoMovieHumanFootFrame {
      * World point of normalised foot coordinates `[a, u, y mm]`, left frame.
      *
      * @evidence contracts/development/common.md#meaningful-documentation World point of normalised foot coordinates `[a, u, y mm]`, left frame.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanFootFrame and the callback provider must satisfy the documented at contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanFootFrame and its callback provider own the cost of each at invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanFootFrame and the callback provider determine when the inputs to at describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanFootFrame and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanFootFrame.IFrame.at callable contract, without an implementation body. AutoMovieHumanFootFrame and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanFootFrame.IFrame.at declares only the invocation boundary; decomposition belongs to AutoMovieHumanFootFrame and the callback provider.
      */
     at: (a: number, u: number, y: number) => AutoMovieVector3Tuple;
 

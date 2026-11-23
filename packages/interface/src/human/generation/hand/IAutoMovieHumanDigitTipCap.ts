@@ -22,12 +22,6 @@ export namespace IAutoMovieHumanDigitTipCap {
      * The section's mean radius `sqrt(width * depth)` at an arc length along the line, mm.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The section's mean radius `sqrt(width * depth)` at an arc length along the line, mm.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanDigitTipCap and the callback provider must satisfy the documented radius contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanDigitTipCap and its callback provider own the cost of each radius invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanDigitTipCap and the callback provider determine when the inputs to radius describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanDigitTipCap and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanDigitTipCap.IInput.radius callable contract, without an implementation body. AutoMovieHumanDigitTipCap and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanDigitTipCap.IInput.radius declares only the invocation boundary; decomposition belongs to AutoMovieHumanDigitTipCap and the callback provider.
      */
     radius: (s: number) => number;
 

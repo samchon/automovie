@@ -52,12 +52,6 @@ export namespace IAutoMovieHumanMouthConstruction {
      * Height of the lips' contact line at a share of the half width from the midline.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Height of the lips' contact line at a share of the half width from the midline.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanMouth and the callback provider must satisfy the documented contact contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanMouth and its callback provider own the cost of each contact invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanMouth and the callback provider determine when the inputs to contact describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanMouth and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanMouthConstruction.IInputs.contact callable contract, without an implementation body. AutoMovieHumanMouth and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanMouthConstruction.IInputs.contact declares only the invocation boundary; decomposition belongs to AutoMovieHumanMouth and the callback provider.
      */
     contact(u: number): number;
 
@@ -65,12 +59,6 @@ export namespace IAutoMovieHumanMouthConstruction {
      * Forward coordinate of the skin at a height and a lateral place.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Forward coordinate of the skin at a height and a lateral place.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanMouth and the callback provider must satisfy the documented front contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanMouth and its callback provider own the cost of each front invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanMouth and the callback provider determine when the inputs to front describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanMouth and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanMouthConstruction.IInputs.front callable contract, without an implementation body. AutoMovieHumanMouth and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanMouthConstruction.IInputs.front declares only the invocation boundary; decomposition belongs to AutoMovieHumanMouth and the callback provider.
      */
     front(y: number, z: number): number;
   }

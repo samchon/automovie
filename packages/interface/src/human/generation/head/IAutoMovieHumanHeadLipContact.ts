@@ -78,24 +78,12 @@ export namespace IAutoMovieHumanHeadLipContact {
      * Forward resting point at world lateral mm.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Forward resting point at world lateral mm.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This at signature specifies the documented callback contract without an implementation body; AutoMovieHumanHeadLipContact and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes at at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanHeadLipContact.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual at provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanHeadLipContact determines the work per at call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanHeadLipContact's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the at provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     at(lateral: number): IReading;
     /**
      * Actual signed border at Euclidean height mm; heightJet uses physical lateral mm.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Actual signed border at Euclidean height mm; heightJet uses physical lateral mm.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This section signature specifies the documented callback contract without an implementation body; AutoMovieHumanHeadLipContact and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes section at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanHeadLipContact.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual section provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanHeadLipContact determines the work per section call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanHeadLipContact's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the section provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     section(
       lateral: number,

@@ -50,12 +50,6 @@ export namespace IAutoMovieHumanSiteControls {
      * Explicit native scalar preparation, shared by contact consumers; its physical2 refusal stays observable.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Explicit native scalar preparation, shared by contact consumers; its physical2 refusal stays observable.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This field signature specifies the documented callback contract without an implementation body; AutoMovieHumanSiteControls and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes field at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanSiteControls.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual field provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanSiteControls determines the work per field call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanSiteControls's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the field provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     field(): IAutoMovieLoftViewSource.ISource;
   }

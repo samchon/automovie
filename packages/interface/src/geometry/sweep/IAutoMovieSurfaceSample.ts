@@ -21,13 +21,7 @@ export interface IAutoMovieSurfaceSample {
    *
    * @returns A writer taking a borrowed Float64Array and scalar offset, writing three model-space metre coordinates after bones, sweeps and curves update; the writer retains bound rig state and propagates its failures
    *
-   * @evidence contracts/development/implementation.md#principled-implementation registerAutoMovieSurfaceVertices invokes this factory only when point is null and the key has no vertex; resolved sweep-domain samples use a separate finalized-cell writer.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure A factory, so repeated samplings register nothing twice.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Called only for new vertices.
    * @evidence contracts/development/common.md#meaningful-documentation Defines factory timing, current-pose ordering, borrowed output, scalar offset and propagated writer failures.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Registry invocation creates one bound writer per new nonsweep vertex; curve writers perform the curve transport's segment lookup when evaluated.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature; reuse is answered on `rigAutoMovieSurfaceNetwork`.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature; retention is answered on `rigAutoMovieSurfaceNetwork`.
    */
   writer(): (out: Float64Array, at: number) => void;
 

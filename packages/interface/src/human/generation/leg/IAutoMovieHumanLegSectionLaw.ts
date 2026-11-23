@@ -47,12 +47,6 @@ export namespace IAutoMovieHumanLegSectionLaw {
      * The girth law, mm.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The girth law, mm.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanLegSectionLaw and the callback provider must satisfy the documented girth contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanLegSectionLaw and its callback provider own the cost of each girth invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanLegSectionLaw and the callback provider determine when the inputs to girth describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanLegSectionLaw and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanLegSectionLaw.ILaw.girth callable contract, without an implementation body. AutoMovieHumanLegSectionLaw and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSectionLaw.ILaw.girth declares only the invocation boundary; decomposition belongs to AutoMovieHumanLegSectionLaw and the callback provider.
      */
     girth: (s: number) => number;
 
@@ -60,12 +54,6 @@ export namespace IAutoMovieHumanLegSectionLaw {
      * The tube.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The tube.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or compensations execute in this signature. AutoMovieHumanLegSectionLaw and the callback provider must satisfy the documented tube contract.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no algorithm or storage strategy; AutoMovieHumanLegSectionLaw and its callback provider own the cost of each tube invocation.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This declaration performs no requests or caching. AutoMovieHumanLegSectionLaw and the callback provider determine when the inputs to tube describe equivalent work.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources. AutoMovieHumanLegSectionLaw and the callback provider own any captured source data and the callable's lifetime.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This is the IAutoMovieHumanLegSectionLaw.ILaw.tube callable contract, without an implementation body. AutoMovieHumanLegSectionLaw and its supplied callbacks own the numerical method and admission of the documented arguments.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure IAutoMovieHumanLegSectionLaw.ILaw.tube declares only the invocation boundary; decomposition belongs to AutoMovieHumanLegSectionLaw and the callback provider.
      */
     tube: (s: number) => IAutoMovieHumanLegTube.ISection;
 

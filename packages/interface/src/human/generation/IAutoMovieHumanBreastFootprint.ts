@@ -33,12 +33,6 @@ export namespace IAutoMovieHumanBreastFootprint {
      * @returns The radius, 1 at the rim.
      *
      * @evidence contracts/development/common.md#meaningful-documentation The normalised radius of a point of the breast's plane.
-     * @evidenceExclude contracts/development/implementation.md#principled-implementation This rho signature specifies the documented callback contract without an implementation body; AutoMovieHumanBreastFootprint and its supplied callbacks own the numerical method and its premises.
-     * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The callable member exposes rho at the containing contract boundary; decomposition of its implementation remains with AutoMovieHumanBreastFootprint.
-     * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No constants, branches or fallback computation occur in this signature; the actual rho provider is responsible for satisfying the documented semantics.
-     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This signature chooses no algorithm or allocation strategy; the runtime callback used or returned by AutoMovieHumanBreastFootprint determines the work per rho call.
-     * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The type itself coordinates no calls or caches; AutoMovieHumanBreastFootprint's runtime provider owns reuse and must preserve the documented source identity and effects.
-     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This declaration acquires no state or resources; the rho provider and the caller retaining its containing record own the callback and its captured dependencies.
      */
     rho: (u: number, v: number) => number;
   }
