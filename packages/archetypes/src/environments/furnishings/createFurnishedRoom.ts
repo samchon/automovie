@@ -53,6 +53,7 @@ export function createFurnishedRoom(
     });
 }
 
+/** The furnished room's parameters. */
 export namespace createFurnishedRoom {
   /** The room layout and its ordered pieces. */
   export interface IParams extends IAutoMovieFurnishingLayout {

@@ -297,6 +297,10 @@ function reserve(
   }
 }
 
+/**
+ * The related pieces the resolver places, the room it places them in and what
+ * it returns.
+ */
 export namespace resolveFurnishingPieces {
   /** One related piece with its measured rest box. */
   export interface IPiece {

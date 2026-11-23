@@ -182,8 +182,8 @@ export function furnishRoom(
   const mounts: IAutoMovieWallMount[] = [];
   const uses: Map<IAutoMovieModel, IAutoMovieEnvironmentModule> = new Map();
   for (const role of [...related.placed.keys(), ...gridRoles.keys()]) {
-    const p: FurnishingRect.IPlacement =
-      related.placed.get(role) ?? placed.get(role)!;
+    const p: FurnishingRect.IPlacement = (related.placed.get(role) ??
+      placed.get(role))!;
     const frame: IAutoMovieTransform = AutoMovieArchetypeFrame.move(
       context.frame,
       {
@@ -348,6 +348,10 @@ function capacityError(
   );
 }
 
+/**
+ * The planner's default aisle, its item, grid and parameter records, and its
+ * rest-box measure.
+ */
 export namespace furnishRoom {
   /**
    * The 915 mm walking width in U.S. Access Board §403.5.1

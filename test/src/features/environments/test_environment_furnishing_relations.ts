@@ -54,9 +54,9 @@ interface IBox {
  *    face at z = -1.6, a chest `after` it with gap 0.05 starts 0.05 m past its
  *    box, and a coffee table `facing` it at distance 0.45 leaves 0.45 m of
  *    clear floor between the two front faces.
- * 2. Reseeding the sofa so that its drawn width changes moves the chest by the
- *    width difference, still 0.05 m away, and keeps the coffee table centred on
- *    the sofa's box.
+ * 2. A three-place sofa in place of a two-place one widens the drawn sofa, moves
+ *    the chest by the width difference, still 0.05 m away, and keeps the coffee
+ *    table centred on the sofa's box.
  * 3. A chest on each wall faces into the room at the table's heading, and a second
  *    chest `after` it lies further along the table's run direction.
  * 4. A wall mirror on wall `+x` with no elevation keeps its producer's underside
@@ -72,7 +72,7 @@ interface IBox {
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds rooms through the public `createFurnishedRoom` in `createEnvironment` and reads the staged frames, which catches a wall face off the wall, a run or heading in the wrong direction, an `after` or `facing` that ignores the measured box, a hung piece dropped to the floor, a clearance not reserved and a refusal without its role.
  * @evidence contracts/development/testing.md#independent-expectations Every expected face, gap and height is computed from the room dimensions, the authored offsets and the producers' own rest boxes measured through the engine's `computeModelRestExtent` and turned by the staged rotation; the headings and run directions are the issue's table.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs two sofa seeds, an accepted and a refused chest gap on either side of the 0.76 m clearance, all four walls and four distinct refusals; `test_environment_furnishing` keeps the cafe and gym cases.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs a two-place and a three-place sofa, an accepted and a refused chest gap on either side of the 0.76 m clearance, all four walls and four distinct refusals; `test_environment_furnishing` keeps the cafe and gym cases.
  * @evidence contracts/development/testing.md#execution-ownership A CPU-only feature scenario over in-memory rooms; it starts no renderer or host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
  */
@@ -164,7 +164,10 @@ export function test_environment_furnishing_relations(): void {
       },
     });
   const sofaA: IAutoMovieModel = createSeat({ kind: "sofa" }, "sofa-a");
-  const sofaB: IAutoMovieModel = createSeat({ kind: "sofa" }, "sofa-b");
+  const sofaB: IAutoMovieModel = createSeat(
+    { kind: "sofa", places: 3 },
+    "sofa-b",
+  );
   const widthOf = (model: IAutoMovieModel): number => {
     const rest: IAutoMoviePropBox = computeModelRestExtent(model)!;
     return rest.max.x - rest.min.x;
@@ -276,7 +279,7 @@ export function test_environment_furnishing_relations(): void {
         vclose(forward(first, "coffee"), { x: 0, y: 0, z: -1 }),
     ],
     [
-      "the reseeded sofa changes its drawn width",
+      "the three-place sofa is drawn wider",
       (): boolean => Math.abs(widthOf(sofaA) - widthOf(sofaB)) > 1e-3,
     ],
     [
@@ -452,6 +455,6 @@ export function test_environment_furnishing_relations(): void {
       .map(([name]: [string, boolean]): string => name)
       .join("; ")}`,
     Object.values(facts).every((ok: boolean): boolean => ok) &&
-      Object.keys(facts).length === 14,
+      Object.keys(facts).length === 15,
   );
 }

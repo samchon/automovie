@@ -98,6 +98,7 @@ export function createKitchenKit(
   };
 }
 
+/** The kitchen kit's parameters. */
 export namespace createKitchenKit {
   /** The room layout and the number of cooks the work aisle serves. */
   export interface IParams extends IAutoMovieFurnishingLayout {

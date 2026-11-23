@@ -77,8 +77,11 @@ export function test_environment_support_report(): void {
     at: { x: -10, y: 0, z: -10 },
     use: createTerrain({ size: [20, 20] }),
   });
-  const cup = (declared: boolean): IAutoMovieEnvironmentItem => ({
-    at: { anchor: "cafe/table-1/stack" },
+  const cup = (
+    declared: boolean,
+    table: "table-1" | "table-2",
+  ): IAutoMovieEnvironmentItem => ({
+    at: { anchor: `cafe/${table}/stack` },
     use: createEnvironmentProp({
       model: createDrinkware({ kind: "cup" }),
       ...(declared
@@ -89,7 +92,7 @@ export function test_environment_support_report(): void {
                   kind: "on-support",
                   target: {
                     kind: "prop-affordance",
-                    prop: "set/cafe/table-1",
+                    prop: `set/cafe/${table}`,
                     affordance: "stack",
                   },
                 },
@@ -130,11 +133,8 @@ export function test_environment_support_report(): void {
         at: { anchor: "land/amenities/cafe" },
         use: createCafeKit({ room: [10, 8], tables: 2 }),
       },
-      cupLoose: cup(false),
-      cupDeclared: {
-        ...cup(true),
-        at: { anchor: "cafe/table-2/stack" },
-      },
+      cupLoose: cup(false, "table-1"),
+      cupDeclared: cup(true, "table-2"),
       floatingCrate: {
         at: { x: 14, y: 0.8, z: -6 },
         use: createEnvironmentProp({ model: crate }),

@@ -106,6 +106,7 @@ export function createBedroomKit(
   };
 }
 
+/** The bedroom kit's parameters and its default wardrobe-to-chest gap. */
 export namespace createBedroomKit {
   /**
    * The default gap in metres between the wardrobe and the chest: an authored

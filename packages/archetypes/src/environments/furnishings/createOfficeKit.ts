@@ -107,6 +107,7 @@ export function createOfficeKit(
   };
 }
 
+/** The office kit's parameters. */
 export namespace createOfficeKit {
   /** The room layout and the positive integer count of desks. */
   export interface IParams extends IAutoMovieFurnishingLayout {

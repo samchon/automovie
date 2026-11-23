@@ -118,6 +118,7 @@ export function createLivingRoomKit(
   };
 }
 
+/** The living-room kit's parameters and its default sofa-to-table gap. */
 export namespace createLivingRoomKit {
   /**
    * The default clear floor in metres between the sofa's and the coffee table's

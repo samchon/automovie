@@ -266,11 +266,12 @@ export function test_environment_room_kits(): void {
     [
       "reseeding changes the sofa and the coffee table follows it at tableGap",
       (): boolean => {
-        const sofaWidth: (environment: IAutoMovieEnvironment) => number = (
+        // A sofa place has one fixed width, so a seed changes its depth.
+        const sofaDepth: (environment: IAutoMovieEnvironment) => number = (
           environment: IAutoMovieEnvironment,
         ): number => {
           const rest: IAutoMoviePropBox = restOf(environment, "sofa");
-          return rest.max.x - rest.min.x;
+          return rest.max.z - rest.min.z;
         };
         const follows: (gap: number | undefined) => boolean = (
           gap: number | undefined,
@@ -295,8 +296,8 @@ export function test_environment_room_kits(): void {
           });
         return (
           Math.abs(
-            sofaWidth(living) -
-              sofaWidth(build(createLivingRoomKit({ room: LIVING }), 4)),
+            sofaDepth(living) -
+              sofaDepth(build(createLivingRoomKit({ room: LIVING }), 4)),
           ) > 1e-3 &&
           follows(undefined) &&
           follows(0.6)
