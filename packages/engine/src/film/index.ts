@@ -37,6 +37,7 @@ export * from "./cutSequence";
 export * from "./samplePracticalSurfaceMaterial";
 export * from "./samplePracticalSurfaceTrackMaterial";
 export * from "./sampleSurfaceGraphicKey";
+export * from "./flame";
 export * from "./defineShot";
 export * from "./deliveryCropNdc";
 export * from "./equalProductionFrameRates";

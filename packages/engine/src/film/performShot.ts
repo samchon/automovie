@@ -45,6 +45,7 @@ import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateMotion } from "../validation/validateMotion";
 import { validateShotArtifact } from "../validation/validateShotArtifact";
 import { admitPerformShotSurfaces } from "./admitPerformShotSurfaces";
+import { admitPerformShotFlames } from "./flame/admitPerformShotFlames";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
@@ -80,7 +81,8 @@ const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
  * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged
  *    lights and its polygon body cues against staged rigs and practical surface
  *    and surface graphic tracks against the staged nodes and registered models
- *    by {@link admitPerformShotSurfaces}, a planned beat, a positive duration,
+ *    by {@link admitPerformShotSurfaces}, flame cues by
+ *    {@link admitPerformShotFlames}, a planned beat, a positive duration,
  *    authored editorial markers, every action by {@link gatePerformShotActions},
  *    the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor
  *    content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by
@@ -225,6 +227,12 @@ export function performShot(
     IAutoMovieShot,
     "practicalSurfaces" | "surfaceGraphics" | "fonts"
   > = admitPerformShotSurfaces(
+    props,
+    staged.scene.nodes,
+    performance.duration,
+    out,
+  );
+  const flames: IAutoMovieShot["flames"] = admitPerformShotFlames(
     props,
     staged.scene.nodes,
     performance.duration,
@@ -385,6 +393,7 @@ export function performShot(
       ? {}
       : { lightMotions: resolvedLightMotions }),
     ...surfaces,
+    ...(flames === undefined ? {} : { flames }),
     ...(polygonBodyCues === undefined ? {} : { polygonBodyCues }),
     events: [...events].sort(
       (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>

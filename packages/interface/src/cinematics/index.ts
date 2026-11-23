@@ -60,3 +60,4 @@ export type { IAutoMovieValidatePerformShotFraming } from "./IAutoMovieValidateP
 export type { IAutoMovieSurfaceGraphic } from "./IAutoMovieSurfaceGraphic";
 export type { IAutoMovieSurfaceGraphicLayer } from "./IAutoMovieSurfaceGraphicLayer";
 export type { IAutoMovieSurfaceGraphicTrack } from "./IAutoMovieSurfaceGraphicTrack";
+export type { IAutoMovieFlameCue } from "./IAutoMovieFlameCue";

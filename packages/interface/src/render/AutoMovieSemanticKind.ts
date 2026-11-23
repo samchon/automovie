@@ -15,4 +15,5 @@ export type AutoMovieSemanticKind =
   | "water-body"
   | "soft-body"
   | "planting"
-  | "surface-graphic";
+  | "surface-graphic"
+  | "flame";

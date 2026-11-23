@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Marks actual mesh/skinned/instanced geometry as caster/receiver except descendants of the reserved semantic-space group; declared support patches have no physical volume and are structural-guide geometry, while renderer/light owners separately enable actual shadow rendering.
+Marks actual mesh/skinned/instanced geometry as caster/receiver except descendants of the reserved semantic-space group; declared support patches have no physical volume and are structural-guide geometry, while renderer/light owners separately enable actual shadow rendering. A mesh with a transparent (blended) material receives but does not cast, because three.js shadow maps ignore opacity and would draw it as an opaque occluder of its own light.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

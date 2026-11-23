@@ -1,4 +1,5 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
+import type { IAutoMovieFlameCue } from "../cinematics/IAutoMovieFlameCue";
 import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
 import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
@@ -86,6 +87,13 @@ export interface IAutoMovieRenderSubject {
    * is unique within the subject.
    */
   surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Flames the shot draws. Each paints its flame mesh in the mask under
+   * `flame:<node>/<id>`, owned by `node:<node>`; shot admission keeps cue ids
+   * unique, so the id is unique within the subject.
+   */
+  flames?: readonly IAutoMovieFlameCue[];
 
   /** Font sources the surface graphics' text layers name; omitted means none. */
   fonts?: readonly IAutoMovieFontSource[];

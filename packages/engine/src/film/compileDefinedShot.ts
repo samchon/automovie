@@ -185,6 +185,7 @@ export function compileDefinedShot<Context>(
       shotId: props.shot.id,
       previous: blocked.previous,
       surfaceGraphics: program.surfaceGraphics,
+      flames: program.flames,
       fonts: props.runtime.fonts,
     });
     if (performed.success === false)

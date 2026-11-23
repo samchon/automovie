@@ -1,6 +1,7 @@
 import type { IAutoMovieBlocking } from "../authoring/IAutoMovieBlocking";
 import type { IAutoMoviePerformance } from "../authoring/IAutoMoviePerformance";
 import type { IAutoMovieCameraClearanceRuntime } from "../cinematics/IAutoMovieCameraClearanceRuntime";
+import type { IAutoMovieFlameCue } from "../cinematics/IAutoMovieFlameCue";
 import type { IAutoMoviePolygonBodyCue } from "../cinematics/IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "../cinematics/IAutoMoviePracticalSurfaceTrack";
 import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
@@ -175,6 +176,13 @@ export interface IAutoMoviePerformShotProps {
    * graphic.
    */
   surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Flames at placed props' flame frames. Nonempty input requires the props'
+   * models in models; a cue naming a practical light binding flickers that
+   * binding's intensity track. Omit for no flame.
+   */
+  flames?: readonly IAutoMovieFlameCue[];
 
   /**
    * Font sources the surface graphics' text layers may name, admitted from

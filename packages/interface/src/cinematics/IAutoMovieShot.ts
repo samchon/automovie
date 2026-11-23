@@ -3,6 +3,7 @@ import type { IAutoMovieCameraClearanceReport } from "../scene/IAutoMovieCameraC
 import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieCameraIntent } from "./IAutoMovieCameraIntent";
 import type { IAutoMovieEditorialMarker } from "./IAutoMovieEditorialMarker";
+import type { IAutoMovieFlameCue } from "./IAutoMovieFlameCue";
 import type { IAutoMovieInteractionEvent } from "./IAutoMovieInteractionEvent";
 import type { IAutoMoviePolygonBodyCue } from "./IAutoMoviePolygonBodyCue";
 import type { IAutoMoviePracticalSurfaceTrack } from "./IAutoMoviePracticalSurfaceTrack";
@@ -82,6 +83,13 @@ export interface IAutoMovieShot {
    * node and surface. Omission or an empty list shows no surface graphic.
    */
   surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Flames burning at placed props' flame frames, unique by id. A flame bound
+   * to a practical light flickers that light's intensity track in
+   * `lightMotions`. Omission or an empty list draws no flame.
+   */
+  flames?: readonly IAutoMovieFlameCue[];
 
   /**
    * Font sources the surface graphics' text layers name, unique by id. `render`

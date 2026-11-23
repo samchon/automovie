@@ -32,8 +32,12 @@ export namespace ArchetypeBuilderTypes {
     /** The part's flat colour as an sRGB swatch `#rrggbb`; a mid grey when absent. */
     color?: string;
 
-    /** Zero for an explicitly transparent collision and mass proxy. The default surface is opaque. */
-    opacity?: 0;
+    /**
+     * Opacity in [0, 1]: zero for an explicitly transparent collision and mass
+     * proxy, a value below one for a blended translucent surface such as a
+     * lantern's glass globe. The default surface is opaque.
+     */
+    opacity?: number;
 
     /** The part's density relative to the other parts, positive; 1 when absent. It only shifts the centre of mass and inertia, since the total mass is stated. */
     density?: number;

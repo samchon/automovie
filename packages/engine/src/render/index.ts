@@ -44,3 +44,4 @@ export * from "./sumAutoMovieRenderTextureAllocations";
 export * from "./utf8Bytes";
 export * from "./verifyAutoMovieSemanticMask";
 export * from "./autoMovieSurfaceGraphicNodeName";
+export * from "./autoMovieFlameNodeName";

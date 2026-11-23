@@ -126,3 +126,4 @@ export * from "./AutoMovieResourceRetirementScope.js";
 export * from "./constructAutoMovieOwnedResources.js";
 export * from "./restoreAutoMovieRenderModeOnce.js";
 export * from "./surfaceGraphic/index.js";
+export * from "./flame/index.js";

@@ -15,10 +15,10 @@ export interface IAutoMovieTextureClosureInput {
   models: readonly IAutoMovieModel[];
 
   /** Compiled shots whose scenes bind image lighting. */
+  scenes: readonly IAutoMovieSceneEnvironmentUse[];
+
   /** Images compiled shots show through surface graphics; omitted means none. */
   surfaceImages?: readonly IAutoMovieSurfaceGraphicImageUse[];
-
-  scenes: readonly IAutoMovieSceneEnvironmentUse[];
 
   /** The project asset ledger, exactly as the manifest holds it. */
   assets: readonly IAutoMovieAssetProvenance[];
