@@ -6,7 +6,7 @@ Places the scene at each planned second with the subject's own `seek`, which pos
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The draw host supplies placement and view resolution; this function owns sample order, the lens camera and the final placement, and the stage owns the sum.
+The draw host supplies placement, view resolution and the optional per-sample wrapper through which the indirect stage measures each sample's shading; this function owns sample order, the lens camera and the final placement, and the stage owns the sum.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

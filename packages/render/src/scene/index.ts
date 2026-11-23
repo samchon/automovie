@@ -22,6 +22,7 @@ export * from "./subsurfaceShading/index.js";
 export * from "./detailNormalShading/index.js";
 export * from "./dualQuaternionSkinning/index.js";
 export * from "./filmResponse/index.js";
+export * from "./filmShading/index.js";
 export * from "./materialOverlayShading/index.js";
 export * from "./proceduralShading/index.js";
 export * from "./wearShading/index.js";

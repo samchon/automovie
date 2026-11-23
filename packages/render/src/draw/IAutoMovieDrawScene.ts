@@ -1,6 +1,7 @@
 import type {
   IAutoMovieDeliveryContentAudit,
   IAutoMovieFilmOptics,
+  IAutoMovieFilmShading,
   IAutoMovieFilmSound,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieMark,
@@ -104,6 +105,17 @@ export interface IAutoMovieDrawScene {
    * it.
    */
   optics?: (seconds: number) => IAutoMovieFilmOptics;
+
+  /**
+   * The film's indirect shading at a second, asked for after `seek` before each
+   * beauty draw; absent leaves indirect light as the scene's image lighting
+   * gives it.
+   *
+   * `AutoMovieFilmIndirectStage` measures what it asks for and the lit materials
+   * read it while the beauty pass draws. A member without `optics` at the same
+   * second throws, naming `optics`. Structural passes never ask for it.
+   */
+  shading?: (seconds: number) => IAutoMovieFilmShading;
 
   /**
    * Optional production diagnostics, read synchronously after the outer seek is

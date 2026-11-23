@@ -20,9 +20,9 @@ import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAuto
  * axes with its frustum sheared so the plane at the lens's `focusDistance`
  * projects unchanged (Haeberli and Akeley 1990, "The accumulation buffer",
  * SIGGRAPH). The stage then renders and adds that sample. Samples come in
- * ascending time, which the scene's springs require. After the last sample
- * the scene is placed at `seconds` again, so marks, diagnostics and labels
- * read afterwards describe the frame's own second.
+ * ascending time, which the scene's springs require. After the last sample the
+ * scene is placed at `seconds` again, so marks, diagnostics and labels read
+ * afterwards describe the frame's own second.
  *
  * The shear adds `−e × P₀₀ / f` and `−e × P₁₁ / f` to the projection's third
  * column for an eye offset `e` and focus distance `f`: a point at depth `f`,
@@ -69,39 +69,58 @@ export async function accumulateAutoMovieFilmSamples(props: {
 
   /** A camera the lens samples are drawn through; overwritten each sample. */
   scratch: THREE.PerspectiveCamera;
+
+  /**
+   * Optional wrapper of each sample's draw, given the sample's camera, second
+   * and index: the film's indirect stage measures that sample's occlusion
+   * around it. Absent, each sample is drawn directly.
+   */
+  around?: (
+    sample: { camera: THREE.Camera; seconds: number; index: number },
+    draw: () => void,
+  ) => void;
 }): Promise<IAutoMoviePlanFilmSamples.ISample[]> {
   const samples: IAutoMoviePlanFilmSamples.ISample[] = planAutoMovieFilmSamples(
-    { seconds: props.seconds, fps: props.fps, optics: props.optics, fovY: props.fovY },
+    {
+      seconds: props.seconds,
+      fps: props.fps,
+      optics: props.optics,
+      fovY: props.fovY,
+    },
   );
   const focus: number | null = props.optics.lens?.focusDistance ?? null;
   for (const [index, sample] of samples.entries()) {
     await props.seek(sample.seconds);
     const base: THREE.Camera = props.camera(sample.seconds);
-    props.stage.accumulate({
-      renderer: props.renderer,
-      scene: props.scene,
-      camera:
-        sample.eye !== null &&
-        focus !== null &&
-        base instanceof THREE.PerspectiveCamera
-          ? offsetLens(props.scratch, base, sample.eye, focus)
-          : base,
-      optics: props.optics,
-      seconds: props.seconds,
-      width: props.width,
-      height: props.height,
-      index,
-      count: samples.length,
-    });
+    const camera: THREE.Camera =
+      sample.eye !== null &&
+      focus !== null &&
+      base instanceof THREE.PerspectiveCamera
+        ? offsetLens(props.scratch, base, sample.eye, focus)
+        : base;
+    const draw: () => void = (): void =>
+      props.stage.accumulate({
+        renderer: props.renderer,
+        scene: props.scene,
+        camera,
+        optics: props.optics,
+        seconds: props.seconds,
+        width: props.width,
+        height: props.height,
+        index,
+        count: samples.length,
+      });
+    if (props.around === undefined) draw();
+    else props.around({ camera, seconds: sample.seconds, index }, draw);
   }
   await props.seek(props.seconds);
   return samples;
 }
 
 /**
- * Copy `base` into `scratch`, move its eye by `eye` metres along `base`'s
- * world right and up axes, and shear its projection so the plane at
- * `focusDistance` projects as it did from `base`.
+ * Copy `base` into `scratch`, move its eye by `eye` metres along `base`'s world
+ * right and up axes, and shear its projection so the plane at `focusDistance`
+ * projects as it did from `base`.
  */
 function offsetLens(
   scratch: THREE.PerspectiveCamera,

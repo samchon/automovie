@@ -25,6 +25,7 @@ export * from "./digestAutoMovieSemanticMask";
 export * from "./encodeAutoMoviePng";
 export * from "./evaluateAutoMovieRenderBudget";
 export * from "./filmResponse";
+export * from "./filmShading";
 export * from "./exposure";
 export * from "./measure";
 export * from "./measureAutoMovieRenderInventory";

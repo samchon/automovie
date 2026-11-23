@@ -2,6 +2,7 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMovieDeliveryContentAudit,
   IAutoMovieFilmOptics,
+  IAutoMovieFilmShading,
   IAutoMovieFilmSound,
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
@@ -110,6 +111,19 @@ export interface IFilmProduction {
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the draw host owns the response stage.
    */
   optics?: (seconds: number) => IAutoMovieFilmOptics;
+
+  /**
+   * The film's indirect shading at an exact second: the ambient occlusion of indirect light around each visible point and one diffuse bounce from probes baked over the static set. Read beside `optics` before each single-sample beauty picture; a member without `optics` is refused. Absent leaves indirect light as the scene's image lighting gives it.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States what the shading holds, when it is read, its dependency on optics and what absence draws.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns the shading producer; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns the shading producer; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature returns producer-owned shading without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film owns any reuse of its shading.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The signature acquires no resources; the draw host owns the indirect stage.
+   */
+  shading?: (seconds: number) => IAutoMovieFilmShading;
   /** Optional source intent for the delivered media, including any soundtrack. */
   delivery?: IAutoMovieDeliveryContentAudit.IIntent;
 

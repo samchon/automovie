@@ -15,6 +15,7 @@ import * as THREE from "three";
 
 import { resolveAutoMovieCapturePatterns } from "../capture/resolveAutoMovieCapturePatterns.js";
 import { AutoMovieFilmResponseStage } from "../scene/filmResponse/AutoMovieFilmResponseStage.js";
+import { AutoMovieFilmIndirectStage } from "../scene/filmShading/AutoMovieFilmIndirectStage.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
 import type { IAutoMovieInspectionPath } from "../scene/inspection/IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../scene/inspection/listAutoMovieInspectionPaths.js";
@@ -74,9 +75,11 @@ const SUPERSAMPLE = 2 as const;
  *    lines twice as wide; a `beauty` draw of a subject with `optics` draws
  *    through `AutoMovieFilmResponseStage`, which renders the scene's linear
  *    light into a half-float target and gives it the film's camera response on
- *    the way to the canvas; a single-sample `beauty` draw of a subject with
- *    `shading` runs inside `AutoMovieFilmIndirectStage`, which measures the
- *    occlusion of indirect light for that draw first;
+ *    the way to the canvas; every beauty sample of a subject with `shading`,
+ *    the single one or each accumulated one, runs inside
+ *    `AutoMovieFilmIndirectStage`, which bakes its probes when their revision
+ *    changed and measures the occlusion of indirect light for that sample's
+ *    camera first;
  * 5. Reads the drawn pixels back, flips them to rows from the top and averages a
  *    supersampled picture down, places the request's labels at the label scale,
  *    copies the inspection's legend of the marks drawn, and resolves every
@@ -135,6 +138,7 @@ export function installAutoMovieDraw(
         scene,
         renderer,
         response: new AutoMovieFilmResponseStage(),
+        indirect: new AutoMovieFilmIndirectStage(),
         lens: new THREE.PerspectiveCamera(),
       };
     })());
@@ -326,6 +330,24 @@ export function installAutoMovieDraw(
             seek: (at: number): Promise<void> => scene.seek(at),
             camera: (at: number): THREE.Camera => resolveAt(at).camera,
             scratch: loaded.lens,
+            around: (
+              sample: { camera: THREE.Camera; seconds: number; index: number },
+              draw: () => void,
+            ): void =>
+              loaded.indirect.draw(
+                {
+                  renderer,
+                  scene: scene.scene,
+                  camera: sample.camera,
+                  shading: scene.shading?.(sample.seconds),
+                  optics: true,
+                  seconds: sample.seconds,
+                  width,
+                  height,
+                  sample: sample.index,
+                },
+                draw,
+              ),
           });
           sampled = optics;
         }
@@ -382,16 +404,38 @@ export function installAutoMovieDraw(
               renderer.render(scene.scene, resolved.camera);
               return;
             }
-            loaded.response.draw({
-              renderer,
-              scene: scene.scene,
-              camera: resolved.camera,
-              optics: sampled ?? scene.optics?.(call.seconds),
-              seconds: call.seconds,
-              width,
-              height,
-              accumulated: sampled !== undefined,
-            });
+            const optics: IAutoMovieFilmOptics | undefined =
+              sampled ?? scene.optics?.(call.seconds);
+            const respond: () => void = (): void =>
+              loaded.response.draw({
+                renderer,
+                scene: scene.scene,
+                camera: resolved.camera,
+                optics,
+                seconds: call.seconds,
+                width,
+                height,
+                accumulated: sampled !== undefined,
+              });
+            // An accumulated frame was drawn sample by sample already, each
+            // inside the indirect stage; a single sample measures the film's
+            // indirect shading around its one draw.
+            if (sampled !== undefined) respond();
+            else
+              loaded.indirect.draw(
+                {
+                  renderer,
+                  scene: scene.scene,
+                  camera: resolved.camera,
+                  shading: scene.shading?.(call.seconds),
+                  optics: optics !== undefined,
+                  seconds: call.seconds,
+                  width,
+                  height,
+                  sample: 0,
+                },
+                respond,
+              );
           },          width,
           height,
           stroke: call.request.stroke * factor,
@@ -472,6 +516,7 @@ export function installAutoMovieDraw(
         void loading?.then((loaded: ILoaded): void => {
           loaded.scene.dispose();
           loaded.response.dispose();
+          loaded.indirect.dispose();
           loaded.renderer.dispose();
         });
       },
@@ -495,6 +540,12 @@ interface ILoaded {
    * nothing for a subject without optics.
    */
   response: AutoMovieFilmResponseStage;
+
+  /**
+   * The stage that measures a subject's indirect shading around each beauty
+   * sample; it allocates nothing for a subject without shading.
+   */
+  indirect: AutoMovieFilmIndirectStage;
 
   /** The camera a lens sample is drawn through, its eye on the aperture. */
   lens: THREE.PerspectiveCamera;
