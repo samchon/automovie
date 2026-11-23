@@ -57,7 +57,7 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.nockArrow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   nockArrow(
-    params: IAutoMovieMotionHumanArchery.INockArrow,
+    params: IAutoMovieMotionHumanPutDown.IParams,
     anchor?: string,
   ): Chain;
 
@@ -96,10 +96,7 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.drawBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.drawBow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
-  drawBow(
-    params: IAutoMovieMotionHumanArchery.IDrawBow,
-    anchor?: string,
-  ): Chain;
+  drawBow(params: IAutoMovieMotionHumanOperate.IParams, anchor?: string): Chain;
 
   /**
    * Release the arrow prop, or hand it off to an authored continuation at the cue.
@@ -134,7 +131,7 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.spanCrossbow is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   spanCrossbow(
-    params: IAutoMovieMotionHumanArchery.ISpanCrossbow,
+    params: IAutoMovieMotionHumanOperate.IParams,
     anchor?: string,
   ): Chain;
 
@@ -194,7 +191,7 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.throwWeapon is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
   throwWeapon(
-    params: IAutoMovieMotionHumanArchery.IThrowWeapon,
+    params: IAutoMovieMotionHumanThrowObjectParams,
     anchor?: string,
   ): Chain;
 
@@ -213,7 +210,7 @@ export interface IAutoMovieMotionHumanArchery<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanArchery.lasso is provided by the chain that implements IAutoMovieMotionHumanArchery.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanArchery.lasso is provided by the chain that implements IAutoMovieMotionHumanArchery.
    */
-  lasso(params: IAutoMovieMotionHumanArchery.ILasso, anchor?: string): Chain;
+  lasso(params: IAutoMovieMotionHumanLasso, anchor?: string): Chain;
 }
 
 /**
@@ -231,16 +228,6 @@ export namespace IAutoMovieMotionHumanArchery {
   export type ITakeArrow = Omit<IAutoMovieMotionHumanPickUp.IParams, "handle">;
 
   /**
-   * The parameters of `nockArrow`: the law's own `IAutoMovieMotionHumanPutDown.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPutDown` owns the type; the alias serves this family's `nockArrow` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `nockArrow` takes the type its law reads.
-   */
-  export type INockArrow = IAutoMovieMotionHumanPutDown.IParams;
-
-  /**
    * The parameters of `presentBow`: the presentation without the anchor, hands, line origin, tip, edge and extension that the bow fixes.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the type it narrows and the members that narrowing removes.
@@ -254,16 +241,6 @@ export namespace IAutoMovieMotionHumanArchery {
   >;
 
   /**
-   * The parameters of `drawBow`: the law's own `IAutoMovieMotionHumanOperate.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanOperate` owns the type; the alias serves this family's `drawBow` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `drawBow` takes the type its law reads.
-   */
-  export type IDrawBow = IAutoMovieMotionHumanOperate.IParams;
-
-  /**
    * The parameters of `loose`: the release of the drawing hand, with the optional authored continuation after the cue.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the law type it extends and the member it adds.
@@ -275,16 +252,6 @@ export namespace IAutoMovieMotionHumanArchery {
     /** The staged arrow and its animation carrier. Incompatible with `prop` or `launch`. */
     continuation?: IAutoMovieMotionHumanLexiconArcheryParams.IContinuation;
   }
-
-  /**
-   * The parameters of `spanCrossbow`: the law's own `IAutoMovieMotionHumanOperate.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanOperate` owns the type; the alias serves this family's `spanCrossbow` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `spanCrossbow` takes the type its law reads.
-   */
-  export type ISpanCrossbow = IAutoMovieMotionHumanOperate.IParams;
 
   /**
    * The parameters of `presentCrossbow`: the presentation without the anchor, which the crossbow fixes at the cheek.
@@ -312,26 +279,6 @@ export namespace IAutoMovieMotionHumanArchery {
     /** The staged bolt and its animation carrier. Incompatible with `shot`. */
     continuation?: IAutoMovieMotionHumanLexiconArcheryParams.IContinuation;
   }
-
-  /**
-   * The parameters of `throwWeapon`: the law's own `IAutoMovieMotionHumanThrowObjectParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanThrowObjectParams` owns the type; the alias serves this family's `throwWeapon` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `throwWeapon` takes the type its law reads.
-   */
-  export type IThrowWeapon = IAutoMovieMotionHumanThrowObjectParams;
-
-  /**
-   * The parameters of `lasso`: the law's own `IAutoMovieMotionHumanLasso`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLasso` owns the type; the alias serves this family's `lasso` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lasso` takes the type its law reads.
-   */
-  export type ILasso = IAutoMovieMotionHumanLasso;
 
   /**
    * The presentation the `PRESENT_BOW` preset fixes: anchored at the face, one hand, the line from the `nock` through the `rest`, the grip as the edge and the bow arm extended.

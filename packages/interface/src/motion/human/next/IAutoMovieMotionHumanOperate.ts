@@ -45,10 +45,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.operate is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.operate is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  operate(
-    params: IAutoMovieMotionHumanOperate.IOperate,
-    anchor?: string,
-  ): Chain;
+  operate(params: IAutoMovieMotionHumanOperate.IParams, anchor?: string): Chain;
 
   /**
    * Pour a liquid between two rigid props: the source is tilted over the target until the transferred volume has left it, then righted.
@@ -65,7 +62,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.pour is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.pour is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  pour(params: IAutoMovieMotionHumanOperate.IPour, anchor?: string): Chain;
+  pour(params: IAutoMovieMotionHumanPour.IParams, anchor?: string): Chain;
 
   /**
    * A keyed contact sequence: digits of one hand or both pressing sites of a prop one after another, timed by the caller or by skill.
@@ -83,7 +80,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.manipulate is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
   manipulate(
-    params: IAutoMovieMotionHumanOperate.IManipulate,
+    params: IAutoMovieMotionHumanManipulate.IParams,
     anchor?: string,
   ): Chain;
 
@@ -103,7 +100,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.workHeld is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
   workHeld(
-    params: IAutoMovieMotionHumanOperate.IWorkHeld,
+    params: IAutoMovieMotionHumanHeldWork.IParams,
     anchor?: string,
   ): Chain;
 
@@ -122,10 +119,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.useTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.useTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  useTool(
-    params: IAutoMovieMotionHumanOperate.IUseTool,
-    anchor?: string,
-  ): Chain;
+  useTool(params: IAutoMovieMotionHumanUseTool.IParams, anchor?: string): Chain;
 
   /**
    * Work with a long tool held in two hands, standing, in cycles at a work point: chopping and splitting with an axe, a side chop at a standing trunk, a sledgehammer or pickaxe swung at the ground, digging and throwing with a shovel, and raking.
@@ -143,7 +137,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.longTool is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
   longTool(
-    params: IAutoMovieMotionHumanOperate.ILongTool,
+    params: IAutoMovieMotionHumanLongTool.IParams,
     anchor?: string,
   ): Chain;
 
@@ -163,7 +157,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.typeText is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
   typeText(
-    params: IAutoMovieMotionHumanOperate.ITypeText,
+    params: IAutoMovieMotionHumanTypeText.IParams,
     anchor?: string,
   ): Chain;
 
@@ -182,7 +176,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.wipe is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.wipe is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  wipe(params: IAutoMovieMotionHumanOperate.IWipe, anchor?: string): Chain;
+  wipe(params: IAutoMovieMotionHumanWipe.IParams, anchor?: string): Chain;
 
   /**
    * A heavy load that is not carried moved by its two handles (#3351): a crate, a wardrobe or a car pushed ahead walking forward, pulled toward the body walking backward, or a sack dragged behind walking forward; or pushed and pulled at and not moved at all, the scene where force is shown and nothing moves.
@@ -200,7 +194,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.pushPull is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
   pushPull(
-    params: IAutoMovieMotionHumanOperate.IPushPull,
+    params: IAutoMovieMotionHumanPushPull.IParams,
     anchor?: string,
   ): Chain;
 
@@ -220,7 +214,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.pushSled is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
   pushSled(
-    params: IAutoMovieMotionHumanOperate.IPushSled,
+    params: IAutoMovieMotionHumanPushSled.IParams,
     anchor?: string,
   ): Chain;
 
@@ -240,7 +234,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.throwPottery is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
   throwPottery(
-    params: IAutoMovieMotionHumanOperate.IThrowPottery,
+    params: IAutoMovieMotionHumanThrowPottery.IParams,
     anchor?: string,
   ): Chain;
 
@@ -260,7 +254,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.swipeTouchscreen is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
   swipeTouchscreen(
-    params: IAutoMovieMotionHumanOperate.ISwipeTouchscreen,
+    params: IAutoMovieMotionHumanSwipeTouchscreen,
     anchor?: string,
   ): Chain;
 
@@ -279,7 +273,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.write is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.write is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  write(params: IAutoMovieMotionHumanOperate.IWrite, anchor?: string): Chain;
+  write(params: IAutoMovieMotionHumanWrite, anchor?: string): Chain;
 
   /**
    * Pushing a button through the rectangular clear opening of a fixed garment prop, on a rigid straight slider.
@@ -296,7 +290,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.button is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.button is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  button(params: IAutoMovieMotionHumanOperate.IButton, anchor?: string): Chain;
+  button(params: IAutoMovieMotionHumanButton, anchor?: string): Chain;
 
   /**
    * Opening or closing a straight closed-end zipper on a supported stationary pouch.
@@ -313,7 +307,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.zip is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.zip is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  zip(params: IAutoMovieMotionHumanOperate.IZip, anchor?: string): Chain;
+  zip(params: IAutoMovieMotionHumanZip, anchor?: string): Chain;
 
   /**
    * Setting the hook: the hand holding a fishing rod lifts its tip sharply by an angle in a set time, turning the rod about the grip.
@@ -330,10 +324,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.hookSet is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.hookSet is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  hookSet(
-    params: IAutoMovieMotionHumanOperate.IHookSet,
-    anchor?: string,
-  ): Chain;
+  hookSet(params: IAutoMovieMotionHumanHookSet, anchor?: string): Chain;
 
   /**
    * Walking behind an implement with both hands on its two handles, as a ploughman holds a walking plough, as an arms overlay over an authored walk.
@@ -350,185 +341,7 @@ export interface IAutoMovieMotionHumanOperate<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanOperate.holdHandles is provided by the chain that implements IAutoMovieMotionHumanOperate.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanOperate.holdHandles is provided by the chain that implements IAutoMovieMotionHumanOperate.
    */
-  holdHandles(
-    params: IAutoMovieMotionHumanOperate.IHoldHandles,
-    anchor?: string,
-  ): Chain;
-}
-
-/**
- * The parameter types of the Operate methods.
- */
-export namespace IAutoMovieMotionHumanOperate {
-  /**
-   * The parameters of `operate`: `IAutoMovieMotionHumanOperate.IParams` (`affordance/IAutoMovieMotionHumanOperate`), the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanOperate.IParams` (`affordance/IAutoMovieMotionHumanOperate`): the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanOperate.IParams` (`affordance/IAutoMovieMotionHumanOperate`) owns the shape; the alias serves `operate` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IOperate = IAutoMovieMotionHumanOperate.IParams;
-
-  /**
-   * The parameters of `pour`: `IAutoMovieMotionHumanPour.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPour.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPour.IParams` owns the shape; the alias serves `pour` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IPour = IAutoMovieMotionHumanPour.IParams;
-
-  /**
-   * The parameters of `manipulate`: `IAutoMovieMotionHumanManipulate.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanManipulate.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanManipulate.IParams` owns the shape; the alias serves `manipulate` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IManipulate = IAutoMovieMotionHumanManipulate.IParams;
-
-  /**
-   * The parameters of `workHeld`: `IAutoMovieMotionHumanHeldWork.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHeldWork.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHeldWork.IParams` owns the shape; the alias serves `workHeld` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IWorkHeld = IAutoMovieMotionHumanHeldWork.IParams;
-
-  /**
-   * The parameters of `useTool`: `IAutoMovieMotionHumanUseTool.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanUseTool.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanUseTool.IParams` owns the shape; the alias serves `useTool` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IUseTool = IAutoMovieMotionHumanUseTool.IParams;
-
-  /**
-   * The parameters of `longTool`: `IAutoMovieMotionHumanLongTool.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanLongTool.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLongTool.IParams` owns the shape; the alias serves `longTool` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ILongTool = IAutoMovieMotionHumanLongTool.IParams;
-
-  /**
-   * The parameters of `typeText`: `IAutoMovieMotionHumanTypeText.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanTypeText.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTypeText.IParams` owns the shape; the alias serves `typeText` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ITypeText = IAutoMovieMotionHumanTypeText.IParams;
-
-  /**
-   * The parameters of `wipe`: `IAutoMovieMotionHumanWipe.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanWipe.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWipe.IParams` owns the shape; the alias serves `wipe` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IWipe = IAutoMovieMotionHumanWipe.IParams;
-
-  /**
-   * The parameters of `pushPull`: `IAutoMovieMotionHumanPushPull.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPushPull.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPushPull.IParams` owns the shape; the alias serves `pushPull` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IPushPull = IAutoMovieMotionHumanPushPull.IParams;
-
-  /**
-   * The parameters of `pushSled`: `IAutoMovieMotionHumanPushSled.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPushSled.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPushSled.IParams` owns the shape; the alias serves `pushSled` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IPushSled = IAutoMovieMotionHumanPushSled.IParams;
-
-  /**
-   * The parameters of `throwPottery`: `IAutoMovieMotionHumanThrowPottery.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanThrowPottery.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanThrowPottery.IParams` owns the shape; the alias serves `throwPottery` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IThrowPottery = IAutoMovieMotionHumanThrowPottery.IParams;
-
-  /**
-   * The parameters of `swipeTouchscreen`: `IAutoMovieMotionHumanSwipeTouchscreen`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSwipeTouchscreen`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwipeTouchscreen` owns the shape; the alias serves `swipeTouchscreen` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ISwipeTouchscreen = IAutoMovieMotionHumanSwipeTouchscreen;
-
-  /**
-   * The parameters of `write`: `IAutoMovieMotionHumanWrite`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanWrite`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWrite` owns the shape; the alias serves `write` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IWrite = IAutoMovieMotionHumanWrite;
-
-  /**
-   * The parameters of `button`: `IAutoMovieMotionHumanButton`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanButton`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanButton` owns the shape; the alias serves `button` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IButton = IAutoMovieMotionHumanButton;
-
-  /**
-   * The parameters of `zip`: `IAutoMovieMotionHumanZip`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanZip`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanZip` owns the shape; the alias serves `zip` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IZip = IAutoMovieMotionHumanZip;
-
-  /**
-   * The parameters of `hookSet`: `IAutoMovieMotionHumanHookSet`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHookSet`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHookSet` owns the shape; the alias serves `hookSet` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IHookSet = IAutoMovieMotionHumanHookSet;
-
-  /**
-   * The parameters of `holdHandles`: `IAutoMovieMotionHumanHoldHandles`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHoldHandles`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHoldHandles` owns the shape; the alias serves `holdHandles` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IHoldHandles = IAutoMovieMotionHumanHoldHandles;
+  holdHandles(params: IAutoMovieMotionHumanHoldHandles, anchor?: string): Chain;
 }
 
 /**

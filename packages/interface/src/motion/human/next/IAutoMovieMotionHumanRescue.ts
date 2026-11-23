@@ -26,22 +26,7 @@ export interface IAutoMovieMotionHumanRescue<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRescue.edgeRescue is provided by the chain that implements IAutoMovieMotionHumanRescue.
    */
   edgeRescue(
-    params: IAutoMovieMotionHumanRescue.IEdgeRescue,
+    params: IAutoMovieMotionHumanEdgeRescue.IParams,
     anchor?: string,
   ): Chain;
-}
-
-/**
- * The parameter types of the Rescue methods.
- */
-export namespace IAutoMovieMotionHumanRescue {
-  /**
-   * The parameters of `edgeRescue`: `IAutoMovieMotionHumanEdgeRescue.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanEdgeRescue.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanEdgeRescue.IParams` owns the shape; the alias serves `edgeRescue` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IEdgeRescue = IAutoMovieMotionHumanEdgeRescue.IParams;
 }

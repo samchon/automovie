@@ -26,7 +26,10 @@ export interface IAutoMovieMotionHumanBowling<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBowling.slide is provided by the runtime namespace that implements it.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBowling.slide is provided by the runtime namespace that implements it.
    */
-  slide(params: IAutoMovieMotionHumanBowling.ISlide, anchor?: string): Chain;
+  slide(
+    params: IAutoMovieMotionHumanBowlingSlide.IParams,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Credit the pinfall of a baked bowling delivery: the pins down at the end of its cache, in rack order. A pin is down when its axis leans past its tip-over angle, where its centre of mass passes over the rim of its base (USBC counts a pin knocked down or off the deck).
@@ -52,16 +55,6 @@ export interface IAutoMovieMotionHumanBowling<Chain> {
  * The parameter and result types of the bowling methods.
  */
 export namespace IAutoMovieMotionHumanBowling {
-  /**
-   * The parameters of `slide`: `IAutoMovieMotionHumanBowlingSlide.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBowlingSlide.IParams`: the units, clocks and invariants are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBowlingSlide.IParams` owns the shape; the alias serves `slide` of this behaviour without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ISlide = IAutoMovieMotionHumanBowlingSlide.IParams;
-
   /**
    * The parameters of `readPinfall`.
    *

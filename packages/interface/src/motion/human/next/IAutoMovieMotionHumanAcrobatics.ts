@@ -37,7 +37,7 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.gymnastics is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
   gymnastics(
-    params: IAutoMovieMotionHumanAcrobatics.IGymnastics,
+    params: IAutoMovieMotionHumanGymnastics.IParams,
     anchor?: string,
   ): Chain;
 
@@ -56,7 +56,7 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.salto is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.salto is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  salto(params: IAutoMovieMotionHumanAcrobatics.ISalto, anchor?: string): Chain;
+  salto(params: IAutoMovieMotionHumanSalto.IParams, anchor?: string): Chain;
 
   /**
    * A cartwheel (#3377): the body turns once about its front-to-back axis, sideways, passing from one foot to one hand, the other hand, and the other foot, and stands again a wheel's roll to the side.
@@ -74,7 +74,7 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.cartwheel is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
   cartwheel(
-    params: IAutoMovieMotionHumanAcrobatics.ICartwheel,
+    params: IAutoMovieMotionHumanCartwheel.IParams,
     anchor?: string,
   ): Chain;
 
@@ -94,7 +94,7 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.roundOff is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
   roundOff(
-    params: IAutoMovieMotionHumanAcrobatics.IRoundOff,
+    params: IAutoMovieMotionHumanRoundOff.IParams,
     anchor?: string,
   ): Chain;
 
@@ -114,7 +114,7 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.handspring is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
   handspring(
-    params: IAutoMovieMotionHumanAcrobatics.IHandspring,
+    params: IAutoMovieMotionHumanHandspring.IParams,
     anchor?: string,
   ): Chain;
 
@@ -134,7 +134,7 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.trampoline is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
   trampoline(
-    params: IAutoMovieMotionHumanAcrobatics.ITrampoline,
+    params: IAutoMovieMotionHumanTrampoline.IParams,
     anchor?: string,
   ): Chain;
 
@@ -153,10 +153,7 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.skydive is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.skydive is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  skydive(
-    params: IAutoMovieMotionHumanAcrobatics.ISkydive,
-    anchor?: string,
-  ): Chain;
+  skydive(params: IAutoMovieMotionHumanSkydive.IParams, anchor?: string): Chain;
 
   /**
    * Trick riding on a moving horse's trick saddle (#3950): from the seat, each figure in turn is reached over its transfer and held; the act ends back in the seat.
@@ -173,7 +170,7 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.trick is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.trick is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  trick(params: IAutoMovieMotionHumanAcrobatics.ITrick, anchor?: string): Chain;
+  trick(params: IAutoMovieMotionHumanTrick, anchor?: string): Chain;
 
   /**
    * Roman riding (#3950): standing with one foot on each of two horses that move together side by side, held for a time.
@@ -190,103 +187,13 @@ export interface IAutoMovieMotionHumanAcrobatics<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanAcrobatics.roman is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanAcrobatics.roman is provided by the chain that implements IAutoMovieMotionHumanAcrobatics.
    */
-  roman(params: IAutoMovieMotionHumanAcrobatics.IRoman, anchor?: string): Chain;
+  roman(params: IAutoMovieMotionHumanRoman, anchor?: string): Chain;
 }
 
 /**
  * The parameter types of the Acrobatics methods.
  */
 export namespace IAutoMovieMotionHumanAcrobatics {
-  /**
-   * The parameters of `gymnastics`: the handstand law's own `IAutoMovieMotionHumanGymnastics.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanGymnastics.IParams` states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGymnastics` owns the type; the alias serves this family's `gymnastics` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `gymnastics` takes exactly the type its law reads.
-   */
-  export type IGymnastics = IAutoMovieMotionHumanGymnastics.IParams;
-
-  /**
-   * The parameters of `salto`: the salto law's own `IAutoMovieMotionHumanSalto.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanSalto.IParams` states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSalto` owns the type; the alias serves this family's `salto` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `salto` takes exactly the type its law reads.
-   */
-  export type ISalto = IAutoMovieMotionHumanSalto.IParams;
-
-  /**
-   * The parameters of `cartwheel`: the cartwheel law's own `IAutoMovieMotionHumanCartwheel.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanCartwheel.IParams` states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCartwheel` owns the type; the alias serves this family's `cartwheel` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `cartwheel` takes exactly the type its law reads.
-   */
-  export type ICartwheel = IAutoMovieMotionHumanCartwheel.IParams;
-
-  /**
-   * The parameters of `roundOff`: the round-off law's own `IAutoMovieMotionHumanRoundOff.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanRoundOff.IParams` states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRoundOff` owns the type; the alias serves this family's `roundOff` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `roundOff` takes exactly the type its law reads.
-   */
-  export type IRoundOff = IAutoMovieMotionHumanRoundOff.IParams;
-
-  /**
-   * The parameters of `handspring`: the handspring law's own `IAutoMovieMotionHumanHandspring.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanHandspring.IParams` states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandspring` owns the type; the alias serves this family's `handspring` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `handspring` takes exactly the type its law reads.
-   */
-  export type IHandspring = IAutoMovieMotionHumanHandspring.IParams;
-
-  /**
-   * The parameters of `trampoline`: the trampoline law's own `IAutoMovieMotionHumanTrampoline.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanTrampoline.IParams` states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTrampoline` owns the type; the alias serves this family's `trampoline` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `trampoline` takes exactly the type its law reads.
-   */
-  export type ITrampoline = IAutoMovieMotionHumanTrampoline.IParams;
-
-  /**
-   * The parameters of `skydive`: the skydive law's own `IAutoMovieMotionHumanSkydive.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: the units, frames, defaults and invariants are those `IAutoMovieMotionHumanSkydive.IParams` states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSkydive` owns the type; the alias serves this family's `skydive` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `skydive` takes exactly the type its law reads.
-   */
-  export type ISkydive = IAutoMovieMotionHumanSkydive.IParams;
-
-  /**
-   * The parameters of `trick`: the law's own `IAutoMovieMotionHumanTrick`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTrick` owns the type; the alias serves this family's `trick` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `trick` takes the type its law reads.
-   */
-  export type ITrick = IAutoMovieMotionHumanTrick;
-
-  /**
-   * The parameters of `roman`: the law's own `IAutoMovieMotionHumanRoman`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRoman` owns the type; the alias serves this family's `roman` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `roman` takes the type its law reads.
-   */
-  export type IRoman = IAutoMovieMotionHumanRoman;
-
   /**
    * The values a round-off led with one hand fixes: the hand that goes down first. It is spread into `roundOff`'s parameters, which keep the duration open.
    *

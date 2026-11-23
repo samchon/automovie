@@ -35,7 +35,7 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirearm.weaponTrack is provided by the chain that implements IAutoMovieMotionHumanFirearm.
    */
   weaponTrack(
-    params: IAutoMovieMotionHumanFirearm.IWeaponTrack,
+    params: IAutoMovieMotionHumanWeaponTrack.IParams,
     anchor?: string,
   ): Chain;
 
@@ -55,7 +55,7 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirearm.presentFirearm is provided by the chain that implements IAutoMovieMotionHumanFirearm.
    */
   presentFirearm(
-    params: IAutoMovieMotionHumanFirearm.IPresentFirearm,
+    params: IAutoMovieMotionHumanWeaponPresent.IPresent,
     anchor?: string,
   ): Chain;
 
@@ -75,7 +75,7 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirearm.fireFirearm is provided by the chain that implements IAutoMovieMotionHumanFirearm.
    */
   fireFirearm(
-    params: IAutoMovieMotionHumanFirearm.IFireFirearm,
+    params: IAutoMovieMotionHumanWeaponPresent.IWield,
     anchor?: string,
   ): Chain;
 
@@ -115,7 +115,7 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirearm.holsterFirearm is provided by the chain that implements IAutoMovieMotionHumanFirearm.
    */
   holsterFirearm(
-    params: IAutoMovieMotionHumanFirearm.IHolsterFirearm,
+    params: IAutoMovieMotionHumanPutDown.IParams,
     anchor?: string,
   ): Chain;
 }
@@ -124,36 +124,6 @@ export interface IAutoMovieMotionHumanFirearm<Chain> {
  * The parameter and preset types of the family's methods.
  */
 export namespace IAutoMovieMotionHumanFirearm {
-  /**
-   * The parameters of `weaponTrack`: the law's own `IAutoMovieMotionHumanWeaponTrack.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWeaponTrack` owns the type; the alias serves this family's `weaponTrack` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `weaponTrack` takes the type its law reads.
-   */
-  export type IWeaponTrack = IAutoMovieMotionHumanWeaponTrack.IParams;
-
-  /**
-   * The parameters of `presentFirearm`: the law's own `IAutoMovieMotionHumanWeaponPresent.IPresent`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWeaponPresent` owns the type; the alias serves this family's `presentFirearm` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `presentFirearm` takes the type its law reads.
-   */
-  export type IPresentFirearm = IAutoMovieMotionHumanWeaponPresent.IPresent;
-
-  /**
-   * The parameters of `fireFirearm`: the law's own `IAutoMovieMotionHumanWeaponPresent.IWield`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWeaponPresent` owns the type; the alias serves this family's `fireFirearm` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `fireFirearm` takes the type its law reads.
-   */
-  export type IFireFirearm = IAutoMovieMotionHumanWeaponPresent.IWield;
-
   /**
    * The parameters of `drawFirearm`: the pick up without the handle, the lift and the use that the draw fixes.
    *
@@ -166,16 +136,6 @@ export namespace IAutoMovieMotionHumanFirearm {
     IAutoMovieMotionHumanPickUp.IParams,
     "handle" | "lift" | "use"
   >;
-
-  /**
-   * The parameters of `holsterFirearm`: the law's own `IAutoMovieMotionHumanPutDown.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPutDown` owns the type; the alias serves this family's `holsterFirearm` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `holsterFirearm` takes the type its law reads.
-   */
-  export type IHolsterFirearm = IAutoMovieMotionHumanPutDown.IParams;
 
   /**
    * The touch the `REACH_HOLSTER` preset fixes: the right palm held on the right hip for 0.3 s.

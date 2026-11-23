@@ -32,10 +32,7 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitAided.aidWalk is provided by the chain that implements IAutoMovieMotionHumanGaitAided.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitAided.aidWalk is provided by the chain that implements IAutoMovieMotionHumanGaitAided.
    */
-  aidWalk(
-    params: IAutoMovieMotionHumanGaitAided.IAidWalk,
-    anchor?: string,
-  ): Chain;
+  aidWalk(params: IAutoMovieMotionHumanAidWalk, anchor?: string): Chain;
 
   /**
    * Walk to `to` as a frail older person does, graded by `severity` from the
@@ -55,10 +52,7 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitAided.frailWalk is provided by the chain that implements IAutoMovieMotionHumanGaitAided.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitAided.frailWalk is provided by the chain that implements IAutoMovieMotionHumanGaitAided.
    */
-  frailWalk(
-    params: IAutoMovieMotionHumanGaitAided.IFrailWalk,
-    anchor?: string,
-  ): Chain;
+  frailWalk(params: IAutoMovieMotionHumanFrailWalk, anchor?: string): Chain;
 
   /**
    * Walk through the floor stations on two crutches: at each station both tips
@@ -79,10 +73,7 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitAided.crutchWalk is provided by the chain that implements IAutoMovieMotionHumanGaitAided.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitAided.crutchWalk is provided by the chain that implements IAutoMovieMotionHumanGaitAided.
    */
-  crutchWalk(
-    params: IAutoMovieMotionHumanGaitAided.ICrutchWalk,
-    anchor?: string,
-  ): Chain;
+  crutchWalk(params: IAutoMovieMotionHumanCrutchWalk, anchor?: string): Chain;
 
   /**
    * Sweep a long cane for `seconds` over the walk this action rides (`over`):
@@ -103,53 +94,5 @@ export interface IAutoMovieMotionHumanGaitAided<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitAided.caneSweep is provided by the chain that implements IAutoMovieMotionHumanGaitAided.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitAided.caneSweep is provided by the chain that implements IAutoMovieMotionHumanGaitAided.
    */
-  caneSweep(
-    params: IAutoMovieMotionHumanGaitAided.ICaneSweep,
-    anchor?: string,
-  ): Chain;
-}
-
-/**
- * The parameter types of the GaitAided methods.
- */
-export namespace IAutoMovieMotionHumanGaitAided {
-  /**
-   * The parameters of `aidWalk`: the law's own `IAutoMovieMotionHumanAidWalk`, a cane or crutch held or a walker, with the floor stations, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged and that type's two alternatives.
-   * @evidence contracts/development/design.md#principled-representation An alias of the law's union discriminated by `kind`; the stations' metres, degrees and seconds are those the law type states, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanAidWalk` owns the type; the alias serves this family's `aidWalk` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `aidWalk` takes the type its law reads.
-   */
-  export type IAidWalk = IAutoMovieMotionHumanAidWalk;
-
-  /**
-   * The parameters of `frailWalk`: the law's own `IAutoMovieMotionHumanFrailWalk`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFrailWalk` owns the type; the alias serves this family's `frailWalk` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `frailWalk` takes the type its law reads.
-   */
-  export type IFrailWalk = IAutoMovieMotionHumanFrailWalk;
-
-  /**
-   * The parameters of `crutchWalk`: the law's own `IAutoMovieMotionHumanCrutchWalk`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrutchWalk` owns the type; the alias serves this family's `crutchWalk` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `crutchWalk` takes the type its law reads.
-   */
-  export type ICrutchWalk = IAutoMovieMotionHumanCrutchWalk;
-
-  /**
-   * The parameters of `caneSweep`: the law's own `IAutoMovieMotionHumanCaneSweep`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCaneSweep` owns the type; the alias serves this family's `caneSweep` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `caneSweep` takes the type its law reads.
-   */
-  export type ICaneSweep = IAutoMovieMotionHumanCaneSweep;
+  caneSweep(params: IAutoMovieMotionHumanCaneSweep, anchor?: string): Chain;
 }

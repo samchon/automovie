@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieMotionHumanExpression,
+  IAutoMovieMotionHumanBreath,
   IAutoMovieMotionHumanLayer,
 } from "@automovie/interface";
 
@@ -25,7 +25,7 @@ import { HumanBreath } from "./HumanBreath";
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The returned layer closes over its options only.
  */
 export function expressionBreath(
-  params: IAutoMovieMotionHumanExpression.IBreath = {},
+  params: IAutoMovieMotionHumanBreath.IOptions = {},
 ): IAutoMovieMotionHumanLayer {
   return HumanBreath.layer(params);
 }

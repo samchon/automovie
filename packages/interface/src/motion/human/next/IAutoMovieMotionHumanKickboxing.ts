@@ -1,4 +1,3 @@
-import type { IAutoMovieMotionHumanKickboxingRing } from "../sport/kickboxing/IAutoMovieMotionHumanKickboxingRing";
 import type { IAutoMovieMotionHumanDefence } from "./IAutoMovieMotionHumanDefence";
 import type { IAutoMovieMotionHumanStrike } from "./IAutoMovieMotionHumanStrike";
 
@@ -15,28 +14,3 @@ export interface IAutoMovieMotionHumanKickboxing<Chain>
   extends
     IAutoMovieMotionHumanStrike<Chain>,
     IAutoMovieMotionHumanDefence<Chain> {}
-
-/**
- * The ring a bout is fought in and its corners.
- */
-export namespace IAutoMovieMotionHumanKickboxing {
-  /**
-   * The ring a bout is fought in: `IAutoMovieMotionHumanKickboxingRing.IRing`, a square ring's centre in world metres, its side between the ropes in metres and its heading in degrees about +Y.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the aliased ring type and the ring's centre, side and heading with their frame and units.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanKickboxingRing.IRing`: the frame, the units and the positive side left to the ring queries are that type's; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKickboxingRing.IRing` owns the shape. The family's runtime namespace groups `Ring`, whose queries read a ring, so the family namespace names the type; no method of this interface takes it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IRing = IAutoMovieMotionHumanKickboxingRing.IRing;
-
-  /**
-   * A ring corner's name: `IAutoMovieMotionHumanKickboxingRing.Corner`, `red`, `blue`, `neutralA` or `neutralB`, the red and blue corners on one diagonal and the neutral ones on the other.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the aliased corner type, its four values and their diagonals.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanKickboxingRing.Corner`, a closed union of the four corners, so no other corner name type-checks.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKickboxingRing.Corner` owns the union. The corner query of `Ring` and `KnockdownCount`, grouped in the family's runtime namespace, name corners by it; no method of this interface takes it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ICorner = IAutoMovieMotionHumanKickboxingRing.Corner;
-}

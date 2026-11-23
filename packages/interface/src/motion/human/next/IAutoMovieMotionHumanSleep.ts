@@ -43,10 +43,7 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSleep.pullCover is provided by the chain that implements IAutoMovieMotionHumanSleep.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSleep.pullCover is provided by the chain that implements IAutoMovieMotionHumanSleep.
    */
-  pullCover(
-    params: IAutoMovieMotionHumanSleep.IPullCover,
-    anchor?: string,
-  ): Chain;
+  pullCover(params: IAutoMovieMotionHumanPullCover, anchor?: string): Chain;
 
   /**
    * Lying together with a partner.
@@ -63,10 +60,7 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSleep.lieTogether is provided by the chain that implements IAutoMovieMotionHumanSleep.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSleep.lieTogether is provided by the chain that implements IAutoMovieMotionHumanSleep.
    */
-  lieTogether(
-    params: IAutoMovieMotionHumanSleep.ILieTogether,
-    anchor?: string,
-  ): Chain;
+  lieTogether(params: IAutoMovieMotionHumanLieTogether, anchor?: string): Chain;
 }
 
 /**
@@ -94,24 +88,4 @@ export namespace IAutoMovieMotionHumanSleep {
     /** The bed or sofa surface lain on; the floor when absent. */
     on?: IAutoMovieMotionHumanTurnOver.IOn;
   }
-
-  /**
-   * The parameters of `pullCover`: the law's own `IAutoMovieMotionHumanPullCover`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPullCover` owns the type; the alias serves this family's `pullCover` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `pullCover` takes the type its law reads.
-   */
-  export type IPullCover = IAutoMovieMotionHumanPullCover;
-
-  /**
-   * The parameters of `lieTogether`: the law's own `IAutoMovieMotionHumanLieTogether`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLieTogether` owns the type; the alias serves this family's `lieTogether` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lieTogether` takes the type its law reads.
-   */
-  export type ILieTogether = IAutoMovieMotionHumanLieTogether;
 }

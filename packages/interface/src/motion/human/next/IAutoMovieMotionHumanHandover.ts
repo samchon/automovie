@@ -39,7 +39,7 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.handOver is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
   handOver(
-    params: IAutoMovieMotionHumanHandover.IHandOver,
+    params: IAutoMovieMotionHumanHandoverAction.IParams,
     anchor?: string,
   ): Chain;
 
@@ -58,10 +58,7 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.receive is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
-  receive(
-    params: IAutoMovieMotionHumanHandover.IReceive,
-    anchor?: string,
-  ): Chain;
+  receive(params: IAutoMovieMotionHumanReceive.IParams, anchor?: string): Chain;
 
   /**
    * A relay baton pass, one role of it, performed over a run (`HumanChain.over`): the outgoing runner's hand goes back, open, palm back, and the incoming runner pushes the baton's end into it at a film second both roles state alike (`at`), from where the baton passes to the outgoing hand.
@@ -79,7 +76,7 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.relayPass is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
   relayPass(
-    params: IAutoMovieMotionHumanHandover.IRelayPass,
+    params: IAutoMovieMotionHumanRelayPass.IParams,
     anchor?: string,
   ): Chain;
 
@@ -99,54 +96,9 @@ export interface IAutoMovieMotionHumanHandover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandover.handshake is provided by the chain that implements IAutoMovieMotionHumanHandover.
    */
   handshake(
-    params: IAutoMovieMotionHumanHandover.IHandshake,
+    params: IAutoMovieMotionHumanHandshake.IParams,
     anchor?: string,
   ): Chain;
-}
-
-/**
- * The parameter types of the Handover methods.
- */
-export namespace IAutoMovieMotionHumanHandover {
-  /**
-   * The parameters of `handOver`: the giver's `IAutoMovieMotionHumanHandoverAction.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandoverAction` owns the type; the alias serves this family's `handOver` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `handOver` takes the type its law reads.
-   */
-  export type IHandOver = IAutoMovieMotionHumanHandoverAction.IParams;
-
-  /**
-   * The parameters of `receive`: the receiver's `IAutoMovieMotionHumanReceive.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanReceive` owns the type; the alias serves this family's `receive` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `receive` takes the type its law reads.
-   */
-  export type IReceive = IAutoMovieMotionHumanReceive.IParams;
-
-  /**
-   * The parameters of `relayPass`: the law's own `IAutoMovieMotionHumanRelayPass.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRelayPass` owns the type; the alias serves this family's `relayPass` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `relayPass` takes the type its law reads.
-   */
-  export type IRelayPass = IAutoMovieMotionHumanRelayPass.IParams;
-
-  /**
-   * The parameters of `handshake`: the law's own `IAutoMovieMotionHumanHandshake.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandshake` owns the type; the alias serves this family's `handshake` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `handshake` takes the type its law reads.
-   */
-  export type IHandshake = IAutoMovieMotionHumanHandshake.IParams;
 }
 
 /**

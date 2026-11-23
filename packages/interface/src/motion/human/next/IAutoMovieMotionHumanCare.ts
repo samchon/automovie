@@ -33,7 +33,7 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.holdInfant is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
   holdInfant(
-    params: IAutoMovieMotionHumanCare.IHoldInfant,
+    params: IAutoMovieMotionHumanHoldInfant.IParams,
     anchor?: string,
   ): Chain;
 
@@ -51,7 +51,10 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCare.kneelBeside is provided by the chain that implements IAutoMovieMotionHumanCare.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.kneelBeside is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
-  kneelBeside(chain: Chain, params: IAutoMovieMotionHumanCare.IKneelBeside): Chain;
+  kneelBeside(
+    chain: Chain,
+    params: IAutoMovieMotionHumanCare.IKneelBeside,
+  ): Chain;
 
   /**
    * One cycle of chest compressions: both palms press the partner's sternum, 30 times with the arms straight.
@@ -67,7 +70,10 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCare.compressions is provided by the chain that implements IAutoMovieMotionHumanCare.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.compressions is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
-  compressions(chain: Chain, params: IAutoMovieMotionHumanCare.ICompressions): Chain;
+  compressions(
+    chain: Chain,
+    params: IAutoMovieMotionHumanCare.ICompressions,
+  ): Chain;
 
   /**
    * Feel the partner's pulse with the fingertips for 10 s.
@@ -99,23 +105,16 @@ export interface IAutoMovieMotionHumanCare<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCare.pressWound is provided by the chain that implements IAutoMovieMotionHumanCare.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCare.pressWound is provided by the chain that implements IAutoMovieMotionHumanCare.
    */
-  pressWound(chain: Chain, params: IAutoMovieMotionHumanCare.IPressWound): Chain;
+  pressWound(
+    chain: Chain,
+    params: IAutoMovieMotionHumanCare.IPressWound,
+  ): Chain;
 }
 
 /**
  * The parameter types of the Care methods.
  */
 export namespace IAutoMovieMotionHumanCare {
-  /**
-   * The parameters of `holdInfant`: the law's own `IAutoMovieMotionHumanHoldInfant.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHoldInfant` owns the type; the alias serves this family's `holdInfant` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `holdInfant` takes the type its law reads.
-   */
-  export type IHoldInfant = IAutoMovieMotionHumanHoldInfant.IParams;
-
   /**
    * Where a pulse is felt: the carotid at the neck or the radial at the wrist.
    *

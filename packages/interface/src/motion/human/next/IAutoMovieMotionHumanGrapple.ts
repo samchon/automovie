@@ -32,7 +32,7 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.armWrestle is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   armWrestle(
-    params: IAutoMovieMotionHumanGrapple.IArmWrestle,
+    params: IAutoMovieMotionHumanArmWrestle.IParams,
     anchor?: string,
   ): Chain;
 
@@ -51,7 +51,7 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.clinch is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
-  clinch(params: IAutoMovieMotionHumanGrapple.IClinch, anchor?: string): Chain;
+  clinch(params: IAutoMovieMotionHumanClinch.IParams, anchor?: string): Chain;
 
   /**
    * Inputs shared by two actors in a preplanned sport grappling scene.
@@ -68,10 +68,7 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.grapple is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
-  grapple(
-    params: IAutoMovieMotionHumanGrapple.IGrapple,
-    anchor?: string,
-  ): Chain;
+  grapple(params: IAutoMovieMotionHumanGrapple.IParams, anchor?: string): Chain;
 
   /**
    * A broken base (kuzushi): the receiver of a judo throw drawn off balance forward, the whole body tipped about the ankles over the toes while the feet stay on the floor, the stage before a throw carries the body over.
@@ -88,10 +85,7 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.kuzushi is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
-  kuzushi(
-    params: IAutoMovieMotionHumanGrapple.IKuzushi,
-    anchor?: string,
-  ): Chain;
+  kuzushi(params: IAutoMovieMotionHumanKuzushi.IParams, anchor?: string): Chain;
 
   /**
    * A sudden lunge that closes both hands on a victim's region, as a shambler breaks from its walk: the front foot steps long, the trunk pitches forward and the hands close on the region through the stage.
@@ -109,7 +103,7 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.lungeGrab is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   lungeGrab(
-    params: IAutoMovieMotionHumanGrapple.ILungeGrab,
+    params: IAutoMovieMotionHumanLungeGrab.IParams,
     anchor?: string,
   ): Chain;
 
@@ -129,74 +123,9 @@ export interface IAutoMovieMotionHumanGrapple<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGrapple.forceResponse is provided by the chain that implements IAutoMovieMotionHumanGrapple.
    */
   forceResponse(
-    params: IAutoMovieMotionHumanGrapple.IForceResponse,
+    params: IAutoMovieMotionHumanForceResponse.IParams,
     anchor?: string,
   ): Chain;
-}
-
-/**
- * The parameter types of the Grapple methods.
- */
-export namespace IAutoMovieMotionHumanGrapple {
-  /**
-   * The parameters of `armWrestle`: `IAutoMovieMotionHumanArmWrestle.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanArmWrestle.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanArmWrestle.IParams` owns the shape; the alias serves `armWrestle` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `armWrestle` takes the type its law reads.
-   */
-  export type IArmWrestle = IAutoMovieMotionHumanArmWrestle.IParams;
-
-  /**
-   * The parameters of `clinch`: the law's own `IAutoMovieMotionHumanClinch.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClinch` owns the type; the alias serves this family's `clinch` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `clinch` takes the type its law reads.
-   */
-  export type IClinch = IAutoMovieMotionHumanClinch.IParams;
-
-  /**
-   * The parameters of `grapple`: the grappling law's own `IAutoMovieMotionHumanGrapple.IParams` (imported as `IAutoMovieMotionHumanGrapple`), unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The grappling folder's `IAutoMovieMotionHumanGrapple` owns the type; the alias serves this family's `grapple` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `grapple` takes the type its law reads.
-   */
-  export type IGrapple = IAutoMovieMotionHumanGrapple.IParams;
-
-  /**
-   * The parameters of `kuzushi`: the law's own `IAutoMovieMotionHumanKuzushi.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKuzushi` owns the type; the alias serves this family's `kuzushi` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `kuzushi` takes the type its law reads.
-   */
-  export type IKuzushi = IAutoMovieMotionHumanKuzushi.IParams;
-
-  /**
-   * The parameters of `lungeGrab`: the law's own `IAutoMovieMotionHumanLungeGrab.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLungeGrab` owns the type; the alias serves this family's `lungeGrab` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lungeGrab` takes the type its law reads.
-   */
-  export type ILungeGrab = IAutoMovieMotionHumanLungeGrab.IParams;
-
-  /**
-   * The parameters of `forceResponse`: the law's own `IAutoMovieMotionHumanForceResponse.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanForceResponse` owns the type; the alias serves this family's `forceResponse` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `forceResponse` takes the type its law reads.
-   */
-  export type IForceResponse = IAutoMovieMotionHumanForceResponse.IParams;
 }
 
 /**
@@ -335,5 +264,8 @@ export namespace IAutoMovieMotionHumanGrapple {
    * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClinch.IParams` owns the shape; the lexicon's social map names the row's parameters by this alias.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit`.
    */
-  export type IClinchRow = Omit<IClinch, keyof IClinchPreset>;
+  export type IClinchRow = Omit<
+    IAutoMovieMotionHumanClinch.IParams,
+    keyof IClinchPreset
+  >;
 }

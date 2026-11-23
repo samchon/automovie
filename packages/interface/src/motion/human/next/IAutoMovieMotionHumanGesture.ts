@@ -33,10 +33,7 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGesture.gesture is provided by the chain that implements IAutoMovieMotionHumanGesture.
    */
-  gesture(
-    params: IAutoMovieMotionHumanGesture.IGesture,
-    anchor?: string,
-  ): Chain;
+  gesture(params: IAutoMovieMotionHumanGesture.IParams, anchor?: string): Chain;
 
   /**
    * Arm primitives: a hand surface carried to a target, kept on it and taken back.
@@ -54,7 +51,7 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGesture.armPhrase is provided by the chain that implements IAutoMovieMotionHumanGesture.
    */
   armPhrase(
-    params: IAutoMovieMotionHumanGesture.IArmPhrase,
+    params: IAutoMovieMotionHumanArmPhrase.IParams,
     anchor?: string,
   ): Chain;
 }
@@ -64,26 +61,6 @@ export interface IAutoMovieMotionHumanGesture<Chain> {
  */
 export namespace IAutoMovieMotionHumanGesture {
   /**
-   * The parameters of `gesture`: the everyday law's own `IAutoMovieMotionHumanGesture.IParams` (imported as `IAutoMovieMotionHumanGesture`), unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The everyday folder's `IAutoMovieMotionHumanGesture` owns the type; the alias serves this family's `gesture` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `gesture` takes the type its law reads.
-   */
-  export type IGesture = IAutoMovieMotionHumanGesture.IParams;
-
-  /**
-   * The parameters of `armPhrase`: the law's own `IAutoMovieMotionHumanArmPhrase.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanArmPhrase` owns the type; the alias serves this family's `armPhrase` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `armPhrase` takes the type its law reads.
-   */
-  export type IArmPhrase = IAutoMovieMotionHumanArmPhrase.IParams;
-
-  /**
    * The `gesture` parameters a preset fixes: `kind`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the `gesture` members the presets of this key set fix.
@@ -91,7 +68,10 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
-  export type IGestureKindPreset = Pick<IGesture, "kind">;
+  export type IGestureKindPreset = Pick<
+    IAutoMovieMotionHumanGesture.IParams,
+    "kind"
+  >;
 
   /**
    * The `gesture` parameters a preset fixes: `kind`, `shape`, `turn`, `aim`.
@@ -102,7 +82,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IGestureKindShapeTurnAimPreset = Pick<
-    IGesture,
+    IAutoMovieMotionHumanGesture.IParams,
     "kind" | "shape" | "turn" | "aim"
   >;
 
@@ -115,7 +95,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IGestureKindShapeAimPreset = Pick<
-    IGesture,
+    IAutoMovieMotionHumanGesture.IParams,
     "kind" | "shape" | "aim"
   >;
 
@@ -127,7 +107,10 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#minimal-and-owned-surface Serves the presets that fix exactly these members, so the rows keep their open parameters.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
-  export type IGestureKindShapePreset = Pick<IGesture, "kind" | "shape">;
+  export type IGestureKindShapePreset = Pick<
+    IAutoMovieMotionHumanGesture.IParams,
+    "kind" | "shape"
+  >;
 
   /**
    * The `armPhrase` parameters a preset fixes: `phrase`, `target`, `mirror`, `offset`, `swing`, `count`, `facing`.
@@ -138,7 +121,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseTargetMirrorOffsetSwingCountFacingPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "mirror" | "offset" | "swing" | "count" | "facing"
   >;
 
@@ -151,7 +134,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseTargetMirrorOffsetFacingHoldPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "mirror" | "offset" | "facing" | "hold"
   >;
 
@@ -164,7 +147,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseSurfaceShapeHoldPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "surface" | "shape" | "hold"
   >;
 
@@ -177,7 +160,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseSurfaceShapeSwingCountPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "surface" | "shape" | "swing" | "count"
   >;
 
@@ -190,7 +173,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseSurfaceShapeFromPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "surface" | "shape" | "from"
   >;
 
@@ -203,7 +186,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseTargetMirrorSurfaceShapeHoldPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "mirror" | "surface" | "shape" | "hold"
   >;
 
@@ -216,7 +199,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseTargetSurfaceShapeHoldPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "surface" | "shape" | "hold"
   >;
 
@@ -229,7 +212,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseTargetSurfaceShapeFromPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "surface" | "shape" | "from"
   >;
 
@@ -242,7 +225,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseTargetSurfaceShapeSwingCountPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "surface" | "shape" | "swing" | "count"
   >;
 
@@ -255,7 +238,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseHandTargetOffsetSwingCountFacingPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "hand" | "target" | "offset" | "swing" | "count" | "facing"
   >;
 
@@ -268,7 +251,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseHandTargetOffsetFacingHoldPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "hand" | "target" | "offset" | "facing" | "hold"
   >;
 
@@ -281,7 +264,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseHandTargetOffsetShapeFacingHoldPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "hand" | "target" | "offset" | "shape" | "facing" | "hold"
   >;
 
@@ -294,7 +277,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseTargetMirrorOffsetShapeFacingHoldPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "mirror" | "offset" | "shape" | "facing" | "hold"
   >;
 
@@ -307,7 +290,7 @@ export namespace IAutoMovieMotionHumanGesture {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
    */
   export type IArmPhrasePhraseTargetSurfaceShapePointHoldPreset = Pick<
-    IArmPhrase,
+    IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "surface" | "shape" | "point" | "hold"
   >;
 }

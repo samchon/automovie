@@ -30,7 +30,7 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.climbLadder is provided by the chain that implements IAutoMovieMotionHumanClimb.
    */
   climbLadder(
-    params: IAutoMovieMotionHumanClimb.IClimbLadder,
+    params: IAutoMovieMotionHumanClimbLadder.IParams,
     anchor?: string,
   ): Chain;
 
@@ -50,7 +50,7 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.climbStairs is provided by the chain that implements IAutoMovieMotionHumanClimb.
    */
   climbStairs(
-    params: IAutoMovieMotionHumanClimb.IClimbStairs,
+    params: IAutoMovieMotionHumanClimbStairs.IParams,
     anchor?: string,
   ): Chain;
 
@@ -69,7 +69,7 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanClimb.rope is provided by the chain that implements IAutoMovieMotionHumanClimb.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.rope is provided by the chain that implements IAutoMovieMotionHumanClimb.
    */
-  rope(params: IAutoMovieMotionHumanClimb.IRope, anchor?: string): Chain;
+  rope(params: IAutoMovieMotionHumanRope.IParams, anchor?: string): Chain;
 
   /**
    * Climb a tree, sit in it or descend.
@@ -87,7 +87,7 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.treeClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
    */
   treeClimb(
-    params: IAutoMovieMotionHumanClimb.ITreeClimb,
+    params: IAutoMovieMotionHumanTreeClimb.IParams,
     anchor?: string,
   ): Chain;
 
@@ -106,63 +106,5 @@ export interface IAutoMovieMotionHumanClimb<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanClimb.wallClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanClimb.wallClimb is provided by the chain that implements IAutoMovieMotionHumanClimb.
    */
-  wallClimb(
-    params: IAutoMovieMotionHumanClimb.IWallClimb,
-    anchor?: string,
-  ): Chain;
-}
-
-/**
- * The parameter types of the Climb methods.
- */
-export namespace IAutoMovieMotionHumanClimb {
-  /**
-   * The parameters of `climbLadder`: the law's own `IAutoMovieMotionHumanClimbLadder.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClimbLadder` owns the type; the alias serves this family's `climbLadder` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `climbLadder` takes the type its law reads.
-   */
-  export type IClimbLadder = IAutoMovieMotionHumanClimbLadder.IParams;
-
-  /**
-   * The parameters of `climbStairs`: the law's own `IAutoMovieMotionHumanClimbStairs.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanClimbStairs` owns the type; the alias serves this family's `climbStairs` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `climbStairs` takes the type its law reads.
-   */
-  export type IClimbStairs = IAutoMovieMotionHumanClimbStairs.IParams;
-
-  /**
-   * The parameters of `rope`: the law's own `IAutoMovieMotionHumanRope.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRope` owns the type; the alias serves this family's `rope` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `rope` takes the type its law reads.
-   */
-  export type IRope = IAutoMovieMotionHumanRope.IParams;
-
-  /**
-   * The parameters of `treeClimb`: the law's own `IAutoMovieMotionHumanTreeClimb.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTreeClimb` owns the type; the alias serves this family's `treeClimb` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `treeClimb` takes the type its law reads.
-   */
-  export type ITreeClimb = IAutoMovieMotionHumanTreeClimb.IParams;
-
-  /**
-   * The parameters of `wallClimb`: the route type `IAutoMovieMotionHumanWallClimb`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the route type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames and invariants are those the route type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWallClimb` owns the type; the alias serves this family's `wallClimb` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `wallClimb` takes the type its route reads.
-   */
-  export type IWallClimb = IAutoMovieMotionHumanWallClimb;
+  wallClimb(params: IAutoMovieMotionHumanWallClimb, anchor?: string): Chain;
 }

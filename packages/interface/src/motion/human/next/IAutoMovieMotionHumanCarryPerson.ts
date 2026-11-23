@@ -27,7 +27,7 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCarryPerson.carryPerson is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
    */
   carryPerson(
-    params: IAutoMovieMotionHumanCarryPerson.ICarryPerson,
+    params: IAutoMovieMotionHumanCarried.IParams,
     anchor?: string,
   ): Chain;
 
@@ -47,32 +47,7 @@ export interface IAutoMovieMotionHumanCarryPerson<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCarryPerson.carriedLift is provided by the chain that implements IAutoMovieMotionHumanCarryPerson.
    */
   carriedLift(
-    params: IAutoMovieMotionHumanCarryPerson.ICarriedLift,
+    params: IAutoMovieMotionHumanCarriedLift.IParams,
     anchor?: string,
   ): Chain;
-}
-
-/**
- * The parameter types of the CarryPerson methods.
- */
-export namespace IAutoMovieMotionHumanCarryPerson {
-  /**
-   * The parameters of `carryPerson`: the carried law's own `IAutoMovieMotionHumanCarried.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCarried` owns the type; the alias serves this family's `carryPerson` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `carryPerson` takes the type its law reads.
-   */
-  export type ICarryPerson = IAutoMovieMotionHumanCarried.IParams;
-
-  /**
-   * The parameters of `carriedLift`: the law's own `IAutoMovieMotionHumanCarriedLift.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCarriedLift` owns the type; the alias serves this family's `carriedLift` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `carriedLift` takes the type its law reads.
-   */
-  export type ICarriedLift = IAutoMovieMotionHumanCarriedLift.IParams;
 }

@@ -25,7 +25,7 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.stepOver is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
   stepOver(
-    params: IAutoMovieMotionHumanCrossing.IStepOver,
+    params: IAutoMovieMotionHumanStepOver.IParams,
     anchor?: string,
   ): Chain;
 
@@ -44,10 +44,7 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.vault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
-  vault(
-    params: IAutoMovieMotionHumanCrossing.IVaultParams,
-    anchor?: string,
-  ): Chain;
+  vault(params: IAutoMovieMotionHumanVault.IParams, anchor?: string): Chain;
 
   /**
    * A squat vault over a box: the hands set on the near edge of the box's top, the body tucked over them, a push-off into a flight over the box and a landing on both feet beyond its far edge.
@@ -65,7 +62,7 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.squatVault is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
   squatVault(
-    params: IAutoMovieMotionHumanCrossing.ISquatVault,
+    params: IAutoMovieMotionHumanSquatVault.IParams,
     anchor?: string,
   ): Chain;
 
@@ -85,7 +82,7 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCrossing.crossObstacle is provided by the chain that implements IAutoMovieMotionHumanCrossing.
    */
   crossObstacle(
-    params: IAutoMovieMotionHumanCrossing.ICrossObstacle,
+    params: IAutoMovieMotionHumanCrossing.IParams,
     anchor?: string,
   ): Chain;
 }
@@ -94,46 +91,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
  * The parameter types of the Crossing methods.
  */
 export namespace IAutoMovieMotionHumanCrossing {
-  /**
-   * The parameters of `stepOver`: the law's own `IAutoMovieMotionHumanStepOver.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStepOver` owns the type; the alias serves this family's `stepOver` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stepOver` takes the type its law reads.
-   */
-  export type IStepOver = IAutoMovieMotionHumanStepOver.IParams;
-
-  /**
-   * The parameters of `vault`: the law's own `IAutoMovieMotionHumanVault.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanVault` owns the type; the alias serves this family's `vault` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `vault` takes the type its law reads.
-   */
-  export type IVaultParams = IAutoMovieMotionHumanVault.IParams;
-
-  /**
-   * The parameters of `squatVault`: the law's own `IAutoMovieMotionHumanSquatVault.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSquatVault` owns the type; the alias serves this family's `squatVault` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `squatVault` takes the type its law reads.
-   */
-  export type ISquatVault = IAutoMovieMotionHumanSquatVault.IParams;
-
-  /**
-   * The parameters of `crossObstacle`: the crossing's own `IAutoMovieMotionHumanCrossing.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the crossing type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrossing.IParams` owns the type; the alias serves this family's `crossObstacle` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `crossObstacle` takes the type its law reads.
-   */
-  export type ICrossObstacle = IParams;
-
   /**
    * The apex of a crossing flight: the height of the flight above take-off, metres; positive. It is the jump's own `apex`.
    *

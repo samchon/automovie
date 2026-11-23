@@ -26,7 +26,7 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDefence.defend is provided by the chain that implements IAutoMovieMotionHumanDefence.
    */
-  defend(params: IAutoMovieMotionHumanDefence.IDefend, anchor?: string): Chain;
+  defend(params: IAutoMovieMotionHumanDefend.IParams, anchor?: string): Chain;
 
   /**
    * The fighting stance taken and held: from whatever the performer stands in, each foot steps to its stance place in turn (the rear foot first, so the lead foot stays a support), the root sinks until both knees soften and turns to the stance heading, and the gloves come up to the guard, then the stance holds with a light bounce through the knees.
@@ -43,33 +43,13 @@ export interface IAutoMovieMotionHumanDefence<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDefence.guard is provided by the chain that implements IAutoMovieMotionHumanDefence.
    */
-  guard(params: IAutoMovieMotionHumanDefence.IGuard, anchor?: string): Chain;
+  guard(params: IAutoMovieMotionHumanGuard.IParams, anchor?: string): Chain;
 }
 
 /**
  * The parameter types of the Defence methods.
  */
 export namespace IAutoMovieMotionHumanDefence {
-  /**
-   * The parameters of `defend`: the law's own `IAutoMovieMotionHumanDefend.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDefend` owns the type; the alias serves this family's `defend` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `defend` takes the type its law reads.
-   */
-  export type IDefend = IAutoMovieMotionHumanDefend.IParams;
-
-  /**
-   * The parameters of `guard`: the law's own `IAutoMovieMotionHumanGuard.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGuard` owns the type; the alias serves this family's `guard` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `guard` takes the type its law reads.
-   */
-  export type IGuard = IAutoMovieMotionHumanGuard.IParams;
-
   /**
    * A defence preset: the kind a named defence fixes, such as the slip or the high block. Spread into `defend`'s parameters with the strike it answers (`against`) and, where the scene decides it, the outcome.
    *
@@ -91,5 +71,8 @@ export namespace IAutoMovieMotionHumanDefence {
    * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDefend.IParams` owns the shape; the lexicon's defence map names the rows' parameters by this alias.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: one named projection instead of an inline `Omit` in every row.
    */
-  export type IDefendRow = Omit<IDefend, keyof IDefendPreset>;
+  export type IDefendRow = Omit<
+    IAutoMovieMotionHumanDefend.IParams,
+    keyof IDefendPreset
+  >;
 }

@@ -33,7 +33,7 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.bindPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.bindPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
-  bindPartner(params: IAutoMovieMotionHumanGetDressed.IBindPartner, anchor?: string): Chain;
+  bindPartner(params: IAutoMovieMotionHumanBindPartner, anchor?: string): Chain;
 
   /**
    * Put a held wearable on another performer: a ring onto a finger, a necklace at the nape, a medal or a flower at the chest, a crown on the head. The dresser carries the item to the partner's region, it is worn there from the arrival, and the hand lets go and returns.
@@ -50,7 +50,10 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.dressPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.dressPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
-  dressPartner(params: IAutoMovieMotionHumanGetDressed.IDressPartner, anchor?: string): Chain;
+  dressPartner(
+    params: IAutoMovieMotionHumanDressPartner,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Help a partner into a coat: the dresser stands behind, carries the held open-front jacket up to the partner's collar and holds it open while the partner's arms go back into its sleeves, then lets go and the jacket is worn on the partner's chest.
@@ -67,7 +70,7 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.coatPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.coatPartner is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
-  coatPartner(params: IAutoMovieMotionHumanGetDressed.ICoatPartner, anchor?: string): Chain;
+  coatPartner(params: IAutoMovieMotionHumanCoatPartner, anchor?: string): Chain;
 
   /**
    * Slip a ring onto a partner's finger: the partner presents a hand, the dresser's other hand holds it from below, and the hand that holds the ring brings its hole onto the fingertip and slides it to the finger's base, where it is worn from then on.
@@ -84,7 +87,7 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.slipRing is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.slipRing is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
-  slipRing(params: IAutoMovieMotionHumanGetDressed.ISlipRing, anchor?: string): Chain;
+  slipRing(params: IAutoMovieMotionHumanSlipRing, anchor?: string): Chain;
 
   /**
    * Present a hand to a partner and keep it there: the upper arm hangs, the forearm comes forward level at the elbow's height and the hand is held out palm down, fingers forward, for a ring to be slipped on or a hand to be kissed, then it returns.
@@ -101,7 +104,7 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.presentHand is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.presentHand is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
-  presentHand(params: IAutoMovieMotionHumanGetDressed.IPresentHand, anchor?: string): Chain;
+  presentHand(params: IAutoMovieMotionHumanPresentHand, anchor?: string): Chain;
 
   /**
    * Set a neck loop over a partner's head with both hands: a ribbon medal over a bowed head, or a necklace from behind a seated partner; the loop is raised above the crown, lowered round the head to the neck and worn on the upper chest, and the hands let go.
@@ -118,7 +121,10 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.placeOverHead is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.placeOverHead is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
-  placeOverHead(params: IAutoMovieMotionHumanGetDressed.IPlaceOverHead, anchor?: string): Chain;
+  placeOverHead(
+    params: IAutoMovieMotionHumanPlaceOverHead,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Straighten a partner's tie, facing them: the flat palm of one hand smooths the tie's front blade along the partner's sternum with one short sweep, read where the partner stands when the touch starts, so the partner is placed first.
@@ -136,7 +142,11 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.straightenPartnerTie is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.straightenPartnerTie is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
-  straightenPartnerTie(chain: Chain, params: IAutoMovieMotionHumanGetDressed.IStraightenPartnerTie, anchor?: string): Chain;
+  straightenPartnerTie(
+    chain: Chain,
+    params: IAutoMovieMotionHumanGetDressed.IStraightenPartnerTie,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Adjust one's own cuff: the sleeved wrist is presented across the waist and the opposite hand's curled fingertips squeeze the cuff for a brief hold; the wrist is the garment landmark.
@@ -154,73 +164,17 @@ export interface IAutoMovieMotionHumanGetDressed<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGetDressed.adjustCuff is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGetDressed.adjustCuff is provided by the chain that implements IAutoMovieMotionHumanGetDressed.
    */
-  adjustCuff(chain: Chain, params: IAutoMovieMotionHumanGetDressed.IAdjustCuff, anchor?: string): Chain;
+  adjustCuff(
+    chain: Chain,
+    params: IAutoMovieMotionHumanGetDressed.IAdjustCuff,
+    anchor?: string,
+  ): Chain;
 }
 
 /**
  * The parameter types of the GetDressed methods.
  */
 export namespace IAutoMovieMotionHumanGetDressed {
-  /**
-   * The parameters of `bindPartner`: `IAutoMovieMotionHumanBindPartner`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBindPartner`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBindPartner` owns the shape; the alias serves `bindPartner` of this family without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IBindPartner = IAutoMovieMotionHumanBindPartner;
-
-  /**
-   * The parameters of `dressPartner`: `IAutoMovieMotionHumanDressPartner`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanDressPartner`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDressPartner` owns the shape; the alias serves `dressPartner` of this family without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IDressPartner = IAutoMovieMotionHumanDressPartner;
-
-  /**
-   * The parameters of `coatPartner`: `IAutoMovieMotionHumanCoatPartner`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanCoatPartner`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCoatPartner` owns the shape; the alias serves `coatPartner` of this family without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ICoatPartner = IAutoMovieMotionHumanCoatPartner;
-
-  /**
-   * The parameters of `slipRing`: `IAutoMovieMotionHumanSlipRing`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSlipRing`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSlipRing` owns the shape; the alias serves `slipRing` of this family without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ISlipRing = IAutoMovieMotionHumanSlipRing;
-
-  /**
-   * The parameters of `presentHand`: `IAutoMovieMotionHumanPresentHand`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPresentHand`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPresentHand` owns the shape; the alias serves `presentHand` of this family without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IPresentHand = IAutoMovieMotionHumanPresentHand;
-
-  /**
-   * The parameters of `placeOverHead`: `IAutoMovieMotionHumanPlaceOverHead`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPlaceOverHead`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPlaceOverHead` owns the shape; the alias serves `placeOverHead` of this family without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IPlaceOverHead = IAutoMovieMotionHumanPlaceOverHead;
-
   /**
    * The parameters of `straightenPartnerTie`.
    *

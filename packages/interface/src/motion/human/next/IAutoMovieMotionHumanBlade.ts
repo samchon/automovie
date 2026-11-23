@@ -36,7 +36,7 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.swordGuard is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
   swordGuard(
-    params: IAutoMovieMotionHumanBlade.ISwordGuard,
+    params: IAutoMovieMotionHumanSwordGuard.IParams,
     anchor?: string,
   ): Chain;
 
@@ -55,7 +55,7 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBlade.cut is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.cut is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
-  cut(params: IAutoMovieMotionHumanBlade.ICut, anchor?: string): Chain;
+  cut(params: IAutoMovieMotionHumanSword.ICut, anchor?: string): Chain;
 
   /**
    * A thrust of the blade point at the target, with the advance the target needs.
@@ -72,7 +72,7 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBlade.thrust is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.thrust is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
-  thrust(params: IAutoMovieMotionHumanBlade.IThrust, anchor?: string): Chain;
+  thrust(params: IAutoMovieMotionHumanSword.IAttack, anchor?: string): Chain;
 
   /**
    * A parry that stops the opponent's attack on the blade, optionally held as a bind.
@@ -89,7 +89,7 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBlade.parry is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.parry is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
-  parry(params: IAutoMovieMotionHumanBlade.IParry, anchor?: string): Chain;
+  parry(params: IAutoMovieMotionHumanSwordParry.IParry, anchor?: string): Chain;
 
   /**
    * The attacker's blade carried aside on the defender's bind after a parried attack.
@@ -106,7 +106,7 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBlade.taken is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.taken is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
-  taken(params: IAutoMovieMotionHumanBlade.ITaken, anchor?: string): Chain;
+  taken(params: IAutoMovieMotionHumanSwordParry.ITaken, anchor?: string): Chain;
 
   /**
    * A mounted sabre carried on a slope or engaged with a target.
@@ -123,7 +123,7 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBlade.sabre is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.sabre is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
-  sabre(params: IAutoMovieMotionHumanBlade.ISabre, anchor?: string): Chain;
+  sabre(params: IAutoMovieMotionHumanSabre, anchor?: string): Chain;
 
   /**
    * A lance lowered to the couched position at a target.
@@ -140,86 +140,13 @@ export interface IAutoMovieMotionHumanBlade<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBlade.lanceCouch is provided by the chain that implements IAutoMovieMotionHumanBlade.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBlade.lanceCouch is provided by the chain that implements IAutoMovieMotionHumanBlade.
    */
-  lanceCouch(
-    params: IAutoMovieMotionHumanBlade.ILanceCouch,
-    anchor?: string,
-  ): Chain;
+  lanceCouch(params: IAutoMovieMotionHumanLanceCouch, anchor?: string): Chain;
 }
 
 /**
  * The parameter and preset types of the family's methods.
  */
 export namespace IAutoMovieMotionHumanBlade {
-  /**
-   * The parameters of `swordGuard`: the law's own `IAutoMovieMotionHumanSwordGuard.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwordGuard` owns the type; the alias serves this family's `swordGuard` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `swordGuard` takes the type its law reads.
-   */
-  export type ISwordGuard = IAutoMovieMotionHumanSwordGuard.IParams;
-
-  /**
-   * The parameters of `cut`: the law's own `IAutoMovieMotionHumanSword.ICut`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSword` owns the type; the alias serves this family's `cut` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `cut` takes the type its law reads.
-   */
-  export type ICut = IAutoMovieMotionHumanSword.ICut;
-
-  /**
-   * The parameters of `thrust`: the law's own `IAutoMovieMotionHumanSword.IAttack`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSword` owns the type; the alias serves this family's `thrust` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `thrust` takes the type its law reads.
-   */
-  export type IThrust = IAutoMovieMotionHumanSword.IAttack;
-
-  /**
-   * The parameters of `parry`: the law's own `IAutoMovieMotionHumanSwordParry.IParry`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwordParry` owns the type; the alias serves this family's `parry` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `parry` takes the type its law reads.
-   */
-  export type IParry = IAutoMovieMotionHumanSwordParry.IParry;
-
-  /**
-   * The parameters of `taken`: the law's own `IAutoMovieMotionHumanSwordParry.ITaken`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwordParry` owns the type; the alias serves this family's `taken` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `taken` takes the type its law reads.
-   */
-  export type ITaken = IAutoMovieMotionHumanSwordParry.ITaken;
-
-  /**
-   * The parameters of `sabre`: the law's own `IAutoMovieMotionHumanSabre`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSabre` owns the type; the alias serves this family's `sabre` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `sabre` takes the type its law reads.
-   */
-  export type ISabre = IAutoMovieMotionHumanSabre;
-
-  /**
-   * The parameters of `lanceCouch`: the law's own `IAutoMovieMotionHumanLanceCouch`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLanceCouch` owns the type; the alias serves this family's `lanceCouch` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lanceCouch` takes the type its law reads.
-   */
-  export type ILanceCouch = IAutoMovieMotionHumanLanceCouch;
-
   /**
    * The direction and step count a footwork preset fixes (`ADVANCE`, `RETREAT`, `TRAVERSE`, `VOID_STEP`).
    *

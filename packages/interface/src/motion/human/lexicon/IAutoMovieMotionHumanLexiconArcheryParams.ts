@@ -1,4 +1,6 @@
+import type { IAutoMovieMotionHumanPutDown } from "../handling/IAutoMovieMotionHumanPutDown";
 import type { IAutoMovieMotionHumanArchery } from "../next/IAutoMovieMotionHumanArchery";
+import type { IAutoMovieMotionHumanOperate } from "../next/IAutoMovieMotionHumanOperate";
 
 /**
  * Open parameters of the archery lexicon family, keyed by each runtime export name.
@@ -14,19 +16,19 @@ export interface IAutoMovieMotionHumanLexiconArcheryParams {
   takeArrow: IAutoMovieMotionHumanArchery.ITakeArrow;
 
   /** Set the arrow's nock on the bow's string. */
-  nockArrow: IAutoMovieMotionHumanArchery.INockArrow;
+  nockArrow: IAutoMovieMotionHumanPutDown.IParams;
 
   /** Hold the bow out in one hand on the line from the face to the target. */
   presentBow: IAutoMovieMotionHumanArchery.IPresentBow;
 
   /** Draw the string back to the anchor, over `presentBow`. */
-  drawBow: IAutoMovieMotionHumanArchery.IDrawBow;
+  drawBow: IAutoMovieMotionHumanOperate.IParams;
 
   /** Release the arrow prop, with an optional authored continuation after the cue. */
   loose: IAutoMovieMotionHumanArchery.ILoose;
 
   /** Span a crossbow by its string or its crank. */
-  spanCrossbow: IAutoMovieMotionHumanArchery.ISpanCrossbow;
+  spanCrossbow: IAutoMovieMotionHumanOperate.IParams;
 
   /** Hold the crossbow to the cheek on the line to the target. */
   presentCrossbow: IAutoMovieMotionHumanArchery.IPresentCrossbow;

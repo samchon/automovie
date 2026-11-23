@@ -33,7 +33,7 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.lieDown is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
-  lieDown(params: IAutoMovieMotionHumanFloor.ILieDown, anchor?: string): Chain;
+  lieDown(params: IAutoMovieMotionHumanLieDown.IParams, anchor?: string): Chain;
 
   /**
    * Getting up from the floor to standing: from lying on the back or the front, from the hands and knees or crouched, as a crawl ends.
@@ -50,7 +50,7 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.getUp is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
-  getUp(params: IAutoMovieMotionHumanFloor.IGetUp, anchor?: string): Chain;
+  getUp(params: IAutoMovieMotionHumanGetUp.IParams, anchor?: string): Chain;
 
   /**
    * A forward or backward roll on the floor: the body crouches into a tuck over its feet, rolls once round over its back as a ball rolls, without flight, and rises from the tuck on its feet where the roll has carried it.
@@ -67,7 +67,7 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.roll is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
-  roll(params: IAutoMovieMotionHumanFloor.IRoll, anchor?: string): Chain;
+  roll(params: IAutoMovieMotionHumanRoll.IParams, anchor?: string): Chain;
 
   /**
    * Crawling on hands and knees along the heading, from standing: the body gets down onto hands and knees, then crawls a number of cycles in the diagonal pattern, each hand moving with the opposite knee like a quadruped's trot (Patrick, Noah and Yang 2009, J Neurophysiol 101:603).
@@ -84,7 +84,7 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.crawl is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
-  crawl(params: IAutoMovieMotionHumanFloor.ICrawl, anchor?: string): Chain;
+  crawl(params: IAutoMovieMotionHumanCrawl.IParams, anchor?: string): Chain;
 
   /**
    * A supine quadrupedal crawl, the crab walk of horror films: from sitting, the hands plant behind the hips and the pelvis lifts, and the body travels on its hands and feet with the chest up, feet first or head first.
@@ -102,7 +102,7 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.crabWalk is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   crabWalk(
-    params: IAutoMovieMotionHumanFloor.ICrabWalk,
+    params: IAutoMovieMotionHumanCrabWalk.IParams,
     anchor?: string,
   ): Chain;
 
@@ -121,7 +121,7 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.dive is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
-  dive(params: IAutoMovieMotionHumanFloor.IDive, anchor?: string): Chain;
+  dive(params: IAutoMovieMotionHumanDive.IParams, anchor?: string): Chain;
 
   /**
    * Lying down on, or sitting up from, a raised support such as a bed or a sofa: from sitting on its long edge the trunk lowers toward the head end while the legs swing up, then the body rolls onto the back; with `rise` the reverse.
@@ -139,7 +139,7 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.lieOnSurface is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
   lieOnSurface(
-    params: IAutoMovieMotionHumanFloor.ILieOnSurface,
+    params: IAutoMovieMotionHumanLieOnSurface,
     anchor?: string,
   ): Chain;
 
@@ -158,10 +158,7 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.turnOver is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
-  turnOver(
-    params: IAutoMovieMotionHumanFloor.ITurnOver,
-    anchor?: string,
-  ): Chain;
+  turnOver(params: IAutoMovieMotionHumanTurnOver, anchor?: string): Chain;
 
   /**
    * A log roll across the floor: the lying body, straight with the arms overhead, rolls about its long axis toward one side for a number of half turns or to a named place, ending on the back or the front.
@@ -178,103 +175,13 @@ export interface IAutoMovieMotionHumanFloor<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFloor.logRoll is provided by the chain that implements IAutoMovieMotionHumanFloor.
    */
-  logRoll(params: IAutoMovieMotionHumanFloor.ILogRoll, anchor?: string): Chain;
+  logRoll(params: IAutoMovieMotionHumanLogRoll, anchor?: string): Chain;
 }
 
 /**
  * The parameter types of the Floor methods.
  */
 export namespace IAutoMovieMotionHumanFloor {
-  /**
-   * The parameters of `lieDown`: the law's own `IAutoMovieMotionHumanLieDown.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLieDown` owns the type; the alias serves this family's `lieDown` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lieDown` takes the type its law reads.
-   */
-  export type ILieDown = IAutoMovieMotionHumanLieDown.IParams;
-
-  /**
-   * The parameters of `getUp`: the law's own `IAutoMovieMotionHumanGetUp.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGetUp` owns the type; the alias serves this family's `getUp` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `getUp` takes the type its law reads.
-   */
-  export type IGetUp = IAutoMovieMotionHumanGetUp.IParams;
-
-  /**
-   * The parameters of `roll`: the law's own `IAutoMovieMotionHumanRoll.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRoll` owns the type; the alias serves this family's `roll` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `roll` takes the type its law reads.
-   */
-  export type IRoll = IAutoMovieMotionHumanRoll.IParams;
-
-  /**
-   * The parameters of `crawl`: the law's own `IAutoMovieMotionHumanCrawl.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrawl` owns the type; the alias serves this family's `crawl` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `crawl` takes the type its law reads.
-   */
-  export type ICrawl = IAutoMovieMotionHumanCrawl.IParams;
-
-  /**
-   * The parameters of `crabWalk`: the law's own `IAutoMovieMotionHumanCrabWalk.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrabWalk` owns the type; the alias serves this family's `crabWalk` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `crabWalk` takes the type its law reads.
-   */
-  export type ICrabWalk = IAutoMovieMotionHumanCrabWalk.IParams;
-
-  /**
-   * The parameters of `dive`: the law's own `IAutoMovieMotionHumanDive.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDive` owns the type; the alias serves this family's `dive` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `dive` takes the type its law reads.
-   */
-  export type IDive = IAutoMovieMotionHumanDive.IParams;
-
-  /**
-   * The parameters of `lieOnSurface`: the law's own `IAutoMovieMotionHumanLieOnSurface`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLieOnSurface` owns the type; the alias serves this family's `lieOnSurface` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lieOnSurface` takes the type its law reads.
-   */
-  export type ILieOnSurface = IAutoMovieMotionHumanLieOnSurface;
-
-  /**
-   * The parameters of `turnOver`: the law's own `IAutoMovieMotionHumanTurnOver`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTurnOver` owns the type; the alias serves this family's `turnOver` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `turnOver` takes the type its law reads.
-   */
-  export type ITurnOver = IAutoMovieMotionHumanTurnOver;
-
-  /**
-   * The parameters of `logRoll`: the law's own `IAutoMovieMotionHumanLogRoll`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLogRoll` owns the type; the alias serves this family's `logRoll` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `logRoll` takes the type its law reads.
-   */
-  export type ILogRoll = IAutoMovieMotionHumanLogRoll;
-
   /**
    * The kind and hold that a named lying or sitting down fixes: the `kind` and `hold` of `lieDown`. Spread into `lieDown`'s parameters; `AutoMovieMotionHumanFloor.SIT_ON_FLOOR`, `SIT_CROSS_LEGGED`, `SIT_SIDEWAYS` and `LIE_STILL` are its data and the rows of the same names read them.
    *
@@ -283,5 +190,8 @@ export namespace IAutoMovieMotionHumanFloor {
    * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `lieDown` owns the members' meanings.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `lieDown`'s own members and redefines none.
    */
-  export type ILieDownPreset = Pick<ILieDown, "kind" | "hold">;
+  export type ILieDownPreset = Pick<
+    IAutoMovieMotionHumanLieDown.IParams,
+    "kind" | "hold"
+  >;
 }

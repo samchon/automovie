@@ -27,7 +27,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBoardGame.chessMove is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    */
   chessMove(
-    params: IAutoMovieMotionHumanBoardGame.IChessMove,
+    params: IAutoMovieMotionHumanTabletop.IChessMove,
     anchor?: string,
   ): Chain;
 
@@ -47,7 +47,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBoardGame.deal is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBoardGame.deal is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    */
-  deal(params: IAutoMovieMotionHumanBoardGame.IDeal, anchor?: string): Chain;
+  deal(params: IAutoMovieMotionHumanTabletop.IDeal, anchor?: string): Chain;
 
   /**
    * Lay cards at given places and attitudes, such as revealing them face up. Each card is picked up and put down at its own place. It ends when the last card rests.
@@ -65,7 +65,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBoardGame.lay is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBoardGame.lay is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    */
-  lay(params: IAutoMovieMotionHumanBoardGame.ILay, anchor?: string): Chain;
+  lay(params: IAutoMovieMotionHumanTabletop.ILay, anchor?: string): Chain;
 
   /**
    * Lift a shuffle two packets, one in each hand, and join them: the left packet set down and the right one set on its top card. It ends when the joined deck rests squared.
@@ -84,7 +84,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBoardGame.shuffle is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    */
   shuffle(
-    params: IAutoMovieMotionHumanBoardGame.IShuffle,
+    params: IAutoMovieMotionHumanTabletop.IShuffle,
     anchor?: string,
   ): Chain;
 
@@ -104,7 +104,7 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBoardGame.push is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBoardGame.push is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    */
-  push(params: IAutoMovieMotionHumanBoardGame.IPush, anchor?: string): Chain;
+  push(params: IAutoMovieMotionHumanTabletop.IPush, anchor?: string): Chain;
 
   /**
    * Take a die up and release it onto the table at its place. It ends when the die rests there.
@@ -122,70 +122,5 @@ export interface IAutoMovieMotionHumanBoardGame<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanBoardGame.roll is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanBoardGame.roll is provided by the chain that implements IAutoMovieMotionHumanBoardGame.
    */
-  roll(params: IAutoMovieMotionHumanBoardGame.IRoll, anchor?: string): Chain;
-}
-
-/**
- * The parameter types of the BoardGame methods.
- */
-export namespace IAutoMovieMotionHumanBoardGame {
-  /**
-   * The parameters of `chessMove`: `IAutoMovieMotionHumanTabletop.IChessMove`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the aliased type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTabletop` owns the type; the alias serves this family's `chessMove` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `chessMove` takes the type its composition reads.
-   */
-  export type IChessMove = IAutoMovieMotionHumanTabletop.IChessMove;
-
-  /**
-   * The parameters of `deal`: `IAutoMovieMotionHumanTabletop.IDeal`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the aliased type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTabletop` owns the type; the alias serves this family's `deal` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `deal` takes the type its composition reads.
-   */
-  export type IDeal = IAutoMovieMotionHumanTabletop.IDeal;
-
-  /**
-   * The parameters of `lay`: `IAutoMovieMotionHumanTabletop.ILay`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the aliased type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTabletop` owns the type; the alias serves this family's `lay` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `lay` takes the type its composition reads.
-   */
-  export type ILay = IAutoMovieMotionHumanTabletop.ILay;
-
-  /**
-   * The parameters of `shuffle`: `IAutoMovieMotionHumanTabletop.IShuffle`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the aliased type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTabletop` owns the type; the alias serves this family's `shuffle` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `shuffle` takes the type its composition reads.
-   */
-  export type IShuffle = IAutoMovieMotionHumanTabletop.IShuffle;
-
-  /**
-   * The parameters of `push`: `IAutoMovieMotionHumanTabletop.IPush`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the aliased type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTabletop` owns the type; the alias serves this family's `push` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `push` takes the type its composition reads.
-   */
-  export type IPush = IAutoMovieMotionHumanTabletop.IPush;
-
-  /**
-   * The parameters of `roll`: `IAutoMovieMotionHumanTabletop.IRoll`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the aliased type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTabletop` owns the type; the alias serves this family's `roll` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `roll` takes the type its composition reads.
-   */
-  export type IRoll = IAutoMovieMotionHumanTabletop.IRoll;
+  roll(params: IAutoMovieMotionHumanTabletop.IRoll, anchor?: string): Chain;
 }

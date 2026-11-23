@@ -31,7 +31,7 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDress.dress is provided by the chain that implements IAutoMovieMotionHumanDress.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDress.dress is provided by the chain that implements IAutoMovieMotionHumanDress.
    */
-  dress(params: IAutoMovieMotionHumanDress.IDress, anchor?: string): Chain;
+  dress(params: IAutoMovieMotionHumanDress.IParams, anchor?: string): Chain;
 
   /**
    * Dressing oneself with a staged garment: carrying a held open-front jacket on, threading or clearing one sleeve, moving its zip, or putting footwear on or taking it off one raised foot while seated.
@@ -48,10 +48,7 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDress.wardrobe is provided by the chain that implements IAutoMovieMotionHumanDress.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDress.wardrobe is provided by the chain that implements IAutoMovieMotionHumanDress.
    */
-  wardrobe(
-    params: IAutoMovieMotionHumanDress.IWardrobe,
-    anchor?: string,
-  ): Chain;
+  wardrobe(params: IAutoMovieMotionHumanWardrobe, anchor?: string): Chain;
 
   /**
    * A one-handed greeting that lifts and reseats a hat already worn on the performer's head.
@@ -68,7 +65,7 @@ export interface IAutoMovieMotionHumanDress<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDress.tipHat is provided by the chain that implements IAutoMovieMotionHumanDress.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDress.tipHat is provided by the chain that implements IAutoMovieMotionHumanDress.
    */
-  tipHat(params: IAutoMovieMotionHumanDress.ITipHat, anchor?: string): Chain;
+  tipHat(params: IAutoMovieMotionHumanTipHat, anchor?: string): Chain;
 
   /**
    * Drawing a blade out of the carrier it is staged seated in: the hand grips the blade's handle, then draws it out along the carrier's guide from the seat to the entry, where the hand holds it. With `pull`, the other hand first takes the carrier's throat, for a blade longer than the arm draws alone.
@@ -115,36 +112,6 @@ export interface IAutoMovieMotionHumanDress<Chain> {
  * The parameter types of the Dress methods.
  */
 export namespace IAutoMovieMotionHumanDress {
-  /**
-   * The parameters of `dress`: the dressing law's own `IAutoMovieMotionHumanDress.IParams` (imported as `IAutoMovieMotionHumanDress`), unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The dressing folder's `IAutoMovieMotionHumanDress` owns the type; the alias serves this family's `dress` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `dress` takes the type its law reads.
-   */
-  export type IDress = IAutoMovieMotionHumanDress.IParams;
-
-  /**
-   * The parameters of `wardrobe`: the law's own `IAutoMovieMotionHumanWardrobe`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWardrobe` owns the type; the alias serves this family's `wardrobe` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `wardrobe` takes the type its law reads.
-   */
-  export type IWardrobe = IAutoMovieMotionHumanWardrobe;
-
-  /**
-   * The parameters of `tipHat`: the law's own `IAutoMovieMotionHumanTipHat`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTipHat` owns the type; the alias serves this family's `tipHat` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `tipHat` takes the type its law reads.
-   */
-  export type ITipHat = IAutoMovieMotionHumanTipHat;
-
   /**
    * The parameters of `drawFromCarrier`: the staged pair, the drawing hand and the other hand's pull.
    *

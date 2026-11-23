@@ -35,7 +35,7 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanThrowCatch.throwObject is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    */
   throwObject(
-    params: IAutoMovieMotionHumanThrowCatch.IThrowObject,
+    params: IAutoMovieMotionHumanThrowObjectParams,
     anchor?: string,
   ): Chain;
 
@@ -55,7 +55,7 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanThrowCatch.catchObject is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    */
   catchObject(
-    params: IAutoMovieMotionHumanThrowCatch.ICatchObject,
+    params: IAutoMovieMotionHumanCatchObject.IParams,
     anchor?: string,
   ): Chain;
 
@@ -74,10 +74,7 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanThrowCatch.release is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanThrowCatch.release is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    */
-  release(
-    params: IAutoMovieMotionHumanThrowCatch.IRelease,
-    anchor?: string,
-  ): Chain;
+  release(params: IAutoMovieMotionHumanRelease.IParams, anchor?: string): Chain;
 
   /**
    * Kicking the ball prop lying beside the support foot with the instep, from standing: the kicking leg swings back, then through the ball and on.
@@ -95,7 +92,7 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanThrowCatch.kickBall is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    */
   kickBall(
-    params: IAutoMovieMotionHumanThrowCatch.IKickBall,
+    params: IAutoMovieMotionHumanKickBall.IParams,
     anchor?: string,
   ): Chain;
 
@@ -114,10 +111,7 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanThrowCatch.juggle is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanThrowCatch.juggle is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    */
-  juggle(
-    params: IAutoMovieMotionHumanThrowCatch.IJuggle,
-    anchor?: string,
-  ): Chain;
+  juggle(params: IAutoMovieMotionHumanJuggle.IParams, anchor?: string): Chain;
 
   /**
    * A field event's throw (#3872): the shot, the discus or the hammer from a throwing circle, or the javelin from the end of its runway.
@@ -135,7 +129,7 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanThrowCatch.fieldThrow is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    */
   fieldThrow(
-    params: IAutoMovieMotionHumanThrowCatch.IFieldThrow,
+    params: IAutoMovieMotionHumanFieldThrow.IParams,
     anchor?: string,
   ): Chain;
 
@@ -155,7 +149,7 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanThrowCatch.stickBall is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    */
   stickBall(
-    params: IAutoMovieMotionHumanThrowCatch.IStickBall,
+    params: IAutoMovieMotionHumanStickBall.IParams,
     anchor?: string,
   ): Chain;
 
@@ -175,7 +169,7 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanThrowCatch.ballSport is provided by the chain that implements IAutoMovieMotionHumanThrowCatch.
    */
   ballSport(
-    params: IAutoMovieMotionHumanThrowCatch.IBallSport,
+    params: IAutoMovieMotionHumanBallSport.IParams,
     anchor?: string,
   ): Chain;
 }
@@ -184,86 +178,6 @@ export interface IAutoMovieMotionHumanThrowCatch<Chain> {
  * The parameter types of the ThrowCatch methods.
  */
 export namespace IAutoMovieMotionHumanThrowCatch {
-  /**
-   * The parameters of `throwObject`: `IAutoMovieMotionHumanThrowObjectParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanThrowObjectParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanThrowObjectParams` owns the shape; the alias serves `throwObject` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IThrowObject = IAutoMovieMotionHumanThrowObjectParams;
-
-  /**
-   * The parameters of `catchObject`: `IAutoMovieMotionHumanCatchObject.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanCatchObject.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCatchObject.IParams` owns the shape; the alias serves `catchObject` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ICatchObject = IAutoMovieMotionHumanCatchObject.IParams;
-
-  /**
-   * The parameters of `release`: `IAutoMovieMotionHumanRelease.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanRelease.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRelease.IParams` owns the shape; the alias serves `release` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IRelease = IAutoMovieMotionHumanRelease.IParams;
-
-  /**
-   * The parameters of `kickBall`: `IAutoMovieMotionHumanKickBall.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanKickBall.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKickBall.IParams` owns the shape; the alias serves `kickBall` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IKickBall = IAutoMovieMotionHumanKickBall.IParams;
-
-  /**
-   * The parameters of `juggle`: `IAutoMovieMotionHumanJuggle.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanJuggle.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanJuggle.IParams` owns the shape; the alias serves `juggle` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IJuggle = IAutoMovieMotionHumanJuggle.IParams;
-
-  /**
-   * The parameters of `fieldThrow`: `IAutoMovieMotionHumanFieldThrow.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanFieldThrow.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFieldThrow.IParams` owns the shape; the alias serves `fieldThrow` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IFieldThrow = IAutoMovieMotionHumanFieldThrow.IParams;
-
-  /**
-   * The parameters of `stickBall`: `IAutoMovieMotionHumanStickBall.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanStickBall.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStickBall.IParams` owns the shape; the alias serves `stickBall` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IStickBall = IAutoMovieMotionHumanStickBall.IParams;
-
-  /**
-   * The parameters of `ballSport`: `IAutoMovieMotionHumanBallSport.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBallSport.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBallSport.IParams` owns the shape; the alias serves `ballSport` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IBallSport = IAutoMovieMotionHumanBallSport.IParams;
-
   /**
    * A throw preset that fixes the throw's style: the pitch, the underarm pitch, the softball windmill, the cricket bowl, the bowling delivery, the push pass, the rugby pass and the two gridiron throws. Spread into `throwObject`'s parameters with the target; the style fixes the release angle and the windup (`IAutoMovieMotionHumanThrowObjectForm.Style`).
    *

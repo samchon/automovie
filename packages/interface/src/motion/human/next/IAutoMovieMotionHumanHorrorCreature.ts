@@ -25,10 +25,7 @@ export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHorrorCreature.shamble is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHorrorCreature.shamble is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
    */
-  shamble(
-    params: IAutoMovieMotionHumanHorrorCreature.IShamble,
-    anchor?: string,
-  ): Chain;
+  shamble(params: IAutoMovieMotionHumanGait.ILimp, anchor?: string): Chain;
 
   /**
    * Lurch to `to`: one knee held stiff at a slow cadence and that leg swung out, the trunk upright and the arms still (`HumanHorrorGait.LURCH`, provisional). It stops at `to` as a walk does.
@@ -45,10 +42,7 @@ export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHorrorCreature.lurch is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHorrorCreature.lurch is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
    */
-  lurch(
-    params: IAutoMovieMotionHumanHorrorCreature.ILurch,
-    anchor?: string,
-  ): Chain;
+  lurch(params: IAutoMovieMotionHumanGait.ILimp, anchor?: string): Chain;
 
   /**
    * Stalk to `to`: a creep on deeply bent knees with the trunk hunched (`HumanHorrorGait.STALK`, provisional). It stops at `to` as a walk does.
@@ -65,43 +59,5 @@ export interface IAutoMovieMotionHumanHorrorCreature<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHorrorCreature.stalk is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHorrorCreature.stalk is provided by the chain that implements IAutoMovieMotionHumanHorrorCreature.
    */
-  stalk(
-    params: IAutoMovieMotionHumanHorrorCreature.IStalk,
-    anchor?: string,
-  ): Chain;
-}
-
-/**
- * The parameter types of the HorrorCreature methods.
- */
-export namespace IAutoMovieMotionHumanHorrorCreature {
-  /**
-   * The parameters of `shamble`: `IAutoMovieMotionHumanGait.ILimp`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.ILimp`: units, frames and defaults are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.ILimp` owns the shape; the alias serves `shamble` of this behaviour.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
-   */
-  export type IShamble = IAutoMovieMotionHumanGait.ILimp;
-
-  /**
-   * The parameters of `lurch`: `IAutoMovieMotionHumanGait.ILimp`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.ILimp`: units, frames and defaults are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.ILimp` owns the shape; the alias serves `lurch` of this behaviour.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
-   */
-  export type ILurch = IAutoMovieMotionHumanGait.ILimp;
-
-  /**
-   * The parameters of `stalk`: `IAutoMovieMotionHumanGait.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanGait.IParams`: units, frames and defaults are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait.IParams` owns the shape; the alias serves `stalk` of this behaviour.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
-   */
-  export type IStalk = IAutoMovieMotionHumanGait.IParams;
+  stalk(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 }

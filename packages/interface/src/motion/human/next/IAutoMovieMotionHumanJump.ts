@@ -31,7 +31,7 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanJump.jump is provided by the chain that implements IAutoMovieMotionHumanJump.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.jump is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
-  jump(params: IAutoMovieMotionHumanJump.IJump, anchor?: string): Chain;
+  jump(params: IAutoMovieMotionHumanJump.IParams, anchor?: string): Chain;
 
   /**
    * A long jump out of a run (#3871): the run is cut at the take-off foot's footfall on the board, the jump's own push-off launches at a take-off angle of about 21 degrees (`horizontalJump.ANGLE`), the flight is ballistic, and both feet land in the sand with the heels at the authored distance from the take-off line, absorb and rise.
@@ -49,7 +49,7 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.horizontalJump is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
   horizontalJump(
-    params: IAutoMovieMotionHumanJump.IHorizontalJump,
+    params: IAutoMovieMotionHumanHorizontalJump.IParams,
     anchor?: string,
   ): Chain;
 
@@ -68,7 +68,10 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanJump.highJump is provided by the chain that implements IAutoMovieMotionHumanJump.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.highJump is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
-  highJump(params: IAutoMovieMotionHumanJump.IHighJump, anchor?: string): Chain;
+  highJump(
+    params: IAutoMovieMotionHumanHighJump.IParams,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A pole vault (#3377): out of a run, the hand that holds the pole plants its end on the floor ahead at the take-off, the body swings over the planted end with the pole, lets go as the pole stands upright, and flies on to come down lying on the landing surface.
@@ -86,7 +89,7 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.poleVault is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
   poleVault(
-    params: IAutoMovieMotionHumanJump.IPoleVault,
+    params: IAutoMovieMotionHumanPoleVault.IParams,
     anchor?: string,
   ): Chain;
 
@@ -106,64 +109,9 @@ export interface IAutoMovieMotionHumanJump<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanJump.hurdleClear is provided by the chain that implements IAutoMovieMotionHumanJump.
    */
   hurdleClear(
-    params: IAutoMovieMotionHumanJump.IHurdleClear,
+    params: IAutoMovieMotionHumanHurdleClear.IParams,
     anchor?: string,
   ): Chain;
-}
-
-/**
- * The parameter types of the Jump methods.
- */
-export namespace IAutoMovieMotionHumanJump {
-  /**
-   * The parameters of `jump`: `IAutoMovieMotionHumanJump.IParams` (`actions/IAutoMovieMotionHumanJump`), the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanJump.IParams` (`actions/IAutoMovieMotionHumanJump`): the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanJump.IParams` (`actions/IAutoMovieMotionHumanJump`) owns the shape; the alias serves `jump` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IJump = IAutoMovieMotionHumanJump.IParams;
-
-  /**
-   * The parameters of `horizontalJump`: `IAutoMovieMotionHumanHorizontalJump.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHorizontalJump.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHorizontalJump.IParams` owns the shape; the alias serves `horizontalJump` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IHorizontalJump = IAutoMovieMotionHumanHorizontalJump.IParams;
-
-  /**
-   * The parameters of `highJump`: `IAutoMovieMotionHumanHighJump.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHighJump.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHighJump.IParams` owns the shape; the alias serves `highJump` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IHighJump = IAutoMovieMotionHumanHighJump.IParams;
-
-  /**
-   * The parameters of `poleVault`: `IAutoMovieMotionHumanPoleVault.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanPoleVault.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPoleVault.IParams` owns the shape; the alias serves `poleVault` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IPoleVault = IAutoMovieMotionHumanPoleVault.IParams;
-
-  /**
-   * The parameters of `hurdleClear`: `IAutoMovieMotionHumanHurdleClear.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHurdleClear.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHurdleClear.IParams` owns the shape; the alias serves `hurdleClear` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IHurdleClear = IAutoMovieMotionHumanHurdleClear.IParams;
 }
 
 /**

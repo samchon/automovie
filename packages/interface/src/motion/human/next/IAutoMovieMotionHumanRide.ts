@@ -34,7 +34,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelCar is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   travelCar(
-    params: IAutoMovieMotionHumanRide.ITravelCar,
+    params: IAutoMovieMotionHumanTravelCar.IParams,
     anchor?: string,
   ): Chain;
 
@@ -54,7 +54,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelCarExit is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   travelCarExit(
-    params: IAutoMovieMotionHumanRide.ITravelCarExit,
+    params: IAutoMovieMotionHumanTravelCarExit.IParams,
     anchor?: string,
   ): Chain;
 
@@ -74,7 +74,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.travelLeaf is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   travelLeaf(
-    params: IAutoMovieMotionHumanRide.ITravelLeaf,
+    params: IAutoMovieMotionHumanTravelLeaf.IParams,
     anchor?: string,
   ): Chain;
 
@@ -94,7 +94,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.rideVehicle is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   rideVehicle(
-    params: IAutoMovieMotionHumanRide.IRideVehicle,
+    params: IAutoMovieMotionHumanRide.IParams,
     anchor?: string,
   ): Chain;
 
@@ -113,7 +113,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.board is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.board is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
-  board(params: IAutoMovieMotionHumanRide.IBoard, anchor?: string): Chain;
+  board(params: IAutoMovieMotionHumanBoard, anchor?: string): Chain;
 
   /**
    * One single-handed or bilateral push and recovery by a rider already seated on a moving manual wheelchair.
@@ -131,7 +131,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.handrimStroke is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   handrimStroke(
-    params: IAutoMovieMotionHumanRide.IHandrimStroke,
+    params: IAutoMovieMotionHumanHandrimStroke,
     anchor?: string,
   ): Chain;
 
@@ -151,7 +151,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.bicycleEffort is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   bicycleEffort(
-    params: IAutoMovieMotionHumanRide.IBicycleEffort,
+    params: IAutoMovieMotionHumanBicycleEffort,
     anchor?: string,
   ): Chain;
 
@@ -170,10 +170,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanRide.bikeGuide is provided by the chain that implements IAutoMovieMotionHumanRide.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.bikeGuide is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
-  bikeGuide(
-    params: IAutoMovieMotionHumanRide.IBikeGuide,
-    anchor?: string,
-  ): Chain;
+  bikeGuide(params: IAutoMovieMotionHumanBikeGuide, anchor?: string): Chain;
 
   /**
    * A grounded high-seat mount or dismount on a stopped bicycle at an authored boundary.
@@ -191,7 +188,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.bikeTransfer is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   bikeTransfer(
-    params: IAutoMovieMotionHumanRide.IBikeTransfer,
+    params: IAutoMovieMotionHumanBikeTransfer,
     anchor?: string,
   ): Chain;
 
@@ -211,7 +208,7 @@ export interface IAutoMovieMotionHumanRide<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanRide.spacecraftGlide is provided by the chain that implements IAutoMovieMotionHumanRide.
    */
   spacecraftGlide(
-    params: IAutoMovieMotionHumanRide.ISpacecraftGlide,
+    params: IAutoMovieMotionHumanSpacecraftGlide,
     anchor?: string,
   ): Chain;
 }
@@ -244,106 +241,6 @@ export interface IAutoMovieMotionHumanRide<Chain> {
  * base, so `rise` after it gets off a saddle to the left unasked.
  */
 export namespace IAutoMovieMotionHumanRide {
-  /**
-   * The parameters of `travelCar`: `IAutoMovieMotionHumanTravelCar.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanTravelCar.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTravelCar.IParams` owns the shape; the alias serves `travelCar` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ITravelCar = IAutoMovieMotionHumanTravelCar.IParams;
-
-  /**
-   * The parameters of `travelCarExit`: `IAutoMovieMotionHumanTravelCarExit.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanTravelCarExit.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTravelCarExit.IParams` owns the shape; the alias serves `travelCarExit` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ITravelCarExit = IAutoMovieMotionHumanTravelCarExit.IParams;
-
-  /**
-   * The parameters of `travelLeaf`: `IAutoMovieMotionHumanTravelLeaf.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanTravelLeaf.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTravelLeaf.IParams` owns the shape; the alias serves `travelLeaf` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ITravelLeaf = IAutoMovieMotionHumanTravelLeaf.IParams;
-
-  /**
-   * The parameters of `rideVehicle`: `IAutoMovieMotionHumanRide.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanRide.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRide.IParams` owns the shape; the alias serves `rideVehicle` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IRideVehicle = IAutoMovieMotionHumanRide.IParams;
-
-  /**
-   * The parameters of `board`: `IAutoMovieMotionHumanBoard`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBoard`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBoard` owns the shape; the alias serves `board` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IBoard = IAutoMovieMotionHumanBoard;
-
-  /**
-   * The parameters of `handrimStroke`: `IAutoMovieMotionHumanHandrimStroke`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHandrimStroke`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandrimStroke` owns the shape; the alias serves `handrimStroke` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IHandrimStroke = IAutoMovieMotionHumanHandrimStroke;
-
-  /**
-   * The parameters of `bicycleEffort`: `IAutoMovieMotionHumanBicycleEffort`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBicycleEffort`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBicycleEffort` owns the shape; the alias serves `bicycleEffort` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IBicycleEffort = IAutoMovieMotionHumanBicycleEffort;
-
-  /**
-   * The parameters of `bikeGuide`: `IAutoMovieMotionHumanBikeGuide`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBikeGuide`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBikeGuide` owns the shape; the alias serves `bikeGuide` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IBikeGuide = IAutoMovieMotionHumanBikeGuide;
-
-  /**
-   * The parameters of `bikeTransfer`: `IAutoMovieMotionHumanBikeTransfer`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBikeTransfer`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBikeTransfer` owns the shape; the alias serves `bikeTransfer` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IBikeTransfer = IAutoMovieMotionHumanBikeTransfer;
-
-  /**
-   * The parameters of `spacecraftGlide`: `IAutoMovieMotionHumanSpacecraftGlide`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSpacecraftGlide`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSpacecraftGlide` owns the shape; the alias serves `spacecraftGlide` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ISpacecraftGlide = IAutoMovieMotionHumanSpacecraftGlide;
-
   /**
    * Parameters of a ride.
    *

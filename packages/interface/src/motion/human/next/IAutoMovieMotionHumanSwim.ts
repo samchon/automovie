@@ -26,7 +26,7 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSwim.swim is provided by the chain that implements IAutoMovieMotionHumanSwim.
    */
-  swim(params: IAutoMovieMotionHumanSwim.ISwim, anchor?: string): Chain;
+  swim(params: IAutoMovieMotionHumanSwim.IParams, anchor?: string): Chain;
 
   /**
    * Timed pool, aquatic team and small-craft performances.
@@ -43,7 +43,7 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSwim.aquatic is provided by the chain that implements IAutoMovieMotionHumanSwim.
    */
-  aquatic(params: IAutoMovieMotionHumanSwim.IAquatic, anchor?: string): Chain;
+  aquatic(params: IAutoMovieMotionHumanAquatic.IParams, anchor?: string): Chain;
 
   /**
    * A supine float, a passive head-first glide or one immersed breaststroke.
@@ -61,44 +61,9 @@ export interface IAutoMovieMotionHumanSwim<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSwim.swimImmersed is provided by the chain that implements IAutoMovieMotionHumanSwim.
    */
   swimImmersed(
-    params: IAutoMovieMotionHumanSwim.ISwimImmersed,
+    params: IAutoMovieMotionHumanSwimImmersed,
     anchor?: string,
   ): Chain;
-}
-
-/**
- * The parameter types of the Swim methods.
- */
-export namespace IAutoMovieMotionHumanSwim {
-  /**
-   * The parameters of `swim`: `IAutoMovieMotionHumanSwim.IParams` (`sport/IAutoMovieMotionHumanSwim`), the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSwim.IParams` (`sport/IAutoMovieMotionHumanSwim`): the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwim.IParams` (`sport/IAutoMovieMotionHumanSwim`) owns the shape; the alias serves `swim` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ISwim = IAutoMovieMotionHumanSwim.IParams;
-
-  /**
-   * The parameters of `aquatic`: `IAutoMovieMotionHumanAquatic.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanAquatic.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanAquatic.IParams` owns the shape; the alias serves `aquatic` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IAquatic = IAutoMovieMotionHumanAquatic.IParams;
-
-  /**
-   * The parameters of `swimImmersed`: the law's own `IAutoMovieMotionHumanSwimImmersed`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSwimImmersed` owns the type; the alias serves this family's `swimImmersed` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `swimImmersed` takes the type its law reads.
-   */
-  export type ISwimImmersed = IAutoMovieMotionHumanSwimImmersed;
 }
 
 /**

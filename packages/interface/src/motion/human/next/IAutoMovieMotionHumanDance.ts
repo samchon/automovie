@@ -30,7 +30,7 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDance.dance is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDance.dance is provided by the chain that implements IAutoMovieMotionHumanDance.
    */
-  dance(params: IAutoMovieMotionHumanDance.IDance, anchor?: string): Chain;
+  dance(params: IAutoMovieMotionHumanDance.IParams, anchor?: string): Chain;
 
   /**
    * Classical ballet on the beat clock (#3991): the five positions of the feet with a plié or a relevé, the pirouette from fourth on demi-pointe en dehors or en dedans, and the grand jeté with its split at the flight's apex.
@@ -47,7 +47,7 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanDance.ballet is provided by the chain that implements IAutoMovieMotionHumanDance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDance.ballet is provided by the chain that implements IAutoMovieMotionHumanDance.
    */
-  ballet(params: IAutoMovieMotionHumanDance.IBallet, anchor?: string): Chain;
+  ballet(params: IAutoMovieMotionHumanBallet.IParams, anchor?: string): Chain;
 
   /**
    * Tap dance on the beat clock (#3991): the shuffle, the flap, the ball change, the heel drop, the cramp roll and a single time step.
@@ -65,7 +65,7 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDance.tapDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    */
   tapDance(
-    params: IAutoMovieMotionHumanDance.ITapDance,
+    params: IAutoMovieMotionHumanTapDance.IParams,
     anchor?: string,
   ): Chain;
 
@@ -85,7 +85,7 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDance.streetDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    */
   streetDance(
-    params: IAutoMovieMotionHumanDance.IStreetDance,
+    params: IAutoMovieMotionHumanStreetDance.IParams,
     anchor?: string,
   ): Chain;
 
@@ -105,7 +105,7 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanDance.groupDance is provided by the chain that implements IAutoMovieMotionHumanDance.
    */
   groupDance(
-    params: IAutoMovieMotionHumanDance.IGroupDance,
+    params: IAutoMovieMotionHumanGroupDance.IParams,
     anchor?: string,
   ): Chain;
 
@@ -135,56 +135,6 @@ export interface IAutoMovieMotionHumanDance<Chain> {
  * The parameter types of the Dance methods.
  */
 export namespace IAutoMovieMotionHumanDance {
-  /**
-   * The parameters of `dance`: the exercise law's own `IAutoMovieMotionHumanDance.IParams` (imported as `IAutoMovieMotionHumanDance`), unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The exercise folder's `IAutoMovieMotionHumanDance` owns the type; the alias serves this family's `dance` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `dance` takes the type its law reads.
-   */
-  export type IDance = IAutoMovieMotionHumanDance.IParams;
-
-  /**
-   * The parameters of `ballet`: the law's own `IAutoMovieMotionHumanBallet.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBallet` owns the type; the alias serves this family's `ballet` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `ballet` takes the type its law reads.
-   */
-  export type IBallet = IAutoMovieMotionHumanBallet.IParams;
-
-  /**
-   * The parameters of `tapDance`: the law's own `IAutoMovieMotionHumanTapDance.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTapDance` owns the type; the alias serves this family's `tapDance` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `tapDance` takes the type its law reads.
-   */
-  export type ITapDance = IAutoMovieMotionHumanTapDance.IParams;
-
-  /**
-   * The parameters of `streetDance`: the law's own `IAutoMovieMotionHumanStreetDance.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStreetDance` owns the type; the alias serves this family's `streetDance` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `streetDance` takes the type its law reads.
-   */
-  export type IStreetDance = IAutoMovieMotionHumanStreetDance.IParams;
-
-  /**
-   * The parameters of `groupDance`: the law's own `IAutoMovieMotionHumanGroupDance.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGroupDance` owns the type; the alias serves this family's `groupDance` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `groupDance` takes the type its law reads.
-   */
-  export type IGroupDance = IAutoMovieMotionHumanGroupDance.IParams;
-
   /**
    * The parameters of `slowDanceSway`: a sway's size, beat and repetitions.
    *

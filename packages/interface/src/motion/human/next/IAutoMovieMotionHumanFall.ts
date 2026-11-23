@@ -36,7 +36,10 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.collapse is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.collapse is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
-  collapse(params: IAutoMovieMotionHumanFall.ICollapse, anchor?: string): Chain;
+  collapse(
+    params: IAutoMovieMotionHumanCollapse.IParams,
+    anchor?: string,
+  ): Chain;
 
   /**
    * A stagger: a blow pushes the centre of mass past the base of support and recovery steps catch it.
@@ -53,7 +56,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.stagger is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.stagger is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
-  stagger(params: IAutoMovieMotionHumanFall.IStagger, anchor?: string): Chain;
+  stagger(params: IAutoMovieMotionHumanStagger.IParams, anchor?: string): Chain;
 
   /**
    * A knockdown: the legs give way and the body goes down away from the blow, sitting onto the floor and falling back to lie supine.
@@ -71,7 +74,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.knockdown is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
   knockdown(
-    params: IAutoMovieMotionHumanFall.IKnockdown,
+    params: IAutoMovieMotionHumanKnockdown.IParams,
     anchor?: string,
   ): Chain;
 
@@ -90,7 +93,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.thrown is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.thrown is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
-  thrown(params: IAutoMovieMotionHumanFall.IThrown, anchor?: string): Chain;
+  thrown(params: IAutoMovieMotionHumanThrown.IParams, anchor?: string): Chain;
 
   /**
    * One perturbation law whose response follows from the forces on its performer (#3430): the body absorbs an impulse within its base, catches it with capture steps, or falls, as the engine's balance outcome decides from the impulse, the body's mass and its support (`resolveAutoMovieBalanceOutcome`), or as the author fixes the outcome.
@@ -107,7 +110,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanFall.perturb is provided by the chain that implements IAutoMovieMotionHumanFall.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.perturb is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
-  perturb(params: IAutoMovieMotionHumanFall.IPerturb, anchor?: string): Chain;
+  perturb(params: IAutoMovieMotionHumanPerturb.IParams, anchor?: string): Chain;
 
   /**
    * A body flown on wires along an authored path that ignores gravity: a superhero's flight, a wuxia leap, a levitation (wire work in Hong Kong action cinema, David Bordwell, Planet Hong Kong, 2nd ed., 2011).
@@ -125,7 +128,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.wireFlight is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
   wireFlight(
-    params: IAutoMovieMotionHumanFall.IWireFlight,
+    params: IAutoMovieMotionHumanWireFlight.IParams,
     anchor?: string,
   ): Chain;
 
@@ -145,7 +148,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.vehicleHit is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
   vehicleHit(
-    params: IAutoMovieMotionHumanFall.IVehicleHit,
+    params: IAutoMovieMotionHumanVehicleHit.IParams,
     anchor?: string,
   ): Chain;
 
@@ -165,7 +168,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.wireArrest is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
   wireArrest(
-    params: IAutoMovieMotionHumanFall.IWireArrest,
+    params: IAutoMovieMotionHumanWireFlight.IArrest,
     anchor?: string,
   ): Chain;
 
@@ -185,7 +188,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.stuntFall is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
   stuntFall(
-    params: IAutoMovieMotionHumanFall.IStuntFall,
+    params: IAutoMovieMotionHumanStuntFall.IParams,
     anchor?: string,
   ): Chain;
 
@@ -225,7 +228,7 @@ export interface IAutoMovieMotionHumanFall<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFall.vehicleDive is provided by the chain that implements IAutoMovieMotionHumanFall.
    */
   vehicleDive(
-    params: IAutoMovieMotionHumanFall.IVehicleDive,
+    params: IAutoMovieMotionHumanVehicleHit.IDive,
     anchor?: string,
   ): Chain;
 }
@@ -234,96 +237,6 @@ export interface IAutoMovieMotionHumanFall<Chain> {
  * The parameter types of the Fall methods.
  */
 export namespace IAutoMovieMotionHumanFall {
-  /**
-   * The parameters of `collapse`: the law's own `IAutoMovieMotionHumanCollapse.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCollapse` owns the type; the alias serves this family's `collapse` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `collapse` takes the type its law reads.
-   */
-  export type ICollapse = IAutoMovieMotionHumanCollapse.IParams;
-
-  /**
-   * The parameters of `stagger`: the law's own `IAutoMovieMotionHumanStagger.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStagger` owns the type; the alias serves this family's `stagger` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stagger` takes the type its law reads.
-   */
-  export type IStagger = IAutoMovieMotionHumanStagger.IParams;
-
-  /**
-   * The parameters of `knockdown`: the law's own `IAutoMovieMotionHumanKnockdown.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanKnockdown` owns the type; the alias serves this family's `knockdown` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `knockdown` takes the type its law reads.
-   */
-  export type IKnockdown = IAutoMovieMotionHumanKnockdown.IParams;
-
-  /**
-   * The parameters of `thrown`: the law's own `IAutoMovieMotionHumanThrown.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanThrown` owns the type; the alias serves this family's `thrown` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `thrown` takes the type its law reads.
-   */
-  export type IThrown = IAutoMovieMotionHumanThrown.IParams;
-
-  /**
-   * The parameters of `perturb`: the law's own `IAutoMovieMotionHumanPerturb.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPerturb` owns the type; the alias serves this family's `perturb` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `perturb` takes the type its law reads.
-   */
-  export type IPerturb = IAutoMovieMotionHumanPerturb.IParams;
-
-  /**
-   * The parameters of `wireFlight`: the law's own `IAutoMovieMotionHumanWireFlight.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWireFlight` owns the type; the alias serves this family's `wireFlight` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `wireFlight` takes the type its law reads.
-   */
-  export type IWireFlight = IAutoMovieMotionHumanWireFlight.IParams;
-
-  /**
-   * The parameters of `vehicleHit`: the law's own `IAutoMovieMotionHumanVehicleHit.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanVehicleHit` owns the type; the alias serves this family's `vehicleHit` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `vehicleHit` takes the type its law reads.
-   */
-  export type IVehicleHit = IAutoMovieMotionHumanVehicleHit.IParams;
-
-  /**
-   * The parameters of `wireArrest`: the law's own `IAutoMovieMotionHumanWireFlight.IArrest`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWireFlight` owns the type; the alias serves this family's `wireArrest` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `wireArrest` takes the type its law reads.
-   */
-  export type IWireArrest = IAutoMovieMotionHumanWireFlight.IArrest;
-
-  /**
-   * The parameters of `stuntFall`: the law's own `IAutoMovieMotionHumanStuntFall.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStuntFall` owns the type; the alias serves this family's `stuntFall` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stuntFall` takes the type its law reads.
-   */
-  export type IStuntFall = IAutoMovieMotionHumanStuntFall.IParams;
-
   /**
    * The parameters of `environmentalRecovery`: the law's own `IAutoMovieMotionHumanEnvironmentRecovery.IParams`, unchanged.
    *
@@ -334,16 +247,6 @@ export namespace IAutoMovieMotionHumanFall {
    */
   export type IEnvironmentRecovery =
     IAutoMovieMotionHumanEnvironmentRecovery.IParams;
-
-  /**
-   * The parameters of `vehicleDive`: the law's own `IAutoMovieMotionHumanVehicleHit.IDive`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanVehicleHit` owns the type; the alias serves this family's `vehicleDive` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `vehicleDive` takes the type its law reads.
-   */
-  export type IVehicleDive = IAutoMovieMotionHumanVehicleHit.IDive;
 
   /**
    * The values a goalkeeper's dive fixes: the side the body dives to. It is spread into the dive law's parameters, which add the kind of fall.

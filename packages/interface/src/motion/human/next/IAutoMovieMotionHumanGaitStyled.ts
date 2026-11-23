@@ -28,7 +28,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.march is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.march is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  march(params: IAutoMovieMotionHumanGaitStyled.IMarch, anchor?: string): Chain;
+  march(params: IAutoMovieMotionHumanGait.IMarch, anchor?: string): Chain;
 
   /**
    * Run the 0.762 m drill step at 180 steps a minute (`HumanGait.DOUBLE`, US
@@ -47,10 +47,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.doubleTime is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.doubleTime is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  doubleTime(
-    params: IAutoMovieMotionHumanGaitStyled.IDoubleTime,
-    anchor?: string,
-  ): Chain;
+  doubleTime(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
   /**
    * Walk slower than the slow walk, at a third of its Froude number, on steps
@@ -69,7 +66,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.sneak is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.sneak is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  sneak(params: IAutoMovieMotionHumanGaitStyled.ISneak, anchor?: string): Chain;
+  sneak(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
   /**
    * Sneak on deeply bent knees, the pelvis 0.12 hip heights low
@@ -87,7 +84,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.prowl is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.prowl is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  prowl(params: IAutoMovieMotionHumanGaitStyled.IProwl, anchor?: string): Chain;
+  prowl(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
   /**
    * Sneak on the balls of the feet, the heels held 25 degrees up about the
@@ -105,10 +102,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.tiptoe is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.tiptoe is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  tiptoe(
-    params: IAutoMovieMotionHumanGaitStyled.ITiptoe,
-    anchor?: string,
-  ): Chain;
+  tiptoe(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
   /**
    * Walk with the `sad` manner preset's speed, step and arm swing
@@ -127,7 +121,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.sad is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.sad is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  sad(params: IAutoMovieMotionHumanGaitStyled.ISad, anchor?: string): Chain;
+  sad(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
   /**
    * Walk with the `proud` manner preset's speed, step and arm swing
@@ -146,7 +140,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.proud is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.proud is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  proud(params: IAutoMovieMotionHumanGaitStyled.IProud, anchor?: string): Chain;
+  proud(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
   /**
    * Walk slowly sparing the `side` leg: each step standing on it is cut 15 %
@@ -164,7 +158,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.limp is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.limp is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  limp(params: IAutoMovieMotionHumanGaitStyled.ILimp, anchor?: string): Chain;
+  limp(params: IAutoMovieMotionHumanGait.ILimp, anchor?: string): Chain;
 
   /**
    * Limp as `limp` does, the spared leg also swinging with its knee straight,
@@ -182,10 +176,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.stiffLimp is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.stiffLimp is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  stiffLimp(
-    params: IAutoMovieMotionHumanGaitStyled.IStiffLimp,
-    anchor?: string,
-  ): Chain;
+  stiffLimp(params: IAutoMovieMotionHumanGait.ILimp, anchor?: string): Chain;
 
   /**
    * Walk slowly and unsteadily in time, three times a sober walk's
@@ -206,7 +197,7 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.drunk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.drunk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  drunk(params: IAutoMovieMotionHumanGaitStyled.IDrunk, anchor?: string): Chain;
+  drunk(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 
   /**
    * Walk at a run's speed with one foot always on the ground (World Athletics rule TR54.2): a Froude number of 0.9, about 2.9 m/s on a 0.93 m hip, the swing taking just under a whole step period so the double support shrinks to a sliver, the pelvis barely rising, and the arms pumping with the elbows near a right angle (`HumanRaceGait.FROUDE`, `SWING`, `BOB` and `ARMS`; provisional). It ends as the walk does, with the feet side by side.
@@ -223,123 +214,5 @@ export interface IAutoMovieMotionHumanGaitStyled<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaitStyled.raceWalk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaitStyled.raceWalk is provided by the chain that implements IAutoMovieMotionHumanGaitStyled.
    */
-  raceWalk(
-    params: IAutoMovieMotionHumanGaitStyled.IRaceWalk,
-    anchor?: string,
-  ): Chain;
-}
-
-/**
- * The parameter types of the GaitStyled methods.
- */
-export namespace IAutoMovieMotionHumanGaitStyled {
-  /**
-   * The parameters of `march`: the lexicon's `IAutoMovieMotionHumanGait.IMarch` (imported as `IAutoMovieMotionHumanGait`), the styled gait's walk parameters with the drill `regulation` and its `time`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged with its import name, and the two members the march adds.
-   * @evidence contracts/development/design.md#principled-representation An alias: the regulation names, defaults and the walk's units are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `march` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `march` takes the type its law reads.
-   */
-  export type IMarch = IAutoMovieMotionHumanGait.IMarch;
-
-  /**
-   * The parameters of `doubleTime`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `IAutoMovieMotionHumanGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
-   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `doubleTime` signature, one name per method so each can diverge with its law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `doubleTime` takes the type its law reads.
-   */
-  export type IDoubleTime = IAutoMovieMotionHumanGait.IParams;
-
-  /**
-   * The parameters of `sneak`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `IAutoMovieMotionHumanGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
-   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `sneak` signature, one name per method so each can diverge with its law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `sneak` takes the type its law reads.
-   */
-  export type ISneak = IAutoMovieMotionHumanGait.IParams;
-
-  /**
-   * The parameters of `prowl`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `IAutoMovieMotionHumanGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
-   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `prowl` signature, one name per method so each can diverge with its law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `prowl` takes the type its law reads.
-   */
-  export type IProwl = IAutoMovieMotionHumanGait.IParams;
-
-  /**
-   * The parameters of `tiptoe`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `IAutoMovieMotionHumanGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
-   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `tiptoe` signature, one name per method so each can diverge with its law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `tiptoe` takes the type its law reads.
-   */
-  export type ITiptoe = IAutoMovieMotionHumanGait.IParams;
-
-  /**
-   * The parameters of `sad`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `IAutoMovieMotionHumanGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
-   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `sad` signature, one name per method so each can diverge with its law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `sad` takes the type its law reads.
-   */
-  export type ISad = IAutoMovieMotionHumanGait.IParams;
-
-  /**
-   * The parameters of `proud`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `IAutoMovieMotionHumanGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
-   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `proud` signature, one name per method so each can diverge with its law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `proud` takes the type its law reads.
-   */
-  export type IProud = IAutoMovieMotionHumanGait.IParams;
-
-  /**
-   * The parameters of `limp`: the lexicon's `IAutoMovieMotionHumanGait.ILimp` (imported as `IAutoMovieMotionHumanGait`), the styled gait's walk parameters with the spared `side`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged with its import name, and the member the limp adds.
-   * @evidence contracts/development/design.md#principled-representation An alias: the spared side, its default and the walk's units are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `limp` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `limp` takes the type its law reads.
-   */
-  export type ILimp = IAutoMovieMotionHumanGait.ILimp;
-
-  /**
-   * The parameters of `stiffLimp`: the lexicon's `IAutoMovieMotionHumanGait.ILimp` (imported as `IAutoMovieMotionHumanGait`), the styled gait's walk parameters with the spared `side`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the law type it aliases unchanged with its import name, and the member the limp adds.
-   * @evidence contracts/development/design.md#principled-representation An alias: the spared side, its default and the walk's units are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `stiffLimp` signature, which shares the limp's parameters.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stiffLimp` takes the type its law reads.
-   */
-  export type IStiffLimp = IAutoMovieMotionHumanGait.ILimp;
-
-  /**
-   * The parameters of `drunk`: the lexicon's `IAutoMovieMotionHumanGait.IParams` (imported as `IAutoMovieMotionHumanGait`), the walk's parameters without the `pace`, `stride` and `armSwing` the styled gait fixes, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared law type it aliases unchanged with its import name, and the walk members that type leaves out.
-   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `drunk` signature, one name per method so each can diverge with its law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `drunk` takes the type its law reads.
-   */
-  export type IDrunk = IAutoMovieMotionHumanGait.IParams;
-
-  /**
-   * The parameters of `raceWalk`: the shared `IAutoMovieMotionHumanGait.IParams`, the walk's parameters without the `pace`, `stride` and `armSwing` the gait fixes, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the shared type it aliases unchanged and the walk members that type leaves out.
-   * @evidence contracts/development/design.md#principled-representation An alias of the shared styled-gait type: destination, waypoints, arrival heading and manner keep the walk's units and frames, and the members the gait fixes cannot be given.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanGait` owns the type; the alias serves this family's `raceWalk` signature, one name per method so each can diverge with its law.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `raceWalk` takes the type its law reads.
-   */
-  export type IRaceWalk = IAutoMovieMotionHumanGait.IParams;
+  raceWalk(params: IAutoMovieMotionHumanGait.IParams, anchor?: string): Chain;
 }

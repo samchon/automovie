@@ -33,7 +33,7 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStance.stand is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStance.stand is provided by the chain that implements IAutoMovieMotionHumanStance.
    */
-  stand(params: IAutoMovieMotionHumanStance.IStand, anchor?: string): Chain;
+  stand(params: IAutoMovieMotionHumanStand.IParams, anchor?: string): Chain;
 
   /**
    * Shifting along a bench while seated: the seat socket slides sideways along the seat by the requested distance, while the feet stay planted and the hands stay on the thighs.
@@ -50,7 +50,7 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStance.shift is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStance.shift is provided by the chain that implements IAutoMovieMotionHumanStance.
    */
-  shift(params: IAutoMovieMotionHumanStance.IShift, anchor?: string): Chain;
+  shift(params: IAutoMovieMotionHumanShift.IParams, anchor?: string): Chain;
 
   /**
    * Bending down to bring a hand to a low point (the floor, a low shelf, a note on the ground) with the feet planted, by a stoop, a squat or a semi-squat, then straightening up.
@@ -67,7 +67,7 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStance.bend is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStance.bend is provided by the chain that implements IAutoMovieMotionHumanStance.
    */
-  bend(params: IAutoMovieMotionHumanStance.IBend, anchor?: string): Chain;
+  bend(params: IAutoMovieMotionHumanBend.IParams, anchor?: string): Chain;
 
   /**
    * A crouch or a squat held in place: the hips sink over the planted feet to a knee flexion the depth names, the trunk inclines until the centre of mass is back over the feet, the hands come to rest on the thighs above the knees, the body holds, then stands again.
@@ -84,7 +84,7 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStance.crouch is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStance.crouch is provided by the chain that implements IAutoMovieMotionHumanStance.
    */
-  crouch(params: IAutoMovieMotionHumanStance.ICrouch, anchor?: string): Chain;
+  crouch(params: IAutoMovieMotionHumanCrouch.IParams, anchor?: string): Chain;
 
   /**
    * Bracing for an expected impact, push or a falling body: the stance widens and staggers along the line of the coming force, the body lowers and leans into it, and the hands come up in front, all set before the force arrives.
@@ -101,7 +101,7 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStance.brace is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStance.brace is provided by the chain that implements IAutoMovieMotionHumanStance.
    */
-  brace(params: IAutoMovieMotionHumanStance.IBrace, anchor?: string): Chain;
+  brace(params: IAutoMovieMotionHumanBrace.IParams, anchor?: string): Chain;
 
   /**
    * Standing with the hands at rest places: in the front pockets, on the hips, arms crossed, clasped in front or behind, behind the head, or the chin on a fist, each hand moved there and held.
@@ -118,7 +118,7 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStance.rest is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStance.rest is provided by the chain that implements IAutoMovieMotionHumanStance.
    */
-  rest(params: IAutoMovieMotionHumanStance.IRest, anchor?: string): Chain;
+  rest(params: IAutoMovieMotionHumanRest.IParams, anchor?: string): Chain;
 
   /**
    * One standing curtsy: a cross behind the supporting leg, a dip, and a return to the original stance, admitted against the performer's available planted reach.
@@ -135,83 +135,13 @@ export interface IAutoMovieMotionHumanStance<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanStance.curtsy is provided by the chain that implements IAutoMovieMotionHumanStance.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanStance.curtsy is provided by the chain that implements IAutoMovieMotionHumanStance.
    */
-  curtsy(params: IAutoMovieMotionHumanStance.ICurtsy, anchor?: string): Chain;
+  curtsy(params: IAutoMovieMotionHumanCurtsy, anchor?: string): Chain;
 }
 
 /**
  * The parameter types of the Stance methods.
  */
 export namespace IAutoMovieMotionHumanStance {
-  /**
-   * The parameters of `stand`: `IAutoMovieMotionHumanStand.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanStand.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanStand.IParams` owns the shape; the alias serves `stand` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IStand = IAutoMovieMotionHumanStand.IParams;
-
-  /**
-   * The parameters of `shift`: `IAutoMovieMotionHumanShift.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanShift.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanShift.IParams` owns the shape; the alias serves `shift` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IShift = IAutoMovieMotionHumanShift.IParams;
-
-  /**
-   * The parameters of `bend`: `IAutoMovieMotionHumanBend.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBend.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBend.IParams` owns the shape; the alias serves `bend` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IBend = IAutoMovieMotionHumanBend.IParams;
-
-  /**
-   * The parameters of `crouch`: `IAutoMovieMotionHumanCrouch.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanCrouch.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCrouch.IParams` owns the shape; the alias serves `crouch` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ICrouch = IAutoMovieMotionHumanCrouch.IParams;
-
-  /**
-   * The parameters of `brace`: `IAutoMovieMotionHumanBrace.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanBrace.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBrace.IParams` owns the shape; the alias serves `brace` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IBrace = IAutoMovieMotionHumanBrace.IParams;
-
-  /**
-   * The parameters of `rest`: `IAutoMovieMotionHumanRest.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanRest.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRest.IParams` owns the shape; the alias serves `rest` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IRest = IAutoMovieMotionHumanRest.IParams;
-
-  /**
-   * The parameters of `curtsy`: the law's own `IAutoMovieMotionHumanCurtsy`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCurtsy` owns the type; the alias serves this family's `curtsy` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `curtsy` takes the type its law reads.
-   */
-  export type ICurtsy = IAutoMovieMotionHumanCurtsy;
-
   /**
    * The places of both hands that a named rest fixes: the `left` and `right` of `rest`. Spread into `rest`'s parameters with the hold; the preset constants of `AutoMovieMotionHumanStance` (`ARMS_CROSSED`, `HANDS_ON_HIPS`, `HANDS_IN_POCKETS`, `PARADE_REST`, `HANDS_CLASPED`, `HANDS_BEHIND_HEAD` and `THINKING`) are its data and the rows of the same names read them.
    *
@@ -220,7 +150,10 @@ export namespace IAutoMovieMotionHumanStance {
    * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `rest` owns the places' meanings.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `rest`'s own members and redefines none.
    */
-  export type IRestPreset = Pick<IRest, "left" | "right">;
+  export type IRestPreset = Pick<
+    IAutoMovieMotionHumanRest.IParams,
+    "left" | "right"
+  >;
 
   /**
    * The hold that a named stand fixes: the `hold` of `stand`, in seconds. Spread into `stand`'s parameters; `AutoMovieMotionHumanStance.MOUNTAIN_POSE` is its data and the `mountainPose` row reads it.
@@ -230,7 +163,7 @@ export namespace IAutoMovieMotionHumanStance {
    * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `stand` owns the hold's meaning.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `stand`'s own member and redefines none.
    */
-  export type IStandPreset = Pick<IStand, "hold">;
+  export type IStandPreset = Pick<IAutoMovieMotionHumanStand.IParams, "hold">;
 
   /**
    * The depth, heel position and hold that a named crouch fixes: the `depth`, `heels` and `hold` of `crouch`. Spread into `crouch`'s parameters; `AutoMovieMotionHumanStance.SQUAT_SIT` and `TAKE_COVER` are its data and the rows of the same names read them.
@@ -240,5 +173,8 @@ export namespace IAutoMovieMotionHumanStance {
    * @evidence contracts/development/design.md#minimal-and-owned-surface This family owns the preset shape; `crouch` owns the members' meanings.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts None: the type names the pick of `crouch`'s own members and redefines none.
    */
-  export type ICrouchPreset = Pick<ICrouch, "depth" | "heels" | "hold">;
+  export type ICrouchPreset = Pick<
+    IAutoMovieMotionHumanCrouch.IParams,
+    "depth" | "heels" | "hold"
+  >;
 }

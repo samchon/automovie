@@ -26,26 +26,13 @@ export interface IAutoMovieMotionHumanSupport<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanSupport.support is provided by the chain that implements IAutoMovieMotionHumanSupport.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanSupport.support is provided by the chain that implements IAutoMovieMotionHumanSupport.
    */
-  support(
-    params: IAutoMovieMotionHumanSupport.ISupport,
-    anchor?: string,
-  ): Chain;
+  support(params: IAutoMovieMotionHumanSupport.IParams, anchor?: string): Chain;
 }
 
 /**
  * The parameter types of the Support methods.
  */
 export namespace IAutoMovieMotionHumanSupport {
-  /**
-   * The parameters of `support`: `IAutoMovieMotionHumanSupport.IParams` (`actions/IAutoMovieMotionHumanSupport`), the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanSupport.IParams` (`actions/IAutoMovieMotionHumanSupport`): the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSupport.IParams` (`actions/IAutoMovieMotionHumanSupport`) owns the shape; the alias serves `support` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type ISupport = IAutoMovieMotionHumanSupport.IParams;
-
   /**
    * A support preset: the stances a row of `support` fixes, so a movement over one surface is data over the one planner. `AutoMovieMotionHumanSupport.SCRAMBLE` and `SLIDE_OFF` are its data.
    *

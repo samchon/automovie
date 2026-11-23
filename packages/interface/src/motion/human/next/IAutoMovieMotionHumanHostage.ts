@@ -26,7 +26,7 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.disarm is provided by the chain that implements IAutoMovieMotionHumanHostage.
    */
-  disarm(params: IAutoMovieMotionHumanHostage.IDisarm, anchor?: string): Chain;
+  disarm(params: IAutoMovieMotionHumanDisarm.IParams, anchor?: string): Chain;
 
   /**
    * A hostage hold from behind: the holder's free arm lies across the hostage's chest or neck, the other hand presents a held weapon at the hostage's head or throat, and the pair walks backward together.
@@ -44,7 +44,7 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.hostageHold is provided by the chain that implements IAutoMovieMotionHumanHostage.
    */
   hostageHold(
-    params: IAutoMovieMotionHumanHostage.IHostageHold,
+    params: IAutoMovieMotionHumanHostageHold.IParams,
     anchor?: string,
   ): Chain;
 
@@ -64,7 +64,7 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.heldHostage is provided by the chain that implements IAutoMovieMotionHumanHostage.
    */
   heldHostage(
-    params: IAutoMovieMotionHumanHostage.IHeldHostage,
+    params: IAutoMovieMotionHumanHostageHold.IHeld,
     anchor?: string,
   ): Chain;
 
@@ -83,53 +83,5 @@ export interface IAutoMovieMotionHumanHostage<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHostage.disarmed is provided by the chain that implements IAutoMovieMotionHumanHostage.
    */
-  disarmed(
-    params: IAutoMovieMotionHumanHostage.IDisarmed,
-    anchor?: string,
-  ): Chain;
-}
-
-/**
- * The parameter types of the Hostage methods.
- */
-export namespace IAutoMovieMotionHumanHostage {
-  /**
-   * The parameters of `disarm`: `IAutoMovieMotionHumanDisarm.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanDisarm.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDisarm.IParams` owns the shape; the alias serves `disarm` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IDisarm = IAutoMovieMotionHumanDisarm.IParams;
-
-  /**
-   * The parameters of `hostageHold`: `IAutoMovieMotionHumanHostageHold.IParams`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHostageHold.IParams`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHostageHold.IParams` owns the shape; the alias serves `hostageHold` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IHostageHold = IAutoMovieMotionHumanHostageHold.IParams;
-
-  /**
-   * The parameters of `heldHostage`: `IAutoMovieMotionHumanHostageHold.IHeld`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanHostageHold.IHeld`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHostageHold.IHeld` owns the shape; the alias serves `heldHostage` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IHeldHostage = IAutoMovieMotionHumanHostageHold.IHeld;
-
-  /**
-   * The parameters of `disarmed`: `IAutoMovieMotionHumanDisarm.IYield`, the type its law takes.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method these parameters serve and the law type they alias.
-   * @evidence contracts/development/design.md#principled-representation An alias of `IAutoMovieMotionHumanDisarm.IYield`: the units, frames, invariants and runtime-validated states are that type's, and the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanDisarm.IYield` owns the shape; the alias serves `disarmed` of this family, naming its parameters in the family namespace without a second definition.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: a plain alias, with no field added, widened, cast or made optional.
-   */
-  export type IDisarmed = IAutoMovieMotionHumanDisarm.IYield;
+  disarmed(params: IAutoMovieMotionHumanDisarm.IYield, anchor?: string): Chain;
 }

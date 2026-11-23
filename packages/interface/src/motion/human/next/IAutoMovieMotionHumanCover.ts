@@ -23,22 +23,7 @@ export interface IAutoMovieMotionHumanCover<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanCover.cover is provided by the chain that implements IAutoMovieMotionHumanCover.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanCover.cover is provided by the chain that implements IAutoMovieMotionHumanCover.
    */
-  cover(params: IAutoMovieMotionHumanCover.ICover, anchor?: string): Chain;
-}
-
-/**
- * The parameter types of the Cover methods.
- */
-export namespace IAutoMovieMotionHumanCover {
-  /**
-   * The parameters of `cover`: the lexicon law's own `IAutoMovieMotionHumanCover.IParams` (imported as `IAutoMovieMotionHumanCover`), unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged, with its import name.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The lexicon's `IAutoMovieMotionHumanCover` owns the type; the alias serves this family's `cover` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `cover` takes the type its law reads.
-   */
-  export type ICover = IAutoMovieMotionHumanCover.IParams;
+  cover(params: IAutoMovieMotionHumanCover.IParams, anchor?: string): Chain;
 }
 
 /**

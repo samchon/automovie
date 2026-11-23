@@ -1,7 +1,7 @@
+import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanRun } from "../actions/IAutoMovieMotionHumanRun";
 import type { IAutoMovieMotionHumanWalkParams } from "../actions/IAutoMovieMotionHumanWalkParams";
 import type { IAutoMovieMotionHumanCarry } from "../carrying/IAutoMovieMotionHumanCarry";
-import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionHumanApproach } from "../everyday/IAutoMovieMotionHumanApproach";
 import type { IAutoMovieMotionHumanProxemics } from "../everyday/IAutoMovieMotionHumanProxemics";
 import type { IAutoMovieMotionHumanDrillRegulation } from "../lexicon/IAutoMovieMotionHumanDrillRegulation";
@@ -47,7 +47,7 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGait.walk is provided by the chain that implements IAutoMovieMotionHumanGait.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGait.walk is provided by the chain that implements IAutoMovieMotionHumanGait.
    */
-  walk(params: IAutoMovieMotionHumanGait.IWalk, anchor?: string): Chain;
+  walk(params: IAutoMovieMotionHumanWalkParams, anchor?: string): Chain;
 
   /**
    * Run through `via` to `to` at a jog, a run or a sprint, both feet leaving
@@ -67,7 +67,7 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGait.run is provided by the chain that implements IAutoMovieMotionHumanGait.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGait.run is provided by the chain that implements IAutoMovieMotionHumanGait.
    */
-  run(params: IAutoMovieMotionHumanGait.IRun, anchor?: string): Chain;
+  run(params: IAutoMovieMotionHumanRun.IParams, anchor?: string): Chain;
 
   /**
    * Walk straight at a person, a prop or a point and stop facing it, the front
@@ -87,7 +87,10 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGait.approach is provided by the chain that implements IAutoMovieMotionHumanGait.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGait.approach is provided by the chain that implements IAutoMovieMotionHumanGait.
    */
-  approach(params: IAutoMovieMotionHumanGait.IApproach, anchor?: string): Chain;
+  approach(
+    params: IAutoMovieMotionHumanApproach.IParams,
+    anchor?: string,
+  ): Chain;
 
   /**
    * Walk to `to` with a load in one hand, a box in both, a child on the hip,
@@ -107,10 +110,7 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGait.carryLoad is provided by the chain that implements IAutoMovieMotionHumanGait.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGait.carryLoad is provided by the chain that implements IAutoMovieMotionHumanGait.
    */
-  carryLoad(
-    params: IAutoMovieMotionHumanGait.ICarryLoad,
-    anchor?: string,
-  ): Chain;
+  carryLoad(params: IAutoMovieMotionHumanCarry.IParams, anchor?: string): Chain;
 
   /**
    * Run straight to where a moving person will be when the runner gets there
@@ -131,7 +131,7 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGait.intercept is provided by the chain that implements IAutoMovieMotionHumanGait.
    */
   intercept(
-    params: IAutoMovieMotionHumanGait.IIntercept,
+    params: IAutoMovieMotionHumanPursuit.IIntercept,
     anchor?: string,
   ): Chain;
 
@@ -151,7 +151,7 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGait.flee is provided by the chain that implements IAutoMovieMotionHumanGait.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGait.flee is provided by the chain that implements IAutoMovieMotionHumanGait.
    */
-  flee(params: IAutoMovieMotionHumanGait.IFlee, anchor?: string): Chain;
+  flee(params: IAutoMovieMotionHumanPursuit.IFlee, anchor?: string): Chain;
 
   /**
    * Square up on a named opening of an obstacle, pass through its middle
@@ -172,7 +172,7 @@ export interface IAutoMovieMotionHumanGait<Chain>
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGait.travelDoor is provided by the chain that implements IAutoMovieMotionHumanGait.
    */
   travelDoor(
-    params: IAutoMovieMotionHumanGait.ITravelDoor,
+    params: IAutoMovieMotionHumanTravelDoor.IParams,
     anchor?: string,
   ): Chain;
 }
@@ -181,76 +181,6 @@ export interface IAutoMovieMotionHumanGait<Chain>
  * The parameter types of the Gait methods.
  */
 export namespace IAutoMovieMotionHumanGait {
-  /**
-   * The parameters of `walk`: the walk law's own `IAutoMovieMotionHumanWalkParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanWalkParams` owns the type; the alias serves this family's `walk` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `walk` takes the type its law reads.
-   */
-  export type IWalk = IAutoMovieMotionHumanWalkParams;
-
-  /**
-   * The parameters of `run`: the run law's own `IAutoMovieMotionHumanRun.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanRun` owns the type; the alias serves this family's `run` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `run` takes the type its law reads.
-   */
-  export type IRun = IAutoMovieMotionHumanRun.IParams;
-
-  /**
-   * The parameters of `approach`: the law's own `IAutoMovieMotionHumanApproach.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanApproach` owns the type; the alias serves this family's `approach` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `approach` takes the type its law reads.
-   */
-  export type IApproach = IAutoMovieMotionHumanApproach.IParams;
-
-  /**
-   * The parameters of `carryLoad`: the carry law's own `IAutoMovieMotionHumanCarry.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanCarry` owns the type; the alias serves this family's `carryLoad` signature, the carry law exported under that name.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `carryLoad` takes the type its law reads.
-   */
-  export type ICarryLoad = IAutoMovieMotionHumanCarry.IParams;
-
-  /**
-   * The parameters of `intercept`: the pursuit law's own `IAutoMovieMotionHumanPursuit.IIntercept`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPursuit` owns the type; the alias serves this family's `intercept` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `intercept` takes the type its law reads.
-   */
-  export type IIntercept = IAutoMovieMotionHumanPursuit.IIntercept;
-
-  /**
-   * The parameters of `flee`: the pursuit law's own `IAutoMovieMotionHumanPursuit.IFlee`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanPursuit` owns the type; the alias serves this family's `flee` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `flee` takes the type its law reads.
-   */
-  export type IFlee = IAutoMovieMotionHumanPursuit.IFlee;
-
-  /**
-   * The parameters of `travelDoor`: the law's own `IAutoMovieMotionHumanTravelDoor.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanTravelDoor` owns the type; the alias serves this family's `travelDoor` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `travelDoor` takes the type its law reads.
-   */
-  export type ITravelDoor = IAutoMovieMotionHumanTravelDoor.IParams;
-
   /**
    * The closed paces of the walk, `slow`, `normal` and `fast`, each a Froude
    * number of the speed model (`walk.FROUDE`). Each pace's speed and steps a

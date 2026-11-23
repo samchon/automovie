@@ -27,22 +27,7 @@ export interface IAutoMovieMotionHumanGaze<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanGaze.look is provided by the chain that implements IAutoMovieMotionHumanGaze.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanGaze.look is provided by the chain that implements IAutoMovieMotionHumanGaze.
    */
-  look(params: IAutoMovieMotionHumanGaze.ILookParams, anchor?: string): Chain;
-}
-
-/**
- * The parameter types of the Gaze methods.
- */
-export namespace IAutoMovieMotionHumanGaze {
-  /**
-   * The parameters of `look`: the law's own `IAutoMovieMotionHumanLook.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanLook` owns the type; the alias serves this family's `look` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `look` takes the type its law reads.
-   */
-  export type ILookParams = IAutoMovieMotionHumanLook.IParams;
+  look(params: IAutoMovieMotionHumanLook.IParams, anchor?: string): Chain;
 }
 
 /**

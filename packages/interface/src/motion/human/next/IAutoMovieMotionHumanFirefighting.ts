@@ -29,7 +29,7 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.extinguish is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   extinguish(
-    params: IAutoMovieMotionHumanFirefighting.IExtinguish,
+    params: IAutoMovieMotionHumanFirefight.IExtinguish,
     anchor?: string,
   ): Chain;
 
@@ -49,7 +49,7 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.hoseLine is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   hoseLine(
-    params: IAutoMovieMotionHumanFirefighting.IHoseLine,
+    params: IAutoMovieMotionHumanFirefight.IHoseLine,
     anchor?: string,
   ): Chain;
 
@@ -69,7 +69,7 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.beatFlames is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   beatFlames(
-    params: IAutoMovieMotionHumanFirefighting.IBeatFlames,
+    params: IAutoMovieMotionHumanFirefight.IBeatFlames,
     anchor?: string,
   ): Chain;
 
@@ -89,7 +89,7 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanFirefighting.stopDropRoll is provided by the chain that implements IAutoMovieMotionHumanFirefighting.
    */
   stopDropRoll(
-    params: IAutoMovieMotionHumanFirefighting.IStopDropRoll,
+    params: IAutoMovieMotionHumanFirefight.IStopDropRoll,
     anchor?: string,
   ): Chain;
   /**
@@ -114,45 +114,6 @@ export interface IAutoMovieMotionHumanFirefighting<Chain> {
  */
 export namespace IAutoMovieMotionHumanFirefighting {
   /**
-   * The parameters of `extinguish`: the law's own `IAutoMovieMotionHumanFirefight.IExtinguish`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFirefight` owns the type; the alias serves this family's `extinguish` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `extinguish` takes the type its law reads.
-   */
-  export type IExtinguish = IAutoMovieMotionHumanFirefight.IExtinguish;
-
-  /**
-   * The parameters of `hoseLine`: the law's own `IAutoMovieMotionHumanFirefight.IHoseLine`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFirefight` owns the type; the alias serves this family's `hoseLine` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `hoseLine` takes the type its law reads.
-   */
-  export type IHoseLine = IAutoMovieMotionHumanFirefight.IHoseLine;
-
-  /**
-   * The parameters of `beatFlames`: the law's own `IAutoMovieMotionHumanFirefight.IBeatFlames`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFirefight` owns the type; the alias serves this family's `beatFlames` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `beatFlames` takes the type its law reads.
-   */
-  export type IBeatFlames = IAutoMovieMotionHumanFirefight.IBeatFlames;
-
-  /**
-   * The parameters of `stopDropRoll`: the law's own `IAutoMovieMotionHumanFirefight.IStopDropRoll`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanFirefight` owns the type; the alias serves this family's `stopDropRoll` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `stopDropRoll` takes the type its law reads.
-   */
-  export type IStopDropRoll = IAutoMovieMotionHumanFirefight.IStopDropRoll;
-  /**
    * The parameters of `pass`: those of `extinguish` and the hand that carries the extinguisher.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises, the type it extends and the one member it adds.
@@ -169,7 +130,7 @@ export namespace IAutoMovieMotionHumanFirefighting {
    * The team's shared parameters: the line, the advance, the target and the sweeps; each member's role and grip are set per member.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names what the team shares and what each member sets.
-   * @evidence contracts/development/design.md#principled-representation A named derivation of `IHoseLine` without the two members that differ per member.
+   * @evidence contracts/development/design.md#principled-representation A named derivation of `IAutoMovieMotionHumanFirefight.IHoseLine` without the two members that differ per member.
    * @evidence contracts/development/design.md#minimal-and-owned-surface What `hoseTeam` reads.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No member is added.
    */
@@ -207,4 +168,3 @@ export namespace IAutoMovieMotionHumanFirefighting {
     IAutoMovieMotionHumanChain,
   ];
 }
-

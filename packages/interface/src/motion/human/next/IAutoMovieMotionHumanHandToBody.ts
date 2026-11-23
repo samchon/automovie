@@ -35,7 +35,7 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandToBody.handToFace is provided by the chain that implements IAutoMovieMotionHumanHandToBody.
    */
   handToFace(
-    params: IAutoMovieMotionHumanHandToBody.IHandToFace,
+    params: IAutoMovieMotionHumanHandToFace.IParams,
     anchor?: string,
   ): Chain;
 
@@ -55,7 +55,7 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandToBody.selfAction is provided by the chain that implements IAutoMovieMotionHumanHandToBody.
    */
   selfAction(
-    params: IAutoMovieMotionHumanHandToBody.ISelfAction,
+    params: IAutoMovieMotionHumanSelfAction.IParams,
     anchor?: string,
   ): Chain;
 
@@ -74,10 +74,7 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
    * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts No computation or fitted constants are implemented by this signature; the provider must justify its computation; IAutoMovieMotionHumanHandToBody.headTilt is provided by the chain that implements IAutoMovieMotionHumanHandToBody.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanHandToBody.headTilt is provided by the chain that implements IAutoMovieMotionHumanHandToBody.
    */
-  headTilt(
-    params: IAutoMovieMotionHumanHandToBody.IHeadTilt,
-    anchor?: string,
-  ): Chain;
+  headTilt(params: IAutoMovieMotionHumanHeadTilt, anchor?: string): Chain;
 
   /**
    * Covering the face with both bare hands: the open palms settle on the cheeks with the fingers upward, and the head bows 15 degrees into the cover as both hands arrive; the hold after `taskEnd` is 1.2 s when `hold` is absent.
@@ -144,36 +141,6 @@ export interface IAutoMovieMotionHumanHandToBody<Chain> {
  * The parameter types of the HandToBody methods.
  */
 export namespace IAutoMovieMotionHumanHandToBody {
-  /**
-   * The parameters of `handToFace`: the law's own `IAutoMovieMotionHumanHandToFace.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHandToFace` owns the type; the alias serves this family's `handToFace` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `handToFace` takes the type its law reads.
-   */
-  export type IHandToFace = IAutoMovieMotionHumanHandToFace.IParams;
-
-  /**
-   * The parameters of `selfAction`: the law's own `IAutoMovieMotionHumanSelfAction.IParams`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanSelfAction` owns the type; the alias serves this family's `selfAction` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `selfAction` takes the type its law reads.
-   */
-  export type ISelfAction = IAutoMovieMotionHumanSelfAction.IParams;
-
-  /**
-   * The parameters of `headTilt`: the law's own `IAutoMovieMotionHumanHeadTilt`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the law type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, frames, defaults and invariants are those the law type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanHeadTilt` owns the type; the alias serves this family's `headTilt` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast, so `headTilt` takes the type its law reads.
-   */
-  export type IHeadTilt = IAutoMovieMotionHumanHeadTilt;
-
   /**
    * Seconds at the face after the repetitions: one duration, or two bounds the seed draws one between, evenly.
    *

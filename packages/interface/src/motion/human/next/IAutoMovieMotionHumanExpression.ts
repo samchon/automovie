@@ -46,7 +46,7 @@ export interface IAutoMovieMotionHumanExpression {
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work This signature coordinates no requests and defines no cache; the provider owns result equivalence and invalidation; IAutoMovieMotionHumanExpression.breath is provided by the runtime namespace that implements IAutoMovieMotionHumanExpression.
    */
   breath(
-    params?: IAutoMovieMotionHumanExpression.IBreath,
+    params?: IAutoMovieMotionHumanBreath.IOptions,
   ): IAutoMovieMotionHumanLayer;
 }
 
@@ -68,14 +68,4 @@ export namespace IAutoMovieMotionHumanExpression {
     /** The displays, each at its film second for its length. */
     displays: readonly IAutoMovieMotionHumanAffect.IDisplay[];
   }
-
-  /**
-   * The parameters of `breath`: the breathing layer's own `IAutoMovieMotionHumanBreath.IOptions`, unchanged.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names the method it parameterises and the option type it aliases unchanged.
-   * @evidence contracts/development/design.md#principled-representation An alias: units, defaults and invariants are those the option type states; the alias adds none.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface `IAutoMovieMotionHumanBreath` owns the type; the alias serves this family's `breath` signature.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: no member is added, widened or cast.
-   */
-  export type IBreath = IAutoMovieMotionHumanBreath.IOptions;
 }
