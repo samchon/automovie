@@ -7,6 +7,7 @@ export * from "./boundAutoMovieConvexSeparation";
 export * from "./boundAutoMovieMeshQueryPoint";
 export * from "./boundAutoMovieProjectionSeparation";
 export * from "./boundAutoMovieTriangleAttachmentContact";
+export * from "./buildAutoMovieConvexHull";
 export * from "./buildAutoMovieMeshQueryHierarchy";
 export * from "./buildAutoMoviePolyhedron";
 export * from "./buildAutoMovieRegionFace";
