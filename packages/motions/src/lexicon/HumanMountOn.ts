@@ -14,6 +14,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { courseHumanLegs } from "../compose/courseHumanLegs";
 import { seated } from "../everyday/seated";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -363,6 +364,87 @@ export namespace HumanMountOn {
       {};
     const turnOf = (at: HumanMountFlight.IFlown): number =>
       HumanMountPush.twist(body, at.hip, at.goal)?.degrees ?? 0;
+
+    // The body over the climb with its legs' goals, before the hands.
+    const lower = (t: number): IAutoMovieMotionHumanPosture => {
+      const frame: Frame = frameAt(t);
+      const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
+        frame.root,
+        floor,
+      );
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
+      const toes: IAutoMovieMotionHumanPosture["joints"] = {};
+      for (const side of ["left", "right"] as const) {
+        const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
+        if (stays[side]) {
+          limbs[limb] = HumanMount.leg(body, side, places[side].foot, true);
+          continue;
+        }
+        const planted: IAutoMovieHumanLimbGoal = standing[limb]!;
+        const [leaves, arrives]: readonly [number, number] = flight[side];
+        if (onFloor[side] && t <= leaves) {
+          if (side === push) {
+            const rolled: HumanMountPush.IRoll = rolledAt(t);
+            limbs[limb] = rolled.goal;
+            toes[`${side}Toes`] = [rolled.roll, 0, 0];
+          } else limbs[limb] = planted;
+          continue;
+        }
+        const { share, hip, goal }: HumanMountFlight.IFlown = flown(side, t);
+        // The foot's turn out of the knee's plane eases between its two ends, so the knee keeps its own side (`HumanMountPush.twist`). Once the foot is on its rest it keeps its own turn there.
+        const lands: number = places[side].rests
+          ? Math.min(arrives, bearing[side])
+          : arrives;
+        const ends: readonly [number, number] = (twists[side] ??= [
+          turnOf(flown(side, leaves)),
+          turnOf(flown(side, lands)),
+        ]);
+        // An empty swing is a step at its one instant.
+        const eased: number =
+          lands > leaves
+            ? minimumJerk.share((t - leaves) / (lands - leaves))
+            : t >= lands
+              ? 1
+              : 0;
+        if (side === push && onFloor[side])
+          toes[`${side}Toes`] = [left().roll * (1 - share), 0, 0];
+        // A foot that bears nothing turns its toes down about its ball, so the ball, not the ankle, comes onto the rest; once on it the heel lowers about that ball as the seat takes the body, from its bearing to seated.
+        limbs[limb] = HumanMountPush.tip(
+          body,
+          side,
+          hip,
+          // The knee's plane is turned to hold the foot (`HumanMountTrack`).
+          HumanMountTrack(
+            body,
+            hip,
+            t < lands
+              ? HumanMountPush.squared(
+                  body,
+                  hip,
+                  goal,
+                  ends[0] + wrapDegrees(ends[1] - ends[0]) * eased,
+                )
+              : goal,
+          ),
+          places[side].rests && t >= bearing[side]
+            ? climb > bearing[side]
+              ? 1 -
+                minimumJerk.share((t - bearing[side]) / (climb - bearing[side]))
+              : 0
+            : 1,
+        );
+      }
+      return { ...frame, joints: { ...frame.joints, ...toes }, limbs };
+    };
+
+    // The legs planned once over the climb, from the legs it is entered with: every reader of the posture places them at this course (`IAutoMovieHumanLimbGoal.seed`), so the thighs the hands are laid on are the thighs shown.
+    const legs: courseHumanLegs.Seeded = courseHumanLegs({
+      body,
+      posture: lower,
+      span: { start: 0, end: duration },
+      instants: [commit, touch, climb],
+      entry: context.entry.pose,
+    });
     const mounted: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
@@ -380,77 +462,8 @@ export namespace HumanMountOn {
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const frame: Frame = frameAt(t);
-        const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
-          frame.root,
-          floor,
-        );
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-        const toes: IAutoMovieMotionHumanPosture["joints"] = {};
-        for (const side of ["left", "right"] as const) {
-          const limb: "leftLeg" | "rightLeg" = `${side}Leg`;
-          if (stays[side]) {
-            limbs[limb] = HumanMount.leg(body, side, places[side].foot, true);
-            continue;
-          }
-          const planted: IAutoMovieHumanLimbGoal = standing[limb]!;
-          const [leaves, arrives]: readonly [number, number] = flight[side];
-          if (onFloor[side] && t <= leaves) {
-            if (side === push) {
-              const rolled: HumanMountPush.IRoll = rolledAt(t);
-              limbs[limb] = rolled.goal;
-              toes[`${side}Toes`] = [rolled.roll, 0, 0];
-            } else limbs[limb] = planted;
-            continue;
-          }
-          const { share, hip, goal }: HumanMountFlight.IFlown = flown(side, t);
-          // The foot's turn out of the knee's plane eases between its two ends, so the knee keeps its own side (`HumanMountPush.twist`). Once the foot is on its rest it keeps its own turn there.
-          const lands: number = places[side].rests
-            ? Math.min(arrives, bearing[side])
-            : arrives;
-          const ends: readonly [number, number] = (twists[side] ??= [
-            turnOf(flown(side, leaves)),
-            turnOf(flown(side, lands)),
-          ]);
-          const eased: number = minimumJerk.share(
-            (t - leaves) / Math.max(1e-6, lands - leaves),
-          );
-          if (side === push && onFloor[side])
-            toes[`${side}Toes`] = [left().roll * (1 - share), 0, 0];
-          // A foot that bears nothing turns its toes down about its ball, so the ball, not the ankle, comes onto the rest; once on it the heel lowers about that ball as the seat takes the body, from its bearing to seated.
-          limbs[limb] = HumanMountPush.tip(
-            body,
-            side,
-            hip,
-            // The knee's plane is turned to hold the foot (`HumanMountTrack`).
-            HumanMountTrack(
-              body,
-              hip,
-              t < lands
-                ? HumanMountPush.squared(
-                    body,
-                    hip,
-                    goal,
-                    ends[0] + wrapDegrees(ends[1] - ends[0]) * eased,
-                  )
-                : goal,
-            ),
-            places[side].rests && t >= bearing[side]
-              ? 1 -
-                  minimumJerk.share(
-                    (t - bearing[side]) / Math.max(1e-6, climb - bearing[side]),
-                  )
-              : 1,
-          );
-        }
         // The hands' goals are their places on the thighs at every second; the arms' course (HumanMountOnCourses) lays the way there.
-        return seated.arms(
-          body,
-          { ...frame, joints: { ...frame.joints, ...toes }, limbs },
-          1,
-          resolution,
-          projection,
-        );
+        return seated.arms(body, legs(lower(t), t), 1, resolution, projection);
       },
     };
 
@@ -459,6 +472,8 @@ export namespace HumanMountOn {
       body,
       plan: mounted,
       pose: context.entry.pose,
+      lowered: (seconds: number): IAutoMovieMotionHumanPosture =>
+        legs(lower(seconds), seconds),
       climb,
       duration,
       swing: (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null => {

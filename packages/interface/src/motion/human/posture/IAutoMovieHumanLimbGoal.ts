@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
+import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieHumanEffectorPointLimit } from "./IAutoMovieHumanEffectorPointLimit";
 import type { IAutoMovieHumanLimbReference } from "./IAutoMovieHumanLimbReference";
@@ -85,6 +86,18 @@ export interface IAutoMovieHumanLimbGoal {
    * letting it switch between them.
    */
   reference?: IAutoMovieHumanLimbReference;
+
+  /**
+   * The swivel and bend branch the law's own plan places this limb at, at this
+   * second: a course of the limb planned once over the action, a fit at each of
+   * its knots continuing the one before from the limb as the action was
+   * entered, and the course's continuous interpolation between them. Every
+   * reader of the goal (the display, the arm planner's base, a law reading its
+   * own posture's bones) places the limb there in closed form with no search,
+   * so all of them read one limb. The plan guarantees it stands; a read never
+   * refines it. None when absent: each reader fits the limb itself.
+   */
+  seed?: IAutoMovieSwivelSeed;
 
   /**
    * Another body's colliders, placed in the world, an arm keeps clear of on its

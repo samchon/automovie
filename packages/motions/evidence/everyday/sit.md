@@ -6,11 +6,11 @@ States context/plan ownership and seat, facing, leg-reach and backrest refusals;
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The seat socket follows its original descent/balanced travel while planted-leg and achieved hand goals retain canonical fitting; high seats delegate to the existing mount law; a seat on a prop that may move carries the whole plan in that prop's frame (`sitCarried`).
+The seat socket follows its original descent/balanced travel while planted-leg and achieved hand goals retain canonical fitting; high seats delegate to the existing mount law; a seat on a prop that may move carries the whole plan in that prop's frame (`sitCarried`). The legs are coursed once over the sit and each hand's span is the body's own (`sitHandSpans`): a hanging hand its rising thigh meets before seat contact lands on the thigh there.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Fixed descent geometry and the original balance table feed one body base and two carried hand rows.
+Fixed descent geometry and the original balance table feed one body base, the legs' course and the hands' spans (`sitHandSpans`), and two carried hand rows.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

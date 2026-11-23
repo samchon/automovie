@@ -182,11 +182,38 @@ function fitted(
   const paired: boolean =
     arms.left !== undefined &&
     arms.right !== undefined &&
+    arms.left.seed === undefined &&
+    arms.right.seed === undefined &&
     !riding(arms.left, "right") &&
     !riding(arms.right, "left");
   for (const limb of orderHumanLimbs(limbs)) {
     const goal: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
     if (goal === undefined) continue;
+
+    // A goal that carries its law's own planned seed (`IAutoMovieHumanLimbGoal
+    // .seed`) places its limb there in closed form, over any seed the reader
+    // continues, with no search: the plan is the one model every reader of
+    // the goal shares, and it stands by the plan's construction.
+    if (goal.seed !== undefined) {
+      const at: ReturnType<typeof HumanLimbFit.at> = HumanLimbFit.at(
+        body,
+        pose,
+        limb,
+        goal,
+        goal.seed.swivel,
+        goal.seed.branch,
+      );
+      if (at === null)
+        throw new Error(
+          `the ${limb}'s planned seed places no hinged chain at its goal`,
+        );
+      pose = at.pose;
+      seeds[limb] = at.seed;
+      values[limb] = at.value;
+      if (limb === "leftArm") placed.push("left");
+      if (limb === "rightArm") placed.push("right");
+      continue;
+    }
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       (readResolution ??= prepareHumanPoseResolution(resolution));
     if (paired && (limb === "leftArm" || limb === "rightArm")) {

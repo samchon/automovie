@@ -6,7 +6,7 @@ States person/pose frame, attachment order, pair policy, lazy owned-or-borrowed 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Retains the existing placed-arm order, world attachment transforms and independent-or-coupled arm law. Exact scalar FK dependencies permit unchanged articulation/ancestor math to be reused while changed limbs and descendant frames are recomputed normally. Member facts: continued: The free-curve producer owns deterministic phase continuation and checks all current physical constraints; this entry chooses the engine's current hinged correction for its legs. constructed: The ordinary direct solve.
+Retains the existing placed-arm order, world attachment transforms and independent-or-coupled arm law. A goal carrying its law's planned seed (`IAutoMovieHumanLimbGoal.seed`) is placed there in closed form (`HumanLimbFit.at`), over any seed the reader continues, so every reader of the goal places one limb; two seeded arms are not pair-fitted. Exact scalar FK dependencies permit unchanged articulation/ancestor math to be reused while changed limbs and descendant frames are recomputed normally. Member facts: continued: The free-curve producer owns deterministic phase continuation and checks all current physical constraints; this entry chooses the engine's current hinged correction for its legs. constructed: The ordinary direct solve.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ One shared kernel owns original limb order/coupling; each entry passes its limb 
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Every goal, rival, near seed, actual fit and ordering rule remains unchanged; no key, stored answer or approximation is added. Member facts: continued: No changed goal, branch answer, readiness flag or relaxed bound. constructed: No changed goal, skipped admission or altered constraint.
+Every goal, rival, near seed, actual fit and ordering rule remains unchanged for an unseeded goal; a seeded goal is never refined at read time, and a seed that places no hinged chain throws rather than searching; no key, stored answer or approximation is added. Member facts: continued: No changed goal, branch answer, readiness flag or relaxed bound. constructed: No changed goal, skipped admission or altered constraint.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

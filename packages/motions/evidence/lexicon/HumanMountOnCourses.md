@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the two courses, why each is laid and the hands' landing region.
+States the two courses, why each is laid, the hands' landing region and when each hand lands.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -14,11 +14,11 @@ The legs' keys, then the arms' course over them.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The landing disc is a quarter thigh either side of the thigh's mid station; the span is the climb's.
+The landing disc is a quarter thigh either side of the thigh's mid station; a hand rests from the climb's end, or from the instant its rising thigh meets it as it hangs where that comes first (`sitHandMeet`, the body's own geometry): a hand lands on the thigh as the thigh comes up under it.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One swung-leg wrap and one arm course per plan.
+One swung-leg wrap, one meeting scan per hand and one arm course per plan.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanSwungLeg` and `courseArmGoal`, the owners of each course.
 

@@ -35,6 +35,7 @@ import { prepareSitWorkingFeet } from "./prepareSitWorkingFeet";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
 import { sitCarried } from "./sitCarried";
+import { sitHandSpans } from "./sitHandSpans";
 import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
 
@@ -61,13 +62,14 @@ import { sitPlace } from "./sitPlace";
  * thighs no longer rise under it, the fingers straightening to lie flat.
  *
  * Peak trunk flexion `35 + 50 (1 - r)` degrees and descent time `2 (1 + 0.6 (1
- * - r))` seconds for a seat at `r` of the popliteal height (provisional
- * coefficients; a lower seat needs more trunk flexion and more time, Janssen,
- * Bussmann and Stam 2002, and sit-to-stand takes about 1.5 to 2.5 s in healthy
- * adults). Contact comes at 75 % of the descent. The seated back is `upright`
- * (pitch 0), `lean` (12 degrees back onto a backrest, which the seat must have)
- * or `slump` (pelvis 10 degrees back, chest 12 and spine 8 flexed), all
- * provisional.
+ *
+ * - R))`seconds for a seat at`r`of the popliteal height (provisional
+ *   coefficients; a lower seat needs more trunk flexion and more time, Janssen,
+ *   Bussmann and Stam 2002, and sit-to-stand takes about 1.5 to 2.5 s in
+ *   healthy adults). Contact comes at 75 % of the descent. The seated back
+ *   is`upright`(pitch 0),`lean`(12 degrees back onto a backrest, which the seat
+ *   must have) or`slump` (pelvis 10 degrees back, chest 12 and spine 8 flexed),
+ *   all provisional.
  *
  * The performer must stand facing within 20 degrees of the seat's heading with
  * feet the legs can reach from the seat; otherwise the sit is refused with the
@@ -381,15 +383,19 @@ export namespace sit {
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        return sitHands(
-          body,
-          seatedKey !== undefined &&
-            settled(t) &&
-            resolution !== undefined &&
-            prepareHumanPoseResolution.isNativeSource(resolution)
-            ? structuredClone(seatedKey)
-            : lowered(t, travel(t), resolution),
-          (side: "left" | "right"): number => hand(side, t),
+        // The legs at the sit's own course (`sitHandSpans`).
+        return spans.legs(
+          sitHands(
+            body,
+            seatedKey !== undefined &&
+              settled(t) &&
+              resolution !== undefined &&
+              prepareHumanPoseResolution.isNativeSource(resolution)
+              ? structuredClone(seatedKey)
+              : lowered(t, travel(t), resolution),
+            (side: "left" | "right"): number => spans.hand(side, t),
+          ),
+          t,
         );
       },
     };
@@ -415,7 +421,7 @@ export namespace sit {
         from: 0,
         to: duration,
         rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-        weight: (seconds: number): number => hand(side, seconds),
+        weight: (seconds: number): number => spans.hand(side, seconds),
         goal: (
           posture: IAutoMovieMotionHumanPosture,
           _seconds: number,
@@ -431,34 +437,10 @@ export namespace sit {
                 `${side}Arm`
               ]!
             : seated.armrest(body, posture, side, rest, seat.yaw),
-        span: span(side),
+        span: spans.span(side),
         together,
       });
     };
-
-    /**
-     * When a hand leaves its hanging rest and when it rests: on its armrest
-     * from `REACHING` of the descent to contact, on its thigh from contact to
-     * seated; it stays there.
-     */
-    function span(
-      side: "left" | "right",
-    ): IAutoMovieMotionHumanArmPlanned.ISpan {
-      return seat.armrests?.[side] === undefined
-        ? { start: contact, ready: descent, relax: duration, end: duration }
-        : {
-            start: REACHING * descent,
-            ready: contact,
-            relax: duration,
-            end: duration,
-          };
-    }
-
-    /** How far a hand is from hanging to resting, at a second. */
-    function hand(side: "left" | "right", t: number): number {
-      const s: IAutoMovieMotionHumanArmPlanned.ISpan = span(side);
-      return minimumJerk.share((t - s.start) / (s.ready - s.start));
-    }
 
     const { clock, window, travel }: ReturnType<typeof prepareSitBalance> =
       prepareSitBalance({
@@ -474,6 +456,21 @@ export namespace sit {
         shares: SHARES,
         lowered,
       });
+
+    // The legs planned once over the sit, and when each hand leaves its hang
+    // and rests on the thighs they place (`sitHandSpans`).
+    const spans: sitHandSpans.ISpans = sitHandSpans({
+      body,
+      lowered: (seconds: number): IAutoMovieMotionHumanPosture =>
+        lowered(seconds, travel(seconds)),
+      entry: context.entry.pose,
+      armrest: (side: "left" | "right"): boolean =>
+        seat.armrests?.[side] !== undefined,
+      contact,
+      descent,
+      duration,
+      reaching: REACHING,
+    });
     const composed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
         base: lowering,

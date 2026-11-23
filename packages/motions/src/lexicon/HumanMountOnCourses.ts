@@ -3,11 +3,13 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePose,
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { sitHandMeet } from "../everyday/sitHandMeet";
 import { HumanSwungLeg } from "./HumanSwungLeg";
 
 /**
@@ -40,11 +42,26 @@ export function HumanMountOnCourses(
     props.plan,
     props.swing,
   );
-  const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
-    start: 0,
-    ready: climb,
-    relax: duration,
-    end: duration,
+  // Each hand rests on its thigh from the climb's end, or from the instant
+  // the rising thigh meets the hand as it hangs (`sitHandMeet`, the body's
+  // own geometry) where that comes first: a hand lands on the thigh as the
+  // thigh comes up under it.
+  const span = (
+    side: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanArmPlanned.ISpan => {
+    const meet: number | undefined = sitHandMeet({
+      body,
+      posture: props.lowered,
+      entry: props.pose,
+      side,
+      until: climb,
+    });
+    return {
+      start: 0,
+      ready: meet !== undefined && meet > 0 && meet < climb ? meet : climb,
+      relax: duration,
+      end: duration,
+    };
   };
   const disc: number = 0.25 * body.measure.thigh;
   // Each hand comes to its own thigh on its own side of the trunk, so the
@@ -56,14 +73,14 @@ export function HumanMountOnCourses(
     plan: swung,
     side: "left",
     rest: AutoMovieMotionHumanArm.angles(props.pose, "left"),
-    span,
+    span: span("left"),
     disc,
     beside: AutoMovieMotionHumanArm.together(),
     with: [
       {
         side: "right",
         rest: AutoMovieMotionHumanArm.angles(props.pose, "right"),
-        span,
+        span: span("right"),
         disc,
       },
     ],
@@ -82,6 +99,12 @@ export namespace HumanMountOnCourses {
 
     /** The entry's pose, the hands' hanging rest. */
     pose: IAutoMoviePose;
+
+    /**
+     * The climb's posture at a second since its start with its legs at their
+     * course, before the hands (HumanMountOn's legs).
+     */
+    lowered(seconds: number): IAutoMovieMotionHumanPosture;
 
     /** The climb's length to seated, seconds. */
     climb: number;
