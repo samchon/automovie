@@ -11,6 +11,7 @@ import type { IAutoMovieRestFrame } from "../pose/IAutoMovieRestFrame";
 import type { AutoMovieHumanoidBone } from "../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieJointAxes } from "../skeleton/IAutoMovieJointAxes";
 import type { IAutoMovieSkeleton } from "../skeleton/IAutoMovieSkeleton";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
 import type { IAutoMovieCompiledFormation } from "./IAutoMovieCompiledFormation";
 import type { IAutoMovieFormationDesign } from "./IAutoMovieFormationDesign";
 import type { IAutoMovieFormationMotion } from "./IAutoMovieFormationMotion";
@@ -114,6 +115,12 @@ export interface IAutoMovieEngineShotRuntime {
    * to lightMotions. Omit when no practical source follows a prop.
    */
   practicalLights?: readonly IAutoMoviePracticalLightBinding[];
+
+  /**
+   * Font sources the shot's text layers may name, carried onto `shot.fonts`.
+   * Omit when no surface graphic letters text.
+   */
+  fonts?: readonly IAutoMovieFontSource[];
 
   /**
    * The shot's own object clips, carried onto the compiled shot's
