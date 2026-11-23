@@ -49,6 +49,7 @@ export * from "./limitSubdivisionRing";
 export * from "./measureAutoMovieMeshClearance";
 export * from "./measureAutoMovieMeshCrossings";
 export * from "./measureAutoMovieMeshDefects";
+export * from "./measureAutoMovieMeshPieces";
 export * from "./measureAutoMovieModelCrossings";
 export * from "./measureAutoMovieProjectionIntervals";
 export * from "./mergeAutoMovieMeshParts";

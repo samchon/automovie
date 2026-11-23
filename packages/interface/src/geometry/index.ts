@@ -47,6 +47,7 @@ export type { IAutoMovieMeshDefect } from "./IAutoMovieMeshDefect";
 export type { IAutoMovieMeshDeformationInfluence } from "./IAutoMovieMeshDeformationInfluence";
 export type { IAutoMovieMeshGroup } from "./IAutoMovieMeshGroup";
 export type { IAutoMovieMeshPart } from "./IAutoMovieMeshPart";
+export type { IAutoMovieMeshPiece } from "./IAutoMovieMeshPiece";
 export type { IAutoMovieMeshQueryBudget } from "./IAutoMovieMeshQueryBudget";
 export type { IAutoMovieMeshQueryHierarchy } from "./IAutoMovieMeshQueryHierarchy";
 export type { IAutoMovieMeshRayCaster } from "./IAutoMovieMeshRayCaster";
