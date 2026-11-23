@@ -37,14 +37,15 @@ export function test_render_delivery_loudness_audit(): void {
     loudness:
       | { integratedLufs: number | null; truePeakDbtp: number | null }
       | undefined,
-    expected: Audit["expected"]["loudness"] = targets,
+    // Null states no targets; an omitted argument takes the default ones.
+    expected: Audit["expected"]["loudness"] | null = targets,
   ): Audit => ({
     source: { file: "film.partial.mp4", sha256: "ad".repeat(32) },
     expected: {
       frameCount: 30,
       frameRate: [30, 1],
       audioRequired: true,
-      ...(expected === undefined ? {} : { loudness: expected }),
+      ...(expected === null ? {} : { loudness: expected }),
     },
     thresholds: {
       black: {
@@ -124,7 +125,7 @@ export function test_render_delivery_loudness_audit(): void {
   );
 
   const unmeasured = auditAutoMovieDeliveryContent(props(undefined));
-  const unchecked = auditAutoMovieDeliveryContent(props(undefined, undefined));
+  const unchecked = auditAutoMovieDeliveryContent(props(undefined, null));
   TestValidator.equals(
     "an unmeasured stream blocks only when targets apply",
     [

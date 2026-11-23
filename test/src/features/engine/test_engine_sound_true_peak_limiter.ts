@@ -32,7 +32,7 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_true_peak_limiter`; it starts no process.
  */
 export function test_engine_sound_true_peak_limiter(): void {
-  const rate: number = 48_000;
+  const rate: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
   const frames: number = 240;
   const plan: IAutoMovieProductionSoundPlan = {
     version: 1,

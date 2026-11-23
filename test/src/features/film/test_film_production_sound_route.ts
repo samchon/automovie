@@ -1,4 +1,5 @@
 import {
+  masterProductionSound,
   productionSpeechEndFrame,
   renderProductionSound,
 } from "@automovie/engine";
@@ -241,17 +242,22 @@ export async function test_film_production_sound_route(): Promise<void> {
       ),
     })),
   };
-  const master: Float32Array = renderProductionSound({
+  // The written soundtrack is the mix after the master stage, as the render
+  // mixer delivers it.
+  const master: Float32Array = masterProductionSound({
     plan,
-    dialogue: new Map(
-      admitted.map((entry) => [entry.receipt.line, entry.audio.samples]),
-    ),
-    assets: new Map([
-      [
-        "music/theme.wav",
-        tone(48_000, 48_000, 330).map((x: number): number => Math.fround(x)),
-      ],
-    ]),
+    rendered: renderProductionSound({
+      plan,
+      dialogue: new Map(
+        admitted.map((entry) => [entry.receipt.line, entry.audio.samples]),
+      ),
+      assets: new Map([
+        [
+          "music/theme.wav",
+          tone(48_000, 48_000, 330).map((x: number): number => Math.fround(x)),
+        ],
+      ]),
+    }),
   }).pcm;
   const view: DataView = new DataView(
     wav.buffer,

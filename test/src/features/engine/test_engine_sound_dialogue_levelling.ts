@@ -35,7 +35,7 @@ import { nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_dialogue_levelling`; it starts no process.
  */
 export function test_engine_sound_dialogue_levelling(): void {
-  const rate: number = 48_000;
+  const rate: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
   const tone = (seconds: number, lufsAsPlaced: number): Float32Array =>
     Float32Array.from(
       { length: Math.round(seconds * rate) },

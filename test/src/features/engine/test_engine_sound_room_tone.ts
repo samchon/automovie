@@ -31,7 +31,7 @@ import { throwsError } from "../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_engine_sound_room_tone`; it starts no process.
  */
 export function test_engine_sound_room_tone(): void {
-  const rate: number = 48_000;
+  const rate: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
   const plan = (
     roomTone: IAutoMovieProductionRoomTone[],
   ): IAutoMovieProductionSoundPlan => ({
@@ -148,13 +148,17 @@ export function test_engine_sound_room_tone(): void {
     for (let k: number = 0; k < 480; ++k) energy += signal[index + k]! ** 2;
     quietest = Math.min(quietest, Math.sqrt(energy / 480));
   }
+  // "Never silent" is the delivery silence check's own amplitude, 0.001 (−60
+  // dBFS): a 10 ms window of a bed tilted toward its low octaves swings below
+  // its mean level, so the floor is silence, not a share of the level.
+  const SILENCE: number = 0.001;
   TestValidator.predicate(
     "the crossfade steps no further than either bed and keeps a floor",
     largestStep(boundary - fade - 1, boundary + fade) <=
       Math.max(
         largestStep(rate, boundary - fade),
         largestStep(boundary + fade, 11 * rate),
-      ) && quietest > 10 ** (-50 / 20) / 2,
+      ) && quietest > SILENCE,
   );
 
   // 5. Overlap.
