@@ -14,7 +14,7 @@ The producer refuses a rotated parcel so a stored XZ lattice keeps its world fra
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the coordinate frame, units, defaults and opacity, hard grade sources, holes, variable relief and bounded tessellation error.
+States the coordinate frame, units, defaults and opacity, hard grade sources, holes, variable relief, bounded tessellation error, and how tree disks and woods clear pads, paths, holes and water.
 
 # src/environment/IAutoMovieTerrainRecipe.ts#IAutoMovieTerrainRecipe.Point
 
@@ -141,3 +141,21 @@ The producer refuses disks whose trunks can reach a protected region. A separate
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the disk geometry, count bounds and visual scale.
+
+# src/environment/IAutoMovieTerrainRecipe.ts#IAutoMovieTerrainRecipe.IWoods
+
+## @evidence contracts/development/design.md#principled-representation
+
+A simple local XZ ring in metres bounds the wood, a positive spacing in metres is the least trunk-to-trunk distance, an optional integer count from 1 to 100,000 caps the planting, dimensionless positive weights choose the species and a positive scale sizes every tree. The type fixes the species keys to the two kinds `createTree` draws; the terrain module checks the ring, the ranges, finiteness and that at least one weight is given.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+`interface` owns the authored record and `createTerrain` in `archetypes` consumes it through `terrainWoods`. An outline and a spacing are the two inputs a region-following wood cannot do without; count, species and scale are optional because a wood defaults to every accepted white oak at drawn size. The output reuses the existing explicit instance layout and prototype table, so no new population type is added.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+A wood is a separate record rather than optional fields on `ITrees`, so a disk and an outline never combine into one meaningless placement. No variant serves one fixture: the outline is any simple ring and the species table any weighted mix of the drawn kinds.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the sampling rule, the frame and units of the outline and spacing, the count range and its seeded order, the species default and how the clearance uses the largest trunk, and the scale default.

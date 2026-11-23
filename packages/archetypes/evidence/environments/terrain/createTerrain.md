@@ -6,7 +6,7 @@ Place the parcel by world translation, bake only nonlinear or locally graded hei
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Grade preparation, lattice baking, surface publication and vegetation realization have distinct responsibilities. Both path and amenity anchors read the completed ground rather than author a second elevation.
+Grade preparation, lattice baking, surface publication and vegetation realization have distinct responsibilities. Tree disks and woods are separate producers that share the accepted rule and the grades' protected-area query; their instance sets and models are concatenated, disks first, so a recipe without woods returns the disks' output unchanged. Both path and amenity anchors read the completed ground rather than author a second elevation.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

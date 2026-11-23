@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-probeVideoTrack verifies resident samples and reads coded raster, track display and matrix, aspect, edit lists, sample boundaries and color boxes; media timescale divided by constant sample duration yields the reduced rational frame rate.
+The CLI's `readAutoMovieDeliveryProbe` reads coded raster, track display and matrix, aspect, edit lists, sample boundaries and color boxes; media timescale divided by constant sample duration yields the reduced rational frame rate.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

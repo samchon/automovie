@@ -6,11 +6,11 @@ export type { IAutoMovieAssertProductionVideoProfileProps } from "./IAutoMovieAs
 export type { IAutoMovieAuditEncodedPresentationExpected } from "./IAutoMovieAuditEncodedPresentationExpected";
 export type { IAutoMovieDecodedFrame } from "./IAutoMovieDecodedFrame";
 export type { IAutoMovieDecodedFrameAudit } from "./IAutoMovieDecodedFrameAudit";
+export type { IAutoMovieDeliveredCutEntry } from "./IAutoMovieDeliveredCutEntry";
 export type { IAutoMovieDeliveryContentAudit } from "./IAutoMovieDeliveryContentAudit";
 export type { IAutoMoviePlanVideoEncodingProps } from "./IAutoMoviePlanVideoEncodingProps";
 export type { IAutoMoviePlanVideoEncodingResult } from "./IAutoMoviePlanVideoEncodingResult";
-export type { IAutoMovieProductionOpusDescriptionProps } from "./IAutoMovieProductionOpusDescriptionProps";
-export type { IAutoMovieProductionOpusProfile } from "./IAutoMovieProductionOpusProfile";
+export type { IAutoMovieProductionAacProfile } from "./IAutoMovieProductionAacProfile";
 export type { IAutoMovieProductionPngProfile } from "./IAutoMovieProductionPngProfile";
 export type { IAutoMovieProductionVideoProfile } from "./IAutoMovieProductionVideoProfile";
 export type { IAutoMovieResolveProductionPngProfileProps } from "./IAutoMovieResolveProductionPngProfileProps";

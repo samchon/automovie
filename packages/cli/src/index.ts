@@ -19,6 +19,7 @@ export * from "./planAutoMovieChromiumLaunch";
 export * from "./readAutoMovieCaptureHostOptions";
 export * from "./readAutoMovieRevision";
 export * from "./readAutoMovieVideoProbe";
+export * from "./readAutoMovieDeliveryProbe";
 export * from "./resolveAutoMovieFfmpeg";
 export * from "./runAutoMovieDeliveryDecode";
 export * from "./runAutoMovieDeliveryReferenceDecode";

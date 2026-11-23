@@ -198,12 +198,12 @@ export async function test_draw_drawn_video(): Promise<void> {
   const encoded: string = log.at(-1)!;
   TestValidator.predicate(
     "the subject's rate, raster and clock",
-    ["-framerate 24", "-framerate 30", "-s 1280x720"].every(
+    ["-framerate 24", "-framerate 30", "scale=w=1280:h=720"].every(
       (part: string): boolean => !encoded.includes(part),
     ) &&
       [
         "-framerate 8",
-        "-s 16x10",
+        "scale=w=16:h=10",
         "-frames:v 4",
         "-t 0.5",
         "frames/frame_%05d.png",

@@ -3,11 +3,16 @@ import type {
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 import {
+  AUTOMOVIE_MP4_SRGB_COLOUR,
+  assertProductionAacProfile,
+  assertProductionVideoProfile,
   auditAutoMovieDeliveryContent,
   renderAutoMovieDrawnVideo,
+  resolveProductionVideoProfile,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { renderAutoMovieVideo } from "automovie";
+import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -19,24 +24,44 @@ import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
  * for a failed attempt that reaches the output transaction.
  *
  * Scenarios:
- * 1. A generic video-only render publishes with its encoded digest and a black interval its drawn frames also show, which needs no approval without declared intent.
- * 2. A commissioned render retains both scene and decoded blockers, their frame cursor, the failed candidate's digest, and the previous film.
- * 3. A source-owned soundtrack and native silence allowance pass through the same entry. The final codec frame's samples past the container's end are padding, not duration. Missing required audio and a container that presents too little audio block.
- * 4. Encode refusal publishes its phase and reason, keeps the scene inspection drawn before it, and keeps the approved bytes.
- * 5. An interrupted empty output reservation can be reclaimed. A live reservation prevents a second writer from touching either published file.
- * 6. A report that cannot be installed restores the previous film, so the film and report never come from different attempts.
+ *
+ * 1. A generic video-only render publishes with its encoded digest and a black
+ *    interval its drawn frames also show, which needs no approval without
+ *    declared intent.
+ * 2. A commissioned render retains both scene and decoded blockers, their frame
+ *    cursor, the failed candidate's digest, and the previous film.
+ * 3. A source-owned soundtrack and native silence allowance pass through the same
+ *    entry. The final codec frame's samples past the container's end are
+ *    padding, not duration. Missing required audio and a container that
+ *    presents too little audio block.
+ * 4. Encode refusal publishes its phase and reason, keeps the scene inspection
+ *    drawn before it, and keeps the approved bytes.
+ * 5. An interrupted empty output reservation can be reclaimed. A live reservation
+ *    prevents a second writer from touching either published file.
+ * 6. A report that cannot be installed restores the previous film, so the film and
+ *    report never come from different attempts.
+ * 7. A file whose `colr` box declares limited range is blocked with
+ *    `unsupported-video-profile.color`, its report records the field with its
+ *    expected and observed values, and the previous conforming film stays.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the receipt, timing and release behavior verified by each case.
  * @evidence contracts/development/testing.md#behavioral-verification Uses normal CLI operations with Render's real composer and validators, with a fake draw session and FFmpeg process boundary, and a real MP4 movie box for the audio timing.
- * @evidence contracts/development/testing.md#independent-expectations Four 250-tick frames put the first black frame at 0.25 seconds. Literal SHA-256 values for abc and hello identify independent fixed byte sequences. A 4 Hz track skipping two priming samples and editing to 1000 ms presents four of six decoded samples, leaving two of padding; a 750 ms edit presents three, a quarter second short.
- * @evidence contracts/development/testing.md#distinguishing-cases Exercises absence, explicit content intent, mixed scene and delivery blockers, allowed silence, codec padding against a short container, missing audio, an encoder failure and a report installation failure.
+ * @evidence contracts/development/testing.md#independent-expectations Four 250-tick frames put the first black frame at 0.25 seconds. Each published digest is Node's SHA-256 of the bytes the fixture encoder wrote. A 48 kHz track skipping 24,000 priming samples and editing to 1000 ms presents 48,000 of 72,000 decoded samples, leaving 24,000 of padding; a 750 ms edit presents 36,000, a quarter second short. The conforming header carries the profile the types declare: a 4 fps clock in a movie and track timescale of 4, the 2 by 2 raster, the unity matrix and `nclx` 1, 13, 1, full range; limited range is the one changed field of the refused file.
+ * @evidence contracts/development/testing.md#distinguishing-cases Exercises absence, explicit content intent, mixed scene and delivery blockers, allowed silence, codec padding against a short container, missing audio, an encoder failure, a report installation failure and a limited-range colour box. Every probe field is owned by test_cli_delivery_video_probe and the audio profile by test_render_delivery_audio_profile.
  * @evidence contracts/development/testing.md#execution-ownership Owns its isolated temporary directory and calls no FFmpeg, browser or device.
  */
 export async function test_cli_render_video_delivery(): Promise<void> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "automovie-delivery-"));
   const fixture: Parameters<typeof renderAutoMovieVideo>[0] = {
     host: {
-      render: { renderAutoMovieDrawnVideo, auditAutoMovieDeliveryContent },
+      render: {
+        renderAutoMovieDrawnVideo,
+        auditAutoMovieDeliveryContent,
+        AUTOMOVIE_MP4_SRGB_COLOUR,
+        assertProductionAacProfile,
+        assertProductionVideoProfile,
+        resolveProductionVideoProfile,
+      },
       session: async () => ({
         backend: "fixture",
         subject: {
@@ -79,17 +104,44 @@ export async function test_cli_render_video_delivery(): Promise<void> {
   let intent: IAutoMovieDeliveryContentAudit.IIntent | undefined;
   let sceneError = false;
   let sessionsClosed = 0;
-  let encodedBytes: string | Buffer = "abc";
-  // Two samples of priming, then four; the edit's milliseconds end the track.
+  // Four frames at 4 fps on one 4-tick clock, tagged as full-range sRGB.
+  const picture = (
+    fullRange: boolean = true,
+    aspect?: readonly [number, number],
+  ): NonNullable<Parameters<typeof writeDeliveryMp4Header>[0]["video"]> => ({
+    timescale: 4,
+    frames: 4,
+    delta: 1,
+    movieDuration: 4,
+    width: 2,
+    height: 2,
+    colour: { primaries: 1, transfer: 13, matrix: 1, fullRange },
+    ...(aspect === undefined ? {} : { aspect }),
+  });
+  const silent = (
+    fullRange: boolean = true,
+    aspect?: readonly [number, number],
+  ): Buffer =>
+    writeDeliveryMp4Header({
+      movieTimescale: 4,
+      video: picture(fullRange, aspect),
+    });
+  const sha256 = (bytes: string | Buffer): string =>
+    createHash("sha256").update(bytes).digest("hex");
+  let encodedBytes: string | Buffer = silent();
+  // Half a second of priming, then one second; the edit's milliseconds end
+  // the track.
   const soundtrack = (segment: number): Buffer =>
     writeDeliveryMp4Header({
       movieTimescale: 1000,
-      timescale: 4,
+      timescale: 48_000,
       samples: [
-        [1, 2],
-        [1, 4],
+        [1, 24_000],
+        [1, 48_000],
       ],
-      edit: { segment, mediaTime: 2 },
+      edit: { segment, mediaTime: 24_000 },
+      aac: { objectType: 2, sampleRate: 48_000, channels: 2 },
+      video: { ...picture(), movieDuration: 1000 },
     });
   let includeAudio = false;
   let refuseEncode = false;
@@ -116,11 +168,13 @@ export async function test_cli_render_video_delivery(): Promise<void> {
       return "";
     }
     if (args.includes("0:v:0")) return videoLog(includeAudio);
-    // One six-sample codec frame, of which the container presents four.
-    const pcm = Buffer.alloc(24);
-    pcm.writeFloatLE(0.5);
+    // One 72,000-sample codec frame, of which the container presents 48,000;
+    // a quarter second of sound, then silence.
+    const pcm = Buffer.alloc(72_000 * 4);
+    for (let sample = 0; sample < 12_000; sample++)
+      pcm.writeFloatLE(0.5, sample * 4);
     output?.stderr?.(
-      "[Parsed_ashowinfo_1 @ abc] n:0 pts:0 pts_time:0 fmt:flt channels:1 chlayout:mono rate:4 nb_samples:6 checksum:00\n",
+      "[Parsed_ashowinfo_1 @ abc] n:0 pts:0 pts_time:0 fmt:flt channels:1 chlayout:mono rate:48000 nb_samples:72000 checksum:00\n",
     );
     output?.stdout?.(pcm);
     return "";
@@ -139,8 +193,7 @@ export async function test_cli_render_video_delivery(): Promise<void> {
     await fs.mkdir(reservation, { recursive: true });
     await renderAutoMovieVideo(fixture, run);
     const first = await readReport();
-    const originalDigest =
-      "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+    const originalDigest = sha256(silent());
     TestValidator.equals(
       "generic video only is published with its actual encoded SHA",
       [
@@ -149,13 +202,43 @@ export async function test_cli_render_video_delivery(): Promise<void> {
         first.source.sha256,
         first.delivery.streams.audio.status,
         first.delivery.findings[0].outcome,
+        first.profile,
       ],
-      ["published", "film.mp4", originalDigest, "missing", "drawn"],
+      ["published", "film.mp4", originalDigest, "missing", "drawn", []],
+    );
+
+    // 7. A limited-range colour box blocks and keeps the conforming film.
+    encodedBytes = silent(false);
+    const limited = await rejected();
+    const refused = await readReport();
+    TestValidator.equals(
+      "a limited-range file is refused with its field and values",
+      [
+        limited.includes("unsupported-video-profile.color"),
+        refused.status,
+        refused.source.sha256,
+        refused.profile,
+        (await fs.readFile(video)).equals(silent()),
+      ],
+      [
+        true,
+        "blocked",
+        sha256(silent(false)),
+        [
+          {
+            media: "video",
+            field: "color.resolved.kind",
+            expected: "srgb",
+            observed: "absent",
+          },
+        ],
+        true,
+      ],
     );
 
     intent = {};
     sceneError = true;
-    encodedBytes = "hello";
+    encodedBytes = silent(true, [1, 1]);
     const failure = await rejected();
     const blocked = await readReport();
     TestValidator.equals(
@@ -175,18 +258,12 @@ export async function test_cli_render_video_delivery(): Promise<void> {
         blocked.diagnostics.episodes[0].first.time.outputFrame,
         blocked.delivery.findings[0].firstOutputFrame,
       ],
-      [
-        "blocked",
-        null,
-        "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
-        1,
-        1,
-      ],
+      ["blocked", null, sha256(silent(true, [1, 1])), 1, 1],
     );
     TestValidator.equals(
       "the previous accepted film survives both blockers",
-      await fs.readFile(video, "utf8"),
-      "abc",
+      (await fs.readFile(video)).equals(silent()),
+      true,
     );
 
     sceneError = false;
@@ -208,9 +285,9 @@ export async function test_cli_render_video_delivery(): Promise<void> {
           "audio: The decoded stream does not cover the commissioned presentation",
         ),
         (await readReport()).delivery.streams.audio.end.ticks,
-        await fs.readFile(video, "utf8"),
+        (await fs.readFile(video)).equals(silent()),
       ],
-      [true, 3, "abc"],
+      [true, 36_000, true],
     );
 
     encodedBytes = soundtrack(1000);
@@ -237,7 +314,7 @@ export async function test_cli_render_video_delivery(): Promise<void> {
         approved.delivery.streams.audio.end.ticks,
         approved.delivery.streams.audio.trailingPadding,
       ],
-      [4, 2],
+      [48_000, 24_000],
     );
 
     intent.audio = { path: null, required: true };
@@ -296,7 +373,7 @@ export async function test_cli_render_video_delivery(): Promise<void> {
     );
     await fs.unlink(activeTicket);
     await fs.rmdir(reservation);
-    TestValidator.equals("every opened session closes", sessionsClosed, 7);
+    TestValidator.equals("every opened session closes", sessionsClosed, 8);
     TestValidator.equals(
       "no temporary output survives the attempts",
       (await fs.readdir(path.dirname(report))).sort((a, b) =>
@@ -355,7 +432,10 @@ function diagnostics(seconds: number): IAutoMovieInspectionDiagnostics {
   };
 }
 
-/** Pinned filter-log shape for four quarter-second frames with black after the first. */
+/**
+ * Pinned filter-log shape for four quarter-second frames with black after the
+ * first.
+ */
 function videoLog(audio: boolean): string {
   return [
     "Input #0, mov, from 'fixture.mp4':",

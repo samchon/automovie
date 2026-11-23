@@ -29,6 +29,7 @@ import { admitTerrainRoute } from "./admitTerrainRoute";
 import { bakeTerrainHeight } from "./bakeTerrainHeight";
 import { prepareTerrainGrades } from "./prepareTerrainGrades";
 import { terrainTrees } from "./terrainTrees";
+import { terrainWoods } from "./terrainWoods";
 
 /** Default coarse appearance for bare, dry ground. */
 const EARTH: string = "#85846a";
@@ -77,7 +78,8 @@ interface ITerrainBase {
  * returned support surfaces and world pieces use the same heights and area.
  * Material regions replace the parent patch within their footprints. A cut
  * excludes ground in both outputs, and still water uses its own nonwalkable
- * patch. An optional tree disk produces a compact instance recipe.
+ * patch. An optional tree disk produces a compact instance recipe, and an
+ * optional wood an explicit one whose trees each clear those features.
  *
  * @param recipe Extent, optional relief and features in module-local metres.
  * @returns A definition to place in a composed environment.
@@ -247,6 +249,18 @@ export function createTerrain(
         },
       };
     }
+    const trees: ReturnType<typeof terrainTrees> = terrainTrees(
+      context,
+      recipe,
+      rule,
+      grades.protectedArea,
+    );
+    const woods: ReturnType<typeof terrainWoods> = terrainWoods(
+      context,
+      recipe,
+      rule,
+      grades.protectedArea,
+    );
     return {
       anchors,
       spaces: [space],
@@ -255,7 +269,8 @@ export function createTerrain(
         (surface: IAutoMovieSurface): IAutoMovieWorldSurface[] =>
           worldPieces(surface, space.walkable.includes(surface.id)),
       ),
-      ...terrainTrees(context, recipe, rule, grades.protectedArea),
+      instanceSets: [...trees.instanceSets, ...woods.instanceSets],
+      models: [...trees.models, ...woods.models],
     };
   };
 }

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The rendered-media probe parses resident MP4 track tables, sample entry and edit list, deriving presentation runtime from movie duration and timescale and decoder priming from the Opus pre-skip.
+The rendered-media probe parses resident MP4 track tables, sample entry and edit list, deriving presentation runtime from movie duration and timescale and decoder priming from the single edit's media time, and carries the AAC sample entry's `esds` configuration.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

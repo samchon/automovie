@@ -1,6 +1,6 @@
 # src/cinematics/IAutoMovieRenderSpec.ts#IAutoMovieRenderSpec
 
-## @evidence contracts/development/design.md#principled-representation `frameTimes` computes each sample as `i / fps` rather than by accumulation so no rounding drift builds up, `ffmpegArgs` passes the codec, pixel format, CRF, rate and size verbatim, and `autoMovieRenderTargetSettingsOfShot` resolves the curve as the scene environment's `toneMapping` when present, else this spec's.
+## @evidence contracts/development/design.md#principled-representation `frameTimes` computes each sample as `i / fps` rather than by accumulation so no rounding drift builds up, `ffmpegArgs` passes the codec, pixel format, CRF, rate and size verbatim with the BT.709 full-range conversion and sRGB tags the delivery profile declares, and `autoMovieRenderTargetSettingsOfShot` resolves the curve as the scene environment's `toneMapping` when present, else this spec's.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

@@ -29,7 +29,9 @@ export function terrainTrees(
     center: IAutoMoviePlanarPoint,
     radius: number,
   ) => string | null,
-): IAutoMovieEnvironmentContribution {
+): Required<
+  Pick<IAutoMovieEnvironmentContribution, "instanceSets" | "models">
+> {
   const output: {
     instanceSets: IAutoMovieInstanceSetDesign[];
     models: IAutoMovieModel[];

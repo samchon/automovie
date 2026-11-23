@@ -9,6 +9,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
+import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
+import { auditAutoMovieDeliveryProfile } from "./auditAutoMovieDeliveryProfile";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { runAutoMovieDeliveryDecode } from "./runAutoMovieDeliveryDecode";
 import { runAutoMovieDeliveryReferenceDecode } from "./runAutoMovieDeliveryReferenceDecode";
@@ -20,7 +22,12 @@ type DeliveryAudit = IAutoMovieDeliveryContentAudit.IResult;
 interface IDeliveryHost {
   render: Pick<
     typeof Render,
-    "renderAutoMovieDrawnVideo" | "auditAutoMovieDeliveryContent"
+    | "renderAutoMovieDrawnVideo"
+    | "auditAutoMovieDeliveryContent"
+    | "AUTOMOVIE_MP4_SRGB_COLOUR"
+    | "assertProductionAacProfile"
+    | "assertProductionVideoProfile"
+    | "resolveProductionVideoProfile"
   >;
   session(
     props: Parameters<AutoMovieCaptureHost["session"]>[0],
@@ -43,6 +50,8 @@ interface IDeliveryReport {
   >[];
   diagnostics: IAutoMovieDrawnVideoResult["diagnostics"] | null;
   delivery: DeliveryAudit | null;
+  /** How the encoded file differs from its video and audio profiles; empty when it conforms, null when not checked. */
+  profile: IAutoMovieDeliveryProfileFinding[] | null;
   source: IAutoMovieDeliveryContentAudit.ISource | null;
   failure?: { phase: string; message: string };
 }
@@ -76,7 +85,12 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
 /**
  * Renders one subject and publishes an approved film beside its shared report.
  * Every measurable audit runs on the drawn frames or the exact staged encoded
- * bytes. A blocked attempt replaces the report and preserves the former film.
+ * bytes. The encoded file must also carry its declared picture profile and,
+ * with a soundtrack, the AAC profile, or no audio track without one
+ * (`auditAutoMovieDeliveryProfile`); a mismatch blocks like a blocking audit
+ * finding and the report's `profile` records each field with its expected and
+ * observed values. A blocked attempt replaces the report and preserves the
+ * former film.
  * A failed encode still reports the frames and scene inspection already drawn.
  * If the approved film or its report cannot be installed, the former film is
  * put back, so the film and report on disk always come from the same attempt.
@@ -129,6 +143,7 @@ export async function renderAutoMovieVideo(
       frames: [],
       diagnostics: null,
       delivery: null,
+      profile: null,
       source: null,
     };
     const writeReport = async (): Promise<void> =>
@@ -201,7 +216,24 @@ export async function renderAutoMovieVideo(
         reference,
       });
 
-      const failures = releaseFindings(attempt.diagnostics, attempt.delivery);
+      // The file must carry the picture and sound profiles its types declare;
+      // the encoder muxed a soundtrack exactly when it had a second input.
+      attempt.profile = await auditAutoMovieDeliveryProfile({
+        render: props.host.render,
+        path: candidate,
+        width: session.subject.width,
+        height: session.subject.height,
+        frameRate: result.frameRate,
+        audio: attempt.args.indexOf("-i", attempt.args.indexOf("-i") + 2) >= 0,
+      });
+
+      const failures = [
+        ...releaseFindings(attempt.diagnostics, attempt.delivery),
+        ...attempt.profile.map(
+          (finding: IAutoMovieDeliveryProfileFinding): string =>
+            `unsupported-${finding.media}-profile.${finding.field}: expected ${finding.expected}, observed ${finding.observed}`,
+        ),
+      ];
       if (failures.length > 0) {
         attempt.status = "blocked";
         throw new Error(failures.join(" | "));

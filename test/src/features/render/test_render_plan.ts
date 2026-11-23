@@ -20,15 +20,22 @@ const SPEC: IAutoMovieRenderSpec = {
 };
 
 /**
- * The deterministic render plan: the frame schedule, frame naming, and the pinned ffmpeg argument vector built from a render spec.
+ * The deterministic render plan: the frame schedule, frame naming, and the
+ * pinned ffmpeg argument vector built from a render spec.
  *
  * Scenarios:
  *
- * 1. A 2 s clip at 30 fps yields 60 frames; the first, second and last samples agree with `0`, `1/30` and `59/30` within nclose tolerance. The returned times are binary64 numbers, not exact rational objects.
+ * 1. A 2 s clip at 30 fps yields 60 frames; the first, second and last samples
+ *    agree with `0`, `1/30` and `59/30` within nclose tolerance. The returned
+ *    times are binary64 numbers, not exact rational objects.
  * 2. A non-positive fps and a non-positive duration each yield zero frames.
- * 3. A non-finite fps or duration also yields zero frames; render planning must never allocate an unbounded frame array.
- * 4. Frame names zero-pad to the input pattern (`frame_00042.png` and `frame_%05d.png`), and render path stems are file-safe.
- * 5. `ffmpegArgs` encodes the spec into the pinned H.264 / pixel-format / crf / output-size (`-s width x height`) / faststart command.
+ * 3. A non-finite fps or duration also yields zero frames; render planning must
+ *    never allocate an unbounded frame array.
+ * 4. Frame names zero-pad to the input pattern (`frame_00042.png` and
+ *    `frame_%05d.png`), and render path stems are file-safe.
+ * 5. `ffmpegArgs` encodes the spec into the pinned H.264 / pixel-format / crf /
+ *    no-B-frame / BT.709 full-range scale to the output size / sRGB colour tags
+ *    / faststart command.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Checks the real frame count and three selected sample times, naming, safe path stems and encoder arguments, detecting incorrect selected clock values, unsafe components or omitted delivery options.
  * @evidence contracts/development/testing.md#independent-expectations Two seconds times 30 gives 60 samples, independently expected at i/30; filename literals, Windows device-name rules and the documented ffmpeg option order supply other expectations. No ffmpeg process validates these strings or encodes frames.
@@ -125,10 +132,20 @@ export function test_render_plan(): void {
       "yuv420p",
       "-crf",
       "20",
+      "-bf",
+      "0",
+      "-vf",
+      "scale=w=1920:h=1080:out_color_matrix=bt709:out_range=full",
+      "-color_primaries",
+      "bt709",
+      "-color_trc",
+      "iec61966-2-1",
+      "-colorspace",
+      "bt709",
+      "-color_range",
+      "pc",
       "-r",
       "30",
-      "-s",
-      "1920x1080",
       "-movflags",
       "+faststart",
       "out.mp4",

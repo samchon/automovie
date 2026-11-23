@@ -172,7 +172,7 @@ export type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameR
 export type { IAutoMovieProductionLipSyncJoin } from "./IAutoMovieProductionLipSyncJoin";
 export type { IAutoMovieProductionMediaProbe } from "./IAutoMovieProductionMediaProbe";
 export type { IAutoMovieProductionMixedVisualDeliveryPolicy } from "./IAutoMovieProductionMixedVisualDeliveryPolicy";
-export type { IAutoMovieProductionOpusDescription } from "./IAutoMovieProductionOpusDescription";
+export type { IAutoMovieProductionAacDescription } from "./IAutoMovieProductionAacDescription";
 export type { IAutoMovieProductionPhonemeChunk } from "./IAutoMovieProductionPhonemeChunk";
 export type { IAutoMovieProductionPngPicture } from "./IAutoMovieProductionPngPicture";
 export type { IAutoMovieProductionRenderFrame } from "./IAutoMovieProductionRenderFrame";
