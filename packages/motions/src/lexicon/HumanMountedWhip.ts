@@ -19,22 +19,31 @@ import type { HumanMountedTimeline } from "./HumanMountedTimeline";
 type Cue = ReturnType<IAutoMovieMotionHumanActionContext["cue"]>[number];
 
 /**
- * A mounted performance's whip strokes (`IAutoMovieMotionHumanMounted.IWhip`): the striking hand leaves its rein `REACH` seconds before each cue instant, strikes behind the rider's thigh on its side at the instant, and takes the rein again `REACH` seconds after, a jockey's stroke in rhythm with the stride the author's cue track marks.
+ * A mounted performance's whip strokes (`IAutoMovieMotionHumanMounted.IWhip`):
+ * the striking hand leaves its rein `REACH` seconds before each cue instant,
+ * strikes behind the rider's thigh on its side at the instant, and takes the
+ * rein again `REACH` seconds after, a jockey's stroke in rhythm with the stride
+ * the author's cue track marks.
  */
 export namespace HumanMountedWhip {
-  /** Seconds the striking hand takes from its rein to the stroke's contact and back again (provisional). */
+  /**
+   * Seconds the striking hand takes from its rein to the stroke's contact and
+   * back again (provisional).
+   */
   export const REACH: number = 0.25;
 
-  /** Where the stroke lands from the striking side's hip joint, thigh lengths: out to the side, a little down and behind, beside the horse's quarters (provisional). */
+  /**
+   * Where the stroke lands from the striking side's hip joint, thigh lengths:
+   * out to the side, a little down and behind, beside the horse's quarters
+   * (provisional).
+   */
   export const TARGET: Readonly<IAutoMovieVector3> = {
     x: 0.6,
     y: -0.2,
     z: -0.8,
   };
 
-  /**
-   * One stroke.
-   */
+  /** One stroke. */
   export interface IStroke {
     /** The striking hand. */
     side: AutoMovieHumanSide;
@@ -51,7 +60,8 @@ export namespace HumanMountedWhip {
    * @param figures The figures.
    * @param clock The performance's clock.
    * @returns The strokes in time order.
-   * @throws {HumanRefusal} When a figure's striking hand holds no rein, a stroke's reach leaves the figure's hold, or two strokes overlap.
+   * @throws {HumanRefusal} When a figure's striking hand holds no rein, a
+   *   stroke's reach leaves the figure's hold, or two strokes overlap.
    */
   export function strokes(
     cue: IAutoMovieMotionHumanActionContext["cue"],
@@ -100,7 +110,8 @@ export namespace HumanMountedWhip {
   }
 
   /**
-   * How far a hand is into a stroke at a second: 0 on its rein, 1 at the contact, eased by minimum jerk both ways.
+   * How far a hand is into a stroke at a second: 0 on its rein, 1 at the
+   * contact, eased by minimum jerk both ways.
    *
    * @param strokes The strokes.
    * @param side The hand.
@@ -119,12 +130,15 @@ export namespace HumanMountedWhip {
   }
 
   /**
-   * The grip windows with each stroke's reach cut out of its hand's rein window: the hand lets go of the rein when it leaves for the stroke and takes it again when it returns.
+   * The grip windows with each stroke's reach cut out of its hand's rein
+   * window: the hand lets go of the rein when it leaves for the stroke and
+   * takes it again when it returns.
    *
    * @param windows The performance's contact windows.
    * @param strokes The strokes.
    * @param duration The performance's duration, seconds.
-   * @returns The windows, the striking hands' rein windows split around their strokes.
+   * @returns The windows, the striking hands' rein windows split around their
+   *   strokes.
    */
   export function split(
     windows: readonly IAutoMovieMotionHumanContactWindow[],
@@ -154,7 +168,9 @@ export namespace HumanMountedWhip {
   }
 
   /**
-   * Move each striking arm toward its stroke's target by the stroke's weight, leaving its rein for the stroke and returning to it; an arm with no goal is left alone.
+   * Move each striking arm toward its stroke's target by the stroke's weight,
+   * leaving its rein for the stroke and returning to it; an arm with no goal is
+   * left alone.
    *
    * @param body The body.
    * @param posture The displayed posture, for the hips the target is read from.
@@ -183,7 +199,8 @@ export namespace HumanMountedWhip {
   }
 
   /**
-   * Where a stroke lands for a posture: `TARGET` thighs from the striking side's hip joint, turned with the pelvis.
+   * Where a stroke lands for a posture: `TARGET` thighs from the striking
+   * side's hip joint, turned with the pelvis.
    *
    * @param body The body.
    * @param posture The posture.

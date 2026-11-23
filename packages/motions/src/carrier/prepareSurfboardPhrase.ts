@@ -40,31 +40,49 @@ type TorsoAngles = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
 // each value is an authored staging choice that the board-sport test
 // bounds through its support and clearance checks, not a measurement.
 
-/** Least entry pitch, degrees, that reads as lying prone in the water (provisional). */
+/**
+ * Least entry pitch, degrees, that reads as lying prone in the water
+ * (provisional).
+ */
 const PRONE_ENTRY_PITCH: number = 50;
 
 /** Greatest entry hip distance from the waterline, in leg lengths (provisional). */
 const PRONE_ENTRY_DEPTH: number = 0.4;
 
-/** Highest deck above the water at the mount, in leg lengths, that a prone paddler climbs onto (provisional). */
+/**
+ * Highest deck above the water at the mount, in leg lengths, that a prone
+ * paddler climbs onto (provisional).
+ */
 const MOUNT_REACH: number = 1 / 3;
 
 /** Pitch of the prone paddling posture, degrees from upright (provisional). */
 const PRONE_PITCH: number = 86;
 
-/** Turn of the standing body from the nose into the side stance, degrees (provisional). */
+/**
+ * Turn of the standing body from the nose into the side stance, degrees
+ * (provisional).
+ */
 const STANCE_TURN: number = 52;
 
-/** Trunk pitch removed as the palms press, and again as the feet take the deck, degrees (provisional). */
+/**
+ * Trunk pitch removed as the palms press, and again as the feet take the deck,
+ * degrees (provisional).
+ */
 const PRESS_PITCH: number = 38;
 
-/** Further pitch removed while the pelvis tucks under the braced chest, degrees (provisional). */
+/**
+ * Further pitch removed while the pelvis tucks under the braced chest, degrees
+ * (provisional).
+ */
 const TUCK_PITCH: number = 48;
 
 /** Spine flexion added at the full tuck, degrees (provisional). */
 const TUCK_SPINE: number = 75;
 
-/** Hip rise over the prone height at the full brace, in leg lengths (provisional). */
+/**
+ * Hip rise over the prone height at the full brace, in leg lengths
+ * (provisional).
+ */
 const BRACE_RISE: number = 0.07;
 
 /** Hip rise at the full palm press, in leg lengths (provisional). */
@@ -76,10 +94,16 @@ const TUCK_RISE: number = 0.08;
 /** Hip rise when standing on the deck, in leg lengths (provisional). */
 const STAND_RISE: number = 0.45;
 
-/** Lead foot turn from board-backward toward the stance side, degrees (provisional). */
+/**
+ * Lead foot turn from board-backward toward the stance side, degrees
+ * (provisional).
+ */
 const LEAD_FOOT_TURN: number = 25;
 
-/** Trail foot turn from board-backward toward the stance side, degrees (provisional). */
+/**
+ * Trail foot turn from board-backward toward the stance side, degrees
+ * (provisional).
+ */
 const TRAIL_FOOT_TURN: number = 45;
 
 /** Outward paddle reach, as a share of the board's width (provisional). */
@@ -101,14 +125,15 @@ const RECOVER_RISE: number = 0.55;
 const RECOVER_FORWARD: number = 0.25;
 
 /**
- * Mount a staged surfboard, paddle and transfer from the palms to the
- * feet. Borgonovo-Santos et al. identify overlapping and unsupported
- * hand-to-foot transfers as distinct patterns, and measure push and
- * reaching phases separately. https://pmc.ncbi.nlm.nih.gov/articles/PMC7961430/
+ * Mount a staged surfboard, paddle and transfer from the palms to the feet.
+ * Borgonovo-Santos et al. identify overlapping and unsupported hand-to-foot
+ * transfers as distinct patterns, and measure push and reaching phases
+ * separately. https://pmc.ncbi.nlm.nih.gov/articles/PMC7961430/
  *
  * @param context The floating entry and the animated surfboard.
  * @returns A carried pose with the selected palm, free and foot phases.
- * @throws {HumanRefusal} For missing board geometry or an inadmissible water entry.
+ * @throws {HumanRefusal} For missing board geometry or an inadmissible water
+ *   entry.
  */
 export function prepareSurfboardPhrase(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISurfboardPhraseParams>,
@@ -494,7 +519,10 @@ export function prepareSurfboardPhrase(
 
 /** The staged water mount, paddle and hand-to-foot cue intervals. */
 export namespace prepareSurfboardPhrase {
-  /** The lab describes the order. These shares leave room for a paddle and a bank. */
+  /**
+   * The lab describes the order. These shares leave room for a paddle and a
+   * bank.
+   */
   export const SHARES = {
     mount: 0.18,
     paddleEnd: 0.32,

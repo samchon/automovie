@@ -84,9 +84,7 @@ export namespace fieldThrow {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /**
-   * One event's figures.
-   */
+  /** One event's figures. */
   export interface IEvent {
     /** The body's turn over the feet before the release, degrees. */
     turn: number;

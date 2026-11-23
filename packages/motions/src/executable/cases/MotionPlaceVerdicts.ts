@@ -15,11 +15,11 @@ import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 /**
  * Checks that a captured point is at the place a law names.
  *
- * A law states a hand's place by three names. This verdict reads the place
- * back from the displayed pose: it asks which names the point is nearest to
- * on the body as it stands, and passes when they are the names the law
- * wrote. A table share that drifts from what its name means on some body of
- * the sweep fails here, on that body.
+ * A law states a hand's place by three names. This verdict reads the place back
+ * from the displayed pose: it asks which names the point is nearest to on the
+ * body as it stands, and passes when they are the names the law wrote. A table
+ * share that drifts from what its name means on some body of the sweep fails
+ * here, on that body.
  */
 export namespace MotionPlaceVerdicts {
   /**
@@ -31,7 +31,8 @@ export namespace MotionPlaceVerdicts {
    * @param side The acting hand.
    * @param point The captured point, world metres.
    * @param expected The names the law wrote.
-   * @returns The verdict; its detail gives the names found and the point's offset from the named place (out, up, forward) in arm lengths.
+   * @returns The verdict; its detail gives the names found and the point's
+   *   offset from the named place (out, up, forward) in arm lengths.
    */
   export function at(
     name: string,

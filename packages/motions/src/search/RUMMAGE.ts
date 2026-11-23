@@ -1,5 +1,6 @@
 /**
- * Rummaging strokes over the bag's floor before the item is taken (provisional).
+ * Rummaging strokes over the bag's floor before the item is taken
+ * (provisional).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the value, its unit and what it counts.
  * @evidence contracts/development/design.md#principled-representation One authored count of the bag search, owned here.

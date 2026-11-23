@@ -17,11 +17,11 @@ import { stageCatch } from "./stageCatch";
 
 /**
  * A deliberate deflection of an incoming ball: the staged interception of
- * `stageCatch`, whose hand meets the ball on its actual flight at the
- * authored instant, hands the same ball straight back instead of closing on
- * it. The deflection is the outcome the caller decides, so it is published
- * as a launch at the touch, and the incoming flight's sweep leaves the
- * touching hands to that launch as a staged catch's hands are left to it.
+ * `stageCatch`, whose hand meets the ball on its actual flight at the authored
+ * instant, hands the same ball straight back instead of closing on it. The
+ * deflection is the outcome the caller decides, so it is published as a launch
+ * at the touch, and the incoming flight's sweep leaves the touching hands to
+ * that launch as a staged catch's hands are left to it.
  *
  * The rebound is the ball's own restitution off a palm facing the incoming
  * ball: with the palm's normal `n` against the incoming velocity `v`, the
@@ -43,8 +43,10 @@ export const stageDeflect: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
     ): IAutoMovieMotionHumanCatchObject.IPlan => {
       const caught: IAutoMovieMotionHumanCatchObject.IPlan =
         stageCatch.plan(context);
-      const { ball, partner: from }: IAutoMovieMotionHumanCatchObject.IStageParams =
-        context.params;
+      const {
+        ball,
+        partner: from,
+      }: IAutoMovieMotionHumanCatchObject.IStageParams = context.params;
       const contact: number = caught.contact!;
       const reader: IAutoMovieMotionHumanPropReader = context.prop(ball);
       const restitution: number | undefined = reader.prop.body?.restitution;

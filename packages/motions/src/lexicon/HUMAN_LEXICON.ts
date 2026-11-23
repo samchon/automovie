@@ -12,10 +12,10 @@ const rows = (
   );
 
 /**
- * Every row and law of the lexicon by family, as data: what a page, a test
- * and an agent's search read to know which named actions exist beyond the
- * vocabulary. Pass a family's list, or all of them, to a performance's
- * `laws` to register them at once.
+ * Every row and law of the lexicon by family, as data: what a page, a test and
+ * an agent's search read to know which named actions exist beyond the
+ * vocabulary. Pass a family's list, or all of them, to a performance's `laws`
+ * to register them at once.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the table holds, who reads it and how it registers.
  * @evidence contracts/development/design.md#principled-representation One list of law records per family, derived from the family namespaces of `HUMAN_LEXICON_FAMILIES` so it cannot drift from them.

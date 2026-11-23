@@ -4,24 +4,25 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Whether what an action declares about its own time is coherent, and
- * whether its named instants fall where its contract says: in a stated
- * order, and at the same film second as a partner's.
+ * Whether what an action declares about its own time is coherent, and whether
+ * its named instants fall where its contract says: in a stated order, and at
+ * the same film second as a partner's.
  *
  * Everything that reads a plan trusts its declarations: an author cuts at an
- * event, a reaction aligns to one, the foot audit reads the plant windows.
- * A plan whose event lies outside its action, whose two events share a name,
- * whose window ends before it starts or whose decisive instant lies after
- * its end misleads all of them without any pose looking wrong. `faults`
- * reads those declarations against what their owners document; `order` and
- * `shared` read the named instants a law's contract speaks of.
+ * event, a reaction aligns to one, the foot audit reads the plant windows. A
+ * plan whose event lies outside its action, whose two events share a name,
+ * whose window ends before it starts or whose decisive instant lies after its
+ * end misleads all of them without any pose looking wrong. `faults` reads those
+ * declarations against what their owners document; `order` and `shared` read
+ * the named instants a law's contract speaks of.
  */
 export namespace AutoMovieMotionHumanAuditTiming {
   /**
    * Every incoherent declaration of a person's placed actions.
    *
    * @param spans The person's actions, in film order.
-   * @returns One line per fault, `<index> <action>: <what>`; empty when all cohere.
+   * @returns One line per fault, `<index> <action>: <what>`; empty when all
+   *   cohere.
    */
   export function faults(
     spans: readonly IAutoMovieMotionHumanAuditTiming.ISpan[],
@@ -94,7 +95,9 @@ export namespace AutoMovieMotionHumanAuditTiming {
    *
    * @param span The action.
    * @param events The names, in the order the contract states.
-   * @returns One line per event that is missing or comes before the one stated before it; empty when the order holds. Two events at the same instant are in order.
+   * @returns One line per event that is missing or comes before the one stated
+   *   before it; empty when the order holds. Two events at the same instant are
+   *   in order.
    */
   export function order(
     span: IAutoMovieMotionHumanAuditTiming.ISpan,
@@ -120,9 +123,8 @@ export namespace AutoMovieMotionHumanAuditTiming {
   }
 
   /**
-   * How far apart two actions put an instant they share: a handshake's
-   * clasp, a hand-over's release and its receipt, a strike's impact and the
-   * reaction's.
+   * How far apart two actions put an instant they share: a handshake's clasp, a
+   * hand-over's release and its receipt, a strike's impact and the reaction's.
    *
    * @param a One action.
    * @param first Its event.

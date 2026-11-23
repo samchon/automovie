@@ -53,14 +53,16 @@ export function restElbowSupport(
   );
   const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"]["elbowLeft"] =
     body.surfaces.regions[other === "left" ? "elbowLeft" : "elbowRight"];
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
   const bones: ReturnType<typeof poseBones> = poseBones(
-    body, resolveHumanPosture.seeded(body, solved, undefined, {}, resolution).pose, resolution(), new Set([frame.bone]),
+    body,
+    resolveHumanPosture.seeded(body, solved, undefined, {}, resolution).pose,
+    resolution(),
+    new Set([frame.bone]),
   );
-  const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> = resolveAutoMovieHumanoidSurfaces.place(
-    frame,
-    bones.get(frame.bone)!,
-  );
+  const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
+    resolveAutoMovieHumanoidSurfaces.place(frame, bones.get(frame.bone)!);
   const outward: IAutoMovieVector3 = HumanFrame.point(
     { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
     { x: other === "left" ? 1 : -1, y: 0, z: 0 },

@@ -23,15 +23,14 @@ import { handshake } from "./handshake";
 
 /**
  * The meeting of a handover (`AutoMovieMotionMeeting`): one record for the
- * giver and the receiver, the single owner of where the object's receiving
- * grip is handed over and of each partner's seat. The place is the mutual
- * goal of both acting shoulders (`resolveAutoMovieMutualGoal` with the
- * handshake's comfortable reach) at the exchange height
- * (`HumanHandover.EXCHANGE`); a seated pair whose arms alone cannot meet
- * leans its trunks forward over the seat by the least common share of each
- * one's room that lets them (`HumanSeatedReach.goal`, Chan and Dubey 1995),
- * and a pair even the full lean cannot bring together is refused with the
- * mutual goal's own error.
+ * giver and the receiver, the single owner of where the object's receiving grip
+ * is handed over and of each partner's seat. The place is the mutual goal of
+ * both acting shoulders (`resolveAutoMovieMutualGoal` with the handshake's
+ * comfortable reach) at the exchange height (`HumanHandover.EXCHANGE`); a
+ * seated pair whose arms alone cannot meet leans its trunks forward over the
+ * seat by the least common share of each one's room that lets them
+ * (`HumanSeatedReach.goal`, Chan and Dubey 1995), and a pair even the full lean
+ * cannot bring together is refused with the mutual goal's own error.
  */
 export namespace HumanHandoverMeeting {
   /** The giver's role. */
@@ -41,8 +40,8 @@ export namespace HumanHandoverMeeting {
   export const RECEIVER: string = "receiver";
 
   /**
-   * The mutual goal's inputs of a handover: the height the receiving grip
-   * lands at and both acting arms.
+   * The mutual goal's inputs of a handover: the height the receiving grip lands
+   * at and both acting arms.
    */
   export interface IGoal {
     /** The receiving grip's height, world metres. */
@@ -59,7 +58,8 @@ export namespace HumanHandoverMeeting {
    * The mutual goal's inputs from both partners as they stand.
    *
    * @param input Both partners, the prop, its frame and the receiving grip.
-   * @param exchange The object's middle's height as a share of the partners' mean sternum height (`HumanHandover.EXCHANGE`).
+   * @param exchange The object's middle's height as a share of the partners'
+   *   mean sternum height (`HumanHandover.EXCHANGE`).
    * @returns The height and both arms.
    */
   export function goal(
@@ -74,7 +74,9 @@ export namespace HumanHandoverMeeting {
       input.handle,
       input.frame,
     );
-    const sternum: (person: IAutoMovieMotionHumanHandover.IPerson) => number = (person: IAutoMovieMotionHumanHandover.IPerson): number =>
+    const sternum: (person: IAutoMovieMotionHumanHandover.IPerson) => number = (
+      person: IAutoMovieMotionHumanHandover.IPerson,
+    ): number =>
       resolveAutoMovieHumanoidSurfaces.place(
         person.body.surfaces.regions.sternum,
         person.bones.get(person.body.surfaces.regions.sternum.bone)!,
@@ -104,8 +106,10 @@ export namespace HumanHandoverMeeting {
   /**
    * The meeting kind of a handover.
    *
-   * @param props Each partner's acting hand, the prop with its frame at the start and the receiving grip, and the exchange share.
-   * @returns The kind: the contact `meet`, where the receiving grip is handed over.
+   * @param props Each partner's acting hand, the prop with its frame at the
+   *   start and the receiving grip, and the exchange share.
+   * @returns The kind: the contact `meet`, where the receiving grip is handed
+   *   over.
    */
   export function kind(props: {
     giver: AutoMovieHumanSide;
@@ -115,7 +119,9 @@ export namespace HumanHandoverMeeting {
     handle: string;
     exchange: number;
   }): IAutoMovieMotionMeetingKind {
-    const person: (role: IAutoMovieMotionMeetingRole) => IAutoMovieMotionHumanHandover.IPerson = (
+    const person: (
+      role: IAutoMovieMotionMeetingRole,
+    ) => IAutoMovieMotionHumanHandover.IPerson = (
       role: IAutoMovieMotionMeetingRole,
     ): IAutoMovieMotionHumanHandover.IPerson => ({
       body: role.body,

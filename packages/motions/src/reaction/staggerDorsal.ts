@@ -15,18 +15,19 @@ import { staggerNearest } from "./staggerNearest";
  * recovery's centre of pressure stands.
  *
  * A centre of pressure on a foot's outline is borne by that foot alone; one
- * between the two outlines is borne by both as by two supports of a beam,
- * each foot's share the centre of pressure's distance from the other
- * foot's outline over the sum of its distances from both (the lever rule of
- * statics, the supports taken at their outlines' nearest points). A foot
- * planted alone bears it all. The recovery's centre of pressure moves
- * continuously (`StaggerPendulum`) and reaches the stance foot's outline by
- * a step's lift-off, so each share, and the dorsal room it gives, runs
- * continuously from a foot's touch-down to its lift-off.
+ * between the two outlines is borne by both as by two supports of a beam, each
+ * foot's share the centre of pressure's distance from the other foot's outline
+ * over the sum of its distances from both (the lever rule of statics, the
+ * supports taken at their outlines' nearest points). A foot planted alone bears
+ * it all. The recovery's centre of pressure moves continuously
+ * (`StaggerPendulum`) and reaches the stance foot's outline by a step's
+ * lift-off, so each share, and the dorsal room it gives, runs continuously from
+ * a foot's touch-down to its lift-off.
  *
  * @param body The body.
  * @param pressure The centre of pressure on the floor, world metres.
- * @param feet The feet as scheduled; a foot with a swing bears nothing and gets no limit.
+ * @param feet The feet as scheduled; a foot with a swing bears nothing and gets
+ *   no limit.
  * @returns The dorsal limit of each planted foot, degrees.
  */
 export function staggerDorsal(

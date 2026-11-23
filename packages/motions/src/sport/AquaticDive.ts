@@ -16,8 +16,8 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { AquaticPosture } from "./AquaticPosture";
 
 /**
- * Pool departure and springboard dive. Springboard flight phases follow
- * PMID 27762669, with provisional timings and take-off velocity.
+ * Pool departure and springboard dive. Springboard flight phases follow PMID
+ * 27762669, with provisional timings and take-off velocity.
  */
 export namespace AquaticDive {
   /** A block or board departure with a resolved first surface crossing. */
@@ -139,7 +139,10 @@ export namespace AquaticDive {
     };
   }
 
-  /** Solve a ballistic entry at the actual leading hand height; dry legs retain their entered ankle targets. */
+  /**
+   * Solve a ballistic entry at the actual leading hand height; dry legs retain
+   * their entered ankle targets.
+   */
   export function departure(
     context: AquaticPosture.Context,
     water: number,

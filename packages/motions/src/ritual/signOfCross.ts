@@ -7,11 +7,12 @@ import { SITE } from "./SITE";
 import { TOUCH_HOLD } from "./TOUCH_HOLD";
 
 /**
- * Append the sign of the cross: forehead, sternum, then both shoulders in
- * the rite's order, with one hand's fingertips.
+ * Append the sign of the cross: forehead, sternum, then both shoulders in the
+ * rite's order, with one hand's fingertips.
  *
  * @param chain The performer's chain.
- * @param params The signing `hand` (the right when absent) and the `rite` (the Latin rite when absent).
+ * @param params The signing `hand` (the right when absent) and the `rite` (the
+ *   Latin rite when absent).
  * @returns The chain with four touches appended.
  */
 export function signOfCross<Chain extends IAutoMovieMotionHumanChainCore>(
@@ -24,10 +25,7 @@ export function signOfCross<Chain extends IAutoMovieMotionHumanChainCore>(
       ? ["forehead", "sternum", "shoulderLeft", "shoulderRight"]
       : ["forehead", "sternum", "shoulderRight", "shoulderLeft"];
   return order.reduce(
-    (
-      current: Chain,
-      region: IAutoMovieMotionHumanRitual.ICrossRegion,
-    ): Chain =>
+    (current: Chain, region: IAutoMovieMotionHumanRitual.ICrossRegion): Chain =>
       current.act("touch", {
         target: { kind: "self", region },
         hand,

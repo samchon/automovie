@@ -37,7 +37,10 @@ type IPlant = HumanSupportStepPlants.IPlant;
 /** A plant keyed by its planned window. */
 type WindowPlant = [Window, IPlant];
 
-/** Seconds over which a foot's share of the body eases from its plant into its swing (provisional staging). */
+/**
+ * Seconds over which a foot's share of the body eases from its plant into its
+ * swing (provisional staging).
+ */
 const EASE: number = 0.1;
 
 /** World vertical. */
@@ -60,29 +63,30 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
 /**
  * Step from one support to another, either of which may move: from a fixed
  * landing onto an escalator tread or a walkway band, or off it onto the
- * landing. The walk (`walk`) is planned on the support left as it stood at
- * the step's start, at the height the entry's soles bear on and with the
- * entry's speed taken against that support's, and that support carries it. Each new footprint bears on the support whose
- * surface holds the foot where it lands, and the entry's footprints on the
- * support left; a new footprint is slid along the surface, the least it
- * takes, to lie wholly on the moving support that bears it or wholly off
- * the one beside it, so no foot straddles an edge, along its own length
- * where it crosses the edge head-on so it keeps its lane, and one on a fixed
- * landing bears at the height it stands at. A footprint on the support
- * arrived on is the point of it that the support brings to its aimed place
- * as the last foot lands: the foot meets it where it is at touchdown and
+ * landing. The walk (`walk`) is planned on the support left as it stood at the
+ * step's start, at the height the entry's soles bear on and with the entry's
+ * speed taken against that support's, and that support carries it. Each new
+ * footprint bears on the support whose surface holds the foot where it lands,
+ * and the entry's footprints on the support left; a new footprint is slid along
+ * the surface, the least it takes, to lie wholly on the moving support that
+ * bears it or wholly off the one beside it, so no foot straddles an edge, along
+ * its own length where it crosses the edge head-on so it keeps its lane, and
+ * one on a fixed landing bears at the height it stands at. A footprint on the
+ * support arrived on is the point of it that the support brings to its aimed
+ * place as the last foot lands: the foot meets it where it is at touchdown and
  * it carries the foot from then on, so the foot never slides on the moving
- * surface. A swinging foot moves on a minimum-jerk blend of the
- * supports of the plants it leaves and lands on, its toes turned down
- * rather than its ankle bent past a weightless ankle's reach
- * (`HumanMountPush.tip`), and the pelvis on the feet
- * that bear it, easing between them; a support that turns about the vertical turns the
- * feet it bears and the body with them. The walk aims where the arrival point will be when
- * the last foot lands, so the rider compensates for the supports' travel.
+ * surface. A swinging foot moves on a minimum-jerk blend of the supports of the
+ * plants it leaves and lands on, its toes turned down rather than its ankle
+ * bent past a weightless ankle's reach (`HumanMountPush.tip`), and the pelvis
+ * on the feet that bear it, easing between them; a support that turns about the
+ * vertical turns the feet it bears and the body with them. The walk aims where
+ * the arrival point will be when the last foot lands, so the rider compensates
+ * for the supports' travel.
  *
  * @param context The standing entry, the arrival point and the two supports.
  * @returns The walk with each foot and the pelvis carried by its support.
- * @throws {HumanRefusal} When the walk refuses its path, or on `to` when the arrival lies a step above or below the floor the step leaves.
+ * @throws {HumanRefusal} When the walk refuses its path, or on `to` when the
+ *   arrival lies a step above or below the floor the step leaves.
  */
 export function HumanSupportStep(
   context: IAutoMovieMotionHumanActionContext<Params>,

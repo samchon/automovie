@@ -111,9 +111,7 @@ export namespace HumanWeaponPresent {
    */
   export const PRESENT: readonly [number, number] = [0.9, 0.5];
 
-  /**
-   * A seated presentation's ready station before the chest.
-   */
+  /** A seated presentation's ready station before the chest. */
   export interface IReady {
     /**
      * How far ahead of the eye along the floor line to the target, a share of

@@ -45,7 +45,8 @@ export namespace throwObjectLaunch {
    * empty-handed throw.
    *
    * @param prop The thrown prop, or undefined.
-   * @param attitude How it turns in flight; its release rotation kept when absent.
+   * @param attitude How it turns in flight; its release rotation kept when
+   *   absent.
    * @param launch The throw's launch.
    * @returns The published launches.
    */
@@ -76,7 +77,9 @@ export namespace throwObjectLaunch {
    * @param release The release point, world metres.
    * @param target The target point, world metres.
    * @param degrees The release's rise above the horizontal, degrees.
-   * @returns The velocity, world metres per second, or undefined when no path at that angle reaches the target (it lies straight above, or above the line the angle rises along).
+   * @returns The velocity, world metres per second, or undefined when no path
+   *   at that angle reaches the target (it lies straight above, or above the
+   *   line the angle rises along).
    */
   export function aimed(
     release: IAutoMovieVector3,

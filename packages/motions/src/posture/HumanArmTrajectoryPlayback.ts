@@ -9,24 +9,24 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmRefine } from "./HumanArmRefine";
 
 /**
- * One arm's reader of a trajectory's knots: the arm at any second, the
- * knots' cubic Hermite interpolant (`HumanArmRefine.hermite`) read back as
- * clinical triples. It owns only the playback's inputs, so a returned
- * reader keeps none of the problem, the contexts or the readings it was
- * solved with.
+ * One arm's reader of a trajectory's knots: the arm at any second, the knots'
+ * cubic Hermite interpolant (`HumanArmRefine.hermite`) read back as clinical
+ * triples. It owns only the playback's inputs, so a returned reader keeps none
+ * of the problem, the contexts or the readings it was solved with.
  *
  * The shoulder's triple is read on one reading along the whole trajectory
- * (`HumanArmBranch`): the first knot's is decoded alone, each later knot's
- * is the reading nearest the knot before it, and a second between two knots
- * is read nearest the knot it follows. Decoded alone, two neighbouring
- * seconds could name their rotations on different readings, and the display
- * clamped one of them to another rotation (a 104.78 mm jump of the elbow).
+ * (`HumanArmBranch`): the first knot's is decoded alone, each later knot's is
+ * the reading nearest the knot before it, and a second between two knots is
+ * read nearest the knot it follows. Decoded alone, two neighbouring seconds
+ * could name their rotations on different readings, and the display clamped one
+ * of them to another rotation (a 104.78 mm jump of the elbow).
  *
  * @param setups Each arm's setup.
  * @param times The knots' seconds, ascending.
  * @param coordinates Each arm's coordinates at each knot.
  * @param arm The arm's index.
- * @returns The arm at a second of the span, held at the first and the last knot outside it.
+ * @returns The arm at a second of the span, held at the first and the last knot
+ *   outside it.
  */
 export function HumanArmTrajectoryPlayback(
   setups: readonly IAutoMovieMotionHumanArmGeometry.ISetup[],

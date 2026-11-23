@@ -43,13 +43,14 @@ export namespace walkLegBinding {
   }
 
   /**
-   * Prepare one shape for the depths of segment-local points inside it, as
-   * the audit reads them: a hull's least distance inside its face planes,
-   * read no further once it is no deeper than `floor`; any other shape by
-   * the engine's shape distance; zero outside.
+   * Prepare one shape for the depths of segment-local points inside it, as the
+   * audit reads them: a hull's least distance inside its face planes, read no
+   * further once it is no deeper than `floor`; any other shape by the engine's
+   * shape distance; zero outside.
    *
    * @param shape The placed segment's profile shape.
-   * @returns The depth in metres of a segment-local point, given the depth below which the caller has no use for it.
+   * @returns The depth in metres of a segment-local point, given the depth
+   *   below which the caller has no use for it.
    */
   export function prepareInside(
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],

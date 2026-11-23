@@ -5,17 +5,27 @@ import { walkReach } from "../actions/walkReach";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A handler's feet turning on the spot to follow a moving bearing: pivot steps, each the foot on the side of the turn swinging round the centre first and the other following, taken whenever the bearing has moved `TRIGGER` from the feet.
+ * A handler's feet turning on the spot to follow a moving bearing: pivot steps,
+ * each the foot on the side of the turn swinging round the centre first and the
+ * other following, taken whenever the bearing has moved `TRIGGER` from the
+ * feet.
  *
- * A step lays the feet `TRIGGER` past where the bearing will be when it ends, so the pelvis, which faces the bearing, runs from that lead back through the feet's heading to the same lag behind before the next step; between steps the feet stand. The heading the pelvis keeps from the feet is the hip's own rotation, bounded by `walkReach.TWIST`; a bearing that outruns the steps beyond it is refused.
+ * A step lays the feet `TRIGGER` past where the bearing will be when it ends,
+ * so the pelvis, which faces the bearing, runs from that lead back through the
+ * feet's heading to the same lag behind before the next step; between steps the
+ * feet stand. The heading the pelvis keeps from the feet is the hip's own
+ * rotation, bounded by `walkReach.TWIST`; a bearing that outruns the steps
+ * beyond it is refused.
  */
 export namespace HumanLungePivot {
-  /** The lag of the bearing behind the feet that starts a step, and the lead a step lays them ahead of it, degrees (provisional): a third of the hip's twist, leaving the rest for the turn while a step is under way. */
+  /**
+   * The lag of the bearing behind the feet that starts a step, and the lead a
+   * step lays them ahead of it, degrees (provisional): a third of the hip's
+   * twist, leaving the rest for the turn while a step is under way.
+   */
   export const TRIGGER: number = walkReach.TWIST / 3;
 
-  /**
-   * One pivot step.
-   */
+  /** One pivot step. */
   export interface IStep {
     /** Seconds since the action's start the leading foot lifts. */
     start: number;
@@ -30,9 +40,7 @@ export namespace HumanLungePivot {
     to: number;
   }
 
-  /**
-   * The steps of one action.
-   */
+  /** The steps of one action. */
   export interface ISchedule {
     /** The steps, in time order, never overlapping. */
     steps: readonly IStep[];
@@ -44,9 +52,7 @@ export namespace HumanLungePivot {
     heading: number;
   }
 
-  /**
-   * A foot's heading and swing at a second.
-   */
+  /** A foot's heading and swing at a second. */
   export interface IFoot {
     /** The foot's heading, degrees. */
     heading: number;
@@ -58,13 +64,15 @@ export namespace HumanLungePivot {
   /**
    * Plan the steps that follow a bearing.
    *
-   * @param bearing The bearing at seconds since the action's start, degrees, continuous (unwrapped).
+   * @param bearing The bearing at seconds since the action's start, degrees,
+   *   continuous (unwrapped).
    * @param seconds The action's length.
    * @param heading The feet's heading at the start, degrees.
    * @param swing Seconds one foot's swing takes.
    * @param dt The scan's step, seconds, at most half a swing.
    * @returns The schedule.
-   * @throws {HumanRefusal} When the bearing runs more than the hip's twist from the feet.
+   * @throws {HumanRefusal} When the bearing runs more than the hip's twist from
+   *   the feet.
    */
   export function plan(
     bearing: (seconds: number) => number,

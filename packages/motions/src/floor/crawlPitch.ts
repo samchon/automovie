@@ -13,13 +13,14 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
 
 /**
- * Solve the crawl's trunk pitch with the hip joints at a fixed world point
- * and the shoulders at the body's required arm height above its palms.
+ * Solve the crawl's trunk pitch with the hip joints at a fixed world point and
+ * the shoulders at the body's required arm height above its palms.
  *
  * @param body The unchanged body of this plan.
  * @param hips The fixed hip midpoint, world metres.
  * @param shoulderY Required shoulder height, world metres.
- * @param template The law's actual fixed joint-only clinical shape, with no limb/digit/rotation goals; only its rigid pitch/root vary in this search.
+ * @param template The law's actual fixed joint-only clinical shape, with no
+ *   limb/digit/rotation goals; only its rigid pitch/root vary in this search.
  * @returns The original bisection's pitch and its measured shoulder/hip bones.
  */
 export function crawlPitch(
@@ -40,7 +41,10 @@ export function crawlPitch(
   const at: (degrees: number) => ReturnType<typeof poseBones> = (
     degrees: number,
   ): ReturnType<typeof poseBones> => {
-    const tilted: IAutoMovieMotionHumanPosture = { ...template, pitch: degrees };
+    const tilted: IAutoMovieMotionHumanPosture = {
+      ...template,
+      pitch: degrees,
+    };
     const posture: IAutoMovieMotionHumanPosture = {
       ...tilted,
       root: crawlFrame.rootFor(body, tilted, hips),

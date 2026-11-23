@@ -29,16 +29,26 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { LongToolStroke } from "./LongToolStroke";
 
-/** Seconds the hands take to bring the tool from where it is held to the stroke's start, and back after: provisional. */
+/**
+ * Seconds the hands take to bring the tool from where it is held to the
+ * stroke's start, and back after: provisional.
+ */
 const REACH: number = 0.6;
 
-/** The farthest a trailing hand's grip reaches from its shoulder at a stroke's contact, over the arm's length to the grip: provisional, a straight arm with the shoulder drawn forward. */
+/**
+ * The farthest a trailing hand's grip reaches from its shoulder at a stroke's
+ * contact, over the arm's length to the grip: provisional, a straight arm with
+ * the shoulder drawn forward.
+ */
 const REACH_LIMIT: number = 1.05;
 
 /** The deepest a trunk bows toward a low work point, degrees: provisional. */
 const BOW: number = 45;
 
-/** How far the pelvis sinks for work at the ground, over stature: provisional, a wide working stance. */
+/**
+ * How far the pelvis sinks for work at the ground, over stature: provisional, a
+ * wide working stance.
+ */
 const SINK: number = 0.06;
 
 /**
@@ -46,22 +56,21 @@ const SINK: number = 0.06;
  * (`IAutoMovieMotionHumanLongTool`): the trailing hand holds the tool rigid
  * near the shaft's end, so the face is a fixed offset in that hand's frame
  * (`AutoMovieMotionHumanHeld`), and each instant of the stroke
- * (`LongToolStroke`) gives the tool's line, its face's facing and the
- * trailing grip in the world, the hand turned the least that lays the held
- * tool on them; the lead hand closes on the tool's line at the stroke's
- * slide from the trailing grip, palm toward it from the body's side. The
- * trunk bows and the pelvis sinks with the work point's height below the
- * hips; the feet stay planted where they entered. Both arms are laid as one
- * course on the one tool (`courseArmGoal`, `grasp`). A contact the trailing
- * arm cannot reach from where the performer stands is refused with the
- * distance.
+ * (`LongToolStroke`) gives the tool's line, its face's facing and the trailing
+ * grip in the world, the hand turned the least that lays the held tool on them;
+ * the lead hand closes on the tool's line at the stroke's slide from the
+ * trailing grip, palm toward it from the body's side. The trunk bows and the
+ * pelvis sinks with the work point's height below the hips; the feet stay
+ * planted where they entered. Both arms are laid as one course on the one tool
+ * (`courseArmGoal`, `grasp`). A contact the trailing arm cannot reach from
+ * where the performer stands is refused with the distance.
  *
  * Events: `ready`, per stroke `contact<k>` (and for a dig `drive<k>`,
  * `lever<k>`, `throw<k>`; for a rake `pull<k>`), and `recover`.
  *
  * Not yet: the foot that drives a shovel's blade, the thrown load as a prop,
- * stepping between rake strokes, kneeling work and the one-hand pull that
- * frees a stuck head.
+ * stepping between rake strokes, kneeling work and the one-hand pull that frees
+ * a stuck head.
  */
 export namespace longTool {
   /** The action's key. */
@@ -286,7 +295,10 @@ export namespace longTool {
     });
   }
 
-  /** A hand closed round a line at a point, the palm toward it from the chest's side. */
+  /**
+   * A hand closed round a line at a point, the palm toward it from the chest's
+   * side.
+   */
   function closed(
     body: IAutoMovieMotionHumanActionContext["body"],
     side: AutoMovieHumanSide,
@@ -322,7 +334,10 @@ export namespace longTool {
     };
   }
 
-  /** The trailing elbow's hint: below the middle of the arm, out toward its own side. */
+  /**
+   * The trailing elbow's hint: below the middle of the arm, out toward its own
+   * side.
+   */
   function elbow(
     grip: IAutoMovieVector3,
     shoulder: IAutoMovieVector3,

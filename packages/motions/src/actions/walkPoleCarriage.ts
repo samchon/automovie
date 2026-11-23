@@ -21,31 +21,37 @@ import { walkFoot } from "./walkFoot";
 import { walkPoleFrame } from "./walkPoleFrame";
 
 /**
- * A long held prop carried along a walk or a run: a prop held in one hand
- * or two whose end lies farther from the carrying grip than the hand hangs
- * above the floor at rest would drag that end if it hung with the swinging
- * hand, so the arms hold it still against the body, its end raised ahead.
+ * A long held prop carried along a walk or a run: a prop held in one hand or
+ * two whose end lies farther from the carrying grip than the hand hangs above
+ * the floor at rest would drag that end if it hung with the swinging hand, so
+ * the arms hold it still against the body, its end raised ahead.
  *
  * As a vaulter carries a pole (Coaches Insider, "Pole carry and drop"): the
  * carrying (top) hand at the hip, the forearm forward, and the pole "at 70
- * degrees from a long approach, almost at vertical" (`CARRY`), across the
- * body to the lower hand ahead of the trunk's middle. The prop's roll about
- * its line is the one that keeps the arms at their ease (`walkPoleFrame`).
+ * degrees from a long approach, almost at vertical" (`CARRY`), across the body
+ * to the lower hand ahead of the trunk's middle. The prop's roll about its line
+ * is the one that keeps the arms at their ease (`walkPoleFrame`).
  *
  * A walk cut into an action that plants the prop (a run into a vault,
- * `IHumanActionContext.cut`) lowers it continuously from the start to the
- * cut, the tip falling "the moment the vaulter moves", gradually: the lower
- * hand is the fulcrum, and the top hand rises past the ribs, the shoulder
- * and the face as the pole turns about it, down to the elevation the plant
- * takes from the overhead grip (the vault's `high`) and ahead along the run,
- * never lower than keeps the end a swinging toe's clearance off the floor
+ * `IHumanActionContext.cut`) lowers it continuously from the start to the cut,
+ * the tip falling "the moment the vaulter moves", gradually: the lower hand is
+ * the fulcrum, and the top hand rises past the ribs, the shoulder and the face
+ * as the pole turns about it, down to the elevation the plant takes from the
+ * overhead grip (the vault's `high`) and ahead along the run, never lower than
+ * keeps the end a swinging toe's clearance off the floor
  * (`walkFoot.CLEARANCE`). One hand turns the prop about its own grip.
  */
 export namespace walkPoleCarriage {
-  /** The carried prop's elevation above the horizontal at the run's start, degrees: a long approach's carry (Coaches Insider, "Pole carry and drop"). */
+  /**
+   * The carried prop's elevation above the horizontal at the run's start,
+   * degrees: a long approach's carry (Coaches Insider, "Pole carry and drop").
+   */
   export const CARRY: number = 70;
 
-  /** A carried prop, its hands and its line in the heading's frame from the root. */
+  /**
+   * A carried prop, its hands and its line in the heading's frame from the
+   * root.
+   */
   export interface IHold {
     /** The prop and its holding hands. */
     pole: walkPoleFrame.IPole;
@@ -56,10 +62,16 @@ export namespace walkPoleCarriage {
     /** The fulcrum: the lower hand's grip, or the only hand's, metres. */
     fulcrum: IAutoMovieVector3;
 
-    /** The way across the body the carried line leans, degrees from ahead toward the trunk's middle. */
+    /**
+     * The way across the body the carried line leans, degrees from ahead toward
+     * the trunk's middle.
+     */
     across: number;
 
-    /** The lowering to the next action's plant; none when the walk is not cut into one. */
+    /**
+     * The lowering to the next action's plant; none when the walk is not cut
+     * into one.
+     */
     drop?: IDrop;
   }
 
@@ -78,7 +90,8 @@ export namespace walkPoleCarriage {
    * @param context The action's context.
    * @param events The walk's events, as shares of its duration.
    * @param duration The walk's seconds.
-   * @returns The carried props; none when no hand holds a prop whose end would reach the floor hanging.
+   * @returns The carried props; none when no hand holds a prop whose end would
+   *   reach the floor hanging.
    */
   export function prepare(
     context: Pick<
@@ -192,7 +205,10 @@ export namespace walkPoleCarriage {
     return out;
   }
 
-  /** The walk's second of a cut at its own event or share, or undefined when the event is not the walk's. */
+  /**
+   * The walk's second of a cut at its own event or share, or undefined when the
+   * event is not the walk's.
+   */
   function cutAt(
     cut: IAutoMovieMotionHumanActionContext.ICut,
     events: readonly IAutoMovieMotionEvent[],
@@ -208,9 +224,9 @@ export namespace walkPoleCarriage {
   /**
    * The grip windows by which the walk takes each carried prop over for the
    * whole action, the carrying hand's first so it carries and the other
-   * steadies (`HumanPerformanceHold`): a hand the action drives is not
-   * carried with the trunk by the performance (`HumanSegment.drives`), and a
-   * driven held hand must take its prop over
+   * steadies (`HumanPerformanceHold`): a hand the action drives is not carried
+   * with the trunk by the performance (`HumanSegment.drives`), and a driven
+   * held hand must take its prop over
    * (`IAutoMovieMotionHumanActionPlan.hands`).
    *
    * @param holds The carried props.
@@ -234,9 +250,9 @@ export namespace walkPoleCarriage {
 
   /**
    * The holds the walk keeps: each carried prop stays in its hands with the
-   * fingers they entered with, from the walk's start, so an action cut into
-   * the walk at any second (a vault out of its run) enters with the prop
-   * held, as a draw from a carrier leaves its prop held (`drawFromCarrier`).
+   * fingers they entered with, from the walk's start, so an action cut into the
+   * walk at any second (a vault out of its run) enters with the prop held, as a
+   * draw from a carrier leaves its prop held (`drawFromCarrier`).
    *
    * @param context The action's context.
    * @param holds The carried props.
@@ -260,10 +276,10 @@ export namespace walkPoleCarriage {
 
   /**
    * The posture with each holding hand's goal at a second of the walk: the
-   * line's elevation then (`CARRY`, lowered to a plant by the cut, never so
-   * low the end nears the floor), turned about the fulcrum and from across
-   * the body to straight ahead, placed by the holds and carried by the root
-   * and the heading.
+   * line's elevation then (`CARRY`, lowered to a plant by the cut, never so low
+   * the end nears the floor), turned about the fulcrum and from across the body
+   * to straight ahead, placed by the holds and carried by the root and the
+   * heading.
    *
    * @param body The body.
    * @param posture The walk's posture.
@@ -335,7 +351,10 @@ export namespace walkPoleCarriage {
     return written;
   }
 
-  /** The unit line at an elevation, leaning `across` degrees from ahead toward the trunk's middle from the carrying side, in the heading's frame. */
+  /**
+   * The unit line at an elevation, leaning `across` degrees from ahead toward
+   * the trunk's middle from the carrying side, in the heading's frame.
+   */
   function line(
     carrying: AutoMovieHumanSide,
     elevation: number,

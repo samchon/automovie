@@ -33,13 +33,16 @@ import { resolveHumanArmChain } from "./resolveHumanArmChain";
 /**
  * An arm's joint-space coordinates and what they place: the shoulder's
  * swing-twist chart (`swingTwistRange.chart`, continuous and one to one over
- * the range, scaled so a unit is near a degree of swing), the elbow's and
- * the wrist's clinical angles; the arm's forward kinematics from its
- * shoulder in a posed frame (`HumanArmFrame`) and its probes; the shapes
- * in its way and the probes' distances to them are `HumanArmShapes`'.
+ * the range, scaled so a unit is near a degree of swing), the elbow's and the
+ * wrist's clinical angles; the arm's forward kinematics from its shoulder in a
+ * posed frame (`HumanArmFrame`) and its probes; the shapes in its way and the
+ * probes' distances to them are `HumanArmShapes`'.
  */
 export namespace HumanArmGeometry {
-  /** Coordinates of an arm: the shoulder's chart (two) and twist, the elbow's and the wrist's clinical triples. */
+  /**
+   * Coordinates of an arm: the shoulder's chart (two) and twist, the elbow's
+   * and the wrist's clinical triples.
+   */
   export const DIMENSIONS: number = 9;
 
   /** The chart's unit disc in coordinate units. */
@@ -54,11 +57,15 @@ export namespace HumanArmGeometry {
   /** The probe on the middle fingertip. */
   export const TIP: number = 7;
 
-  /** The first of the arm's collider probes among a placed arm's probes, after its eight axis spheres. */
+  /**
+   * The first of the arm's collider probes among a placed arm's probes, after
+   * its eight axis spheres.
+   */
   export const SURFACE: number = 8;
 
   /**
-   * The shared source pose and external colliders from which an arm frame is built.
+   * The shared source pose and external colliders from which an arm frame is
+   * built.
    */
   export interface IBase extends T.IBase {}
 
@@ -161,9 +168,9 @@ export namespace HumanArmGeometry {
   }
 
   /**
-   * A joint's articulation from its clinical triple, clamped to the
-   * skeleton's range (`clampJointToSkeleton`), using the same clinical
-   * articulation as the displayed posture, so the arm planned is the arm shown.
+   * A joint's articulation from its clinical triple, clamped to the skeleton's
+   * range (`clampJointToSkeleton`), using the same clinical articulation as the
+   * displayed posture, so the arm planned is the arm shown.
    *
    * @param setup The arm.
    * @param bone The joint's bone.
@@ -240,12 +247,12 @@ export namespace HumanArmGeometry {
   }
 
   /**
-   * The shoulder's articulation at coordinates. The chart is one to one up
-   * to the rest direction's antipode, where a direction has no azimuth, so a
-   * place whose swing would reach it is drawn back along its azimuth to a
-   * swing the joints' resolution (`ROM_TOLERANCE`) short of 180 degrees;
-   * every rotation an arm can show lies inside, so an arm's coordinates
-   * (`encode`) read back as the arm itself.
+   * The shoulder's articulation at coordinates. The chart is one to one up to
+   * the rest direction's antipode, where a direction has no azimuth, so a place
+   * whose swing would reach it is drawn back along its azimuth to a swing the
+   * joints' resolution (`ROM_TOLERANCE`) short of 180 degrees; every rotation
+   * an arm can show lies inside, so an arm's coordinates (`encode`) read back
+   * as the arm itself.
    *
    * @param setup The arm.
    * @param c The coordinates.
@@ -276,7 +283,8 @@ export namespace HumanArmGeometry {
    *
    * @param setup The arm.
    * @param c The coordinates.
-   * @param turned The shoulder's rotation at these coordinates (`shoulder`) when the caller already holds it; computed when absent.
+   * @param turned The shoulder's rotation at these coordinates (`shoulder`)
+   *   when the caller already holds it; computed when absent.
    * @returns The triples.
    */
   export function arm(
@@ -306,7 +314,8 @@ export namespace HumanArmGeometry {
   }
 
   /**
-   * The actual arm chain at coordinates, without fingertip or probe observations.
+   * The actual arm chain at coordinates, without fingertip or probe
+   * observations.
    *
    * @param setup The unchanged arm rig metadata.
    * @param at The instant's shoulder-parent frame.
@@ -325,9 +334,11 @@ export namespace HumanArmGeometry {
    * Read chains during one synchronous derivative invocation, sharing only
    * completed identical local articulations under its unchanged setup/frame.
    *
-   * @param setup The actual prepare-produced setup, unchanged for this derivative.
+   * @param setup The actual prepare-produced setup, unchanged for this
+   *   derivative.
    * @param at This derivative's unchanged frame.
-   * @returns A local chain reader, released when the derivative finishes or throws.
+   * @returns A local chain reader, released when the derivative finishes or
+   *   throws.
    */
   export function prepareChain(
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,

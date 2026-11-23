@@ -40,54 +40,51 @@ import { crawlPitch } from "./crawlPitch";
 import { floorEntry } from "./floorEntry";
 
 /**
- * Crawling on hands and knees along the heading, from standing: the body
- * gets down onto hands and knees, then crawls a number of cycles in the
- * diagonal pattern, each hand moving with the opposite knee like a
- * quadruped's trot (Patrick, Noah and Yang 2009, J Neurophysiol 101:603).
+ * Crawling on hands and knees along the heading, from standing: the body gets
+ * down onto hands and knees, then crawls a number of cycles in the diagonal
+ * pattern, each hand moving with the opposite knee like a quadruped's trot
+ * (Patrick, Noah and Yang 2009, J Neurophysiol 101:603).
  *
- * The goals are floor points. The knees rest a shank's radius over the
- * floor under the hip joints with the thighs upright, the shins lying back
- * to feet tucked on their toes (`kneelKeys.tucked`); the palms rest flat
- * with each wrist under its shoulder and the arm at `ARM` of its length, so
- * the trunk's pitch is the one that puts the posed shoulders at that height.
- * The pelvis travels at a constant speed of one stride a cycle, as high as
- * each thigh reaches its knee from it; each limb is planted on a floor
- * point for `DUTY` of the cycle, centred on its own share, and swings to the
- * next one a stride ahead on an arc, a hand `LIFT` high and a knee
- * `KNEE_LIFT`, rising on the swing's time and travelling on its minimum-jerk
- * progress so it leaves the floor before it moves, the left hand and the
- * right knee half a cycle apart from the right hand and the left knee.
- * Each hip joint rides a thigh over its own
- * knee, so a swinging knee is lifted by the pelvis turning about the spine's
- * axis (the hip hike of a quadruped's swing), which the spine and the chest
- * turn back so the shoulders stay level over the hands. The crawl is placed
- * so each tucked foot's toes' joint is where the standing foot rolls onto
- * its toes, and the limbs land side by side, the first steps reaching each
- * limb's own footprint. Getting down from standing, the supports take the
- * body in turn (`crawlDown`): the feet roll onto their toes where they
- * stood, the body sits onto its knees in the kneel's time to lower and sit
- * back (`kneel.PHASES`), leans to its hands and comes forward over its
- * knees. Entered on the knees or
- * crouched (a crawl ends kneeling, a bear crawl crouched, and declares it),
- * it blends from the displayed entry over `DOWN` seconds instead, and any
- * other base is refused (`floorEntry`).
- * The cycle, the stride, the duty and the lift are provisional, scaled by
- * the square root of the hip height and the manner's tempo. Events: `down`
- * (on hands and knees), and per limb and cycle `<limb>Liftoff<n>` and
- * `<limb>Touchdown<n>`, the limb one of `leftHand`, `rightHand`, `leftKnee`,
- * `rightKnee`.
+ * The goals are floor points. The knees rest a shank's radius over the floor
+ * under the hip joints with the thighs upright, the shins lying back to feet
+ * tucked on their toes (`kneelKeys.tucked`); the palms rest flat with each
+ * wrist under its shoulder and the arm at `ARM` of its length, so the trunk's
+ * pitch is the one that puts the posed shoulders at that height. The pelvis
+ * travels at a constant speed of one stride a cycle, as high as each thigh
+ * reaches its knee from it; each limb is planted on a floor point for `DUTY` of
+ * the cycle, centred on its own share, and swings to the next one a stride
+ * ahead on an arc, a hand `LIFT` high and a knee `KNEE_LIFT`, rising on the
+ * swing's time and travelling on its minimum-jerk progress so it leaves the
+ * floor before it moves, the left hand and the right knee half a cycle apart
+ * from the right hand and the left knee. Each hip joint rides a thigh over its
+ * own knee, so a swinging knee is lifted by the pelvis turning about the
+ * spine's axis (the hip hike of a quadruped's swing), which the spine and the
+ * chest turn back so the shoulders stay level over the hands. The crawl is
+ * placed so each tucked foot's toes' joint is where the standing foot rolls
+ * onto its toes, and the limbs land side by side, the first steps reaching each
+ * limb's own footprint. Getting down from standing, the supports take the body
+ * in turn (`crawlDown`): the feet roll onto their toes where they stood, the
+ * body sits onto its knees in the kneel's time to lower and sit back
+ * (`kneel.PHASES`), leans to its hands and comes forward over its knees.
+ * Entered on the knees or crouched (a crawl ends kneeling, a bear crawl
+ * crouched, and declares it), it blends from the displayed entry over `DOWN`
+ * seconds instead, and any other base is refused (`floorEntry`). The cycle, the
+ * stride, the duty and the lift are provisional, scaled by the square root of
+ * the hip height and the manner's tempo. Events: `down` (on hands and knees),
+ * and per limb and cycle `<limb>Liftoff<n>` and `<limb>Touchdown<n>`, the limb
+ * one of `leftHand`, `rightHand`, `leftKnee`, `rightKnee`.
  *
- * The bear crawl is the same gait on the hands and the feet: the knees are
- * held `HOVER` off the floor, so the hips ride that much higher, and each
- * foot, on its ball behind its knee, is planted while its knee is. The
- * inchworm is its own walk (`crawlInchworm`).
+ * The bear crawl is the same gait on the hands and the feet: the knees are held
+ * `HOVER` off the floor, so the hips ride that much higher, and each foot, on
+ * its ball behind its knee, is planted while its knee is. The inchworm is its
+ * own walk (`crawlInchworm`).
  *
- * Each knee on the floor bears through a window of its lower leg at the
- * knee's region while its foot does.
+ * Each knee on the floor bears through a window of its lower leg at the knee's
+ * region while its foot does.
  *
  * Not yet: the bear crawl's own timing (MacLellan et al. 2012 measured
- * hands-and-feet crawling; the knees' cycle is kept), the belly crawl,
- * turning and rising from the crawl.
+ * hands-and-feet crawling; the knees' cycle is kept), the belly crawl, turning
+ * and rising from the crawl.
  */
 export namespace crawl {
   /** The action's name. */
@@ -125,16 +122,28 @@ export namespace crawl {
   /** A swinging hand's rise, metres (provisional). */
   export const LIFT: number = 0.04;
 
-  /** A swinging knee's rise, metres (provisional): the pelvis hikes it, so it clears the floor by less than a hand. */
+  /**
+   * A swinging knee's rise, metres (provisional): the pelvis hikes it, so it
+   * clears the floor by less than a hand.
+   */
   export const KNEE_LIFT: number = 0.02;
 
-  /** A bear crawl's knees over the floor, metres (provisional): an inch or two, as the exercise is cued. */
+  /**
+   * A bear crawl's knees over the floor, metres (provisional): an inch or two,
+   * as the exercise is cued.
+   */
   export const HOVER: number = 0.05;
 
-  /** The shoulder's height over the wrist as a share of the upper arm and the forearm: an elbow just short of straight (provisional). */
+  /**
+   * The shoulder's height over the wrist as a share of the upper arm and the
+   * forearm: an elbow just short of straight (provisional).
+   */
   export const ARM: number = 0.98;
 
-  /** Seconds to get onto hands and knees from the knees or a crouch (provisional). */
+  /**
+   * Seconds to get onto hands and knees from the knees or a crouch
+   * (provisional).
+   */
   export const DOWN: number = 1.5;
 
   /**

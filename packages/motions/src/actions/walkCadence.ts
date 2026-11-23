@@ -13,35 +13,39 @@ import { walkTempo } from "./walkTempo";
 /**
  * Heel strikes entrained to a beat track: which beat each strike answers and
  * when it lands, by the linear phase-correction model of sensorimotor
- * synchronisation (Vorberg and Wing 1996, reviewed by Repp 2005, Psychon
- * Bull Rev 12:969).
+ * synchronisation (Vorberg and Wing 1996, reviewed by Repp 2005, Psychon Bull
+ * Rev 12:969).
  *
  * A locked walker's k-th heel strike answers beat `b0 + k`, `b0` set so the
- * cadence's foot strikes first on its `index` beat, or on the beat nearest
- * that strike when no index is given. Its asynchrony,
- * strike minus beat, follows `A(k+1) = (1 - alpha) A(k) + T(k) - C`, with
- * `C` the beat's period, `T(k)` the walker's timer interval (the period
- * drawn with Wing and Kristofferson's timing variability,
- * `HumanSkill.jitter`, which carries the motor part too) and `alpha` the
- * correction gain, discipline's (`HUMAN_ATTRIBUTE_EFFECTS.discipline
- * .correction`). The first strike keeps the plan's own second, so its
- * asynchrony is where the walker set off, and the correction draws the
- * strikes onto the beats from there. Whether a walker locks at all is drawn
- * against discipline's share (`discipline.lock`: 62 % of side-by-side
- * civilian pairs lock step frequency, Nessler and Gilliland 2009; drilled
- * troops all do); one who does not keeps its own tempo. After the track's
- * last beat the steps keep the plan's own times.
+ * cadence's foot strikes first on its `index` beat, or on the beat nearest that
+ * strike when no index is given. Its asynchrony, strike minus beat, follows
+ * `A(k+1) = (1 - alpha) A(k) + T(k) - C`, with `C` the beat's period, `T(k)`
+ * the walker's timer interval (the period drawn with Wing and Kristofferson's
+ * timing variability, `HumanSkill.jitter`, which carries the motor part too)
+ * and `alpha` the correction gain, discipline's
+ * (`HUMAN_ATTRIBUTE_EFFECTS.discipline .correction`). The first strike keeps
+ * the plan's own second, so its asynchrony is where the walker set off, and the
+ * correction draws the strikes onto the beats from there. Whether a walker
+ * locks at all is drawn against discipline's share (`discipline.lock`: 62 % of
+ * side-by-side civilian pairs lock step frequency, Nessler and Gilliland 2009;
+ * drilled troops all do); one who does not keeps its own tempo. After the
+ * track's last beat the steps keep the plan's own times.
  */
 export namespace walkCadence {
   /**
    * The film seconds a walker's heel strikes land at, entrained to a beat
    * track, or null when the walker does not lock.
    *
-   * @param context The walk's context: its skill, attributes, cue tracks and draws.
+   * @param context The walk's context: its skill, attributes, cue tracks and
+   *   draws.
    * @param cadence The beat track and the foot.
-   * @param strikes The plan's heel strikes, seconds of the plan, in order, with the foot of each.
+   * @param strikes The plan's heel strikes, seconds of the plan, in order, with
+   *   the foot of each.
    * @returns The strikes' film seconds, one per planned strike, or null.
-   * @throws {HumanRefusal} When the beat's period lies more than `walkTempo.HOLD` from the walk's own step, outside the gait the steps were planned at; and when a phase-corrected step would last no time or twice its planned step or more, which no forward time warp carries.
+   * @throws {HumanRefusal} When the beat's period lies more than
+   *   `walkTempo.HOLD` from the walk's own step, outside the gait the steps
+   *   were planned at; and when a phase-corrected step would last no time or
+   *   twice its planned step or more, which no forward time warp carries.
    */
   export function strikes(
     context: IAutoMovieMotionHumanActionContext,
@@ -90,7 +94,9 @@ export namespace walkCadence {
       (cadence.index ??
         beats.reduce(
           (best: number, b: number, i: number): number =>
-            Math.abs(b - anchored) < Math.abs(beats[best]! - anchored) ? i : best,
+            Math.abs(b - anchored) < Math.abs(beats[best]! - anchored)
+              ? i
+              : best,
           0,
         )) - anchor;
 

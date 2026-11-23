@@ -17,18 +17,21 @@ import { touchGoal } from "./touchGoal";
 
 /**
  * A touch: the arm and the fingers on one clock. The arm's whole touch is
- * planned as one trajectory (`AutoMovieMotionHumanArmPlanned`): its reach
- * from its entry angles, its hold on the goal laid on the region from
- * `ready` to `relax` and its return, clear of the body all the way; a hand
- * path solved second by second would let the elbow change sides between them.
- * Between `strokeStart` and `strokeEnd` the goal is lifted along the
- * region's normal by `lift sin^2(pi n u)`, which touches down at every
- * repetition's end, and moved along its tangent by the clock's windowed
- * wave of `n` cycles. A held vessel keeps its attitude on the way
- * (`AutoMovieMotionHumanDrinkingArm.carried`).
+ * planned as one trajectory (`AutoMovieMotionHumanArmPlanned`): its reach from
+ * its entry angles, its hold on the goal laid on the region from `ready` to
+ * `relax` and its return, clear of the body all the way; a hand path solved
+ * second by second would let the elbow change sides between them. Between
+ * `strokeStart` and `strokeEnd` the goal is lifted along the region's normal by
+ * `lift sin^2(pi n u)`, which touches down at every repetition's end, and moved
+ * along its tangent by the clock's windowed wave of `n` cycles. A held vessel
+ * keeps its attitude on the way (`AutoMovieMotionHumanDrinkingArm.carried`).
  *
  * @param props The touch.
- * @returns The arm's and the hand's primitives, the arm's alone when the fingers are kept; the arm carries the contact window from `ready` to `relax` when a support is given and the hand, not a held tool, is what touches it, and one `lie` window over the same span for each of its segments declared resting (`ITouch.rests`).
+ * @returns The arm's and the hand's primitives, the arm's alone when the
+ *   fingers are kept; the arm carries the contact window from `ready` to
+ *   `relax` when a support is given and the hand, not a held tool, is what
+ *   touches it, and one `lie` window over the same span for each of its
+ *   segments declared resting (`ITouch.rests`).
  * @throws {Error} When the count is not a positive whole number.
  */
 export function touchPrimitive(

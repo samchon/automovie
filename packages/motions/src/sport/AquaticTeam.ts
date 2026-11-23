@@ -25,18 +25,24 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticTeamBase } from "./AquaticTeamBase";
 
-/** Seconds a support contact blends in before its grip and out after its release. */
+/**
+ * Seconds a support contact blends in before its grip and out after its
+ * release.
+ */
 const CONTACT_BLEND: number = 0.22;
 
-/** Seconds a base's support arm takes to reach into its palm offer and back out: provisional, an unhurried sculling arm. */
+/**
+ * Seconds a base's support arm takes to reach into its palm offer and back out:
+ * provisional, an unhurried sculling arm.
+ */
 const BASE_REACH: number = 0.5;
 
 /**
  * An artistic figure with optional team support. Flat and vertical sculls
- * follow the form distinctions measured by Homma et al. (PMID 31718520).
- * The supported figure uses the separate support and featured roles of the
- * World Aquatics Artistic Swimming Manual, Group B. The timing and contact
- * depths here are authored for this film figure.
+ * follow the form distinctions measured by Homma et al. (PMID 31718520). The
+ * supported figure uses the separate support and featured roles of the World
+ * Aquatics Artistic Swimming Manual, Group B. The timing and contact depths
+ * here are authored for this film figure.
  *
  * @see https://resources.fina.org/fina/document/2026/02/26/e04faca7-a6bd-4b2b-ba86-0354ee34dd82/AQUA-AS_MANUAL_February-2026.pdf
  */
@@ -48,7 +54,7 @@ export namespace AquaticTeam {
    * @param water The shared world water height in metres.
    * @returns The plan with named support and release events for assisted roles.
    * @throws {HumanRefusal} For absent or repeated bases, or when a named
-   * support is not an upward submerged palm during the bearing interval.
+   *   support is not an upward submerged palm during the bearing interval.
    */
   export function artistic(
     context: AquaticPosture.Context,

@@ -10,17 +10,28 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /**
- * The lunge's hands over time (`HumanLunge`): which hand holds the line and which the whip, and how they change over at a change of rein.
+ * The lunge's hands over time (`HumanLunge`): which hand holds the line and
+ * which the whip, and how they change over at a change of rein.
  *
- * Before the change the first hand holds the line and the other the whip. Over the change's first `transition` the line hand brings the line in to the middle (the horse's ride moves the line there) while the whip hand comes to it and closes on the line `GAP` nearer the horse, the whip still in it; through the second both hold the line, and halfway through it the first hand, its palm on the line where the whip's handle runs back from the other fist, closes on the whip too, the other letting it go at the phase's end, so both hold it between and it is never unheld; over the third the first hand goes out with the whip to its side and the other keeps the line as the ride carries it out to that side.
+ * Before the change the first hand holds the line and the other the whip. Over
+ * the change's first `transition` the line hand brings the line in to the
+ * middle (the horse's ride moves the line there) while the whip hand comes to
+ * it and closes on the line `GAP` nearer the horse, the whip still in it;
+ * through the second both hold the line, and halfway through it the first hand,
+ * its palm on the line where the whip's handle runs back from the other fist,
+ * closes on the whip too, the other letting it go at the phase's end, so both
+ * hold it between and it is never unheld; over the third the first hand goes
+ * out with the whip to its side and the other keeps the line as the ride
+ * carries it out to that side.
  */
 export namespace HumanLungeChange {
-  /** The distance along the line between the two fists while both hold it, metres (provisional): a hand's breadth. */
+  /**
+   * The distance along the line between the two fists while both hold it,
+   * metres (provisional): a hand's breadth.
+   */
   export const GAP: number = 0.1;
 
-  /**
-   * The hands' timeline.
-   */
+  /** The hands' timeline. */
   export interface ITimeline {
     /** The hand that holds the line first. */
     line: AutoMovieHumanSide;
@@ -38,11 +49,12 @@ export namespace HumanLungeChange {
     seconds: number;
   }
 
-  /**
-   * One hand's target at a second.
-   */
+  /** One hand's target at a second. */
   export interface ITarget {
-    /** 1 on the line, 0 on the whip's aim, between while moving from one to the other. */
+    /**
+     * 1 on the line, 0 on the whip's aim, between while moving from one to the
+     * other.
+     */
     line: number;
 
     /** Metres along the line toward the horse. */
@@ -82,7 +94,8 @@ export namespace HumanLungeChange {
    * @param whip Whether the other hand holds a whip to pass.
    * @param transition Seconds of each transition.
    * @param seconds The action's length.
-   * @throws {HumanRefusal} For a change without a whip, or one that does not fit its three transitions after the take-up and before the let-go.
+   * @throws {HumanRefusal} For a change without a whip, or one that does not
+   *   fit its three transitions after the take-up and before the let-go.
    */
   export function admit(
     change: number | undefined,
@@ -256,9 +269,7 @@ export namespace HumanLungeChange {
     };
   }
 
-  /**
-   * The grip windows and the hold of one action.
-   */
+  /** The grip windows and the hold of one action. */
   export interface IWindows {
     /** The line and whip grips. */
     contacts: IAutoMovieMotionHumanContactWindow[];

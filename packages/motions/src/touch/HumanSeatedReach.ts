@@ -22,21 +22,23 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 /**
  * A seated reach with the trunk below the arm in task priority: the hand's
  * target first, and when the arm alone falls short, a lean of the trunk
- * forward, which the seat bears: the hips flex the trunk over the seat and
- * the spine's three joints flex above them, each within the flexion room
- * its range leaves. The joints share the lean in one share of each one's
- * room, and two seated partners in one share of each one's chain, the
- * joint-limit-weighted least-norm resolution of the redundancy (Chan and
- * Dubey 1995, "A weighted least-norm solution based scheme for avoiding
- * joint limits for redundant joint manipulators", IEEE Trans. Robot. Autom.
- * 11(2)): each joint's motion weighted by its range, so none reaches its
- * limit before another.
+ * forward, which the seat bears: the hips flex the trunk over the seat and the
+ * spine's three joints flex above them, each within the flexion room its range
+ * leaves. The joints share the lean in one share of each one's room, and two
+ * seated partners in one share of each one's chain, the joint-limit-weighted
+ * least-norm resolution of the redundancy (Chan and Dubey 1995, "A weighted
+ * least-norm solution based scheme for avoiding joint limits for redundant
+ * joint manipulators", IEEE Trans. Robot. Autom. 11(2)): each joint's motion
+ * weighted by its range, so none reaches its limit before another.
  *
- * A standing body leans none here: its reach stays its arm's, as the
- * standing laws already plan it.
+ * A standing body leans none here: its reach stays its arm's, as the standing
+ * laws already plan it.
  */
 export namespace HumanSeatedReach {
-  /** The trunk's joints above the hips that flex a seated lean, from the lowest; a rig without one leans by the others. */
+  /**
+   * The trunk's joints above the hips that flex a seated lean, from the lowest;
+   * a rig without one leans by the others.
+   */
   export const SPINE: readonly AutoMovieHumanoidBone[] = [
     "spine",
     "chest",
@@ -44,12 +46,13 @@ export namespace HumanSeatedReach {
   ];
 
   /**
-   * The joints a seated role's trunk can still lean forward by: the hips,
-   * their flexion range less the flexion the thigh and the trunk hold, and
-   * each spine joint, its range less the flexion its two segments hold;
-   * none for a standing role.
+   * The joints a seated role's trunk can still lean forward by: the hips, their
+   * flexion range less the flexion the thigh and the trunk hold, and each spine
+   * joint, its range less the flexion its two segments hold; none for a
+   * standing role.
    *
-   * @param role The role, its body, its posture, its bones and whether a seat bears it.
+   * @param role The role, its body, its posture, its bones and whether a seat
+   *   bears it.
    * @returns The joints from the lowest, each with its room.
    */
   export function rooms(
@@ -60,10 +63,8 @@ export namespace HumanSeatedReach {
   ): IAutoMovieMotionHumanSeatedReach.IJoint[] {
     if (role.seated !== true) return [];
     const range = (bone: AutoMovieHumanoidBone): number | null =>
-      getConstraint(
-        bone,
-        readHumanBone(role.body, bone)?.constraint ?? null,
-      )?.flexion?.max ?? null;
+      getConstraint(bone, readHumanBone(role.body, bone)?.constraint ?? null)
+        ?.flexion?.max ?? null;
     const at = (bone: AutoMovieHumanoidBone): IAutoMovieVector3 =>
       role.bones.get(bone)!.worldPosition;
     const down: IAutoMovieVector3 = Vector3.normalize(
@@ -109,19 +110,24 @@ export namespace HumanSeatedReach {
     const joints: IAutoMovieMotionHumanSeatedReach.IJoint[] = [
       { bone: "hips", room: Math.max(0, (range("leftUpperLeg") ?? hip) - hip) },
       ...spine.map(
-        (bone: AutoMovieHumanoidBone, k: number): IAutoMovieMotionHumanSeatedReach.IJoint => ({
+        (
+          bone: AutoMovieHumanoidBone,
+          k: number,
+        ): IAutoMovieMotionHumanSeatedReach.IJoint => ({
           bone,
           room: Math.max(0, (range(bone) ?? 0) - flexion(k + 1)),
         }),
       ),
     ];
-    return joints.filter((j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean => j.room > 0);
+    return joints.filter(
+      (j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean => j.room > 0,
+    );
   }
 
   /**
-   * A point of the trunk leaned forward by a share of each joint's room:
-   * turned about the body's left through each joint in turn, from the
-   * lowest, each joint carried by the turns below it.
+   * A point of the trunk leaned forward by a share of each joint's room: turned
+   * about the body's left through each joint in turn, from the lowest, each
+   * joint carried by the turns below it.
    *
    * @param role The role's bones and posture.
    * @param joints The joints and their rooms (`rooms`).
@@ -138,7 +144,10 @@ export namespace HumanSeatedReach {
     return prepareLean(role, joints, point)(share);
   }
 
-  /** Fixed role/chain geometry for one synchronous search; every share still performs its actual ordered turns. */
+  /**
+   * Fixed role/chain geometry for one synchronous search; every share still
+   * performs its actual ordered turns.
+   */
   function prepareLean(
     role: Pick<IAutoMovieMotionMeetingRole, "bones" | "posture">,
     joints: readonly IAutoMovieMotionHumanSeatedReach.IJoint[],
@@ -152,31 +161,37 @@ export namespace HumanSeatedReach {
       z: -Math.sin(yaw),
     };
     const original: IAutoMovieVector3[] = joints.map(
-      (j: IAutoMovieMotionHumanSeatedReach.IJoint): IAutoMovieVector3 => role.bones.get(j.bone)!.worldPosition,
+      (j: IAutoMovieMotionHumanSeatedReach.IJoint): IAutoMovieVector3 =>
+        role.bones.get(j.bone)!.worldPosition,
     );
     return (share: number): IAutoMovieVector3 => {
       let moved: IAutoMovieVector3 = point;
       const pivots: IAutoMovieVector3[] = [...original];
-      joints.forEach((j: IAutoMovieMotionHumanSeatedReach.IJoint, k: number): void => {
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        left,
-        share * j.room,
+      joints.forEach(
+        (j: IAutoMovieMotionHumanSeatedReach.IJoint, k: number): void => {
+          const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+            left,
+            share * j.room,
+          );
+          const about: IAutoMovieVector3 = pivots[k]!;
+          const carry = (p: IAutoMovieVector3): IAutoMovieVector3 =>
+            Vector3.add(
+              about,
+              Quaternion.rotateVector(turn, Vector3.subtract(p, about)),
+            );
+          moved = carry(moved);
+          for (let above: number = k + 1; above < pivots.length; above++)
+            pivots[above] = carry(pivots[above]!);
+        },
       );
-      const about: IAutoMovieVector3 = pivots[k]!;
-      const carry = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-        Vector3.add(
-          about,
-          Quaternion.rotateVector(turn, Vector3.subtract(p, about)),
-        );
-      moved = carry(moved);
-      for (let above: number = k + 1; above < pivots.length; above++)
-        pivots[above] = carry(pivots[above]!);
-      });
       return moved;
     };
   }
 
-  /** Use the placed body's actual flexion charts when the caller knows the moving shoulder. */
+  /**
+   * Use the placed body's actual flexion charts when the caller knows the
+   * moving shoulder.
+   */
   function shoulderAt(
     role: IAutoMovieMotionMeetingRole,
     joints: readonly IAutoMovieMotionHumanSeatedReach.IJoint[],
@@ -187,17 +202,23 @@ export namespace HumanSeatedReach {
     if (shoulder === undefined || entry === undefined || joints.length === 0)
       return prepareLean(role, joints, original);
     const read: ReturnType<typeof HumanTrunk.prepareResolve> =
-      HumanTrunk.prepareResolve(role.body, new Set<AutoMovieHumanoidBone>([shoulder]));
-    const workspace: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    return (share: number): IAutoMovieVector3 => share === 0 ? original
-      : read(posed(role.body, entry, joints, share), workspace).get(shoulder)!.worldPosition;
+      HumanTrunk.prepareResolve(
+        role.body,
+        new Set<AutoMovieHumanoidBone>([shoulder]),
+      );
+    const workspace: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    return (share: number): IAutoMovieVector3 =>
+      share === 0
+        ? original
+        : read(posed(role.body, entry, joints, share), workspace).get(shoulder)!
+            .worldPosition;
   }
 
   /**
-   * A posture leaned forward by a share of each joint's room: the whole
-   * body pitched about the hips for the hip joints, which keeps the hips
-   * on the seat (`AutoMovieMotionHumanLean.pivot`), and each spine joint's
-   * flexion added.
+   * A posture leaned forward by a share of each joint's room: the whole body
+   * pitched about the hips for the hip joints, which keeps the hips on the seat
+   * (`AutoMovieMotionHumanLean.pivot`), and each spine joint's flexion added.
    *
    * @param body The body.
    * @param posture The posture.
@@ -212,9 +233,11 @@ export namespace HumanSeatedReach {
     share: number,
   ): IAutoMovieMotionHumanPosture {
     if (joints.length === 0 || share === 0) return posture;
-    const hips: IAutoMovieMotionHumanSeatedReach.IJoint | undefined = joints.find(
-      (j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean => j.bone === "hips",
-    );
+    const hips: IAutoMovieMotionHumanSeatedReach.IJoint | undefined =
+      joints.find(
+        (j: IAutoMovieMotionHumanSeatedReach.IJoint): boolean =>
+          j.bone === "hips",
+      );
     const pitched: IAutoMovieMotionHumanPosture =
       hips === undefined
         ? posture
@@ -222,7 +245,9 @@ export namespace HumanSeatedReach {
             pitch: share * hips.room,
             roll: 0,
           });
-    const flexed: IAutoMovieMotionHumanPosture["joints"] = { ...pitched.joints };
+    const flexed: IAutoMovieMotionHumanPosture["joints"] = {
+      ...pitched.joints,
+    };
     for (const j of joints) {
       if (j.bone === "hips") continue;
       const held: readonly [number, number, number] = flexed[j.bone] ?? [
@@ -238,11 +263,15 @@ export namespace HumanSeatedReach {
    * least common share of its joints' rooms that lets the arms meet.
    *
    * @param roles The two roles, in the meeting's order.
-   * @param sides Their arms, each with its acting shoulder, unleaned, in the same order.
-   * @param resolve The meeting's resolution of two arms, throwing when they cannot meet.
-   * @param shoulder The acting joint when the authored body's exact shoulder path is needed.
+   * @param sides Their arms, each with its acting shoulder, unleaned, in the
+   *   same order.
+   * @param resolve The meeting's resolution of two arms, throwing when they
+   *   cannot meet.
+   * @param shoulder The acting joint when the authored body's exact shoulder
+   *   path is needed.
    * @returns The resolution's answer for the leaned arms.
-   * @throws {Error} The resolution's own error when even the full lean cannot bring the arms together.
+   * @throws {Error} The resolution's own error when even the full lean cannot
+   *   bring the arms together.
    */
   export function goal<
     Side extends { shoulder: IAutoMovieVector3 },
@@ -253,7 +282,10 @@ export namespace HumanSeatedReach {
     resolve: (a: Side, b: Side) => Result,
     shoulder?: AutoMovieHumanoidBone,
   ): Result {
-    const chains: [IAutoMovieMotionHumanSeatedReach.IJoint[], IAutoMovieMotionHumanSeatedReach.IJoint[]] = [rooms(roles[0]), rooms(roles[1])];
+    const chains: [
+      IAutoMovieMotionHumanSeatedReach.IJoint[],
+      IAutoMovieMotionHumanSeatedReach.IJoint[],
+    ] = [rooms(roles[0]), rooms(roles[1])];
     const readers: readonly ((share: number) => IAutoMovieVector3)[] = [
       shoulderAt(roles[0], chains[0], sides[0].shoulder, shoulder),
       shoulderAt(roles[1], chains[1], sides[1].shoulder, shoulder),
@@ -295,15 +327,16 @@ export namespace HumanSeatedReach {
   }
 
   /**
-   * One seated role's own least share of its joints' rooms that brings a
-   * point within its arm's limit: none when the arm reaches it, the closest
-   * shoulder position when the full flexion arc falls short.
+   * One seated role's own least share of its joints' rooms that brings a point
+   * within its arm's limit: none when the arm reaches it, the closest shoulder
+   * position when the full flexion arc falls short.
    *
    * @param role The role.
    * @param shoulder Its acting shoulder joint, world metres.
    * @param point The point, world metres.
    * @param limit The arm's full reach, metres.
-   * @param joint The acting joint when the authored body's exact shoulder path is needed.
+   * @param joint The acting joint when the authored body's exact shoulder path
+   *   is needed.
    * @returns The share and the joints it is a share of.
    */
   export function need(
@@ -314,9 +347,16 @@ export namespace HumanSeatedReach {
     joint?: AutoMovieHumanoidBone,
   ): IAutoMovieMotionHumanSeatedReach.INeedResult {
     const joints: IAutoMovieMotionHumanSeatedReach.IJoint[] = rooms(role);
-    const read: (share: number) => IAutoMovieVector3 = shoulderAt(role, joints, shoulder, joint);
-    const distance = (share: number): number => Vector3.distance(read(share), point);
-    if (joints.length === 0 || distance(0) <= limit) return { share: 0, joints };
+    const read: (share: number) => IAutoMovieVector3 = shoulderAt(
+      role,
+      joints,
+      shoulder,
+      joint,
+    );
+    const distance = (share: number): number =>
+      Vector3.distance(read(share), point);
+    if (joints.length === 0 || distance(0) <= limit)
+      return { share: 0, joints };
     const width: number = resolution([[role, joints, shoulder]]);
     let high: number = 1;
     if (distance(high) > limit) {
@@ -326,12 +366,20 @@ export namespace HumanSeatedReach {
       if (distance(high) > limit) return { share: high, joints };
     }
     return {
-      share: bracketedBisection((share: number): boolean => distance(share) > limit, 0, high, width),
+      share: bracketedBisection(
+        (share: number): boolean => distance(share) > limit,
+        0,
+        high,
+        width,
+      ),
       joints,
     };
   }
 
-  /** The share step that moves no shoulder by more than the square root of machine epsilon of its distance to the hips. */
+  /**
+   * The share step that moves no shoulder by more than the square root of
+   * machine epsilon of its distance to the hips.
+   */
   const resolution = (
     arms: readonly (readonly [
       Pick<IAutoMovieMotionMeetingRole, "bones">,
@@ -345,7 +393,11 @@ export namespace HumanSeatedReach {
           Vector3.length(
             Vector3.subtract(shoulder, role.bones.get("hips")!.worldPosition),
           ) *
-          ((joints.reduce((s: number, j: IAutoMovieMotionHumanSeatedReach.IJoint): number => s + j.room, 0) *
+          ((joints.reduce(
+            (s: number, j: IAutoMovieMotionHumanSeatedReach.IJoint): number =>
+              s + j.room,
+            0,
+          ) *
             Math.PI) /
             180),
       ),
@@ -354,8 +406,15 @@ export namespace HumanSeatedReach {
   };
 }
 
-/** Find a reachable witness on the flexion arc, or its closest approach if it misses. */
-function nearest(distance: (share: number) => number, width: number, limit: number): number {
+/**
+ * Find a reachable witness on the flexion arc, or its closest approach if it
+ * misses.
+ */
+function nearest(
+  distance: (share: number) => number,
+  width: number,
+  limit: number,
+): number {
   const golden: number = (Math.sqrt(5) - 1) / 2;
   let low: number = 0;
   let high: number = 1;

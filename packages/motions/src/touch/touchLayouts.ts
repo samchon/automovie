@@ -19,10 +19,15 @@ export function touchLayouts(
   read: touchHold.Lay,
 ): touchHold.Lay {
   const completed: (touchHold.ILaid | undefined)[] = [];
-  return (side: AutoMovieHumanSide, target: IAutoMovieMotionTarget): touchHold.ILaid => {
+  return (
+    side: AutoMovieHumanSide,
+    target: IAutoMovieMotionTarget,
+  ): touchHold.ILaid => {
     const index: number = hands.findIndex(
-      ([hand, at]: readonly [AutoMovieHumanSide, IAutoMovieMotionTarget]): boolean =>
-        hand === side && at === target,
+      ([hand, at]: readonly [
+        AutoMovieHumanSide,
+        IAutoMovieMotionTarget,
+      ]): boolean => hand === side && at === target,
     );
     if (index < 0) return read(side, target);
     return { ...(completed[index] ??= read(side, target)) };

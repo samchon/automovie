@@ -20,9 +20,7 @@ import type { HumanLadder } from "./HumanLadder";
  * `climbLadder` owns the beats and the clock.
  */
 export namespace climbLadderHolds {
-  /**
-   * The prepared holds.
-   */
+  /** The prepared holds. */
   export interface IHolds {
     /** Each foot's placement on the floor (0) and on each rung it climbs. */
     footprints: Record<
@@ -52,9 +50,7 @@ export namespace climbLadderHolds {
     >;
   }
 
-  /**
-   * The bounds a standing entry must meet before the ladder.
-   */
+  /** The bounds a standing entry must meet before the ladder. */
   export interface IBounds {
     /** Largest turn from the ladder's heading, degrees. */
     facing: number;
@@ -62,13 +58,14 @@ export namespace climbLadderHolds {
     /** Largest distance of the toes from the rungs, metres. */
     near: number;
 
-    /** How far below the shoulder the first hand rung is sought, upper-arm lengths. */
+    /**
+     * How far below the shoulder the first hand rung is sought, upper-arm
+     * lengths.
+     */
     gripDrop: number;
   }
 
-  /**
-   * An admitted entry: each foot's lateral place and the hands' first rung.
-   */
+  /** An admitted entry: each foot's lateral place and the hands' first rung. */
   export interface IAdmitted {
     /** Each foot's lateral place in the ladder frame, metres. */
     lateral: Record<AutoMovieHumanSide, number>;
@@ -87,7 +84,9 @@ export namespace climbLadderHolds {
    * @param count How many rungs the feet climb.
    * @param bounds The climb's bounds.
    * @returns The lateral places and the hands' first rung.
-   * @throws {HumanRefusal} When the climber does not face the ladder, stands too far from it or beside it, or the ladder has too few rungs above the hands.
+   * @throws {HumanRefusal} When the climber does not face the ladder, stands
+   *   too far from it or beside it, or the ladder has too few rungs above the
+   *   hands.
    */
   export function admit(
     body: IAutoMovieMotionHumanBody,
@@ -135,7 +134,8 @@ export namespace climbLadderHolds {
    * @param body The canonical motion body.
    * @param ladder The ladder.
    * @param atRung The rung point reader.
-   * @param quiet The settled stance's foot placements, whose headings the rungs keep.
+   * @param quiet The settled stance's foot placements, whose headings the rungs
+   *   keep.
    * @param flat Each foot's entry placement on the floor.
    * @param lateral Each foot's lateral place in the ladder frame, metres.
    * @param count How many rungs the feet climb.

@@ -17,35 +17,39 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
  * The knots a carry's lift or set-down keeps of the carried body's frozen
- * posture (`HumanCarriedLift`): the whole-posture fit of the carry at a
- * second, written by its solved joint angles (`GymnasticsFlight.frozen`),
- * kept at the phase's two ends and wherever interpolating between two knots
- * leaves the knot fitted at their middle, and interpolated between them.
+ * posture (`HumanCarriedLift`): the whole-posture fit of the carry at a second,
+ * written by its solved joint angles (`GymnasticsFlight.frozen`), kept at the
+ * phase's two ends and wherever interpolating between two knots leaves the knot
+ * fitted at their middle, and interpolated between them.
  *
- * Interpolation is per field, the joint angles and the heading angles
- * linearly (the heading the shorter way round), the turned root's position
- * linearly and its rotation by slerp, so a knot reads exactly its own fit.
- * An interval is split at its middle when the interpolated posture puts any
- * joint centre farther than the solver's own millimetre
+ * Interpolation is per field, the joint angles and the heading angles linearly
+ * (the heading the shorter way round), the turned root's position linearly and
+ * its rotation by slerp, so a knot reads exactly its own fit. An interval is
+ * split at its middle when the interpolated posture puts any joint centre
+ * farther than the solver's own millimetre
  * (`HumanArmTrajectoryTerms.TOLERANCE`) from the middle's fit, down to the
  * frame grid (`AutoMovieMotionHumanArmCourse.STEP`), as an adaptive
- * tessellation keeps a curve within its tolerance. The lift's blend mixes
- * the knot posture into the entry or the stand with a share of at most one
+ * tessellation keeps a curve within its tolerance. The lift's blend mixes the
+ * knot posture into the entry or the stand with a share of at most one
  * (`HumanCarriedLift`), so to first order the blended pose departs from the
- * per-second blend by no more than the knot posture departs from the
- * second's own fit: the millimetre the split admits at the judged middles.
- * The knots are fitted on first demand and kept by the course.
+ * per-second blend by no more than the knot posture departs from the second's
+ * own fit: the millimetre the split admits at the judged middles. The knots are
+ * fitted on first demand and kept by the course.
  */
 export namespace HumanCarriedLiftKnots {
-  /** The farthest an interpolated posture may put a joint centre from the middle's own fit, metres: the solver's millimetre. */
+  /**
+   * The farthest an interpolated posture may put a joint centre from the
+   * middle's own fit, metres: the solver's millimetre.
+   */
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
-  /** The shortest interval split, seconds: the frame grid the courses are read on. */
+  /**
+   * The shortest interval split, seconds: the frame grid the courses are read
+   * on.
+   */
   export const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
 
-  /**
-   * One kept fit.
-   */
+  /** One kept fit. */
   export interface IKnot {
     /** The plan second. */
     seconds: number;
@@ -54,14 +58,15 @@ export namespace HumanCarriedLiftKnots {
     reading: IReading;
   }
 
-  /**
-   * The frozen posture at a second, with what the set-down's stand reads of it.
-   */
+  /** The frozen posture at a second, with what the set-down's stand reads of it. */
   export interface IReading {
     /** The frozen posture: joint angles, heading and root, no limb goals. */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** Its authored root, world metres (the posture's `root`, before any whole-body rotation). */
+    /**
+     * Its authored root, world metres (the posture's `root`, before any
+     * whole-body rotation).
+     */
     root: IAutoMovieVector3;
 
     /** Its turned root's world rotation (`turnHumanPosture`). */
@@ -69,7 +74,8 @@ export namespace HumanCarriedLiftKnots {
   }
 
   /**
-   * An interval between two knots, split where interpolation leaves the middle's fit.
+   * An interval between two knots, split where interpolation leaves the
+   * middle's fit.
    */
   export interface IInterval {
     /** The knot at its start. */
@@ -82,9 +88,7 @@ export namespace HumanCarriedLiftKnots {
     halves?: Halves;
   }
 
-  /**
-   * A phase's knots.
-   */
+  /** A phase's knots. */
   export interface ICourse {
     /** The phase's first plan second. */
     from: number;
@@ -96,9 +100,7 @@ export namespace HumanCarriedLiftKnots {
     whole?: IInterval;
   }
 
-  /**
-   * The carry's frozen posture at a plan second.
-   */
+  /** The carry's frozen posture at a plan second. */
   export type Frozen = (seconds: number) => IAutoMovieMotionHumanPosture;
 
   /**
@@ -120,7 +122,8 @@ export namespace HumanCarriedLiftKnots {
    * @param course The phase's course.
    * @param body The carried body.
    * @param seconds The plan second, clamped into the phase.
-   * @param frozen The carry's frozen posture at a plan second, fitted for a knot.
+   * @param frozen The carry's frozen posture at a plan second, fitted for a
+   *   knot.
    * @returns The reading.
    */
   export function read(
@@ -130,7 +133,9 @@ export namespace HumanCarriedLiftKnots {
     frozen: Frozen,
   ): IReading {
     const at: number = Math.min(Math.max(seconds, course.from), course.to);
-    const knot: (t: number) => HumanCarriedLiftKnots.IKnot = (t: number): IKnot => ({
+    const knot: (t: number) => HumanCarriedLiftKnots.IKnot = (
+      t: number,
+    ): IKnot => ({
       seconds: t,
       reading: own(frozen(t)),
     });
@@ -141,10 +146,15 @@ export namespace HumanCarriedLiftKnots {
       if (at === piece.b.seconds) return piece.b.reading;
       if (piece.halves === undefined) piece.halves = judged(body, piece, knot);
       if (piece.halves === null) break;
-      piece = at < piece.halves[0].b.seconds ? piece.halves[0] : piece.halves[1];
+      piece =
+        at < piece.halves[0].b.seconds ? piece.halves[0] : piece.halves[1];
     }
     const { a, b }: IInterval = piece;
-    return between(a.reading, b.reading, (at - a.seconds) / (b.seconds - a.seconds));
+    return between(
+      a.reading,
+      b.reading,
+      (at - a.seconds) / (b.seconds - a.seconds),
+    );
   }
 
   /** A frozen posture's own reading. */
@@ -156,7 +166,10 @@ export namespace HumanCarriedLiftKnots {
     };
   }
 
-  /** An interval's halves, or null for a leaf: split where the interpolated middle leaves the middle's own fit. */
+  /**
+   * An interval's halves, or null for a leaf: split where the interpolated
+   * middle leaves the middle's own fit.
+   */
   function judged(
     body: IAutoMovieMotionHumanBody,
     piece: IInterval,
@@ -187,7 +200,10 @@ export namespace HumanCarriedLiftKnots {
     return null;
   }
 
-  /** Every joint centre of a joint-only posture: its assembly's forward kinematics. */
+  /**
+   * Every joint centre of a joint-only posture: its assembly's forward
+   * kinematics.
+   */
   function placed(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -195,7 +211,10 @@ export namespace HumanCarriedLiftKnots {
     return poseBones(body, resolveHumanPosture.assemble(body, posture).pose);
   }
 
-  /** Two readings interpolated at a share: angles and positions linearly, the heading the short way round, the turned rotation by slerp. */
+  /**
+   * Two readings interpolated at a share: angles and positions linearly, the
+   * heading the short way round, the turned rotation by slerp.
+   */
   function between(from: IReading, to: IReading, share: number): IReading {
     const a: IAutoMovieMotionHumanPosture = from.posture;
     const b: IAutoMovieMotionHumanPosture = to.posture;
@@ -213,9 +232,15 @@ export namespace HumanCarriedLiftKnots {
       ];
     }
     const turn: number = ((((b.yaw - a.yaw) % 360) + 540) % 360) - 180;
-    const ta: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(a);
-    const tb: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(b);
-    const position: IAutoMovieVector3 = Vector3.lerp(ta.position, tb.position, share);
+    const ta: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+      turnHumanPosture(a);
+    const tb: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+      turnHumanPosture(b);
+    const position: IAutoMovieVector3 = Vector3.lerp(
+      ta.position,
+      tb.position,
+      share,
+    );
     const rotation: IAutoMovieQuaternion = Quaternion.slerp(
       from.rotation,
       to.rotation,
@@ -250,7 +275,9 @@ export namespace HumanCarriedLiftKnots {
 }
 
 /** An interval's halves: the two, or null for a leaf. */
-type Halves = readonly [HumanCarriedLiftKnots.IInterval, HumanCarriedLiftKnots.IInterval] | null;
+type Halves =
+  | readonly [HumanCarriedLiftKnots.IInterval, HumanCarriedLiftKnots.IInterval]
+  | null;
 
 /** A posture's heading angles, degrees. */
 type IHeading = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;

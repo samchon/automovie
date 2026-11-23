@@ -13,14 +13,17 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * Own actual key-to-frame observations within one synchronous workout
- * geometry search. A key's posed representation has no limb/digit/rotation
- * goals, but arbitrary key producers may change clinical joints at every
- * trial, so every actual key retains ordinary complete canonical admission.
+ * Own actual key-to-frame observations within one synchronous workout geometry
+ * search. A key's posed representation has no limb/digit/rotation goals, but
+ * arbitrary key producers may change clinical joints at every trial, so every
+ * actual key retains ordinary complete canonical admission.
  *
  * @param body The unchanged canonical body of this pitch or roll search.
- * @param requested Fixed output bone demand; omission preserves the complete map.
- * @returns A current authored-key reader yielding a fresh raw view with borrowed key joint tuples and a fresh actual bone map; release the reader when this search returns or throws.
+ * @param requested Fixed output bone demand; omission preserves the complete
+ *   map.
+ * @returns A current authored-key reader yielding a fresh raw view with
+ *   borrowed key joint tuples and a fresh actual bone map; release the reader
+ *   when this search returns or throws.
  */
 export function prepareWorkoutKeyFrames(
   body: IAutoMovieMotionHumanBody,
@@ -37,7 +40,10 @@ export function prepareWorkoutKeyFrames(
     requested === undefined ? undefined : poseBones.prepare(body, requested);
   return (
     key: IAutoMovieMotionHumanExerciseKey.IKey,
-  ): { posture: IAutoMovieMotionHumanPosture; bones: ReturnType<typeof poseBones> } => {
+  ): {
+    posture: IAutoMovieMotionHumanPosture;
+    bones: ReturnType<typeof poseBones>;
+  } => {
     const posture: IAutoMovieMotionHumanPosture = ExerciseKey.posed(key, 0);
     const pose: IAutoMoviePose = resolveHumanPosture.seeded(
       body,

@@ -15,9 +15,8 @@ import { wallClimbSupport } from "../climbing/wallClimbSupport";
 import { HumanChainTravel } from "./HumanChainTravel";
 
 /**
- * The chain methods that change what the body rests on or how low it is:
- * onto a seat and off it, down to a low point, a crouch, a kneel and the
- * floor.
+ * The chain methods that change what the body rests on or how low it is: onto a
+ * seat and off it, down to a low point, a crouch, a kneel and the floor.
  */
 export class HumanChainPosture extends HumanChainTravel {
   /**
@@ -116,8 +115,8 @@ export class HumanChainPosture extends HumanChainTravel {
   }
 
   /**
-   * Get up from the floor to standing: from the back, the front, or the
-   * hands and knees.
+   * Get up from the floor to standing: from the back, the front, or the hands
+   * and knees.
    *
    * @param params The pattern, the leading foot and the manner.
    * @param anchor An optional anchor id.

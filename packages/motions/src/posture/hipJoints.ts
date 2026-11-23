@@ -9,23 +9,35 @@ import type {
 
 import { poseBones } from "./poseBones";
 
-/** Only the two upper-leg origins are outputs; FK includes their pelvis ancestry. */
-const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> =
-  new Set(["leftUpperLeg", "rightUpperLeg"]);
-
-/** One genuine static two-hip demand per live unchanged body, without any pose state. */
-const HIP_READERS: WeakMap<IAutoMovieMotionHumanBody, ReturnType<typeof poseBones.prepare>> = new WeakMap();
+/**
+ * Only the two upper-leg origins are outputs; FK includes their pelvis
+ * ancestry.
+ */
+const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftUpperLeg",
+  "rightUpperLeg",
+]);
 
 /**
- * The two hip joints under a root: they depend only on the root, its
- * rotation and the pelvis joint, so a turned or listed pelvis counts and no
- * other joint needs posing.
+ * One genuine static two-hip demand per live unchanged body, without any pose
+ * state.
+ */
+const HIP_READERS: WeakMap<
+  IAutoMovieMotionHumanBody,
+  ReturnType<typeof poseBones.prepare>
+> = new WeakMap();
+
+/**
+ * The two hip joints under a root: they depend only on the root, its rotation
+ * and the pelvis joint, so a turned or listed pelvis counts and no other joint
+ * needs posing.
  *
  * @param body The body.
  * @param root The root, world metres.
  * @param rotation The root's world rotation.
  * @param pelvis The pelvis joint's clinical angles, degrees; rest when absent.
- * @param prepared Optional exact FK reader borrowed from this synchronous person evaluation; never retained in the two returned points.
+ * @param prepared Optional exact FK reader borrowed from this synchronous
+ *   person evaluation; never retained in the two returned points.
  * @returns Each hip joint, world metres.
  */
 export function hipJoints(
@@ -35,7 +47,8 @@ export function hipJoints(
   pelvis?: readonly [number, number, number],
   prepared?: ReturnType<typeof preparePoseResolution>,
 ): Record<"left" | "right", IAutoMovieVector3> {
-  let read: ReturnType<typeof poseBones.prepare> | undefined = HIP_READERS.get(body);
+  let read: ReturnType<typeof poseBones.prepare> | undefined =
+    HIP_READERS.get(body);
   if (read === undefined) {
     read = poseBones.prepare(body, HIP_BONES);
     HIP_READERS.set(body, read);

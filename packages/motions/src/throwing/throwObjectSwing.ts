@@ -17,24 +17,23 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 /**
  * The ball arm's way around the body.
  *
- * The windup carries the hand from where it held the prop to the chamber.
- * A straight line between them may pass through the trunk or the head (a rod
- * held across the body drawn back over the throwing shoulder), so when the
- * line comes nearer the upright column of the trunk and head, measured across
- * the floor from the chest up to the crown, than the chest's half breadth and
- * the forearm's and hand's own thickness (twice the forearm's radius), the
- * hand is carried on a quadratic curve through the point that clearance away
- * from the chest's axis at the line's height there, around the front of the
- * body: the side the line passes when it passes ahead of the axis, turning
- * to straight ahead as the line nears the axis.
+ * The windup carries the hand from where it held the prop to the chamber. A
+ * straight line between them may pass through the trunk or the head (a rod held
+ * across the body drawn back over the throwing shoulder), so when the line
+ * comes nearer the upright column of the trunk and head, measured across the
+ * floor from the chest up to the crown, than the chest's half breadth and the
+ * forearm's and hand's own thickness (twice the forearm's radius), the hand is
+ * carried on a quadratic curve through the point that clearance away from the
+ * chest's axis at the line's height there, around the front of the body: the
+ * side the line passes when it passes ahead of the axis, turning to straight
+ * ahead as the line nears the axis.
  *
- * An underarm bowl swings nearly straight in the plane of the delivery, so
- * its elbow names no side of the line from the shoulder to the wrist and
- * the hand's rotation may flip it. Its elbow is placed
- * (`AutoMovieMotionHumanElbowPlace`) toward the olecranon, which stays
- * behind the arm in that plane: behind it as the arm hangs, below it as it
- * swings ahead, the arm's direction crossed with the performer's right.
- * Other styles keep the elbow their own track found.
+ * An underarm bowl swings nearly straight in the plane of the delivery, so its
+ * elbow names no side of the line from the shoulder to the wrist and the hand's
+ * rotation may flip it. Its elbow is placed (`AutoMovieMotionHumanElbowPlace`)
+ * toward the olecranon, which stays behind the arm in that plane: behind it as
+ * the arm hangs, below it as it swings ahead, the arm's direction crossed with
+ * the performer's right. Other styles keep the elbow their own track found.
  */
 export namespace throwObjectSwing {
   /** The swing's writers. */

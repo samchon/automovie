@@ -43,7 +43,8 @@ export class HumanChainHostage extends HumanChainManual {
    * Hold a hostage from behind: a free arm across the chest or neck, a held
    * weapon presented at the head or throat, the pair walking backward.
    *
-   * @param params The partner, the arm, the prop, the point, the region, the back distance and the duration.
+   * @param params The partner, the arm, the prop, the point, the region, the
+   *   back distance and the duration.
    * @param anchor An optional anchor id.
    * @returns The chain.
    */

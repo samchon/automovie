@@ -10,19 +10,25 @@ import type {
 /** The world up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Shoulder flexion of the cradling upper arm, degrees: provisional, the elbow carried forward of the trunk's side. */
+/**
+ * Shoulder flexion of the cradling upper arm, degrees: provisional, the elbow
+ * carried forward of the trunk's side.
+ */
 const FLEXION: number = 35;
 
-/** How far the cradling forearm turns forward from straight across the front, degrees: provisional, clear of the trunk. */
+/**
+ * How far the cradling forearm turns forward from straight across the front,
+ * degrees: provisional, clear of the trunk.
+ */
 const ACROSS: number = 25;
 
 /**
- * The arm an infant lies along in the cradle and the feed
- * (`holdInfant`): the upper arm hangs forward of the trunk, flexed
- * `FLEXION` from hanging, and the forearm runs across the front, turned
- * `ACROSS` forward, rising from the wrist to the elbow by the hold's
- * `RISE`. The elbow and the wrist lie the arm's own segment lengths from
- * the shoulder, so a hold laid on them lies within the arm's reach.
+ * The arm an infant lies along in the cradle and the feed (`holdInfant`): the
+ * upper arm hangs forward of the trunk, flexed `FLEXION` from hanging, and the
+ * forearm runs across the front, turned `ACROSS` forward, rising from the wrist
+ * to the elbow by the hold's `RISE`. The elbow and the wrist lie the arm's own
+ * segment lengths from the shoulder, so a hold laid on them lies within the
+ * arm's reach.
  */
 export namespace holdInfantCrook {
   /** A hold that lays the infant along the forearm. */
@@ -38,10 +44,9 @@ export namespace holdInfantCrook {
   }
 
   /**
-   * How far the cradling forearm rises from the wrist to the elbow, degrees,
-   * so the infant's head lies above its seat: slightly in the cradle, half
-   * sitting for a feed so the milk runs down (provisional, the slopes 0.15
-   * and 0.5).
+   * How far the cradling forearm rises from the wrist to the elbow, degrees, so
+   * the infant's head lies above its seat: slightly in the cradle, half sitting
+   * for a feed so the milk runs down (provisional, the slopes 0.15 and 0.5).
    */
   export const RISE: Readonly<Record<Lying, number>> = {
     cradle: (Math.atan(0.15) * 180) / Math.PI,

@@ -100,10 +100,16 @@ export namespace WorkingSeatTerminal {
   }
 }
 
-/** Shared aliases matter to the collision reader, which groups equal shape records. */
+/**
+ * Shared aliases matter to the collision reader, which groups equal shape
+ * records.
+ */
 type Pairs = Map<object, object>;
 
-/** Compare normal data, in own field order, with signed zeros and shared object links intact. */
+/**
+ * Compare normal data, in own field order, with signed zeros and shared object
+ * links intact.
+ */
 function sameData(
   previous: unknown,
   current: unknown,
@@ -157,7 +163,10 @@ function sameData(
   );
 }
 
-/** Clone only an ordinary authored graph, without accepting getters or foreign callable data. */
+/**
+ * Clone only an ordinary authored graph, without accepting getters or foreign
+ * callable data.
+ */
 function copyOwned<T extends object>(data: T): T | undefined {
   try {
     return sameData(data, data, new Map(), new Set())
@@ -168,7 +177,10 @@ function copyOwned<T extends object>(data: T): T | undefined {
   }
 }
 
-/** Additional proof reads fail closed without catching a refusal from the original fit. */
+/**
+ * Additional proof reads fail closed without catching a refusal from the
+ * original fit.
+ */
 function trusted(check: Check): boolean {
   try {
     return check();
@@ -186,7 +198,10 @@ function prepareBodyCheck(body: Body): Check | undefined {
   }
 }
 
-/** Capture the live inputs of the full bilateral leaf, including the body profile. */
+/**
+ * Capture the live inputs of the full bilateral leaf, including the body
+ * profile.
+ */
 function bodyCheck(body: Body): Check | undefined {
   if (!createHumanBody.owns(body)) return undefined;
   const rig: Check | undefined = prepareHumanPostureRigCheck(body);
@@ -217,7 +232,10 @@ function bodyCheck(body: Body): Check | undefined {
     checks.every((check: Check): boolean => check());
 }
 
-/** Capture and later verify one current own data field without invoking an accessor. */
+/**
+ * Capture and later verify one current own data field without invoking an
+ * accessor.
+ */
 function captureField(
   owner: object,
   key: PropertyKey,
@@ -243,7 +261,10 @@ function captureField(
   return capture(data, checks, seen);
 }
 
-/** Snapshot geometry, ranges and ordered rig tables reached through this owned data. */
+/**
+ * Snapshot geometry, ranges and ordered rig tables reached through this owned
+ * data.
+ */
 function capture(data: unknown, checks: Check[], seen: Seen): boolean {
   if (data === null || (typeof data !== "object" && typeof data !== "function"))
     return true;
@@ -286,7 +307,10 @@ function capture(data: unknown, checks: Check[], seen: Seen): boolean {
   );
 }
 
-/** Each table's order and reference identities belong to the canonical rig values. */
+/**
+ * Each table's order and reference identities belong to the canonical rig
+ * values.
+ */
 function sameMap(
   table: Map<unknown, unknown>,
   entries: readonly (readonly [unknown, unknown])[],

@@ -6,12 +6,12 @@ import { HumanSegmentSelection } from "./HumanSegmentSelection";
  * Where a person's shown pose holds still: one and the same pose over an
  * interval of film seconds, read off what the display pipeline makes it of
  * (`HumanSegmentPose.seeded`). The pose is a function of the second only
- * through the active action's posture at its clamped local second, the
- * layers, the overlays, the held props, the stopped weapons and a live
- * transition offset; with none of the others, one action active over the
- * interval and its offset decayed, the pose is the same wherever that
- * clamped second is the same, or wherever the plan declares its posture
- * still (`IAutoMovieMotionHumanActionPlan.still`).
+ * through the active action's posture at its clamped local second, the layers,
+ * the overlays, the held props, the stopped weapons and a live transition
+ * offset; with none of the others, one action active over the interval and its
+ * offset decayed, the pose is the same wherever that clamped second is the
+ * same, or wherever the plan declares its posture still
+ * (`IAutoMovieMotionHumanActionPlan.still`).
  */
 export namespace HumanSegmentStill {
   /**
@@ -22,14 +22,30 @@ export namespace HumanSegmentStill {
    * @param to Its end, film seconds.
    * @returns Whether the pose is constant there.
    */
-  export function within(person: IAutoMovieMotionHumanSegment.IPerson, from: number, to: number): boolean {
-    if (person.layers.length !== 0 || person.overlays.length !== 0 || person.holds.length !== 0 || person.stops.size !== 0)
+  export function within(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    from: number,
+    to: number,
+  ): boolean {
+    if (
+      person.layers.length !== 0 ||
+      person.overlays.length !== 0 ||
+      person.holds.length !== 0 ||
+      person.stops.size !== 0
+    )
       return false;
-    const active: IAutoMovieMotionHumanSegment | undefined = HumanSegmentSelection.last(person.segments, from);
-    if (HumanSegmentSelection.last(person.segments, to) !== active) return false;
+    const active: IAutoMovieMotionHumanSegment | undefined =
+      HumanSegmentSelection.last(person.segments, from);
+    if (HumanSegmentSelection.last(person.segments, to) !== active)
+      return false;
     if (active === undefined) return true;
-    const transition: IAutoMovieMotionHumanSegment["transition"] = active.transition;
-    if (transition !== undefined && transition.kind !== "redirect" && from - transition.cut < transition.blend)
+    const transition: IAutoMovieMotionHumanSegment["transition"] =
+      active.transition;
+    if (
+      transition !== undefined &&
+      transition.kind !== "redirect" &&
+      from - transition.cut < transition.blend
+    )
       return false;
     const duration: number = active.plan.duration;
     const lo: number = Math.min(duration, Math.max(0, from - active.start));
@@ -40,17 +56,22 @@ export namespace HumanSegmentStill {
   }
 
   /**
-   * The earliest second before a given one whose shown pose is the given
-   * one's, where the pose holds still between them: the end of the active
-   * action's plan when the second lies past it, or the start of the plan's
-   * still window when it lies inside one.
+   * The earliest second before a given one whose shown pose is the given one's,
+   * where the pose holds still between them: the end of the active action's
+   * plan when the second lies past it, or the start of the plan's still window
+   * when it lies inside one.
    *
    * @param person The person.
    * @param seconds Film seconds.
-   * @returns The earlier second, or undefined where the pose does not hold still back to one.
+   * @returns The earlier second, or undefined where the pose does not hold
+   *   still back to one.
    */
-  export function representative(person: IAutoMovieMotionHumanSegment.IPerson, seconds: number): number | undefined {
-    const active: IAutoMovieMotionHumanSegment | undefined = HumanSegmentSelection.last(person.segments, seconds);
+  export function representative(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    seconds: number,
+  ): number | undefined {
+    const active: IAutoMovieMotionHumanSegment | undefined =
+      HumanSegmentSelection.last(person.segments, seconds);
     if (active === undefined) return undefined;
     const duration: number = active.plan.duration;
     const local: number = seconds - active.start;
@@ -65,7 +86,8 @@ export namespace HumanSegmentStill {
 
     // The least second whose local second is the target itself.
     let at: number = active.start + target;
-    while (at - active.start < target) at += Number.EPSILON * Math.max(1, Math.abs(at));
+    while (at - active.start < target)
+      at += Number.EPSILON * Math.max(1, Math.abs(at));
     return at < seconds && within(person, at, seconds) ? at : undefined;
   }
 }

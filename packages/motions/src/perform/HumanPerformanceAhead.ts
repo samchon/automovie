@@ -11,31 +11,30 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 
 /**
- * What a performer's next action on a prop demands of a grip an earlier
- * action of theirs is still choosing (`IHumanActionContext.demands`): the
- * goal poses that action will hold the prop in, asked of it before it is
- * planned (`IHumanActionLaw.demands`), so the grip is chosen for them
- * (goal postures planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen
- * 2001).
+ * What a performer's next action on a prop demands of a grip an earlier action
+ * of theirs is still choosing (`IHumanActionContext.demands`): the goal poses
+ * that action will hold the prop in, asked of it before it is planned
+ * (`IHumanActionLaw.demands`), so the grip is chosen for them (goal postures
+ * planned first, Rosenbaum, Meulenbroek, Vaughan and Jansen 2001).
  *
  * The action asked is the first of the performer's later ones, in the
- * composition's walk order, that names the prop: one of its parameters is
- * the prop's subject id. An action between them that names it not (a walk
- * with the prop in hand) leaves the grip as it is; the first one that names
- * it decides, and one that asks nothing (a free put down) ends the question.
+ * composition's walk order, that names the prop: one of its parameters is the
+ * prop's subject id. An action between them that names it not (a walk with the
+ * prop in hand) leaves the grip as it is; the first one that names it decides,
+ * and one that asks nothing (a free put down) ends the question.
  */
 export namespace HumanPerformanceAhead {
   /**
-   * The demands reader of an action, the one at `ordinal` in its
-   * performer's chain.
+   * The demands reader of an action, the one at `ordinal` in its performer's
+   * chain.
    *
    * Each grip is asked of the action found for its prop with what is known
    * before that action is planned (`IHumanActionLaw.IAhead`): its resolved
-   * parameters, the performer's body and skill, the props, and its aiming
-   * from the posture the grip leaves the body in, read at the earlier
-   * action's start.
-   * The caller keeps the body and candidate posture unchanged during this
-   * synchronous demand call; retained aiming callbacks may read later changes.
+   * parameters, the performer's body and skill, the props, and its aiming from
+   * the posture the grip leaves the body in, read at the earlier action's
+   * start. The caller keeps the body and candidate posture unchanged during
+   * this synchronous demand call; retained aiming callbacks may read later
+   * changes.
    *
    * @param self The performance being placed.
    * @param context The earlier action's context.
@@ -78,9 +77,9 @@ export namespace HumanPerformanceAhead {
           context.body,
           resolveHumanPosture(context.body, grip.posture),
         );
-      const ownBones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"] = (): ReturnType<
-        typeof poseBones
-      > => (querying ? (bones ??= freshBones()) : freshBones());
+      const ownBones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"] =
+        (): ReturnType<typeof poseBones> =>
+          querying ? (bones ??= freshBones()) : freshBones();
       try {
         return asked.law.demands({
           subject: context.subject,
@@ -119,14 +118,15 @@ export namespace HumanPerformanceAhead {
 
   /**
    * How an action is cut into its performer's next one
-   * (`IHumanActionContext.cut`): the composition's cut at one of the
-   * action's own events or shares, with what the next action in walk order
-   * plants (`IHumanActionLaw.plants`), read from its resolved parameters.
+   * (`IHumanActionContext.cut`): the composition's cut at one of the action's
+   * own events or shares, with what the next action in walk order plants
+   * (`IHumanActionLaw.plants`), read from its resolved parameters.
    *
    * @param self The performance being placed.
    * @param intent The action's intent.
    * @param ordinal Its place among its performer's actions that carry the body.
-   * @returns The cut; undefined when the action is not cut at its own event or share.
+   * @returns The cut; undefined when the action is not cut at its own event or
+   *   share.
    */
   export function cut(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -159,7 +159,10 @@ export namespace HumanPerformanceAhead {
     params: object;
   }
 
-  /** The first of a performer's actions after `ordinal` that names a prop, or null. */
+  /**
+   * The first of a performer's actions after `ordinal` that names a prop, or
+   * null.
+   */
   function find(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,

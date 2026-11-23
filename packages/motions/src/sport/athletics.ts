@@ -34,9 +34,9 @@ import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
 
 /**
- * The sprint start's crouch into the set position and its hold until the gun
- *: the hands on the start line, the front foot and the rear foot on
- * their blocks.
+ * The sprint start's crouch into the set position and its hold until the gun :
+ * the hands on the start line, the front foot and the rear foot on their
+ * blocks.
  *
  * The set position is solved from measured block settings and one measured
  * angle: the anthropometry-driven setting of Cavedon et al. (2019, PLoS One

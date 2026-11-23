@@ -30,22 +30,37 @@ import { AquaticProp } from "../sport/AquaticProp";
 /** Path samples per second of the bicycle's course read at planning, Hz. */
 const RATE: number = 60;
 
-/** Step length over stature at a normal walk (Murray, Drought and Kory 1964; Grieve and Gear 1966). */
+/**
+ * Step length over stature at a normal walk (Murray, Drought and Kory 1964;
+ * Grieve and Gear 1966).
+ */
 const STEP: number = 0.41;
 
-/** Running cadence, steps per second: about 170 steps a minute at a recreational run (Heiderscheit et al. 2011, Med Sci Sports Exerc 43:296). */
+/**
+ * Running cadence, steps per second: about 170 steps a minute at a recreational
+ * run (Heiderscheit et al. 2011, Med Sci Sports Exerc 43:296).
+ */
 const CADENCE: number = 2.8;
 
-/** Swing time of one foot, seconds: provisional, about 40 % of a one-second stride. */
+/**
+ * Swing time of one foot, seconds: provisional, about 40 % of a one-second
+ * stride.
+ */
 const SWING: number = 0.4;
 
-/** Heel rise about the ball by lift-off, degrees: provisional, within the foot's pitch at pre-swing in Perry's Gait Analysis. */
+/**
+ * Heel rise about the ball by lift-off, degrees: provisional, within the foot's
+ * pitch at pre-swing in Perry's Gait Analysis.
+ */
 const ROCKER: number = 35;
 
 /** Toe clearance at mid-swing, metres: provisional for a hurried walk. */
 const CLEARANCE: number = 0.06;
 
-/** The guiding station's root outward of the grip, metres: provisional, a shoulder's reach beside the handlebar. */
+/**
+ * The guiding station's root outward of the grip, metres: provisional, a
+ * shoulder's reach beside the handlebar.
+ */
 const STATION: number = 0.15;
 
 /** The guiding station's root behind the grip, metres: provisional. */
@@ -54,7 +69,10 @@ const BEHIND: number = 0.1;
 /** Seconds to move from the entered place to the guiding station: provisional. */
 const ADJUST: number = 0.8;
 
-/** Seconds the hand takes to reach the grip: it closes as the athlete arrives at the station. */
+/**
+ * Seconds the hand takes to reach the grip: it closes as the athlete arrives at
+ * the station.
+ */
 const REACH: number = ADJUST;
 
 /** One planted footprint: where and how the foot stands, and from when. */
@@ -72,7 +90,10 @@ interface IPrint {
   rotation: IAutoMovieQuaternion;
 }
 
-/** One step: the path distance its print stands at and when it lands, action seconds. */
+/**
+ * One step: the path distance its print stands at and when it lands, action
+ * seconds.
+ */
 interface IStep {
   /** Path distance of the print, metres. */
   at: number;
@@ -99,17 +120,17 @@ interface IPath {
 /**
  * Wheel a bicycle by hand beside it, as a triathlete does through the
  * transition lane. The scene's course rolls the bicycle, with any stop it
- * makes; the athlete keeps the entered place beside it, so the root follows
- * the bicycle's frame, and the near hand holds that side's handlebar grip on
- * the posed bicycle. The path is stepped run by run between the bicycle's
- * stops, each run closed with the feet together. Steps are laid along the root's path: a normal walking
- * step of 0.41 stature, lengthened to keep a running cadence where the
- * bicycle is faster at the step's start, then a closing step
- * that brings the feet together where the bicycle stops. A foot lands when
- * the root has come half a step short of its print and swings for at most
- * the swing time before that, after the other foot has landed, so a foot
- * stays planted while the bicycle pauses. The pelvis lowers only as far as
- * the longer leg needs to reach its foot.
+ * makes; the athlete keeps the entered place beside it, so the root follows the
+ * bicycle's frame, and the near hand holds that side's handlebar grip on the
+ * posed bicycle. The path is stepped run by run between the bicycle's stops,
+ * each run closed with the feet together. Steps are laid along the root's path:
+ * a normal walking step of 0.41 stature, lengthened to keep a running cadence
+ * where the bicycle is faster at the step's start, then a closing step that
+ * brings the feet together where the bicycle stops. A foot lands when the root
+ * has come half a step short of its print and swings for at most the swing time
+ * before that, after the other foot has landed, so a foot stays planted while
+ * the bicycle pauses. The pelvis lowers only as far as the longer leg needs to
+ * reach its foot.
  *
  * Events: `take` when the hand closes on the grip, `step{k}` at each landing
  * and `release` at the end.
@@ -477,12 +498,12 @@ function stops(path: IPath): number[] {
 }
 
 /**
- * The steps of one run from a stop to the next: the walking step, longer
- * where the bicycle runs faster than that step at a running cadence carries
- * the athlete, read at the speed where each step starts, with a remainder
- * shorter than a quarter step joined to the last; each lands as the root
- * comes half a step short of its print. A closing step then brings the other
- * foot alongside, landing halfway through the last step's second half.
+ * The steps of one run from a stop to the next: the walking step, longer where
+ * the bicycle runs faster than that step at a running cadence carries the
+ * athlete, read at the speed where each step starts, with a remainder shorter
+ * than a quarter step joined to the last; each lands as the root comes half a
+ * step short of its print. A closing step then brings the other foot alongside,
+ * landing halfway through the last step's second half.
  */
 function run(path: IPath, from: number, to: number, stature: number): IStep[] {
   const walking: number = STEP * stature;
@@ -514,7 +535,10 @@ function indexAt(path: IPath, distance: number): number {
   return low;
 }
 
-/** The action second at which the path first covers a distance, interpolated between samples. */
+/**
+ * The action second at which the path first covers a distance, interpolated
+ * between samples.
+ */
 function timeAt(path: IPath, distance: number): number {
   const index: number = indexAt(path, Math.max(0, distance));
   if (index === 0) return 0;
@@ -529,10 +553,10 @@ function timeAt(path: IPath, distance: number): number {
 }
 
 /**
- * Where a foot is at a second. On its print the ball stays put while, over
- * the second half of the stance, the heel rises about it to `ROCKER`
- * degrees by lift-off (Perry's forefoot rocker); between prints the foot
- * swings from that lifted pose to the next print with a clearance pulse.
+ * Where a foot is at a second. On its print the ball stays put while, over the
+ * second half of the stance, the heel rises about it to `ROCKER` degrees by
+ * lift-off (Perry's forefoot rocker); between prints the foot swings from that
+ * lifted pose to the next print with a clearance pulse.
  */
 function place(
   prints: readonly IPrint[],
@@ -567,7 +591,10 @@ function place(
   return stance(prints.at(-1)!, t, ball);
 }
 
-/** A planted foot at a second: flat, or rolled about its ball late in a stance that ends. */
+/**
+ * A planted foot at a second: flat, or rolled about its ball late in a stance
+ * that ends.
+ */
 function stance(print: IPrint, t: number, ball: IAutoMovieVector3): IPrint {
   if (!Number.isFinite(print.lift)) return print;
   const mid: number = (print.land + print.lift) / 2;

@@ -27,14 +27,14 @@ import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
 
 /**
  * A leg posed as the posture's own fit poses it, read through the engine's
- * hinged chain (`hingedArmSwivel`): the knee bends about its hinge alone,
- * and the leg is one bend branch and one swivel about its hip-to-ankle line.
- * `fit` runs the posture's leg fit itself (`applyHumanLimbFit`, solved
- * directly every time) on a pelvis and reads its branch and swivel,
- * and `seeded` does so continuing a nearby fit's seed;
- * `pose` places the leg from a held branch and swivel for any ankle, so a
- * planner that holds them between fits poses the very knee the fit does
- * wherever its swivel is the fit's; `read` takes them from shown bones.
+ * hinged chain (`hingedArmSwivel`): the knee bends about its hinge alone, and
+ * the leg is one bend branch and one swivel about its hip-to-ankle line. `fit`
+ * runs the posture's leg fit itself (`applyHumanLimbFit`, solved directly every
+ * time) on a pelvis and reads its branch and swivel, and `seeded` does so
+ * continuing a nearby fit's seed; `pose` places the leg from a held branch and
+ * swivel for any ankle, so a planner that holds them between fits poses the
+ * very knee the fit does wherever its swivel is the fit's; `read` takes them
+ * from shown bones.
  */
 export namespace HumanLegChain {
   /**
@@ -73,11 +73,11 @@ export namespace HumanLegChain {
   }
 
   /**
-   * Prepare a leg poser for several targets under one unchanged pelvis and
-   * hip point. The body, pelvis quaternion and hip coordinates remain fixed
-   * until the caller releases the reader. Each target independently chooses
-   * the held branch (or the last branch available) and the held swivel; no
-   * prior pose, target or continuation seed becomes another request's input.
+   * Prepare a leg poser for several targets under one unchanged pelvis and hip
+   * point. The body, pelvis quaternion and hip coordinates remain fixed until
+   * the caller releases the reader. Each target independently chooses the held
+   * branch (or the last branch available) and the held swivel; no prior pose,
+   * target or continuation seed becomes another request's input.
    *
    * @param body The canonical immutable body.
    * @param side The leg.
@@ -90,15 +90,22 @@ export namespace HumanLegChain {
     side: "left" | "right",
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
-  ): (target: IAutoMovieVector3, held: IAutoMovieMotionHumanLegChain.ISwivel) => IAutoMovieMotionHumanLegChain.IPosed | null {
+  ): (
+    target: IAutoMovieVector3,
+    held: IAutoMovieMotionHumanLegChain.ISwivel,
+  ) => IAutoMovieMotionHumanLegChain.IPosed | null {
     const source: Omit<IAutoMovieHingedChainGeometry, "target" | "range"> =
       sourceOf(body, side, pelvis, hip);
     const geometry: hingedArmSwivel.IPrepared = hingedArmSwivel.prepare(source);
-    return (point: IAutoMovieVector3, held: IAutoMovieMotionHumanLegChain.ISwivel): IAutoMovieMotionHumanLegChain.IPosed | null => {
+    return (
+      point: IAutoMovieVector3,
+      held: IAutoMovieMotionHumanLegChain.ISwivel,
+    ): IAutoMovieMotionHumanLegChain.IPosed | null => {
       const target: hingedArmSwivel.IPreparedTarget = geometry.target(point);
       const stops: IAutoMovieHingedArmSwivel.IStop[] | null = target.branches();
       if (stops === null) return null;
-      const theta: number = stops[Math.min(held.branch, stops.length - 1)]!.theta;
+      const theta: number =
+        stops[Math.min(held.branch, stops.length - 1)]!.theta;
       const rotations: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
         target.pose(theta)(held.swivel);
       return placed(source, rotations.upper, rotations.lower);
@@ -144,9 +151,9 @@ export namespace HumanLegChain {
         lower.x * hinge.x + lower.y * hinge.y + lower.z * hinge.z,
         lower.w,
       );
-    const stops: IAutoMovieHingedArmSwivel.IStop[] = hingedArmSwivel.branches(chain) ?? [
-      { theta, shortfall: 0 },
-    ];
+    const stops: IAutoMovieHingedArmSwivel.IStop[] = hingedArmSwivel.branches(
+      chain,
+    ) ?? [{ theta, shortfall: 0 }];
     const apart = (a: number): number =>
       Math.abs(Math.atan2(Math.sin(a - theta), Math.cos(a - theta)));
     let branch: number = 0;
@@ -157,8 +164,8 @@ export namespace HumanLegChain {
   }
 
   /**
-   * The posture's own leg fit (`applyHumanLimbFit`, the fit a resolve
-   * runs) on a pelvis, read as a branch and a swivel.
+   * The posture's own leg fit (`applyHumanLimbFit`, the fit a resolve runs) on
+   * a pelvis, read as a branch and a swivel.
    *
    * @param body The body.
    * @param side The leg.
@@ -184,9 +191,9 @@ export namespace HumanLegChain {
   /**
    * The posture's own leg fit, as `fit`, with the seed that continues it and,
    * given `near`, continuing a nearby fit of the same leg
-   * (`applyHumanLimbFit`'s `near`): every pass refines that seed
-   * instead of sweeping the swivel, so a fit of inputs a small step from a
-   * fitted leg's costs a refinement, not a sweep.
+   * (`applyHumanLimbFit`'s `near`): every pass refines that seed instead of
+   * sweeping the swivel, so a fit of inputs a small step from a fitted leg's
+   * costs a refinement, not a sweep.
    *
    * @param body The body.
    * @param side The leg.
@@ -196,7 +203,8 @@ export namespace HumanLegChain {
    * @param bend The point the knee bends toward, world metres.
    * @param rotation The foot's world rotation.
    * @param near A nearby fit of the same leg to continue; cold when absent.
-   * @returns The fit's branch and swivel, and its seed (null when the fit's answer is not a hinged candidate).
+   * @returns The fit's branch and swivel, and its seed (null when the fit's
+   *   answer is not a hinged candidate).
    */
   export function seeded(
     body: IAutoMovieMotionHumanBody,
@@ -221,9 +229,15 @@ export namespace HumanLegChain {
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
   ): ReturnType<typeof prepareHumanLegSeededFit> {
-    return prepareHumanLegSeededFit(body, side, pelvis, hip,
-      (bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>): IAutoMovieMotionHumanLegChain.ISwivel =>
-        read(body, side, bones));
+    return prepareHumanLegSeededFit(
+      body,
+      side,
+      pelvis,
+      hip,
+      (
+        bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+      ): IAutoMovieMotionHumanLegChain.ISwivel => read(body, side, bones),
+    );
   }
   /** The leg's hinged chain at a pelvis toward a target. */
   function chainOf(
@@ -262,17 +276,32 @@ export namespace HumanLegChain {
     upper: IAutoMovieQuaternion,
     lower: IAutoMovieQuaternion,
   ): IAutoMovieMotionHumanLegChain.IPosed {
-    const thigh: IAutoMovieQuaternion = Quaternion.multiply(chain.upper.worldRotation, upper);
+    const thigh: IAutoMovieQuaternion = Quaternion.multiply(
+      chain.upper.worldRotation,
+      upper,
+    );
     const hip: IAutoMovieVector3 = chain.upper.worldPosition;
-    const knee: IAutoMovieVector3 = Vector3.add(hip,
-      Quaternion.rotateVector(thigh, chain.midOffset));
+    const knee: IAutoMovieVector3 = Vector3.add(
+      hip,
+      Quaternion.rotateVector(thigh, chain.midOffset),
+    );
     const shank: IAutoMovieQuaternion = Quaternion.multiply(
-      Quaternion.multiply(thigh, chain.midRest), lower);
-    return { hip, knee, ankle: Vector3.add(knee,
-      Quaternion.rotateVector(shank, chain.endOffset)), thigh, shank };
+      Quaternion.multiply(thigh, chain.midRest),
+      lower,
+    );
+    return {
+      hip,
+      knee,
+      ankle: Vector3.add(knee, Quaternion.rotateVector(shank, chain.endOffset)),
+      thigh,
+      shank,
+    };
   }
 
-  /** A leg's chain at rest: its preparation, the hip bone's frame under the hips and the knee's hinge in its own frame. */
+  /**
+   * A leg's chain at rest: its preparation, the hip bone's frame under the hips
+   * and the knee's hinge in its own frame.
+   */
   interface IRest {
     prepared: IAutoMoviePreparedChainPlant;
     upper: IAutoMovieQuaternion;
@@ -284,7 +313,10 @@ export namespace HumanLegChain {
    * axes/neutral FK serve chain and hips under one local operation key; that
    * reader ends here and only the original geometric record enters RESTS.
    */
-  function restOf(body: IAutoMovieMotionHumanBody, side: "left" | "right"): IRest {
+  function restOf(
+    body: IAutoMovieMotionHumanBody,
+    side: "left" | "right",
+  ): IRest {
     let sides: Map<string, IRest> | undefined = RESTS.get(body);
     if (sides === undefined) {
       sides = new Map();
@@ -292,8 +324,10 @@ export namespace HumanLegChain {
     }
     const known: IRest | undefined = sides.get(side);
     if (known !== undefined) return known;
-    const axes: IAutoMovieMotionHumanBody["poseResolution"]["jointAxes"] = body.poseResolution.jointAxes;
-    const resolution: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
+    const axes: IAutoMovieMotionHumanBody["poseResolution"]["jointAxes"] =
+      body.poseResolution.jointAxes;
+    const resolution: ReturnType<typeof preparePoseResolution> =
+      preparePoseResolution();
     const pose: IAutoMoviePose = {
       skeleton: body.skeleton.id,
       root: null,
@@ -330,7 +364,10 @@ export namespace HumanLegChain {
   }
 
   /** Each body's legs at rest (`restOf`). */
-  const RESTS: WeakMap<IAutoMovieMotionHumanBody, Map<string, IRest>> = new WeakMap();
+  const RESTS: WeakMap<
+    IAutoMovieMotionHumanBody,
+    Map<string, IRest>
+  > = new WeakMap();
 
   /** The single neutral parent frame required while preparing a leg. */
   const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set(["hips"]);

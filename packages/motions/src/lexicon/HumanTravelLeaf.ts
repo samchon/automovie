@@ -31,48 +31,53 @@ import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
 
 /**
- * Opening a door by its handle and holding it: the hand reaches the
- * handle, closes on it and goes with it while the leaf swings, the person
- * standing, and walking round with the leaf when the arm alone would lose
- * the handle. Register `HumanTravelLeaf.openDoor` to use it.
+ * Opening a door by its handle and holding it: the hand reaches the handle,
+ * closes on it and goes with it while the leaf swings, the person standing, and
+ * walking round with the leaf when the arm alone would lose the handle.
+ * Register `HumanTravelLeaf.openDoor` to use it.
  *
- * The leaf's swing is the scene's: the door is a prop whose handle moves
- * within it (`IHumanProp.point`, as `HumanObject.prop` gives an archetype's
- * articulated contact), and the hand follows the handle at every instant.
- * The hand turns to the handle's frame and closes on the door's own
- * colliders (`HumanMountRider.hold`, `HumanMountRider.closed`), reaching it
- * over `TAKE` seconds on the minimum-jerk profile (Flash and Hogan 1985).
- * The arm is laid as one course over that goal (`courseArmGoal`), so it
- * keeps one branch while the leaf swings.
- * A handle the standing arm does not reach as the hand takes it, such as a
- * car door's below the shoulder, is taken leaning toward it, the body
- * lowered as a pick up lowers it. While the arm's own fit keeps the wrist
- * within `HOLD` of the hold from where the person stands the feet stay
- * there; otherwise the person walks with the leaf, backward and round it,
- * facing it, keeping the place relative to it the handle was taken from,
- * at the handle's pace (`HumanTravelLeafWalk`). A swing the hand still
- * loses, faster or farther than the person can walk with it, is refused as
- * a `reach` refusal on `handle` naming the largest swing followed. First
- * pass: the closure is the one at the instant the hand arrives.
+ * The leaf's swing is the scene's: the door is a prop whose handle moves within
+ * it (`IHumanProp.point`, as `HumanObject.prop` gives an archetype's
+ * articulated contact), and the hand follows the handle at every instant. The
+ * hand turns to the handle's frame and closes on the door's own colliders
+ * (`HumanMountRider.hold`, `HumanMountRider.closed`), reaching it over `TAKE`
+ * seconds on the minimum-jerk profile (Flash and Hogan 1985). The arm is laid
+ * as one course over that goal (`courseArmGoal`), so it keeps one branch while
+ * the leaf swings. A handle the standing arm does not reach as the hand takes
+ * it, such as a car door's below the shoulder, is taken leaning toward it, the
+ * body lowered as a pick up lowers it. While the arm's own fit keeps the wrist
+ * within `HOLD` of the hold from where the person stands the feet stay there;
+ * otherwise the person walks with the leaf, backward and round it, facing it,
+ * keeping the place relative to it the handle was taken from, at the handle's
+ * pace (`HumanTravelLeafWalk`). A swing the hand still loses, faster or farther
+ * than the person can walk with it, is refused as a `reach` refusal on `handle`
+ * naming the largest swing followed. First pass: the closure is the one at the
+ * instant the hand arrives.
  */
 export namespace HumanTravelLeaf {
-  /** How far the arm's fit may leave the wrist from where the hold asks it, metres (the campaign's 5 mm contact bound). */
+  /**
+   * How far the arm's fit may leave the wrist from where the hold asks it,
+   * metres (the campaign's 5 mm contact bound).
+   */
   export const HOLD: number = 0.005;
 
   /** Seconds the hand takes to reach the handle (provisional). */
   export const TAKE: number = 0.6;
 
-  /** The most of the arm's length, shoulder to wrist, the handle may be from the shoulder (provisional: the elbow is not locked straight). */
+  /**
+   * The most of the arm's length, shoulder to wrist, the handle may be from the
+   * shoulder (provisional: the elbow is not locked straight).
+   */
   export const REACH: number = 0.97;
 
   /**
-   * Open a door by its handle, standing or following its leaf. The plan
-   * checks the hold at every 24th of a second from `TAKE` with the arm's own
-   * fit: standing first, and only where standing loses the handle, walking
-   * with the leaf; a swing still lost is refused. The checks share one
-   * forward-kinematics reader and one range-of-motion projector, which end
-   * with the plan's construction; each posture of the plan reads the base and
-   * the hold through the reader its caller gives, or one of its own.
+   * Open a door by its handle, standing or following its leaf. The plan checks
+   * the hold at every 24th of a second from `TAKE` with the arm's own fit:
+   * standing first, and only where standing loses the handle, walking with the
+   * leaf; a swing still lost is refused. The checks share one
+   * forward-kinematics reader and one range-of-motion projector, which end with
+   * the plan's construction; each posture of the plan reads the base and the
+   * hold through the reader its caller gives, or one of its own.
    */
   export const openDoor: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelLeaf.IParams> =
     {
@@ -503,7 +508,10 @@ export namespace HumanTravelLeaf {
           },
         ];
         const bare: IAutoMovieMotionHumanPosture["joints"] = {};
-        /** Read the body and handle on the action clock, with optional closed digits. */
+        /**
+         * Read the body and handle on the action clock, with optional closed
+         * digits.
+         */
         const write = (
           at: number,
           channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],

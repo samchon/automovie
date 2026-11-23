@@ -26,16 +26,25 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** A lifeguard's approach swim, metres per second: provisional, a sustained sprint front crawl. */
+/**
+ * A lifeguard's approach swim, metres per second: provisional, a sustained
+ * sprint front crawl.
+ */
 const SWIM: number = 1.2;
 
-/** The tow, metres per second: provisional, inside the 0.4 to 1.0 m/s rescue band. */
+/**
+ * The tow, metres per second: provisional, inside the 0.4 to 1.0 m/s rescue
+ * band.
+ */
 const TOW: number = 0.6;
 
 /** Seconds to take the cross-chest hold once alongside: provisional. */
 const GRIP: number = 0.6;
 
-/** The rescuer's pelvis behind the victim's during the tow, metres: provisional, the rescuer's chest just behind the victim's back. */
+/**
+ * The rescuer's pelvis behind the victim's during the tow, metres: provisional,
+ * the rescuer's chest just behind the victim's back.
+ */
 const BEHIND: number = 0.65;
 
 /** The victim stops this far short of the edge, metres: a reach for the deck. */
@@ -44,10 +53,16 @@ const SHORT: number = 0.5;
 /** The towed victim's mouth above the surface, metres: provisional. */
 const CLEAR: number = 0.08;
 
-/** How far short of the hold the crawl stops, metres: provisional, beyond a struggling victim's reach. */
+/**
+ * How far short of the hold the crawl stops, metres: provisional, beyond a
+ * struggling victim's reach.
+ */
 const STANDOFF: number = 0.8;
 
-/** Seconds before reaching the victim over which the crawl's strokes die away: provisional, about one stroke. */
+/**
+ * Seconds before reaching the victim over which the crawl's strokes die away:
+ * provisional, about one stroke.
+ */
 const NEAR: number = 1.2;
 
 /** Seconds of one front-crawl arm cycle on the approach: provisional. */
@@ -56,7 +71,10 @@ const STROKE: number = 1.2;
 /** Seconds of one scissor kick: provisional. */
 const KICK: number = 1;
 
-/** The rescue's shared geometry, read the same way by the rescuer and the victim. */
+/**
+ * The rescue's shared geometry, read the same way by the rescuer and the
+ * victim.
+ */
 interface ITow {
   /** The victim's root at the hold, world metres. */
   from: IAutoMovieVector3;
@@ -92,12 +110,12 @@ interface IHoldWorld {
 /**
  * A water rescue as the American Red Cross Lifeguarding manual describes it:
  * the rescuer swims to the victim, takes a cross-chest hold from behind and
- * tows on the side with a scissor kick to a named edge. The victim's root
- * moves from where it struggled toward the edge at the tow speed, face up
- * with the mouth clear of the water; the rescuer keeps `BEHIND` behind it
- * and lays the near arm across its chest. Both read the same tow from the
- * victim's struggle position and the edge, so neither samples the other's
- * plan: the rescuer reads only the victim's displayed chest.
+ * tows on the side with a scissor kick to a named edge. The victim's root moves
+ * from where it struggled toward the edge at the tow speed, face up with the
+ * mouth clear of the water; the rescuer keeps `BEHIND` behind it and lays the
+ * near arm across its chest. Both read the same tow from the victim's struggle
+ * position and the edge, so neither samples the other's plan: the rescuer reads
+ * only the victim's displayed chest.
  */
 export namespace AquaticRescue {
   /** The rescuer: approach, hold and tow. */
@@ -456,7 +474,10 @@ export namespace AquaticRescue {
     };
   }
 
-  /** Metres along the tow at a second of it, at the tow speed with a minimum-jerk start and stop. */
+  /**
+   * Metres along the tow at a second of it, at the tow speed with a
+   * minimum-jerk start and stop.
+   */
   function along(tow: ITow, t: number): number {
     return (
       tow.length * minimumJerk.share(Math.min(1, Math.max(0, t / tow.seconds)))

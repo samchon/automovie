@@ -5,10 +5,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The least rotation that turns one unit direction onto another: about
- * their cross product by the angle between them, the identity when they
- * already agree. A held outlet is aimed by it, as an extinguisher's horn
- * or a hose's nozzle turns onto a fire.
+ * The least rotation that turns one unit direction onto another: about their
+ * cross product by the angle between them, the identity when they already
+ * agree. A held outlet is aimed by it, as an extinguisher's horn or a hose's
+ * nozzle turns onto a fire.
  *
  * @param from The direction turned, unit.
  * @param to The direction it is turned onto, unit.

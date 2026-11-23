@@ -20,7 +20,12 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import type { walkReach } from "./walkReach";
 
-/** How far under the floor, metres, a swinging foot's lowest point may stay once its lift is settled, and the width the lift's bisection stops at: a micrometre, a numeric tolerance far under the toe's 15 mm clearance (`walkFoot.CLEARANCE`). */
+/**
+ * How far under the floor, metres, a swinging foot's lowest point may stay once
+ * its lift is settled, and the width the lift's bisection stops at: a
+ * micrometre, a numeric tolerance far under the toe's 15 mm clearance
+ * (`walkFoot.CLEARANCE`).
+ */
 const SETTLED: number = 1e-6;
 
 /** Fixed physical bounds supplied by the walking reach rule's owner. */

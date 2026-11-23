@@ -20,33 +20,37 @@ import { HumanSwordThrust } from "./HumanSwordThrust";
 
 /**
  * Blade work under film names, each a row of a law of `HumanSword`,
- * `HumanSwordGuard`, `HumanSwordParry`, `HumanSwordTaken` or `HumanSwordThrust`. The composition gives the held blade (`blade`, a sword prop the hand picked
- * up) and the target; with neither, the row is a solo drill of the bare
- * hand. Register the ones a film uses.
+ * `HumanSwordGuard`, `HumanSwordParry`, `HumanSwordTaken` or
+ * `HumanSwordThrust`. The composition gives the held blade (`blade`, a sword
+ * prop the hand picked up) and the target; with neither, the row is a solo
+ * drill of the bare hand. Register the ones a film uses.
  *
- * The guard names are Liechtenauer's four, as Ringeck's gloss describes
- * them: `vomTag` (from the roof, the hilt at the shoulder), `ochs` (the ox,
- * the hilt beside the head and the point at the face), `pflug` (the plough,
- * the hilt at the hip and the point at the face) and `alber` (the fool, the
- * point at the ground).
+ * The guard names are Liechtenauer's four, as Ringeck's gloss describes them:
+ * `vomTag` (from the roof, the hilt at the shoulder), `ochs` (the ox, the hilt
+ * beside the head and the point at the face), `pflug` (the plough, the hilt at
+ * the hip and the point at the face) and `alber` (the fool, the point at the
+ * ground).
  *
  * An exchange is three rows on two people: the attacker's `cut` or `thrust`
  * with `outcome: "parried"` and an anchor, the defender's `parry` with
  * `against` that anchor, and the defender's `riposte` after it. A parried
- * attack declared `taken` ends where it was stopped; the attacker's `taken`
- * row then keeps the blade on the defender's `bind` while it carries the
- * blade aside, and holds it there until the riposte ends.
+ * attack declared `taken` ends where it was stopped; the attacker's `taken` row
+ * then keeps the blade on the defender's `bind` while it carries the blade
+ * aside, and holds it there until the riposte ends.
  *
  * Every attack row keeps the blade timing of `IAutoMovieMotionHumanSword`: a
- * thrust, lunge, stab, wind and disengage reach contact on a point speed of
- * 2.6 m/s at novice to 3.2 m/s at elite, a cut, slash, draw and backslash
- * on an edge speed of 6 to 10 m/s (`HumanSword.SPEED`), a path of 0.8 m
- * taking 0.47 s at elite for a thrust. A bind holds the parry for a second
- * (provisional); the footwork rows (`advance`, `retreat`, `traverse`) take
- * one stance step, 0.35 s at the reference hip (`step.PERIOD`).
+ * thrust, lunge, stab, wind and disengage reach contact on a point speed of 2.6
+ * m/s at novice to 3.2 m/s at elite, a cut, slash, draw and backslash on an
+ * edge speed of 6 to 10 m/s (`HumanSword.SPEED`), a path of 0.8 m taking 0.47 s
+ * at elite for a thrust. A bind holds the parry for a second (provisional); the
+ * footwork rows (`advance`, `retreat`, `traverse`) take one stance step, 0.35 s
+ * at the reference hip (`step.PERIOD`).
  */
 export namespace HumanBlade {
-  /** The guard a fencer waits in: the hilt low in front, the point at the opponent. */
+  /**
+   * The guard a fencer waits in: the hilt low in front, the point at the
+   * opponent.
+   */
   export const enGarde: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["enGarde"]
   > = HumanActionRow.of("enGarde", HumanSwordGuard.guard, {
@@ -114,7 +118,10 @@ export namespace HumanBlade {
     advance: "lunge",
   });
 
-  /** A stab with a knife or a dagger: a thrust, with the least advance that reaches. */
+  /**
+   * A stab with a knife or a dagger: a thrust, with the least advance that
+   * reaches.
+   */
   export const stab: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["stab"]
   > = HumanActionRow.of("stab", HumanSwordThrust.thrust, {});
@@ -146,22 +153,35 @@ export namespace HumanBlade {
     IAutoMovieMotionHumanLexiconParams["blade"]["parry"]
   > = HumanActionRow.of("parry", HumanSwordParry.parry, {});
 
-  /** A beat: the blade struck against the attacker's and taken off it at once (`against`). */
+  /**
+   * A beat: the blade struck against the attacker's and taken off it at once
+   * (`against`).
+   */
   export const beat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["beat"]
   > = HumanActionRow.of("beat", HumanSwordParry.parry, HUMAN_BLADE_BEAT);
 
-  /** A bind: the parry kept on the attacker's blade for a second (provisional), from which a wind or a disengage follows. */
+  /**
+   * A bind: the parry kept on the attacker's blade for a second (provisional),
+   * from which a wind or a disengage follows.
+   */
   export const bind: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["bind"]
   > = HumanActionRow.of("bind", HumanSwordParry.parry, HUMAN_BLADE_BIND);
 
-  /** A wind: out of a bind, the point turned in and thrust at the target without leaving the blade's side. First pass: the thrust alone. */
+  /**
+   * A wind: out of a bind, the point turned in and thrust at the target without
+   * leaving the blade's side. First pass: the thrust alone.
+   */
   export const wind: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["wind"]
   > = HumanActionRow.of("wind", HumanSwordThrust.thrust, {});
 
-  /** A disengage: out of a bind or past a parry, the thrust renewed at another target. First pass: the thrust alone, the point's dip under the blade not drawn. */
+  /**
+   * A disengage: out of a bind or past a parry, the thrust renewed at another
+   * target. First pass: the thrust alone, the point's dip under the blade not
+   * drawn.
+   */
   export const disengage: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["disengage"]
   > = HumanActionRow.of("disengage", HumanSwordThrust.thrust, {});
@@ -181,7 +201,10 @@ export namespace HumanBlade {
     IAutoMovieMotionHumanLexiconParams["blade"]["riposte"]
   > = HumanActionRow.of("riposte", HumanSwordThrust.thrust, {});
 
-  /** A taken blade: the attacker's blade kept on the parry that took it while it is carried aside, then held there until `until` ends. */
+  /**
+   * A taken blade: the attacker's blade kept on the parry that took it while it
+   * is carried aside, then held there until `until` ends.
+   */
   export const taken: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["taken"]
   > = HumanActionRow.of("taken", HumanSwordTaken.taken, {});

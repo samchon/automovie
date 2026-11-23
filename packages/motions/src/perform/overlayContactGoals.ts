@@ -16,7 +16,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
 
 /**
- * The active limb contacts of one overlay before its fade moves them: a joint-only path contributes its complete displayed limb frame while fading and none at full weight.
+ * The active limb contacts of one overlay before its fade moves them: a
+ * joint-only path contributes its complete displayed limb frame while fading
+ * and none at full weight.
  *
  * Moved unchanged from `HumanSegmentOverlay` to keep that file under the
  * repository's 500-line limit; its caller and behaviour are unchanged.
@@ -83,7 +85,8 @@ export function overlayContactGoals(
 function limbOf(
   part: IAutoMovieMotionHumanContactWindow["part"],
 ): AutoMovieHumanLimb | undefined {
-  if (part === "seat" || part === "back" || part === "head" || part === "chest") return undefined;
+  if (part === "seat" || part === "back" || part === "head" || part === "chest")
+    return undefined;
   const side: "left" | "right" = part.startsWith("left") ? "left" : "right";
   return `${side}${/(Hand|Arm)$/.test(part) ? "Arm" : "Leg"}`;
 }

@@ -20,21 +20,33 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A wire flight's touches (`IAutoMovieMotionHumanWireFlight.ITouch`): each
- * hand or foot meets its surface around its share of the flight, coming in
- * and going out over `TOUCH` on either side, from the flight's own limb.
+ * A wire flight's touches (`IAutoMovieMotionHumanWireFlight.ITouch`): each hand
+ * or foot meets its surface around its share of the flight, coming in and going
+ * out over `TOUCH` on either side, from the flight's own limb.
  */
 export namespace wireFlightTouches {
-  /** How long a touch comes in before its share and goes out after, seconds: authored. */
+  /**
+   * How long a touch comes in before its share and goes out after, seconds:
+   * authored.
+   */
   export const TOUCH: number = 0.3;
 
-  /** The shoulder's height on a standing body, in statures (Drillis and Contini 1966: 0.818). */
+  /**
+   * The shoulder's height on a standing body, in statures (Drillis and Contini
+   * 1966: 0.818).
+   */
   export const SHOULDER: number = 0.818;
 
-  /** The ankle's height above the sole, in statures (Drillis and Contini 1966: 0.039). */
+  /**
+   * The ankle's height above the sole, in statures (Drillis and Contini 1966:
+   * 0.039).
+   */
   export const ANKLE: number = 0.039;
 
-  /** How far the wrist stands off a surface the palm lies on, metres: a palm's half thickness. */
+  /**
+   * How far the wrist stands off a surface the palm lies on, metres: a palm's
+   * half thickness.
+   */
   export const PALM: number = 0.015;
 
   /**
@@ -46,7 +58,8 @@ export namespace wireFlightTouches {
    * @param root The root's point at a second of the flight.
    * @param touches The touches.
    * @returns The plan with the touches.
-   * @throws {HumanRefusal} On a touch's `at` outside the flight, and on its `target` beyond the limb's reach from the path.
+   * @throws {HumanRefusal} On a touch's `at` outside the flight, and on its
+   *   `target` beyond the limb's reach from the path.
    */
   export function apply(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
@@ -276,7 +289,10 @@ export namespace wireFlightTouches {
     };
   }
 
-  /** A ramp's end: the flight's own limb joint and its knee or elbow, in the root's frame, metres. */
+  /**
+   * A ramp's end: the flight's own limb joint and its knee or elbow, in the
+   * root's frame, metres.
+   */
   interface IRampKey {
     /** The wrist or ankle. */
     point: IAutoMovieVector3;

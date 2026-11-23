@@ -30,17 +30,16 @@ import { HumanGrip } from "./HumanGrip";
 
 /**
  * Loads carried at the sides with the arms hanging, performed over a walk
- * (`HumanChain.over`): a farmer's walk. Each hand that holds a prop is let
- * down until its arm hangs nearly straight from the shoulder, a little out
- * from the thigh, the hand turned as it held the prop (carried round with the
- * body when the walk turns), and holds it there.
+ * (`HumanChain.over`): a farmer's walk. Each hand that holds a prop is let down
+ * until its arm hangs nearly straight from the shoulder, a little out from the
+ * thigh, the hand turned as it held the prop (carried round with the body when
+ * the walk turns), and holds it there.
  *
- * Each wrist goes `HANG` of the arm (upper arm and forearm) below its
- * shoulder, read on the walk's posture each second, and `OUT` of the half
- * shoulder width out to the side; the arms leave their carrying pose over
- * `SETTLE` seconds and keep the walk's posture otherwise. The props stay in
- * the hands: the law grips them through its whole length and leaves them
- * held after.
+ * Each wrist goes `HANG` of the arm (upper arm and forearm) below its shoulder,
+ * read on the walk's posture each second, and `OUT` of the half shoulder width
+ * out to the side; the arms leave their carrying pose over `SETTLE` seconds and
+ * keep the walk's posture otherwise. The props stay in the hands: the law grips
+ * them through its whole length and leaves them held after.
  */
 export namespace carryHang {
   /** The action's name. */
@@ -54,16 +53,25 @@ export namespace carryHang {
   /** A carry of the arms is performed over a walk. */
   export const overlay: boolean = true;
 
-  /** How far below the shoulder each wrist hangs, a share of the arm (provisional: nearly straight). */
+  /**
+   * How far below the shoulder each wrist hangs, a share of the arm
+   * (provisional: nearly straight).
+   */
   export const HANG: number = 0.97;
 
-  /** How far out from the shoulder each wrist hangs, a share of the half shoulder width (provisional: clear of the thigh with a load). */
+  /**
+   * How far out from the shoulder each wrist hangs, a share of the half
+   * shoulder width (provisional: clear of the thigh with a load).
+   */
   export const OUT: number = 0.25;
 
   /** Seconds the arms take to let the loads down (provisional). */
   export const SETTLE: number = 0.5;
 
-  /** Seconds a carry lasts when its parameters name none (provisional: a farmer's walk set of a few seconds). */
+  /**
+   * Seconds a carry lasts when its parameters name none (provisional: a
+   * farmer's walk set of a few seconds).
+   */
   export const SECONDS: number = 3;
 
   /**

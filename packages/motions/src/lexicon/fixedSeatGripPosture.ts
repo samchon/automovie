@@ -72,7 +72,7 @@ function range(axis: OptionalRange, frame: OptionalFrame): Pair {
     b: number = (toRigAngle(axis?.max ?? 0, frame) ?? 0) * RAD;
   return [Math.min(a, b), Math.max(a, b)];
 }
-/** Maximum of a*cos(t)+b*sin(t) on one clinical interval. */
+/** Maximum of a_cos(t)+b_sin(t) on one clinical interval. */
 function maximum(a: number, b: number, limits: Pair): number {
   const [lo, hi]: Pair = limits;
   const phase: number = Math.atan2(b, a);
@@ -150,7 +150,8 @@ function clavicle(
   };
 }
 /**
- * Choose a common bearing station from both wrist spheres on the actual seat, then assist a wrist only when its unassisted shoulder cannot reach.
+ * Choose a common bearing station from both wrist spheres on the actual seat,
+ * then assist a wrist only when its unassisted shoulder cannot reach.
  *
  * @param body The rig supplying the scapular orientation and the arm lengths.
  * @param seated The original sitting posture and hand joints.
@@ -158,7 +159,8 @@ function clavicle(
  * @param seat The front edge of the working seat in the original world.
  * @param degrees The pelvic swing when the grip is first fully taken.
  * @param wrists The two requested wrist positions at that instant.
- * @returns One supported shift and the local joint reader, when both arm spheres admit the station.
+ * @returns One supported shift and the local joint reader, when both arm
+ *   spheres admit the station.
  */
 export function fixedSeatGripPosture(
   body: IAutoMovieMotionHumanBody,

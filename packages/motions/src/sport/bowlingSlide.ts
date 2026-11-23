@@ -25,27 +25,37 @@ type Parameters = IAutoMovieMotionHumanBowlingSlide.IParams;
 /** How a foot meets the lane in one window: a fixed plant or a bearing slide. */
 type FootSupport = "plant" | "bear";
 
-/** The swinging toe's least clearance over the floor, metres: the minimum toe clearance of gait, 12.9 mm (Winter 1992). */
+/**
+ * The swinging toe's least clearance over the floor, metres: the minimum toe
+ * clearance of gait, 12.9 mm (Winter 1992).
+ */
 const TOE_CLEARANCE: number = 0.0129;
 
-/** The share of the recovery step in which the trailing foot only comes down: terminal swing, the last third of a swing (Perry and Burnfield, Gait Analysis, 2nd ed.). */
+/**
+ * The share of the recovery step in which the trailing foot only comes down:
+ * terminal swing, the last third of a swing (Perry and Burnfield, Gait
+ * Analysis, 2nd ed.).
+ */
 const TERMINAL: number = 1 / 3;
 
-/** The share of the leg's length the trailing leg reaches behind, its knee just short of straight (provisional, the stroke address's leg reach). */
+/**
+ * The share of the leg's length the trailing leg reaches behind, its knee just
+ * short of straight (provisional, the stroke address's leg reach).
+ */
 const REACH: number = 0.98;
 
 /**
  * Carry the body on the sliding foot opposite the delivery hand.
  *
- * Seiferheld et al. (2023), section 1 and Figure 2, place the final slide
- * after the dominant foot's push and the ball release after its braking.
- * The authored interval controls that glide. A throw can overlay the base
- * without changing the foot clock. The trailing leg sweeps behind as the
- * body glides and lowers over it, nearly straight, its toe dragging on the
- * approach (a declared bearing contact) and the foot pitched with the leg's
- * lean so its ankle keeps the angle it stood with, then steps up clear of the
- * floor in the recovery and comes down flat over its landing place. The lowering, short trailing step and clip-length reach
- * bound are provisional animation parameters.
+ * Seiferheld et al. (2023), section 1 and Figure 2, place the final slide after
+ * the dominant foot's push and the ball release after its braking. The authored
+ * interval controls that glide. A throw can overlay the base without changing
+ * the foot clock. The trailing leg sweeps behind as the body glides and lowers
+ * over it, nearly straight, its toe dragging on the approach (a declared
+ * bearing contact) and the foot pitched with the leg's lean so its ankle keeps
+ * the angle it stood with, then steps up clear of the floor in the recovery and
+ * comes down flat over its landing place. The lowering, short trailing step and
+ * clip-length reach bound are provisional animation parameters.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the measured phase order, authored times, stance geometry and use as a delivery carrier.
  * @evidence contracts/development/design.md#principled-representation A supported travelling base writes only the root and two leg goals. A sliding sole bears before becoming a fixed plant.
@@ -74,7 +84,8 @@ export const bowlingSlide: IAutoMovieMotionHumanActionLaw<Parameters> = {
  *
  * @param context The actual entry feet, body and authored film-local times.
  * @returns Timed leg targets and the supporting foot windows.
- * @throws {HumanRefusal} When the timing or the body-scaled distance cannot be used.
+ * @throws {HumanRefusal} When the timing or the body-scaled distance cannot be
+ *   used.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<Parameters>,

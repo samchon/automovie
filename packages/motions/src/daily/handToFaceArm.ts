@@ -13,27 +13,29 @@ import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTo
 
 /**
  * The arm a hand-to-face task lays on its place (`handToFace`): how the
- * effector lies, the elbow's hint and the reference every second's fit is
- * held to, and, for a held vessel, its lean toward the lips and the way it
- * faces.
+ * effector lies, the elbow's hint and the reference every second's fit is held
+ * to, and, for a held vessel, its lean toward the lips and the way it faces.
  */
 export namespace handToFaceArm {
   /**
    * One hand's arm at the face.
    *
-   * A held vessel is carried upright and brought to the face as a drinker
-   * holds it: leaned toward the lips as little as lets the arm stay low, and
-   * turned the way its arm then meets it best. Its elbow is hinted where the
-   * arm hangs, moved into the drinking range where it lies outside, the hint
-   * its drinking arm was found with, so the arm shown is the one admitted.
-   * A vessel held as the grasp it was taken up by presents it (`own`) has
-   * its turn in the hand fixed, so only its lean toward the lips is sought, with the grasp's elbow hint: the same drink takes the
-   * same arm however the vessel came to the hand.
+   * A held vessel is carried upright and brought to the face as a drinker holds
+   * it: leaned toward the lips as little as lets the arm stay low, and turned
+   * the way its arm then meets it best. Its elbow is hinted where the arm
+   * hangs, moved into the drinking range where it lies outside, the hint its
+   * drinking arm was found with, so the arm shown is the one admitted. A vessel
+   * held as the grasp it was taken up by presents it (`own`) has its turn in
+   * the hand fixed, so only its lean toward the lips is sought, with the
+   * grasp's elbow hint: the same drink takes the same arm however the vessel
+   * came to the hand.
    *
    * @param props The hand and its place.
    * @returns The arm.
    */
-  export function of(props: IAutoMovieMotionHumanHandToFaceArm.IProps): IAutoMovieMotionHumanHandToFaceArm.IArm {
+  export function of(
+    props: IAutoMovieMotionHumanHandToFaceArm.IProps,
+  ): IAutoMovieMotionHumanHandToFaceArm.IArm {
     const { body, atFace, turned, side, effector, place, tangent, own } = props;
     const lay: IAutoMovieMotionHumanTouch.ITouch["lay"] = props.upright
       ? "upright"
@@ -47,10 +49,12 @@ export namespace handToFaceArm {
     // The place at the face and, for a held vessel, where it is held while
     // the drinker drinks: each read once, since over a carrier a read
     // resolves the posture.
-    const at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> = place(atFace, 0);
+    const at: Pick<IAutoMovieMotionHumanTarget.IPlace, "point" | "normal"> =
+      place(atFace, 0);
     let after: IAutoMovieMotionHumanTouchDrink.IAfter | undefined;
-    const drinking: () => IAutoMovieMotionHumanTouchDrink.IAfter = (): IAutoMovieMotionHumanTouchDrink.IAfter =>
-      (after ??= { posture: turned, place: place(turned, 0) });
+    const drinking: () => IAutoMovieMotionHumanTouchDrink.IAfter =
+      (): IAutoMovieMotionHumanTouchDrink.IAfter =>
+        (after ??= { posture: turned, place: place(turned, 0) });
     const vessel: IAutoMovieMotionHumanTouchDrink.IDrink | undefined =
       props.drink ??
       (props.upright && own === null

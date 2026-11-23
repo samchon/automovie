@@ -13,15 +13,21 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
- * A ladder as a climb reads it off the scene's prop: a fixture whose rungs
- * are its `rung1` upward, each a bar facing the climber (`createLadder`'s
+ * A ladder as a climb reads it off the scene's prop: a fixture whose rungs are
+ * its `rung1` upward, each a bar facing the climber (`createLadder`'s
  * contacts), placed where the scene stands it.
  */
 export namespace HumanLadder {
-  /** A rung's radius, metres, when the ladder's rung declares no aperture (provisional). */
+  /**
+   * A rung's radius, metres, when the ladder's rung declares no aperture
+   * (provisional).
+   */
   export const RUNG: number = 0.015;
 
-  /** The most the rungs' line may lean from upright, degrees (provisional): a fixed ladder's. */
+  /**
+   * The most the rungs' line may lean from upright, degrees (provisional): a
+   * fixed ladder's.
+   */
   export const UPRIGHT: number = 5;
 
   /**
@@ -30,7 +36,9 @@ export namespace HumanLadder {
    * @param context The action's context.
    * @param subject The ladder's prop subject.
    * @returns The ladder.
-   * @throws {HumanRefusal} When the prop is no fixture, declares fewer than two rungs, leans more than `UPRIGHT` or spaces its rungs outside OSHA's band.
+   * @throws {HumanRefusal} When the prop is no fixture, declares fewer than two
+   *   rungs, leans more than `UPRIGHT` or spaces its rungs outside OSHA's
+   *   band.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,
@@ -67,7 +75,9 @@ export namespace HumanLadder {
         reason: `${subject} declares ${rungs.length} rungs; a ladder climbed has at least two, named rung1 upward`,
         fix: "give the ladder rungs named rung1, rung2 and up",
       });
-    const world: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+    const world: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+      local: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, local),
@@ -123,12 +133,16 @@ export namespace HumanLadder {
    * Prepare the fixed rung grid read by one climb's footprint/handhold plan.
    *
    * @param ladder The unchanged resolved ladder at the action's start.
-   * @returns A fresh world-metre rung centre for a rung index and local lateral x in metres.
+   * @returns A fresh world-metre rung centre for a rung index and local lateral
+   *   x in metres.
    */
-  export function prepareRung(ladder: IAutoMovieMotionHumanLadder.ILadder): (index: number, x: number) => IAutoMovieVector3 {
+  export function prepareRung(
+    ladder: IAutoMovieMotionHumanLadder.ILadder,
+  ): (index: number, x: number) => IAutoMovieVector3 {
     const frame: HumanFrame.IPrepared = HumanFrame.prepare(ladder.frame);
     const spacing: number = ladder.spacing;
     const ahead: number = ladder.ahead;
-    return (index: number, x: number): IAutoMovieVector3 => frame.point({ x, y: index * spacing, z: ahead });
+    return (index: number, x: number): IAutoMovieVector3 =>
+      frame.point({ x, y: index * spacing, z: ahead });
   }
 }

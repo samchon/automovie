@@ -15,9 +15,9 @@ import { StrikingRoll } from "./StrikingRoll";
 import { StrikingStrain } from "./StrikingStrain";
 
 /**
- * Prepare the unchanged tool and world-axis geometry of a roll search.
- * Every placement still ranks the original grid against its actual posture,
- * then physically fits/refines the same preferred candidates.
+ * Prepare the unchanged tool and world-axis geometry of a roll search. Every
+ * placement still ranks the original grid against its actual posture, then
+ * physically fits/refines the same preferred candidates.
  *
  * @param context The unchanged canonical body used by every search.
  * @param tool The unchanged held tool and hand side.
@@ -32,27 +32,49 @@ export function StrikingRollHand(
   back: number,
   axis: IAutoMovieVector3,
   cone: number,
-): (at: IAutoMovieVector3, posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"]) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
-  const strain: ReturnType<typeof StrikingStrain> = StrikingStrain(context.body, tool.side);
+): (
+  at: IAutoMovieVector3,
+  posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"],
+) => IAutoMovieMotionHumanStrikingHeld.IHandFrame {
+  const strain: ReturnType<typeof StrikingStrain> = StrikingStrain(
+    context.body,
+    tool.side,
+  );
   const along: IAutoMovieVector3 = Vector3.normalize(axis);
-  const aside: IAutoMovieVector3 = Vector3.normalize(Vector3.cross(
-    along, Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
-  ));
-  const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${tool.side}UpperArm`]);
-  const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(context.body, shoulderBones);
+  const aside: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.cross(
+      along,
+      Math.abs(along.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
+    ),
+  );
+  const shoulderBones: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>([`${tool.side}UpperArm`]);
+  const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> =
+    HumanTrunk.prepareResolve(context.body, shoulderBones);
   const shoulder = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
     shoulderAt(posture).get(`${tool.side}UpperArm`)!.worldPosition;
-  const rigid = (values: readonly number[]): ReturnType<typeof StrikingHeld.prepareHand> => {
+  const rigid = (
+    values: readonly number[],
+  ): ReturnType<typeof StrikingHeld.prepareHand> => {
     const [tilt, around, turn] = values as readonly [number, number, number];
     const run: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.fromAxisAngle(along, around),
       Quaternion.rotateVector(Quaternion.fromAxisAngle(aside, tilt), along),
     );
-    return StrikingHeld.prepareHand(tool, back, run, Quaternion.rotateVector(
-      Quaternion.fromAxisAngle(run, turn), Vector3.cross(run, aside),
-    ));
+    return StrikingHeld.prepareHand(
+      tool,
+      back,
+      run,
+      Quaternion.rotateVector(
+        Quaternion.fromAxisAngle(run, turn),
+        Vector3.cross(run, aside),
+      ),
+    );
   };
-  const fixed: Map<string, ReturnType<typeof StrikingHeld.prepareHand>> = new Map();
+  const fixed: Map<
+    string,
+    ReturnType<typeof StrikingHeld.prepareHand>
+  > = new Map();
   const grid: number[][] = [];
   for (let tilt: number = 0; tilt <= cone + 1e-9; tilt += 10)
     for (let around: number = 0; around < 360; around += 45) {
@@ -63,14 +85,24 @@ export function StrikingRollHand(
       }
       if (tilt === 0) break;
     }
-  return (at: IAutoMovieVector3, posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"]): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
-    const from: IAutoMovieVector3 | undefined = typeof posture === "function" ? undefined : shoulder(posture);
-    const frame = (values: readonly number[]): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
+  return (
+    at: IAutoMovieVector3,
+    posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"],
+  ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
+    const from: IAutoMovieVector3 | undefined =
+      typeof posture === "function" ? undefined : shoulder(posture);
+    const frame = (
+      values: readonly number[],
+    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame =>
       (fixed.get(key(values)) ?? rigid(values))(at);
     const rank = (values: readonly number[]): number => {
       const posed: IAutoMovieMotionHumanStrikingHeld.IHandFrame = frame(values);
       try {
-        return strain(posed, from ?? shoulder(typeof posture === "function" ? posture(posed) : posture));
+        return strain(
+          posed,
+          from ??
+            shoulder(typeof posture === "function" ? posture(posed) : posture),
+        );
       } catch (error) {
         if (error instanceof HumanRefusal) return Infinity;
         throw error;
@@ -78,24 +110,34 @@ export function StrikingRollHand(
     };
     const candidates: { values: number[]; rank: number }[] = grid.map(
       (values: number[]): { values: number[]; rank: number } => ({
-        values: [...values], rank: rank(values) + (0.1 * values[0]! * Math.PI) / 180,
+        values: [...values],
+        rank: rank(values) + (0.1 * values[0]! * Math.PI) / 180,
       }),
     );
-    candidates.sort((a: { rank: number }, b: { rank: number }): number => a.rank - b.rank);
+    candidates.sort(
+      (a: { rank: number }, b: { rank: number }): number => a.rank - b.rank,
+    );
     return StrikingRoll.chosen(context, tool, {
       frame,
-      tried: candidates.slice(0, StrikingRoll.TRIED).map((candidate: { values: number[] }): number[] => candidate.values),
+      tried: candidates
+        .slice(0, StrikingRoll.TRIED)
+        .map((candidate: { values: number[] }): number[] => candidate.values),
       freedoms: [
         { kind: "bounded", step: cone > 0 ? 5 : 0, least: 0, greatest: cone },
         { kind: "wrapped", step: 22.5, period: 360 },
         { kind: "wrapped", step: 15, period: 360 },
       ],
-      back, posture,
+      back,
+      posture,
     });
   };
 }
 
 /** Exact finite angle identity; do not conflate negative and positive zero. */
 function key(values: readonly number[]): string {
-  return values.map((value: number): string => Object.is(value, -0) ? "-0" : String(value)).join("/");
+  return values
+    .map((value: number): string =>
+      Object.is(value, -0) ? "-0" : String(value),
+    )
+    .join("/");
 }

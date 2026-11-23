@@ -4,20 +4,20 @@ import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
- * An arms' trajectory optimised on few knots and constrained on the whole
- * frame grid: the change of variables between the two.
+ * An arms' trajectory optimised on few knots and constrained on the whole frame
+ * grid: the change of variables between the two.
  *
  * The trajectory played back is the knots' cubic Hermite interpolant
- * (`HumanArmRefine.hermite`), which is linear in the knots' coordinates:
- * each grid instant's coordinates are a weighted sum of at most four knots'
- * (`x_g = sum_j W[g][j] x_j`). So the model is evaluated and linearised at
- * every grid instant, as a frame-grid trajectory's is, and the resulting
- * subproblem in the grid's steps is carried onto the knots' by that linear
- * map: `P_k = W' P W`, `q_k = W' q`, and each row's coefficients times `W`.
- * The optimiser then moves the knots alone (TrajOpt plans an arm on eleven
- * timesteps, Schulman et al. 2013, section VI), while every constraint the
- * film can show is a row of its subproblem, so what it returns as feasible
- * is feasible on the grid and nothing is refined or solved again.
+ * (`HumanArmRefine.hermite`), which is linear in the knots' coordinates: each
+ * grid instant's coordinates are a weighted sum of at most four knots' (`x_g =
+ * sum_j W[g][j] x_j`). So the model is evaluated and linearised at every grid
+ * instant, as a frame-grid trajectory's is, and the resulting subproblem in the
+ * grid's steps is carried onto the knots' by that linear map: `P_k = W' P W`,
+ * `q_k = W' q`, and each row's coefficients times `W`. The optimiser then moves
+ * the knots alone (TrajOpt plans an arm on eleven timesteps, Schulman et al.
+ * 2013, section VI), while every constraint the film can show is a row of its
+ * subproblem, so what it returns as feasible is feasible on the grid and
+ * nothing is refined or solved again.
  */
 export namespace HumanArmTrajectoryKnots {
   /**
@@ -38,7 +38,11 @@ export namespace HumanArmTrajectoryKnots {
         const unit: number[][] = window.times.map(
           (_: number, i: number): number[] => [i === j ? 1 : 0],
         );
-        row[window.first + j] = HumanArmRefine.hermite(window.times, unit, window.at)[0]!;
+        row[window.first + j] = HumanArmRefine.hermite(
+          window.times,
+          unit,
+          window.at,
+        )[0]!;
       }
       return row;
     });
@@ -60,7 +64,11 @@ export namespace HumanArmTrajectoryKnots {
     const spans: IWindow[] = windows(knots, grid);
     return x.map((arm: readonly (readonly number[])[]): number[][] =>
       spans.map((span: IWindow): number[] =>
-        HumanArmRefine.hermite(span.times, arm.slice(span.first, span.first + span.times.length), span.at),
+        HumanArmRefine.hermite(
+          span.times,
+          arm.slice(span.first, span.first + span.times.length),
+          span.at,
+        ),
       ),
     );
   }
@@ -94,17 +102,21 @@ export namespace HumanArmTrajectoryKnots {
       const edge: number = start ? times[1]! : times[times.length - 2]!;
       const width: number = Math.abs(edge - grid[endpoint]!);
       const dt: number = grid[endpoint + 1]! - grid[endpoint - 1]!;
-      for (let g: number = start ? from + 1 : to - 1;
+      for (
+        let g: number = start ? from + 1 : to - 1;
         start ? grid[g]! < edge : grid[g]! > edge;
-        g += start ? 1 : -1) {
+        g += start ? 1 : -1
+      ) {
         const u: number = (grid[g]! - grid[endpoint]!) / width;
         const basis: number = width * u * (1 - Math.abs(u)) ** 2;
         played.forEach((arm: number[][], a: number): void => {
           const source: readonly (readonly number[])[] = laid[a]!;
           const row: number[] = arm[g - from]!;
           for (let d: number = 0; d < row.length; ++d)
-            row[d]! += basis *
-              (source[endpoint + 1]![d]! - source[endpoint - 1]![d]!) / dt;
+            row[d]! +=
+              (basis *
+                (source[endpoint + 1]![d]! - source[endpoint - 1]![d]!)) /
+              dt;
         });
       }
     }
@@ -145,7 +157,8 @@ export namespace HumanArmTrajectoryKnots {
       const row: Float64Array = model.p[r]!;
       for (let off: number = 0; off < row.length && r + off < model.n; ++off) {
         if (row[off] === 0) continue;
-        const to: [number, number][] = spread[Math.floor((r + off) / width) + 1]!;
+        const to: [number, number][] =
+          spread[Math.floor((r + off) / width) + 1]!;
         let least: number = Infinity;
         let most: number = -Infinity;
         for (const [j] of from) {
@@ -156,7 +169,8 @@ export namespace HumanArmTrajectoryKnots {
           least = Math.min(least, i);
           most = Math.max(most, i);
         }
-        if (most >= least) wide = Math.max(wide, (most - least + 1) * width - 1);
+        if (most >= least)
+          wide = Math.max(wide, (most - least + 1) * width - 1);
       }
     }
     wide = Math.min(wide, Math.max(0, vars - 1));
@@ -173,12 +187,14 @@ export namespace HumanArmTrajectoryKnots {
       const from: [number, number][] = spread[Math.floor(r / width) + 1]!;
       const slot: number = r % width;
       for (const [j, weight] of from)
-        q[(j - 1) * width + slot] = q[(j - 1) * width + slot]! + weight * model.q[r]!;
+        q[(j - 1) * width + slot] =
+          q[(j - 1) * width + slot]! + weight * model.q[r]!;
       const row: Float64Array = model.p[r]!;
       for (let off: number = 0; off < row.length && r + off < model.n; ++off) {
         const value: number = row[off]!;
         if (value === 0) continue;
-        const to: [number, number][] = spread[Math.floor((r + off) / width) + 1]!;
+        const to: [number, number][] =
+          spread[Math.floor((r + off) / width) + 1]!;
         const other: number = (r + off) % width;
         for (const [j, wj] of from)
           for (const [i, wi] of to) {
@@ -235,7 +251,10 @@ export namespace HumanArmTrajectoryKnots {
   }
 }
 
-/** Four consecutive knots suffice for the two endpoint values and both centred tangents. */
+/**
+ * Four consecutive knots suffice for the two endpoint values and both centred
+ * tangents.
+ */
 interface IWindow {
   /** Offset into the full knot coordinate array. */
   first: number;

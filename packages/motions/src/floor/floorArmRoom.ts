@@ -17,38 +17,41 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** The fewest shares of a key-to-key blend read once to find whether any arm leaves its room. */
+/**
+ * The fewest shares of a key-to-key blend read once to find whether any arm
+ * leaves its room.
+ */
 const SCAN: number = 16;
 
 /** Arm rooms by side, degrees. */
 type Rooms = Record<AutoMovieHumanSide, number>;
 
 /**
- * The trunk as a constraint on a floor law's way between two of its
- * postures. Arm angles blended between two postures can carry a forearm
- * through the body deeper than either end holds it: rolling from the back
- * onto a side, the lower elbow bends before the shoulder has brought the arm
- * forward, and the forearm passes through the belly; the same happens
- * lowering into prone and into a cross-legged seat. A person lets that elbow
- * out instead. So an arm whose room (`HumanArmClearance.room`) exceeds the
- * ends' room blended by the same weight takes the least turn at the shoulder
- * and the elbow that brings it back within it (`HumanArmClearance.cleared`);
- * an arm no deeper than its ends is left as blended.
+ * The trunk as a constraint on a floor law's way between two of its postures.
+ * Arm angles blended between two postures can carry a forearm through the body
+ * deeper than either end holds it: rolling from the back onto a side, the lower
+ * elbow bends before the shoulder has brought the arm forward, and the forearm
+ * passes through the belly; the same happens lowering into prone and into a
+ * cross-legged seat. A person lets that elbow out instead. So an arm whose room
+ * (`HumanArmClearance.room`) exceeds the ends' room blended by the same weight
+ * takes the least turn at the shoulder and the elbow that brings it back within
+ * it (`HumanArmClearance.cleared`); an arm no deeper than its ends is left as
+ * blended.
  */
 export namespace floorArmRoom {
   /**
    * Prepare the clearance of one floor law's key-to-key blends.
    *
-   * The first interior query of a blend reads the rooms of its two keys and
-   * of evenly spaced blends between them, as many as `samples` shows keep
-   * any dip between two readings within the audit's self-penetration
-   * allowance; a blend whose arms stay within their allowance at every one
-   * of those is then left exactly as blended with no further reading, so
-   * only a blend that carries an arm through the body pays a posture resolve
-   * per query.
+   * The first interior query of a blend reads the rooms of its two keys and of
+   * evenly spaced blends between them, as many as `samples` shows keep any dip
+   * between two readings within the audit's self-penetration allowance; a blend
+   * whose arms stay within their allowance at every one of those is then left
+   * exactly as blended with no further reading, so only a blend that carries an
+   * arm through the body pays a posture resolve per query.
    *
    * @param body The body.
-   * @returns The blend at a weight with its arms kept within the keys' blended room.
+   * @returns The blend at a weight with its arms kept within the keys' blended
+   *   room.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -93,25 +96,25 @@ export namespace floorArmRoom {
 }
 
 /**
- * The shares a blend's scan reads, enough that no arm can sink, between
- * two of them, more than the audit's self-penetration allowance
+ * The shares a blend's scan reads, enough that no arm can sink, between two of
+ * them, more than the audit's self-penetration allowance
  * (`AutoMovieMotionHumanAuditLimits.tangle`, 10 mm) deeper into the trunk, a
  * thigh or the other arm than it lies at the nearer one; never fewer than
  * `SCAN`.
  *
  * A floor law blends its keys linearly in clinical joint angles
  * (`prepareHumanShapeBlend`) and carries the whole body rigidly, which moves
- * nothing against itself. Over the whole blend a joint turns by at most the
- * sum of its three angle differences, and its turn moves a point it carries,
+ * nothing against itself. Over the whole blend a joint turns by at most the sum
+ * of its three angle differences, and its turn moves a point it carries,
  * relative to every point it does not, no faster than that turn times the
  * point's distance from the joint. That distance never exceeds the joint's
- * reach: the sum of the joint-to-joint lengths down the chain to the
- * farthest arm or obstacle collider it carries, plus that collider's extent
- * from its own joint, the same in every pose. So the depth of any arm
- * collider in any obstacle changes, per unit of blend weight, by at most the
- * sum over the joints of turn times reach, `L`, and between readings 1/N
- * apart a dip is at most L/(2N) deeper than the shallower reading around
- * it: N is the least count that keeps that within the allowance.
+ * reach: the sum of the joint-to-joint lengths down the chain to the farthest
+ * arm or obstacle collider it carries, plus that collider's extent from its own
+ * joint, the same in every pose. So the depth of any arm collider in any
+ * obstacle changes, per unit of blend weight, by at most the sum over the
+ * joints of turn times reach, `L`, and between readings 1/N apart a dip is at
+ * most L/(2N) deeper than the shallower reading around it: N is the least count
+ * that keeps that within the allowance.
  */
 function samples(
   body: IAutoMovieMotionHumanBody,
@@ -160,8 +163,8 @@ const REACHES: WeakMap<
 
 /**
  * Read a body's joint reaches from its profile at rest: for each joint that
- * carries some but not all of the read colliders, the longest chain length
- * from it to a read collider's farthest bound, metres.
+ * carries some but not all of the read colliders, the longest chain length from
+ * it to a read collider's farthest bound, metres.
  */
 function reaches(
   body: IAutoMovieMotionHumanBody,

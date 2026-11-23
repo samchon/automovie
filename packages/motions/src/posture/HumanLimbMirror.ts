@@ -9,13 +9,16 @@ import type {
 import { HumanArmMirror } from "./HumanArmMirror";
 
 /**
- * A limb's fit seen in the median plane's mirror: the pose, the goal, the
- * limb and the side each taken to the other side, so a left limb is solved
- * as the right limb of its mirror image (`HumanLimbFit`, `solveHumanLimbFit`)
- * and a fit and its mirror are one to the bit.
+ * A limb's fit seen in the median plane's mirror: the pose, the goal, the limb
+ * and the side each taken to the other side, so a left limb is solved as the
+ * right limb of its mirror image (`HumanLimbFit`, `solveHumanLimbFit`) and a
+ * fit and its mirror are one to the bit.
  */
 export namespace HumanLimbMirror {
-  /** A pose's mirror image in the median plane (`HumanArmMirror.mirrored`), its own inverse. */
+  /**
+   * A pose's mirror image in the median plane (`HumanArmMirror.mirrored`), its
+   * own inverse.
+   */
   export function pose(pose: IAutoMoviePose): IAutoMoviePose {
     return HumanArmMirror.mirrored({ pose, others: [] }).pose;
   }
@@ -36,12 +39,12 @@ export namespace HumanLimbMirror {
   }
 
   /**
-   * A limb goal's mirror image: its points and its contact with their
-   * lateral component negated (world, or local to the bone it is attached
-   * to, which a median-plane mirror maps alike), its rotation mirrored, the
-   * bone it rides and the colliders it keeps clear of or lies on taken to
-   * the other side. A reference's clinical angles are a side's own, so the
-   * mirrored limb reads them as they are.
+   * A limb goal's mirror image: its points and its contact with their lateral
+   * component negated (world, or local to the bone it is attached to, which a
+   * median-plane mirror maps alike), its rotation mirrored, the bone it rides
+   * and the colliders it keeps clear of or lies on taken to the other side. A
+   * reference's clinical angles are a side's own, so the mirrored limb reads
+   * them as they are.
    *
    * @param goal The goal.
    * @returns Its mirror image.

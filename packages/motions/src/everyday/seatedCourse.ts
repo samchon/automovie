@@ -1,6 +1,6 @@
 /**
- * The timing and trunk flexion of getting down onto a seat and up from it,
- * as functions of the seat's height ratio `r`, its height over the body's
+ * The timing and trunk flexion of getting down onto a seat and up from it, as
+ * functions of the seat's height ratio `r`, its height over the body's
  * popliteal height (`seated.ratio`). The sit reads them for its descent, the
  * rise for its ascent, so both move on one law: stand-to-sit is the rise
  * reversed under eccentric control (Kralj, Jaeger and Munih 1990).

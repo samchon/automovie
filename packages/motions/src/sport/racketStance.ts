@@ -31,18 +31,28 @@ const SWING_SHARES: readonly [Window, Window] = [
   [0.57, 0.83],
 ];
 
-/** The portion of horizontal distance to the bearing ankle the authored pelvis shift covers. */
+/**
+ * The portion of horizontal distance to the bearing ankle the authored pelvis
+ * shift covers.
+ */
 const SUPPORT_SHARE: number = 0.65;
 
-/** The height of each ready or recovery step above its ground baseline as a fraction of stature. */
+/**
+ * The height of each ready or recovery step above its ground baseline as a
+ * fraction of stature.
+ */
 const CLEARANCE: number = 0.025;
 
-/** Prepare the support intervals and knee loading for ready and split-step racket phrases.
+/**
+ * Prepare the support intervals and knee loading for ready and split-step
+ * racket phrases.
+ *
  * @param context Entry posture and feet of the performer.
  * @param clock The existing phrase clock, with its existing public events.
  * @param lead The first foot out, on the racket side.
  * @param leftward The local left direction in world space.
- * @param split Whether to add a simultaneous hop between outward and recovery steps.
+ * @param split Whether to add a simultaneous hop between outward and recovery
+ *   steps.
  * @param extent The authored movement extent multiplier for the jump.
  * @returns Pelvis and leg primitives, with their ground contacts.
  */
@@ -219,7 +229,10 @@ export function racketStance(
   return { primitives, contacts };
 }
 
-/** The two foot swings use separate intervals, leaving transfer time with both feet down. */
+/**
+ * The two foot swings use separate intervals, leaving transfer time with both
+ * feet down.
+ */
 function transfer(
   from: number,
   to: number,

@@ -14,37 +14,39 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 
 /**
- * How far a seated rider leans the trunk forward to reach what the hands
- * hold (`HumanMountRider.lean`), in closed form: flexing the spine turns
- * everything above it about the spine joint's flexion axis, so each
- * shoulder runs on a circle read from three forward-kinematics passes, and
- * the least flexion bringing both points within reach is found on the
- * intersection of the reachable arcs.
+ * How far a seated rider leans the trunk forward to reach what the hands hold
+ * (`HumanMountRider.lean`), in closed form: flexing the spine turns everything
+ * above it about the spine joint's flexion axis, so each shoulder runs on a
+ * circle read from three forward-kinematics passes, and the least flexion
+ * bringing both points within reach is found on the intersection of the
+ * reachable arcs.
  */
 export namespace HumanMountReach {
   /**
    * How far a seated rider leans the trunk forward to reach what the hands
    * hold: the least flexion of the spine, up to `LEAN`, that brings each
-   * shoulder within `ARM` of its arm's length of its point, as a cyclist
-   * leans to the bar and a fixed-seat rower to the catch.
+   * shoulder within `ARM` of its arm's length of its point, as a cyclist leans
+   * to the bar and a fixed-seat rower to the catch.
    *
-   * Flexing the spine turns everything above it rigidly about the spine
-   * joint's flexion axis, a line fixed in the world while the other angles
-   * hold (`jointToQuaternion` applies flexion innermost), so each shoulder
-   * runs on a circle: `s(θ) = a + b cos θ + c sin θ`, with `b` and `c` of
-   * one length and at right angles. The three vectors are read once, from
-   * the shoulder at three flexions by forward kinematics. A point's squared
-   * distance from the shoulder is then `K + B cos θ + C sin θ`, and the least
-   * flexion bringing it within the arm's reach is a closed-form arccos root,
-   * so a reach that follows a moving grip costs no forward kinematics per
-   * instant.
+   * Flexing the spine turns everything above it rigidly about the spine joint's
+   * flexion axis, a line fixed in the world while the other angles hold
+   * (`jointToQuaternion` applies flexion innermost), so each shoulder runs on a
+   * circle: `s(θ) = a + b cos θ + c sin θ`, with `b` and `c` of one length and
+   * at right angles. The three vectors are read once, from the shoulder at
+   * three flexions by forward kinematics. A point's squared distance from the
+   * shoulder is then `K + B cos θ + C sin θ`, and the least flexion bringing it
+   * within the arm's reach is a closed-form arccos root, so a reach that
+   * follows a moving grip costs no forward kinematics per instant.
    *
    * @param body The body.
    * @param seated The seated posture.
    * @param sides The holding hands.
-   * @param bow The optional rotation about the seat or the hips in place of spine flexion.
+   * @param bow The optional rotation about the seat or the hips in place of
+   *   spine flexion.
    * @param span The bounds of that rotation, degrees from the entered posture.
-   * @returns For the hand goals in the seated frame, the rotation nearest the entered posture that reaches both, or the least worst excess reach when the arcs do not overlap.
+   * @returns For the hand goals in the seated frame, the rotation nearest the
+   *   entered posture that reaches both, or the least worst excess reach when
+   *   the arcs do not overlap.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
@@ -187,7 +189,11 @@ export namespace HumanMountReach {
     sin: number;
   }
 
-  /** The bones of the seated posture leant by each angle: the first resolution reads the shoulders, elbows and wrists, the others the shoulders alone, all through one forward-kinematics reader and one range-of-motion projector. */
+  /**
+   * The bones of the seated posture leant by each angle: the first resolution
+   * reads the shoulders, elbows and wrists, the others the shoulders alone, all
+   * through one forward-kinematics reader and one range-of-motion projector.
+   */
   function readSamples(
     body: IAutoMovieMotionHumanBody,
     bow: (degrees: number) => IAutoMovieMotionHumanPosture,
@@ -229,7 +235,10 @@ export namespace HumanMountReach {
     );
   }
 
-  /** A shoulder's circle under the spine's flexion, `a + b cos θ + c sin θ`, world metres, and the arm's reach, metres. */
+  /**
+   * A shoulder's circle under the spine's flexion, `a + b cos θ + c sin θ`,
+   * world metres, and the arm's reach, metres.
+   */
   interface ICircle {
     /** The circle's centre. */
     a: IAutoMovieVector3;
@@ -246,11 +255,12 @@ export namespace HumanMountReach {
 
   /**
    * The circle `a + b cos θ + c sin θ` through three points at three angles:
-   * per coordinate, the 3 by 3 linear system of the samples, solved by
-   * Cramer's rule.
+   * per coordinate, the 3 by 3 linear system of the samples, solved by Cramer's
+   * rule.
    *
    * @param angles The three angles, radians, distinct.
-   * @returns A reader of the three world-metre points, returning their circle vectors with the fixed matrix rows and denominator shared.
+   * @returns A reader of the three world-metre points, returning their circle
+   *   vectors with the fixed matrix rows and denominator shared.
    */
   function circle(
     angles: readonly [number, number, number],

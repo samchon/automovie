@@ -30,67 +30,82 @@ import { HumanSword } from "./HumanSword";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
 /**
- * The parry of blade work: the strong of the blade brought across an
- * incoming blade where its attack is stopped.
+ * The parry of blade work: the strong of the blade brought across an incoming
+ * blade where its attack is stopped.
  *
- * A parry answers an attack the author declared `parried` (`HumanSword`),
- * named by its anchor. It reads the attacker's blade at the attack's
- * decisive instant, where that blade stands stopped, and puts its own blade
- * across it there: point up for a high line and down for a low one, on the
- * defender's side, the two centre lines `HumanSword.GAP` apart. The parry
- * waits in the hold it was entered in for as long as puts its meeting
- * (`stroke`) on the attack's decisive instant, so a parry that starts in
- * time meets its attack; `sync` with `align: "stroke"` starts it in time.
- * With no attack named it closes a line as a drill.
+ * A parry answers an attack the author declared `parried` (`HumanSword`), named
+ * by its anchor. It reads the attacker's blade at the attack's decisive
+ * instant, where that blade stands stopped, and puts its own blade across it
+ * there: point up for a high line and down for a low one, on the defender's
+ * side, the two centre lines `HumanSword.GAP` apart. The parry waits in the
+ * hold it was entered in for as long as puts its meeting (`stroke`) on the
+ * attack's decisive instant, so a parry that starts in time meets its attack;
+ * `sync` with `align: "stroke"` starts it in time. With no attack named it
+ * closes a line as a drill.
  *
- * It meets the attacking blade on its weak and, while the arm cannot hold
- * its own blade across it there, slides the meeting back along that blade
- * (`SLIDE`), where the stopped blade stands farther from the defender. A
- * blade to meet that lies beyond the arm is refused. The meeting is where
- * the stopped attack stands. An attack declared `taken` ends where it was
- * stopped, and the parry carries its blade aside while the blades stay
- * together (`aside`): level and square to the defender's front, until the
- * whole attacking blade lies outside the defender's broadest half breadth,
- * so a riposte's lunge passes beside it; the attacker's blade follows
- * (`HumanSwordTaken`). First pass: a blade not taken is not beaten aside.
+ * It meets the attacking blade on its weak and, while the arm cannot hold its
+ * own blade across it there, slides the meeting back along that blade
+ * (`SLIDE`), where the stopped blade stands farther from the defender. A blade
+ * to meet that lies beyond the arm is refused. The meeting is where the stopped
+ * attack stands. An attack declared `taken` ends where it was stopped, and the
+ * parry carries its blade aside while the blades stay together (`aside`): level
+ * and square to the defender's front, until the whole attacking blade lies
+ * outside the defender's broadest half breadth, so a riposte's lunge passes
+ * beside it; the attacker's blade follows (`HumanSwordTaken`). First pass: a
+ * blade not taken is not beaten aside.
  *
- * What the row fixes: the parry meets the attacking blade at the middle of
- * its foible, 1/6 of its length back from the point (`WEAK`), slides to the
- * middle of the blade, 1/2, when the arm cannot hold it there (`SLIDE`), the
- * two centre lines 5 mm apart (`HumanSword.GAP`), and the blade may lean about
- * 30 degrees (29.7) from the square to the attacker's (`LEAN`, the friction angle of
- * steel). The attack is stopped where this parry's guard meets it, a forearm
- * short of its target (`HumanSword.stopped`). The parry's own travel is timed as the
- * thrust's, at 2.6 to 3.2 m/s by skill, and it never arrives faster than its
- * skill: a parry that starts late meets late. It waits in its hold until
- * its meeting falls on the attack's decisive instant, so a parry synced to
- * the attack's `stroke` is in time; the hold afterwards is the stopped
- * attack's own stay. A taken blade is carried aside by one minimum-jerk unit
- * from the end of the attack's follow-through to the parry's relax, and the
- * parry keeps it there until it turns back.
+ * What the row fixes: the parry meets the attacking blade at the middle of its
+ * foible, 1/6 of its length back from the point (`WEAK`), slides to the middle
+ * of the blade, 1/2, when the arm cannot hold it there (`SLIDE`), the two
+ * centre lines 5 mm apart (`HumanSword.GAP`), and the blade may lean about 30
+ * degrees (29.7) from the square to the attacker's (`LEAN`, the friction angle
+ * of steel). The attack is stopped where this parry's guard meets it, a forearm
+ * short of its target (`HumanSword.stopped`). The parry's own travel is timed
+ * as the thrust's, at 2.6 to 3.2 m/s by skill, and it never arrives faster than
+ * its skill: a parry that starts late meets late. It waits in its hold until
+ * its meeting falls on the attack's decisive instant, so a parry synced to the
+ * attack's `stroke` is in time; the hold afterwards is the stopped attack's own
+ * stay. A taken blade is carried aside by one minimum-jerk unit from the end of
+ * the attack's follow-through to the parry's relax, and the parry keeps it
+ * there until it turns back.
  */
 export namespace HumanSwordParry {
-  /** Where a parry meets the attacking blade, a share of that blade's length back from its point: the middle of its foible (`HumanSword.THIRDS`). */
+  /**
+   * Where a parry meets the attacking blade, a share of that blade's length
+   * back from its point: the middle of its foible (`HumanSword.THIRDS`).
+   */
   export const WEAK: number = HumanSword.THIRDS[0];
 
-  /** The shares of the attacking blade back from its point a parry slides its meeting to, in order, when the arm cannot hold its blade across the foible: the foible's middle, then the middle's, where the stopped blade stands farther from the defender; its forte is the attacker's own guard (`HumanSword.THIRDS`). */
+  /**
+   * The shares of the attacking blade back from its point a parry slides its
+   * meeting to, in order, when the arm cannot hold its blade across the foible:
+   * the foible's middle, then the middle's, where the stopped blade stands
+   * farther from the defender; its forte is the attacker's own guard
+   * (`HumanSword.THIRDS`).
+   */
   export const SLIDE: readonly number[] = [
     HumanSword.THIRDS[0],
     HumanSword.THIRDS[1],
   ];
 
   /**
-   * How far a parrying blade may lean from the line square to the
-   * attacker's, degrees, and it turns freely about its own line, so the hand
-   * that holds it as it took it can close the parry: the friction angle of
-   * steel sliding on steel, `atan 0.57` (Serway and Jewett, Physics for
-   * Scientists and Engineers, the table of coefficients of friction), so
-   * the attacking blade pressing on the parrying one does not slide along it
-   * toward the hand.
+   * How far a parrying blade may lean from the line square to the attacker's,
+   * degrees, and it turns freely about its own line, so the hand that holds it
+   * as it took it can close the parry: the friction angle of steel sliding on
+   * steel, `atan 0.57` (Serway and Jewett, Physics for Scientists and
+   * Engineers, the table of coefficients of friction), so the attacking blade
+   * pressing on the parrying one does not slide along it toward the hand.
    */
   export const LEAN: number = (Math.atan(0.57) * 180) / Math.PI;
 
-  /** Where a parry's blade goes: the point its strong meets, the way it points, the way its edge faces, the seconds from the start to the attack's decisive instant, the seconds the stopped attack stays there before it turns back (null and 0 for a drill), how far a taken blade is carried aside (none when the blade is not taken) and the second since the start the carrying begins. */
+  /**
+   * Where a parry's blade goes: the point its strong meets, the way it points,
+   * the way its edge faces, the seconds from the start to the attack's decisive
+   * instant, the seconds the stopped attack stays there before it turns back
+   * (null and 0 for a drill), how far a taken blade is carried aside (none when
+   * the blade is not taken) and the second since the start the carrying
+   * begins.
+   */
   interface IMeet {
     at: IAutoMovieVector3;
     point: IAutoMovieVector3;
@@ -103,12 +118,11 @@ export namespace HumanSwordParry {
 
   /**
    * How far a parry carries a taken blade aside, world metres: square to the
-   * defender's front, level, toward the side of the defender's centre line
-   * the meeting lies on, until the whole attacking blade, from its grip's
-   * end to its point, lies outside the defender's broadest half breadth, the
-   * shoulders with the upper arm's girth or the chest, by the blades' `GAP`;
-   * none when it already does. The defender's own forward lunge then passes
-   * beside it.
+   * defender's front, level, toward the side of the defender's centre line the
+   * meeting lies on, until the whole attacking blade, from its grip's end to
+   * its point, lies outside the defender's broadest half breadth, the shoulders
+   * with the upper arm's girth or the chest, by the blades' `GAP`; none when it
+   * already does. The defender's own forward lunge then passes beside it.
    */
   const aside = (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
@@ -133,7 +147,12 @@ export namespace HumanSwordParry {
     return Vector3.scale(lateral, side * shift);
   };
 
-  /** Where the parry meets: the drill's line, or the attacker's stopped blade read through the attack's anchor, `weak` of its length back from its point; `hand` is the parrying hand's grip in its entry hold, which divides the high lines from the low. */
+  /**
+   * Where the parry meets: the drill's line, or the attacker's stopped blade
+   * read through the attack's anchor, `weak` of its length back from its point;
+   * `hand` is the parrying hand's grip in its entry hold, which divides the
+   * high lines from the low.
+   */
   const meet = (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
     s: IAutoMovieMotionHumanSword.ISetup,
@@ -284,7 +303,10 @@ export namespace HumanSwordParry {
   };
 
   /**
-   * Parry: the strong of the blade brought across an incoming blade where its attack is stopped, meeting it at `stroke`, or to a line as a drill. A meeting beyond the arm is refused on `target`; an attack without a blade on `against`.
+   * Parry: the strong of the blade brought across an incoming blade where its
+   * attack is stopped, meeting it at `stroke`, or to a line as a drill. A
+   * meeting beyond the arm is refused on `target`; an attack without a blade on
+   * `against`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what meets what, the instant and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The attacker's displayed blade at the attack's decisive instant gives the meeting point (`WEAK` of its length back from its point, the strong of the parrying blade on the weak of the attacking one); the parrying blade crosses it, upright for a high line and point down for a low one, offset to the defender's side by `HumanSword.GAP`. The parry waits in its entry hold so that its own travel ends on that instant.

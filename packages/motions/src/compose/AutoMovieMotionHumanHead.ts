@@ -8,11 +8,11 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanJoints } from "./AutoMovieMotionHumanJoints";
 
 /**
- * Head phrases: the head moved on the neck by joint angles, with no target
- * to look at (a nod, a shake, a tilt to one side).
+ * Head phrases: the head moved on the neck by joint angles, with no target to
+ * look at (a nod, a shake, a tilt to one side).
  *
- * Each angle is shared half by the neck and half by the head, the two joints
- * of the cervical chain the rig has. A head aimed at something is the gaze
+ * Each angle is shared half by the neck and half by the head, the two joints of
+ * the cervical chain the rig has. A head aimed at something is the gaze
  * primitive's.
  */
 export namespace AutoMovieMotionHumanHead {

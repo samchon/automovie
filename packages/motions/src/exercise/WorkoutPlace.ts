@@ -20,24 +20,21 @@ import { ExerciseKey } from "./ExerciseKey";
 
 /**
  * Where a workout's bearing bones stay: the one place the kind's pin keeps
- * while the body works, decided once per plan from how the kind is
- * anchored.
+ * while the body works, decided once per plan from how the kind is anchored.
  *
- * - `stance`: where the entry shows those bones, so a foot stays where it
- *   stands and not where the keys' own joints would stand it.
- * - `hips`: where they are when the first posture rests with the pelvis
- *   over its place. Feet or toes that bear on the floor are as high above
- *   it as when the body stands on them, and hands as high as a laid palm's
- *   wrist; a body that bears on its trunk is rested by its shapes; a body
- *   on a raised support has its hip joints as high above it as above the
- *   floor when it lies flat.
- * - `bar`: the prop's with the joints' own height above it, or, with none,
- *   the places a support exercise's bars stand at (`WorkoutKind.bars`)
- *   beside the place stood on, or the floor rule for a kind done on
- *   equipment (an imagined support). A hanging kind hangs from the bar it
- *   names and is refused without one;
- *   hands that grip a bar are pinned by their grip sockets, so the bar lies
- *   in the fists.
+ * - `stance`: where the entry shows those bones, so a foot stays where it stands
+ *   and not where the keys' own joints would stand it.
+ * - `hips`: where they are when the first posture rests with the pelvis over its
+ *   place. Feet or toes that bear on the floor are as high above it as when the
+ *   body stands on them, and hands as high as a laid palm's wrist; a body that
+ *   bears on its trunk is rested by its shapes; a body on a raised support has
+ *   its hip joints as high above it as above the floor when it lies flat.
+ * - `bar`: the prop's with the joints' own height above it, or, with none, the
+ *   places a support exercise's bars stand at (`WorkoutKind.bars`) beside the
+ *   place stood on, or the floor rule for a kind done on equipment (an imagined
+ *   support). A hanging kind hangs from the bar it names and is refused without
+ *   one; hands that grip a bar are pinned by their grip sockets, so the bar
+ *   lies in the fists.
  */
 export namespace WorkoutPlace {
   /** The hip joints, by which a body on a raised support is placed. */
@@ -49,8 +46,11 @@ export namespace WorkoutPlace {
   /**
    * The place the bearing bones keep.
    *
-   * @param props The action's context, the kind, the standing posture the exercise is entered from, the first key, and the prop's place when one bears the body.
-   * @param keepFloorPins Whether the exercise is carrying forward its bearing pins from a held floor stance.
+   * @param props The action's context, the kind, the standing posture the
+   *   exercise is entered from, the first key, and the prop's place when one
+   *   bears the body.
+   * @param keepFloorPins Whether the exercise is carrying forward its bearing
+   *   pins from a held floor stance.
    * @returns World metres.
    * @throws {HumanRefusal} When a hanging kind names no bar to hang from.
    */
@@ -58,7 +58,8 @@ export namespace WorkoutPlace {
     props: IAutoMovieMotionHumanWorkoutPlace.IOfProps,
     keepFloorPins: boolean = false,
   ): IAutoMovieVector3 {
-    const context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry"> = props.context;
+    const context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry"> =
+      props.context;
     const unhung = (): never => {
       throw new HumanRefusal({
         kind: "affordance",
@@ -73,7 +74,10 @@ export namespace WorkoutPlace {
     const standing: IAutoMovieMotionHumanPosture = props.standing;
     const borne: IAutoMovieVector3 | null = props.borne;
     const yaw: number = standing.yaw;
-    const based: IAutoMovieMotionHumanPosture = ExerciseKey.posed(props.first, yaw);
+    const based: IAutoMovieMotionHumanPosture = ExerciseKey.posed(
+      props.first,
+      yaw,
+    );
     const pelvis = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         resolveHumanPosture.heading(posture),
@@ -100,7 +104,10 @@ export namespace WorkoutPlace {
         poseBones(body, context.entry.pose, undefined, pins);
       return Vector3.scale(
         kind.pin.reduce(
-          (sum: IAutoMovieVector3, pin: IAutoMovieMotionHumanExerciseKey.Pin): IAutoMovieVector3 =>
+          (
+            sum: IAutoMovieVector3,
+            pin: IAutoMovieMotionHumanExerciseKey.Pin,
+          ): IAutoMovieVector3 =>
             Vector3.add(sum, ExerciseKey.at(body, entered, pin)),
           { x: 0, y: 0, z: 0 },
         ),
@@ -130,8 +137,9 @@ export namespace WorkoutPlace {
       );
       return soles
         ? shown().y
-        : kind.pin.every((bone: IAutoMovieMotionHumanExerciseKey.Pin): boolean =>
-              bone.endsWith("Hand"),
+        : kind.pin.every(
+              (bone: IAutoMovieMotionHumanExerciseKey.Pin): boolean =>
+                bone.endsWith("Hand"),
             )
           ? GymnasticsWheel.laid(body)
           : null;

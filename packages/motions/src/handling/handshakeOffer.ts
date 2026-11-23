@@ -20,19 +20,18 @@ import { handshakeReach } from "./handshakeReach";
  * degrees below level to the hand; both angles are provisional, as no
  * measurement of the offering arm was located. Two offering arms meet at the
  * point both forearms reach from their elbows (`point`), and a difference in
- * elbow height is taken by the elbows first (`shape`): the two forearms turn
- * by one angle, the higher partner's further down and the lower partner's up,
- * so the angle between the forearms, which the clasping fingers need to
- * clear the other's wrist, stays what two equal partners have, and the upper
- * arms stay where they were, because a raised upper arm is the costly joint
- * of a reach and an elbow anywhere from 60 to 100 degrees is not (McAtamney
- * and Corlett 1993, RULA: a survey method for the investigation of
- * work-related upper limb disorders, Applied Ergonomics 24(2):91). A higher
- * arm the turn would straighten lowers its upper arm toward hanging instead,
- * the cheapest upper-arm posture of the same survey, by the least angle that
- * keeps its elbow `EXTENDED` flexed at the bottom of the pump. The rule for
- * unequal partners is provisional, as no measurement of their clasp point was
- * located.
+ * elbow height is taken by the elbows first (`shape`): the two forearms turn by
+ * one angle, the higher partner's further down and the lower partner's up, so
+ * the angle between the forearms, which the clasping fingers need to clear the
+ * other's wrist, stays what two equal partners have, and the upper arms stay
+ * where they were, because a raised upper arm is the costly joint of a reach
+ * and an elbow anywhere from 60 to 100 degrees is not (McAtamney and Corlett
+ * 1993, RULA: a survey method for the investigation of work-related upper limb
+ * disorders, Applied Ergonomics 24(2):91). A higher arm the turn would
+ * straighten lowers its upper arm toward hanging instead, the cheapest
+ * upper-arm posture of the same survey, by the least angle that keeps its elbow
+ * `EXTENDED` flexed at the bottom of the pump. The rule for unequal partners is
+ * provisional, as no measurement of their clasp point was located.
  */
 export namespace handshakeOffer {
   /**
@@ -51,16 +50,19 @@ export namespace handshakeOffer {
    */
   export const EXTENDED: number = 15;
 
-  /** The most both upper arms come back together for partners standing near, degrees: from the offering arm's to hanging; provisional. */
+  /**
+   * The most both upper arms come back together for partners standing near,
+   * degrees: from the offering arm's to hanging; provisional.
+   */
   export const RETRACT: number = SHOULDER;
 
   /**
    * A forearm's length from the elbow to the palm socket with the wrist
    * straight: the socket's place in the hand's rest frame, whose fingers lie
    * along the forearm (the x axis, away from the midline), measured from the
-   * elbow one forearm behind the wrist. The socket sits off the forearm's
-   * line by the palm's depth, so this is shorter than the forearm plus the
-   * socket's distance from the wrist.
+   * elbow one forearm behind the wrist. The socket sits off the forearm's line
+   * by the palm's depth, so this is shorter than the forearm plus the socket's
+   * distance from the wrist.
    *
    * @param body The body.
    * @param side The arm.
@@ -98,19 +100,20 @@ export namespace handshakeOffer {
   }
 
   /**
-   * The shape two offering arms take over a difference in elbow height, in
-   * the vertical plane through the two shoulders.
+   * The shape two offering arms take over a difference in elbow height, in the
+   * vertical plane through the two shoulders.
    *
-   * Both forearms turn by the same angle, the higher one down and the lower
-   * one up, so the palms meet. When that turn would take the higher palm, at
-   * the bottom of the pump, beyond {@link reach}, the higher upper arm lowers
-   * toward hanging by the least angle that keeps it within, which lowers the
-   * elbow and so shortens the turn too.
+   * Both forearms turn by the same angle, the higher one down and the lower one
+   * up, so the palms meet. When that turn would take the higher palm, at the
+   * bottom of the pump, beyond {@link reach}, the higher upper arm lowers toward
+   * hanging by the least angle that keeps it within, which lowers the elbow and
+   * so shortens the turn too.
    *
    * @param upper The upper arm above the higher elbow, metres.
    * @param higher The forearm (to the palm) below the higher elbow, metres.
    * @param lower The other forearm, metres.
-   * @param drop How far the higher elbow stands above the lower with both upper arms offering, metres; not negative.
+   * @param drop How far the higher elbow stands above the lower with both upper
+   *   arms offering, metres; not negative.
    * @param pump The pump's amplitude, metres.
    * @returns The shape.
    */
@@ -173,44 +176,46 @@ export namespace handshakeOffer {
   }
 
   /**
-   * Where two shaking hands meet: the point both forearms reach from the
-   * elbows of the two offering arms.
+   * Where two shaking hands meet: the point both forearms reach from the elbows
+   * of the two offering arms.
    *
-   * Each upper arm is held `SHOULDER` forward of hanging, toward the partner
-   * in the vertical plane through the two acting shoulders, and the point is
-   * the lower of the two that lie one forearm (to the palm) from each elbow
+   * Each upper arm is held `SHOULDER` forward of hanging, toward the partner in
+   * the vertical plane through the two acting shoulders, and the point is the
+   * lower of the two that lie one forearm (to the palm) from each elbow
    * (`resolveAutoMovieMutualGoal` on the elbows). Partners of one size meet
    * with both arms in the offering shape; a difference in elbow height turns
    * the two forearms and leaves the upper arms where they were, until the
-   * pump's lowest point would lie beyond {@link reach} of the partner with
-   * the higher elbow, whose upper arm then lowers toward hanging by the
-   * least angle that keeps the point within (by bisection, as `shape` does
-   * in the plane). The hands point along the line that halves the angle
-   * between the two forearms, so each wrist deviates as much as the other.
+   * pump's lowest point would lie beyond {@link reach} of the partner with the
+   * higher elbow, whose upper arm then lowers toward hanging by the least angle
+   * that keeps the point within (by bisection, as `shape` does in the plane).
+   * The hands point along the line that halves the angle between the two
+   * forearms, so each wrist deviates as much as the other.
    *
-   * Elbows farther apart than the two forearms bring both upper arms forward
-   * by one common angle, the least at which the forearms meet in line (by
+   * Elbows farther apart than the two forearms bring both upper arms forward by
+   * one common angle, the least at which the forearms meet in line (by
    * bisection, the elbows' distance falling as the arms swing toward each
    * other). Elbows so near that the forearms meet steeper than the offering
    * slope would straighten an arm past {@link EXTENDED} at the bottom of the
    * pump: both upper arms then come back together, toward hanging and no
    * farther, by the least common angle (at most {@link RETRACT}) at which both
    * pump bottoms lie within reach, so the elbows bend more instead. Partners
-   * whose chests would touch, or so near that the elbows pass each other or
-   * the hands meet beyond a shoulder, have no meeting.
+   * whose chests would touch, or so near that the elbows pass each other or the
+   * hands meet beyond a shoulder, have no meeting.
    *
-   * Partners the rules cannot bring together are refused on `partner` with
-   * the bound that failed and its measured value (the elbows' distance
-   * against the two forearms, or the pump's lowest point against the reach of
-   * the partner who overreaches it most), and with the band of shoulder gaps
-   * at which this pair does shake hands as the feasible range.
+   * Partners the rules cannot bring together are refused on `partner` with the
+   * bound that failed and its measured value (the elbows' distance against the
+   * two forearms, or the pump's lowest point against the reach of the partner
+   * who overreaches it most), and with the band of shoulder gaps at which this
+   * pair does shake hands as the feasible range.
    *
    * @param a One partner's body and acting shoulder joint in world metres.
    * @param b The other's.
    * @param side The shaking hand of both.
    * @param pump How far the hands travel below the point after meeting, metres.
    * @returns The meeting; the point is the same for either order.
-   * @throws {HumanRefusal} When the partners stand too near or too far for their arms to meet, naming the bound that failed and the gaps that would plan.
+   * @throws {HumanRefusal} When the partners stand too near or too far for
+   *   their arms to meet, naming the bound that failed and the gaps that would
+   *   plan.
    */
   export function point(
     a: ISide,
@@ -224,8 +229,8 @@ export namespace handshakeOffer {
   }
 
   /**
-   * The meeting, or the bound it missed: `point` without the refusal,
-   * which the refusal reads again to find the band of gaps that would plan.
+   * The meeting, or the bound it missed: `point` without the refusal, which the
+   * refusal reads again to find the band of gaps that would plan.
    *
    * @param a One partner's body and acting shoulder joint in world metres.
    * @param b The other's.
@@ -466,9 +471,9 @@ export namespace handshakeOffer {
     point: IAutoMovieVector3;
 
     /**
-     * Where the first partner's fingers point before either hand turns in
-     * its palm's plane, world unit vector; the second partner's point the
-     * opposite way.
+     * Where the first partner's fingers point before either hand turns in its
+     * palm's plane, world unit vector; the second partner's point the opposite
+     * way.
      */
     fingers: IAutoMovieVector3;
   }
@@ -479,8 +484,8 @@ export namespace handshakeOffer {
     lowered: number;
 
     /**
-     * How far the higher forearm turns down and the lower forearm turns up
-     * from the offering slope, degrees.
+     * How far the higher forearm turns down and the lower forearm turns up from
+     * the offering slope, degrees.
      */
     turn: number;
   }

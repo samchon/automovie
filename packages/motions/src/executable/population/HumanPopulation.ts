@@ -7,24 +7,24 @@ import { HumanPopulationEnds } from "./HumanPopulationEnds";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
 /**
- * Whole adults at the ends of the population, each built from published
- * survey statistics and never from a generated figure.
+ * Whole adults at the ends of the population, each built from published survey
+ * statistics and never from a generated figure.
  *
  * A person is the conditional mean of every surveyed measure given a few
- * driving measures held at their 1st or 99th percentile: the regression form
- * of a boundary manikin (Young et al. 2008, NASA 20080013454). Holding one
- * measure at its end and letting every other take its expected value keeps
- * the person inside the survey's joint distribution, so its tapes move
- * together as real bodies' do. The survey is ANSUR 1988 (Gordon et al. 1989;
+ * driving measures held at their 1st or 99th percentile: the regression form of
+ * a boundary manikin (Young et al. 2008, NASA 20080013454). Holding one measure
+ * at its end and letting every other take its expected value keeps the person
+ * inside the survey's joint distribution, so its tapes move together as real
+ * bodies' do. The survey is ANSUR 1988 (Gordon et al. 1989;
  * `packages/human/docs/sources/ansur-1988-boundary-people.md`), the one public
- * body survey that measures the bust span, underbust, natural waist, elbow
- * and knee girths and the head and ear beside the body. Each sex has its own
- * means, standard deviations and correlations.
+ * body survey that measures the bust span, underbust, natural waist, elbow and
+ * knee girths and the head and ear beside the body. Each sex has its own means,
+ * standard deviations and correlations.
  *
  * This barrel joins the pieces: {@link HumanPopulationSurvey} the statistics,
  * {@link HumanPopulationConditional} the conditioning,
- * {@link HumanPopulationEnds} the ends, {@link HumanPopulationBuild} the
- * inputs written from an end and {@link HumanPopulationAudit} the checks.
+ * {@link HumanPopulationEnds} the ends, {@link HumanPopulationBuild} the inputs
+ * written from an end and {@link HumanPopulationAudit} the checks.
  */
 export namespace HumanPopulation {
   /** A surveyed sex; each has its own statistics table. */

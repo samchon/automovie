@@ -17,20 +17,21 @@ import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * One step of a long insertion's stance along the bore's line: the walk
- * law's own plan from the stance it leaves to the one it reaches, the body
- * keeping its heading (`IAutoMovieMotionHumanWalkParams.facing`) and its
- * arms to the insertion. The entry is the act's own, carried to the stance
- * left as `HumanSupportStep` carries a walk onto its support's frame: its
- * posture, pose root and feet moved along the line, at rest; after an
- * earlier step it stands on the legs that step's walk ended on (`standing`),
- * since a walk ends on its own gait's stance, not on the entry's.
+ * One step of a long insertion's stance along the bore's line: the walk law's
+ * own plan from the stance it leaves to the one it reaches, the body keeping
+ * its heading (`IAutoMovieMotionHumanWalkParams.facing`) and its arms to the
+ * insertion. The entry is the act's own, carried to the stance left as
+ * `HumanSupportStep` carries a walk onto its support's frame: its posture, pose
+ * root and feet moved along the line, at rest; after an earlier step it stands
+ * on the legs that step's walk ended on (`standing`), since a walk ends on its
+ * own gait's stance, not on the entry's.
  *
  * @param context The operation's context.
  * @param toward The unit horizontal line the stance moves along.
  * @param from The stance left, metres along the line from the entry's.
  * @param to The stance reached, metres along the line from the entry's.
- * @param ended The posture the previous step's walk ended on; none for the first step.
+ * @param ended The posture the previous step's walk ended on; none for the
+ *   first step.
  * @returns The walk's plan, from its own second 0.
  */
 export function operateLongInsertStep(
@@ -87,9 +88,7 @@ export function operateLongInsertStep(
   return walk.plan({ ...context, params, entry: moved });
 }
 
-/**
- * The stance carry of {@link operateLongInsertStep}.
- */
+/** The stance carry of {@link operateLongInsertStep}. */
 export namespace operateLongInsertStep {
   /**
    * The translation that carries the entry's stance a distance along the line.
@@ -111,15 +110,16 @@ export namespace operateLongInsertStep {
   }
 
   /**
-   * The entry's posture carried to a stance, standing on the legs a step's
-   * walk ended on: its root, its leg goals and the hips' and toes' joints,
-   * since a walk ends on its own gait's stance; the arms and the trunk stay
-   * the entry's, carried.
+   * The entry's posture carried to a stance, standing on the legs a step's walk
+   * ended on: its root, its leg goals and the hips' and toes' joints, since a
+   * walk ends on its own gait's stance; the arms and the trunk stay the
+   * entry's, carried.
    *
    * @param posture The entry's posture.
    * @param toward The unit horizontal line.
    * @param x Metres along it.
-   * @param ended The posture the last walk ended on; the carried entry alone when absent.
+   * @param ended The posture the last walk ended on; the carried entry alone
+   *   when absent.
    * @returns The standing posture.
    */
   export function standing(
@@ -150,8 +150,8 @@ export namespace operateLongInsertStep {
   }
 
   /**
-   * The finger joints a posture holds in both hands, for a walk spliced into
-   * an act whose hands keep their grips: the walk shapes its hands relaxed.
+   * The finger joints a posture holds in both hands, for a walk spliced into an
+   * act whose hands keep their grips: the walk shapes its hands relaxed.
    *
    * @param posture The posture whose fingers are kept.
    * @returns Its finger and thumb joints.

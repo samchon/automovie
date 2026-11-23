@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanMilitaryDrill } from "@automovie/interface";
 
 /**
- * The hook preset: a hook thrown by the lead hand. The `hook` row of `HumanDrill` reads it, so the row and the preset share one value.
+ * The hook preset: a hook thrown by the lead hand. The `hook` row of
+ * `HumanDrill` reads it, so the row and the preset share one value.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the members the preset fixes with their values and which row reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own members as one `IAutoMovieMotionHumanMilitaryDrill.IPunchPreset`, so the row fits the body as the law does.

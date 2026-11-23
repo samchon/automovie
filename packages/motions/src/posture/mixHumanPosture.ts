@@ -15,17 +15,17 @@ import { HumanPosture } from "./HumanPosture";
  * layer, as an animator's layer weight scales what the layer adds.
  *
  * `from` is the posture without the layer and `to` the posture with it. The
- * root, the heading, the tips and every joint angle move by the weight; a
- * joint only one of them sets counts as zero in the other. A limb goal both
- * set moves its point and its bend by the weight and keeps everything else
- * of `from` (its planting, its contact, its attachment), since a layer adds
- * to a goal and never changes what holds it; a goal only one of them sets
- * is kept as that one has it. A digit goal moves its point the same way and
- * keeps the rest of `from`'s (its surface, its facing, its attachment), so a
- * hand's grip holds through the mix as it does at both ends. A whole-body
- * `rotation` blends as a rotation, the shorter-arc slerp of the two turns at
- * constant angular speed with a line between their points; a posture
- * without one counts as the identity turn about the other's point.
+ * root, the heading, the tips and every joint angle move by the weight; a joint
+ * only one of them sets counts as zero in the other. A limb goal both set moves
+ * its point and its bend by the weight and keeps everything else of `from` (its
+ * planting, its contact, its attachment), since a layer adds to a goal and
+ * never changes what holds it; a goal only one of them sets is kept as that one
+ * has it. A digit goal moves its point the same way and keeps the rest of
+ * `from`'s (its surface, its facing, its attachment), so a hand's grip holds
+ * through the mix as it does at both ends. A whole-body `rotation` blends as a
+ * rotation, the shorter-arc slerp of the two turns at constant angular speed
+ * with a line between their points; a posture without one counts as the
+ * identity turn about the other's point.
  *
  * @param from The posture at weight 0.
  * @param to The posture at weight 1.

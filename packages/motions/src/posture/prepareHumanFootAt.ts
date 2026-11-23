@@ -18,7 +18,8 @@ import { HumanFoot } from "./HumanFoot";
  * @param pitch The fixed pitch, degrees, positive toes up.
  * @param toes The fixed toe flexion, degrees; zero when absent.
  * @param roll The fixed foot roll, degrees; zero when absent.
- * @returns A reader of the contact in world metres with `HumanFoot.pivot`'s placement.
+ * @returns A reader of the contact in world metres with `HumanFoot.pivot`'s
+ *   placement.
  */
 export function prepareHumanFootAt(
   body: IAutoMovieMotionHumanBody,
@@ -29,9 +30,14 @@ export function prepareHumanFootAt(
   toes: number = 0,
   roll: number = 0,
 ): (at: IAutoMovieVector3) => IAutoMovieMotionHumanFoot.IPlacement {
-  const rotation: IAutoMovieQuaternion = HumanFoot.rotation(heading, pitch, roll);
+  const rotation: IAutoMovieQuaternion = HumanFoot.rotation(
+    heading,
+    pitch,
+    roll,
+  );
   const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-    rotation, HumanFoot.offset(body, side, pivot, toes),
+    rotation,
+    HumanFoot.offset(body, side, pivot, toes),
   );
   return (at: IAutoMovieVector3): IAutoMovieMotionHumanFoot.IPlacement => ({
     ankle: Vector3.subtract(at, offset),

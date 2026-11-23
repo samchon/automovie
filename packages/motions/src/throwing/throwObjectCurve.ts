@@ -19,14 +19,20 @@ export function throwObjectCurve(
   span: number,
 ): (time: number) => IAutoMovieVector3 {
   const first: Parameters<typeof AutoMovieStationHermite.combine>[0] = {
-    value: [a.x, a.y, a.z], slope: [va.x, va.y, va.z],
+    value: [a.x, a.y, a.z],
+    slope: [va.x, va.y, va.z],
   };
   const last: Parameters<typeof AutoMovieStationHermite.combine>[1] = {
-    value: [b.x, b.y, b.z], slope: [vb.x, vb.y, vb.z],
+    value: [b.x, b.y, b.z],
+    slope: [vb.x, vb.y, vb.z],
   };
   return (time: number): IAutoMovieVector3 => {
-    const [x, y, z]: ReturnType<typeof AutoMovieStationHermite.combine> = AutoMovieStationHermite.combine(first, last,
-      AutoMovieStationHermite.weights(time, span, 0, false));
+    const [x, y, z]: ReturnType<typeof AutoMovieStationHermite.combine> =
+      AutoMovieStationHermite.combine(
+        first,
+        last,
+        AutoMovieStationHermite.weights(time, span, 0, false),
+      );
     return { x: x!, y: y!, z: z! };
   };
 }

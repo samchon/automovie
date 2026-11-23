@@ -10,11 +10,11 @@ import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 
 /**
- * Seat a wrist-relative palm frame on a line's skin. The hand faces against
- * the line's outward normal, with its fingers across the line as the rider
- * held them when taking the rein, turned about the normal by the hold's
- * crossing angle when it has one. World positions and radius are in metres;
- * the crossing is in degrees.
+ * Seat a wrist-relative palm frame on a line's skin. The hand faces against the
+ * line's outward normal, with its fingers across the line as the rider held
+ * them when taking the rein, turned about the normal by the hold's crossing
+ * angle when it has one. World positions and radius are in metres; the crossing
+ * is in degrees.
  */
 export function placeRideReinPalm(
   palm: IAutoMovieMotionHumanHand.IFrame,

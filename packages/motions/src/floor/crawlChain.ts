@@ -16,49 +16,55 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
 
 /**
- * The inchworm's reaches, solved on its body in its middle plane: a chain
- * from the feet's balls to the wrists, from which the fold's and the
- * plank's distances from the feet to the hands are read, and the shape at
- * each placement of the hands and the feet that seeds its stance's solve
- * (the walk's postures are the support planner's, `crawlInchworm`).
+ * The inchworm's reaches, solved on its body in its middle plane: a chain from
+ * the feet's balls to the wrists, from which the fold's and the plank's
+ * distances from the feet to the hands are read, and the shape at each
+ * placement of the hands and the feet that seeds its stance's solve (the walk's
+ * postures are the support planner's, `crawlInchworm`).
  *
  * Each foot pivots on its ball with the ankle at its standing angle to the
- * shank, the heel lifting as far as the shank leans forward (the leg's
- * lean and the knee's bend), up to the toes' extension range; the leg
- * runs at `LEG` of its length to the hip joints; the trunk is the hip
- * joints' middle to the shoulders'; the arm runs straight at `ARM` of its
- * length to the wrist over its flat palm. The
- * places of the hands and the feet leave the chain one freedom, closed by
- * how bearing hands are held: the arms hang plumb, the shoulders an arm
- * over the wrists, as the plank is cued ("hands under the shoulders"). The
- * hips then lie a trunk from the shoulders on the leg's arc, at the higher
- * of the two places (the pike above the line from the feet to the
- * shoulders), so the hip angle (the leg's to the trunk's) opens as the
- * hands go out and closes as the feet come in. The plank is the straight
- * body, the furthest the hands go; the fold is the shape whose hip flexes
- * to `SPARE` short of the end of its range, the flexion read from the hip
- * angle, the trunk's upright lean, the thigh's rest angle and its turn off
- * the leg's line by the bent knee (the spine's own flexion, which would
- * fold further, is not used). A dog's arms in line with the trunk are not
- * reached: the dog and the plank stand the hands nearly as far from the
- * feet, so the distance cannot tell them apart.
+ * shank, the heel lifting as far as the shank leans forward (the leg's lean and
+ * the knee's bend), up to the toes' extension range; the leg runs at `LEG` of
+ * its length to the hip joints; the trunk is the hip joints' middle to the
+ * shoulders'; the arm runs straight at `ARM` of its length to the wrist over
+ * its flat palm. The places of the hands and the feet leave the chain one
+ * freedom, closed by how bearing hands are held: the arms hang plumb, the
+ * shoulders an arm over the wrists, as the plank is cued ("hands under the
+ * shoulders"). The hips then lie a trunk from the shoulders on the leg's arc,
+ * at the higher of the two places (the pike above the line from the feet to the
+ * shoulders), so the hip angle (the leg's to the trunk's) opens as the hands go
+ * out and closes as the feet come in. The plank is the straight body, the
+ * furthest the hands go; the fold is the shape whose hip flexes to `SPARE`
+ * short of the end of its range, the flexion read from the hip angle, the
+ * trunk's upright lean, the thigh's rest angle and its turn off the leg's line
+ * by the bent knee (the spine's own flexion, which would fold further, is not
+ * used). A dog's arms in line with the trunk are not reached: the dog and the
+ * plank stand the hands nearly as far from the feet, so the distance cannot
+ * tell them apart.
  */
 export namespace crawlChain {
-  /** Degrees the fold keeps short of the end of the hip's flexion range (provisional). */
+  /**
+   * Degrees the fold keeps short of the end of the hip's flexion range
+   * (provisional).
+   */
   export const SPARE: number = 5;
 
-  /** The leg's reach from the hip joint to the ankle as a share of the thigh and the shank: the knee just short of locked (provisional). */
+  /**
+   * The leg's reach from the hip joint to the ankle as a share of the thigh and
+   * the shank: the knee just short of locked (provisional).
+   */
   export const LEG: number = 0.99;
 
-  /** The arm's reach from the shoulder to the wrist as a share of the upper arm and the forearm: the elbow just short of locked (as `crawl.ARM`). */
+  /**
+   * The arm's reach from the shoulder to the wrist as a share of the upper arm
+   * and the forearm: the elbow just short of locked (as `crawl.ARM`).
+   */
   export const ARM: number = 0.98;
 
   /** The leg's lowest elevation the chain is sought at, degrees over the floor. */
   export const LOWEST: number = 5;
 
-  /**
-   * A point of the middle plane.
-   */
+  /** A point of the middle plane. */
   export interface IPlanar {
     /** Metres forward along the heading from the frame's origin. */
     u: number;
@@ -67,9 +73,7 @@ export namespace crawlChain {
     v: number;
   }
 
-  /**
-   * The leg of the chain.
-   */
+  /** The leg of the chain. */
   export interface ILeg {
     /** The leg's elevation over the floor toward the hands, degrees; 90 upright. */
     lam: number;
@@ -84,9 +88,7 @@ export namespace crawlChain {
     hips: IPlanar;
   }
 
-  /**
-   * The chain solved.
-   */
+  /** The chain solved. */
   export interface IShape extends ILeg {
     /** The shoulder joints' middle. */
     shoulders: IPlanar;
@@ -95,11 +97,12 @@ export namespace crawlChain {
     hip: number;
   }
 
-  /**
-   * The chain built for one body standing.
-   */
+  /** The chain built for one body standing. */
   export interface IChain {
-    /** The chain with the feet's balls' middle at `mu` and the wrists' at `wrist`, both along the heading in metres. */
+    /**
+     * The chain with the feet's balls' middle at `mu` and the wrists' at
+     * `wrist`, both along the heading in metres.
+     */
     shape(mu: number, wrist: number): IShape;
 
     /** The trunk's forward lean from the hips to the shoulders upright, degrees. */
@@ -201,7 +204,10 @@ export namespace crawlChain {
       origin: { x: 0, y: 0, z: 0 },
       yaw,
     });
-    /** Fixed foot and leg offsets for one exact elevation, before current translation. */
+    /**
+     * Fixed foot and leg offsets for one exact elevation, before current
+     * translation.
+     */
     interface IGeometry {
       /** Degrees of heel lift. */
       heel: number;

@@ -35,10 +35,16 @@ import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 /** Sides of the bicycle contact pairs. */
 const SIDES: readonly ("left" | "right")[] = ["left", "right"];
 
-/** Forward pelvic transfer as a share of vertical effort, provisional for film blocking. */
+/**
+ * Forward pelvic transfer as a share of vertical effort, provisional for film
+ * blocking.
+ */
 const FORWARD: number = 0.35;
 
-/** Additional trunk inclination over the flying saddle, in provisional staging degrees. */
+/**
+ * Additional trunk inclination over the flying saddle, in provisional staging
+ * degrees.
+ */
 const INCLINE: number = 7;
 
 /** Metres permitted between declared placement and the displayed contact. */
@@ -49,11 +55,10 @@ const INTERVALS: number = 8;
 
 /**
  * Rise from the saddle while both feet follow their pedals and both hands
- * follow the handlebar. The seated ride provides the moving contact targets.
- * A smooth rise into and out of the authored clearance moves the pelvis up
- * and forward, and the ankle is refit about its pedal point under the new hip.
- * The entry seat and each sole's ball must already align with their named
- * supports.
+ * follow the handlebar. The seated ride provides the moving contact targets. A
+ * smooth rise into and out of the authored clearance moves the pelvis up and
+ * forward, and the ankle is refit about its pedal point under the new hip. The
+ * entry seat and each sole's ball must already align with their named supports.
  * The law uses the distinct body/support states described by the in-field
  * seated and standing sprint study https://www.mdpi.com/1424-8220/24/11/3453 .
  * Its clearance, timing and fore-aft transfer are staging decisions.
@@ -222,7 +227,10 @@ export const HumanBicycleEffort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           params: { on, seat, feet, hands, duration: seconds },
         });
 
-      /** Move the pelvis relative to the bicycle while retaining the ridden grip and pedal targets. */
+      /**
+       * Move the pelvis relative to the bicycle while retaining the ridden grip
+       * and pedal targets.
+       */
       const posture = (at: number): IAutoMovieMotionHumanPosture => {
         if (at <= seatOff || at >= seatOn) return ride.posture(at);
         const { posture: seated, frame }: WorkingSeatRidePlan.IWritten =

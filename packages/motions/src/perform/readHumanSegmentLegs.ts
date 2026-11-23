@@ -19,15 +19,14 @@ import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
  * The legs' continuation seeds of a displayed second, under every name the
  * read's leaf fits a leg by: the plain leaf's (`leaf::<leg>`) and each leaf
  * under the running overlays, named by their ordinals in placement order
- * (`HumanSegmentOverlay.overlaid`), every subset of them since a fading
- * overlay keeps both the leaf with it and the one without. The seeds are the
- * plan's leg chain at the frame at or before the second
- * (`readHumanSegmentLegs.chain`), for a free leg alone (a goal neither
- * planted nor in contact): a leg is only continued from them, never placed
- * at them, and its fit takes the closed-form root nearest the seed (on
- * another branch where the seed's has no legal one). A planted leg keeps
- * its own fit: where its goal asks no turn of the foot, the chain's swivel
- * would turn the foot about the ankle and move its sole.
+ * (`HumanSegmentOverlay.overlaid`), every subset of them since a fading overlay
+ * keeps both the leaf with it and the one without. The seeds are the plan's leg
+ * chain at the frame at or before the second (`readHumanSegmentLegs.chain`),
+ * for a free leg alone (a goal neither planted nor in contact): a leg is only
+ * continued from them, never placed at them, and its fit takes the closed-form
+ * root nearest the seed (on another branch where the seed's has no legal one).
+ * A planted leg keeps its own fit: where its goal asks no turn of the foot, the
+ * chain's swivel would turn the foot about the ankle and move its sole.
  *
  * @param person The person.
  * @param segment The action.
@@ -70,7 +69,10 @@ export function readHumanSegmentLegs(
   return out;
 }
 
-/** Whether a leg goal is free: given, neither planted nor in contact, so the leg continues the chain's seed. */
+/**
+ * Whether a leg goal is free: given, neither planted nor in contact, so the leg
+ * continues the chain's seed.
+ */
 function free(
   goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb],
 ): boolean {
@@ -90,17 +92,16 @@ export namespace readHumanSegmentLegs {
    * (`AutoMovieMotionHumanArmCourse.STEP`), the first frame fitted cold and
    * each later one continuing the frame before it, so each frame takes the
    * closed-form root on the branch the frame before chose and refines only
-   * where that root is illegal (Tolani, Goswami and Badler 2000, section
-   * 3.2.4, the feasible swivel nearest the desired one): the temporal
-   * coherence a display keeps a knee's side by. A second takes the frame at
-   * or before it. The chain reads the plan's own leg goals alone, and is
-   * extended from the plan's start to a frame the first time a second needs
-   * it, so no frame depends on the order seconds are read in.
+   * where that root is illegal (Tolani, Goswami and Badler 2000, section 3.2.4,
+   * the feasible swivel nearest the desired one): the temporal coherence a
+   * display keeps a knee's side by. A second takes the frame at or before it.
+   * The chain reads the plan's own leg goals alone, and is extended from the
+   * plan's start to a frame the first time a second needs it, so no frame
+   * depends on the order seconds are read in.
    *
    * @param plan The segment's plan.
    * @param body The performer's body.
    * @returns Each leg's seed at a plan second.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the grid, the chaining, which frame a second takes and why the order of reads cannot matter.
    * @evidence contracts/development/implementation.md#principled-implementation Warm-starting each frame from the frame before, on the branch it chose, is the temporal coherence of engine two-bone IK; the root nearest the seed is the closed-form feasible swivel nearest the desired one (Tolani §3.2.4).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One kept list of frames per plan, extended in order.
@@ -133,10 +134,7 @@ export namespace readHumanSegmentLegs {
         frames.push(
           frame(
             body,
-            plan.posture(
-              Math.min(plan.duration, frames.length * step),
-              LEGGED,
-            ),
+            plan.posture(Math.min(plan.duration, frames.length * step), LEGGED),
             frames[frames.length - 1],
           ),
         );
@@ -144,7 +142,10 @@ export namespace readHumanSegmentLegs {
     };
   }
 
-  /** One frame's leg seeds: the posture's leg goals alone, fitted cold or continuing the frame before. */
+  /**
+   * One frame's leg seeds: the posture's leg goals alone, fitted cold or
+   * continuing the frame before.
+   */
   function frame(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -171,11 +172,11 @@ export namespace readHumanSegmentLegs {
   const LEGS: readonly AutoMovieHumanLimb[] = ["leftLeg", "rightLeg"];
 
   /**
-   * The channels a chain frame demands of the plan: a leg fit reads the
-   * root, the trunk and the legs' own goals and joints alone
-   * (`HumanSegmentLegs`), so a plan that honours the demand evaluates no arm,
-   * head or hand writer for a frame: the required-bones evaluation of engine
-   * animation graphs (Unreal Engine `FBoneContainer`).
+   * The channels a chain frame demands of the plan: a leg fit reads the root,
+   * the trunk and the legs' own goals and joints alone (`HumanSegmentLegs`), so
+   * a plan that honours the demand evaluates no arm, head or hand writer for a
+   * frame: the required-bones evaluation of engine animation graphs (Unreal
+   * Engine `FBoneContainer`).
    */
   const LEGGED: readonly AutoMovieMotionHumanChannel[] = [
     "root",

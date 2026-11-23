@@ -11,22 +11,23 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
 /**
- * The pairs of body segments a deep fold brings together in a whole-body
- * fit (`HumanBodyFit`), each kept apart by a gap row: an arm's upper arm and
+ * The pairs of body segments a deep fold brings together in a whole-body fit
+ * (`HumanBodyFit`), each kept apart by a gap row: an arm's upper arm and
  * forearm against each thigh, its forearm against each shank, and the chest
  * against each thigh, the segments a crouch, a kneel or a hands-down landing
  * folds against one another.
  *
- * Each segment is a capsule along its bone from its joint to its child's
- * joint, at the radius the body's own measure gives it, so the gap is the
- * distance between the two axes' closest points less both radii (Ericson
- * 2005, "Real-Time Collision Detection", section 4.5.1, the capsule's
- * distance as its segment's), and its slope is the two closest points'
- * velocities along the line joining them.
+ * Each segment is a capsule along its bone from its joint to its child's joint,
+ * at the radius the body's own measure gives it, so the gap is the distance
+ * between the two axes' closest points less both radii (Ericson 2005,
+ * "Real-Time Collision Detection", section 4.5.1, the capsule's distance as its
+ * segment's), and its slope is the two closest points' velocities along the
+ * line joining them.
  */
 export namespace HumanFitPairs {
   /**
-   * One capsule: a segment from a bone's joint to its child's joint, at a radius.
+   * One capsule: a segment from a bone's joint to its child's joint, at a
+   * radius.
    */
   export interface ICapsule {
     /** The bone whose joint starts the segment and whose motion carries it. */
@@ -39,9 +40,7 @@ export namespace HumanFitPairs {
     radius: number;
   }
 
-  /**
-   * Two capsules kept apart.
-   */
+  /** Two capsules kept apart. */
   export interface IPair {
     /** The first capsule. */
     a: ICapsule;
@@ -50,11 +49,12 @@ export namespace HumanFitPairs {
     b: ICapsule;
   }
 
-  /**
-   * A pair's reading at one posture.
-   */
+  /** A pair's reading at one posture. */
   export interface IGap {
-    /** The distance between the two surfaces, metres; negative where they overlap. */
+    /**
+     * The distance between the two surfaces, metres; negative where they
+     * overlap.
+     */
     distance: number;
 
     /** The closest point on the first capsule's axis, world metres. */
@@ -142,18 +142,22 @@ export namespace HumanFitPairs {
 
   /**
    * A pair's row of one step: its gap kept at or above minus `band`, in
-   * millimetres per solved unit, linearised by the closest points'
-   * velocities along the line from the second to the first.
+   * millimetres per solved unit, linearised by the closest points' velocities
+   * along the line from the second to the first.
    *
    * @param step The step's motions and units, and the reading it starts from.
    * @param pair The pair.
    * @param band How far the gap may fall below nought unpriced, metres.
    * @param mm Millimetres in a metre, the rows' unit.
-   * @param prepared Optional completed gap for this exact pair and step.at's unchanged bones; freshly measured when absent.
+   * @param prepared Optional completed gap for this exact pair and step.at's
+   *   unchanged bones; freshly measured when absent.
    * @returns The row and the reading it linearises.
    */
   export function row(
-    step: Pick<HumanBodyFitRows.IStep, "at" | "motions" | "units" | "index" | "price">,
+    step: Pick<
+      HumanBodyFitRows.IStep,
+      "at" | "motions" | "units" | "index" | "price"
+    >,
     pair: IPair,
     band: number,
     mm: number,

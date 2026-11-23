@@ -15,7 +15,10 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrape>;
 
-/** The hanging joints, degrees: hips folded so the legs hang, shoulders flexed so the arms hang, the neck bent (provisional). */
+/**
+ * The hanging joints, degrees: hips folded so the legs hang, shoulders flexed
+ * so the arms hang, the neck bent (provisional).
+ */
 const HANGING: IAutoMovieMotionHumanPosture["joints"] = {
   leftUpperLeg: [90, 0, 0],
   rightUpperLeg: [90, 0, 0],
@@ -29,7 +32,13 @@ const HANGING: IAutoMovieMotionHumanPosture["joints"] = {
 };
 
 /**
- * A limp body laid across a saddle (`IAutoMovieMotionHumanDrape`): in the carrier contact's frame the body lies face down across the seat, its trunk level and pointing to the head's side, the hips resting on the seat a trunk's half depth above it and folded so the legs hang down the other side, the arms and head hanging; it comes to lie so from the entry over `lay` by a minimum-jerk share and is carried by the contact. Register `HumanDrape` to use it.
+ * A limp body laid across a saddle (`IAutoMovieMotionHumanDrape`): in the
+ * carrier contact's frame the body lies face down across the seat, its trunk
+ * level and pointing to the head's side, the hips resting on the seat a trunk's
+ * half depth above it and folded so the legs hang down the other side, the arms
+ * and head hanging; it comes to lie so from the entry over `lay` by a
+ * minimum-jerk share and is carried by the contact. Register `HumanDrape` to
+ * use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the lie, the carriage and how it is registered.
  * @evidence contracts/development/design.md#principled-representation One law; the lie as one posture in the carrier contact's frame.

@@ -12,9 +12,9 @@ import type { handshakeOffer } from "./handshakeOffer";
  * Why two offering arms do not meet, and where the same pair would: the
  * handshake's refusal (`handshakeOffer.point`).
  *
- * A meeting is missed on one bound: the elbows stand farther apart than the
- * two forearms however far forward the upper arms come, or the pump's lowest
- * point lies beyond the reach of a partner's arm bent `handshakeOffer.EXTENDED`
+ * A meeting is missed on one bound: the elbows stand farther apart than the two
+ * forearms however far forward the upper arms come, or the pump's lowest point
+ * lies beyond the reach of a partner's arm bent `handshakeOffer.EXTENDED`
  * however the upper arms are brought back. The refusal names that bound with
  * its measured value, and as its feasible range the band of shoulder gaps at
  * which the pair does meet, found by trying the pair along the same line.
@@ -22,11 +22,11 @@ import type { handshakeOffer } from "./handshakeOffer";
 export namespace handshakeReach {
   /**
    * The refusal of a missed meeting: the bound that failed with its measured
-   * value, and the band of shoulder gaps at which this pair does shake
-   * hands, found by trying the pair at every centimetre of gap along the
-   * same line, at the same heights, from `BAND[0]` to `BAND[1]`, taking the
-   * run of meeting gaps nearest the gap the partners stand at, and bisecting
-   * each end of that run.
+   * value, and the band of shoulder gaps at which this pair does shake hands,
+   * found by trying the pair at every centimetre of gap along the same line, at
+   * the same heights, from `BAND[0]` to `BAND[1]`, taking the run of meeting
+   * gaps nearest the gap the partners stand at, and bisecting each end of that
+   * run.
    *
    * @param a One partner's body and acting shoulder joint in world metres.
    * @param b The other's.
@@ -139,7 +139,10 @@ export namespace handshakeReach {
     });
   }
 
-  /** The shoulder gaps a refusal tries for the band a pair meets in, metres: from shoulders almost touching to two long arms in line. */
+  /**
+   * The shoulder gaps a refusal tries for the band a pair meets in, metres:
+   * from shoulders almost touching to two long arms in line.
+   */
   const BAND: readonly [number, number] = [0.05, 2.5];
 
   /** A meeting missed, and by which bound. */

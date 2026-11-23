@@ -31,7 +31,10 @@ import type { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { prepareThighSkin } from "./prepareThighSkin";
 import { seatedFlatHand } from "./seatedFlatHand";
 
-/** A hand's breadth across the palm as a share of its length (provisional anthropometric ratio). */
+/**
+ * A hand's breadth across the palm as a share of its length (provisional
+ * anthropometric ratio).
+ */
 const PALM_BREADTH: number = 0.45;
 
 /** Profile-local thigh intersections and hand extents for this seated phase. */
@@ -45,8 +48,8 @@ type PalmRests = ReturnType<typeof prepareSeatedPalms>;
  */
 export namespace seatedHands {
   /**
-   * Lay both palms on their own front thighs, fingers toward the knees.
-   * The input's leg goals are solved before the surface is measured.
+   * Lay both palms on their own front thighs, fingers toward the knees. The
+   * input's leg goals are solved before the surface is measured.
    */
   export function hands(
     body: IAutoMovieMotionHumanBody,
@@ -96,9 +99,9 @@ export namespace seatedHands {
   }
 
   /**
-   * Rest each hand on its armrest when supplied, otherwise on its thigh.
-   * Inputs contain placed legs and directly authored hanging arms; share is
-   * zero hanging to one bearing, and armrest coordinates are world metres.
+   * Rest each hand on its armrest when supplied, otherwise on its thigh. Inputs
+   * contain placed legs and directly authored hanging arms; share is zero
+   * hanging to one bearing, and armrest coordinates are world metres.
    */
   export function rested(
     body: IAutoMovieMotionHumanBody,
@@ -155,12 +158,11 @@ export namespace seatedHands {
 
   /**
    * Move supplied hands from their directly posed frames onto world-metre
-   * armrest points, palms down, fingers along yaw in degrees. Other hand
-   * goals remain; a hand bears when share reaches one. The hanging origins
-   * are read with the leg goals alone, then each point is interpolated
-   * linearly and each palm-down goal slerped; a nonpositive share returns the
-   * posture as given, and out-of-reach armrests are left to the contact
-   * audit.
+   * armrest points, palms down, fingers along yaw in degrees. Other hand goals
+   * remain; a hand bears when share reaches one. The hanging origins are read
+   * with the leg goals alone, then each point is interpolated linearly and each
+   * palm-down goal slerped; a nonpositive share returns the posture as given,
+   * and out-of-reach armrests are left to the contact audit.
    */
   function onArmrests(
     body: IAutoMovieMotionHumanBody,
@@ -182,7 +184,10 @@ export namespace seatedHands {
     return restGoals(body, posture, rests, yaw, share, bones);
   }
 
-  /** Preserve the public spread-then-leg-read order and its original present-goal observations. */
+  /**
+   * Preserve the public spread-then-leg-read order and its original
+   * present-goal observations.
+   */
   function legsOnly(
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPosture["limbs"] {
@@ -238,8 +243,8 @@ export namespace seatedHands {
   }
 
   /**
-   * The bearing wrist that puts the body's flat palm on an armrest,
-   * palm down and fingers along the seat's yaw, in world metres and degrees.
+   * The bearing wrist that puts the body's flat palm on an armrest, palm down
+   * and fingers along the seat's yaw, in world metres and degrees.
    */
   export function armrest(
     body: IAutoMovieMotionHumanBody,
@@ -335,7 +340,11 @@ export namespace seatedHands {
     return { ...shaped, limbs };
   }
 
-  /** Separate the moving hand from the current thigh along the wrist's radial direction. The two convex support extents give the least outward translation on that ray, in metres. */
+  /**
+   * Separate the moving hand from the current thigh along the wrist's radial
+   * direction. The two convex support extents give the least outward
+   * translation on that ray, in metres.
+   */
   function clearThigh(
     body: IAutoMovieMotionHumanBody,
     shaped: IAutoMovieMotionHumanPosture,
@@ -385,10 +394,10 @@ export namespace seatedHands {
   }
 
   /**
-   * Actuate the fingers of each placed hand along with its wrist: the flat
-   * hand with its thumb's metacarpal twisted until the thumb clears the
-   * palmar plane (`bendFloorHand`), so a palm laid on a thigh or an armrest
-   * does not drive its thumb into it.
+   * Actuate the fingers of each placed hand along with its wrist: the flat hand
+   * with its thumb's metacarpal twisted until the thumb clears the palmar plane
+   * (`bendFloorHand`), so a palm laid on a thigh or an armrest does not drive
+   * its thumb into it.
    */
   function flattened(
     body: IAutoMovieMotionHumanBody,
@@ -479,12 +488,11 @@ export namespace seatedHands {
 
   /**
    * The palm's place on a thigh: the thigh's own collider met along the
-   * surface's normal, by a ray from outside the thigh's bounding ball, then
-   * the flat hand's colliders kept clear of it by how far they reach past
-   * the palm toward the thigh (`handReach`) and by the thigh's curve under
-   * the palm's sides, so the resting hand touches the thigh without entering
-   * it. The surface region's point stands in where
-   * the ray finds no collider.
+   * surface's normal, by a ray from outside the thigh's bounding ball, then the
+   * flat hand's colliders kept clear of it by how far they reach past the palm
+   * toward the thigh (`handReach`) and by the thigh's curve under the palm's
+   * sides, so the resting hand touches the thigh without entering it. The
+   * surface region's point stands in where the ray finds no collider.
    */
   function laid(
     body: IAutoMovieMotionHumanBody,
@@ -550,7 +558,10 @@ export namespace seatedHands {
     );
   }
 
-  /** Surface bones and knees determine targets; hanging origins also need wrists. */
+  /**
+   * Surface bones and knees determine targets; hanging origins also need
+   * wrists.
+   */
   function thighBones(
     body: IAutoMovieMotionHumanBody,
     sides: readonly AutoMovieHumanSide[],
@@ -575,15 +586,15 @@ export namespace seatedHands {
 
 /**
  * The fingers' direction for a palm laid on a surface: the surface's own
- * direction (along the thigh) where it lies within the wrist's deviation of
- * the arm's line laid into the surface, else that line turned by the
- * deviation toward it. The deviation is the side of the rig's wrist
- * deviation range (`DEFAULT_HUMANOID_ROM`, the hand's abduction) the turn
- * goes to: for a palm laid down, fingers turned away from the body's
- * midline turn toward the little finger, ulnar deviation, the wider side of
- * the range, and fingers turned toward the midline radially, the narrower
- * (the table's -30 and 20 degrees; the American Academy of Orthopaedic
- * Surgeons' norms, Greene and Heckman 1994, give ulnar 30 and radial 20).
+ * direction (along the thigh) where it lies within the wrist's deviation of the
+ * arm's line laid into the surface, else that line turned by the deviation
+ * toward it. The deviation is the side of the rig's wrist deviation range
+ * (`DEFAULT_HUMANOID_ROM`, the hand's abduction) the turn goes to: for a palm
+ * laid down, fingers turned away from the body's midline turn toward the little
+ * finger, ulnar deviation, the wider side of the range, and fingers turned
+ * toward the midline radially, the narrower (the table's -30 and 20 degrees;
+ * the American Academy of Orthopaedic Surgeons' norms, Greene and Heckman 1994,
+ * give ulnar 30 and radial 20).
  */
 function heading(
   side: AutoMovieHumanSide,

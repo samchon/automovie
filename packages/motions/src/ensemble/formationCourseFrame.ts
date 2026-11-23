@@ -4,7 +4,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A course frame at a second: linear between its samples, heading the way it moves (or as its samples say), kept while it stands.
+ * A course frame at a second: linear between its samples, heading the way it
+ * moves (or as its samples say), kept while it stands.
  *
  * Moved unchanged from `HumanFormation` to keep that file under the
  * repository's 500-line limit; its caller and behaviour are unchanged.

@@ -22,23 +22,24 @@ import { throwObjectForm } from "./throwObjectForm";
  * The throw's trunk and its release place, read by `throwObject`.
  *
  * The trunk is a twist shared by the chest and the spine with a forward
- * inclination added through the spine and the chest alone
- * (`HumanTrunk.incline` with no pelvis share), so a throw performed over a
- * carrier never claims the pelvis. At release the trunk is square to the line
- * and inclined by the style's `throwObjectForm.TILT`, so the release is read
- * from the throwing shoulder of that pose, not of the standing one: where a
- * study gives the elbow's flexion at release (`throwObjectForm.ELBOW`) the
- * wrist stands the shoulder-to-wrist distance that flexion leaves (the law of
- * cosines on the upper arm and the forearm) along the place's direction and
- * the grip the held hand's grip offset beyond it; otherwise the place is the
- * style's `throwObjectForm.PLACES` release from that shoulder.
+ * inclination added through the spine and the chest alone (`HumanTrunk.incline`
+ * with no pelvis share), so a throw performed over a carrier never claims the
+ * pelvis. At release the trunk is square to the line and inclined by the
+ * style's `throwObjectForm.TILT`, so the release is read from the throwing
+ * shoulder of that pose, not of the standing one: where a study gives the
+ * elbow's flexion at release (`throwObjectForm.ELBOW`) the wrist stands the
+ * shoulder-to-wrist distance that flexion leaves (the law of cosines on the
+ * upper arm and the forearm) along the place's direction and the grip the held
+ * hand's grip offset beyond it; otherwise the place is the style's
+ * `throwObjectForm.PLACES` release from that shoulder.
  */
 export namespace throwObjectRelease {
   /**
    * The trunk's joints for a twist and a forward inclination.
    *
    * @param joints The posture's joints.
-   * @param twist The trunk's twist, degrees; positive toward the performer's left.
+   * @param twist The trunk's twist, degrees; positive toward the performer's
+   *   left.
    * @param tilt The forward inclination, degrees.
    * @returns The joints with the chest and the spine written.
    */
@@ -58,9 +59,7 @@ export namespace throwObjectRelease {
     ).joints;
   }
 
-  /**
-   * What the release place is read from.
-   */
+  /** What the release place is read from. */
   export interface IProps {
     /** The thrower. */
     body: IAutoMovieMotionHumanBody;
@@ -81,7 +80,8 @@ export namespace throwObjectRelease {
   /**
    * The grip's place at release.
    *
-   * @param props The thrower, the hand, the style, the standing posture and the held rotation.
+   * @param props The thrower, the hand, the style, the standing posture and the
+   *   held rotation.
    * @returns World metres.
    */
   export function point(props: IProps): IAutoMovieVector3 {
@@ -91,15 +91,23 @@ export namespace throwObjectRelease {
       origin: standing.root,
       yaw: standing.yaw,
     };
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]);
     const shoulder: IAutoMovieVector3 = HumanFrame.local(
       frame,
       poseBones(
         body,
-        resolveHumanPosture.seeded(body, {
-          ...standing,
-          joints: trunk(standing.joints, 0, throwObjectForm.TILT[style]),
-        }, undefined, {}, undefined, requested).pose,
+        resolveHumanPosture.seeded(
+          body,
+          {
+            ...standing,
+            joints: trunk(standing.joints, 0, throwObjectForm.TILT[style]),
+          },
+          undefined,
+          {},
+          undefined,
+          requested,
+        ).pose,
         undefined,
         requested,
       ).get(`${side}UpperArm`)!.worldPosition,

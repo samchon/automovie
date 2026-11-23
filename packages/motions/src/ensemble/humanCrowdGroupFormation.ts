@@ -18,8 +18,8 @@ type Observation = readonly [
 
 /**
  * The adjacent-member distances in metres and moderate-density bearings in
- * degrees clockwise from travel, from Moussaïd et al. (2010), Table 1.
- * Both populations' pairs are abreast, so their bearing is 90 degrees.
+ * degrees clockwise from travel, from Moussaïd et al. (2010), Table 1. Both
+ * populations' pairs are abreast, so their bearing is 90 degrees.
  */
 const OBSERVATIONS: readonly (readonly Observation[])[] = [
   [[0.78, 0.54, 90]],
@@ -38,23 +38,26 @@ const OBSERVATIONS: readonly (readonly Observation[])[] = [
  * Compose density-sensitive walking slots around the centre of a pedestrian
  * group's course. For the two- to four-person groups measured by Moussaïd et
  * al. (2010, https://doi.org/10.1371/journal.pone.0010047, Table 1 and Fig. 4),
- * sparse groups walk abreast and higher-density groups bend their outer
- * members forward. The low-density bearings are set to 90 degrees because
- * the study found no significant departure from abreast there. Interpolation
- * between the two populations is an authored approximation. Densities
- * outside the observations use the nearer endpoint.
+ * sparse groups walk abreast and higher-density groups bend their outer members
+ * forward. The low-density bearings are set to 90 degrees because the study
+ * found no significant departure from abreast there. Interpolation between the
+ * two populations is an authored approximation. Densities outside the
+ * observations use the nearer endpoint.
  *
- * Give each member's walking action its slot in the returned formation.
- * Plan the supplied frame from the group's centroid and check that the
- * placed slots clear obstacles along the course, including while turning.
- * A summed-shoulder-breadth disc can miss an outer slot. The result
- * describes relative slots only.
+ * Give each member's walking action its slot in the returned formation. Plan
+ * the supplied frame from the group's centroid and check that the placed slots
+ * clear obstacles along the course, including while turning. A
+ * summed-shoulder-breadth disc can miss an outer slot. The result describes
+ * relative slots only.
  *
  * @param frame The group centre and facing over film time.
- * @param halfBreadths Positive shoulder half breadths in metres, in left-to-right member order.
- * @param density Authored pedestrian density in people per square metre, finite and nonnegative.
+ * @param halfBreadths Positive shoulder half breadths in metres, in
+ *   left-to-right member order.
+ * @param density Authored pedestrian density in people per square metre, finite
+ *   and nonnegative.
  * @returns Formation blocks in member order for station keeping.
- * @throws {HumanRefusal} When the member count, half breadths or density are invalid.
+ * @throws {HumanRefusal} When the member count, half breadths or density are
+ *   invalid.
  */
 export function humanCrowdGroupFormation(
   frame: IAutoMovieMotionHumanFormation.Frame,

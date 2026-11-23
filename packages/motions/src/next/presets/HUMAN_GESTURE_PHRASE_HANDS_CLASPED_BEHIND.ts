@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
 /**
- * The values the `handsClaspedBehind` row of `HumanUpperRows` fixes on `armPhrase`, spread into its parameters. Hands clasped behind: both palms meet behind the lower back and stay.
+ * The values the `handsClaspedBehind` row of `HumanUpperRows` fixes on
+ * `armPhrase`, spread into its parameters. Hands clasped behind: both palms
+ * meet behind the lower back and stay.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IArmPhrasePhraseHandTargetOffsetFacingHoldPreset`, so it fits any body as the law does.

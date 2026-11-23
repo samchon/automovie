@@ -4,15 +4,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-
 /**
  * Prepared support courses for a crawl. Footprints and exact swing boundaries
  * belong to its finite authored cycle list, and time queries search that list.
  */
 export namespace crawlCourse {
-  /**
-   * A finite authored support schedule.
-   */
+  /** A finite authored support schedule. */
   export interface IProps {
     /** Limbs in the gait. */
     limbs: readonly IAutoMovieMotionHumanCrawl.Limb[];
@@ -21,15 +18,18 @@ export namespace crawlCourse {
     cycles: number;
 
     /**
-     * World-metre footprint of a limb after its numbered swing, with cycle
-     * zero the entry print. The returned point stays unchanged while this
-     * prepared course owns it.
+     * World-metre footprint of a limb after its numbered swing, with cycle zero
+     * the entry print. The returned point stays unchanged while this prepared
+     * course owns it.
      */
-    print(limb: IAutoMovieMotionHumanCrawl.Limb, cycle: number): IAutoMovieVector3;
+    print(
+      limb: IAutoMovieMotionHumanCrawl.Limb,
+      cycle: number,
+    ): IAutoMovieVector3;
 
     /**
-     * Seconds of each numbered liftoff, one through cycles. For each limb
-     * these times strictly increase, with the same positive swing duration.
+     * Seconds of each numbered liftoff, one through cycles. For each limb these
+     * times strictly increase, with the same positive swing duration.
      */
     lift(limb: IAutoMovieMotionHumanCrawl.Limb, cycle: number): number;
 
@@ -49,7 +49,10 @@ export namespace crawlCourse {
    */
   export function of(
     props: IProps,
-  ): (limb: IAutoMovieMotionHumanCrawl.Limb, seconds: number) => IAutoMovieVector3 {
+  ): (
+    limb: IAutoMovieMotionHumanCrawl.Limb,
+    seconds: number,
+  ) => IAutoMovieVector3 {
     const courses: Map<IAutoMovieMotionHumanCrawl.Limb, ICourse> = new Map();
     for (const limb of props.limbs) {
       const points: IAutoMovieVector3[] = [];
@@ -67,7 +70,10 @@ export namespace crawlCourse {
       });
     }
     const swing: number = props.swing;
-    return (limb: IAutoMovieMotionHumanCrawl.Limb, seconds: number): IAutoMovieVector3 => {
+    return (
+      limb: IAutoMovieMotionHumanCrawl.Limb,
+      seconds: number,
+    ): IAutoMovieVector3 => {
       const course: ICourse = courses.get(limb)!;
       let lo: number = 0;
       let hi: number = course.intervals.length;

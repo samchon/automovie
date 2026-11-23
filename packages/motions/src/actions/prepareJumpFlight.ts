@@ -20,9 +20,13 @@ import { jumpAirborne } from "./jumpAirborne";
  *
  * @param body The plan's unchanged body.
  * @param model Its physical mass model.
- * @param shape The same achieved endpoints and authored free-goal interpolation used throughout flight.
- * @param duration Physical flight duration in seconds for the velocity-continuation angular resolution law.
- * @returns A reader of flight share in [0,1] and demanded world COM in metres, optionally borrowing its synchronous parent's exact FK source and genuine same-body ROM projector.
+ * @param shape The same achieved endpoints and authored free-goal interpolation
+ *   used throughout flight.
+ * @param duration Physical flight duration in seconds for the
+ *   velocity-continuation angular resolution law.
+ * @returns A reader of flight share in [0,1] and demanded world COM in metres,
+ *   optionally borrowing its synchronous parent's exact FK source and genuine
+ *   same-body ROM projector.
  */
 export function prepareJumpFlight(
   body: IAutoMovieMotionHumanBody,
@@ -32,10 +36,13 @@ export function prepareJumpFlight(
 ): prepareJumpFlight.IReader {
   const requested: Set<AutoMovieHumanoidBone> = new Set();
   for (const segment of model.segments) requested.add(segment.bone);
-  const shapeAt: ReturnType<typeof jumpAirborne.prepare> = jumpAirborne.prepare(shape);
+  const shapeAt: ReturnType<typeof jumpAirborne.prepare> =
+    jumpAirborne.prepare(shape);
   const root: IAutoMovieVector3 = { ...shape.start.root };
   const curve: ReturnType<typeof prepareHumanFreeCurve> = prepareHumanFreeCurve(
-    body, (share: number): IAutoMovieMotionHumanPosture => shapeAt(root, share), duration,
+    body,
+    (share: number): IAutoMovieMotionHumanPosture => shapeAt(root, share),
+    duration,
   );
 
   return Object.assign(
@@ -45,7 +52,8 @@ export function prepareJumpFlight(
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
     ): IAutoMovieMotionHumanPosture => {
-    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
       const prepared: HumanPosturePreparation.IPrepared = curve(
         share,
         read,
@@ -63,13 +71,14 @@ export function prepareJumpFlight(
   );
 }
 
-/**
- * Native jump flight shape and its owned preparation seam.
- */
+/** Native jump flight shape and its owned preparation seam. */
 export namespace prepareJumpFlight {
   /** Read the achieved shape at the requested ballistic centre. */
   export interface IReader {
-    /** Normalized flight share, world COM, and an optional current native FK/projector loan. */
+    /**
+     * Normalized flight share, world COM, and an optional current native
+     * FK/projector loan.
+     */
     (
       share: number,
       centre: IAutoMovieVector3,

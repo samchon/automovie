@@ -20,34 +20,49 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 
 /**
- * The key postures of the mounted seat kinds (`IAutoMovieMotionHumanMounted.Seat`),
- * each solved in the carrier contact's model-aligned frame from the body's
- * own measures and the carrier's own contacts.
+ * The key postures of the mounted seat kinds
+ * (`IAutoMovieMotionHumanMounted.Seat`), each solved in the carrier contact's
+ * model-aligned frame from the body's own measures and the carrier's own
+ * contacts.
  *
  * The side-saddle seat (`aside`) follows the Side Saddle Association's
- * arrangement: the rider sits "absolutely straight and square", the right
- * leg "goes around the top" pommel "and then hangs down", and the left foot
- * is "in a stirrup" (https://sidesaddleassociation.co.uk/introsidesaddle.asp).
- * The vaulting seats follow the FEI guidelines as Equestrian Australia's
- * 2024 descriptions extract them: in the basic seat "the arms are stretched
- * to each side along the frontal plane, with the fingertips at eye level",
- * and in the bench the vaulter kneels on the back with the hands on the
- * handles. Every angle not given by a source is marked provisional.
+ * arrangement: the rider sits "absolutely straight and square", the right leg
+ * "goes around the top" pommel "and then hangs down", and the left foot is "in
+ * a stirrup" (https://sidesaddleassociation.co.uk/introsidesaddle.asp). The
+ * vaulting seats follow the FEI guidelines as Equestrian Australia's 2024
+ * descriptions extract them: in the basic seat "the arms are stretched to each
+ * side along the frontal plane, with the fingertips at eye level", and in the
+ * bench the vaulter kneels on the back with the hands on the handles. Every
+ * angle not given by a source is marked provisional.
  */
 export namespace HumanMountedSeats {
-  /** The shoulder abduction that holds an arm level to the side, degrees; the basic seat raises it by the angle that brings the fingertips to eye level (`basic`). */
+  /**
+   * The shoulder abduction that holds an arm level to the side, degrees; the
+   * basic seat raises it by the angle that brings the fingertips to eye level
+   * (`basic`).
+   */
   export const ABDUCTION: number = 90;
 
-  /** The bench's pelvis inclination forward and its added spine flexion, degrees (provisional: the guideline's figure shows a trunk inclined forward over the handles). */
+  /**
+   * The bench's pelvis inclination forward and its added spine flexion, degrees
+   * (provisional: the guideline's figure shows a trunk inclined forward over
+   * the handles).
+   */
   export const BENCH: Readonly<{ pitch: number; spine: number }> = {
     pitch: 45,
     spine: 20,
   };
 
-  /** The most the right shank turns out from hanging plumb to clear the carrier, degrees (provisional). */
+  /**
+   * The most the right shank turns out from hanging plumb to clear the carrier,
+   * degrees (provisional).
+   */
   export const OUT: number = 75;
 
-  /** The clearance the hanging right shank keeps from the carrier's colliders beyond its own radius, metres (the campaign's 10 mm contact budget). */
+  /**
+   * The clearance the hanging right shank keeps from the carrier's colliders
+   * beyond its own radius, metres (the campaign's 10 mm contact budget).
+   */
   export const CLEAR: number = 0.01;
 
   /**
@@ -96,14 +111,10 @@ export namespace HumanMountedSeats {
     );
   }
 
-  /**
-   * A supporting part a figure can name.
-   */
+  /** A supporting part a figure can name. */
   export type Part = keyof IAutoMovieMotionHumanMounted.ISupports;
 
-  /**
-   * What a seat is solved from.
-   */
+  /** What a seat is solved from. */
   export interface IContext {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -117,15 +128,23 @@ export namespace HumanMountedSeats {
     /** A carrier contact's declaration. */
     contact(id: string): IAutoMovieAffordance;
 
-    /** How far the carrier contact rises or falls along its own up from its stride-averaged path, metres: what a leg out of the saddle must absorb; 0 without a stride. */
+    /**
+     * How far the carrier contact rises or falls along its own up from its
+     * stride-averaged path, metres: what a leg out of the saddle must absorb; 0
+     * without a stride.
+     */
     slack: number;
 
-    /** How far a segment given in the carrier frame lies from the carrier's colliders, metres, negative inside. */
+    /**
+     * How far a segment given in the carrier frame lies from the carrier's
+     * colliders, metres, negative inside.
+     */
     clear(a: IAutoMovieVector3, b: IAutoMovieVector3): number;
   }
 
   /**
-   * The vaulter's basic seat: the entered seat astride, its arms stretched to the sides with the fingertips at eye level.
+   * The vaulter's basic seat: the entered seat astride, its arms stretched to
+   * the sides with the fingertips at eye level.
    *
    * @param context The seat's context.
    * @returns The posture.
@@ -158,12 +177,17 @@ export namespace HumanMountedSeats {
   }
 
   /**
-   * The side-saddle seat: the pelvis turned square to the carrier's front on the seat bones it entered on, the right thigh over the fixed head with the shank hanging clear of the carrier on the near side, and the ball of the left foot on its stirrup.
+   * The side-saddle seat: the pelvis turned square to the carrier's front on
+   * the seat bones it entered on, the right thigh over the fixed head with the
+   * shank hanging clear of the carrier on the near side, and the ball of the
+   * left foot on its stirrup.
    *
    * @param context The seat's context.
    * @param supports The figure's supports: `rightThigh` and `leftFoot`.
    * @returns The posture.
-   * @throws {HumanRefusal} When the fixed head is not under the thigh between its middle and the knee, when no turn of the shank up to `OUT` clears the carrier, or when the stirrup is outside the left leg's band.
+   * @throws {HumanRefusal} When the fixed head is not under the thigh between
+   *   its middle and the knee, when no turn of the shank up to `OUT` clears the
+   *   carrier, or when the stirrup is outside the left leg's band.
    */
   export function aside(
     context: IContext,
@@ -309,12 +333,17 @@ export namespace HumanMountedSeats {
   }
 
   /**
-   * The vaulter's bench: both knees a shank's radius over the pad with the thighs upright, the feet tucked on their toes behind, the pelvis inclined `BENCH.pitch` and the spine flexed `BENCH.spine` further toward the handles.
+   * The vaulter's bench: both knees a shank's radius over the pad with the
+   * thighs upright, the feet tucked on their toes behind, the pelvis inclined
+   * `BENCH.pitch` and the spine flexed `BENCH.spine` further toward the
+   * handles.
    *
    * @param context The seat's context.
-   * @param supports The figure's supports: `leftKnee`, `rightKnee`, `leftHand` and `rightHand`.
+   * @param supports The figure's supports: `leftKnee`, `rightKnee`, `leftHand`
+   *   and `rightHand`.
    * @returns The posture.
-   * @throws {HumanRefusal} When a knee falls off its surface, or a handle lies beyond the arm's reach from the inclined shoulder.
+   * @throws {HumanRefusal} When a knee falls off its surface, or a handle lies
+   *   beyond the arm's reach from the inclined shoulder.
    */
   export function bench(
     context: IContext,

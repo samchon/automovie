@@ -23,32 +23,30 @@ import { manipulateFingering } from "./manipulateFingering";
 import { manipulatePlan } from "./manipulatePlan";
 
 /**
- * A keyed contact sequence: digits of one hand or both pressing sites of a
- * prop one after another, timed by the caller or by skill. Typing, a piano's
- * keys, a guitar's frets, a phone's keypad and a dial are the same structure
- * and are rows of this law (`HumanManipulate`).
+ * A keyed contact sequence: digits of one hand or both pressing sites of a prop
+ * one after another, timed by the caller or by skill. Typing, a piano's keys, a
+ * guitar's frets, a phone's keypad and a dial are the same structure and are
+ * rows of this law (`HumanManipulate`).
  *
- * The prop's sites are its affordances: each contact names one, whose
- * frame's translation is the site and whose `+Y` is the site's outward
- * normal, read in the prop's frame at the act's start. A contact names its
- * digit, or leaves it to the fingering: the digit chosen is the one whose
- * press keeps the hand still, by dynamic programming over the sequence of
- * each hand (the Viterbi path over digits, cost the distance the hand's
- * wrist must travel between consecutive presses), so a run of nearby keys
- * stays under one placement of the hand. This is the outcome Handrix
- * reports for its fretting hand, which begins on the middle finger to keep
- * the wrist still (ElKoura and Singh 2003, "Handrix: animating the human
- * hand", SCA 2003, pp. 110-119); its own cost terms (finger strength,
- * stretch) were not read at the source, so the wrist's travel alone is the
- * cost here, a first pass. A text with the touch-typing layout assigns every
- * letter's digit by the standard home-row chart instead.
+ * The prop's sites are its affordances: each contact names one, whose frame's
+ * translation is the site and whose `+Y` is the site's outward normal, read in
+ * the prop's frame at the act's start. A contact names its digit, or leaves it
+ * to the fingering: the digit chosen is the one whose press keeps the hand
+ * still, by dynamic programming over the sequence of each hand (the Viterbi
+ * path over digits, cost the distance the hand's wrist must travel between
+ * consecutive presses), so a run of nearby keys stays under one placement of
+ * the hand. This is the outcome Handrix reports for its fretting hand, which
+ * begins on the middle finger to keep the wrist still (ElKoura and Singh 2003,
+ * "Handrix: animating the human hand", SCA 2003, pp. 110-119); its own cost
+ * terms (finger strength, stretch) were not read at the source, so the wrist's
+ * travel alone is the cost here, a first pass. A text with the touch-typing
+ * layout assigns every letter's digit by the standard home-row chart instead.
  *
  * Each press is two goals. The arm carries the hand so the pressing digit's
  * tip, the digit straight and the others curled clear of the keys
- * (`manipulateShape`), stands over its site at the hover height, drawn back
- * by as much as its swing down to the key shortens its reach
- * (`manipulateReach`), moving
- * between placements on minimum-jerk paths; the digit's own inverse
+ * (`manipulateShape`), stands over its site at the hover height, drawn back by
+ * as much as its swing down to the key shortens its reach (`manipulateReach`),
+ * moving between placements on minimum-jerk paths; the digit's own inverse
  * kinematics (`HumanPosture.digits`) then takes the tip down by the key's
  * travel and up again. Times come from `at` when every contact gives it, or
  * from typing skill otherwise (the interval of `typeText`, Salthouse 1986),
@@ -77,7 +75,8 @@ export namespace manipulate {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On no contacts, an unknown site or key, or times given for some contacts and not others.
+   * @throws {HumanRefusal} On no contacts, an unknown site or key, or times
+   *   given for some contacts and not others.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
@@ -240,10 +239,16 @@ export namespace manipulate {
   }
 }
 
-/** The share of a press's interval spent reaching the key, as `typeText` times it. */
+/**
+ * The share of a press's interval spent reaching the key, as `typeText` times
+ * it.
+ */
 const REACH: number = 0.4;
 
-/** The touch-typing chart: each letter's finger on the standard home row (left hand on ASDF, right on JKL;), the space under the right thumb. */
+/**
+ * The touch-typing chart: each letter's finger on the standard home row (left
+ * hand on ASDF, right on JKL;), the space under the right thumb.
+ */
 const CHART: Readonly<
   Record<
     string,
@@ -287,14 +292,20 @@ const CHART: Readonly<
   " ": ["right", "thumb"],
 };
 
-/** The interval between presses at the performer's skill: typing's, 0.5 s for a novice to 0.15 s for an elite (Salthouse 1986). */
+/**
+ * The interval between presses at the performer's skill: typing's, 0.5 s for a
+ * novice to 0.15 s for an elite (Salthouse 1986).
+ */
 const interval: (
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
 ) => number = (
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
 ): number => HumanSkill.quantity(context.skill, "speed", 0.5, 0.15);
 
-/** The affordance a contact names, refused with the prop's sites when it has none by that id. */
+/**
+ * The affordance a contact names, refused with the prop's sites when it has
+ * none by that id.
+ */
 const site: (
   prop: IAutoMovieMotionHumanProp,
   id: string,

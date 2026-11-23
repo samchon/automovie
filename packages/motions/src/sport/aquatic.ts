@@ -23,7 +23,8 @@ import { AquaticTeam } from "./AquaticTeam";
 
 /**
  * Sequences in a pool or on a small craft. The planner owns the actor's clock;
- * every moving hull or grip is sampled from the performance at that same second.
+ * every moving hull or grip is sampled from the performance at that same
+ * second.
  */
 export namespace aquatic {
   /** The registered action key. */

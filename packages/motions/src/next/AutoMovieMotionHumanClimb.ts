@@ -109,10 +109,11 @@ export namespace AutoMovieMotionHumanClimb {
    * and 280 mm; a riser above 0.35 of the hip height or a tread shorter than
    * 0.6 of the foot is refused with the body's feasible range (provisional
    * limits). Events: `toeOff<n>` and `treadContact<n>` per step, numbered from
-   * 1. A foot on a tread bears on the prop `on` names, or on the fixed floor
-   * frame when no prop is named; a foot on the floor before the flight bears on
-   * the ground. The treads repeat the settled stance's flat feet, while the
-   * feet leave the floor from where the entry put them.
+   *
+   * 1. A foot on a tread bears on the prop `on` names, or on the fixed floor frame
+   *    when no prop is named; a foot on the floor before the flight bears on
+   *    the ground. The treads repeat the settled stance's flat feet, while the
+   *    feet leave the floor from where the entry put them.
    *
    * An optional handrail names the gripping hand and a bar on the fixed stair
    * prop. The grip bears along that axis, then releases before the final

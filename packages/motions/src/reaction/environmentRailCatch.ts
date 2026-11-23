@@ -24,7 +24,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 
-/** Seconds to close the hand on the rail while the lost foot hangs (provisional). */
+/**
+ * Seconds to close the hand on the rail while the lost foot hangs
+ * (provisional).
+ */
 const CATCH: number = 0.38;
 
 /** Seconds to set the lost foot down while the hand holds (provisional). */
@@ -33,28 +36,35 @@ const RECOVER: number = 0.45;
 /** Seconds to let go of the rail and stand (provisional). */
 const LET_GO: number = 0.38;
 
-/** How far ahead along the trip the lost foot recovers, foot lengths (provisional: a short capture step). */
+/**
+ * How far ahead along the trip the lost foot recovers, foot lengths
+ * (provisional: a short capture step).
+ */
 const STEP: number = 0.48;
 
 /** The rail's share of the body weight while the hand braces (provisional). */
 const LOAD: number = 0.15;
 
-/** Reach slack beyond the straight arm, metres (provisional: the shoulder's protraction). */
+/**
+ * Reach slack beyond the straight arm, metres (provisional: the shoulder's
+ * protraction).
+ */
 const REACH: number = 0.03;
 
 /**
- * Brace a hand on a named rail after a lost foot: the hand closes on the
- * bar's nearest point to the shoulder while the remaining foot bears, the
- * lost foot comes down `STEP` foot lengths along the trip, and the hand lets
- * go into an upright stance. The shared support law (`support.plan`) fits
- * the three stances and their windows, the grip bearing `LOAD`.
+ * Brace a hand on a named rail after a lost foot: the hand closes on the bar's
+ * nearest point to the shoulder while the remaining foot bears, the lost foot
+ * comes down `STEP` foot lengths along the trip, and the hand lets go into an
+ * upright stance. The shared support law (`support.plan`) fits the three
+ * stances and their windows, the grip bearing `LOAD`.
  *
  * @param context The response's context, its entry with the lost foot released.
  * @param rail The rail and the bracing hand.
  * @param lost The foot that lost its support.
  * @param direction The trip's or slide's horizontal unit direction.
  * @returns The braced recovery, ending standing.
- * @throws {HumanRefusal} If the rail moves, is not a finite bar or is beyond the hand's reach.
+ * @throws {HumanRefusal} If the rail moves, is not a finite bar or is beyond
+ *   the hand's reach.
  */
 export function environmentRailCatch(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEnvironmentRecovery.IParams>,

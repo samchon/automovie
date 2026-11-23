@@ -17,25 +17,26 @@ import { walkTempo } from "./walkTempo";
 import { walkWindows } from "./walkWindows";
 
 /**
- * A stepping plan's timing, the last step of `walk.locomote`: the steps
- * taken a little unevenly in time, or entrained to a beat track when the
- * walker locks to one, and kept on a moving station by speed matching when
- * the gait draws its own tempo.
+ * A stepping plan's timing, the last step of `walk.locomote`: the steps taken a
+ * little unevenly in time, or entrained to a beat track when the walker locks
+ * to one, and kept on a moving station by speed matching when the gait draws
+ * its own tempo.
  *
- * A stride time varies by 3 % in a novice down to 1 % in an expert (the 1
- * to 3 % of healthy adults, Hausdorff; the mapping onto skill is
- * provisional), which each step's own draw carries as the square root of two
- * times that, two independent steps making a stride (`walkTempo`). On a beat
- * track a locked walker lands each strike by its phase correction toward its
- * beat (`walkCadence`, `walkTempo.entrainment`). A cadenced gait keeps its
- * count, its station kept by the length of its steps when it was planned
- * (`walkStation.cadenced`); any other keeps its station by matching the
- * slot's speed (`walkStation`).
+ * A stride time varies by 3 % in a novice down to 1 % in an expert (the 1 to 3
+ * % of healthy adults, Hausdorff; the mapping onto skill is provisional), which
+ * each step's own draw carries as the square root of two times that, two
+ * independent steps making a stride (`walkTempo`). On a beat track a locked
+ * walker lands each strike by its phase correction toward its beat
+ * (`walkCadence`, `walkTempo.entrainment`). A cadenced gait keeps its count,
+ * its station kept by the length of its steps when it was planned
+ * (`walkStation.cadenced`); any other keeps its station by matching the slot's
+ * speed (`walkStation`).
  *
  * @param context The walk's context, its station resolved.
  * @param planned The stepping plan on its own clock.
  * @param gait The gait.
- * @param clock The entrained clock already used to plan a timed station, when present.
+ * @param clock The entrained clock already used to plan a timed station, when
+ *   present.
  * @returns The plan on its film clock.
  */
 export function walkClock(
@@ -72,14 +73,12 @@ export function walkClock(
       );
 }
 
-/**
- * Companions of {@link walkClock}.
- */
+/** Companions of {@link walkClock}. */
 export namespace walkClock {
   /**
-   * Fit a designated station's film-time travel to the same clock used by
-   * the step events and playback. At a fixed step frequency, walkers change
-   * step length with speed (https://doi.org/10.1038/s41597-022-01817-1).
+   * Fit a designated station's film-time travel to the same clock used by the
+   * step events and playback. At a fixed step frequency, walkers change step
+   * length with speed (https://doi.org/10.1038/s41597-022-01817-1).
    *
    * @param context The resolved walk's cue, discipline and time origin.
    * @param input The step planner's inputs, including any film-time travel.

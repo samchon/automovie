@@ -35,7 +35,10 @@ type Design = NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
 type Publish<T> = (posture: Posture, solved?: Seeded) => T;
 type Frame = (local: number) => WorkingSeatRidePlan.IWritten;
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-/** Freeze a native structured clone before its source and display borrow the same raw graph. */
+/**
+ * Freeze a native structured clone before its source and display borrow the
+ * same raw graph.
+ */
 function immutable(value: unknown): void {
   if (value === null || typeof value !== "object" || Object.isFrozen(value))
     return;
@@ -50,10 +53,10 @@ const FEET: ReadonlySet<AutoMovieHumanoidBone> = new Set([
 
 /**
  * The native working-seat ride. It proposes torso articulation only when
- * keeping the original feet requires it. A complete actual pair judgement
- * and both actual sole positions admit a candidate. A single bare display
- * leaf can consume the very result that decided this law sample. A native
- * stationary carrier can also prepare its fully acquired endpoints once.
+ * keeping the original feet requires it. A complete actual pair judgement and
+ * both actual sole positions admit a candidate. A single bare display leaf can
+ * consume the very result that decided this law sample. A native stationary
+ * carrier can also prepare its fully acquired endpoints once.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The original world-space goals enter the ordinary ordered/mirrored refit. Both original sole offsets are transformed by their realised bone frames. A candidate is accepted only on the complete existing pair predicate.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Only this native plan with its original reader issues a private single-use sample. A changed or composed raw posture never consumes it. No previous sample, frame key, prepared flag on user data or global result history is involved.
@@ -301,7 +304,10 @@ export namespace WorkingSeatRidePlan {
   export interface IHeld {
     /** Local seconds representing the authored acquisition and end events. */
     events: readonly number[];
-    /** Whether the actual local second lies within a certified stationary interval. */
+    /**
+     * Whether the actual local second lies within a certified stationary
+     * interval.
+     */
     hold(local: number): RigidCarrierSample.IHold | undefined;
     /** Author using only this source's certified native carrier reader. */
     frame: Frame;

@@ -6,10 +6,10 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
  * The arm trajectory's joint-domain rows: its shoulder chart disc and each
- * coordinate's box, as elastic rows of the penalty's weight (TrajOpt's
- * exact penalty: only the trust region is hard), so every subproblem has a
- * solution, the zero step among its feasible points. A trial is projected
- * onto the domain (`HumanArmTrajectoryModel.stepped`), so no iterate leaves it.
+ * coordinate's box, as elastic rows of the penalty's weight (TrajOpt's exact
+ * penalty: only the trust region is hard), so every subproblem has a solution,
+ * the zero step among its feasible points. A trial is projected onto the domain
+ * (`HumanArmTrajectoryModel.stepped`), so no iterate leaves it.
  */
 export namespace HumanArmTrajectoryRanges {
   /**
@@ -19,8 +19,10 @@ export namespace HumanArmTrajectoryRanges {
    * @param a The arm.
    * @param k The waypoint.
    * @param v The iterate's arm coordinates.
-   * @param index The convex model's mapping from arm, waypoint and free coordinate to a variable.
-   * @param weight The exact penalty's weight, the one every other constraint row of the subproblem carries.
+   * @param index The convex model's mapping from arm, waypoint and free
+   *   coordinate to a variable.
+   * @param weight The exact penalty's weight, the one every other constraint
+   *   row of the subproblem carries.
    * @returns The chart-disc row where active and the exact coordinate boxes.
    */
   export function of(

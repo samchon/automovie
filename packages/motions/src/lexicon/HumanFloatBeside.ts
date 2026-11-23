@@ -38,13 +38,23 @@ import { AquaticPosture } from "../sport/AquaticPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 
-/** The trunk's forward pitch while floating, degrees: provisional, the body trailing 20 degrees below the horizontal, near the front crawl's 80 of `AquaticRescue`. */
+/**
+ * The trunk's forward pitch while floating, degrees: provisional, the body
+ * trailing 20 degrees below the horizontal, near the front crawl's 80 of
+ * `AquaticRescue`.
+ */
 const PITCH: number = 70;
 
-/** The neck's extension that lifts the face toward the horse's head, degrees: provisional. */
+/**
+ * The neck's extension that lifts the face toward the horse's head, degrees:
+ * provisional.
+ */
 const NECK: number = -30;
 
-/** The mouth's height above the surface, metres: the towed victim's clearance in `AquaticRescue`. */
+/**
+ * The mouth's height above the surface, metres: the towed victim's clearance in
+ * `AquaticRescue`.
+ */
 const CLEAR: number = 0.08;
 
 /** Seconds of one flutter-kick cycle: provisional. */
@@ -56,25 +66,48 @@ const HIP: readonly [number, number] = [10, 15];
 /** The knees' mean flexion and its flutter amplitude, degrees: provisional. */
 const KNEE: readonly [number, number] = [25, 15];
 
-/** The share of the near arm's length from shoulder to palm the float keeps between the shoulder and the held part: provisional, a bent but working arm. */
+/**
+ * The share of the near arm's length from shoulder to palm the float keeps
+ * between the shoulder and the held part: provisional, a bent but working arm.
+ */
 const REACH_SHARE: number = 0.75;
 
-/** Degrees the near shoulder sits behind the held part's lateral line: provisional, the body trailing along the horse. */
+/**
+ * Degrees the near shoulder sits behind the held part's lateral line:
+ * provisional, the body trailing along the horse.
+ */
 const TRAIL: number = 20;
 
-/** Metres the slide-off path rises at its middle, clearing the saddle's side: provisional. */
+/**
+ * Metres the slide-off path rises at its middle, clearing the saddle's side:
+ * provisional.
+ */
 const ARC: number = 0.15;
 
-/** The displayed palm skin's largest admitted miss of the held part's skin, metres: the lead's and the handles' contact tolerance. */
+/**
+ * The displayed palm skin's largest admitted miss of the held part's skin,
+ * metres: the lead's and the handles' contact tolerance.
+ */
 const REACH: number = 0.01;
 
 /** The root of the float shape measured once, before it is placed. */
 const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /**
- * Slide off a swimming horse to its upstream side and float beside it, one hand on its mane.
+ * Slide off a swimming horse to its upstream side and float beside it, one hand
+ * on its mane.
  *
- * A rider crossing water too deep for the horse to wade slides off on the upstream side, keeps hold of the mane and floats prone beside the horse, kicking, while it swims; the current then presses the rider against the horse rather than under it. The float's height is the water's own trim of the posed shape (`HumanWater.float`, the immersed swim's buoyancy), raised until the mouth clears the surface by `CLEAR` where buoyancy alone leaves it under: the held mane carries the rest. The near shoulder keeps `REACH_SHARE` of the arm's length from the held part, `TRAIL` degrees behind its lateral line, so the body follows the horse's actual moving mane; the slide-off blends the seated entry, carried with the horse, into that float over `transition`, its path lifted by `ARC` over the saddle's side.
+ * A rider crossing water too deep for the horse to wade slides off on the
+ * upstream side, keeps hold of the mane and floats prone beside the horse,
+ * kicking, while it swims; the current then presses the rider against the horse
+ * rather than under it. The float's height is the water's own trim of the posed
+ * shape (`HumanWater.float`, the immersed swim's buoyancy), raised until the
+ * mouth clears the surface by `CLEAR` where buoyancy alone leaves it under: the
+ * held mane carries the rest. The near shoulder keeps `REACH_SHARE` of the
+ * arm's length from the held part, `TRAIL` degrees behind its lateral line, so
+ * the body follows the horse's actual moving mane; the slide-off blends the
+ * seated entry, carried with the horse, into that float over `transition`, its
+ * path lifted by `ARC` over the saddle's side.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the act, the side's reason, the trim, the placement, the slide-off and the provisional constants.
  * @evidence contracts/development/design.md#principled-representation One base action owning the whole body over the horse's moving frame; the near hand's grip is declared over the whole action.
@@ -88,7 +121,8 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
     name: "floatBeside",
     interrupts: {},
     /**
-     * Place the floating body beside the horse's moving held part and verify the displayed hand on it.
+     * Place the floating body beside the horse's moving held part and verify
+     * the displayed hand on it.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines the refusals, the trim, the placement, the kick and the grip check.
      * @evidence contracts/development/implementation.md#principled-implementation The float shape is measured once at a fixed root: its trim, its mouth and its near shoulder; each second places that shoulder from the held part's actual frame and fits the near arm to it; the displayed palm's skin, found on the body's own surface under its palm socket, must then lie on the part's skin.
@@ -271,7 +305,10 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       const requested: ReadonlySet<AutoMovieHumanoidBone> =
         new Set<AutoMovieHumanoidBone>([socket.bone]);
 
-      /** The float placed beside the held part at a film second, its legs at a share of their flutter. */
+      /**
+       * The float placed beside the held part at a film second, its legs at a
+       * share of their flutter.
+       */
       const float = (
         frame: IAutoMovieRigidTransform,
         grip: IAutoMovieVector3,

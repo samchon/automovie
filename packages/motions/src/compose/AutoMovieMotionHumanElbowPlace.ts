@@ -12,13 +12,13 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * An arm goal's elbow placed by the law (`elbow: "placed"`): a goal's
- * `bend` alone is a preference the hand's rotation outranks, so a nearly
- * straight arm may take either branch from one sample to the next. Placed,
- * the fit starts from the elbow the law names and keeps it where it is
- * legal. The place is closed form: where the upper arm and the forearm meet
- * between the posed shoulder and the goal's wrist, bent toward a pole the
- * law gives (the law of cosines in their plane).
+ * An arm goal's elbow placed by the law (`elbow: "placed"`): a goal's `bend`
+ * alone is a preference the hand's rotation outranks, so a nearly straight arm
+ * may take either branch from one sample to the next. Placed, the fit starts
+ * from the elbow the law names and keeps it where it is legal. The place is
+ * closed form: where the upper arm and the forearm meet between the posed
+ * shoulder and the goal's wrist, bent toward a pole the law gives (the law of
+ * cosines in their plane).
  */
 export namespace AutoMovieMotionHumanElbowPlace {
   /**
@@ -28,7 +28,8 @@ export namespace AutoMovieMotionHumanElbowPlace {
    * @param posture The posture the goal is written into, read for the shoulder.
    * @param side The arm.
    * @param goal The arm goal; its `point` is the wrist.
-   * @param pole The direction the elbow bends toward given the unit shoulder-to-wrist direction, any vector off that line.
+   * @param pole The direction the elbow bends toward given the unit
+   *   shoulder-to-wrist direction, any vector off that line.
    * @returns The goal with `bend` at the elbow's place and `elbow: "placed"`.
    */
   export function of(

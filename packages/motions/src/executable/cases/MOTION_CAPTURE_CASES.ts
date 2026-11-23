@@ -37,10 +37,10 @@ import { toolCases } from "./toolCases";
 import { variationCases } from "./variationCases";
 
 /**
- * Every capture case by name: each factory builds one or more cases, so a
- * sweep or a proficiency fan expands into several outputs from one name. A
- * factory may read the harness's name filter and skip building the cases it
- * rejects; the harness filters again, so ignoring it is correct too.
+ * Every capture case by name: each factory builds one or more cases, so a sweep
+ * or a proficiency fan expands into several outputs from one name. A factory
+ * may read the harness's name filter and skip building the cases it rejects;
+ * the harness filters again, so ignoring it is correct too.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what a factory returns.
  * @evidence contracts/development/design.md#principled-representation A closed table of named pure factories.

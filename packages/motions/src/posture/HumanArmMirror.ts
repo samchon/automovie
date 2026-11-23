@@ -9,14 +9,14 @@ import type { HumanArmGeometry } from "./HumanArmGeometry";
 
 /**
  * The mirror image across the world's x = 0 plane of what an arm is read
- * against, so a left arm is solved as the right arm in the mirror image of
- * its world and mirrored scenes give mirrored paths.
+ * against, so a left arm is solved as the right arm in the mirror image of its
+ * world and mirrored scenes give mirrored paths.
  */
 export namespace HumanArmMirror {
   /**
    * A base's mirror image: the pose's left and right joints exchanged, their
-   * clinical angles mirrored already, a midline joint's lateral bend and
-   * twist and the root's turn negated (`ExerciseKey.mirror`); another body's
+   * clinical angles mirrored already, a midline joint's lateral bend and twist
+   * and the root's turn negated (`ExerciseKey.mirror`); another body's
    * colliders reflected.
    *
    * @param base The base.
@@ -110,8 +110,8 @@ export namespace HumanArmMirror {
    * A collider segment's frame and shapes reflected, whatever carries it (a
    * prop's or an animal's segment, `IAutoMovieMotionHumanColliders.IExternal`).
    * The shapes are reflected once per source list (`mirroredShapes`), so two
-   * readings of one segment, as two arms laid on one partner each make,
-   * stay one segment in the mirror image as they are in the world.
+   * readings of one segment, as two arms laid on one partner each make, stay
+   * one segment in the mirror image as they are in the world.
    *
    * @param placed The segment.
    * @returns Its mirror image, its other members unchanged.
@@ -131,13 +131,13 @@ export namespace HumanArmMirror {
   }
 
   /**
-   * A segment's shape list reflected, one list per source list. A frame
-   * counts a segment once however many goals read it, by its bone, its pose
-   * and the identity of its shape list (`HumanArmFrame.of`); the placement
-   * owner hands every reading of a segment the same list, and a fresh list
-   * per reflection made the two arms' readings of one partner two segments
-   * in a mirrored problem, the region a hand is laid on kept as an obstacle
-   * in the other reading.
+   * A segment's shape list reflected, one list per source list. A frame counts
+   * a segment once however many goals read it, by its bone, its pose and the
+   * identity of its shape list (`HumanArmFrame.of`); the placement owner hands
+   * every reading of a segment the same list, and a fresh list per reflection
+   * made the two arms' readings of one partner two segments in a mirrored
+   * problem, the region a hand is laid on kept as an obstacle in the other
+   * reading.
    *
    * @param shapes The shapes.
    * @returns Their mirror images, the same list for the same source list.
@@ -151,7 +151,9 @@ export namespace HumanArmMirror {
       REFLECTED.set(
         shapes,
         (found = shapes.map(
-          (shape: IAutoMovieMotionHumanColliders.IFramed["shapes"][number]) => ({
+          (
+            shape: IAutoMovieMotionHumanColliders.IFramed["shapes"][number],
+          ) => ({
             ...shape,
             transform: {
               ...shape.transform,
@@ -167,8 +169,8 @@ export namespace HumanArmMirror {
 
   /**
    * A hull's points mirrored, one array per source array, so the hull's faces,
-   * which are remembered per array (`physicalHullFaces`), are found once
-   * for its mirror image too.
+   * which are remembered per array (`physicalHullFaces`), are found once for
+   * its mirror image too.
    *
    * @param points The points.
    * @returns Their mirror images.

@@ -10,30 +10,54 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingRoll } from "./StrikingRoll";
 
-/**
- * The held tool's original rigid wrist goal and fixed hand-local task geometry.
- */
+/** The held tool's original rigid wrist goal and fixed hand-local task geometry. */
 export namespace StrikingHeldGoal {
-  /**
-   * Read the original wrist goal without retaining a fixed producer.
-   */
-  export function goal(context: Pick<IAutoMovieMotionHumanActionContext, "body">, tool: IAutoMovieMotionHumanStrikingHeld.ITool, frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, back: number, bend: IAutoMovieVector3): IAutoMovieHumanLimbGoal {
-    return read(tool, frame, back, bend, HumanHand.offset(context.body, tool.side, "grip").point);
+  /** Read the original wrist goal without retaining a fixed producer. */
+  export function goal(
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    back: number,
+    bend: IAutoMovieVector3,
+  ): IAutoMovieHumanLimbGoal {
+    return read(
+      tool,
+      frame,
+      back,
+      bend,
+      HumanHand.offset(context.body, tool.side, "grip").point,
+    );
   }
 
-  /**
-   * Prepare only the unchanged grip and hand-local kept/limited tool points.
-   */
-  export function prepare(context: Pick<IAutoMovieMotionHumanActionContext, "body">, tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number): (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, bend: IAutoMovieVector3) => IAutoMovieHumanLimbGoal {
-    const grip: IAutoMovieVector3 = HumanHand.offset(context.body, tool.side, "grip").point;
-    const fixed: IGeometry = { contact: Vector3.add(grip, offset(tool, back)), limits: tool.prop === undefined ? undefined : limits(tool, back, grip) };
-    return (frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, bend: IAutoMovieVector3): IAutoMovieHumanLimbGoal => read(tool, frame, back, bend, grip, fixed);
+  /** Prepare only the unchanged grip and hand-local kept/limited tool points. */
+  export function prepare(
+    context: Pick<IAutoMovieMotionHumanActionContext, "body">,
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    back: number,
+  ): (
+    frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+    bend: IAutoMovieVector3,
+  ) => IAutoMovieHumanLimbGoal {
+    const grip: IAutoMovieVector3 = HumanHand.offset(
+      context.body,
+      tool.side,
+      "grip",
+    ).point;
+    const fixed: IGeometry = {
+      contact: Vector3.add(grip, offset(tool, back)),
+      limits: tool.prop === undefined ? undefined : limits(tool, back, grip),
+    };
+    return (
+      frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+      bend: IAutoMovieVector3,
+    ): IAutoMovieHumanLimbGoal => read(tool, frame, back, bend, grip, fixed);
   }
 
-  /**
-   * A kept tool point relative to its grip socket, in hand-local metres.
-   */
-  export function offset(tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number): IAutoMovieVector3 {
+  /** A kept tool point relative to its grip socket, in hand-local metres. */
+  export function offset(
+    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+    back: number,
+  ): IAutoMovieVector3 {
     return Vector3.subtract(tool.tip, Vector3.scale(tool.axis, back));
   }
 }
@@ -47,24 +71,56 @@ interface IGeometry {
 }
 
 /** The original goal builder; only immutable local geometry may be supplied. */
-function read(tool: IAutoMovieMotionHumanStrikingHeld.ITool, frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame, back: number, bend: IAutoMovieVector3, grip: IAutoMovieVector3, fixed?: IGeometry): IAutoMovieHumanLimbGoal {
+function read(
+  tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
+  back: number,
+  bend: IAutoMovieVector3,
+  grip: IAutoMovieVector3,
+  fixed?: IGeometry,
+): IAutoMovieHumanLimbGoal {
   return {
-    point: Vector3.subtract(frame.point, Quaternion.rotateVector(frame.rotation, grip)),
+    point: Vector3.subtract(
+      frame.point,
+      Quaternion.rotateVector(frame.rotation, grip),
+    ),
     rotation: frame.rotation,
     bend,
     // The original goal leaves elbow choice to the physical least-strain fit.
     elbow: "strain",
-    contact: fixed === undefined ? Vector3.add(grip, StrikingHeldGoal.offset(tool, back)) : { ...fixed.contact },
-    ...(tool.prop === undefined ? {} : { limits: fixed === undefined ? limits(tool, back, grip) : fixed.limits!.map(
-      (limit: IAutoMovieHumanEffectorPointLimit): IAutoMovieHumanEffectorPointLimit => ({ contact: { ...limit.contact }, bound: limit.bound }),
-    ) }),
+    contact:
+      fixed === undefined
+        ? Vector3.add(grip, StrikingHeldGoal.offset(tool, back))
+        : { ...fixed.contact },
+    ...(tool.prop === undefined
+      ? {}
+      : {
+          limits:
+            fixed === undefined
+              ? limits(tool, back, grip)
+              : fixed.limits!.map(
+                  (
+                    limit: IAutoMovieHumanEffectorPointLimit,
+                  ): IAutoMovieHumanEffectorPointLimit => ({
+                    contact: { ...limit.contact },
+                    bound: limit.bound,
+                  }),
+                ),
+        }),
     ...(tool.prop === undefined ? {} : { planted: true }),
   };
 }
 
 /** The original two task limits in kept-point then working-tip order. */
-function limits(tool: IAutoMovieMotionHumanStrikingHeld.ITool, back: number, grip: IAutoMovieVector3): IAutoMovieHumanEffectorPointLimit[] {
-  return [back > 0 ? back : tool.length, 0].map((behind: number): IAutoMovieHumanEffectorPointLimit => ({
-    contact: Vector3.add(grip, StrikingHeldGoal.offset(tool, behind)), bound: StrikingRoll.MISS,
-  }));
+function limits(
+  tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+  back: number,
+  grip: IAutoMovieVector3,
+): IAutoMovieHumanEffectorPointLimit[] {
+  return [back > 0 ? back : tool.length, 0].map(
+    (behind: number): IAutoMovieHumanEffectorPointLimit => ({
+      contact: Vector3.add(grip, StrikingHeldGoal.offset(tool, behind)),
+      bound: StrikingRoll.MISS,
+    }),
+  );
 }

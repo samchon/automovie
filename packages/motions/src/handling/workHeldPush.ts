@@ -31,32 +31,36 @@ import { heldDigits } from "./heldDigits";
 import { pickUp } from "./pickUp";
 
 /**
- * The free hand working a contact of a prop the other hand holds still:
- * the hand that pushes an umbrella's runner up its shaft.
+ * The free hand working a contact of a prop the other hand holds still: the
+ * hand that pushes an umbrella's runner up its shaft.
  *
- * The holding hand keeps the prop in its entry frame when the free arm
- * reaches the contact at the work's start and end. Otherwise it first
- * brings the prop before the body: the contact's start onto the
- * performer's midline at the free elbow's hanging height, a forearm ahead
- * of the shoulder, where the forearm lies level from an elbow at the side,
- * the prop turned about the vertical so the contact's travel leads toward
- * the free hand's side; the prop is then held still there. The contact's place at
- * every second is the articulation's travel there (`heldDigits.posed`)
- * carried by the held frame. The free hand closes round the contact's line
- * in a power grip (`HumanGrasp.hand`), rolled about that line so its wrist
- * lies nearest the shoulder (`HumanGraspRoll`), and its wrist moves with the
- * contact in that attitude, so the hand stays on the contact as it moves.
- * The grip bears the part without carrying the prop. The contact must ride
- * a driven articulation, and its places at the work's start and end, and
- * the holding wrist before the body, must lie within their arms' reach.
+ * The holding hand keeps the prop in its entry frame when the free arm reaches
+ * the contact at the work's start and end. Otherwise it first brings the prop
+ * before the body: the contact's start onto the performer's midline at the free
+ * elbow's hanging height, a forearm ahead of the shoulder, where the forearm
+ * lies level from an elbow at the side, the prop turned about the vertical so
+ * the contact's travel leads toward the free hand's side; the prop is then held
+ * still there. The contact's place at every second is the articulation's travel
+ * there (`heldDigits.posed`) carried by the held frame. The free hand closes
+ * round the contact's line in a power grip (`HumanGrasp.hand`), rolled about
+ * that line so its wrist lies nearest the shoulder (`HumanGraspRoll`), and its
+ * wrist moves with the contact in that attitude, so the hand stays on the
+ * contact as it moves. The grip bears the part without carrying the prop. The
+ * contact must ride a driven articulation, and its places at the work's start
+ * and end, and the holding wrist before the body, must lie within their arms'
+ * reach.
  *
  * @param context The action's context.
  * @param subject The held prop.
  * @param site The contact the free hand works.
  * @param side The holding hand; the other one pushes.
  * @param drive The work's authored drives of the held prop.
- * @returns The free arm and its grip under the work's clock and planned drives, the holding arm that brings the prop before the body, and the larger travel.
- * @throws {HumanRefusal} When the contact rides no driven articulation, or lies beyond the free arm even before the body, or the holding wrist there lies beyond its arm.
+ * @returns The free arm and its grip under the work's clock and planned drives,
+ *   the holding arm that brings the prop before the body, and the larger
+ *   travel.
+ * @throws {HumanRefusal} When the contact rides no driven articulation, or lies
+ *   beyond the free arm even before the body, or the holding wrist there lies
+ *   beyond its arm.
  */
 export function workHeldPush(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -236,11 +240,11 @@ export function workHeldPush(
 }
 
 /**
- * The free hand's grip of the contact on the held prop at a frame: it
- * closes round the contact's line (its `+X`) as a power grip takes any
- * handle (`HumanGrasp.hand`), arriving along the contact's own `-Y`, then
- * rolls about that line until its wrist lies nearest the shoulder
- * (`HumanGraspRoll`), and keeps that attitude as the contact moves.
+ * The free hand's grip of the contact on the held prop at a frame: it closes
+ * round the contact's line (its `+X`) as a power grip takes any handle
+ * (`HumanGrasp.hand`), arriving along the contact's own `-Y`, then rolls about
+ * that line until its wrist lies nearest the shoulder (`HumanGraspRoll`), and
+ * keeps that attitude as the contact moves.
  */
 function grasp(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -293,10 +297,10 @@ function grasp(
  * How a prop whose contact the free arm cannot reach is brought before the
  * body: the contact's start goes onto the performer's midline at the free
  * elbow's height when the upper arm hangs, a forearm ahead of the shoulder,
- * where the forearm lies level from an elbow at the side, the neutral
- * working posture; and the prop turns about the vertical through it, the
- * least way, until the contact's travel leads toward the free hand's side,
- * away from the hand that holds it, as a pin is pulled out sideways.
+ * where the forearm lies level from an elbow at the side, the neutral working
+ * posture; and the prop turns about the vertical through it, the least way,
+ * until the contact's travel leads toward the free hand's side, away from the
+ * hand that holds it, as a pin is pulled out sideways.
  *
  * @returns The contact's new start, world metres, and the turn about it.
  */
@@ -379,9 +383,7 @@ function present(
   });
 }
 
-/**
- * The parts {@link workHeldPush} hands its caller.
- */
+/** The parts {@link workHeldPush} hands its caller. */
 export namespace workHeldPush {
   /**
    * The free hand's part of the work.
@@ -409,7 +411,10 @@ export namespace workHeldPush {
     /** The free hand. */
     side: AutoMovieHumanSide;
 
-    /** The holding arm bringing the prop before the body under the work's clock; none when the prop stays where it is. */
+    /**
+     * The holding arm bringing the prop before the body under the work's clock;
+     * none when the prop stays where it is.
+     */
     holder: (clock: IAutoMovieMotionClock) => IAutoMovieMotionHumanPrimitive[];
   }
 

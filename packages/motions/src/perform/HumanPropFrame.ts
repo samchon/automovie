@@ -6,10 +6,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Rigid frames of position and rotation, composed and taken relative: a
- * prop kept in a bone's frame while it rides the bone, a hand kept in the
- * chest's frame while the trunk carries it, a stuck arrow kept in the frame
- * of what it struck.
+ * Rigid frames of position and rotation, composed and taken relative: a prop
+ * kept in a bone's frame while it rides the bone, a hand kept in the chest's
+ * frame while the trunk carries it, a stuck arrow kept in the frame of what it
+ * struck.
  */
 export namespace HumanPropFrame {
   /**

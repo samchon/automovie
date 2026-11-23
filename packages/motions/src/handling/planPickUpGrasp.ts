@@ -28,9 +28,9 @@ import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
-import { pickUpAlong } from "./pickUpAlong";
 import { pickUp } from "./pickUp";
 import { pickUpAdjust } from "./pickUpAdjust";
+import { pickUpAlong } from "./pickUpAlong";
 import type { pickUpIntercept } from "./pickUpIntercept";
 import { pickUpLift } from "./pickUpLift";
 import { pickUpOver } from "./pickUpOver";
@@ -39,10 +39,11 @@ import type { pickUpSearch } from "./pickUpSearch";
 import { pickUpStance } from "./pickUpStance";
 
 /**
- * Plan a pick-up's reach, grasp and lift from the action context and an optional resolved interception: the posture, contacts, events and hold.
+ * Plan a pick-up's reach, grasp and lift from the action context and an
+ * optional resolved interception: the posture, contacts, events and hold.
  *
- * Moved unchanged from `pickUp` to keep that file under the
- * repository's 500-line limit; its caller and behaviour are unchanged.
+ * Moved unchanged from `pickUp` to keep that file under the repository's
+ * 500-line limit; its caller and behaviour are unchanged.
  */
 export function planPickUpGrasp(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,

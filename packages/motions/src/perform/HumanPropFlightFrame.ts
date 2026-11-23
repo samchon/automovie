@@ -16,12 +16,11 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFrame } from "./HumanPropFrame";
 import { HumanPropOutcome } from "./HumanPropOutcome";
 
-/**
- * The displayed origin of a prop already in flight and its frame at a contact.
- */
+/** The displayed origin of a prop already in flight and its frame at a contact. */
 export namespace HumanPropFlightFrame {
   /**
-   * Read the displayed world frame at film seconds from an already selected flight.
+   * Read the displayed world frame at film seconds from an already selected
+   * flight.
    */
   export function sample(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -85,7 +84,8 @@ export namespace HumanPropFlightFrame {
   }
 
   /**
-   * Place the contact on the film clock and express the displayed rest relative to what it struck.
+   * Place the contact on the film clock and express the displayed rest relative
+   * to what it struck.
    */
   export function contactOf(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -123,7 +123,10 @@ export namespace HumanPropFlightFrame {
     };
   }
 
-  /** The world frame of what a flight struck at a second: a bone's, a prop's, or none for the floor. */
+  /**
+   * The world frame of what a flight struck at a second: a bone's, a prop's, or
+   * none for the floor.
+   */
   function struckFrame(
     self: IAutoMovieMotionHumanPerformanceState,
     struck: IAutoMovieMotionHumanPropFlight.Struck,

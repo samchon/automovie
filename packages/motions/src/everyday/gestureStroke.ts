@@ -25,99 +25,108 @@ import { gestureStrokeTables } from "./gestureStrokeTables";
 import { gestureTouch } from "./gestureTouch";
 
 /**
- * The stroke of each gesture: where each hand surface goes, turned which
- * way and in which shape, as a function of the stroke's progress, and which
- * joints a gesture moves directly.
+ * The stroke of each gesture: where each hand surface goes, turned which way
+ * and in which shape, as a function of the stroke's progress, and which joints
+ * a gesture moves directly.
  *
- * Hand gestures are effector goals. Each names a hand surface, a world
- * point and a hand rotation; the gesture law transports the hand there in the
+ * Hand gestures are effector goals. Each names a hand surface, a world point
+ * and a hand rotation; the gesture law transports the hand there in the
  * preparation phase and back in the retraction, and the arm is solved by
  * inverse kinematics ({@link HumanHand}). Points are built in the performer's
  * own frame (`x` left, `y` up, `z` forward from the root) from the body's
- * measure, or on a target or on the body's own face, so every gesture fits
- * any stature and proportion. A place of the air is written in the names of
+ * measure, or on a target or on the body's own face, so every gesture fits any
+ * stature and proportion. A place of the air is written in the names of
  * {@link AutoMovieMotionHumanTargetGrid.Place} (a height, a lateral and a
  * distance, with a nudge in arm lengths where the stroke moves about it), a
- * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle
- * as a level of {@link AutoMovieMotionHumanRange}:
+ * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle as a
+ * level of {@link AutoMovieMotionHumanRange}:
  *
- * - `wave`: the open palm faces forward beside the head, at eye height,
- *   outside the shoulder and near; the hand swings side to side `0.06` arm
- *   lengths, tilting as the forearm turns about the elbow, about 2.5 cycles a
- *   second (provisional).
- * - `raiseHand`: the open palm forward, raised from the shoulder to overhead
- *   by the extent; `cheer` raises both fists and pumps them `0.08` arm
- *   lengths.
+ * - `wave`: the open palm faces forward beside the head, at eye height, outside
+ *   the shoulder and near; the hand swings side to side `0.06` arm lengths,
+ *   tilting as the forearm turns about the elbow, about 2.5 cycles a second
+ *   (provisional).
+ * - `raiseHand`: the open palm forward, raised from the shoulder to overhead by
+ *   the extent; `cheer` raises both fists and pumps them `0.08` arm lengths.
  * - `stopPalm`: the open palm faces forward at shoulder height, inside the
  *   shoulder and far, pushed `0.05` arm lengths further in the stroke.
- * - `point`: the index fingertip on the line from the eye on the pointing
- *   side to the target, as people point (Henriques and Crawford 2002, J
- *   Neurophysiol 87:1677, found the fingertip placed on the line from the
- *   dominant eye; the side's eye is the provisional choice), at the distance
- *   where the arm reaches with `0.95` of its length, the fingers along the
- *   line and the palm down.
+ * - `point`: the index fingertip on the line from the eye on the pointing side to
+ *   the target, as people point (Henriques and Crawford 2002, J Neurophysiol
+ *   87:1677, found the fingertip placed on the line from the dominant eye; the
+ *   side's eye is the provisional choice), at the distance where the arm
+ *   reaches with `0.95` of its length, the fingers along the line and the palm
+ *   down.
  * - `palmsUp`: both open palms up, forearms forward at the waist, turned a
- *   quarter of the way out, set `0.15` arm lengths out and forward and
- *   lifted `0.03` in the stroke, the offering and not-knowing gesture;
- *   `shrug` adds it under raised shoulders.
- * - `beckon`: the palm up at chest height, `0.05` arm lengths lower and
- *   nearer, while the fingers curl and open, about 1.7 cycles a second
- *   (provisional).
+ *   quarter of the way out, set `0.15` arm lengths out and forward and lifted
+ *   `0.03` in the stroke, the offering and not-knowing gesture; `shrug` adds it
+ *   under raised shoulders.
+ * - `beckon`: the palm up at chest height, `0.05` arm lengths lower and nearer,
+ *   while the fingers curl and open, about 1.7 cycles a second (provisional).
  * - `clap`: both palms face each other ahead of the chest, `0.1` arm lengths
- *   below and `0.17` ahead of its place, part `0.09` and meet at the
- *   midpoint on each beat, four beats a second (free applause clusters near
- *   4 Hz, faster than the near-2 Hz synchronised rhythm, Neda et al.
- *   2000, Nature 403:849).
- * - `thumbsDown`: the fist ahead of the chest, the palm outward and the
- *   knuckles ahead and 45 degrees down, so a straight thumb, which leans
- *   toward the knuckles, points down; the elbow is asked out at the
- *   shoulder's height, which leaves the forearm a quarter turn instead of a
- *   half (provisional place, tip and elbow).
+ *   below and `0.17` ahead of its place, part `0.09` and meet at the midpoint
+ *   on each beat, four beats a second (free applause clusters near 4 Hz, faster
+ *   than the near-2 Hz synchronised rhythm, Neda et al. 2000, Nature 403:849).
+ * - `thumbsDown`: the fist ahead of the chest, the palm outward and the knuckles
+ *   ahead and 45 degrees down, so a straight thumb, which leans toward the
+ *   knuckles, points down; the elbow is asked out at the shoulder's height,
+ *   which leaves the forearm a quarter turn instead of a half (provisional
+ *   place, tip and elbow).
  * - `rubHands`: the palms together, sliding `0.03` arm lengths opposite ways
  *   along the fingers.
- * - `palmsTogether`: the palms pressed together ahead of the chest, the
- *   fingers up and forward, held: the clap's hand pose without its parting
- *   (a prayer, a wai or gassho greeting).
- * - `touchFace`: the index fingertip, hand flat, on a face region with the
- *   palm toward the face and the fingers up, held; `pushGlasses` slides it
- *   12 mm up the nose bridge; `scratchHead` rubs it 15 mm on the head's side
- *   four times a second (provisional).
+ * - `palmsTogether`: the palms pressed together ahead of the chest, the fingers
+ *   up and forward, held: the clap's hand pose without its parting (a prayer, a
+ *   wai or gassho greeting).
+ * - `touchFace`: the index fingertip, hand flat, on a face region with the palm
+ *   toward the face and the fingers up, held; `pushGlasses` slides it 12 mm up
+ *   the nose bridge; `scratchHead` rubs it 15 mm on the head's side four times
+ *   a second (provisional).
  *
  * Gestures of the head, shoulders and trunk are joint angles, stated by
  * {@link gestureJoints}; pointing and self-touch read the posed trunk in
  * {@link gestureTouch}; the strokes ride the signals of {@link gestureSignal}.
  * Amplitudes and distances that express the gesture's size scale with the
  * Effort extent; contact points and the pointing line do not. Each hand goal
- * widens the elbow's hanging hint by its own share of the upper arm (`out`:
- * 0.3 for a wave, 0.2 for a raised hand, a cheer and open palms, 0.1 for
- * palms together, none for the rest; provisional, read from no measured
- * source). Every value above without a source is provisional.
+ * widens the elbow's hanging hint by its own share of the upper arm (`out`: 0.3
+ * for a wave, 0.2 for a raised hand, a cheer and open palms, 0.1 for palms
+ * together, none for the rest; provisional, read from no measured source).
+ * Every value above without a source is provisional.
  */
 export namespace gestureStroke {
   /**
-   * The interface stroke input with the gesture's prepared touch geometry.
-   * The record (`gestureTouch.IPrepared`) holds motions' own readers, so it
-   * extends the dependency-free contract here instead of entering it.
+   * The interface stroke input with the gesture's prepared touch geometry. The
+   * record (`gestureTouch.IPrepared`) holds motions' own readers, so it extends
+   * the dependency-free contract here instead of entering it.
    */
   export interface IInput extends IAutoMovieMotionHumanGestureStroke.IInput {
-    /** The plan's touch geometry for this hand, when the gesture prepared it; a stroke read without it computes the geometry itself. */
+    /**
+     * The plan's touch geometry for this hand, when the gesture prepared it; a
+     * stroke read without it computes the geometry itself.
+     */
     prepared?: gestureTouch.IPrepared;
 
-    /** The bend of the trunk the gesture was entered on, read once per plan (`bend`); a straight trunk when absent. */
+    /**
+     * The bend of the trunk the gesture was entered on, read once per plan
+     * (`bend`); a straight trunk when absent.
+     */
     bend?: gestureStroke.IBend;
   }
 
-  /** Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its kind. */
+  /**
+   * Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its
+   * kind.
+   */
   export const RHYTHM: typeof gestureStrokeTables.RHYTHM =
     gestureStrokeTables.RHYTHM;
 
-  /** Which hands each gesture moves (`gestureStrokeTables.HANDS`), read here with its kind. */
+  /**
+   * Which hands each gesture moves (`gestureStrokeTables.HANDS`), read here
+   * with its kind.
+   */
   export const HANDS: typeof gestureStrokeTables.HANDS =
     gestureStrokeTables.HANDS;
 
   /**
-   * Extra finger flexion of a stroke, independent of its world hand goal.
-   * Only beckoning adds this curl; all other strokes keep their named shape.
+   * Extra finger flexion of a stroke, independent of its world hand goal. Only
+   * beckoning adds this curl; all other strokes keep their named shape.
    *
    * @param kind The gesture's closed kind.
    * @param u Its stroke share in [0, 1].
@@ -146,7 +155,8 @@ export namespace gestureStroke {
    * @param cycles Stroke cycles.
    * @param input The instant's inputs.
    * @returns The goal.
-   * @throws {Error} For a gesture that moves no hand, or `point` without a target.
+   * @throws {Error} For a gesture that moves no hand, or `point` without a
+   *   target.
    */
   export function hand(
     kind: IAutoMovieMotionHumanGestureStroke.Kind,

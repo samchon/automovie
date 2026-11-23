@@ -26,75 +26,93 @@ import { HUMAN_GAIT_TRUDGE } from "../next/presets/HUMAN_GAIT_TRUDGE";
 import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
 
 /**
- * Named ways of going somewhere on foot; the composition gives the
- * destination. Register the ones a film uses.
+ * Named ways of going somewhere on foot; the composition gives the destination.
+ * Register the ones a film uses.
  *
- * A style whose speed is one of the walk's or the run's paces is a row of
- * that action: `stroll`, `hurry`, `trudge` and `swagger` fix the walk
- * presets of the same names (`AutoMovieMotionHumanGait.STROLL` and the
- * others, provisional until each style's study is read), and `jog` and
- * `sprint` fix the run's pace alone.
+ * A style whose speed is one of the walk's or the run's paces is a row of that
+ * action: `stroll`, `hurry`, `trudge` and `swagger` fix the walk presets of the
+ * same names (`AutoMovieMotionHumanGait.STROLL` and the others, provisional
+ * until each style's study is read), and `jog` and `sprint` fix the run's pace
+ * alone.
  *
- * A style whose speed no pace has runs the walk's stepping plan in a gait
- * of its own, as the run does, and counts as a walk wherever actions are
- * told apart by kind:
+ * A style whose speed no pace has runs the walk's stepping plan in a gait of
+ * its own, as the run does, and counts as a walk wherever actions are told
+ * apart by kind:
  *
- * - `march` keeps the drill's cadence, 120 steps a minute, and its step,
- *   30 inches (0.762 m) for every marcher, as the regulation prescribes one
- *   step to all so the ranks keep their dress (US Army TC 3-21.5, quick
- *   time). The cadence governs: the way
- *   is covered in the whole number of steps nearest it in drill steps, so
- *   over a way that is not a whole number of them the step gives and the
- *   cadence stays.
- * - `doubleTime` keeps 180 steps a minute on the same step, which is a
- *   jog's speed, so it is run in the jog's gait with the count kept.
- * - `prowl` is the sneak on deeply bent knees; `sad` and `proud` carry a
- *   mood in speed, arm swing and trunk; `limp` spares one leg, standing on
- *   it briefly; `drunk` is slow, unsteady in time and wanders off its line.
- *   All provisional, each constant saying what was read and what was not.
- * - `sneak` goes slower than the slow walk on shorter steps, with the
- *   pelvis lowered and the arms held close (provisional values; no study of
- *   stealthy gait has been read).
+ * - `march` keeps the drill's cadence, 120 steps a minute, and its step, 30
+ *   inches (0.762 m) for every marcher, as the regulation prescribes one step
+ *   to all so the ranks keep their dress (US Army TC 3-21.5, quick time). The
+ *   cadence governs: the way is covered in the whole number of steps nearest it
+ *   in drill steps, so over a way that is not a whole number of them the step
+ *   gives and the cadence stays.
+ * - `doubleTime` keeps 180 steps a minute on the same step, which is a jog's
+ *   speed, so it is run in the jog's gait with the count kept.
+ * - `prowl` is the sneak on deeply bent knees; `sad` and `proud` carry a mood in
+ *   speed, arm swing and trunk; `limp` spares one leg, standing on it briefly;
+ *   `drunk` is slow, unsteady in time and wanders off its line. All
+ *   provisional, each constant saying what was read and what was not.
+ * - `sneak` goes slower than the slow walk on shorter steps, with the pelvis
+ *   lowered and the arms held close (provisional values; no study of stealthy
+ *   gait has been read).
  */
 export namespace HumanGait {
-  /** The stroll: the walk with the stroll preset's pace, step and arm swing fixed (`HUMAN_GAIT_STROLL`, `AutoMovieMotionHumanGait.STROLL`). */
+  /**
+   * The stroll: the walk with the stroll preset's pace, step and arm swing
+   * fixed (`HUMAN_GAIT_STROLL`, `AutoMovieMotionHumanGait.STROLL`).
+   */
   export const stroll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["stroll"]
   > = HumanActionRow.of("stroll", walk, HUMAN_GAIT_STROLL);
 
-  /** The hurry: the walk with the hurry preset's pace, step and arm swing fixed (`HUMAN_GAIT_HURRY`, `AutoMovieMotionHumanGait.HURRY`). */
+  /**
+   * The hurry: the walk with the hurry preset's pace, step and arm swing fixed
+   * (`HUMAN_GAIT_HURRY`, `AutoMovieMotionHumanGait.HURRY`).
+   */
   export const hurry: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["hurry"]
   > = HumanActionRow.of("hurry", walk, HUMAN_GAIT_HURRY);
 
-  /** The weary trudge: the walk with the trudge preset's pace, step and arm swing fixed (`HUMAN_GAIT_TRUDGE`, `AutoMovieMotionHumanGait.TRUDGE`). */
+  /**
+   * The weary trudge: the walk with the trudge preset's pace, step and arm
+   * swing fixed (`HUMAN_GAIT_TRUDGE`, `AutoMovieMotionHumanGait.TRUDGE`).
+   */
   export const trudge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["trudge"]
   > = HumanActionRow.of("trudge", walk, HUMAN_GAIT_TRUDGE);
 
-  /** The swagger: the walk with the swagger preset's pace, arm swing and elbows fixed (`HUMAN_GAIT_SWAGGER`, `AutoMovieMotionHumanGait.SWAGGER`). */
+  /**
+   * The swagger: the walk with the swagger preset's pace, arm swing and elbows
+   * fixed (`HUMAN_GAIT_SWAGGER`, `AutoMovieMotionHumanGait.SWAGGER`).
+   */
   export const swagger: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["swagger"]
   > = HumanActionRow.of("swagger", walk, HUMAN_GAIT_SWAGGER);
 
-  /** A jog: the `jog` run (about 2.3 m/s, about 165 steps a minute); exercise, an easy pace held for a long way ({@link IAutoMovieMotionHumanRun.IParams.pace}). */
+  /**
+   * A jog: the `jog` run (about 2.3 m/s, about 165 steps a minute); exercise,
+   * an easy pace held for a long way
+   * ({@link IAutoMovieMotionHumanRun.IParams.pace}).
+   */
   export const jog: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["jog"]
   > = HumanActionRow.of("jog", run, { pace: "jog" });
 
-  /** A sprint: the `sprint` run (about 6.8 m/s, about 234 steps a minute); a charge, chase or escape at full effort ({@link IAutoMovieMotionHumanRun.IParams.pace}). */
+  /**
+   * A sprint: the `sprint` run (about 6.8 m/s, about 234 steps a minute); a
+   * charge, chase or escape at full effort
+   * ({@link IAutoMovieMotionHumanRun.IParams.pace}).
+   */
   export const sprint: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["sprint"]
   > = HumanActionRow.of("sprint", run, { pace: "sprint" });
 
   /**
-   * The march: steps a minute, the step in metres (the regulation's 30
-   * inches, the same for every marcher), and the arm's
-   * swing. TC 3-21.5 gives the arm 9 inches to the front and 6 to the rear
-   * of the trouser seam, about 17 degrees each way on a 0.65 m arm
-   * (unverified in the current edition); the elbow nearly straight is
-   * provisional, and so is the half of a walk's step-to-step unevenness a
-   * drill keeps.
+   * The march: steps a minute, the step in metres (the regulation's 30 inches,
+   * the same for every marcher), and the arm's swing. TC 3-21.5 gives the arm 9
+   * inches to the front and 6 to the rear of the trouser seam, about 17 degrees
+   * each way on a 0.65 m arm (unverified in the current edition); the elbow
+   * nearly straight is provisional, and so is the half of a walk's step-to-step
+   * unevenness a drill keeps.
    */
   export const MARCH: Readonly<{
     cadence: number;
@@ -109,10 +127,10 @@ export namespace HumanGait {
   };
 
   /**
-   * The sneak (provisional): its Froude number, a third of the slow walk's;
-   * its step as a share of the walking step at that number; how far the
-   * pelvis rides below a walk's, hip heights; and the arm's small swing
-   * with the elbow bent.
+   * The sneak (provisional): its Froude number, a third of the slow walk's; its
+   * step as a share of the walking step at that number; how far the pelvis
+   * rides below a walk's, hip heights; and the arm's small swing with the elbow
+   * bent.
    */
   export const SNEAK: Readonly<{
     froude: number;
@@ -176,17 +194,20 @@ export namespace HumanGait {
     );
 
   /**
-   * Double time: steps a minute and the step in metres. TC 3-21.5
-   * gives 180 steps a minute; the 30-inch step of quick time is kept
-   * (unverified in the current edition), which at that cadence is a jog's
-   * speed, so the body runs it in the jog's gait.
+   * Double time: steps a minute and the step in metres. TC 3-21.5 gives 180
+   * steps a minute; the 30-inch step of quick time is kept (unverified in the
+   * current edition), which at that cadence is a jog's speed, so the body runs
+   * it in the jog's gait.
    */
   export const DOUBLE: Readonly<{ cadence: number; step: number }> = {
     cadence: 180,
     step: 0.762,
   };
 
-  /** Double time: the drill step at 180 a minute, run as a jog that keeps the count. */
+  /**
+   * Double time: the drill step at 180 a minute, run as a jog that keeps the
+   * count.
+   */
   export const doubleTime: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
     styled(
       "doubleTime",
@@ -221,7 +242,10 @@ export namespace HumanGait {
         sneaking({ bob: { mean: -SNEAK.drop, amplitude: 0 } }),
     );
 
-  /** How far the pelvis rides below a walk's in a prowl, the sneak's crouched variant, hip heights (provisional). */
+  /**
+   * How far the pelvis rides below a walk's in a prowl, the sneak's crouched
+   * variant, hip heights (provisional).
+   */
   export const PROWL: number = 0.12;
 
   /** A prowl: the sneak on deeply bent knees. */
@@ -233,13 +257,12 @@ export namespace HumanGait {
     );
 
   /**
-   * The trunk's forward lean of each mood's walk, degrees (provisional): a
-   * sad walker is more slumped than a neutral one (Michalak et al. 2009,
-   * Psychosom Med 71:580, give the direction) and a proud one upright. The
-   * rest of a mood is the manner preset of its name
-   * (`AutoMovieMotionManner.PRESETS`): its tempo sets the speed, its step
-   * and swing factors the step and the arms, so one table owns the moods
-   * for every act.
+   * The trunk's forward lean of each mood's walk, degrees (provisional): a sad
+   * walker is more slumped than a neutral one (Michalak et al. 2009, Psychosom
+   * Med 71:580, give the direction) and a proud one upright. The rest of a mood
+   * is the manner preset of its name (`AutoMovieMotionManner.PRESETS`): its
+   * tempo sets the speed, its step and swing factors the step and the arms, so
+   * one table owns the moods for every act.
    */
   export const MOODS: Readonly<Record<"sad" | "proud", number>> = {
     sad: 8,
@@ -265,16 +288,19 @@ export namespace HumanGait {
     );
 
   /**
-   * The limp (provisional): the slow walk's Froude number, the step as a
-   * share of the walking step, and the share by which a step standing on
-   * the spared leg is cut short and the next drawn out. A normal stance
-   * takes about 60 % of the stride and a painful one less (Perry and
-   * Burnfield 2010); the size of the asymmetry awaits a measured cohort.
+   * The limp (provisional): the slow walk's Froude number, the step as a share
+   * of the walking step, and the share by which a step standing on the spared
+   * leg is cut short and the next drawn out. A normal stance takes about 60 %
+   * of the stride and a painful one less (Perry and Burnfield 2010); the size
+   * of the asymmetry awaits a measured cohort.
    */
   export const LIMP: Readonly<{ froude: number; step: number; share: number }> =
     { froude: 0.12, step: 0.85, share: 0.15 };
 
-  /** A stiff-knee limp: the spared leg also swings straight, barely clearing the floor. */
+  /**
+   * A stiff-knee limp: the spared leg also swings straight, barely clearing the
+   * floor.
+   */
   export const stiffLimp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.ILimp> =
     styled(
       "stiffLimp",
@@ -286,10 +312,16 @@ export namespace HumanGait {
       }),
     );
 
-  /** How far a tiptoe holds the heels off the floor, degrees about the toes' joint (provisional). */
+  /**
+   * How far a tiptoe holds the heels off the floor, degrees about the toes'
+   * joint (provisional).
+   */
   export const TIPTOE: number = 25;
 
-  /** A tiptoe: the sneak's slow short steps on the balls of the feet, the heels never set down. */
+  /**
+   * A tiptoe: the sneak's slow short steps on the balls of the feet, the heels
+   * never set down.
+   */
   export const tiptoe: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
     styled(
       "tiptoe",
@@ -308,11 +340,10 @@ export namespace HumanGait {
   /**
    * The intoxicated walk (provisional): the slow walk's Froude number, the
    * multiple of a sober walk's step-to-step unevenness, and the wander, a
-   * waypoint every `every` hip heights of the way set aside by up to
-   * `aside` hip heights to a seeded side. At 0.11 % breath alcohol people
-   * widen their steps, turn their feet out and sway more (Gimunova et al.
-   * 2022, Sci Rep 12); the step width and the foot rotation are not
-   * modelled here.
+   * waypoint every `every` hip heights of the way set aside by up to `aside`
+   * hip heights to a seeded side. At 0.11 % breath alcohol people widen their
+   * steps, turn their feet out and sway more (Gimunova et al. 2022, Sci Rep
+   * 12); the step width and the foot rotation are not modelled here.
    */
   export const DRUNK: Readonly<{
     froude: number;
@@ -321,7 +352,10 @@ export namespace HumanGait {
     aside: number;
   }> = { froude: 0.12, unevenness: 3, every: 2, aside: 0.15 };
 
-  /** An intoxicated walk: slow, unsteady in time, wandering off its line and back. */
+  /**
+   * An intoxicated walk: slow, unsteady in time, wandering off its line and
+   * back.
+   */
   export const drunk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
     {
       name: "drunk",
@@ -370,19 +404,22 @@ export namespace HumanGait {
 }
 
 /**
- * The longest step that has the stepping plan cover a way in a given count
- * of steps, metres. The plan takes the fewest steps whose cruising step,
- * the way over the count less the steps its ramps cost, is no longer than
- * the longest (`WalkPace.fit`), and times each at the longest step over the
- * speed; the way over the count less half a step lies in the middle of the
- * longest steps that give the count, so the count holds while the ramps
- * cost less than half a step.
+ * The longest step that has the stepping plan cover a way in a given count of
+ * steps, metres. The plan takes the fewest steps whose cruising step, the way
+ * over the count less the steps its ramps cost, is no longer than the longest
+ * (`WalkPace.fit`), and times each at the longest step over the speed; the way
+ * over the count less half a step lies in the middle of the longest steps that
+ * give the count, so the count holds while the ramps cost less than half a
+ * step.
  */
 function counted(way: number, count: number): number {
   return way / (count - 0.5);
 }
 
-/** Where the feet stand at the entry: their ankles' midpoint on the floor, world metres. */
+/**
+ * Where the feet stand at the entry: their ankles' midpoint on the floor, world
+ * metres.
+ */
 function middle(
   context: IAutoMovieMotionHumanActionContext<object>,
 ): IAutoMovieVector3 {
@@ -395,7 +432,10 @@ function middle(
   };
 }
 
-/** The sneak's slow short steps with the arms held close (`HumanGait.SNEAK`), with what the variant adds: its pelvis drop or its raised heels. */
+/**
+ * The sneak's slow short steps with the arms held close (`HumanGait.SNEAK`),
+ * with what the variant adds: its pelvis drop or its raised heels.
+ */
 function sneaking(
   variant: Partial<IAutoMovieMotionHumanWalkGait>,
 ): IAutoMovieMotionHumanWalkGait {
@@ -411,7 +451,10 @@ function sneaking(
   };
 }
 
-/** The limp's slow walk on shortened steps, the spared leg stood on briefly (`HumanGait.LIMP`); the right leg spared when the parameters name none. */
+/**
+ * The limp's slow walk on shortened steps, the spared leg stood on briefly
+ * (`HumanGait.LIMP`); the right leg spared when the parameters name none.
+ */
 function limping(
   params: IAutoMovieMotionHumanGait.ILimp,
 ): IAutoMovieMotionHumanWalkGait {
@@ -426,7 +469,11 @@ function limping(
   };
 }
 
-/** A mood's gait: the normal walk in the manner preset of the mood's name, a tempo factor slowing the speed by itself (the Froude number by its square), with the mood's lean. */
+/**
+ * A mood's gait: the normal walk in the manner preset of the mood's name, a
+ * tempo factor slowing the speed by itself (the Froude number by its square),
+ * with the mood's lean.
+ */
 function mood(
   name: "sad" | "proud",
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
@@ -450,7 +497,10 @@ function mood(
   };
 }
 
-/** A march's cadence and step in metres: its regulation's time and pace, or TC 3-21.5's quick time. */
+/**
+ * A march's cadence and step in metres: its regulation's time and pace, or TC
+ * 3-21.5's quick time.
+ */
 function regulated(params: IAutoMovieMotionHumanGait.IMarch): {
   cadence: number;
   step: number;
@@ -474,7 +524,10 @@ function regulated(params: IAutoMovieMotionHumanGait.IMarch): {
   return { cadence, step: row.pace };
 }
 
-/** A walk in a gait of its own, under a name: the walk's cuts and yields, planned by its stepping plan. */
+/**
+ * A walk in a gait of its own, under a name: the walk's cuts and yields,
+ * planned by its stepping plan.
+ */
 function styled<P extends IAutoMovieMotionHumanGait.IParams>(
   name: string,
   gait: (
@@ -492,7 +545,10 @@ function styled<P extends IAutoMovieMotionHumanGait.IParams>(
   };
 }
 
-/** The length of the way from where the feet stand through the waypoints to the destination, metres. */
+/**
+ * The length of the way from where the feet stand through the waypoints to the
+ * destination, metres.
+ */
 function distance(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
 ): number {

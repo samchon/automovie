@@ -18,27 +18,31 @@ export namespace staggerLimit {
    * steps, to `RESOLUTION` and then floored to a whole centimetre per second,
    * with every speed of that grid over `VERIFIED` below it caught too.
    *
-   * The pendulum alone, its steps unadmitted by the legs, catches at least
-   * what the whole model catches, exactly: the whole model places every
-   * step, the close and the settling as the pendulum does and only refuses
-   * those the legs do not hold (`staggerRecover.recover`). So the
-   * pendulum's fastest caught speed bounds the limit from above, and the
-   * whole model is bisected between none and that bound. A bound the whole
-   * model catches is the limit at once.
+   * The pendulum alone, its steps unadmitted by the legs, catches at least what
+   * the whole model catches, exactly: the whole model places every step, the
+   * close and the settling as the pendulum does and only refuses those the legs
+   * do not hold (`staggerRecover.recover`). So the pendulum's fastest caught
+   * speed bounds the limit from above, and the whole model is bisected between
+   * none and that bound. A bound the whole model catches is the limit at once.
    *
    * @param body The body.
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param above A speed it does not catch, m/s.
-   * @param fixed The entry's geometry (`StaggerPendulum.prepare`) of this same body and entry, shared with the plan that was refused; read here when absent.
-   * @returns m/s, a whole centimetre per second.
+   * @param fixed The entry's geometry (`StaggerPendulum.prepare`) of this same
+   *   body and entry, shared with the plan that was refused; read here when
+   *   absent.
+   * @returns M/s, a whole centimetre per second.
    */
   export function of(
     body: IAutoMovieMotionHumanActionContext["body"],
     entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     above: number,
-    fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(body, entry),
+    fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(
+      body,
+      entry,
+    ),
   ): number {
     // The search runs on the fixed grid of `RESOLUTION` multiples, so the
     // limit does not depend on the refused speed that asked for it: index
@@ -49,15 +53,29 @@ export namespace staggerLimit {
     // extrapolated centre of mass lies at least v / omega0 less the centre's
     // distance from its nearer ankle from that ankle, so no push over
     // omega0 (d_STEPS + that distance) is caught (`staggerCapture`).
-    const still: StaggerPendulum = new StaggerPendulum(body, entry, push, 0, fixed);
+    const still: StaggerPendulum = new StaggerPendulum(
+      body,
+      entry,
+      push,
+      0,
+      fixed,
+    );
     const near: number = Math.min(
       ...(["left", "right"] as const).map((side: "left" | "right"): number =>
-        Math.hypot(fixed.centre.x - fixed.entered[side].ankle.x, fixed.centre.z - fixed.entered[side].ankle.z),
+        Math.hypot(
+          fixed.centre.x - fixed.entered[side].ankle.x,
+          fixed.centre.z - fixed.entered[side].ankle.z,
+        ),
       ),
     );
-    const screened: number = fixed.w * (staggerCapture(still).distance(staggerBounds.STEPS) + near);
-    const top: number = Math.ceil(Math.min(above, screened) / R - 1e-9) + (screened < above ? 1 : 0);
-    const probe: (catches: (speed: number) => boolean) => (k: number) => boolean = (
+    const screened: number =
+      fixed.w * (staggerCapture(still).distance(staggerBounds.STEPS) + near);
+    const top: number =
+      Math.ceil(Math.min(above, screened) / R - 1e-9) +
+      (screened < above ? 1 : 0);
+    const probe: (
+      catches: (speed: number) => boolean,
+    ) => (k: number) => boolean = (
       catches: (speed: number) => boolean,
     ): ((k: number) => boolean) => {
       // One answer per grid speed and model within this search: a speed
@@ -74,7 +92,11 @@ export namespace staggerLimit {
         return caught;
       };
     };
-    const bisect: (lo: number, hi: number, caught: (k: number) => boolean) => number = (
+    const bisect: (
+      lo: number,
+      hi: number,
+      caught: (k: number) => boolean,
+    ) => number = (
       lo: number,
       hi: number,
       caught: (k: number) => boolean,
@@ -88,11 +110,13 @@ export namespace staggerLimit {
     };
     const pendulum: (k: number) => boolean = probe(
       (speed: number): boolean =>
-        staggerRecover.recover(body, entry, push, speed, 1, false, fixed) !== null,
+        staggerRecover.recover(body, entry, push, speed, 1, false, fixed) !==
+        null,
     );
     const whole: (k: number) => boolean = probe(
       (speed: number): boolean =>
-        staggerRecover.recover(body, entry, push, speed, 1, true, fixed) !== null,
+        staggerRecover.recover(body, entry, push, speed, 1, true, fixed) !==
+        null,
     );
     const bound: number = bisect(0, top, pendulum);
 
@@ -113,5 +137,4 @@ export namespace staggerLimit {
     }
     return Math.floor(found * R * 100 + 1e-9) / 100;
   }
-
 }

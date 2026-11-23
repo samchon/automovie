@@ -23,7 +23,10 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 
-/** One limb of the crawl: its channel, its contact part, its diagonal group and where it stands from the pelvis. */
+/**
+ * One limb of the crawl: its channel, its contact part, its diagonal group and
+ * where it stands from the pelvis.
+ */
 interface ILimb {
   /** The limb's channel. */
   limb: AutoMovieHumanLimb;
@@ -31,10 +34,16 @@ interface ILimb {
   /** The contact part at its end. */
   part: IAutoMovieMotionHumanContactWindow["part"];
 
-  /** Its phase in the stride cycle: 0 for the right hand and the left foot, one half for the other pair. */
+  /**
+   * Its phase in the stride cycle: 0 for the right hand and the left foot, one
+   * half for the other pair.
+   */
   phase: number;
 
-  /** Its end's stance from the pelvis in the crawl's frame (`+z` the travel), metres. */
+  /**
+   * Its end's stance from the pelvis in the crawl's frame (`+z` the travel),
+   * metres.
+   */
   stance: IAutoMovieVector3;
 
   /** Its middle joint's hint from the end, in the same frame, metres. */
@@ -62,25 +71,28 @@ interface IShape {
   /** The trunk's whole extension, degrees, shared among its bones by their room. */
   arch: number;
 
-  /** The neck's flexion, degrees: positive looks toward the feet, negative hangs the head back. */
+  /**
+   * The neck's flexion, degrees: positive looks toward the feet, negative hangs
+   * the head back.
+   */
   neck: number;
 }
 
 /**
  * A supine quadrupedal crawl, the crab walk (`IAutoMovieMotionHumanCrabWalk`).
  * The body settles from where it is onto its hands, planted behind the
- * shoulders, and its feet, planted ahead of the hips, with the pelvis lifted
- * to the authored height, then travels in the diagonal sequence of a
- * quadrupedal walk: the right hand and the left foot swing together while
- * the other pair bears, then the other pair. The travel follows one
- * minimum-jerk progress, so the crawl leaves and arrives at rest; each
- * swinging end lifts on a half sine over its swing. The hands and the feet
- * are the only contacts. A full backbend arches the spine and hangs the head
- * back, and is refused for a body whose spine and chest cannot extend as far.
+ * shoulders, and its feet, planted ahead of the hips, with the pelvis lifted to
+ * the authored height, then travels in the diagonal sequence of a quadrupedal
+ * walk: the right hand and the left foot swing together while the other pair
+ * bears, then the other pair. The travel follows one minimum-jerk progress, so
+ * the crawl leaves and arrives at rest; each swinging end lifts on a half sine
+ * over its swing. The hands and the feet are the only contacts. A full backbend
+ * arches the spine and hangs the head back, and is refused for a body whose
+ * spine and chest cannot extend as far.
  *
- * Sources: the diagonal sequence of quadrupedal walking (Hildebrand, Symmetrical
- * gaits of horses, Science 150, 1965) carried to a supine crawl; the trunk and
- * stance values are authored.
+ * Sources: the diagonal sequence of quadrupedal walking (Hildebrand,
+ * Symmetrical gaits of horses, Science 150, 1965) carried to a supine crawl;
+ * the trunk and stance values are authored.
  */
 export namespace crabWalk {
   /** The action's name. */
@@ -98,7 +110,10 @@ export namespace crabWalk {
     ],
   };
 
-  /** How long the body takes to settle onto its four supports, seconds: authored. */
+  /**
+   * How long the body takes to settle onto its four supports, seconds:
+   * authored.
+   */
   export const SETTLE: number = 0.8;
 
   /** A stride's length, in statures: authored. */
@@ -107,7 +122,10 @@ export namespace crabWalk {
   /** How long one stride cycle takes, seconds: authored, a slow crawl. */
   export const CYCLE: number = 0.9;
 
-  /** How far above the floor a planted palm's surface lies, metres: the floor contact's skin. */
+  /**
+   * How far above the floor a planted palm's surface lies, metres: the floor
+   * contact's skin.
+   */
   export const SKIN: number = 0.005;
 
   /** How high a swinging end lifts, metres: authored. */
@@ -124,7 +142,9 @@ export namespace crabWalk {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On `height` outside what the limbs can hold, on `to` for a non-finite travel, and on `backbend` for a spine that cannot arch that far.
+   * @throws {HumanRefusal} On `height` outside what the limbs can hold, on `to`
+   *   for a non-finite travel, and on `backbend` for a spine that cannot arch
+   *   that far.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrabWalk.IParams>,

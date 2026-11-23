@@ -17,19 +17,22 @@ import { KickLaunch } from "./KickLaunch";
  *
  * The new kick is planned whole, as if thrown from the source's own entry on
  * the source's clock, line and step, and the figure moves from the source's
- * plan to the new one on a minimum-jerk blend from the cut to the contact:
- * the carriage's turn, lean and tip as each plan shows them at that second,
- * and under that one blended body the two plans' legs (the ankle, the knee's hint and the foot's rotation). Each
- * plan's leg is carried by the pelvis it hangs from, so both are legs the
- * blended body can hold, and so is their blend near either end. Both plans
- * are smooth and the blend's weight leaves zero with zero velocity and
- * acceleration, so position, velocity and acceleration stay continuous
- * through the cut. This is a blend of two complete plans, not one superposed
- * correction unit (Flash and Henis 1991): the two kicks differ in their
- * whole carriage, which no single displacement of the ankle expresses.
+ * plan to the new one on a minimum-jerk blend from the cut to the contact: the
+ * carriage's turn, lean and tip as each plan shows them at that second, and
+ * under that one blended body the two plans' legs (the ankle, the knee's hint
+ * and the foot's rotation). Each plan's leg is carried by the pelvis it hangs
+ * from, so both are legs the blended body can hold, and so is their blend near
+ * either end. Both plans are smooth and the blend's weight leaves zero with
+ * zero velocity and acceleration, so position, velocity and acceleration stay
+ * continuous through the cut. This is a blend of two complete plans, not one
+ * superposed correction unit (Flash and Henis 1991): the two kicks differ in
+ * their whole carriage, which no single displacement of the ankle expresses.
  */
 export namespace KickRedirect {
-  /** The redirecting kick's parameters and draws on its source's context and clock. */
+  /**
+   * The redirecting kick's parameters and draws on its source's context and
+   * clock.
+   */
   function redirected(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
     source: IAutoMovieMotionHumanKickGeometry.ISource,
@@ -49,7 +52,8 @@ export namespace KickRedirect {
    * @param context The redirecting kick's context, starting at the cut.
    * @param source The kick it continues.
    * @param before The launch this redirect made before, when it has one.
-   * @returns The launch; the one before when it reads the same and the source still keeps the same line and step.
+   * @returns The launch; the one before when it reads the same and the source
+   *   still keeps the same line and step.
    */
   export function launch(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
@@ -71,7 +75,8 @@ export namespace KickRedirect {
    *
    * @param context The redirecting kick's context, starting at the cut.
    * @param source The kick it continues.
-   * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
+   * @param fixed The contact second the performance committed: null when the
+   *   leg met nothing, undefined when the kick offers no weapon.
    * @param launch The redirecting kick's launch (`launch`).
    * @returns The geometry, on the source's clock.
    */

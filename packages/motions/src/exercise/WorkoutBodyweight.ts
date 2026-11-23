@@ -9,21 +9,21 @@ import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
 /**
- * The bodyweight movements of the workout law a gym programme names beside
- * the ones the other tables hold. On the floor: the pike push-up, the
- * superman, the bird dog, the lying leg raise, the bicycle crunch, the
- * Russian twist and the dead bug. On two bars at the hips' height: the dip.
+ * The bodyweight movements of the workout law a gym programme names beside the
+ * ones the other tables hold. On the floor: the pike push-up, the superman, the
+ * bird dog, the lying leg raise, the bicycle crunch, the Russian twist and the
+ * dead bug. On two bars at the hips' height: the dip.
  *
- * Every angle is provisional, read off the exercise's usual description
- * (ACSM's Guidelines, 11th ed.; NSCA's Essentials of Strength Training and
+ * Every angle is provisional, read off the exercise's usual description (ACSM's
+ * Guidelines, 11th ed.; NSCA's Essentials of Strength Training and
  * Conditioning, 4th ed., for the dip); none is a measured value.
  *
  * The bars of a dip are places at the standing hips' height beside the body
- * unless the author names a prop (`on`): a support exercise's bars stand
- * within the standing body's reach. First pass: the dip's base is the
- * grammar's `hanging`, the body borne by its hands with its feet off the
- * floor, there being no base of a body supported above its hands; a bird
- * dog's hands are kept by the angles alone.
+ * unless the author names a prop (`on`): a support exercise's bars stand within
+ * the standing body's reach. First pass: the dip's base is the grammar's
+ * `hanging`, the body borne by its hands with its feet off the floor, there
+ * being no base of a body supported above its hands; a bird dog's hands are
+ * kept by the angles alone.
  */
 export namespace WorkoutBodyweight {
   /** Lying on the back with the arms by the sides. */
@@ -62,7 +62,10 @@ export namespace WorkoutBodyweight {
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** A pike push-up: from the hips-high support on the hands and feet, the head lowered between the hands. */
+    /**
+     * A pike push-up: from the hips-high support on the hands and feet, the
+     * head lowered between the hands.
+     */
     pikePushUp: {
       base: "leaning",
       anchor: "hips",
@@ -102,7 +105,10 @@ export namespace WorkoutBodyweight {
       ],
     },
 
-    /** A superman: lying face down, the arms ahead and the legs lifted off the floor together. */
+    /**
+     * A superman: lying face down, the arms ahead and the legs lifted off the
+     * floor together.
+     */
     superman: floor(
       "lying",
       BACK,
@@ -134,7 +140,10 @@ export namespace WorkoutBodyweight {
       ],
     ),
 
-    /** A bird dog: on hands and knees, one arm and the opposite leg reached level, alternating. */
+    /**
+     * A bird dog: on hands and knees, one arm and the opposite leg reached
+     * level, alternating.
+     */
     birdDog: {
       base: "kneeling",
       anchor: "hips",
@@ -181,7 +190,10 @@ export namespace WorkoutBodyweight {
       ],
     },
 
-    /** A lying leg raise: on the back, both straight legs raised to upright and lowered. */
+    /**
+     * A lying leg raise: on the back, both straight legs raised to upright and
+     * lowered.
+     */
     lyingLegRaise: floor(
       "lying",
       BACK,
@@ -203,7 +215,10 @@ export namespace WorkoutBodyweight {
       ],
     ),
 
-    /** A bicycle crunch: on the back, one knee drawn in as the opposite shoulder turns to it, alternating. */
+    /**
+     * A bicycle crunch: on the back, one knee drawn in as the opposite shoulder
+     * turns to it, alternating.
+     */
     bicycleCrunch: floor(
       "lying",
       BACK,
@@ -237,7 +252,10 @@ export namespace WorkoutBodyweight {
       true,
     ),
 
-    /** A Russian twist: sitting leaned back with the knees bent, the trunk turned to each side in turn. */
+    /**
+     * A Russian twist: sitting leaned back with the knees bent, the trunk
+     * turned to each side in turn.
+     */
     russianTwist: floor(
       "seated",
       [{ part: "seat", kind: "seat" }],
@@ -269,7 +287,10 @@ export namespace WorkoutBodyweight {
       true,
     ),
 
-    /** A dead bug: on the back with the arms up and the hips and knees square, one arm and the opposite leg lowered, alternating. */
+    /**
+     * A dead bug: on the back with the arms up and the hips and knees square,
+     * one arm and the opposite leg lowered, alternating.
+     */
     deadBug: floor(
       "lying",
       BACK,
@@ -304,7 +325,10 @@ export namespace WorkoutBodyweight {
       true,
     ),
 
-    /** A dip on two bars at the hips' height: the body lowered between the hands until the upper arms are level, and pressed up. */
+    /**
+     * A dip on two bars at the hips' height: the body lowered between the hands
+     * until the upper arms are level, and pressed up.
+     */
     dip: {
       base: "hanging",
       anchor: "bar",

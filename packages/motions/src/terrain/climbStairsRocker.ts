@@ -28,7 +28,8 @@ type AutoMovieClimbStairsRockerSource = (
  *
  * @param body The unchanged occupant and its sole sockets.
  * @param prints Each foot's fixed placements at tread contacts.
- * @returns A rocker at the current stance or swinging placement, hip and dorsal limit.
+ * @returns A rocker at the current stance or swinging placement, hip and dorsal
+ *   limit.
  */
 export function climbStairsRocker(
   body: IAutoMovieMotionHumanBody,

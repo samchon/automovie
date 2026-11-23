@@ -26,42 +26,51 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanRise } from "./AutoMovieMotionHumanRise";
 
 /**
- * What the body behind the arm does so a hand reaches a region its arm
- * alone does not: the shoulder girdle lifted and a rise onto the toes for a
- * region above the shoulder, then a lean from the hips for what is still
- * beyond the arm.
+ * What the body behind the arm does so a hand reaches a region its arm alone
+ * does not: the shoulder girdle lifted and a rise onto the toes for a region
+ * above the shoulder, then a lean from the hips for what is still beyond the
+ * arm.
  *
  * A person reaching up to a taller person's face, or to a shelf, lifts the
  * shoulder with the arm (the scapula turns up as the arm is raised, Inman,
- * Saunders and Abbott 1944) and then raises the heels, because leaning
- * forward lowers the shoulder and takes it away from a place above it. Each
- * moves by the least angle that brings the wrist within the kept share of
- * the arm, and no further than the shoulder needs to come level with the
- * wrist or than its limit (`GIRDLE`, `RAISE`). What remains is leaned into
+ * Saunders and Abbott 1944) and then raises the heels, because leaning forward
+ * lowers the shoulder and takes it away from a place above it. Each moves by
+ * the least angle that brings the wrist within the kept share of the arm, and
+ * no further than the shoulder needs to come level with the wrist or than its
+ * limit (`GIRDLE`, `RAISE`). What remains is leaned into
  * (`AutoMovieMotionHumanLeanInto`). A region off to the side that the forward
- * lean leaves out of reach is turned toward first: the trunk twists about
- * its long axis by the heading's angle to the line from the shoulder to the
- * wrist, shared by the lumbar and thoracic spine within their twist ranges,
- * as a person turns the chest toward a hand reaching across the body. The
- * lean, solved again on the turned trunk, refuses a region still out of
- * reach at its limit. Two hands' regions off to one side (`faces`) are
- * turned toward from the start, the leaned trunk facing their middle from
- * the shoulders, the turn and the lean solved together to their fixed
- * point, so both arms reach from that side and neither crosses the body.
+ * lean leaves out of reach is turned toward first: the trunk twists about its
+ * long axis by the heading's angle to the line from the shoulder to the wrist,
+ * shared by the lumbar and thoracic spine within their twist ranges, as a
+ * person turns the chest toward a hand reaching across the body. The lean,
+ * solved again on the turned trunk, refuses a region still out of reach at its
+ * limit. Two hands' regions off to one side (`faces`) are turned toward from
+ * the start, the leaned trunk facing their middle from the shoulders, the turn
+ * and the lean solved together to their fixed point, so both arms reach from
+ * that side and neither crosses the body.
  */
 export namespace AutoMovieMotionHumanTouchStance {
-  /** The most the heels rise, degrees (provisional, the kiss law's limit: past it the foot stands on the toes' tips). */
+  /**
+   * The most the heels rise, degrees (provisional, the kiss law's limit: past
+   * it the foot stands on the toes' tips).
+   */
   export const RAISE: number = 35;
 
-  /** The share of the shoulder girdle's range of elevation a reach lifts it by at most (provisional: Inman, Saunders and Abbott 1944 give the scapula a third of the arm's elevation; the share was not read from a source). */
+  /**
+   * The share of the shoulder girdle's range of elevation a reach lifts it by
+   * at most (provisional: Inman, Saunders and Abbott 1944 give the scapula a
+   * third of the arm's elevation; the share was not read from a source).
+   */
   export const GIRDLE: IAutoMovieMotionHumanRange.Level = "half";
 
   /**
    * Solve the stance of a stroke.
    *
-   * @param props The body, the standing posture, the feet, the hand, the share and the wrist's goal.
+   * @param props The body, the standing posture, the feet, the hand, the share
+   *   and the wrist's goal.
    * @returns The stance.
-   * @throws {HumanRefusal} When the wrist is beyond the kept share at the lean's limit, on the first read of the lean.
+   * @throws {HumanRefusal} When the wrist is beyond the kept share at the
+   *   lean's limit, on the first read of the lean.
    */
   export function solve(
     props: IAutoMovieMotionHumanTouchStance.IProps,
@@ -130,7 +139,9 @@ export namespace AutoMovieMotionHumanTouchStance {
         ...posture.joints,
       };
       TWISTED.forEach((bone: TwistedBone, k: number): void => {
-        const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+        const was: readonly [number, number, number] = joints[bone] ?? [
+          0, 0, 0,
+        ];
         joints[bone] = [was[0], was[1], was[2] + (degrees * spans[k]!) / total];
       });
       return { ...posture, joints };
@@ -226,7 +237,11 @@ export namespace AutoMovieMotionHumanTouchStance {
               reach(moved(standing, girdle, degrees)),
           );
 
-    const upright: IAutoMovieMotionHumanPosture = moved(standing, girdle, raise);
+    const upright: IAutoMovieMotionHumanPosture = moved(
+      standing,
+      girdle,
+      raise,
+    );
     const leanOn = (
       posture: IAutoMovieMotionHumanPosture,
     ): IAutoMovieMotionHumanLeanInto.ILean =>
@@ -249,7 +264,9 @@ export namespace AutoMovieMotionHumanTouchStance {
     // solved again on the turned trunk, which refuses what is still out of
     // reach.
     let turn: number =
-      props.faces === undefined ? 0 : angleTo(upright, upright.root, props.faces);
+      props.faces === undefined
+        ? 0
+        : angleTo(upright, upright.root, props.faces);
     let lean: IAutoMovieMotionHumanLeanInto.ILean = leanOn(
       twisted(upright, turn),
     );
@@ -295,9 +312,12 @@ export namespace AutoMovieMotionHumanTouchStance {
         .slice(1)
         .some((progress: number): boolean => lean.pitch(risen, progress) > 0);
     const tipped: IAutoMovieMotionHumanPosture = lean.tip(risen, arrival);
-    const reached: IAutoMovieMotionHumanPosture = feet !== undefined && raise > 0
-      ? planted(tipped, feet, raise)
-      : leaning ? { ...tipped, root: resolveHumanPosture.lower(body, tipped).root } : risen;
+    const reached: IAutoMovieMotionHumanPosture =
+      feet !== undefined && raise > 0
+        ? planted(tipped, feet, raise)
+        : leaning
+          ? { ...tipped, root: resolveHumanPosture.lower(body, tipped).root }
+          : risen;
     return {
       girdle,
       raise,
@@ -308,15 +328,40 @@ export namespace AutoMovieMotionHumanTouchStance {
         clock: IAutoMovieMotionClock,
         correction?: IAutoMovieMotionHumanTouchStance.ICorrection,
       ): IAutoMovieMotionHumanPrimitive[] => {
-        if (props.girdles === undefined && girdle === 0 && raise === 0 && turn === 0 && props.fixed !== true && correction === undefined)
+        if (
+          props.girdles === undefined &&
+          girdle === 0 &&
+          raise === 0 &&
+          turn === 0 &&
+          props.fixed !== true &&
+          correction === undefined
+        )
           return leaning ? [lean.primitive(clock)] : [];
-        if (props.girdles === undefined && girdle === 0 && raise === 0 && turn === 0 && !leaning) return correction === undefined
-          ? [] : [{ channels: [correction.channel], from: 0, to: clock.duration, write: correction.write }];
+        if (
+          props.girdles === undefined &&
+          girdle === 0 &&
+          raise === 0 &&
+          turn === 0 &&
+          !leaning
+        )
+          return correction === undefined
+            ? []
+            : [
+                {
+                  channels: [correction.channel],
+                  from: 0,
+                  to: clock.duration,
+                  write: correction.write,
+                },
+              ];
         const share: (seconds: number) => number = (seconds: number): number =>
           clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-        const channels: AutoMovieMotionHumanChannel[] = raise > 0
-          ? ["root", "trunk", "leftLeg", "rightLeg"]
-          : leaning ? ["root", "trunk"] : ["trunk"];
+        const channels: AutoMovieMotionHumanChannel[] =
+          raise > 0
+            ? ["root", "trunk", "leftLeg", "rightLeg"]
+            : leaning
+              ? ["root", "trunk"]
+              : ["trunk"];
         if (correction !== undefined && !channels.includes(correction.channel))
           channels.push(correction.channel);
         return [
@@ -329,12 +374,17 @@ export namespace AutoMovieMotionHumanTouchStance {
               seconds: number,
               _before?: IAutoMovieMotionHumanPrimitive.Reader,
               resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-              projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
+              projection?: Parameters<
+                IAutoMovieMotionHumanPrimitive["write"]
+              >[4],
             ): IAutoMovieMotionHumanPosture => {
               const k: number = share(seconds);
-              const degrees: number = raise * (props.heels?.(clock, seconds) ?? k);
+              const degrees: number =
+                raise * (props.heels?.(clock, seconds) ?? k);
               const ankles: IAutoMovieMotionHumanRise.Stance | undefined =
-                degrees === 0 ? undefined : props.placements?.(posture) ?? feet;
+                degrees === 0
+                  ? undefined
+                  : (props.placements?.(posture) ?? feet);
               const up: IAutoMovieMotionHumanPosture = twisted(
                 moved(posture, girdle * k, degrees, ankles, k),
                 turn * k,
@@ -349,27 +399,38 @@ export namespace AutoMovieMotionHumanTouchStance {
                       (props.fixed === true
                         ? arrival
                         : lean.pitch(
-                            twisted(moved(posture, girdle, raise, ankles), turn),
+                            twisted(
+                              moved(posture, girdle, raise, ankles),
+                              turn,
+                            ),
                             clock.progress("strokeStart", "strokeEnd", seconds),
                             resolution,
                           )),
                   )
                 : up;
-              const settled: IAutoMovieMotionHumanPosture = ankles !== undefined
-                ? planted(leaned, ankles, degrees, resolution)
-                : leaning
-                  ? {
-                      ...leaned,
-                      root: resolveHumanPosture.lower(
-                        body,
-                        leaned,
-                        undefined,
-                        resolution,
-                      ).root,
-                    }
-                  : leaned;
-              return correction === undefined ? settled
-                : correction.write(settled, seconds, _before, resolution, projection);
+              const settled: IAutoMovieMotionHumanPosture =
+                ankles !== undefined
+                  ? planted(leaned, ankles, degrees, resolution)
+                  : leaning
+                    ? {
+                        ...leaned,
+                        root: resolveHumanPosture.lower(
+                          body,
+                          leaned,
+                          undefined,
+                          resolution,
+                        ).root,
+                      }
+                    : leaned;
+              return correction === undefined
+                ? settled
+                : correction.write(
+                    settled,
+                    seconds,
+                    _before,
+                    resolution,
+                    projection,
+                  );
             },
           },
         ];
@@ -384,22 +445,41 @@ export namespace AutoMovieMotionHumanTouchStance {
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IAutoMovieMotionHumanPosture {
       const left: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
-        body, posture, "left", AutoMovieMotionHumanRise.foot(body, "left", ankles.left, degrees), true,
+        body,
+        posture,
+        "left",
+        AutoMovieMotionHumanRise.foot(body, "left", ankles.left, degrees),
+        true,
       );
       const right: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
-        body, posture, "right", AutoMovieMotionHumanRise.foot(body, "right", ankles.right, degrees), true,
+        body,
+        posture,
+        "right",
+        AutoMovieMotionHumanRise.foot(body, "right", ankles.right, degrees),
+        true,
       );
       const raised: IAutoMovieMotionHumanPosture = {
         ...posture,
-        joints: { ...posture.joints, leftToes: [degrees, 0, 0], rightToes: [degrees, 0, 0] },
+        joints: {
+          ...posture.joints,
+          leftToes: [degrees, 0, 0],
+          rightToes: [degrees, 0, 0],
+        },
         limbs: { ...posture.limbs, leftLeg: left, rightLeg: right },
       };
-      return { ...raised, root: resolveHumanPosture.lower(body, raised, undefined, resolution).root };
+      return {
+        ...raised,
+        root: resolveHumanPosture.lower(body, raised, undefined, resolution)
+          .root,
+      };
     }
   }
 }
 
-/** The most turn-and-lean passes a two-handed facing takes before it keeps its last turn (provisional). */
+/**
+ * The most turn-and-lean passes a two-handed facing takes before it keeps its
+ * last turn (provisional).
+ */
 const FACING: number = 6;
 
 /** The change of turn below which a facing has settled, degrees (provisional). */
@@ -410,13 +490,19 @@ const ARMS: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
   ["leftUpperArm", "rightUpperArm"],
 );
 
-/** The spine's bones a turn of the trunk toward a wrist off to the side twists: the lumbar and the thoracic spine. */
+/**
+ * The spine's bones a turn of the trunk toward a wrist off to the side twists:
+ * the lumbar and the thoracic spine.
+ */
 const TWISTED: readonly TwistedBone[] = ["spine", "chest"];
 
 /** A spine bone the trunk's turn twists. */
 type TwistedBone = "spine" | "chest";
 
-/** A wrist's place against the arm on a posture, metres: beyond the kept share of the arm's length, and above the shoulder joint. */
+/**
+ * A wrist's place against the arm on a posture, metres: beyond the kept share
+ * of the arm's length, and above the shoulder joint.
+ */
 interface IReach {
   /** How far the wrist lies beyond the kept share; not positive within it. */
   beyond: number;
@@ -428,11 +514,11 @@ interface IReach {
 /**
  * The least angle of one freedom that closes a reach upward, degrees: 0 when
  * the wrist is within the share, not above the shoulder, or no nearer at the
- * limit; the limit when even it leaves the wrist beyond the share and above
- * the shoulder; otherwise the bisected angle at which the wrist comes within
- * the share, or, when the limit does not bring it there, at which the
- * shoulder comes level with the wrist, since above that the freedom would
- * take the shoulder away again.
+ * limit; the limit when even it leaves the wrist beyond the share and above the
+ * shoulder; otherwise the bisected angle at which the wrist comes within the
+ * share, or, when the limit does not bring it there, at which the shoulder
+ * comes level with the wrist, since above that the freedom would take the
+ * shoulder away again.
  */
 function least(limit: number, at: (degrees: number) => IReach): number {
   const none: IReach = at(0);

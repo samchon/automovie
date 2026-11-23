@@ -29,9 +29,9 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
 
 /**
  * An arm carried toward a goal: the joint-space carry between held angles
- * (`AutoMovieMotionHumanArmAngles`) and a goal, and the primitive that
- * writes an arm, planned over its action (`AutoMovieMotionHumanArmPlanned`)
- * or carried, the members `AutoMovieMotionHumanArm` names.
+ * (`AutoMovieMotionHumanArmAngles`) and a goal, and the primitive that writes
+ * an arm, planned over its action (`AutoMovieMotionHumanArmPlanned`) or
+ * carried, the members `AutoMovieMotionHumanArm` names.
  */
 export namespace AutoMovieMotionHumanArmCarry {
   /**
@@ -41,29 +41,40 @@ export namespace AutoMovieMotionHumanArmCarry {
    * (`HumanArmClearing.course`) are retired once the last law has moved.
    *
    * A posture whose arms are carried in joint space between held angles and
-   * their goals' solution: at share 0 each named arm holds the given angles,
-   * at 1 the posture is returned as it is, and between them each joint is the
+   * their goals' solution: at share 0 each named arm holds the given angles, at
+   * 1 the posture is returned as it is, and between them each joint is the
    * blend of its held rotation and the one the goal solves to
    * (`blendHumanJoint`), written as joints with the arm's goal removed.
    *
    * A hand leaving its rest for a goal, or returning, is on no surface, so
-   * nothing asks its path to be straight; blending the solved joints keeps
-   * the elbow on one course, where hand goals solved afresh each second may
-   * change the arm's solution between seconds. The shoulder is blended as a
-   * rotation, since a raised shoulder has two clinical triples and the solve
-   * may return either; the elbow and the wrist, which lack a freedom, angle
-   * by angle so they stay on their axes. The blended forearm is then kept
-   * clear of the trunk, the thighs, the other arm and the bodies its goal
-   * names (`HumanPosture.IGoal.clear`) by the shoulder's abduction and the
-   * elbow's flexion (`HumanArmClearance.cleared`), each end keeping its room.
+   * nothing asks its path to be straight; blending the solved joints keeps the
+   * elbow on one course, where hand goals solved afresh each second may change
+   * the arm's solution between seconds. The shoulder is blended as a rotation,
+   * since a raised shoulder has two clinical triples and the solve may return
+   * either; the elbow and the wrist, which lack a freedom, angle by angle so
+   * they stay on their axes. The blended forearm is then kept clear of the
+   * trunk, the thighs, the other arm and the bodies its goal names
+   * (`HumanPosture.IGoal.clear`) by the shoulder's abduction and the elbow's
+   * flexion (`HumanArmClearance.cleared`), each end keeping its room.
    *
    * @param body The body.
    * @param posture The posture, with the goals of the arms to carry.
-   * @param from The held angles of each arm to carry; an arm absent is left as it is.
-   * @param share How far each arm is from its held angles to its goal, clamped to [0, 1].
-   * @param planned The posture with the goals the clearing course is planned against, the arrival's; the posture's own when absent. A course planned against a fixed arrival is a constant of the carry, so the arm moves continuously with the share; one planned against the goal of each second is solved again as the goal moves, and its least clear turn steps where it crosses a ridge of the room. The trade is that the keys are exactly clear for the arrival's goal and clear for the goal of a second only as far as that goal has moved from it.
-   * @param source Optional same-body exact FK source borrowed only through this synchronous carry.
-   * @param projection Optional genuine same-body direct ROM projector; both actual native pose solves still project every joint.
+   * @param from The held angles of each arm to carry; an arm absent is left as
+   *   it is.
+   * @param share How far each arm is from its held angles to its goal, clamped
+   *   to [0, 1].
+   * @param planned The posture with the goals the clearing course is planned
+   *   against, the arrival's; the posture's own when absent. A course planned
+   *   against a fixed arrival is a constant of the carry, so the arm moves
+   *   continuously with the share; one planned against the goal of each second
+   *   is solved again as the goal moves, and its least clear turn steps where
+   *   it crosses a ridge of the room. The trade is that the keys are exactly
+   *   clear for the arrival's goal and clear for the goal of a second only as
+   *   far as that goal has moved from it.
+   * @param source Optional same-body exact FK source borrowed only through this
+   *   synchronous carry.
+   * @param projection Optional genuine same-body direct ROM projector; both
+   *   actual native pose solves still project every joint.
    * @returns The posture.
    */
   export function carry(
@@ -142,19 +153,20 @@ export namespace AutoMovieMotionHumanArmCarry {
   /**
    * An arm carried toward a goal by a weight: the arm's whole action planned
    * once as one trajectory with the other arms of its group
-   * (`AutoMovieMotionHumanArmPlanned.planned`), read off the posture so far
-   * the composer gives, over the span the caller states in its clock's
-   * instants, or the span its weight states
-   * (`AutoMovieMotionHumanArmPlanned.stated`). Without a span the arm keeps
-   * the deprecated joint-space carry (`carry`), each law's until it states
-   * its span. A
-   * planned arm that follows a person (`ICarry.tracked`) is the plan with a
-   * bounded correction toward the goal read at each second of the hold
+   * (`AutoMovieMotionHumanArmPlanned.planned`), read off the posture so far the
+   * composer gives, over the span the caller states in its clock's instants, or
+   * the span its weight states (`AutoMovieMotionHumanArmPlanned.stated`).
+   * Without a span the arm keeps the deprecated joint-space carry (`carry`),
+   * each law's until it states its span. A planned arm that follows a person
+   * (`ICarry.tracked`) is the plan with a bounded correction toward the goal
+   * read at each second of the hold
    * (`AutoMovieMotionHumanArmFollow.follower`).
    *
    * @param props The carry.
    * @returns The primitive, on the arm's channel.
-   * @throws {HumanRefusal} When a planned arm has no trajectory that meets its constraints: when its action is composed (`prepare`), or at the first second written where nothing composes it.
+   * @throws {HumanRefusal} When a planned arm has no trajectory that meets its
+   *   constraints: when its action is composed (`prepare`), or at the first
+   *   second written where nothing composes it.
    */
   export function carried(
     props: IAutoMovieMotionHumanArmCarry.ICarry,
@@ -260,7 +272,9 @@ export namespace AutoMovieMotionHumanArmCarry {
     return {
       channels: [limb],
       // An arm that follows a person reads that person live (`follower`).
-      ...(span !== undefined && props.tracked === true ? { follows: true } : {}),
+      ...(span !== undefined && props.tracked === true
+        ? { follows: true }
+        : {}),
       reads: (seconds: number): readonly AutoMovieMotionHumanChannel[] =>
         span !== undefined &&
         props.tracked !== true &&
@@ -443,11 +457,12 @@ export namespace AutoMovieMotionHumanArmCarry {
 
   /**
    * The law's own speed bound over a group of carries: at each second the
-   * fastest any of them declares (`ICarry.pace`); none where no carry
-   * declares one, and the planner reads its reach pace.
+   * fastest any of them declares (`ICarry.pace`); none where no carry declares
+   * one, and the planner reads its reach pace.
    *
    * @param carries The carries planned together.
-   * @returns The bound, metres per second by the action's seconds, or undefined.
+   * @returns The bound, metres per second by the action's seconds, or
+   *   undefined.
    */
   export function pace(
     carries: readonly IAutoMovieMotionHumanArmCarry.ICarry[],
@@ -467,11 +482,11 @@ export namespace AutoMovieMotionHumanArmCarry {
 }
 
 /**
- * A planned carry whose rest ends are the arm hanging where its span leaves
- * and regains it: its rest let out by `HumanArmSwing.of` on the posture so
- * far at the span's start, and, where the span returns and names no arm of
- * its own to return to, at the span's end. Off the plan the carry writes
- * that same hanging arm, so the plan starts and ends on the arm shown.
+ * A planned carry whose rest ends are the arm hanging where its span leaves and
+ * regains it: its rest let out by `HumanArmSwing.of` on the posture so far at
+ * the span's start, and, where the span returns and names no arm of its own to
+ * return to, at the span's end. Off the plan the carry writes that same hanging
+ * arm, so the plan starts and ends on the arm shown.
  *
  * @param member The carry.
  * @param span Its span.
@@ -503,10 +518,10 @@ function hung(
 }
 
 /**
- * The span one problem of a group is solved over: the first member's, or,
- * where the members' own spans differ (a hold handed from one hand to the
- * other), from the earliest start and reach to the latest release and end,
- * each arm keeping its own hold (`AutoMovieMotionHumanArmPlanned.planned`).
+ * The span one problem of a group is solved over: the first member's, or, where
+ * the members' own spans differ (a hold handed from one hand to the other),
+ * from the earliest start and reach to the latest release and end, each arm
+ * keeping its own hold (`AutoMovieMotionHumanArmPlanned.planned`).
  *
  * @param carries The group's members.
  * @param span The span of the member prepared first.
@@ -517,8 +532,9 @@ function union(
   span: IAutoMovieMotionHumanArmPlanned.ISpan,
 ): IAutoMovieMotionHumanArmPlanned.ISpan {
   const spans: IAutoMovieMotionHumanArmPlanned.ISpan[] = carries.map(
-    (member: IAutoMovieMotionHumanArmCarry.ICarry): IAutoMovieMotionHumanArmPlanned.ISpan =>
-      member.span ?? span,
+    (
+      member: IAutoMovieMotionHumanArmCarry.ICarry,
+    ): IAutoMovieMotionHumanArmPlanned.ISpan => member.span ?? span,
   );
   if (
     spans.every(
@@ -531,10 +547,24 @@ function union(
   )
     return span;
   return {
-    start: Math.min(...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.start)),
-    ready: Math.min(...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.ready)),
-    relax: Math.max(...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.relax)),
-    end: Math.max(...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.end)),
+    start: Math.min(
+      ...spans.map(
+        (s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.start,
+      ),
+    ),
+    ready: Math.min(
+      ...spans.map(
+        (s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.ready,
+      ),
+    ),
+    relax: Math.max(
+      ...spans.map(
+        (s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.relax,
+      ),
+    ),
+    end: Math.max(
+      ...spans.map((s: IAutoMovieMotionHumanArmPlanned.ISpan): number => s.end),
+    ),
   };
 }
 
@@ -553,24 +583,23 @@ function hanging(
   handed: HumanArmSwing.Entered,
 ): IAutoMovieMotionHumanArmAngles.IAngles {
   const side: AutoMovieHumanSide = member.side;
-  const upper: readonly [number, number, number] | undefined =
-    HumanArmSwing.of(
-      member.body,
-      rested(member, posture),
-      [side],
-      undefined,
-      undefined,
-      undefined,
-      handed,
-    ).joints[`${side}UpperArm`];
+  const upper: readonly [number, number, number] | undefined = HumanArmSwing.of(
+    member.body,
+    rested(member, posture),
+    [side],
+    undefined,
+    undefined,
+    undefined,
+    handed,
+  ).joints[`${side}UpperArm`];
   return upper === undefined || upper[1] === member.rest.upper[1]
     ? member.rest
     : { ...member.rest, upper };
 }
 
 /**
- * A carry's arm's room as it enters its action: its rest in the posture of
- * the action's first second, read as the hanging-arm owner reads a room
+ * A carry's arm's room as it enters its action: its rest in the posture of the
+ * action's first second, read as the hanging-arm owner reads a room
  * (`HumanArmClearance.baseline`). An arm the action before left lying on a
  * thigh enters deeper than it hangs in the quiet stance; the carry starts on
  * that arm, so its let-out reads that depth as the arm's own.
@@ -596,8 +625,8 @@ function entering(
 }
 
 /**
- * A posture with a carry's rest written on its arm and the arm's goal
- * removed: the arm as the carry holds it at weight 0.
+ * A posture with a carry's rest written on its arm and the arm's goal removed:
+ * the arm as the carry holds it at weight 0.
  *
  * @param member The carry.
  * @param posture The posture.

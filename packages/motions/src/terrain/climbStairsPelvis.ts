@@ -8,19 +8,19 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 
 /**
  * The pelvis's path over a flight of stairs (`climbStairs`): between the
- * stances, each the root over the middle of both feet after a step as high
- * as both legs reach from it.
+ * stances, each the root over the middle of both feet after a step as high as
+ * both legs reach from it.
  *
  * Its height changes while a foot swings and holds in double support: at the
- * tread contact the trailing leg, nearly straight over its foot, already
- * holds the new stance's height. Its progress over the floor runs half a
- * step behind the feet: at a tread contact it stands midway between the two
- * stances, over the trailing foot, as the body's centre does at the leading
- * foot's contact in stair ascent (McFadyen and Winter 1988, J Biomech
- * 21:733), and reaches the stance over both feet halfway through the next
- * step; the start of the climb counts as the contact before the first. So
- * the leading foot lands ahead of the hip with its knee part flexed, about
- * the 60 degrees the study reports, rather than under it.
+ * tread contact the trailing leg, nearly straight over its foot, already holds
+ * the new stance's height. Its progress over the floor runs half a step behind
+ * the feet: at a tread contact it stands midway between the two stances, over
+ * the trailing foot, as the body's centre does at the leading foot's contact in
+ * stair ascent (McFadyen and Winter 1988, J Biomech 21:733), and reaches the
+ * stance over both feet halfway through the next step; the start of the climb
+ * counts as the contact before the first. So the leading foot lands ahead of
+ * the hip with its knee part flexed, about the 60 degrees the study reports,
+ * rather than under it.
  */
 export namespace climbStairsPelvis {
   /**
@@ -44,19 +44,34 @@ export namespace climbStairsPelvis {
     );
     const lifts: ((seconds: number) => number)[] = Array.from(
       { length: steps },
-      (_: unknown, i: number): (seconds: number) => number =>
-        AutoMovieMotionClock.prepare(clock, `toeOff${i + 1}`, `treadContact${i + 1}`).progress,
+      (_: unknown, i: number): ((seconds: number) => number) =>
+        AutoMovieMotionClock.prepare(
+          clock,
+          `toeOff${i + 1}`,
+          `treadContact${i + 1}`,
+        ).progress,
     );
     const ends: number[] = contacts.map((contact: number, i: number): number =>
       i + 1 < steps ? (contact + contacts[i + 1]!) / 2 : duration,
     );
-    const starts: number[] = contacts.map((contact: number, i: number): number =>
-      ((i === 0 ? 0 : contacts[i - 1]!) + contact) / 2,
+    const starts: number[] = contacts.map(
+      (contact: number, i: number): number =>
+        ((i === 0 ? 0 : contacts[i - 1]!) + contact) / 2,
     );
-    const spans: number[] = ends.map((end: number, i: number): number => end - starts[i]!);
-    const heights: number[] = contacts.map((_: number, i: number): number => stance[i + 1]!.y - stance[i]!.y);
-    const positions: ReturnType<typeof Vector3.prepareLerp>[] = contacts.map((_: number, i: number): ReturnType<typeof Vector3.prepareLerp> => Vector3.prepareLerp(stance[i]!, stance[i + 1]!));
-    const interval: (times: readonly number[], seconds: number) => number = (times: readonly number[], seconds: number): number => {
+    const spans: number[] = ends.map(
+      (end: number, i: number): number => end - starts[i]!,
+    );
+    const heights: number[] = contacts.map(
+      (_: number, i: number): number => stance[i + 1]!.y - stance[i]!.y,
+    );
+    const positions: ReturnType<typeof Vector3.prepareLerp>[] = contacts.map(
+      (_: number, i: number): ReturnType<typeof Vector3.prepareLerp> =>
+        Vector3.prepareLerp(stance[i]!, stance[i + 1]!),
+    );
+    const interval: (times: readonly number[], seconds: number) => number = (
+      times: readonly number[],
+      seconds: number,
+    ): number => {
       let low: number = 0;
       let high: number = times.length;
       while (low < high) {

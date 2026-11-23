@@ -45,21 +45,21 @@ const SIDE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 /** Stationary endpoint for the stroke's prepared curves. */
 const REST: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 /**
- * A hockey blade push or a lacrosse pocket exchange. The carrier owns
- * the foot plants or skating path. The two arm goals follow one rigid
- * stick frame, from its displayed starting pose through the working cue
- * to a follow-through. A hand that does not already hold the stick first
- * reaches its grip from the entry arm, timed as a reach-to-grasp, while the
- * stick waits; its grip opens there. The follow-through turns the stick
- * about the top hand's grip. Both hands leave the stick held, so the
- * actions that follow carry it. The ball remains the same named prop.
+ * A hockey blade push or a lacrosse pocket exchange. The carrier owns the foot
+ * plants or skating path. The two arm goals follow one rigid stick frame, from
+ * its displayed starting pose through the working cue to a follow-through. A
+ * hand that does not already hold the stick first reaches its grip from the
+ * entry arm, timed as a reach-to-grasp, while the stick waits; its grip opens
+ * there. The follow-through turns the stick about the top hand's grip. Both
+ * hands leave the stick held, so the actions that follow carry it. The ball
+ * remains the same named prop.
  *
  * The field push uses the FIH playing face and the ice push reads the puck's
- * radial dimension as well as the blade. The lacrosse scoop seats the
- * ball in the crosse, and the pass declares release on the same clock.
- * The teaching sources are FIH 2026 §2, IIHF 2026–27 §§10 and 13, and
- * USA Lacrosse's Learn the Basics. Phase shares, shaft inclination and
- * default speed are provisional film-staging values.
+ * radial dimension as well as the blade. The lacrosse scoop seats the ball in
+ * the crosse, and the pass declares release on the same clock. The teaching
+ * sources are FIH 2026 §2, IIHF 2026–27 §§10 and 13, and USA Lacrosse's Learn
+ * the Basics. Phase shares, shaft inclination and default speed are provisional
+ * film-staging values.
  */
 export namespace stickBall {
   /** This law's action name. */
@@ -80,7 +80,9 @@ export namespace stickBall {
    *
    * @param context The body, authored props and optional support carrier.
    * @returns A sampled two-hand plan with a prop launch or pocket mount.
-   * @throws {HumanRefusal} If a required affordance is absent, a duration or speed is invalid, a grip is out of reach, or the fitted ice blade misses the puck rim.
+   * @throws {HumanRefusal} If a required affordance is absent, a duration or
+   *   speed is invalid, a grip is out of reach, or the fitted ice blade misses
+   *   the puck rim.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStickBall.IParams>,
@@ -361,11 +363,12 @@ export namespace stickBall {
     // trunk by the actions that follow until one takes a hand over.
     const holds: IAutoMovieMotionPropHold[] = [];
     const taking: ReturnType<typeof AutoMovieMotionClock.prepare> | undefined =
-      taken > 0 ? AutoMovieMotionClock.prepare(clock, "start", "gripped") : undefined;
+      taken > 0
+        ? AutoMovieMotionClock.prepare(clock, "start", "gripped")
+        : undefined;
     for (const hand of [head, rear]) {
       const grip: IAutoMovieVector3 = gripOf(hand);
-      const takes: boolean =
-        taking !== undefined && reaching.includes(hand);
+      const takes: boolean = taking !== undefined && reaching.includes(hand);
       const shoulder: IAutoMovieVector3 = AutoMovieMotionHumanPlaced.joint(
         body,
         cue,
@@ -392,8 +395,7 @@ export namespace stickBall {
           from: 0,
           to: clock.duration,
           rest: AutoMovieMotionHumanArm.angles(context.entry.pose, hand),
-          weight: (at: number): number =>
-            takes ? taking!.progress(at) : 1,
+          weight: (at: number): number => (takes ? taking!.progress(at) : 1),
           surface: "grip",
           shape: "fist",
           place: (posture: IAutoMovieMotionHumanPosture, at: number) => {

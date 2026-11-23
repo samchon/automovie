@@ -29,23 +29,22 @@ import { holdPrecisionSwing } from "./holdPrecisionSwing";
 import { precisionStrokeTool } from "./precisionStrokeTool";
 
 /**
- * The precision stroke families: each row's fixed geometry, registered as
- * the row is made (`createPrecisionSportStroke`), and the address each one
- * is played from.
+ * The precision stroke families: each row's fixed geometry, registered as the
+ * row is made (`createPrecisionSportStroke`), and the address each one is
+ * played from.
  *
- * The address is where the striker stands for a stroke to meet its ball:
- * the grip lies where the implement, as the hand holds it, puts its working
- * point on the contact with its face toward the shot (the bare hand's palm
- * on the contact itself), and the striking shoulder (both shoulders' middle
- * for a two-handed grip) lies within the arm's reach of the grip, on the
- * line the implement continues, so the arm and the implement meet the ball
- * as one lever, the arm-and-club model of the swing (Cochran and Stobbs
- * 1968, The Search for the Perfect Swing). From there the stance moves to
- * the nearest place where the arm planner finds the stroke's contact pose
- * clear of the body (`fitClearArmPose`). The
- * family's stance is the facing the caller stands the striker at. A take or
- * a staging places its striker there; a scene that needs an approach walks
- * to it first. The stroke itself never steps.
+ * The address is where the striker stands for a stroke to meet its ball: the
+ * grip lies where the implement, as the hand holds it, puts its working point
+ * on the contact with its face toward the shot (the bare hand's palm on the
+ * contact itself), and the striking shoulder (both shoulders' middle for a
+ * two-handed grip) lies within the arm's reach of the grip, on the line the
+ * implement continues, so the arm and the implement meet the ball as one lever,
+ * the arm-and-club model of the swing (Cochran and Stobbs 1968, The Search for
+ * the Perfect Swing). From there the stance moves to the nearest place where
+ * the arm planner finds the stroke's contact pose clear of the body
+ * (`fitClearArmPose`). The family's stance is the facing the caller stands the
+ * striker at. A take or a staging places its striker there; a scene that needs
+ * an approach walks to it first. The stroke itself never steps.
  */
 export namespace PrecisionStrokeForms {
   /**
@@ -56,7 +55,10 @@ export namespace PrecisionStrokeForms {
     /** Implement's active working affordance. */
     point: string;
 
-    /** Working shaft direction at impact, down from horizontal. A cue points along the shot. */
+    /**
+     * Working shaft direction at impact, down from horizontal. A cue points
+     * along the shot.
+     */
     down: number;
 
     /** Angular travel to and through the strike for the swinging rows. */
@@ -74,7 +76,10 @@ export namespace PrecisionStrokeForms {
     /** Neutral time between action start and strike. */
     impact: number;
 
-    /** A stroke that uses the racket hand without fixing the free hand to its handle. */
+    /**
+     * A stroke that uses the racket hand without fixing the free hand to its
+     * handle.
+     */
     oneHand?: true;
 
     /** A stroke whose striking surface is the bare hand: no implement is held. */
@@ -92,7 +97,10 @@ export namespace PrecisionStrokeForms {
     /** The striking hand. */
     side: AutoMovieHumanSide;
 
-    /** The striker's facing, degrees about +Y; the family's stance the caller chooses. */
+    /**
+     * The striker's facing, degrees about +Y; the family's stance the caller
+     * chooses.
+     */
     yaw: number;
 
     /** The ball's centre at impact, world metres. */
@@ -104,17 +112,20 @@ export namespace PrecisionStrokeForms {
     /** Where the shot goes, world metres. */
     toward: IAutoMovieVector3;
 
-    /** The implement in the striking hand's grip frame, as the hand will hold it (`AutoMovieMotionHumanHeld.grasped`); none for a bare hand. */
+    /**
+     * The implement in the striking hand's grip frame, as the hand will hold it
+     * (`AutoMovieMotionHumanHeld.grasped`); none for a bare hand.
+     */
     held?: IAutoMovieMotionHumanHeld.IHeld;
   }
 
   /**
-   * The share of the arm's reach the grip lies within at impact: the chord
-   * of an arm whose elbow is flexed about 36 degrees, cos 18 degrees for
-   * upper arm and forearm of near-equal length, since a striking arm meets
-   * the ball with its elbow slightly bent rather than locked; the same reach
-   * the stroke address hinges to (`addressPrecisionStroke`). Provisional: no
-   * single measured elbow angle at impact holds across these strokes.
+   * The share of the arm's reach the grip lies within at impact: the chord of
+   * an arm whose elbow is flexed about 36 degrees, cos 18 degrees for upper arm
+   * and forearm of near-equal length, since a striking arm meets the ball with
+   * its elbow slightly bent rather than locked; the same reach the stroke
+   * address hinges to (`addressPrecisionStroke`). Provisional: no single
+   * measured elbow angle at impact holds across these strokes.
    */
   export const ARM: number = 0.95;
 
@@ -136,17 +147,20 @@ export namespace PrecisionStrokeForms {
   /** The scan's step, a share of the arm's reach (`reach`); provisional. */
   export const SCAN_STEP: number = 1 / 4;
 
-  /** The bisections between a refused and a clear stance: three cut the step to an eighth, under 25 mm for an adult's reach (provisional). */
+  /**
+   * The bisections between a refused and a clear stance: three cut the step to
+   * an eighth, under 25 mm for an adult's reach (provisional).
+   */
   export const BISECT: number = 3;
 
   /** Each row's form by its name, filled as the rows are made. */
   export const FORMS: Map<string, IForm> = new Map();
 
   /**
-   * The working direction of a row's implement at impact, from the grip to
-   * the working point: along the shot for a cue; else down from the
-   * horizontal by the row's angle, across the shot to the striking side for
-   * a two-handed grip and to the other side for a one-handed one.
+   * The working direction of a row's implement at impact, from the grip to the
+   * working point: along the shot for a cue; else down from the horizontal by
+   * the row's angle, across the shot to the striking side for a two-handed grip
+   * and to the other side for a one-handed one.
    *
    * @param form The row's form.
    * @param side The striking hand.
@@ -198,20 +212,21 @@ export namespace PrecisionStrokeForms {
   }
 
   /**
-   * A stroke's striking hand frame by its swing's progress: the backswing
-   * from 0 to the contact at 1 and the follow-through on to 2, along the
-   * shot for a linear row (its draw, in forearm lengths) and about the
-   * working point's pivot for a swinging one (its sweep). A swinging row's
-   * backswing and follow-through keep the whole arm in front of the trunk and
-   * within reach: the swing goes back and on only while the arm's line from
-   * its shoulder to the hand stays ahead of the trunk's front (the shoulder
-   * lies on the root's frontal plane, so the line's middle is half the
-   * chest's depth ahead when the hand is a whole depth ahead) and the hand
-   * within the arm's reach of the striking shoulder as it stood, and holds
-   * where the arm would pass into the trunk or out of reach
-   * (`holdPrecisionSwing`). A linear row's short draw is laid as it is.
+   * A stroke's striking hand frame by its swing's progress: the backswing from
+   * 0 to the contact at 1 and the follow-through on to 2, along the shot for a
+   * linear row (its draw, in forearm lengths) and about the working point's
+   * pivot for a swinging one (its sweep). A swinging row's backswing and
+   * follow-through keep the whole arm in front of the trunk and within reach:
+   * the swing goes back and on only while the arm's line from its shoulder to
+   * the hand stays ahead of the trunk's front (the shoulder lies on the root's
+   * frontal plane, so the line's middle is half the chest's depth ahead when
+   * the hand is a whole depth ahead) and the hand within the arm's reach of the
+   * striking shoulder as it stood, and holds where the arm would pass into the
+   * trunk or out of reach (`holdPrecisionSwing`). A linear row's short draw is
+   * laid as it is.
    *
-   * @param props The swing's body, row, hand, implement, contact, shot and stance.
+   * @param props The swing's body, row, hand, implement, contact, shot and
+   *   stance.
    * @returns The hand frame by progress, world metres.
    */
   export function swing(
@@ -261,32 +276,35 @@ export namespace PrecisionStrokeForms {
     };
     if (form.sweep === 0) return path;
     const forward: IAutoMovieVector3 = HumanFrame.forward(props.entry.yaw);
-    return holdPrecisionSwing(
-      path,
-      (progress: number): number =>
-        Math.min(
-          Vector3.dot(
-            Vector3.subtract(path(progress).point, props.entry.root),
-            forward,
-          ) - body.measure.chestDepth,
-          reach(body) -
-            Vector3.length(Vector3.subtract(path(progress).point, props.shoulder)),
-        ),
+    return holdPrecisionSwing(path, (progress: number): number =>
+      Math.min(
+        Vector3.dot(
+          Vector3.subtract(path(progress).point, props.entry.root),
+          forward,
+        ) - body.measure.chestDepth,
+        reach(body) -
+          Vector3.length(
+            Vector3.subtract(path(progress).point, props.shoulder),
+          ),
+      ),
     );
   }
 
   /**
-   * Where a striker stands to play a row at a ball: the floor point under
-   * the root that puts the striking shoulder (the shoulders' middle for a
+   * Where a striker stands to play a row at a ball: the floor point under the
+   * root that puts the striking shoulder (the shoulders' middle for a
    * two-handed grip) on the implement's line, the arm's reach back from the
    * grip, the grip where the held implement puts its working point on the
-   * contact; then the nearest stance along that line, further back first,
-   * whose contact pose the arm planner finds clear (`contact`), closed on by
+   * contact; then the nearest stance along that line, further back first, whose
+   * contact pose the arm planner finds clear (`contact`), closed on by
    * bisection.
    *
-   * @param props The body, the row, the hand, the facing, the ball, the shot and the implement as the hand holds it.
+   * @param props The body, the row, the hand, the facing, the ball, the shot
+   *   and the implement as the hand holds it.
    * @returns The floor point, world metres.
-   * @throws {HumanRefusal} For a row no stroke has registered, or when no stance within the scan gives a clear contact pose, with the planner's reason at the line's place.
+   * @throws {HumanRefusal} For a row no stroke has registered, or when no
+   *   stance within the scan gives a clear contact pose, with the planner's
+   *   reason at the line's place.
    */
   export function address(props: IAddress): IAutoMovieVector3 {
     const form: IForm | undefined = FORMS.get(props.row);
@@ -462,11 +480,11 @@ export namespace PrecisionStrokeForms {
   }
 
   /**
-   * The planner's verdict on a stroke's contact pose from one stance: the
-   * quiet stance there, turned toward the shot by the row's turn and hinged
-   * to the grip as the stroke turns and hinges it at the contact, with the
-   * striking hand holding the tool on its swing's contact frame (`swing`)
-   * and a second hand on the handle where one grips it.
+   * The planner's verdict on a stroke's contact pose from one stance: the quiet
+   * stance there, turned toward the shot by the row's turn and hinged to the
+   * grip as the stroke turns and hinges it at the contact, with the striking
+   * hand holding the tool on its swing's contact frame (`swing`) and a second
+   * hand on the handle where one grips it.
    *
    * @param props The address asked.
    * @param form The row's form.
@@ -508,58 +526,59 @@ export namespace PrecisionStrokeForms {
         resolveHumanPosture(props.body, stance),
       ).get(`${props.side}UpperArm`)!.worldPosition,
     });
-    const hinge: ReturnType<typeof addressPrecisionStroke> = addressPrecisionStroke(
-      props.body,
-      stance,
-      AutoMovieMotionHumanTrunk.footing(props.body, stance),
-      props.side,
-      path(1).point,
-      undefined,
-      0,
-      Infinity,
-    );
+    const hinge: ReturnType<typeof addressPrecisionStroke> =
+      addressPrecisionStroke(
+        props.body,
+        stance,
+        AutoMovieMotionHumanTrunk.footing(props.body, stance),
+        props.side,
+        path(1).point,
+        undefined,
+        0,
+        Infinity,
+      );
     const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = path(1);
     const posture: IAutoMovieMotionHumanPosture = hinge(
       StrikingBlade.turned(stance, sign * form.turn),
       1,
     );
     return fitClearArmPose({
-        body: props.body,
-        posture: {
-          ...posture,
-          limbs: {
-            ...posture.limbs,
-            [`${props.side}Arm`]: StrikingHeld.goal(
-              props,
-              stroke.tool,
-              frame,
-              0,
-              AutoMovieMotionHumanBend.hang(props.body, posture, props.side),
-            ),
-            ...(stroke.support === null
-              ? {}
-              : {
-                  [`${other}Arm`]: StrikingSupport.goal(
-                    props.body,
-                    posture,
-                    stroke.tool,
-                    frame,
-                    stroke.support,
-                  ),
-                }),
-          },
+      body: props.body,
+      posture: {
+        ...posture,
+        limbs: {
+          ...posture.limbs,
+          [`${props.side}Arm`]: StrikingHeld.goal(
+            props,
+            stroke.tool,
+            frame,
+            0,
+            AutoMovieMotionHumanBend.hang(props.body, posture, props.side),
+          ),
+          ...(stroke.support === null
+            ? {}
+            : {
+                [`${other}Arm`]: StrikingSupport.goal(
+                  props.body,
+                  posture,
+                  stroke.tool,
+                  frame,
+                  stroke.support,
+                ),
+              }),
         },
-        side: props.side,
-        ...(stroke.support === null
-          ? {}
-          : { second: other, grasp: coursePrecisionStroke.GRASP }),
-      });
+      },
+      side: props.side,
+      ...(stroke.support === null
+        ? {}
+        : { second: other, grasp: coursePrecisionStroke.GRASP }),
+    });
   }
 
   /**
    * A precision stroke's phrase on its clock: the preparation, the attack to
-   * the contact, the follow-through and the return, shares of the time from
-   * the stroke's start to its contact (provisional).
+   * the contact, the follow-through and the return, shares of the time from the
+   * stroke's start to its contact (provisional).
    *
    * @param impact Seconds from the stroke's start to its contact; positive.
    * @returns The clock, whose `stroke` is the contact.

@@ -51,33 +51,37 @@ interface IInterval {
 type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
 
 /**
- * Prepare one support interval: the joint blend between its two keys, the
- * root translation that keeps its common knee or trunk contact, or the
- * first common hand or foot contact, on its achieved
- * point, the floor bound, and an analytic two-bone fit of every hand and
- * foot both keys hold, so no held contact slides while the body moves.
+ * Prepare one support interval: the joint blend between its two keys, the root
+ * translation that keeps its common knee or trunk contact, or the first common
+ * hand or foot contact, on its achieved point, the floor bound, and an analytic
+ * two-bone fit of every hand and foot both keys hold, so no held contact slides
+ * while the body moves.
  *
  * Every held hand or foot is posed after the joint blend, as an animation
- * pipeline's late contact pass is. Above the floor the same toe, palm or
- * grip datum used to solve the keys stays on the achieved contact while
- * the wrist or ankle turns. On the floor a foot rolls about the lower of
- * its starting heel and ball sockets and a hand keeps its wrist placement.
- * The elbow or knee bends toward the keys' own middle joints. The floor
- * bound is checked after limiting hip height to the reach of any elevated
- * foot, then confirmed on the held legs as their goals fit them, reading only
- * their chains, and the root lifted by what they still sink: with a foot
- * planted, a hip the blend carries lower folds the knee toward the floor.
- * That lift is planned on the interval's share at knots and read between them
- * within the solver's millimetre (`prepareSupportLiftCourse`). A
- * held knee or trunk contact has no two-bone chain ending at it and stays
- * held only through the root pin and the floor bound.
+ * pipeline's late contact pass is. Above the floor the same toe, palm or grip
+ * datum used to solve the keys stays on the achieved contact while the wrist or
+ * ankle turns. On the floor a foot rolls about the lower of its starting heel
+ * and ball sockets and a hand keeps its wrist placement. The elbow or knee
+ * bends toward the keys' own middle joints. The floor bound is checked after
+ * limiting hip height to the reach of any elevated foot, then confirmed on the
+ * held legs as their goals fit them, reading only their chains, and the root
+ * lifted by what they still sink: with a foot planted, a hip the blend carries
+ * lower folds the knee toward the floor. That lift is planned on the interval's
+ * share at knots and read between them within the solver's millimetre
+ * (`prepareSupportLiftCourse`). A held knee or trunk contact has no two-bone
+ * chain ending at it and stays held only through the root pin and the floor
+ * bound.
  *
  * @param body The unchanged body.
  * @param a The fixed key before the interval.
  * @param b The fixed key after it.
- * @param place The entry-time contact lookup, which may observe an unsettled schedule.
- * @param socket The sole socket each floor foot holds through its window (`supportHeldSocket`); the lower of its heel and ball at the key before when absent.
- * @returns The interior writer and invalidation of its target observations at plan settlement.
+ * @param place The entry-time contact lookup, which may observe an unsettled
+ *   schedule.
+ * @param socket The sole socket each floor foot holds through its window
+ *   (`supportHeldSocket`); the lower of its heel and ball at the key before
+ *   when absent.
+ * @returns The interior writer and invalidation of its target observations at
+ *   plan settlement.
  */
 export function prepareSupportInterval(
   body: IAutoMovieMotionHumanBody,
@@ -274,7 +278,8 @@ export function prepareSupportInterval(
   // The lift course splits no finer than the frame grid's share of the
   // interval's seconds.
   const lifts: prepareSupportLiftCourse.ICourse = prepareSupportLiftCourse(
-    AutoMovieMotionHumanArmCourse.STEP / Math.max(b.seconds - a.seconds, AutoMovieMotionHumanArmCourse.STEP),
+    AutoMovieMotionHumanArmCourse.STEP /
+      Math.max(b.seconds - a.seconds, AutoMovieMotionHumanArmCourse.STEP),
   );
   return {
     // A stationary key keeps the same planted goals through compositing.
@@ -297,7 +302,10 @@ export function prepareSupportInterval(
   };
 }
 
-/** The hands and feet among the contacts both keys hold, one per limb in contact order. */
+/**
+ * The hands and feet among the contacts both keys hold, one per limb in contact
+ * order.
+ */
 function heldLimbs(
   contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
 ): prepareSupportHeldFrames.IHeld[] {
@@ -333,7 +341,10 @@ function heldLimbs(
   return out;
 }
 
-/** Rotate the end joint about its retained contact and blend the elbow or knee pole. */
+/**
+ * Rotate the end joint about its retained contact and blend the elbow or knee
+ * pole.
+ */
 function heldGoal(
   frame: prepareSupportHeldFrames.IHeldFrames,
   w: number,
@@ -374,8 +385,15 @@ function mix(
   ];
 }
 
-/** The root lifts at most that clear the held legs of the floor: each removes what the last left sinking, the refit after a lift raising the knee by no more than the lift (provisional). */
+/**
+ * The root lifts at most that clear the held legs of the floor: each removes
+ * what the last left sinking, the refit after a lift raising the knee by no
+ * more than the lift (provisional).
+ */
 const LIFTS: number = 4;
 
-/** How far under the floor a held leg may read before the root is lifted, metres: a micrometre, far under the floor audit's 5 mm (provisional). */
+/**
+ * How far under the floor a held leg may read before the root is lifted,
+ * metres: a micrometre, far under the floor audit's 5 mm (provisional).
+ */
 const SINK: number = 1e-6;

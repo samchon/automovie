@@ -48,19 +48,18 @@ export function readHumanHandFrame(
   };
 }
 
-/**
- * Exact world-bone demand and fixed point geometry of a hand-surface read.
- */
+/** Exact world-bone demand and fixed point geometry of a hand-surface read. */
 export namespace readHumanHandFrame {
   /**
-   * Prepare a point-only read for fixed admitted body/side/surface/form geometry.
-   * The first non-digit read looks up the hand before acquiring/copying its
-   * offset, then each actual bones map produces one fresh world point through
-   * the same cold numerical owner. No normal/forward world rotations run.
-   * Digital surfaces retain the complete original frame path, including current
-   * actual region/custom-bone lookup, offset order and hand-forward behavior.
-   * Release this fixed local-point reader with its owner; it keeps no pose,
-   * bones map, queried time, world point or result history.
+   * Prepare a point-only read for fixed admitted body/side/surface/form
+   * geometry. The first non-digit read looks up the hand before
+   * acquiring/copying its offset, then each actual bones map produces one fresh
+   * world point through the same cold numerical owner. No normal/forward world
+   * rotations run. Digital surfaces retain the complete original frame path,
+   * including current actual region/custom-bone lookup, offset order and
+   * hand-forward behavior. Release this fixed local-point reader with its
+   * owner; it keeps no pose, bones map, queried time, world point or result
+   * history.
    */
   export function preparePoint(
     body: IAutoMovieMotionHumanBody,
@@ -86,13 +85,15 @@ export namespace readHumanHandFrame {
   /**
    * Request precisely the frames the same surface read consumes.
    *
-   * The boolean is HumanHand.digital's result for this surface; output is a fresh set containing hand and any actual digital-region bone.
-   * The returned dependency names mirror the numerical frame reader's actual map lookups.
-   * One hand insertion and the same optional region lookup avoid duplicating region-bone policy in consumers.
-   * No pose, guessed distal bone, default region or unrelated body frame substitutes for declared geometry.
-   * Constant lookup and at most two set entries without FK or a body traversal.
-   * The query coordinates no retained work.
-   * Returns a fresh caller-owned set and retains no body or metadata.
+   * The boolean is HumanHand.digital's result for this surface; output is a
+   * fresh set containing hand and any actual digital-region bone. The returned
+   * dependency names mirror the numerical frame reader's actual map lookups.
+   * One hand insertion and the same optional region lookup avoid duplicating
+   * region-bone policy in consumers. No pose, guessed distal bone, default
+   * region or unrelated body frame substitutes for declared geometry. Constant
+   * lookup and at most two set entries without FK or a body traversal. The
+   * query coordinates no retained work. Returns a fresh caller-owned set and
+   * retains no body or metadata.
    */
   export function bones(
     body: IAutoMovieMotionHumanBody,
@@ -116,7 +117,10 @@ type WorldBone = Pick<
   "worldPosition" | "worldRotation"
 >;
 
-/** Preserve cold point arithmetic and its position/local-point/rotation argument order. */
+/**
+ * Preserve cold point arithmetic and its position/local-point/rotation argument
+ * order.
+ */
 function worldPoint(
   position: IAutoMovieVector3,
   point: IAutoMovieVector3,

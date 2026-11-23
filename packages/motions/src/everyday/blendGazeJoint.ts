@@ -5,8 +5,8 @@ import type {
 
 /**
  * Blend one joint of a joint record toward a gaze's angles: each of its
- * clinical flexion, abduction and twist moves from the record's own (zero
- * where it holds none) toward the asked angle by the weight.
+ * clinical flexion, abduction and twist moves from the record's own (zero where
+ * it holds none) toward the asked angle by the weight.
  *
  * @param joints The record, written in place.
  * @param bone The joint.

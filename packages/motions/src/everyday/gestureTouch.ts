@@ -20,17 +20,16 @@ import type { gestureStroke } from "./gestureStroke";
  * The hand goals of a gesture that need the posed trunk: pointing along the
  * eye's line and touching the body's own face.
  *
- * - `point`: the index fingertip on the line from the eye on the pointing
- *   side to the target, as people point (Henriques and Crawford 2002, J
- *   Neurophysiol 87:1677, found the fingertip placed on the line from the
- *   dominant eye; the side's eye is the provisional choice), at the distance
- *   where the arm reaches with `0.95` of its length (`POINT_REACH`), the
- *   fingers along the line and the palm down.
- * - `touchFace`: the index fingertip, hand flat, on a face region with the
- *   palm toward the face and the fingers up, held, the elbow out by 0.15 of
- *   the upper arm; `pushGlasses` slides it 12 mm up the nose bridge;
- *   `scratchHead` rubs it 15 mm on the head's side four times a second
- *   (provisional).
+ * - `point`: the index fingertip on the line from the eye on the pointing side to
+ *   the target, as people point (Henriques and Crawford 2002, J Neurophysiol
+ *   87:1677, found the fingertip placed on the line from the dominant eye; the
+ *   side's eye is the provisional choice), at the distance where the arm
+ *   reaches with `0.95` of its length (`POINT_REACH`), the fingers along the
+ *   line and the palm down.
+ * - `touchFace`: the index fingertip, hand flat, on a face region with the palm
+ *   toward the face and the fingers up, held, the elbow out by 0.15 of the
+ *   upper arm; `pushGlasses` slides it 12 mm up the nose bridge; `scratchHead`
+ *   rubs it 15 mm on the head's side four times a second (provisional).
  */
 export namespace gestureTouch {
   /**
@@ -39,11 +38,21 @@ export namespace gestureTouch {
    * @param body The body supplying rig, measure and contact geometry.
    * @param side The moving hand.
    * @param kind The gesture kind.
-   * @returns The plan's touch geometry for pointing or self-touch, or undefined for other kinds; a pointing hand's reach and bone readers are built on first use.
+   * @returns The plan's touch geometry for pointing or self-touch, or undefined
+   *   for other kinds; a pointing hand's reach and bone readers are built on
+   *   first use.
    */
-  export function prepare(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide,
-    kind: IAutoMovieMotionHumanGestureStroke.Kind): IPrepared | undefined {
-    if (kind !== "point" && kind !== "touchFace" && kind !== "pushGlasses" && kind !== "scratchHead")
+  export function prepare(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    kind: IAutoMovieMotionHumanGestureStroke.Kind,
+  ): IPrepared | undefined {
+    if (
+      kind !== "point" &&
+      kind !== "touchFace" &&
+      kind !== "pushGlasses" &&
+      kind !== "scratchHead"
+    )
       return undefined;
     const prepared: IPrepared = { body, side, kind };
     if (kind !== "point") prepared.padding = padding(body, side);
@@ -51,8 +60,8 @@ export namespace gestureTouch {
   }
 
   /**
-   * A plan's touch geometry for one hand: the body, side and kind it was
-   * built for, and what has been computed for them so far.
+   * A plan's touch geometry for one hand: the body, side and kind it was built
+   * for, and what has been computed for them so far.
    */
   export interface IPrepared {
     /** The body the geometry is computed for. */
@@ -67,14 +76,20 @@ export namespace gestureTouch {
     /** The fingertip's landmark-to-skin padding for self-touch, metres. */
     padding?: number;
 
-    /** The pointing reach from the shoulder to the fingertip, metres, once first read. */
+    /**
+     * The pointing reach from the shoulder to the fingertip, metres, once first
+     * read.
+     */
     reach?: number;
 
     /** The eye and shoulder reader of a pointing hand, once first read. */
     point?: ReturnType<typeof HumanTrunk.prepareResolve>;
 
     /** The last self-touch region's reader. */
-    region?: { name: AutoMovieHumanoidRegion; read: ReturnType<typeof HumanTrunk.prepareRegion> };
+    region?: {
+      name: AutoMovieHumanoidRegion;
+      read: ReturnType<typeof HumanTrunk.prepareRegion>;
+    };
   }
 
   /**
@@ -99,10 +114,21 @@ export namespace gestureTouch {
         reason: "Pointing needs a target",
         fix: "give the point gesture a target",
       });
-    const fixed: IPrepared | undefined = preparation(input.prepared, body, side, "point");
+    const fixed: IPrepared | undefined = preparation(
+      input.prepared,
+      body,
+      side,
+      "point",
+    );
     let bones: ReturnType<typeof HumanTrunk.resolve>;
     if (fixed === undefined)
-      bones = HumanTrunk.resolve(body, input.base, undefined, input.resolution, POINT_FRAMES[side]);
+      bones = HumanTrunk.resolve(
+        body,
+        input.base,
+        undefined,
+        input.resolution,
+        POINT_FRAMES[side],
+      );
     else {
       fixed.point ??= HumanTrunk.prepareResolve(body, POINT_FRAMES[side]);
       bones = fixed.point(input.base, input.resolution);
@@ -126,10 +152,7 @@ export namespace gestureTouch {
     const b: number = Vector3.dot(w, line);
     const c: number = Vector3.dot(w, w) - reach * reach;
     const s: number = -b + Math.sqrt(Math.max(0, b * b - c));
-    const distance: number = Math.min(
-      s,
-      Vector3.distance(input.target, eye),
-    );
+    const distance: number = Math.min(s, Vector3.distance(input.target, eye));
     const palm: IAutoMovieVector3 =
       Math.abs(line.y) > STEEP
         ? HumanFrame.point(
@@ -173,13 +196,22 @@ export namespace gestureTouch {
             ? "templeLeft"
             : "templeRight"
           : input.region;
-    const fixed: IPrepared | undefined = preparation(input.prepared, body, side, kind);
+    const fixed: IPrepared | undefined = preparation(
+      input.prepared,
+      body,
+      side,
+      kind,
+    );
     let surface: HumanTrunk.ISurface;
-    if (fixed === undefined) surface = HumanTrunk.region(body, input.base, region, input.resolution);
+    if (fixed === undefined)
+      surface = HumanTrunk.region(body, input.base, region, input.resolution);
     else {
       let reading: IPrepared["region"] = fixed.region;
       if (reading === undefined || reading.name !== region) {
-        reading = { name: region, read: HumanTrunk.prepareRegion(body, region) };
+        reading = {
+          name: region,
+          read: HumanTrunk.prepareRegion(body, region),
+        };
         fixed.region = reading;
       }
       surface = reading.read(input.base, input.resolution);
@@ -201,7 +233,9 @@ export namespace gestureTouch {
       surface: "indexTip",
       shape: "flat",
       point: Vector3.addScaled(
-        Vector3.addScaled(surface.point, surface.normal, pad), up, slide,
+        Vector3.addScaled(surface.point, surface.normal, pad),
+        up,
+        slide,
       ),
       rotation: HumanHand.rotation(side, {
         fingers: up,
@@ -218,36 +252,72 @@ export namespace gestureTouch {
    * @param side The touching hand.
    * @returns The landmark-to-skin padding, metres.
    */
-  export function padding(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): number {
-    return AutoMovieMotionHumanTouchEffector.pad(body, side, { surface: "indexTip", shape: "flat" });
+  export function padding(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+  ): number {
+    return AutoMovieMotionHumanTouchEffector.pad(body, side, {
+      surface: "indexTip",
+      shape: "flat",
+    });
   }
 }
 
 /** A pointing hand reads its eye and shoulder, without evaluating other limbs. */
-const POINT_FRAMES: Readonly<Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>> = {
+const POINT_FRAMES: Readonly<
+  Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
+> = {
   left: new Set<AutoMovieHumanoidBone>(["leftEye", "leftUpperArm"]),
   right: new Set<AutoMovieHumanoidBone>(["rightEye", "rightUpperArm"]),
 };
 
-/** The pointing reach from the shoulder to the fingertip: `POINT_REACH` of the arm plus the point shape's index-tip offset from the wrist. */
-function pointingReach(body: IAutoMovieMotionHumanBody, side: AutoMovieHumanSide): number {
-  const tip: number = Vector3.length(HumanHand.offset(body, side, "indexTip", "point").point);
+/**
+ * The pointing reach from the shoulder to the fingertip: `POINT_REACH` of the
+ * arm plus the point shape's index-tip offset from the wrist.
+ */
+function pointingReach(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+): number {
+  const tip: number = Vector3.length(
+    HumanHand.offset(body, side, "indexTip", "point").point,
+  );
   return POINT_REACH * (body.measure.upperArm + body.measure.forearm) + tip;
 }
 
-/** The share of the arm (upper arm and forearm) a pointing arm extends to: nearly straight, as people point at a distant target with an almost fully extended arm (Herbort and Kunde 2016, J Exp Psychol Hum Percept Perform 42:78, Exp. 1, Fig. 3); the study gives no extension in numbers, so the share is short of straight only by what keeps the elbow off its end stop. */
+/**
+ * The share of the arm (upper arm and forearm) a pointing arm extends to:
+ * nearly straight, as people point at a distant target with an almost fully
+ * extended arm (Herbort and Kunde 2016, J Exp Psychol Hum Percept Perform
+ * 42:78, Exp. 1, Fig. 3); the study gives no extension in numbers, so the share
+ * is short of straight only by what keeps the elbow off its end stop.
+ */
 const POINT_REACH: number = 0.95;
 
-/** The vertical component of a pointing line past which palm down has no meaning and the palm turns back or forward instead (provisional: about 64 degrees from the horizontal). */
+/**
+ * The vertical component of a pointing line past which palm down has no meaning
+ * and the palm turns back or forward instead (provisional: about 64 degrees
+ * from the horizontal).
+ */
 const STEEP: number = 0.9;
 
-/** The outward elbow hint of a hand touching the face, a share of the upper arm (provisional: read from no measured source). */
+/**
+ * The outward elbow hint of a hand touching the face, a share of the upper arm
+ * (provisional: read from no measured source).
+ */
 const TOUCH_OUT: number = 0.15;
 
 /** A prepared record, when it was built for this body, side and kind. */
-function preparation(prepared: gestureTouch.IPrepared | undefined, body: IAutoMovieMotionHumanBody,
-  side: AutoMovieHumanSide, kind: IAutoMovieMotionHumanGestureStroke.Kind): gestureTouch.IPrepared | undefined {
-  return prepared !== undefined && prepared.body === body && prepared.side === side && prepared.kind === kind
+function preparation(
+  prepared: gestureTouch.IPrepared | undefined,
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  kind: IAutoMovieMotionHumanGestureStroke.Kind,
+): gestureTouch.IPrepared | undefined {
+  return prepared !== undefined &&
+    prepared.body === body &&
+    prepared.side === side &&
+    prepared.kind === kind
     ? prepared
     : undefined;
 }

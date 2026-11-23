@@ -20,22 +20,21 @@ import { StrikingWeapon } from "./StrikingWeapon";
 
 /**
  * The room a striker has to close on another person: how far its body may
- * travel along a line before its arms, held as they are, meet the other
- * body. A strike steps in until its arm reaches, and where the other body
- * stands nearer than that step (a guard held forward of the target, a taller
- * person's arms above a shorter one's), the step would walk the striker's
- * guard into it; the step is bounded by the space in front of the striker,
- * not only by the stance.
+ * travel along a line before its arms, held as they are, meet the other body. A
+ * strike steps in until its arm reaches, and where the other body stands nearer
+ * than that step (a guard held forward of the target, a taller person's arms
+ * above a shorter one's), the step would walk the striker's guard into it; the
+ * step is bounded by the space in front of the striker, not only by the
+ * stance.
  *
  * Each arm is swept as the points of its three capsules (the upper arm, the
  * forearm and the fist, the capsules the performance resolves contacts on,
  * {@link StrikingWeapon.posed}): the ends and the middle of each, with that
  * capsule's radius. A point swept a distance `d` along the line covers the
- * segment from it to `d` further on, whose signed distance to the other
- * body's colliders only falls as `d` grows, so the first `d` at which the
- * swept point touches is found by bisection. The arms lead a guard, so they
- * meet the other body first; the trunk and the legs behind them are not
- * swept.
+ * segment from it to `d` further on, whose signed distance to the other body's
+ * colliders only falls as `d` grows, so the first `d` at which the swept point
+ * touches is found by bisection. The arms lead a guard, so they meet the other
+ * body first; the trunk and the legs behind them are not swept.
  *
  * A step back, before a target nearer than the arm's band, has room too
  * ({@link behind}): the scene's solids behind the feet bound it as the other
@@ -45,9 +44,7 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * ({@link feint}), so the defender bites on a fist that never touches.
  */
 export namespace StrikingRoom {
-  /**
-   * What the room is measured between.
-   */
+  /** What the room is measured between. */
   export interface IProps {
     /** The striker's body. */
     body: IAutoMovieMotionHumanBody;
@@ -68,40 +65,54 @@ export namespace StrikingRoom {
     limit: number;
   }
 
-  /** The original proximal/midpoint/distal sample order, shared as immutable geometry. */
+  /**
+   * The original proximal/midpoint/distal sample order, shared as immutable
+   * geometry.
+   */
   const SHARES: readonly number[] = [0, 0.5, 1];
 
   /** The bisection's halvings: a 0.4 m stance step over 2^14 is under 0.03 mm. */
   const HALVINGS: number = 14;
 
   /**
-   * How far the striker may travel along the line before an arm meets the
-   * other body, at most the limit.
+   * How far the striker may travel along the line before an arm meets the other
+   * body, at most the limit.
    *
    * @param props The two bodies, the line and the limit.
    * @returns Metres in `[0, limit]`; zero when an arm already touches.
    */
   export function along(props: IProps): number {
-    const geometry: ReturnType<typeof HumanColliders.reading> = HumanColliders.reading(props.other, props.others);
-    const radii: ReturnType<typeof StrikingWeapon.armRadii> = StrikingWeapon.armRadii(props.body);
+    const geometry: ReturnType<typeof HumanColliders.reading> =
+      HumanColliders.reading(props.other, props.others);
+    const radii: ReturnType<typeof StrikingWeapon.armRadii> =
+      StrikingWeapon.armRadii(props.body);
     // Read both arm axes before distance queries so missing frames still fail first.
     const axes: readonly [IAutoMovieVector3[], IAutoMovieVector3[]] = [
       StrikingWeapon.posed(props.body, props.bones, "left"),
       StrikingWeapon.posed(props.body, props.bones, "right"),
     ];
-    const gap: (point: IAutoMovieVector3, radius: number, distance: number) => number = (
+    const gap: (
       point: IAutoMovieVector3,
       radius: number,
       distance: number,
-    ): number => geometry.segment(
-      point,
-      Vector3.add(point, Vector3.scale(props.line, distance)),
-    ).distance - radius;
+    ) => number = (
+      point: IAutoMovieVector3,
+      radius: number,
+      distance: number,
+    ): number =>
+      geometry.segment(
+        point,
+        Vector3.add(point, Vector3.scale(props.line, distance)),
+      ).distance - radius;
     let room: number = props.limit;
     for (const ends of axes)
       for (let segment: number = 0; segment < radii.length; segment++)
         for (const share of SHARES) {
-          const point: IAutoMovieVector3 = Vector3.lerp(ends[segment]!, ends[segment + 1]!, share);
+          const point: IAutoMovieVector3 = Vector3.lerp(
+            ends[segment]!,
+            ends[segment + 1]!,
+            share,
+          );
           const radius: number = StrikingWeapon.girth(radii[segment]!, share);
           if (gap(point, radius, room) > 0) continue;
           if (gap(point, radius, 0) <= 0) return 0;
@@ -118,8 +129,8 @@ export namespace StrikingRoom {
   /**
    * A strike's room toward its target, as the strike reads it one look-back
    * before its launch ({@link StrikingTarget.LOOK}): the room toward the person
-   * it aims at, up to one stance length (the longest step a strike takes),
-   * or no bound for a target that is not a person.
+   * it aims at, up to one stance length (the longest step a strike takes), or
+   * no bound for a target that is not a person.
    *
    * @param context The striker's action context.
    * @param target What the strike aims at.
@@ -143,25 +154,31 @@ export namespace StrikingRoom {
       body: context.body,
       bones,
       other: other.body,
-      others: other.bones(launch - StrikingTarget.LOOK, HumanColliders.bones(other.body)),
+      others: other.bones(
+        launch - StrikingTarget.LOOK,
+        HumanColliders.bones(other.body),
+      ),
       line,
       limit: StrikingStance.length(context.body),
     });
   }
 
   /**
-   * How far a striker may step back along the line before a heel meets one
-   * of the scene's solids, at most one stance length (the longest step a
-   * strike takes).
+   * How far a striker may step back along the line before a heel meets one of
+   * the scene's solids, at most one stance length (the longest step a strike
+   * takes).
    *
    * @param context The striker's action context.
    * @param feet Where the feet stand at the launch.
-   * @param line The horizontal unit line toward the target; the step back runs along its opposite.
+   * @param line The horizontal unit line toward the target; the step back runs
+   *   along its opposite.
    * @returns Metres in `[0, stance length]`.
    */
   export function behind(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "obstacles">,
-    feet: Readonly<Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>>,
+    feet: Readonly<
+      Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>
+    >,
     line: IAutoMovieVector3,
   ): number {
     const limit: number = StrikingStance.length(context.body);
@@ -173,15 +190,16 @@ export namespace StrikingRoom {
         "heel",
         feet[side],
       );
-      const block: IAutoMovieMotionHumanObstacle.IBlock | null = HumanObstacle.blocking(
-        context.obstacles(),
-        heel,
-        Vector3.subtract(heel, Vector3.scale(line, limit)),
-        {
-          breadth: context.body.measure.chestBreadth,
-          height: context.body.measure.stature,
-        },
-      );
+      const block: IAutoMovieMotionHumanObstacle.IBlock | null =
+        HumanObstacle.blocking(
+          context.obstacles(),
+          heel,
+          Vector3.subtract(heel, Vector3.scale(line, limit)),
+          {
+            breadth: context.body.measure.chestBreadth,
+            height: context.body.measure.stature,
+          },
+        );
       if (block !== null) room = Math.min(room, block.distance);
     }
     return room;
@@ -217,16 +235,17 @@ export namespace StrikingRoom {
   /**
    * How deep a feint is shown, as a share of the way from the launch to the
    * committed punch's wrist: the declared share, but never into a person's
-   * guard. The guard's depth is the farthest that person's hands and
-   * forearms stand toward the striker from the aimed point one look-back
-   * before the launch, and the fist keeps clear of it by its own reach past
-   * the wrist and the two forearms' radii (derived: the surfaces that would
-   * otherwise touch).
+   * guard. The guard's depth is the farthest that person's hands and forearms
+   * stand toward the striker from the aimed point one look-back before the
+   * launch, and the fist keeps clear of it by its own reach past the wrist and
+   * the two forearms' radii (derived: the surfaces that would otherwise
+   * touch).
    *
    * @param context The striker's action context.
    * @param target What the feint aims at.
    * @param feint The feint's path.
-   * @returns The share, in `[0, declared]`; the declared share for a target that is not a person or a path with no travel along the line.
+   * @returns The share, in `[0, declared]`; the declared share for a target
+   *   that is not a person or a path with no travel along the line.
    */
   export function feint(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "performer">,
@@ -266,6 +285,10 @@ export namespace StrikingRoom {
 }
 
 /** A feint reads only the four actual guard joints and their required ancestry. */
-const GUARD: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-  "leftHand", "rightHand", "leftLowerArm", "rightLowerArm",
-]);
+const GUARD: ReadonlySet<AutoMovieHumanoidBone> =
+  new Set<AutoMovieHumanoidBone>([
+    "leftHand",
+    "rightHand",
+    "leftLowerArm",
+    "rightLowerArm",
+  ]);

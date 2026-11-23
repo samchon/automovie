@@ -16,16 +16,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanObjectCord } from "./HumanObjectCord";
 
 /**
- * Attach actions to an object: an object says where a person meets it
- * through its affordances (a seat, a handle, a surface), and this gives the
- * actions what they read of it, placed in the world.
+ * Attach actions to an object: an object says where a person meets it through
+ * its affordances (a seat, a handle, a surface), and this gives the actions
+ * what they read of it, placed in the world.
  *
- * The object is any model that declares affordances in its own space, such
- * as an archetype; nothing here depends on how it was made. Its place is
- * where the scene puts it. A sitting action then sits on the seat the chair
- * declares, at the height and depth the chair has, and a grasp, a touch or
- * a look goes to the contact the object names instead of to coordinates
- * written by hand.
+ * The object is any model that declares affordances in its own space, such as
+ * an archetype; nothing here depends on how it was made. Its place is where the
+ * scene puts it. A sitting action then sits on the seat the chair declares, at
+ * the height and depth the chair has, and a grasp, a touch or a look goes to
+ * the contact the object names instead of to coordinates written by hand.
  */
 export namespace HumanObject {
   /**
@@ -49,20 +48,28 @@ export namespace HumanObject {
   }
 
   /**
-   * An object as a prop of a performance: actions aim at its contacts by
-   * their ids, hands grasp its handles, and it rides the hand that holds it.
+   * An object as a prop of a performance: actions aim at its contacts by their
+   * ids, hands grasp its handles, and it rides the hand that holds it.
    *
-   * Every affordance is also a named point of the prop, at the contact with
-   * the contact's `+Y` as its outward normal, so `{ kind: "prop", subject,
-   * point: "pull" }` is a target.
+   * Every affordance is also a named point of the prop, at the contact with the
+   * contact's `+Y` as its outward normal, so `{ kind: "prop", subject, point:
+   * "pull" }` is a target.
    *
    * @param subject The prop's subject id in the performance.
    * @param model The object.
    * @param placement Where it rests before any hand takes it.
-   * @param motion Where it is at a film second, for an object that moves by itself, such as a vehicle on its course; it stays at its placement when absent.
-   * @param contact The world frame of one of its contacts at a film second, for an object whose parts move within it, such as a pedal on its crank (an archetype ride's `frame`); each contact moves rigidly with the object when absent.
-   * @param tracks The object's own movements after a trigger, each an articulation's travel from its start (`IHumanProp.tracks`); none when absent.
-   * @returns The prop with any declared articulation capability, and with its pose reader for drives and tracks when the model supplies one.
+   * @param motion Where it is at a film second, for an object that moves by
+   *   itself, such as a vehicle on its course; it stays at its placement when
+   *   absent.
+   * @param contact The world frame of one of its contacts at a film second, for
+   *   an object whose parts move within it, such as a pedal on its crank (an
+   *   archetype ride's `frame`); each contact moves rigidly with the object
+   *   when absent.
+   * @param tracks The object's own movements after a trigger, each an
+   *   articulation's travel from its start (`IHumanProp.tracks`); none when
+   *   absent.
+   * @returns The prop with any declared articulation capability, and with its
+   *   pose reader for drives and tracks when the model supplies one.
    */
   export function prop(
     subject: string,
@@ -159,8 +166,8 @@ export namespace HumanObject {
   }
 
   /**
-   * Create a soft cord on a model span's own endpoints and rest length.
-   * The owning prop and returned cord both belong in the performance props.
+   * Create a soft cord on a model span's own endpoints and rest length. The
+   * owning prop and returned cord both belong in the performance props.
    */
   export function cord(
     model: IAutoMovieMotionHumanObject.ISpanModel,
@@ -171,16 +178,20 @@ export namespace HumanObject {
   }
 
   /**
-   * An object's seat in the world, for the actions that sit on one: the
-   * middle of its front edge, the heading a sitter faces, and the depth and
-   * backrest it declares.
+   * An object's seat in the world, for the actions that sit on one: the middle
+   * of its front edge, the heading a sitter faces, and the depth and backrest
+   * it declares.
    *
    * @param model The object.
    * @param placement Where the scene puts it.
    * @param id The seat's affordance id; the object's only seat when absent.
-   * @param carrier The subject of the prop the object is, when it may move, so a sit follows the seat in its frame and the seat's own contact within it (`IAutoMovieMotionHumanSeated.ISeat.carrier` and `point`); absent for a seat in the world.
+   * @param carrier The subject of the prop the object is, when it may move, so
+   *   a sit follows the seat in its frame and the seat's own contact within it
+   *   (`IAutoMovieMotionHumanSeated.ISeat.carrier` and `point`); absent for a
+   *   seat in the world.
    * @returns The seat.
-   * @throws {HumanRefusal} When the object has no such seat, or several and none is named, listing its seats.
+   * @throws {HumanRefusal} When the object has no such seat, or several and
+   *   none is named, listing its seats.
    */
   export function seat(
     model: IAutoMovieMotionHumanObject.IModel,
@@ -247,11 +258,11 @@ export namespace HumanObject {
   /**
    * Where the feet rest on an object while its seat is sat on: the tread
    * nearest the seat on each side among the object's pedals and stirrups, or,
-   * when it has none below the seat, two points of the nearest bar below it,
-   * a quarter of the bar's length to each side of its middle.
+   * when it has none below the seat, two points of the nearest bar below it, a
+   * quarter of the bar's length to each side of its middle.
    *
-   * A point counts as below the seat when it lies under the sitting surface
-   * in the seat's own frame, whose `+X` is the sitter's left. Whether a leg
+   * A point counts as below the seat when it lies under the sitting surface in
+   * the seat's own frame, whose `+X` is the sitter's left. Whether a leg
    * reaches a rest is the sitting law's to judge on the body that sits.
    */
   function footrests(
@@ -311,11 +322,11 @@ export namespace HumanObject {
 }
 
 /**
- * A seat's pitch and roll in the world, as a posture's, when the seat is not level.
+ * A seat's pitch and roll in the world, as a posture's, when the seat is not
+ * level.
  *
  * @param rotation The seat's world rotation.
  * @returns The tilt, empty for a level seat.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States what is returned.
  * @evidence contracts/development/implementation.md#principled-implementation The posture angles of the seat's rotation (`resolveHumanPosture.angles`), kept when either exceeds a millionth of a degree.
  * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One read.

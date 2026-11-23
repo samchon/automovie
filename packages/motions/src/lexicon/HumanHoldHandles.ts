@@ -29,13 +29,22 @@ import { HumanRideHands } from "./HumanRideHands";
 /** The two hands, left first. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** The displayed hand's largest admitted miss of its handle's skin, metres: the contact tolerance of the towed driver and the lead. */
+/**
+ * The displayed hand's largest admitted miss of its handle's skin, metres: the
+ * contact tolerance of the towed driver and the lead.
+ */
 const REACH: number = 0.01;
 
 /**
- * Keep both of a walker's hands on a moving implement's two handles, as a ploughman holds a walking plough.
+ * Keep both of a walker's hands on a moving implement's two handles, as a
+ * ploughman holds a walking plough.
  *
- * The base walk owns the steps and the handles stay on the posed implement. The overlay acquires both handles and releases them over equal authored intervals, each hand's goal on its handle's actual moving frame by the shared rider hold (`HumanMountRider.hold`, `HumanRideHands`), the same fit the lead and the driving lines use, and both arms laid on one planned course (`courseArmGoal`) so neither changes branch as the handles move.
+ * The base walk owns the steps and the handles stay on the posed implement. The
+ * overlay acquires both handles and releases them over equal authored
+ * intervals, each hand's goal on its handle's actual moving frame by the shared
+ * rider hold (`HumanMountRider.hold`, `HumanRideHands`), the same fit the lead
+ * and the driving lines use, and both arms laid on one planned course
+ * (`courseArmGoal`) so neither changes branch as the handles move.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States film seconds, named carrier input, both handles, independent pose and geometry and explicit refusal.
  * @evidence contracts/development/design.md#principled-representation One action claims both arms and hands over the base and declares only the actual fully held interval.

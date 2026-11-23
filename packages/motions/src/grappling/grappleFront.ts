@@ -2,10 +2,10 @@ import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
 /**
  * How far a grappler's front stands ahead of the hips with the trunk pitched
- * about the hip joint: a point at height h above the hip is carried forward
- * by h sin(pitch), and the front is the surface ahead of it, the chest's
- * half depth before the chest and the head's radius before the head. The
- * staged marks (`grapple.spacing`) and the sumo tachiai's contact gap
+ * about the hip joint: a point at height h above the hip is carried forward by
+ * h sin(pitch), and the front is the surface ahead of it, the chest's half
+ * depth before the chest and the head's radius before the head. The staged
+ * marks (`grapple.spacing`) and the sumo tachiai's contact gap
  * (`grappleSumo.keys`) read their bodies' fronts here.
  */
 export namespace grappleFront {
@@ -16,7 +16,10 @@ export namespace grappleFront {
    * @param pitch The trunk's pitch, degrees.
    * @returns Metres.
    */
-  export function chest(body: IAutoMovieMotionHumanBody, pitch: number): number {
+  export function chest(
+    body: IAutoMovieMotionHumanBody,
+    pitch: number,
+  ): number {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     return (
       (m.chestHeight - m.hipHeight) * Math.sin((pitch * Math.PI) / 180) +

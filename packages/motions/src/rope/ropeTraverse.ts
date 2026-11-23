@@ -17,10 +17,18 @@ import { poseBones } from "../posture/poseBones";
 import { ropeLine } from "./ropeLine";
 import { ropeSupport } from "./ropeSupport";
 
-/** How far behind the rear hand a monkey crawl hooks its feet over a level rope, hip heights (provisional: the shoulders to the hooked ankles with the knees bent). */
+/**
+ * How far behind the rear hand a monkey crawl hooks its feet over a level rope,
+ * hip heights (provisional: the shoulders to the hooked ankles with the knees
+ * bent).
+ */
 const HOOKED: number = 1.2;
 
-/** The hanging tuck of a traverse: the hips and knees drawn up clear of what the body stood on, the arms up on the line with the elbows bent (provisional angles, degrees). */
+/**
+ * The hanging tuck of a traverse: the hips and knees drawn up clear of what the
+ * body stood on, the arms up on the line with the elbows bent (provisional
+ * angles, degrees).
+ */
 const TUCK: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
@@ -43,7 +51,8 @@ const TUCK: IAutoMovieMotionHumanLieDown.IPose = {
  * @param context The action's context, standing under the rope.
  * @param p The traverse.
  * @returns The crossing.
- * @throws {HumanRefusal} If the distance runs past the rope's ends or the rope is beyond the standing reach.
+ * @throws {HumanRefusal} If the distance runs past the rope's ends or the rope
+ *   is beyond the standing reach.
  */
 export function ropeTraverse(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,

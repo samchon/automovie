@@ -10,11 +10,11 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * The rotation one hand keeps through a keyed contact sequence
- * (`manipulate`): the fingers toward the hand's first site from the body's
- * root, laid across the site's normal, and the palm against the normal. The
- * plan places the hand with it and the fingering reads every digit's tip
- * where it puts it, so both see one hand.
+ * The rotation one hand keeps through a keyed contact sequence (`manipulate`):
+ * the fingers toward the hand's first site from the body's root, laid across
+ * the site's normal, and the palm against the normal. The plan places the hand
+ * with it and the fingering reads every digit's tip where it puts it, so both
+ * see one hand.
  *
  * @param hold The posture the act is entered with.
  * @param presses The sequence's sites with their hands, in order.
@@ -26,10 +26,13 @@ export function manipulateFacing(
   presses: readonly IAutoMovieMotionHumanManipulateFacing.ISite[],
   side: AutoMovieHumanSide,
 ): IAutoMovieQuaternion {
-  const mine: IAutoMovieMotionHumanManipulateFacing.ISite | undefined = presses.find(
-    (p: IAutoMovieMotionHumanManipulateFacing.ISite): boolean => p.side === side,
-  );
-  const first: IAutoMovieMotionHumanManipulateFacing.ISite = mine === undefined ? presses[0]! : mine;
+  const mine: IAutoMovieMotionHumanManipulateFacing.ISite | undefined =
+    presses.find(
+      (p: IAutoMovieMotionHumanManipulateFacing.ISite): boolean =>
+        p.side === side,
+    );
+  const first: IAutoMovieMotionHumanManipulateFacing.ISite =
+    mine === undefined ? presses[0]! : mine;
   const toward: IAutoMovieVector3 = Vector3.subtract(first.site, hold.root);
   const along: IAutoMovieVector3 = Vector3.subtract(
     toward,

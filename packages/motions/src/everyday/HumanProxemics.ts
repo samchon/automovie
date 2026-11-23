@@ -8,36 +8,36 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Interpersonal distance: the gaps people keep, by relationship and purpose,
- * as the chest-to-target gap an approach stops at.
+ * Interpersonal distance: the gaps people keep, by relationship and purpose, as
+ * the chest-to-target gap an approach stops at.
  *
  * Hall (1966, The Hidden Dimension) divides the space around a person into
  * zones by the interaction they afford, each with a close and a far phase:
- * intimate under 0.45 m, personal 0.45 to 1.2 m (close 0.45 to 0.75, far
- * 0.75 to 1.2), social 1.2 to 3.6 m (close 1.2 to 2.1) and public beyond. The
- * named gaps here sit inside those zones:
+ * intimate under 0.45 m, personal 0.45 to 1.2 m (close 0.45 to 0.75, far 0.75
+ * to 1.2), social 1.2 to 3.6 m (close 1.2 to 2.1) and public beyond. The named
+ * gaps here sit inside those zones:
  *
  * - `intimate` 0.3 m, the middle of the intimate far phase (0.15 to 0.45);
- * - `faceToFace` 0.6 m, the middle of the personal close phase, where two
- *   people stand squared up within arm's reach;
+ * - `faceToFace` 0.6 m, the middle of the personal close phase, where two people
+ *   stand squared up within arm's reach;
  * - `personal` 1.0 m, the far phase where conversation between acquaintances
  *   happens (Hall; Hayduk 1978, Psychol Bull 85:117, reviews measured
  *   comfortable distances of the same order, larger in front than behind);
- * - `fighting` 1.5 m, the middle of the 1.01 to 2.00 m two taekwondo
- *   fighters keep for 60 % of a fight (Maloney, Renshaw and Farrow 2021, Int
- *   J Perf Anal Sport 21:993, the kicking sport measured), where a kickboxing
- *   or karate bout squares off out of punching reach;
+ * - `fighting` 1.5 m, the middle of the 1.01 to 2.00 m two taekwondo fighters
+ *   keep for 60 % of a fight (Maloney, Renshaw and Farrow 2021, Int J Perf Anal
+ *   Sport 21:993, the kicking sport measured), where a kickboxing or karate
+ *   bout squares off out of punching reach;
  * - `social` 1.6 m, the middle of the social close phase, impersonal business;
- * - `handing`: the gap at which both people's hands meet midway between
- *   their chests with the elbows flexed 35 degrees, the middle of the 20 to
- *   50 degrees the campaign assumes for a comfortable handover (provisional:
+ * - `handing`: the gap at which both people's hands meet midway between their
+ *   chests with the elbows flexed 35 degrees, the middle of the 20 to 50
+ *   degrees the campaign assumes for a comfortable handover (provisional:
  *   Kopnarski et al. 2023 report where a handover happens, not at what
- *   distance), at the handover height midway between the two waists and
- *   chests (provisional).
+ *   distance), at the handover height midway between the two waists and chests
+ *   (provisional).
  *
  * A gap is horizontal, measured from the front of the performer's chest (the
- * sternum region) to the target point: another person's sternum, a prop's
- * point or a free point.
+ * sternum region) to the target point: another person's sternum, a prop's point
+ * or a free point.
  */
 export namespace HumanProxemics {
   /** Hall's zones, metres. */
@@ -64,18 +64,19 @@ export namespace HumanProxemics {
   export const HANDING_ELBOW: number = 35;
 
   /**
-   * The horizontal reach from the front of the chest to the palm when the
-   * elbow is flexed by `HANDING_ELBOW` and the palm is at a height.
+   * The horizontal reach from the front of the chest to the palm when the elbow
+   * is flexed by `HANDING_ELBOW` and the palm is at a height.
    *
-   * The shoulder-to-palm distance follows the law of cosines over the upper
-   * arm and the forearm plus 0.4 of the hand (the palm's centre), at the
-   * interior elbow angle `180 - flexion`; its horizontal share at the height
-   * difference is reduced by half the chest depth, the shoulder joint's
-   * distance behind the chest's front.
+   * The shoulder-to-palm distance follows the law of cosines over the upper arm
+   * and the forearm plus 0.4 of the hand (the palm's centre), at the interior
+   * elbow angle `180 - flexion`; its horizontal share at the height difference
+   * is reduced by half the chest depth, the shoulder joint's distance behind
+   * the chest's front.
    *
    * @param measure The person.
    * @param height The palm's height, metres.
-   * @returns Metres, possibly negative when the palm cannot reach that height ahead.
+   * @returns Metres, possibly negative when the palm cannot reach that height
+   *   ahead.
    */
   export function reach(
     measure: IAutoMovieBodyMeasure,
@@ -94,9 +95,11 @@ export namespace HumanProxemics {
    *
    * @param request A named gap or metres.
    * @param self The approaching person.
-   * @param other The other person; the approaching person when absent (a prop or point target).
+   * @param other The other person; the approaching person when absent (a prop
+   *   or point target).
    * @returns Metres; positive.
-   * @throws {HumanRefusal} When a metre request is not positive, or two people's hands cannot meet ahead of their chests at the handover height.
+   * @throws {HumanRefusal} When a metre request is not positive, or two
+   *   people's hands cannot meet ahead of their chests at the handover height.
    */
   export function gap(
     request: IAutoMovieMotionHumanProxemics.Band | number,
@@ -127,13 +130,14 @@ export namespace HumanProxemics {
   }
 
   /**
-   * Where to stop: the floor point for the feet's midpoint so the front of
-   * the chest is `gap` short of the target along the line from the start.
+   * Where to stop: the floor point for the feet's midpoint so the front of the
+   * chest is `gap` short of the target along the line from the start.
    *
    * @param from The feet's midpoint now, world metres.
    * @param target The target point, world metres.
    * @param gap The gap, metres.
-   * @param chest How far the front of the chest stands ahead of the feet's midpoint, metres.
+   * @param chest How far the front of the chest stands ahead of the feet's
+   *   midpoint, metres.
    * @returns The stop point on the floor and the heading to face, degrees.
    */
   export function stop(
@@ -164,5 +168,4 @@ export namespace HumanProxemics {
       yaw: (Math.atan2(dx, dz) * 180) / Math.PI,
     };
   }
-
 }

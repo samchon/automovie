@@ -34,27 +34,29 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**
- * The close strikes (`IAutoMovieMotionHumanCloseStrike`): an elbow, a
- * spinning elbow or backfist, or a headbutt, out to the target on the punch's
- * measured delivery and back to the guard over its hand recovery.
+ * The close strikes (`IAutoMovieMotionHumanCloseStrike`): an elbow, a spinning
+ * elbow or backfist, or a headbutt, out to the target on the punch's measured
+ * delivery and back to the guard over its hand recovery.
  *
  * The lower body turns the pelvis and trunk to bring the striking shoulder
  * forward, or spins the stance a whole turn on the lead ball, and shifts the
  * pelvis along the line by what the landing needs (`CloseStrikeLegs`,
- * `CloseStrikeReach`). The striking arm's goal is the landing's: for an
- * elbow, the fist placed so the forearm folds behind the elbow and the
- * elbow's bend hint the elbow joint itself; it arrives along the technique's
- * travel from a short approach behind the landing. A spin keeps the arm at
- * the guard while the stance turns and extends it in the last third. A
- * headbutt leans the trunk onto the target; with a person target both hands
- * take either side of the partner's neck before the impact and hold it to
- * the end, as a clinch holds.
+ * `CloseStrikeReach`). The striking arm's goal is the landing's: for an elbow,
+ * the fist placed so the forearm folds behind the elbow and the elbow's bend
+ * hint the elbow joint itself; it arrives along the technique's travel from a
+ * short approach behind the landing. A spin keeps the arm at the guard while
+ * the stance turns and extends it in the last third. A headbutt leans the trunk
+ * onto the target; with a person target both hands take either side of the
+ * partner's neck before the impact and hold it to the end, as a clinch holds.
  */
 export namespace closeStrike {
   /** Action key. */
   export const name: AutoMovieMotionHumanActionKey = "closeStrike";
 
-  /** Cancel table: a close strike chains into another or a punch from its impact. */
+  /**
+   * Cancel table: a close strike chains into another or a punch from its
+   * impact.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     closeStrike: [
       { window: ["impact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
@@ -65,12 +67,12 @@ export namespace closeStrike {
   };
 
   /**
-   * The pelvis and trunk turn at contact, degrees toward bringing the
-   * striking shoulder forward, for the rear arm; the lead arm's turn is the
-   * opposite share (provisional readings of the coached hook and uppercut
-   * turns, `punchContact.TURN`). A spinning strike turns this far past its
-   * whole turn, so the striking shoulder comes round in front as the
-   * horizontal elbow's does.
+   * The pelvis and trunk turn at contact, degrees toward bringing the striking
+   * shoulder forward, for the rear arm; the lead arm's turn is the opposite
+   * share (provisional readings of the coached hook and uppercut turns,
+   * `punchContact.TURN`). A spinning strike turns this far past its whole turn,
+   * so the striking shoulder comes round in front as the horizontal elbow's
+   * does.
    */
   export const TURN: Readonly<
     Record<IAutoMovieMotionHumanCloseStrike.Technique, number>
@@ -83,19 +85,34 @@ export namespace closeStrike {
     headbutt: 0,
   };
 
-  /** How far behind the landing the effector's approach starts along its travel, metres (provisional). */
+  /**
+   * How far behind the landing the effector's approach starts along its travel,
+   * metres (provisional).
+   */
   export const APPROACH: number = 0.15;
 
-  /** The share of a headbutt's delivery by which both hands hold the neck, before the head drives (provisional). */
+  /**
+   * The share of a headbutt's delivery by which both hands hold the neck,
+   * before the head drives (provisional).
+   */
   export const TAKE: number = 0.5;
 
-  /** The least horizontal distance from the root to a struck point over the partner's trunk, two pelvises' depth, a share of stature (provisional). */
+  /**
+   * The least horizontal distance from the root to a struck point over the
+   * partner's trunk, two pelvises' depth, a share of stature (provisional).
+   */
   export const HIPS: number = 0.17;
 
-  /** The share of a headbutt's recoil its hands hold the neck before they let go (provisional). */
+  /**
+   * The share of a headbutt's recoil its hands hold the neck before they let go
+   * (provisional).
+   */
   export const RELEASE: number = 0.4;
 
-  /** The share of a spin's delivery the arm waits at the guard before it extends (provisional). */
+  /**
+   * The share of a spin's delivery the arm waits at the guard before it extends
+   * (provisional).
+   */
   export const SPIN_HOLD: number = 2 / 3;
 
   /**
@@ -104,7 +121,8 @@ export namespace closeStrike {
    * @param context The action's context.
    * @returns The plan, whose decisive instant is `impact`.
    * @throws {Error} When a feint's share lies outside (0, 1).
-   * @throws {HumanRefusal} When the landing is out of the strike's band (`CloseStrikeReach`).
+   * @throws {HumanRefusal} When the landing is out of the strike's band
+   *   (`CloseStrikeReach`).
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCloseStrike.IParams>,

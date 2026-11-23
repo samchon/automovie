@@ -34,24 +34,22 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**
- * The foot strikes (`IAutoMovieMotionHumanFootStrike`): the kicking ankle
- * from its plant through a chamber to the contact and back, the support leg
- * planted on its ball, the pelvis turned, spun or lifted as the technique and
- * its modifiers ask.
+ * The foot strikes (`IAutoMovieMotionHumanFootStrike`): the kicking ankle from
+ * its plant through a chamber to the contact and back, the support leg planted
+ * on its ball, the pelvis turned, spun or lifted as the technique and its
+ * modifiers ask.
  *
- * The ankle's goal is the contact point's: the foot turned to the
- * technique's attitude (`StrikingBody.foot`) and the ankle placed so the
- * heel or sole lands on the target. A leg asked higher than the hip's range
- * reaches tilts the body away through the support hip (`FootStrikeTilt`). A
- * contact beyond the leg's reach is moved along the hip's line to the leg's
- * full reach, where it lands short, as a capoeira kick passes the partner
- * across the roda; a sweep that cannot reach the partner's ankle is refused
- * with the distance. The
- * chamber folds the knee in front of the hip (above it for an axe kick, on
- * the far side of the travel for a hook or a crescent), and the extension
- * aims through the target so it meets it at 0.82 of its unit, after its peak
- * speed. The knee bends toward the line between the hip and the ankle's
- * goal, raised.
+ * The ankle's goal is the contact point's: the foot turned to the technique's
+ * attitude (`StrikingBody.foot`) and the ankle placed so the heel or sole lands
+ * on the target. A leg asked higher than the hip's range reaches tilts the body
+ * away through the support hip (`FootStrikeTilt`). A contact beyond the leg's
+ * reach is moved along the hip's line to the leg's full reach, where it lands
+ * short, as a capoeira kick passes the partner across the roda; a sweep that
+ * cannot reach the partner's ankle is refused with the distance. The chamber
+ * folds the knee in front of the hip (above it for an axe kick, on the far side
+ * of the travel for a hook or a crescent), and the extension aims through the
+ * target so it meets it at 0.82 of its unit, after its peak speed. The knee
+ * bends toward the line between the hip and the ankle's goal, raised.
  */
 export namespace footStrike {
   /** Action key. */
@@ -64,28 +62,49 @@ export namespace footStrike {
     ],
   };
 
-  /** The share of the extension unit at which the foot meets the target (Wąsik 2011). */
+  /**
+   * The share of the extension unit at which the foot meets the target (Wąsik
+   * 2011).
+   */
   export const MEET: number = 0.82;
 
-  /** A side kick's launch to contact, seconds: the middle of Pieter and Pieter's 0.70 to 0.84 s. */
+  /**
+   * A side kick's launch to contact, seconds: the middle of Pieter and Pieter's
+   * 0.70 to 0.84 s.
+   */
   export const SIDE: number = 0.77;
 
-  /** The round kick's preparation, chamber and extension to contact, seconds (Gavagan and Sayers 2017). */
+  /**
+   * The round kick's preparation, chamber and extension to contact, seconds
+   * (Gavagan and Sayers 2017).
+   */
   export const KICK: number = 0.074 + 0.25 * 1.02;
 
   /** The round kick's recoil, seconds (Gavagan and Sayers 2017). */
   export const RECOIL: number = 0.65;
 
-  /** The share of the chamber the kicking foot stays planted before it leaves (provisional). */
+  /**
+   * The share of the chamber the kicking foot stays planted before it leaves
+   * (provisional).
+   */
   export const RELEASE: number = 0.1;
 
-  /** The share of the foot's rise it leads its travel by, and of its return it sets down after (provisional). */
+  /**
+   * The share of the foot's rise it leads its travel by, and of its return it
+   * sets down after (provisional).
+   */
   export const LEAD: number = 0.2;
 
-  /** The share of the leg's length a low target is reached at, short of straight (provisional). */
+  /**
+   * The share of the leg's length a low target is reached at, short of straight
+   * (provisional).
+   */
   export const STRAIGHT: number = 0.97;
 
-  /** The most the hips drop for a low target, a share of the leg's length (provisional). */
+  /**
+   * The most the hips drop for a low target, a share of the leg's length
+   * (provisional).
+   */
   export const DROP: number = 0.25;
 
   /** A jump's added time and its height, a share of the leg (provisional). */
@@ -379,7 +398,10 @@ export namespace footStrike {
                 Vector3.scale(
                   Vector3.normalize(
                     Vector3.subtract(
-                      Vector3.subtract(ankle, Vector3.scale(travel, 0.5 * reach)),
+                      Vector3.subtract(
+                        ankle,
+                        Vector3.scale(travel, 0.5 * reach),
+                      ),
                       hip,
                     ),
                   ),
@@ -434,7 +456,10 @@ export namespace footStrike {
         meet: MEET,
         // Every airborne goal inside the hip's whole range, the body tilted
         // there by its share of the contact's tilt.
-        reachable: (point: IAutoMovieVector3, seconds: number): IAutoMovieVector3 =>
+        reachable: (
+          point: IAutoMovieVector3,
+          seconds: number,
+        ): IAutoMovieVector3 =>
           FootStrikeTilt.chambered(
             side,
             lower.write(entry, seconds).yaw,

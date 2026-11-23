@@ -131,9 +131,7 @@ export function prepareSupportHeldLegs(
   };
 }
 
-/**
- * Companion types of {@link prepareSupportHeldLegs}.
- */
+/** Companion types of {@link prepareSupportHeldLegs}. */
 export namespace prepareSupportHeldLegs {
   /** A held leg's limb goal name: the legs are the limbs a floor lift clears. */
   export type HeldLeg = `${AutoMovieHumanSide}Leg`;
@@ -155,7 +153,10 @@ export namespace prepareSupportHeldLegs {
       project: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanResolveHumanPosture.INear;
 
-    /** Two seeds' swivels carried at a share, the shorter way round on a common branch. */
+    /**
+     * Two seeds' swivels carried at a share, the shorter way round on a common
+     * branch.
+     */
     between(
       a: IAutoMovieMotionHumanResolveHumanPosture.INear,
       b: IAutoMovieMotionHumanResolveHumanPosture.INear,

@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
 /**
- * The values the `wipeMouthAcross` row of `HumanUpperRows` fixes on `armPhrase`, spread into its parameters. Wiping the mouth: the back of the hand draws across the lips.
+ * The values the `wipeMouthAcross` row of `HumanUpperRows` fixes on
+ * `armPhrase`, spread into its parameters. Wiping the mouth: the back of the
+ * hand draws across the lips.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IArmPhrasePhraseTargetSurfaceShapeFromPreset`, so it fits any body as the law does.

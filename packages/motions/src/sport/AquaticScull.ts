@@ -39,16 +39,16 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 type Station = IAutoMovieMotionHumanAquatic.Station;
 
 /**
- * A rower at a named racing-shell station. The rower's cycle drives its
- * actual oar swivels, dips and seat carriage. Crew phase is an authored film
- * offset. The hull's rigid course stays with the placed scene prop.
+ * A rower at a named racing-shell station. The rower's cycle drives its actual
+ * oar swivels, dips and seat carriage. Crew phase is an authored film offset.
+ * The hull's rigid course stays with the placed scene prop.
  */
 export namespace AquaticScull {
   /**
    * Lay three repeated cycles for one person on their own traveling seat, with
-   * anatomically bound handles and footplates. The sequence landmarks
-   * use Cuijpers et al. at 26 strokes a minute (doi:10.1111/sms.12800,
-   * corrected by doi:10.1111/sms.13507). Oar angles are authored for the shot.
+   * anatomically bound handles and footplates. The sequence landmarks use
+   * Cuijpers et al. at 26 strokes a minute (doi:10.1111/sms.12800, corrected by
+   * doi:10.1111/sms.13507). Oar angles are authored for the shot.
    */
   export function plan(
     context: AquaticPosture.Context,
@@ -300,7 +300,10 @@ function seatPoint(seat: AquaticProp.IContact): IAutoMovieVector3 {
   );
 }
 
-/** Turn the foot along the stretcher's toe-facing X axis and put its sole ball on the plate. */
+/**
+ * Turn the foot along the stretcher's toe-facing X axis and put its sole ball
+ * on the plate.
+ */
 function stretcher(
   { body }: AquaticPosture.Context,
   side: AutoMovieHumanSide,
@@ -321,7 +324,10 @@ function stretcher(
   };
 }
 
-/** Intersect both legs' reach along the actual modeled rail; stop short of knee lock. */
+/**
+ * Intersect both legs' reach along the actual modeled rail; stop short of knee
+ * lock.
+ */
 function admitRail(
   context: AquaticPosture.Context,
   station: Station,

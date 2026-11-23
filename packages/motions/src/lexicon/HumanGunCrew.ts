@@ -33,9 +33,7 @@ import { HumanGunDrill } from "./HumanGunDrill";
  * cue. It uses the scene's marks and performers' ordinary walking and gaze.
  */
 export namespace HumanGunCrew {
-  /**
-   * One performer and their blocking for a digital crew scene.
-   */
+  /** One performer and their blocking for a digital crew scene. */
   export interface IStageStation {
     /** The staged performer subject id. */
     subject: string;

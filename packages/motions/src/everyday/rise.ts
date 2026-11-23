@@ -31,9 +31,9 @@ import { HumanTrunk } from "./HumanTrunk";
 import { prepareBearingTrunkBalance } from "./prepareBearingTrunkBalance";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
 import { prepareRiseFeet } from "./prepareRiseFeet";
+import { prepareRisePalmRoll } from "./prepareRisePalmRoll";
 import { prepareSeatedRoot } from "./prepareSeatedRoot";
 import { riseRested } from "./riseRested";
-import { prepareRisePalmRoll } from "./prepareRisePalmRoll";
 import { riseSeatOff } from "./riseSeatOff";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
@@ -48,62 +48,79 @@ import { seatedCourse } from "./seatedCourse";
  *
  * The goal is the seat socket's path from where it rests to where it stands
  * over the planted feet; the root follows from it and the trunk's pitch, and
- * the legs are solved onto the unmoved feet. The trunk flexes on a
- * minimum-jerk profile over the first half of the rise to a peak of at least
- * `35 + 50 (1 - r)` degrees, so it is still flexing fast when the seat is
- * left (peak trunk flexion closely follows seat-off, Schenkman et al.).
- * Seat-off occurs at 36 percent of the rise (McDonald, Villarejo Mayor and Lennon 2025,
- * Front Bioeng Biotechnol 13:1605524). The seat still constrains the pelvis
- * before release. A requested hip correction starts when the feet take the load.
- * A lumbar correction uses the actual seat, hand and sole contacts of its phase.
- * From seat-off the socket travels forward and up to standing
- * at 85 %, the trunk returns upright by the end, and the hands leave the
- * thighs, or the armrests they pushed on, over the next 30 %. The time is `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal
- * height, the seat height being where the socket rests (provisional, as the
- * sit's).
+ * the legs are solved onto the unmoved feet. The trunk flexes on a minimum-jerk
+ * profile over the first half of the rise to a peak of at least `35 + 50 (1 -
+ * r)` degrees, so it is still flexing fast when the seat is left (peak trunk
+ * flexion closely follows seat-off, Schenkman et al.). Seat-off occurs at 36
+ * percent of the rise (McDonald, Villarejo Mayor and Lennon 2025, Front Bioeng
+ * Biotechnol 13:1605524). The seat still constrains the pelvis before release.
+ * A requested hip correction starts when the feet take the load. A lumbar
+ * correction uses the actual seat, hand and sole contacts of its phase. From
+ * seat-off the socket travels forward and up to standing at 85 %, the trunk
+ * returns upright by the end, and the hands leave the thighs, or the armrests
+ * they pushed on, over the next 30 %. The time is `2 (1 + 0.6 (1 - r))` seconds
+ * for a seat at `r` of the popliteal height, the seat height being where the
+ * socket rests (provisional, as the sit's).
  *
- * Before it, a body sitting deep edges forward on the seat until its hip
- * joints stand at most one thigh length behind the ankles, so the knees come
- * near over the feet, as people do before rising from a deep seat (a
- * provisional rule, kept 0.6 thigh lengths inside the front edge when the
- * entered sit names its seat); the edging takes `0.4 + 1.5 d` seconds for
- * `d` metres (provisional).
+ * Before it, a body sitting deep edges forward on the seat until its hip joints
+ * stand at most one thigh length behind the ankles, so the knees come near over
+ * the feet, as people do before rising from a deep seat (a provisional rule,
+ * kept 0.6 thigh lengths inside the front edge when the entered sit names its
+ * seat); the edging takes `0.4 + 1.5 d` seconds for `d` metres (provisional).
  *
- * Then each foot standing ahead of its knee is drawn back, one at a time
- * over `DRAW` seconds with a `LIFT` clearance, until the ankle stands behind
- * the knee with the shank 12 degrees forward of vertical, inside the 10 to
- * 15 degrees of a prepared sit-to-stand (moving the feet behind the knees
- * reduces the trunk lean the rise needs; Shepherd and Koh 1996, Scand J
- * Rehabil Med 28:79, values provisional).
- * A pelvis that stands more than 1 cm aside of the feet's middle, as after a
- * shift along the seat, has both feet set across by that distance in the
- * same draws, the foot on that side first: the body rises between its feet,
- * not over the edge of their base.
+ * Then each foot standing ahead of its knee is drawn back, one at a time over
+ * `DRAW` seconds with a `LIFT` clearance, until the ankle stands behind the
+ * knee with the shank 12 degrees forward of vertical, inside the 10 to 15
+ * degrees of a prepared sit-to-stand (moving the feet behind the knees reduces
+ * the trunk lean the rise needs; Shepherd and Koh 1996, Scand J Rehabil Med
+ * 28:79, values provisional). A pelvis that stands more than 1 cm aside of the
+ * feet's middle, as after a shift along the seat, has both feet set across by
+ * that distance in the same draws, the foot on that side first: the body rises
+ * between its feet, not over the edge of their base.
  *
- * The rise reads only the seated posture it is entered from, so it follows
- * a sit, a shift or any posture with the socket on a seat. Events `seatOff`
- * and `standing`; the seat window ends at seat-off.
+ * The rise reads only the seated posture it is entered from, so it follows a
+ * sit, a shift or any posture with the socket on a seat. Events `seatOff` and
+ * `standing`; the seat window ends at seat-off.
  *
- * A seat above 1.2 of the popliteal height with a foot off the floor, as a
- * bar stool or a saddle is sat on, is got off instead
- * ({@link HumanMountOff}), ahead of the seat or to the side `to` names, with
- * the same events.
+ * A seat above 1.2 of the popliteal height with a foot off the floor, as a bar
+ * stool or a saddle is sat on, is got off instead ({@link HumanMountOff}), ahead
+ * of the seat or to the side `to` names, with the same events.
  */
 export namespace rise {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "rise";
 
-  /** Once the seat releases, the feet bear the pelvis until standing (Schenkman et al., 1990, Phys Ther 70:638). */
-  export const balance: IAutoMovieMotionHumanBalance = { by: "hips", from: { event: "seatOff" }, to: { event: "standing" } };
+  /**
+   * Once the seat releases, the feet bear the pelvis until standing (Schenkman
+   * et al., 1990, Phys Ther 70:638).
+   */
+  export const balance: IAutoMovieMotionHumanBalance = {
+    by: "hips",
+    from: { event: "seatOff" },
+    to: { event: "standing" },
+  };
 
-  /** Cancel table: a rise cut before seat-off returns to sitting; after standing it may become anything a stand can. */
+  /**
+   * Cancel table: a rise cut before seat-off returns to sitting; after standing
+   * it may become anything a stand can.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     sit: [
-      { window: [0, "seatOff"], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: [0, "seatOff"],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
     stand: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
     walk: [
-      { window: ["standing", 1], kind: "inertialize", entry: 0, blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate },
+      {
+        window: ["standing", 1],
+        kind: "inertialize",
+        entry: 0,
+        blend: AutoMovieMotionHumanInterrupt.BLENDS.deliberate,
+      },
     ],
   };
 
@@ -113,22 +130,39 @@ export namespace rise {
   /** How high a drawn foot lifts, metres (provisional). */
   export const LIFT: number = 0.03;
 
-  /** Shank angles forward of vertical the feet are drawn back to, tried in order, degrees: from 12 (provisional, Shepherd and Koh 1996) by 2 up to the dorsiflexion of a foot that bears no weight (`ANKLE_DORSIFLEXION.unloaded`), as the seated foot being drawn does not. */
+  /**
+   * Shank angles forward of vertical the feet are drawn back to, tried in
+   * order, degrees: from 12 (provisional, Shepherd and Koh 1996) by 2 up to the
+   * dorsiflexion of a foot that bears no weight
+   * (`ANKLE_DORSIFLEXION.unloaded`), as the seated foot being drawn does not.
+   */
   export const SHANK: readonly number[] = Array.from(
     { length: Math.floor((ANKLE_DORSIFLEXION.unloaded - 12) / 2) + 1 },
     (_: unknown, i: number): number => 12 + 2 * i,
   );
 
-  /** The least edging, metres, worth a move: below a millimetre's scale a body does not shift on its seat (provisional). */
+  /**
+   * The least edging, metres, worth a move: below a millimetre's scale a body
+   * does not shift on its seat (provisional).
+   */
   const EDGE: number = 0.005;
 
-  /** The least horizontal correction of a foot, metres, that draws it back or across (provisional, the namespace's 1 cm). */
+  /**
+   * The least horizontal correction of a foot, metres, that draws it back or
+   * across (provisional, the namespace's 1 cm).
+   */
   const NUDGE: number = 0.01;
 
-  /** The share of the rise at which the socket stands over the feet (provisional, the namespace's 85 %). */
+  /**
+   * The share of the rise at which the socket stands over the feet
+   * (provisional, the namespace's 85 %).
+   */
   const STOOD: number = 0.85;
 
-  /** The delay of the socket's rise behind its forward travel after seat-off, as a share of the rise (provisional). */
+  /**
+   * The delay of the socket's rise behind its forward travel after seat-off, as
+   * a share of the rise (provisional).
+   */
   const LAG: number = 0.03;
 
   /**
@@ -136,7 +170,8 @@ export namespace rise {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the requested balancing part cannot move on the selected support.
+   * @throws {HumanRefusal} When the requested balancing part cannot move on the
+   *   selected support.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRise.IParams>,
@@ -148,7 +183,11 @@ export namespace rise {
 
     // A seat above the band with a foot off the floor is got off, not risen from over the feet.
     if (seated.perched(body, context.entry, start, under)) {
-      HumanPhysics.fixed(context.params, "perch dismounts require the seat and feet together to support the transfer", rise);
+      HumanPhysics.fixed(
+        context.params,
+        "perch dismounts require the seat and feet together to support the transfer",
+        rise,
+      );
       return HumanMountOff.plan(context, start, r);
     }
     const rising: number =
@@ -164,7 +203,10 @@ export namespace rise {
         ? context.entry.base.seat?.armrests
         : undefined;
     const pitch0: number = context.entry.posture.pitch;
-    const entryHeading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
+    const entryHeading: Pick<
+      IAutoMovieMotionHumanPosture,
+      "yaw" | "pitch" | "roll"
+    > = {
       yaw,
       pitch: pitch0,
       roll: 0,
@@ -191,8 +233,9 @@ export namespace rise {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 0, y: 0, z: 1 },
     );
-    const along: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
-      p.x * forwardDir.x + p.z * forwardDir.z;
+    const along: (p: IAutoMovieVector3) => number = (
+      p: IAutoMovieVector3,
+    ): number => p.x * forwardDir.x + p.z * forwardDir.z;
 
     // The hip joints' middle along the heading, under the entry's pitch.
     const hipJointAt: (socket: IAutoMovieVector3) => number = (
@@ -235,12 +278,15 @@ export namespace rise {
       { origin: { x: 0, y: 0, z: 0 }, yaw },
       { x: 1, y: 0, z: 0 },
     );
-    const across: (p: IAutoMovieVector3) => number = (p: IAutoMovieVector3): number =>
-      p.x * leftDir.x + p.z * leftDir.z;
+    const across: (p: IAutoMovieVector3) => number = (
+      p: IAutoMovieVector3,
+    ): number => p.x * leftDir.x + p.z * leftDir.z;
     const aside: number =
       across(begin) - (across(feet.left) + across(feet.right)) / 2;
     const hipBegin: number = hipJointAt(begin);
-    const drawAt: (angle: number) => Record<"left" | "right", IAutoMovieVector3> = (
+    const drawAt: (
+      angle: number,
+    ) => Record<"left" | "right", IAutoMovieVector3> = (
       angle: number,
     ): Record<"left" | "right", IAutoMovieVector3> => {
       const behind: number =
@@ -266,8 +312,10 @@ export namespace rise {
 
     // The seat height sets peak flexion. Release fixes the start of foot-supported hip balance.
     const flex: number = 0.5 * rising;
-    const pitchAt: (t: number, peak: number) => number = (t: number, peak: number): number =>
-      pitch0 + (peak - pitch0) * minimumJerk.share(t / flex);
+    const pitchAt: (t: number, peak: number) => number = (
+      t: number,
+      peak: number,
+    ): number => pitch0 + (peak - pitch0) * minimumJerk.share(t / flex);
     const drawn: ReturnType<typeof drawAt> = drawAt(SHANK[0]!);
     const peak: number = seatedCourse.flexion(r);
     const off: number = riseSeatOff(rising);
@@ -347,101 +395,129 @@ export namespace rise {
     // continuing the swivel the course chose before it.
     const releasing: number = 0.3 * rising;
     const released: number = prepared + away + releasing;
-    const risingPosture: (seconds: number) => IAutoMovieMotionHumanPosture =
-        (seconds: number): IAutoMovieMotionHumanPosture => {
-          const t: number = Math.min(duration, Math.max(0, seconds));
-          const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
-          if (t < prepared) {
-            const socket: IAutoMovieVector3 =
-              edged !== undefined
-                ? edged(minimumJerk.share(t / edging))
-                : begin;
-            const root: IAutoMovieVector3 = entryRoot(socket);
-            return riseRested(
-              body,
-              {
-                root,
-                yaw,
-                pitch: pitch0,
-                roll: 0,
-                joints,
-                limbs: legsAt(root, t),
-              },
-              rests,
-              yaw,
-              1,
-            );
-          }
-          const u: number = t - prepared;
-          const forward: number = minimumJerk.share(
-            (u - away) / (STOOD * rising - away),
-          );
-          const up: number = minimumJerk.share(
-            (u - away - LAG * rising) / ((STOOD - LAG) * rising - away),
-          );
-          const socket: IAutoMovieVector3 = {
-            x: begin.x + (goal.x - begin.x) * forward,
-            y: begin.y + (goal.y - begin.y) * up,
-            z: begin.z + (goal.z - begin.z) * forward,
-          };
-          const pitch: number =
-            u < flex
-              ? pitchAt(u, peak)
-              : peak * (1 - minimumJerk.share((u - flex) / (rising - flex)));
-          const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-            joints,
-            pitch,
-            HumanTrunk.pelvisLimit(
-              body,
-              seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
-              yaw,
-              drawn,
-            ),
-          );
-          const root: IAutoMovieVector3 = seated.root(body, socket, {
-            yaw,
-            pitch: tilt.pitch,
-            roll: 0,
-          });
-          const posture: IAutoMovieMotionHumanPosture = {
+    const risingPosture: (seconds: number) => IAutoMovieMotionHumanPosture = (
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const t: number = Math.min(duration, Math.max(0, seconds));
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
+      if (t < prepared) {
+        const socket: IAutoMovieVector3 =
+          edged !== undefined ? edged(minimumJerk.share(t / edging)) : begin;
+        const root: IAutoMovieVector3 = entryRoot(socket);
+        return riseRested(
+          body,
+          {
             root,
             yaw,
-            pitch: tilt.pitch,
+            pitch: pitch0,
             roll: 0,
-            joints: tilt.joints,
-            limbs: legged(root, drawn),
-          };
-          return riseRested(
-            body,
-            posture,
-            rests,
-            yaw,
-            1 - minimumJerk.share((u - away) / releasing),
-          );
-        };
-    const palmRoll: ReturnType<typeof prepareRisePalmRoll> = prepareRisePalmRoll(body, risingPosture(seatOff),
-      (["left", "right"] as const).filter((side: AutoMovieHumanSide): boolean => rests?.[side] === undefined));
-    const supported = (t: number): IAutoMovieMotionHumanPosture => palmRoll(risingPosture(t),
-      minimumJerk.share((t - prepared) / away) * (1 - minimumJerk.share((t - seatOff) / releasing)));
+            joints,
+            limbs: legsAt(root, t),
+          },
+          rests,
+          yaw,
+          1,
+        );
+      }
+      const u: number = t - prepared;
+      const forward: number = minimumJerk.share(
+        (u - away) / (STOOD * rising - away),
+      );
+      const up: number = minimumJerk.share(
+        (u - away - LAG * rising) / ((STOOD - LAG) * rising - away),
+      );
+      const socket: IAutoMovieVector3 = {
+        x: begin.x + (goal.x - begin.x) * forward,
+        y: begin.y + (goal.y - begin.y) * up,
+        z: begin.z + (goal.z - begin.z) * forward,
+      };
+      const pitch: number =
+        u < flex
+          ? pitchAt(u, peak)
+          : peak * (1 - minimumJerk.share((u - flex) / (rising - flex)));
+      const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
+        joints,
+        pitch,
+        HumanTrunk.pelvisLimit(
+          body,
+          seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
+          yaw,
+          drawn,
+        ),
+      );
+      const root: IAutoMovieVector3 = seated.root(body, socket, {
+        yaw,
+        pitch: tilt.pitch,
+        roll: 0,
+      });
+      const posture: IAutoMovieMotionHumanPosture = {
+        root,
+        yaw,
+        pitch: tilt.pitch,
+        roll: 0,
+        joints: tilt.joints,
+        limbs: legged(root, drawn),
+      };
+      return riseRested(
+        body,
+        posture,
+        rests,
+        yaw,
+        1 - minimumJerk.share((u - away) / releasing),
+      );
+    };
+    const palmRoll: ReturnType<typeof prepareRisePalmRoll> =
+      prepareRisePalmRoll(
+        body,
+        risingPosture(seatOff),
+        (["left", "right"] as const).filter(
+          (side: AutoMovieHumanSide): boolean => rests?.[side] === undefined,
+        ),
+      );
+    const supported = (t: number): IAutoMovieMotionHumanPosture =>
+      palmRoll(
+        risingPosture(t),
+        minimumJerk.share((t - prepared) / away) *
+          (1 - minimumJerk.share((t - seatOff) / releasing)),
+      );
     const bearing: ReturnType<typeof AutoMovieMotionHumanArmChain.continued> =
       AutoMovieMotionHumanArmChain.continued(body, released, supported);
-    const rose: (seconds: number) => IAutoMovieMotionHumanPosture = (seconds: number): IAutoMovieMotionHumanPosture =>
+    const rose: (seconds: number) => IAutoMovieMotionHumanPosture = (
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture =>
       seconds < released ? bearing(seconds) : risingPosture(seconds);
 
     const events: IAutoMovieMotionHumanActionPlan["events"] = [
-        { name: "seatOff", share: share(seatOff) },
-        { name: "standing", share: share(prepared + STOOD * rising) },
-      ];
-    const requested: HumanPhysics.Window = HumanPhysics.prepare(context.params, rise, context.start, { duration, events }, context.instant);
-    const window: HumanPhysics.Window = requested?.by === "hips" ? HumanPhysics.during(requested, seatOff, duration) : requested;
-    const adjust: ReturnType<typeof prepareGroundedBalance> = window?.by === "trunk"
-      ? prepareBearingTrunkBalance(body, window, duration, contacts)
-      : prepareGroundedBalance(body, window);
+      { name: "seatOff", share: share(seatOff) },
+      { name: "standing", share: share(prepared + STOOD * rising) },
+    ];
+    const requested: HumanPhysics.Window = HumanPhysics.prepare(
+      context.params,
+      rise,
+      context.start,
+      { duration, events },
+      context.instant,
+    );
+    const window: HumanPhysics.Window =
+      requested?.by === "hips"
+        ? HumanPhysics.during(requested, seatOff, duration)
+        : requested;
+    const adjust: ReturnType<typeof prepareGroundedBalance> =
+      window?.by === "trunk"
+        ? prepareBearingTrunkBalance(body, window, duration, contacts)
+        : prepareGroundedBalance(body, window);
     return {
-      duration, events, ...HumanPhysics.declared(context.params, window),
+      duration,
+      events,
+      ...HumanPhysics.declared(context.params, window),
       contacts,
       base: { kind: "standing" },
-      posture: (seconds, _channels, resolution, projection): IAutoMovieMotionHumanPosture =>
+      posture: (
+        seconds,
+        _channels,
+        resolution,
+        projection,
+      ): IAutoMovieMotionHumanPosture =>
         adjust(rose(seconds), seconds, undefined, resolution, projection),
     };
   }

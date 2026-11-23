@@ -1,8 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
- * A fixed floor polyline by arc length, the path a stepping gait follows.
- */
+/** A fixed floor polyline by arc length, the path a stepping gait follows. */
 export class WalkPath {
   /** Cumulative arc length at each point. */
   private readonly cumulative: number[];
@@ -14,8 +12,8 @@ export class WalkPath {
   public readonly length: number;
 
   /**
-   * @param points The fixed floor points in order, world metres; keep them unchanged until this path is released.
-   *
+   * @param points The fixed floor points in order, world metres; keep them
+   *   unchanged until this path is released.
    * @evidence contracts/development/common.md#meaningful-documentation Defines ordered fixed world-metre inputs and the resulting cumulative/segment geometry lifetime.
    * @evidence contracts/development/implementation.md#principled-implementation Retains each original ordered hypot and cumulative sum, then stores every span as that same cumulative difference and each exact coordinate delta/denominator square for later interpolation/projection.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One cumulative-length pass and one segment-prerequisite pass precede unchanged position/nearest/heading readers.
@@ -35,10 +33,18 @@ export class WalkPath {
           ),
       );
     this.length = this.cumulative.at(-1)!;
-    this.segments = points.slice(1).map((point: IAutoMovieVector3, i: number): ISegment => {
-      const span: number = this.cumulative[i + 1]! - this.cumulative[i]!;
-      return { from: points[i]!, dx: point.x - points[i]!.x, dz: point.z - points[i]!.z, span, squared: span * span };
-    });
+    this.segments = points
+      .slice(1)
+      .map((point: IAutoMovieVector3, i: number): ISegment => {
+        const span: number = this.cumulative[i + 1]! - this.cumulative[i]!;
+        return {
+          from: points[i]!,
+          dx: point.x - points[i]!.x,
+          dz: point.z - points[i]!.z,
+          span,
+          squared: span * span,
+        };
+      });
   }
 
   /**
@@ -84,8 +90,7 @@ export class WalkPath {
               1,
               Math.max(
                 0,
-                ((point.x - a.x) * segment.dx +
-                  (point.z - a.z) * segment.dz) /
+                ((point.x - a.x) * segment.dx + (point.z - a.z) * segment.dz) /
                   segment.squared,
               ),
             );
@@ -102,7 +107,8 @@ export class WalkPath {
   }
 
   /**
-   * The heading of the chord across an arc length's neighbourhood, degrees about +Y (0 faces +Z).
+   * The heading of the chord across an arc length's neighbourhood, degrees
+   * about +Y (0 faces +Z).
    *
    * @param s Arc length, metres.
    * @param width Half the neighbourhood, metres.
@@ -132,7 +138,10 @@ interface ISegment {
   /** The segment's z extent, metres. */
   dz: number;
 
-  /** The segment's arc length, metres, as the difference of the cumulative lengths at its ends. */
+  /**
+   * The segment's arc length, metres, as the difference of the cumulative
+   * lengths at its ends.
+   */
   span: number;
 
   /** The arc length squared, square metres, the projection's denominator. */

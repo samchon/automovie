@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The surface probes shared by the body tangle audit and the arm planner:
- * a hull's vertices, a box's corners, and the poles and equators of a sphere
- * or capsule, in the shape's own frame before its transform.
+ * The surface probes shared by the body tangle audit and the arm planner: a
+ * hull's vertices, a box's corners, and the poles and equators of a sphere or
+ * capsule, in the shape's own frame before its transform.
  *
  * @param shape The collider shape.
  * @returns Its surface probes, local metres.

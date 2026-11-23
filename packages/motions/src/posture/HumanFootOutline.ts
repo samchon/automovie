@@ -18,10 +18,10 @@ import type {
 /**
  * A foot's outline on its sole: the corners of the outline of the foot's
  * colliders, and the toes' when the profile jointed them, seen from below at
- * rest and laid on the sole's plane, each riding its bone. A foot flat on
- * the floor stands on this outline; one turned about its heel or its ball
- * lifts the part of it away from the pivot. `HumanFoot` reads it for the
- * base of support and a placed foot's sole.
+ * rest and laid on the sole's plane, each riding its bone. A foot flat on the
+ * floor stands on this outline; one turned about its heel or its ball lifts the
+ * part of it away from the pivot. `HumanFoot` reads it for the base of support
+ * and a placed foot's sole.
  *
  * At rest each collider gives its points: a hull its vertices, a box its
  * corners, a sphere or a capsule the points of its horizontal circles every
@@ -45,11 +45,11 @@ export namespace HumanFootOutline {
       | Record<"left" | "right", IAutoMovieHumanoidSurfaces.IFrame[]>
       | undefined = OUTLINES.get(body);
     if (found === undefined) {
-      const tools: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> = AutoMovieHumanoidSurfaceRays.tools(
-        body.skeleton,
-        body.profile,
-      );
-      const read: (s: "left" | "right") => IAutoMovieHumanoidSurfaces.IFrame[] = (
+      const tools: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
+        AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
+      const read: (
+        s: "left" | "right",
+      ) => IAutoMovieHumanoidSurfaces.IFrame[] = (
         s: "left" | "right",
       ): IAutoMovieHumanoidSurfaces.IFrame[] => {
         const Side: "Left" | "Right" = s === "left" ? "Left" : "Right";
@@ -61,9 +61,10 @@ export namespace HumanFootOutline {
         ).y;
         const out: IAutoMovieHumanoidSurfaces.IFrame[] = [];
         for (const bone of [`${s}Foot`, `${s}Toes`] as const) {
-          const segment: IAutoMoviePhysicalSegment | undefined = body.profile.segments.find(
-            (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone,
-          );
+          const segment: IAutoMoviePhysicalSegment | undefined =
+            body.profile.segments.find(
+              (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone,
+            );
           if (segment === undefined) continue;
           const points: IAutoMovieVector3[] = segment.shapes.flatMap(
             (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] =>
@@ -99,7 +100,10 @@ const OUTLINES: WeakMap<
   Record<"left" | "right", IAutoMovieHumanoidSurfaces.IFrame[]>
 > = new WeakMap();
 
-/** The horizontal directions a round collider's outline is read along, every 22.5 degrees. */
+/**
+ * The horizontal directions a round collider's outline is read along, every
+ * 22.5 degrees.
+ */
 const ROUND: readonly IAutoMovieVector3[] = Array.from(
   { length: 16 },
   (_: unknown, k: number): IAutoMovieVector3 => ({
@@ -111,8 +115,8 @@ const ROUND: readonly IAutoMovieVector3[] = Array.from(
 
 /**
  * Points on a collider placed by its segment's neutral pose, world metres: a
- * hull's vertices, a box's corners, and the horizontal circles of a sphere or
- * a capsule's two end spheres.
+ * hull's vertices, a box's corners, and the horizontal circles of a sphere or a
+ * capsule's two end spheres.
  */
 function shapePoints(
   pose: IAutoMovieRigidTransform,
@@ -126,9 +130,14 @@ function shapePoints(
     pose.position,
     Quaternion.rotateVector(pose.rotation, shape.transform.position),
   );
-  const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+  const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+    local: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
     Vector3.add(centre, Quaternion.rotateVector(rotation, local));
-  const round: (middle: IAutoMovieVector3, radius: number) => IAutoMovieVector3[] = (
+  const round: (
+    middle: IAutoMovieVector3,
+    radius: number,
+  ) => IAutoMovieVector3[] = (
     middle: IAutoMovieVector3,
     radius: number,
   ): IAutoMovieVector3[] =>

@@ -7,16 +7,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { typeText } from "../everyday/typeText";
 import { manipulate } from "./manipulate";
 import { manipulateReach } from "./manipulateReach";
-import { typeText } from "../everyday/typeText";
 
 /**
  * The digits of a keyed contact sequence (`manipulate`): each contact's own
  * digit, or the Viterbi path over the five digits of its hand that minimizes
- * the travel of the limiting part over each stroke, accounting for the lift and descent of a reused digit. The wrist stands where the plan places it for
- * that digit's press (`manipulateReach`, in the rotation the hand keeps for
- * the act), so a difference of two such places is the wrist's travel.
+ * the travel of the limiting part over each stroke, accounting for the lift and
+ * descent of a reused digit. The wrist stands where the plan places it for that
+ * digit's press (`manipulateReach`, in the rotation the hand keeps for the
+ * act), so a difference of two such places is the wrist's travel.
  *
  * @param body The body.
  * @param contacts The contacts with their sites.
@@ -47,7 +48,11 @@ export function manipulateFingering(
       out[mine[0]!] = contacts[mine[0]!]!.digit ?? manipulate.FINGERS[0];
       continue;
     }
-    if (mine.every((index: number): boolean => contacts[index]!.digit !== undefined)) {
+    if (
+      mine.every(
+        (index: number): boolean => contacts[index]!.digit !== undefined,
+      )
+    ) {
       for (const index of mine) out[index] = contacts[index]!.digit!;
       continue;
     }
@@ -63,17 +68,16 @@ export function manipulateFingering(
       i: number,
       f: Finger,
     ): IAutoMovieVector3 =>
-      reach(
-        f,
-        contacts[i]!.point,
-        contacts[i]!.normal,
-        contacts[i]!.depth,
+      reach(f, contacts[i]!.point, contacts[i]!.normal, contacts[i]!.depth);
+    const wrists: (index: number) => Map<Finger, IAutoMovieVector3> = (
+      index: number,
+    ): Map<Finger, IAutoMovieVector3> =>
+      new Map(
+        choices(index).map((finger: Finger): [Finger, IAutoMovieVector3] => [
+          finger,
+          wristAt(index, finger),
+        ]),
       );
-    const wrists: (index: number) => Map<Finger, IAutoMovieVector3> = (index: number): Map<Finger, IAutoMovieVector3> =>
-      new Map(choices(index).map(
-        (finger: Finger): [Finger, IAutoMovieVector3] =>
-          [finger, wristAt(index, finger)],
-      ));
     let previous: Map<Finger, IAutoMovieVector3> = wrists(mine[0]!);
     let cost: Map<Finger, number> = new Map(
       choices(mine[0]!).map((f: Finger): [Finger, number] => [f, 0]),
@@ -81,11 +85,16 @@ export function manipulateFingering(
     const back: Map<Finger, Finger>[] = [];
     for (let n: number = 1; n < mine.length; n++) {
       const current: Map<Finger, IAutoMovieVector3> = wrists(mine[n]!);
-      const released: IAutoMovieMotionHumanManipulate.IContactAt = contacts[mine[n - 1]!]!;
-      const pressed: IAutoMovieMotionHumanManipulate.IContactAt = contacts[mine[n]!]!;
+      const released: IAutoMovieMotionHumanManipulate.IContactAt =
+        contacts[mine[n - 1]!]!;
+      const pressed: IAutoMovieMotionHumanManipulate.IContactAt =
+        contacts[mine[n]!]!;
       const lift: number = released.depth + typeText.HOVER;
       const drop: number = pressed.depth + typeText.HOVER;
-      const sequential: number = Math.hypot(Vector3.distance(pressed.point, released.point), lift + drop);
+      const sequential: number = Math.hypot(
+        Vector3.distance(pressed.point, released.point),
+        lift + drop,
+      );
       const concurrent: number = Math.max(lift, drop);
       const next: Map<Finger, number> = new Map();
       const from: Map<Finger, Finger> = new Map();
@@ -93,7 +102,10 @@ export function manipulateFingering(
         let best: number = Infinity;
         let arg: Finger = f;
         for (const [g, c] of cost) {
-          const travel: number = Vector3.distance(current.get(f)!, previous.get(g)!);
+          const travel: number = Vector3.distance(
+            current.get(f)!,
+            previous.get(g)!,
+          );
           // Distinct digits can release and descend concurrently. A reused
           // tip must travel through its hover plane between both key bottoms.
           const tip: number = f === g ? sequential : concurrent;

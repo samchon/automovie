@@ -14,10 +14,10 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { StrikingHeld } from "./StrikingHeld";
 
 /**
- * The other hand's goal on a tool held in both hands, shared by a stroke,
- * its decisive-pose judgement and the demands an earlier grasp must hold.
- * A support hand being replanned is judged at its new goal, not left as an
- * obstacle at the previous action's handle.
+ * The other hand's goal on a tool held in both hands, shared by a stroke, its
+ * decisive-pose judgement and the demands an earlier grasp must hold. A support
+ * hand being replanned is judged at its new goal, not left as an obstacle at
+ * the previous action's handle.
  */
 export namespace StrikingSupport {
   /**

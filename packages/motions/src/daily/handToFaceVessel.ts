@@ -15,30 +15,28 @@ import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHuma
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * The side of a held vessel's rim a drink is taken from, found by the
- * drink's own admission (`AutoMovieMotionHumanTouchDrink.drinking`): the
- * first side, in the order the held prop lists them (`HumanHeld.sides`, the
- * act's own side first, then alternately either way), at which a lean and a
- * facing let the arm hold the vessel as a person drinks.
+ * The side of a held vessel's rim a drink is taken from, found by the drink's
+ * own admission (`AutoMovieMotionHumanTouchDrink.drinking`): the first side, in
+ * the order the held prop lists them (`HumanHeld.sides`, the act's own side
+ * first, then alternately either way), at which a lean and a facing let the arm
+ * hold the vessel as a person drinks.
  *
  * The side and the facing both turn the hand about the vessel's axis: the
  * facing turns the vessel about the mouth, the side turns which point of the
  * rim meets the mouth, so the hand's turn at the lips is the facing less the
- * side. Choosing the side first by how upright the arm holds the vessel
- * without leaning it (`HumanHeld.steadiest`), and only then searching the
- * lean and the facing, confined the hand's turn to that one side's span of
- * facings: a drink whose forearm needed a turn beyond it was refused at the
- * span's edge (facing 90 degrees off head on, the forearm at its twist's
- * end), though another side holds it. With the side free, the sides carry
- * the hand's turn round the whole rim and the facings need cover only the
- * turn between two neighbouring sides, so each side tries the facings
- * within that turn of head on: the rim meets the lips from before the face,
- * as a drinker brings it, rather than from beside the mouth.
+ * side. Choosing the side first by how upright the arm holds the vessel without
+ * leaning it (`HumanHeld.steadiest`), and only then searching the lean and the
+ * facing, confined the hand's turn to that one side's span of facings: a drink
+ * whose forearm needed a turn beyond it was refused at the span's edge (facing
+ * 90 degrees off head on, the forearm at its twist's end), though another side
+ * holds it. With the side free, the sides carry the hand's turn round the whole
+ * rim and the facings need cover only the turn between two neighbouring sides,
+ * so each side tries the facings within that turn of head on: the rim meets the
+ * lips from before the face, as a drinker brings it, rather than from beside
+ * the mouth.
  */
 export namespace handToFaceVessel {
-  /**
-   * The side found and its drink.
-   */
+  /** The side found and its drink. */
   export interface IVessel {
     /** The effector of the admitted side. */
     effector: IAutoMovieMotionHumanTouchEffector.IEffector;
@@ -53,12 +51,14 @@ export namespace handToFaceVessel {
    * @param body The body.
    * @param posture The posture the arm is solved on at the region.
    * @param side The hand.
-   * @param sides The effectors of the rim's sides, in the order tried (`HumanHeld.sides`).
+   * @param sides The effectors of the rim's sides, in the order tried
+   *   (`HumanHeld.sides`).
    * @param place The region.
    * @param hint The elbow's hint each candidate starts from, world.
    * @param after Where the vessel is held while the drinker drinks.
    * @returns The side and its drink.
-   * @throws {HumanRefusal} The drink's refusal when no side admits one, naming the nearest arm of every side tried; any other refusal at once.
+   * @throws {HumanRefusal} The drink's refusal when no side admits one, naming
+   *   the nearest arm of every side tried; any other refusal at once.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -75,7 +75,9 @@ export namespace handToFaceVessel {
     // the facings' step; head on stays the first tried.
     const span: number =
       AutoMovieMotionHumanTouchUpright.STEP *
-      Math.ceil(180 / sides.length / AutoMovieMotionHumanTouchUpright.STEP - 1e-9);
+      Math.ceil(
+        180 / sides.length / AutoMovieMotionHumanTouchUpright.STEP - 1e-9,
+      );
     const pool: AutoMovieMotionHumanDrinkingPool.IPool =
       AutoMovieMotionHumanDrinkingPool.of(
         body,
@@ -106,6 +108,8 @@ export namespace handToFaceVessel {
         refusal = error;
       }
     }
-    throw refusal ?? new Error("A held vessel has at least one side of its rim");
+    throw (
+      refusal ?? new Error("A held vessel has at least one side of its rim")
+    );
   }
 }

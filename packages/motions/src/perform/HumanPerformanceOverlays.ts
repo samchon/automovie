@@ -16,15 +16,13 @@ import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 
 /**
  * A planned action placed over its carrier: the channels it claims checked
- * against what the carrier yields and what the other overlays of the same
- * span hold, and the overlay added to its performer. Once the schedule is
- * placed, carriers with instance-specific yields protect their channels for their
+ * against what the carrier yields and what the other overlays of the same span
+ * hold, and the overlay added to its performer. Once the schedule is placed,
+ * carriers with instance-specific yields protect their channels for their
  * entire active span.
  */
 export namespace HumanPerformanceOverlays {
-  /**
-   * A planned action as `HumanPerformancePlace.place` hands it over.
-   */
+  /** A planned action as `HumanPerformancePlace.place` hands it over. */
   export interface IPlanned {
     /** The action's name. */
     name: AutoMovieMotionHumanActionKey;
@@ -54,8 +52,10 @@ export namespace HumanPerformanceOverlays {
    * @param intent The intent placed.
    * @param entries The schedule entries placed so far.
    * @param planned The planned action.
-   * @returns The overlay's timing for the schedule: its duration, its contact instant when it has one, and its events.
-   * @throws {HumanRefusal} When the carrier keeps a claimed channel or a held prop prevents the overlay from using its hand.
+   * @returns The overlay's timing for the schedule: its duration, its contact
+   *   instant when it has one, and its events.
+   * @throws {HumanRefusal} When the carrier keeps a claimed channel or a held
+   *   prop prevents the overlay from using its hand.
    */
   export function place(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -112,8 +112,10 @@ export namespace HumanPerformanceOverlays {
    * against earlier placements over the actual shared interval.
    *
    * @param person The performer whose last overlay was just scheduled.
-   * @param entry The scheduled overlay, including its resolved end in film seconds.
-   * @throws {HumanRefusal} When both overlays use a channel during a shared span.
+   * @param entry The scheduled overlay, including its resolved end in film
+   *   seconds.
+   * @throws {HumanRefusal} When both overlays use a channel during a shared
+   *   span.
    */
   export function finish(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -158,8 +160,8 @@ export namespace HumanPerformanceOverlays {
    * overlay.
    *
    * @param person The performer with every action and overlay placed.
-   * @throws {HumanRefusal} When an overlay still running claims a channel
-   * the new carrier needs.
+   * @throws {HumanRefusal} When an overlay still running claims a channel the
+   *   new carrier needs.
    */
   export function validate(person: IAutoMovieMotionHumanSegment.IPerson): void {
     const overlays: IAutoMovieMotionHumanSegment.IOverlay[] = [

@@ -8,8 +8,8 @@ import type { humanPolygonMan } from "./humanPolygonMan";
 /**
  * Prints what every place name, height, lateral, distance, elbow preset and
  * range level is on each body of the capture sweep, then the solved elbow
- * beside the `hang` preset on each of them, so an author reads a spec's
- * metres and degrees before running a capture.
+ * beside the `hang` preset on each of them, so an author reads a spec's metres
+ * and degrees before running a capture.
  *
  * Run it with `pnpm --filter @automovie/motions node:resolve`.
  *

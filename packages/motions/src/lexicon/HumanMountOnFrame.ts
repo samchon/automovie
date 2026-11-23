@@ -15,24 +15,25 @@ import { HumanMount } from "./HumanMount";
 
 /**
  * The pelvis's and the trunk's course in getting onto a high seat
- * (`HumanMountOn`): the seat socket travels up from 10 % of the climb,
- * passes `HumanMount.HOP` above the seat and sets down on it at 80 %, the
- * contact; it crosses to a seat sat on with the legs ahead over the first
- * 70 %, and to one sat astride from 30 % to the contact. The trunk leans
- * forward `HumanMount.LEAN` degrees at 40 % and settles to the seated
- * pitch from 60 %, the seated joints coming in with it, and the hanging
- * arms open out while the legs climb.
+ * (`HumanMountOn`): the seat socket travels up from 10 % of the climb, passes
+ * `HumanMount.HOP` above the seat and sets down on it at 80 %, the contact; it
+ * crosses to a seat sat on with the legs ahead over the first 70 %, and to one
+ * sat astride from 30 % to the contact. The trunk leans forward
+ * `HumanMount.LEAN` degrees at 40 % and settles to the seated pitch from 60 %,
+ * the seated joints coming in with it, and the hanging arms open out while the
+ * legs climb.
  */
 export namespace HumanMountOnFrame {
-  /** Where the pelvis is at an instant of getting on: the root, the heading, the pelvis pitch and the set joints. */
+  /**
+   * Where the pelvis is at an instant of getting on: the root, the heading, the
+   * pelvis pitch and the set joints.
+   */
   export type Frame = Pick<
     IAutoMovieMotionHumanPosture,
     "root" | "yaw" | "pitch" | "roll" | "joints"
   >;
 
-  /**
-   * The climb the course is read over.
-   */
+  /** The climb the course is read over. */
   export interface IClimb {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -62,9 +63,7 @@ export namespace HumanMountOnFrame {
     final: IFinal;
   }
 
-  /**
-   * The seated end a climb settles into.
-   */
+  /** The seated end a climb settles into. */
   export interface IFinal {
     /** The seated trunk pitch, degrees. */
     pitch: number;
@@ -77,8 +76,8 @@ export namespace HumanMountOnFrame {
 
   /**
    * The seconds the pelvis crosses to the seat over: late astride, after the
-   * far leg has left the floor, to the contact at 80 % of the climb; from
-   * the start onto a seat sat with the legs ahead.
+   * far leg has left the floor, to the contact at 80 % of the climb; from the
+   * start onto a seat sat with the legs ahead.
    *
    * @param climb The climb's seconds.
    * @param astride Whether the seat is sat astride.

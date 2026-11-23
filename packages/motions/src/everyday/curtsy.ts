@@ -32,22 +32,24 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 const FIT: number = 0.006;
 
 /**
- * A small ceremonial curtsy. The Royal Household describes a small curtsy
- * as a traditional optional greeting (https://www.royal.uk/encyclopedia/greeting-the-king-and-queen).
- * Canadian Heritage describes placing the right foot behind the left heel
- * and bending the knees slightly (https://www.canada.ca/en/canadian-heritage/services/meeting-royal-family.html).
+ * A small ceremonial curtsy. The Royal Household describes a small curtsy as a
+ * traditional optional greeting
+ * (https://www.royal.uk/encyclopedia/greeting-the-king-and-queen). Canadian
+ * Heritage describes placing the right foot behind the left heel and bending
+ * the knees slightly
+ * (https://www.canada.ca/en/canadian-heritage/services/meeting-royal-family.html).
  * Melinda Coy's 2019 Practical Etiquette guide for Dickens Fair performers
  * teaches a rear step and a flat-footed dip
  * (https://static1.squarespace.com/static/5bae69697fdcb819deb44456/t/68e2f5d69da9b523c4d22f95/1759704534424/Practical%2BEtiquette.pdf).
- * The performer transfers onto one leg, sets the other foot across and
- * behind it, dips with both feet grounded, rises, then uncrosses and
- * restores the entry stance. The depth, phase durations and step margins
- * are provisional staging choices.
+ * The performer transfers onto one leg, sets the other foot across and behind
+ * it, dips with both feet grounded, rises, then uncrosses and restores the
+ * entry stance. The depth, phase durations and step margins are provisional
+ * staging choices.
  *
- * This floor variant uses flat feet in the dip. The heel and toes stay on
- * the floor in each plant. The law refuses a body or stance whose solved
- * feet fail the plant, clearance or reach checks at the key poses and the
- * intervening witnesses. The arms, hands and head are available for layers.
+ * This floor variant uses flat feet in the dip. The heel and toes stay on the
+ * floor in each plant. The law refuses a body or stance whose solved feet fail
+ * the plant, clearance or reach checks at the key poses and the intervening
+ * witnesses. The arms, hands and head are available for layers.
  *
  * Register with HumanChain.extend({ curtsy }) and HumanPerformance's laws.
  * Enter from standing and cut into another action only after recovery.
@@ -412,7 +414,10 @@ function solePoints(
   ];
 }
 
-/** Check corresponding footprint points for rotation and translation errors as well as clearance. */
+/**
+ * Check corresponding footprint points for rotation and translation errors as
+ * well as clearance.
+ */
 function fitsFoot(
   points: readonly IAutoMovieVector3[],
   entry: readonly IAutoMovieVector3[],

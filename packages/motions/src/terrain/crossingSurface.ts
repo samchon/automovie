@@ -14,15 +14,13 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
- * The extent of a crossing's named top surface in the crossing's own
- * frame: `x` across the path, `y` up and `z` along it from the entry, in
- * metres. The surface must belong to a fixed prop and lie level and square
- * to the path, so its four edges are the frame's lines.
+ * The extent of a crossing's named top surface in the crossing's own frame: `x`
+ * across the path, `y` up and `z` along it from the entry, in metres. The
+ * surface must belong to a fixed prop and lie level and square to the path, so
+ * its four edges are the frame's lines.
  */
 export namespace crossingSurface {
-  /**
-   * A level top's edges and height in the crossing frame, metres.
-   */
+  /** A level top's edges and height in the crossing frame, metres. */
   export interface IExtent {
     /** The edge at the lower x. */
     left: number;
@@ -47,7 +45,8 @@ export namespace crossingSurface {
    * @param frame The crossing frame.
    * @param ref The surface.
    * @returns Its extent.
-   * @throws {HumanRefusal} If the prop moves or the surface is missing, undimensioned, sloped or skewed.
+   * @throws {HumanRefusal} If the prop moves or the surface is missing,
+   *   undimensioned, sloped or skewed.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,

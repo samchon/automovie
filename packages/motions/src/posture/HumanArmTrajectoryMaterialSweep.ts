@@ -15,10 +15,10 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
  * Find an interior hand-material violation on a free transport beside the
- * body's authored support. Both endpoints must admit the same material pair.
- * A chord in the moving obstacle frame selects a possible encounter second.
- * The reconstructed clinical curve and the body's actual posed digit at that
- * second must also violate the material allowance before the pair gets a row.
+ * body's authored support. Both endpoints must admit the same material pair. A
+ * chord in the moving obstacle frame selects a possible encounter second. The
+ * reconstructed clinical curve and the body's actual posed digit at that second
+ * must also violate the material allowance before the pair gets a row.
  *
  * @param c The original course's setup, samples and authored body reader.
  * @param a The moving arm in the canonical problem.

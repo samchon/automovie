@@ -28,23 +28,25 @@ import { checkSupportTransferDock } from "./checkSupportTransferDock";
 
 /**
  * Plan one staged, level boarding transfer. LA Metro asks passengers to wait
- * for a complete stop before boarding (https://www.metro.net/riding/how-to-ride-metro-rail/).
- * Stationary docking is the default. The co-moving mode stages a scenic
- * gangway whose platforms share upright rigid motion through trailing touchdown.
- * Both soles and the root ride the deck after that touchdown. The dock check
- * samples at intervals of at most 1/120 s, with 1 mm and 0.1 degree tolerances
- * on stationary prop frames or, in co-moving mode, relative deck alignment
- * at its centre and corners.
+ * for a complete stop before boarding
+ * (https://www.metro.net/riding/how-to-ride-metro-rail/). Stationary docking is
+ * the default. The co-moving mode stages a scenic gangway whose platforms share
+ * upright rigid motion through trailing touchdown. Both soles and the root ride
+ * the deck after that touchdown. The dock check samples at intervals of at most
+ * 1/120 s, with 1 mm and 0.1 degree tolerances on stationary prop frames or, in
+ * co-moving mode, relative deck alignment at its centre and corners.
  *
- * The lead sole lands while the trail sole bears on the platform. The deck
- * and platform must be level within 2 mm. Provisional staging limits are a
- * 0.13 m projected gap, 0.45 hip heights of ankle travel and a 65 mm lift.
- * Articulated surfaces, unsampled track excursions and obstacles between
- * the supports require a broader law.
+ * The lead sole lands while the trail sole bears on the platform. The deck and
+ * platform must be level within 2 mm. Provisional staging limits are a 0.13 m
+ * projected gap, 0.45 hip heights of ankle travel and a 65 mm lift. Articulated
+ * surfaces, unsampled track excursions and obstacles between the supports
+ * require a broader law.
  *
- * @param context A standing entry and the declared prop readers on the film clock.
+ * @param context A standing entry and the declared prop readers on the film
+ *   clock.
  * @returns One posture plan with four foot contact windows.
- * @throws {HumanRefusal} When the entry, surfaces, docking or short-step bounds do not admit a transfer.
+ * @throws {HumanRefusal} When the entry, surfaces, docking or short-step bounds
+ *   do not admit a transfer.
  */
 export function supportTransfer(
   context: Pick<

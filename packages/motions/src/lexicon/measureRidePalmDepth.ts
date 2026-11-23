@@ -14,7 +14,11 @@ import type {
 import { HumanMountRider } from "./HumanMountRider";
 
 /**
- * How deep a hand's palm skin lies below its palm socket at the station a holding hand closes on: `HumanMountRider.CENTRE` hand lengths along the fingers from the palm socket, measured along the palm's normal to the body's own skin. A ride's round articulated handle is held at this depth (`HumanRideHands`).
+ * How deep a hand's palm skin lies below its palm socket at the station a
+ * holding hand closes on: `HumanMountRider.CENTRE` hand lengths along the
+ * fingers from the palm socket, measured along the palm's normal to the body's
+ * own skin. A ride's round articulated handle is held at this depth
+ * (`HumanRideHands`).
  *
  * @param body The body.
  * @param side The hand.

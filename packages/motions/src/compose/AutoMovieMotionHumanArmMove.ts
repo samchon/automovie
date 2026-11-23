@@ -137,11 +137,11 @@ export namespace AutoMovieMotionHumanArmMove {
   }
 
   /**
-   * A point of a path from one point to another that bows out to the arm's
-   * own side: the straight path's point plus a sideways deviation that is
-   * greatest at the middle and none at both ends (EMOTE's indirect Space).
-   * The side is the performer's left for the left arm and right for the
-   * right, less its part along the path; a path that runs sideways bows up.
+   * A point of a path from one point to another that bows out to the arm's own
+   * side: the straight path's point plus a sideways deviation that is greatest
+   * at the middle and none at both ends (EMOTE's indirect Space). The side is
+   * the performer's left for the left arm and right for the right, less its
+   * part along the path; a path that runs sideways bows up.
    */
   const bowed = (
     posture: Pick<IAutoMovieMotionHumanPosture, "yaw">,
@@ -237,8 +237,8 @@ export namespace AutoMovieMotionHumanArmMove {
   }
 
   /**
-   * A hand taken from its target back to an origin between two instants, on
-   * the clock's minimum-jerk progress.
+   * A hand taken from its target back to an origin between two instants, on the
+   * clock's minimum-jerk progress.
    *
    * @param body The body.
    * @param clock The action's clock.
@@ -269,7 +269,10 @@ export namespace AutoMovieMotionHumanArmMove {
   }
 }
 
-/** The window's minimum-jerk progress, its two instants resolved once (`AutoMovieMotionClock.prepare`). */
+/**
+ * The window's minimum-jerk progress, its two instants resolved once
+ * (`AutoMovieMotionClock.prepare`).
+ */
 function progressOn(
   clock: IAutoMovieMotionClock,
   window: readonly [string, string],

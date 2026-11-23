@@ -2,8 +2,8 @@ import { minimumJerk } from "@automovie/engine";
 import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 /**
- * The fraction of body weight the right foot bears along the stair clock.
- * A single support bears all the weight. During double support the performer
+ * The fraction of body weight the right foot bears along the stair clock. A
+ * single support bears all the weight. During double support the performer
  * transfers it between the two feet, entering and leaving in a balanced stand.
  *
  * @param sides The foot lifted on each step in event order.
@@ -17,8 +17,10 @@ export function climbStairsWeight(
   const knots: IKnot[] = [{ seconds: 0, right: 0.5 }];
   sides.forEach((side: "left" | "right", index: number): void => {
     const right: number = side === "left" ? 1 : 0;
-    knots.push({ seconds: clock.at(`toeOff${index + 1}`), right },
-      { seconds: clock.at(`treadContact${index + 1}`), right });
+    knots.push(
+      { seconds: clock.at(`toeOff${index + 1}`), right },
+      { seconds: clock.at(`treadContact${index + 1}`), right },
+    );
   });
   knots.push({ seconds: clock.duration, right: 0.5 });
   return (seconds: number): number => {
@@ -32,12 +34,20 @@ export function climbStairsWeight(
     const from: IKnot = knots[low]!;
     const to: IKnot = knots[high]!;
     if (from.right === to.right) return from.right;
-    return from.right + (to.right - from.right) *
-      minimumJerk.share((seconds - from.seconds) / (to.seconds - from.seconds));
+    return (
+      from.right +
+      (to.right - from.right) *
+        minimumJerk.share(
+          (seconds - from.seconds) / (to.seconds - from.seconds),
+        )
+    );
   };
 }
 
-/** One support boundary in local seconds with a dimensionless right-foot weight share. */
+/**
+ * One support boundary in local seconds with a dimensionless right-foot weight
+ * share.
+ */
 interface IKnot {
   seconds: number;
   right: number;

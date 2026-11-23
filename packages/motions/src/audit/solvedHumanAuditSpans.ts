@@ -11,22 +11,21 @@ import type {
 
 /**
  * A person's placed actions as the audit reads them where windows of the
- * performance were solved (`HumanPerformance.simulate`): inside a window,
- * the parts the solver owns are judged by the solver's contacts, not by the
- * plants their action declared.
+ * performance were solved (`HumanPerformance.simulate`): inside a window, the
+ * parts the solver owns are judged by the solver's contacts, not by the plants
+ * their action declared.
  *
  * A declared plant says where a kinematic law holds a part; once the solver
- * owns the part, the law no longer moves it, so the plant describes nothing
- * the film shows. Each action overlapping the span where the solver owns
- * some of the person's segments is read in three pieces: before and after
- * the span as declared, and inside it with the owned parts' declared
- * windows removed and the solver's contact episodes of the person
- * (`IAutoMovieContactReceipt`) with the floor and the props added as
- * bearing windows (`bear`). A bearing window holds a foot at its
- * loaded range and lets the floor be read under it, but asserts no plant:
- * the solver's Coulomb friction decides whether a contact slides. Where the
- * solver owns the root, the inside piece takes no balance judgement
- * (`physical: false`): the solver's dynamics are the body's balance.
+ * owns the part, the law no longer moves it, so the plant describes nothing the
+ * film shows. Each action overlapping the span where the solver owns some of
+ * the person's segments is read in three pieces: before and after the span as
+ * declared, and inside it with the owned parts' declared windows removed and
+ * the solver's contact episodes of the person (`IAutoMovieContactReceipt`) with
+ * the floor and the props added as bearing windows (`bear`). A bearing window
+ * holds a foot at its loaded range and lets the floor be read under it, but
+ * asserts no plant: the solver's Coulomb friction decides whether a contact
+ * slides. Where the solver owns the root, the inside piece takes no balance
+ * judgement (`physical: false`): the solver's dynamics are the body's balance.
  * Every check that reads only the displayed bones (floor, tangle, range,
  * continuity, partner) reads the pieces as before.
  *
@@ -127,7 +126,8 @@ export namespace solvedHumanAuditSpans {
    *
    * @param record The solved window.
    * @param subject The person.
-   * @returns The owned span and segments; null when the window owns none of the person.
+   * @returns The owned span and segments; null when the window owns none of the
+   *   person.
    */
   export function owned(
     record: IAutoMovieMotionHumanSimulation,
@@ -196,8 +196,8 @@ export namespace solvedHumanAuditSpans {
 
   /**
    * The parts of a film span where no solved window owns any of the named
-   * segments of a person: the span less each window's owned span that
-   * takes one of them, in order.
+   * segments of a person: the span less each window's owned span that takes one
+   * of them, in order.
    *
    * @param simulations The performance's solved windows.
    * @param subject The person.
@@ -233,7 +233,10 @@ export namespace solvedHumanAuditSpans {
   /** A first and last film second. */
   export type Interval = readonly [number, number];
 
-  /** The canonical foot segments, whose unloaded range a solved window supersedes. */
+  /**
+   * The canonical foot segments, whose unloaded range a solved window
+   * supersedes.
+   */
   export const FEET: readonly string[] = [
     "leftFoot",
     "rightFoot",
@@ -257,7 +260,10 @@ interface IContact {
   to: number;
 }
 
-/** The person's solver contact episodes with the floor and the props: what bears the body; a grip on another person is a grip, not a bearing. */
+/**
+ * The person's solver contact episodes with the floor and the props: what bears
+ * the body; a grip on another person is a grip, not a bearing.
+ */
 function contacts(
   record: IAutoMovieMotionHumanSimulation,
   subject: string,
@@ -288,7 +294,10 @@ function contacts(
   return out;
 }
 
-/** The segments a contact window's part names: its region's bone, else the bones the part spans. */
+/**
+ * The segments a contact window's part names: its region's bone, else the bones
+ * the part spans.
+ */
 function bones(
   window: IAutoMovieMotionHumanContactWindow,
   body: IAutoMovieMotionHumanBody,
@@ -308,7 +317,10 @@ function bones(
     );
 }
 
-/** The id prefix of a prop's kinematic body in a solved window (`placeHumanSimulationColliders`). */
+/**
+ * The id prefix of a prop's kinematic body in a solved window
+ * (`placeHumanSimulationColliders`).
+ */
 const PROP: string = "prop:";
 
 /** The contact part each canonical segment bears with. */

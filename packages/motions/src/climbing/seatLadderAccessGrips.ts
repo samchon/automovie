@@ -20,19 +20,21 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import type { ILadderAccessGrip } from "./ILadderAccessGrip";
 import { climbLadderHands } from "./climbLadderHands";
 
-/** The longest easing onto or off a grip outside its window, seconds (provisional). */
+/**
+ * The longest easing onto or off a grip outside its window, seconds
+ * (provisional).
+ */
 const SEAT: number = 0.12;
 
 /**
- * Seat each ladder grip of the access route on its staged point throughout
- * its window, including while another limb moves, and ease the hand onto
- * and off it over up to `SEAT` seconds outside the window, never past half
- * the gap to that hand's neighbouring grip. A rung grip uses the ladder
- * climb's own hand placement (`climbLadderHands`); a rail grip wraps the
- * upright bar with the hand's grip frame, the elbow bent as hanging. A grip
- * held behind the body, as from the landing, keeps the support law's own
- * held-hand fit, which already meets its target; this is decided once per
- * hold, at its middle.
+ * Seat each ladder grip of the access route on its staged point throughout its
+ * window, including while another limb moves, and ease the hand onto and off it
+ * over up to `SEAT` seconds outside the window, never past half the gap to that
+ * hand's neighbouring grip. A rung grip uses the ladder climb's own hand
+ * placement (`climbLadderHands`); a rail grip wraps the upright bar with the
+ * hand's grip frame, the elbow bent as hanging. A grip held behind the body, as
+ * from the landing, keeps the support law's own held-hand fit, which already
+ * meets its target; this is decided once per hold, at its middle.
  *
  * @param body The canonical motion body.
  * @param normal World unit direction the gripping palm faces.

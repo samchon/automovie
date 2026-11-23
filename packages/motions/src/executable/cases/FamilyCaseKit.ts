@@ -20,12 +20,12 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
- * The shared steps of the step 2 to 5 family capture cases: a polygon man
- * of the population, one performance of a chain from quiet standing at the
- * origin heading +Z, the drawn figure, the film second of a named event, the
- * drawn instants, and the measures their verdicts read off the displayed
- * bones (a joint's clinical angle, the lowest collider of some bones, the
- * worst margin of stability over a span, a band check).
+ * The shared steps of the step 2 to 5 family capture cases: a polygon man of
+ * the population, one performance of a chain from quiet standing at the origin
+ * heading +Z, the drawn figure, the film second of a named event, the drawn
+ * instants, and the measures their verdicts read off the displayed bones (a
+ * joint's clinical angle, the lowest collider of some bones, the worst margin
+ * of stability over a span, a band check).
  */
 export namespace FamilyCaseKit {
   /** A population body prepared for a case. */
@@ -212,8 +212,8 @@ export namespace FamilyCaseKit {
   }
 
   /**
-   * The lowest point of the colliders of the bones a test selects, at a
-   * film second.
+   * The lowest point of the colliders of the bones a test selects, at a film
+   * second.
    *
    * @param performance The performance.
    * @param body The body.
@@ -300,8 +300,8 @@ export namespace FamilyCaseKit {
   }
 
   /**
-   * The greatest distance of a bone's joint from a point over a span, on the
-   * 24 Hz grid.
+   * The greatest distance of a bone's joint from a point over a span, on the 24
+   * Hz grid.
    *
    * @param performance The performance.
    * @param subject The subject.

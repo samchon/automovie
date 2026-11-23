@@ -17,21 +17,21 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
  * The course of the hips along a heading that keeps a body's extrapolated
  * centre of mass on a target while its feet move.
  *
- * A step moves the base of support, and the body stays balanced through it
- * when its extrapolated centre of mass, the centre plus its velocity over the
- * inverted pendulum's eigenfrequency `w = sqrt(g / l)` (Hof, Gazendam and
- * Sinke 2005, J Biomech 38:1; `l` 1.34 hip heights), stays inside the base.
- * Asking that point to be on a target `T(t)` is the first-order equation
- * `c' = w (T - c)` for the centre `c`: the centre follows the target the way
- * a low-pass filter follows its input, with the time constant `1 / w`, about
- * a third of a second. The centre therefore trails a foot that steps away
- * and arrives after it lands, which is what a stepping body does.
+ * A step moves the base of support, and the body stays balanced through it when
+ * its extrapolated centre of mass, the centre plus its velocity over the
+ * inverted pendulum's eigenfrequency `w = sqrt(g / l)` (Hof, Gazendam and Sinke
+ * 2005, J Biomech 38:1; `l` 1.34 hip heights), stays inside the base. Asking
+ * that point to be on a target `T(t)` is the first-order equation `c' = w (T -
+ * c)` for the centre `c`: the centre follows the target the way a low-pass
+ * filter follows its input, with the time constant `1 / w`, about a third of a
+ * second. The centre therefore trails a foot that steps away and arrives after
+ * it lands, which is what a stepping body does.
  *
  * `solve` integrates that equation on a time grid, exactly for a target held
  * over each step, and at every knot finds the hips' place at which the solved
  * posture's whole-body centre of mass (the engine's segmental model through
- * {@link HumanBalance.prepareCentre}) stands on the filtered centre. The law reads
- * the course back by a cubic through the knots.
+ * {@link HumanBalance.prepareCentre}) stands on the filtered centre. The law
+ * reads the course back by a cubic through the knots.
  */
 export namespace AutoMovieMotionHumanCourse {
   /** Seconds between two knots of the course, half a film frame. */
@@ -44,10 +44,17 @@ export namespace AutoMovieMotionHumanCourse {
    * Solve a course.
    *
    * @param props The posture builder, the target and the span.
-   * @param through Last observable second on the same clock; defaults to the original span end. The solve retains all predecessor knots and both neighbours required by the last cubic. Reads after this instant return its value.
-   * @returns The hips' place along the heading at a second, clamped to the span; a span of no length holds its one solved place.
+   * @param through Last observable second on the same clock; defaults to the
+   *   original span end. The solve retains all predecessor knots and both
+   *   neighbours required by the last cubic. Reads after this instant return
+   *   its value.
+   * @returns The hips' place along the heading at a second, clamped to the
+   *   span; a span of no length holds its one solved place.
    */
-  export function solve(props: IAutoMovieMotionHumanCourse.IProps, through: number = props.to): (seconds: number) => number {
+  export function solve(
+    props: IAutoMovieMotionHumanCourse.IProps,
+    through: number = props.to,
+  ): (seconds: number) => number {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, props.yaw),
       { x: 0, y: 0, z: 1 },
@@ -87,9 +94,13 @@ export namespace AutoMovieMotionHumanCourse {
         let c: number = centre(props.from, props.start);
         // Preserve the full grid spacing and every predecessor in the
         // recurrence. The cubic on interval i reads through knot i+2.
-        const end: number = dt === 0 ? count : Math.min(count,
-          Math.max(0, Math.floor((through - from) / dt)) + 2,
-        );
+        const end: number =
+          dt === 0
+            ? count
+            : Math.min(
+                count,
+                Math.max(0, Math.floor((through - from) / dt)) + 2,
+              );
         for (let i: number = 1; i <= end; i++) {
           const t: number = props.from + i * dt;
           const target: number = props.target(t - dt / 2);
@@ -103,15 +114,17 @@ export namespace AutoMovieMotionHumanCourse {
         return { knots, count, dt };
       })();
     const at: (seconds: number) => number = interpolate(knots, count, dt, from);
-    return through >= props.to ? at : (seconds: number): number => at(Math.min(seconds, through));
+    return through >= props.to
+      ? at
+      : (seconds: number): number => at(Math.min(seconds, through));
   }
 
   /**
-   * The course's cubic through its solved knots, bound outside the
-   * construction scope so no posture, FK or ROM state is reachable from it:
-   * the knot interval clamped to the span, Catmull-Rom slopes from the
-   * neighbouring knots (the end knots repeated) and the cubic Hermite basis.
-   * A span of no length has one place, held at every second.
+   * The course's cubic through its solved knots, bound outside the construction
+   * scope so no posture, FK or ROM state is reachable from it: the knot
+   * interval clamped to the span, Catmull-Rom slopes from the neighbouring
+   * knots (the end knots repeated) and the cubic Hermite basis. A span of no
+   * length has one place, held at every second.
    *
    * @param knots The hips' place at each knot, metres along the heading.
    * @param count The intervals between the knots.

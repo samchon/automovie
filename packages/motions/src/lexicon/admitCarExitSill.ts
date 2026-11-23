@@ -10,15 +10,16 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanMount } from "./HumanMount";
 
 /**
- * Admit a rear car exit's feet through the doorway: each ankle crosses the
- * sill where its straight course from the seated start to its landing meets
- * the opening's plane, both feet must start inside and land outside, and
- * the crossing ankles must keep the clearance from both jambs.
+ * Admit a rear car exit's feet through the doorway: each ankle crosses the sill
+ * where its straight course from the seated start to its landing meets the
+ * opening's plane, both feet must start inside and land outside, and the
+ * crossing ankles must keep the clearance from both jambs.
  *
- * @param input The seated feet, the landing posture, the opening, the
- *   clearance and the opening's outward and lateral readers.
+ * @param input The seated feet, the landing posture, the opening, the clearance
+ *   and the opening's outward and lateral readers.
  * @returns Each ankle's sill crossing, world metres.
- * @throws {HumanRefusal} When a foot starts outside, a landing foot is not outside, or a crossing ankle lies nearer a jamb than the clearance allows.
+ * @throws {HumanRefusal} When a foot starts outside, a landing foot is not
+ *   outside, or a crossing ankle lies nearer a jamb than the clearance allows.
  */
 export function admitCarExitSill(
   input: admitCarExitSill.IInput,

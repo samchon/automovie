@@ -53,15 +53,18 @@ import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 /**
  * Plan the support grip while the primary arm holds a tool at its use.
  *
- * The lead arm is already solved and its displayed wrist carries the tool.
- * The support fits the authored handle on that real pose, closes the digits
- * on the tool and ranks the clear poses by their contact clearance. Its
- * selected grip rides the tool while the support approaches and returns
- * on its own span, with the lead arm included in the support's arm clearance.
+ * The lead arm is already solved and its displayed wrist carries the tool. The
+ * support fits the authored handle on that real pose, closes the digits on the
+ * tool and ranks the clear poses by their contact clearance. Its selected grip
+ * rides the tool while the support approaches and returns on its own span, with
+ * the lead arm included in the support's arm clearance.
  *
- * @param props The held tool, support handle, action clock, solved lead and the support interval.
- * @returns The support arm and fingers, with the actual contact window on the arm.
- * @throws {HumanRefusal} When the tool is not held, the handle is absent, or its support cannot be fitted or moved there within the physical bounds.
+ * @param props The held tool, support handle, action clock, solved lead and the
+ *   support interval.
+ * @returns The support arm and fingers, with the actual contact window on the
+ *   arm.
+ * @throws {HumanRefusal} When the tool is not held, the handle is absent, or
+ *   its support cannot be fitted or moved there within the physical bounds.
  */
 export function planHumanHeldSupport(
   props: Omit<

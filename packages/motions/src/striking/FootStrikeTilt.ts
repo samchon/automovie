@@ -21,18 +21,17 @@ import { KickForm } from "./KickForm";
  * How far a foot strike tilts the body away from its leg so the hip can lift
  * the leg to the contact.
  *
- * The hip's reach at an azimuth about the pelvis is read as the ellipse of
- * its range table (`DEFAULT_HUMANOID_ROM`): flexion `F` forward, abduction
- * `A` to the side, `1 / r² = cos²ψ / F² + sin²ψ / A²`, against the thigh's
- * elevation: the hip-to-ankle line's, raised by the knee's bend over that
- * line's length (the law of cosines). The abduction ceiling
- * is the one the flexion the leg asks admits (`abductionRange`: 45° straight
- * to 60° flexed 90°, AAOS 1965). A leg at elevation `ε` from straight down
- * past the comfortable share of that reach, `KickForm.RANGE_SHARE · r(ψ)`,
- * tilts the whole body away from it about the support hip by the excess, at
- * most `KickForm.LEAN_MOST`, so the leg ends inside the range rather than on
- * its edge; a kicker's pelvis tilts 6° to 17° at
- * its peak from a body-level to a face-level roundhouse kick (Kim, Kim, Lee,
+ * The hip's reach at an azimuth about the pelvis is read as the ellipse of its
+ * range table (`DEFAULT_HUMANOID_ROM`): flexion `F` forward, abduction `A` to
+ * the side, `1 / r² = cos²ψ / F² + sin²ψ / A²`, against the thigh's elevation:
+ * the hip-to-ankle line's, raised by the knee's bend over that line's length
+ * (the law of cosines). The abduction ceiling is the one the flexion the leg
+ * asks admits (`abductionRange`: 45° straight to 60° flexed 90°, AAOS 1965). A
+ * leg at elevation `ε` from straight down past the comfortable share of that
+ * reach, `KickForm.RANGE_SHARE · r(ψ)`, tilts the whole body away from it about
+ * the support hip by the excess, at most `KickForm.LEAN_MOST`, so the leg ends
+ * inside the range rather than on its edge; a kicker's pelvis tilts 6° to 17°
+ * at its peak from a body-level to a face-level roundhouse kick (Kim, Kim, Lee,
  * Han and Kwon 2010), and the trunk leans past it.
  */
 export namespace FootStrikeTilt {
@@ -43,9 +42,12 @@ export namespace FootStrikeTilt {
    * @param yaw The pelvis's heading at the contact, degrees.
    * @param hip The kicking hip at the contact, world metres.
    * @param ankle The ankle's contact place, world metres.
-   * @param thigh The thigh's length, metres: with the shank's, the knee's bend at the contact raises the thigh above the hip-to-ankle line (`over`), which the hip must lift.
+   * @param thigh The thigh's length, metres: with the shank's, the knee's bend
+   *   at the contact raises the thigh above the hip-to-ankle line (`over`),
+   *   which the hip must lift.
    * @param shank The shank's length, metres.
-   * @returns The tilt about a world axis through the support hip, or none when the hip's range reaches the leg.
+   * @returns The tilt about a world axis through the support hip, or none when
+   *   the hip's range reaches the leg.
    */
   export function of(
     side: AutoMovieHumanSide,
@@ -55,7 +57,14 @@ export namespace FootStrikeTilt {
     thigh: number,
     shank: number,
   ): CloseStrikeLegs.ITilt | undefined {
-    const excess: IExcess | undefined = over(side, yaw, hip, ankle, thigh, shank);
+    const excess: IExcess | undefined = over(
+      side,
+      yaw,
+      hip,
+      ankle,
+      thigh,
+      shank,
+    );
     if (excess === undefined || !(excess.degrees > 0)) return undefined;
 
     // A positive turn about the horizontal axis across the leg carries the
@@ -67,14 +76,14 @@ export namespace FootStrikeTilt {
   }
 
   /**
-   * A chamber's ankle place brought inside the hip's range: the ankle a
-   * chamber folds to sits off its hip at an elevation whose thigh, raised
-   * above the hip-to-ankle line by the folded knee, may ask the hip past the
-   * comfortable share of its reach (`over`), more than the body's tilt at the
-   * chamber relieves; it is then turned down about the hip, on the
-   * horizontal axis across the leg, by that remaining excess, its distance
-   * from the hip and so the knee's fold kept, so the chamber holds the knee
-   * where the hip can lift it and the extension opens the knee from there.
+   * A chamber's ankle place brought inside the hip's range: the ankle a chamber
+   * folds to sits off its hip at an elevation whose thigh, raised above the
+   * hip-to-ankle line by the folded knee, may ask the hip past the comfortable
+   * share of its reach (`over`), more than the body's tilt at the chamber
+   * relieves; it is then turned down about the hip, on the horizontal axis
+   * across the leg, by that remaining excess, its distance from the hip and so
+   * the knee's fold kept, so the chamber holds the knee where the hip can lift
+   * it and the extension opens the knee from there.
    *
    * @param side The kicking side.
    * @param yaw The pelvis's heading, degrees.
@@ -82,8 +91,11 @@ export namespace FootStrikeTilt {
    * @param folded The chamber's ankle place, world metres.
    * @param thigh The thigh's length, metres.
    * @param shank The shank's length, metres.
-   * @param tilted How far the body is tilted away from the leg at the chamber, degrees.
-   * @param share The share of the hip's reach the thigh is kept within: the kick's comfortable share (`KickForm.RANGE_SHARE`) for a chamber, the whole range for a goal on the way.
+   * @param tilted How far the body is tilted away from the leg at the chamber,
+   *   degrees.
+   * @param share The share of the hip's reach the thigh is kept within: the
+   *   kick's comfortable share (`KickForm.RANGE_SHARE`) for a chamber, the
+   *   whole range for a goal on the way.
    * @returns The ankle place, the one given when the hip reaches it.
    */
   export function chambered(
@@ -96,7 +108,15 @@ export namespace FootStrikeTilt {
     tilted: number,
     share: number = KickForm.RANGE_SHARE,
   ): IAutoMovieVector3 {
-    const excess: IExcess | undefined = over(side, yaw, hip, folded, thigh, shank, share);
+    const excess: IExcess | undefined = over(
+      side,
+      yaw,
+      hip,
+      folded,
+      thigh,
+      shank,
+      share,
+    );
     if (excess === undefined) return folded;
     const turn: number = Math.min(excess.elevation, excess.degrees - tilted);
     if (!(turn > 0)) return folded;
@@ -115,9 +135,9 @@ export namespace FootStrikeTilt {
   /**
    * The shank's direction of a leg from a hip to an ankle whose knee bends
    * toward a hint: the knee on the circle the thigh's and the shank's lengths
-   * leave about the hip-to-ankle line (the law of cosines), in the plane of
-   * the line and the hint; the line itself where the leg is straight or the
-   * hint lies on the line.
+   * leave about the hip-to-ankle line (the law of cosines), in the plane of the
+   * line and the hint; the line itself where the leg is straight or the hint
+   * lies on the line.
    *
    * @param hip The hip, world metres.
    * @param ankle The ankle, world metres.
@@ -145,7 +165,13 @@ export namespace FootStrikeTilt {
     if (Vector3.length(across) < 1e-9) return u;
     const w: IAutoMovieVector3 = Vector3.normalize(across);
     const alpha: number = Math.acos(
-      Math.max(-1, Math.min(1, (thigh * thigh + d * d - length * length) / (2 * thigh * d))),
+      Math.max(
+        -1,
+        Math.min(
+          1,
+          (thigh * thigh + d * d - length * length) / (2 * thigh * d),
+        ),
+      ),
     );
     const knee: IAutoMovieVector3 = Vector3.add(
       hip,
@@ -157,7 +183,10 @@ export namespace FootStrikeTilt {
     return Vector3.normalize(Vector3.subtract(ankle, knee));
   }
 
-  /** How far a leg's thigh lies past the comfortable share of the hip's reach at its azimuth, and the leg's horizontal direction and chord elevation. */
+  /**
+   * How far a leg's thigh lies past the comfortable share of the hip's reach at
+   * its azimuth, and the leg's horizontal direction and chord elevation.
+   */
   interface IExcess {
     /** Degrees past the comfortable reach; negative inside it. */
     degrees: number;
@@ -168,12 +197,12 @@ export namespace FootStrikeTilt {
   }
 
   /**
-   * The thigh's excess over the comfortable share of the hip's range for a
-   * leg from a hip to an ankle: the hip-to-ankle line's elevation from
-   * straight down plus the thigh's rise above that line, which the knee's
-   * bend over the line's length gives by the law of cosines (the knee bends
-   * up toward its hint), against `KickForm.RANGE_SHARE` of the range
-   * ellipse's reach at the leg's azimuth.
+   * The thigh's excess over the comfortable share of the hip's range for a leg
+   * from a hip to an ankle: the hip-to-ankle line's elevation from straight
+   * down plus the thigh's rise above that line, which the knee's bend over the
+   * line's length gives by the law of cosines (the knee bends up toward its
+   * hint), against `KickForm.RANGE_SHARE` of the range ellipse's reach at the
+   * leg's azimuth.
    */
   function over(
     side: AutoMovieHumanSide,
@@ -209,7 +238,10 @@ export namespace FootStrikeTilt {
         : (Math.acos(
             Math.max(
               -1,
-              Math.min(1, (thigh * thigh + d * d - shank * shank) / (2 * thigh * d)),
+              Math.min(
+                1,
+                (thigh * thigh + d * d - shank * shank) / (2 * thigh * d),
+              ),
             ),
           ) *
             180) /
@@ -240,8 +272,7 @@ export namespace FootStrikeTilt {
       constraint,
       Math.max(0, elevation * Math.cos(azimuth)),
     );
-    const A: number =
-      azimuth >= 0 ? flexed!.max : -constraint.abduction.min;
+    const A: number = azimuth >= 0 ? flexed!.max : -constraint.abduction.min;
     const reach: number =
       1 /
       Math.sqrt(
@@ -262,11 +293,10 @@ export namespace FootStrikeTilt {
    * kept inside the hip's twist range.
    *
    * The thigh carried from straight down to the leg by the shortest swing
-   * carries the pelvis's forward to the knee's untwisted direction; the
-   * asked hint's direction about the leg is its twist from that. A twist
-   * past the comfortable share of the hip's twist range
-   * (`KickForm.RANGE_SHARE`) is turned back to it, the hint kept at its
-   * distance from the leg's middle.
+   * carries the pelvis's forward to the knee's untwisted direction; the asked
+   * hint's direction about the leg is its twist from that. A twist past the
+   * comfortable share of the hip's twist range (`KickForm.RANGE_SHARE`) is
+   * turned back to it, the hint kept at its distance from the leg's middle.
    *
    * @param side The kicking side.
    * @param pelvis The pelvis's world rotation at the contact.

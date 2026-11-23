@@ -24,29 +24,45 @@ import { walkRockerReachBoundary } from "./walkRockerReachBoundary";
  * of cosines on the segment lengths.
  */
 export namespace walkLeg {
-  /** Degrees a foot keeps inside the ankle's plantar limit (`PLANTAR`) and its dorsal one, loaded or unloaded (`ANKLE_DORSIFLEXION`). */
+  /**
+   * Degrees a foot keeps inside the ankle's plantar limit (`PLANTAR`) and its
+   * dorsal one, loaded or unloaded (`ANKLE_DORSIFLEXION`).
+   */
   export const ANKLE: number = 2;
 
-  /** The ankle's plantarflexion limit, degrees: the lesser of the two feet's in the range table (`DEFAULT_HUMANOID_ROM`, the AAOS norm of 50 as `ANKLE_DORSIFLEXION` relays it). */
+  /**
+   * The ankle's plantarflexion limit, degrees: the lesser of the two feet's in
+   * the range table (`DEFAULT_HUMANOID_ROM`, the AAOS norm of 50 as
+   * `ANKLE_DORSIFLEXION` relays it).
+   */
   export const PLANTAR: number = Math.min(
-    ...(["leftFoot", "rightFoot"] as const).map((bone: "leftFoot" | "rightFoot"): number => {
-      const flexion: IAutoMovieAngleRange | null | undefined = DEFAULT_HUMANOID_ROM[bone]?.flexion;
-      if (flexion === null || flexion === undefined)
-        throw new Error(`The range-of-motion table gives ${bone} no flexion`);
-      return -flexion.min;
-    }),
+    ...(["leftFoot", "rightFoot"] as const).map(
+      (bone: "leftFoot" | "rightFoot"): number => {
+        const flexion: IAutoMovieAngleRange | null | undefined =
+          DEFAULT_HUMANOID_ROM[bone]?.flexion;
+        if (flexion === null || flexion === undefined)
+          throw new Error(`The range-of-motion table gives ${bone} no flexion`);
+        return -flexion.min;
+      },
+    ),
   );
 
-  /** Fixed body/heading preparation of the shank's forward lean from vertical along a heading (`prepareWalkLegLean`). */
+  /**
+   * Fixed body/heading preparation of the shank's forward lean from vertical
+   * along a heading (`prepareWalkLegLean`).
+   */
   export const prepareLean: typeof prepareWalkLegLean = prepareWalkLegLean;
 
   /**
    * Prepare the fixed lengths of a knee's thigh-to-reach angle.
    *
    * @param body The unchanged measured thigh/shank geometry, metres.
-   * @returns The same cosine-law angle in radians for every actual hip-to-ankle reach in metres.
+   * @returns The same cosine-law angle in radians for every actual hip-to-ankle
+   *   reach in metres.
    */
-  export function prepareBehind(body: IAutoMovieMotionHumanBody): (reach: number) => number {
+  export function prepareBehind(
+    body: IAutoMovieMotionHumanBody,
+  ): (reach: number) => number {
     const a: number = body.measure.thigh;
     const b: number = body.measure.shank;
     const aa: number = a ** 2;
@@ -91,7 +107,8 @@ export namespace walkLeg {
    *
    * @param body The unchanged body's measured leg lengths.
    * @param yaw The unchanged pelvis heading, degrees.
-   * @returns The same trailing-positive degree angle for each actual world-metre hip and ankle.
+   * @returns The same trailing-positive degree angle for each actual
+   *   world-metre hip and ankle.
    */
   export function prepareTrailing(
     body: IAutoMovieMotionHumanBody,
@@ -105,33 +122,62 @@ export namespace walkLeg {
     return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3): number =>
       // The hip-to-ankle line's components and its length (`Vector3.distance`
       // is the length of the difference), read without a vector record.
-      ((Math.atan2(-((ankle.x - hip.x) * forward.x + (ankle.z - hip.z) * forward.z), -(ankle.y - hip.y)) -
-        bend(Vector3.distance(ankle, hip))) * 180) / Math.PI;
+      ((Math.atan2(
+        -((ankle.x - hip.x) * forward.x + (ankle.z - hip.z) * forward.z),
+        -(ankle.y - hip.y),
+      ) -
+        bend(Vector3.distance(ankle, hip))) *
+        180) /
+      Math.PI;
   }
 
   /**
-   * Prepare one exact heading through a foot's repeated ankle-clearance
-   * trials: a foot that bears no weight, its rotation kept inside the
-   * unloaded ankle's range relative to its shank
-   * (`ANKLE_DORSIFLEXION.unloaded` and `PLANTAR`), less `ANKLE`.
+   * Prepare one exact heading through a foot's repeated ankle-clearance trials:
+   * a foot that bears no weight, its rotation kept inside the unloaded ankle's
+   * range relative to its shank (`ANKLE_DORSIFLEXION.unloaded` and `PLANTAR`),
+   * less `ANKLE`.
    *
    * @param body The measured leg geometry, fixed through the trials.
    * @param heading The foot heading in degrees at this trial loop's start.
-   * @returns The rotation clamp for a hip, an ankle and a foot rotation; a rotation of another heading prepares its own lean instead of reusing the fixed-heading geometry.
+   * @returns The rotation clamp for a hip, an ankle and a foot rotation; a
+   *   rotation of another heading prepares its own lean instead of reusing the
+   *   fixed-heading geometry.
    */
   export function prepareAnkleRange(
     body: IAutoMovieMotionHumanBody,
     heading: number,
-  ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3, rotation: IAutoMovieQuaternion) => IAutoMovieQuaternion {
-    const prepared: ReturnType<typeof prepareWalkLegLean> = prepareWalkLegLean(body, heading);
-    return (hip: IAutoMovieVector3, ankle: IAutoMovieVector3, rotation: IAutoMovieQuaternion): IAutoMovieQuaternion => {
-      const direction: ReturnType<typeof HumanFoot.headingPitch> = HumanFoot.headingPitch(rotation);
-      return ankleRangeAt(hip, ankle, rotation, direction,
-        Object.is(direction.heading, heading) ? prepared : prepareWalkLegLean(body, direction.heading));
+  ): (
+    hip: IAutoMovieVector3,
+    ankle: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ) => IAutoMovieQuaternion {
+    const prepared: ReturnType<typeof prepareWalkLegLean> = prepareWalkLegLean(
+      body,
+      heading,
+    );
+    return (
+      hip: IAutoMovieVector3,
+      ankle: IAutoMovieVector3,
+      rotation: IAutoMovieQuaternion,
+    ): IAutoMovieQuaternion => {
+      const direction: ReturnType<typeof HumanFoot.headingPitch> =
+        HumanFoot.headingPitch(rotation);
+      return ankleRangeAt(
+        hip,
+        ankle,
+        rotation,
+        direction,
+        Object.is(direction.heading, heading)
+          ? prepared
+          : prepareWalkLegLean(body, direction.heading),
+      );
     };
   }
 
-  /** The unloaded ankle's clamp of a foot's pitch against its shank's lean, under a prepared heading. */
+  /**
+   * The unloaded ankle's clamp of a foot's pitch against its shank's lean,
+   * under a prepared heading.
+   */
   function ankleRangeAt(
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
@@ -145,14 +191,15 @@ export namespace walkLeg {
       -shank + ANKLE_DORSIFLEXION.unloaded - ANKLE,
       Math.max(-shank - PLANTAR + ANKLE, pitch),
     );
-    return clamped === pitch ? rotation : HumanFoot.rotation(direction.heading, clamped);
+    return clamped === pitch
+      ? rotation
+      : HumanFoot.rotation(direction.heading, clamped);
   }
 
   /**
-   * The pitch a planted foot takes about its toes' joint once its shank
-   * leans past the ankle's dorsal limit: the forefoot rocker begins where
-   * the ankle can bend no further (Perry and Burnfield), so the ball never
-   * slides.
+   * The pitch a planted foot takes about its toes' joint once its shank leans
+   * past the ankle's dorsal limit: the forefoot rocker begins where the ankle
+   * can bend no further (Perry and Burnfield), so the ball never slides.
    *
    * The room is the ankle's distance from its dorsal limit, less `ANKLE`, and
    * the rise is `rise` on it.
@@ -180,7 +227,14 @@ export namespace walkLeg {
     width: number,
     dorsal: number = ANKLE_DORSIFLEXION.unloaded,
   ): number {
-    return prepareHeelRise(body, side, pivot, heading, width, dorsal)(hip, pitch);
+    return prepareHeelRise(
+      body,
+      side,
+      pivot,
+      heading,
+      width,
+      dorsal,
+    )(hip, pitch);
   }
 
   /**
@@ -188,29 +242,35 @@ export namespace walkLeg {
    * weight, degrees: the unloaded foot's passive limit, rising linearly with
    * the share to the weight-bearing one when it bears it all
    * (`ANKLE_DORSIFLEXION`; Konor et al. 2012's weight-bearing lunge). The
-   * weight's moment about the ankle is what stretches the calf past its
-   * passive range, and it grows with the share the foot bears, so a foot
-   * taking the weight over a weight shift reaches its dorsal room
-   * continuously instead of at a touch-down.
+   * weight's moment about the ankle is what stretches the calf past its passive
+   * range, and it grows with the share the foot bears, so a foot taking the
+   * weight over a weight shift reaches its dorsal room continuously instead of
+   * at a touch-down.
    *
    * @param share The share of the body's weight the foot bears, 0 to 1.
    * @returns Degrees.
    */
   export function dorsal(share: number): number {
     const s: number = Math.min(1, Math.max(0, share));
-    return ANKLE_DORSIFLEXION.unloaded + s * (ANKLE_DORSIFLEXION.loaded - ANKLE_DORSIFLEXION.unloaded);
+    return (
+      ANKLE_DORSIFLEXION.unloaded +
+      s * (ANKLE_DORSIFLEXION.loaded - ANKLE_DORSIFLEXION.unloaded)
+    );
   }
 
   /**
-   * Prepare one fixed sole contact's rocker search for varying hips and pitches.
+   * Prepare one fixed sole contact's rocker search for varying hips and
+   * pitches.
    *
    * @param body The body's fixed segment lengths and foot socket.
    * @param side The foot.
    * @param pivot The fixed toe-joint contact, world metres.
    * @param heading The fixed foot heading, degrees.
    * @param width The fixed dorsal-room onset, degrees.
-   * @param dorsal The ankle's fixed dorsal limit, degrees; the unloaded foot's when absent (`dorsal`).
-   * @returns The heel-rise rule for a world-space hip, asked pitch and optional current dorsal limit.
+   * @param dorsal The ankle's fixed dorsal limit, degrees; the unloaded foot's
+   *   when absent (`dorsal`).
+   * @returns The heel-rise rule for a world-space hip, asked pitch and optional
+   *   current dorsal limit.
    */
   export function prepareHeelRise(
     body: IAutoMovieMotionHumanBody,
@@ -220,58 +280,81 @@ export namespace walkLeg {
     width: number,
     dorsal: number = ANKLE_DORSIFLEXION.unloaded,
   ): (hip: IAutoMovieVector3, pitch: number, dorsalAt?: number) => number {
-    const at: (degrees: number) => IAutoMovieVector3 =
-      HumanFoot.prepareAnkle(body, side, "mtp", pivot, heading);
-    const lean: ReturnType<typeof prepareWalkLegLean.bounded> = prepareWalkLegLean.bounded(body, heading);
+    const at: (degrees: number) => IAutoMovieVector3 = HumanFoot.prepareAnkle(
+      body,
+      side,
+      "mtp",
+      pivot,
+      heading,
+    );
+    const lean: ReturnType<typeof prepareWalkLegLean.bounded> =
+      prepareWalkLegLean.bounded(body, heading);
     const span: number = body.measure.thigh + body.measure.shank;
     let entry: ReturnType<typeof walkRockerReachBoundary> | undefined;
-    return (hip: IAutoMovieVector3, pitch: number, dorsalAt: number = dorsal): number => rise(
-      (degrees: number): number => {
-        // The ankle record is the reader's own, read here before its next pitch.
-        const shank: number | undefined = lean(hip, at(degrees));
-        return shank === undefined ? -Infinity : roomValue(shank, degrees, dorsalAt);
-      },
-      pitch,
-      width,
-      true,
-      (degrees: number): boolean => Vector3.distance(at(degrees), hip) > span,
-      (low: number, high: number): number | undefined =>
-        (entry ??= walkRockerReachBoundary(at, span))(hip, low, high, REACHED),
-    );
+    return (
+      hip: IAutoMovieVector3,
+      pitch: number,
+      dorsalAt: number = dorsal,
+    ): number =>
+      rise(
+        (degrees: number): number => {
+          // The ankle record is the reader's own, read here before its next pitch.
+          const shank: number | undefined = lean(hip, at(degrees));
+          return shank === undefined
+            ? -Infinity
+            : roomValue(shank, degrees, dorsalAt);
+        },
+        pitch,
+        width,
+        true,
+        (degrees: number): boolean => Vector3.distance(at(degrees), hip) > span,
+        (low: number, high: number): number | undefined =>
+          (entry ??= walkRockerReachBoundary(at, span))(
+            hip,
+            low,
+            high,
+            REACHED,
+          ),
+      );
   }
 
-  /** The room a planted foot's ankle keeps before its dorsal limit (`dorsal`, less `ANKLE`) at a shank's lean and a pitch, degrees: what `heelRise` keeps. */
+  /**
+   * The room a planted foot's ankle keeps before its dorsal limit (`dorsal`,
+   * less `ANKLE`) at a shank's lean and a pitch, degrees: what `heelRise`
+   * keeps.
+   */
   function roomValue(lean: number, pitch: number, dorsal: number): number {
     return -lean + dorsal - ANKLE - pitch;
   }
 
   /**
-   * The pitch a planted foot's heel rises to so that a room it must keep,
-   * which rising the heel buys, never runs out, with the onset rounded.
+   * The pitch a planted foot's heel rises to so that a room it must keep, which
+   * rising the heel buys, never runs out, with the onset rounded.
    *
    * The rounding is done on the room, not the pitch: the foot keeps the room
    * its asked pitch has while that is `width` or more, never less than none,
-   * and the smooth maximum of the two in between (the engine's
-   * `smoothMinimum`, negated). A straight knee folds the room: the first
-   * degrees of heel rise bend the knee and lean the shank faster than they
-   * open the ankle, so the room first dips and only then grows, and the pitch
-   * that has a given room lies past the dip, a finite step from the asked
-   * one. The pitch is therefore searched past the dip: the room is walked
-   * down from the asked pitch in `SCAN` steps to its first low, which the rise
-   * meets first (the room is not unimodal over the whole range: past the
-   * first dip it may dip again), and the kept room is bracketed beyond it, no
-   * steeper than `STEEPEST`, from the step before the room grew, or from the low
-   * itself by golden-section search where that step keeps the room. A pitch whose ankle lies beyond the leg's reach has no room at
-   * all (`-Infinity`): it is no stance, and counting a lean read off a leg
-   * stretched past its length made the room cross the kept one twice, the
-   * pitch jumping between the crossings as the hip moved by nanometres. An
-   * asked pitch the leg cannot stand on is first raised to the least rise
-   * that brings the ankle within reach, and the rule goes on from there. The
-   * foot moves from its asked pitch to the kept room's on a minimum-jerk weight (Flash and Hogan 1985) as the asked room runs from
-   * `width` down to none, so the heel's rate is continuous where the rule
-   * takes over or lets go. The step past the dip is crossed in the time the
-   * asked room takes to run through `width`, so its acceleration falls with
-   * the square of the width.
+   * and the smooth maximum of the two in between (the engine's `smoothMinimum`,
+   * negated). A straight knee folds the room: the first degrees of heel rise
+   * bend the knee and lean the shank faster than they open the ankle, so the
+   * room first dips and only then grows, and the pitch that has a given room
+   * lies past the dip, a finite step from the asked one. The pitch is therefore
+   * searched past the dip: the room is walked down from the asked pitch in
+   * `SCAN` steps to its first low, which the rise meets first (the room is not
+   * unimodal over the whole range: past the first dip it may dip again), and
+   * the kept room is bracketed beyond it, no steeper than `STEEPEST`, from the
+   * step before the room grew, or from the low itself by golden-section search
+   * where that step keeps the room. A pitch whose ankle lies beyond the leg's
+   * reach has no room at all (`-Infinity`): it is no stance, and counting a
+   * lean read off a leg stretched past its length made the room cross the kept
+   * one twice, the pitch jumping between the crossings as the hip moved by
+   * nanometres. An asked pitch the leg cannot stand on is first raised to the
+   * least rise that brings the ankle within reach, and the rule goes on from
+   * there. The foot moves from its asked pitch to the kept room's on a
+   * minimum-jerk weight (Flash and Hogan 1985) as the asked room runs from
+   * `width` down to none, so the heel's rate is continuous where the rule takes
+   * over or lets go. The step past the dip is crossed in the time the asked
+   * room takes to run through `width`, so its acceleration falls with the
+   * square of the width.
    *
    * A room that only grows as the heel rises has no dip, and the pitch that
    * keeps the smooth maximum is already continuous in rate with the least
@@ -279,13 +362,16 @@ export namespace walkLeg {
    * steepen it. Such a rule says so with `folds` and takes that pitch itself.
    *
    * @param room The room a pitch leaves, degrees; `Infinity` where the rule
-   *   asks nothing of that pitch, `-Infinity` where the leg cannot stand on it.
+   *   asks nothing of that pitch, `-Infinity` where the leg cannot stand on
+   *   it.
    * @param pitch The asked pitch, degrees, negative toes-down.
    * @param width The room, degrees, under which the heel begins to rise; zero
    *   keeps the asked pitch until the room is none.
    * @param folds Whether the room may dip before it grows as the heel rises.
-   * @param beyond The native reach-only reading equivalent to negative infinite room, when available.
-   * @param boundary The native circular reach boundary rounded onto the original bracket lattice, if certified.
+   * @param beyond The native reach-only reading equivalent to negative infinite
+   *   room, when available.
+   * @param boundary The native circular reach boundary rounded onto the
+   *   original bracket lattice, if certified.
    * @returns The pitch, no higher than the asked one.
    */
   export function rise(
@@ -302,9 +388,12 @@ export namespace walkLeg {
     // pitch as the asked one.
     let asked: number = room(pitch);
     if (asked === -Infinity) {
-      const unreachable = beyond ?? ((degrees: number): boolean => room(degrees) === -Infinity);
+      const unreachable =
+        beyond ?? ((degrees: number): boolean => room(degrees) === -Infinity);
       if (unreachable(-STEEPEST)) return -STEEPEST;
-      pitch = boundary?.(-STEEPEST, pitch) ?? reachBracket(-STEEPEST, pitch, unreachable);
+      pitch =
+        boundary?.(-STEEPEST, pitch) ??
+        reachBracket(-STEEPEST, pitch, unreachable);
       asked = room(pitch);
     }
     if (asked >= width || pitch <= -STEEPEST) return pitch;
@@ -388,8 +477,15 @@ export namespace walkLeg {
     return pitch + (low - pitch) * minimumJerk.share(share);
   }
 
-  /** Lower endpoint of the original reach bracket for a non-circular or unverified input. */
-  function reachBracket(low: number, high: number, unreachable: (pitch: number) => boolean): number {
+  /**
+   * Lower endpoint of the original reach bracket for a non-circular or
+   * unverified input.
+   */
+  function reachBracket(
+    low: number,
+    high: number,
+    unreachable: (pitch: number) => boolean,
+  ): number {
     while (high - low > REACHED) {
       const middle: number = (high + low) / 2;
       if (unreachable(middle)) high = middle;
@@ -398,24 +494,57 @@ export namespace walkLeg {
     return low;
   }
 
-  /** The room left to a stance's ankle before its dorsal limit, degrees, under which a stepping foot's heel begins to rise (provisional): the heel is leaving the floor by 10° of dorsiflexion (Perry and Burnfield), a third of the way into this rounding under the 18° limit this body keeps, and the rounding is wide enough that the step past the fold is crossed in a stance's few hundredths of a second without a jolt at the knee. */
+  /**
+   * The room left to a stance's ankle before its dorsal limit, degrees, under
+   * which a stepping foot's heel begins to rise (provisional): the heel is
+   * leaving the floor by 10° of dorsiflexion (Perry and Burnfield), a third of
+   * the way into this rounding under the 18° limit this body keeps, and the
+   * rounding is wide enough that the step past the fold is crossed in a
+   * stance's few hundredths of a second without a jolt at the knee.
+   */
   export const ROCKER: number = 12;
 
-  /** The width, degrees, a kept room's pitch is bracketed to: under a hundred nanometres of any point of a foot, the resolution thirty halvings of the widest bracket gave. */
+  /**
+   * The width, degrees, a kept room's pitch is bracketed to: under a hundred
+   * nanometres of any point of a foot, the resolution thirty halvings of the
+   * widest bracket gave.
+   */
   export const RESOLVED: number = 1e-7;
 
-  /** The width, degrees, to which the least standable pitch of an unreachable asked one is bisected: a millionth of a degree turns a point of a 0.3 m foot by 5 nm, under the micrometre a pose is read to, and ⌈log₂(75 / 1e-6)⌉ = 27 halvings reach it from the widest bracket. */
+  /**
+   * The width, degrees, to which the least standable pitch of an unreachable
+   * asked one is bisected: a millionth of a degree turns a point of a 0.3 m
+   * foot by 5 nm, under the micrometre a pose is read to, and ⌈log₂(75 / 1e-6)⌉
+   * = 27 halvings reach it from the widest bracket.
+   */
   const REACHED: number = 1e-6;
 
-  /** The least hip-to-ankle distance, metres, a knee angle is divided by: a nanometre, under which hip and ankle coincide to every pose's resolution and the angle is undefined. */
+  /**
+   * The least hip-to-ankle distance, metres, a knee angle is divided by: a
+   * nanometre, under which hip and ankle coincide to every pose's resolution
+   * and the angle is undefined.
+   */
   const COINCIDENT: number = 1e-9;
 
-  /** The step, degrees, in which `rise` walks the room down from the asked pitch to find its first low: half a degree, under which the room of a leg near straight has no second low. */
+  /**
+   * The step, degrees, in which `rise` walks the room down from the asked pitch
+   * to find its first low: half a degree, under which the room of a leg near
+   * straight has no second low.
+   */
   export const SCAN: number = 0.5;
 
-  /** The steepest heel rise of a planted foot, degrees toes-down (provisional): past it the foot would stand on its toe tips. */
+  /**
+   * The steepest heel rise of a planted foot, degrees toes-down (provisional):
+   * past it the foot would stand on its toe tips.
+   */
   export const STEEPEST: number = 75;
 
-  /** The halvings that take the widest bracket, `STEEPEST` degrees, under `RESOLVED`: ⌈log₂(75 / 1e-7)⌉ = 30. The Illinois steps are allowed twice as many, since a stale end is halved at least every second step (Dowell and Jarratt 1971), and the bisection that follows closes whatever a kink left in as many again. */
+  /**
+   * The halvings that take the widest bracket, `STEEPEST` degrees, under
+   * `RESOLVED`: ⌈log₂(75 / 1e-7)⌉ = 30. The Illinois steps are allowed twice as
+   * many, since a stale end is halved at least every second step (Dowell and
+   * Jarratt 1971), and the bisection that follows closes whatever a kink left
+   * in as many again.
+   */
   const HALVINGS: number = Math.ceil(Math.log2(STEEPEST / RESOLVED));
 }

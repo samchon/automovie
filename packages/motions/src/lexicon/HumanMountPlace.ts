@@ -22,9 +22,7 @@ import { HumanMountPush } from "./HumanMountPush";
  * hanging under a thigh in the direction `HumanMount.HANG` gives otherwise.
  */
 export namespace HumanMountPlace {
-  /**
-   * Where a foot ends and what bears it there.
-   */
+  /** Where a foot ends and what bears it there. */
   export interface IPlace {
     /** The foot's final placement. */
     foot: HumanMount.IFoot;

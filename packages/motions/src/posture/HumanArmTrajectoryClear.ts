@@ -12,41 +12,55 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
  * The detour that lays a transport of an arms' course clear of the body
- * (`HumanArmTrajectoryLaid`): where the course's reading finds an arm's
- * probe inside a shape past what the admission allows, or a corner of the
- * body inside an arm's collider, the least change of that arm's
- * coordinates that brings every pair of that waypoint to its bound, by the
- * pairs' own linearisation (the convex subproblem's rows,
- * `HumanArmTrajectoryConvex`: a pair's distance along its normal on the
- * point Jacobian), and the change laid over the transport as a smooth bump
- * of its path's share, whole at the waypoint's share and nothing at either
- * end, so the transport's ends and its hold stay as they were. A via
- * configuration on a blended path is how a planner lays a path round an
- * obstacle without optimising it (the approach and retreat of a reach);
- * its place and its size here are the reading's own.
+ * (`HumanArmTrajectoryLaid`): where the course's reading finds an arm's probe
+ * inside a shape past what the admission allows, or a corner of the body inside
+ * an arm's collider, the least change of that arm's coordinates that brings
+ * every pair of that waypoint to its bound, by the pairs' own linearisation
+ * (the convex subproblem's rows, `HumanArmTrajectoryConvex`: a pair's distance
+ * along its normal on the point Jacobian), and the change laid over the
+ * transport as a smooth bump of its path's share, whole at the waypoint's share
+ * and nothing at either end, so the transport's ends and its hold stay as they
+ * were. A via configuration on a blended path is how a planner lays a path
+ * round an obstacle without optimising it (the approach and retreat of a
+ * reach); its place and its size here are the reading's own.
  */
 export namespace HumanArmTrajectoryClear {
-  /**
-   * A change of a transport's path laid as a bump.
-   */
+  /** A change of a transport's path laid as a bump. */
   export interface IDetour {
     /** The share of the transport's path the change is whole at, in (0, 1). */
     share: number;
 
-    /** Each arm's change of coordinates there, the model's units; zeros for an arm left as it is. */
+    /**
+     * Each arm's change of coordinates there, the model's units; zeros for an
+     * arm left as it is.
+     */
     delta: number[][];
 
-    /** How far past what the admission allows the pair or the sweep the detour answers lay before it, millimetres. */
+    /**
+     * How far past what the admission allows the pair or the sweep the detour
+     * answers lay before it, millimetres.
+     */
     depth: number;
   }
 
-  /** The largest change of any coordinate a transport's first detour makes, coordinate units: the arm optimiser's first trust region (`HumanArmOptimiser`'s schedule), inside which the pairs' linearisation is trusted. */
+  /**
+   * The largest change of any coordinate a transport's first detour makes,
+   * coordinate units: the arm optimiser's first trust region
+   * (`HumanArmOptimiser`'s schedule), inside which the pairs' linearisation is
+   * trusted.
+   */
   export const REGION: number = 8;
 
-  /** The widest region a detour may grow to, coordinate units: the arm optimiser's widest (`HumanArmOptimiser`'s schedule). */
+  /**
+   * The widest region a detour may grow to, coordinate units: the arm
+   * optimiser's widest (`HumanArmOptimiser`'s schedule).
+   */
   export const WIDEST: number = 32;
 
-  /** The factor a transport's region grows by after a detour that made it shallower: TrajOpt's trust_expand_ratio, the arm optimiser's own. */
+  /**
+   * The factor a transport's region grows by after a detour that made it
+   * shallower: TrajOpt's trust_expand_ratio, the arm optimiser's own.
+   */
   export const EXPAND: number = 1.5;
 
   /**
@@ -58,9 +72,13 @@ export namespace HumanArmTrajectoryClear {
    * @param at Their reading (`M.evaluate`).
    * @param from The transport's first waypoint.
    * @param to Its last waypoint.
-   * @param shares The share of its path each waypoint of the transport stands at, by waypoint.
-   * @param region The largest change of any coordinate the detour may make, coordinate units.
-   * @returns Each arm's detour, at its own deepest waypoint; none for an arm whose every pair and sweep inside the transport lies within what the admission allows.
+   * @param shares The share of its path each waypoint of the transport stands
+   *   at, by waypoint.
+   * @param region The largest change of any coordinate the detour may make,
+   *   coordinate units.
+   * @returns Each arm's detour, at its own deepest waypoint; none for an arm
+   *   whose every pair and sweep inside the transport lies within what the
+   *   admission allows.
    */
   export function detour(
     c: M.IContext,
@@ -76,13 +94,25 @@ export namespace HumanArmTrajectoryClear {
     // detour of one arm alone leaves the other's depth as it was.
     const out: IDetour[] = [];
     x.forEach((_: readonly (readonly number[])[], arm: number): void => {
-      const detour: IDetour | undefined = ofArm(c, x, at, arm, from, to, shares, region);
+      const detour: IDetour | undefined = ofArm(
+        c,
+        x,
+        at,
+        arm,
+        from,
+        to,
+        shares,
+        region,
+      );
       if (detour !== undefined) out.push(detour);
     });
     return out;
   }
 
-  /** One arm's detour of a transport (`detour`): its deepest waypoint's change, none where it lies within what the admission allows. */
+  /**
+   * One arm's detour of a transport (`detour`): its deepest waypoint's change,
+   * none where it lies within what the admission allows.
+   */
   function ofArm(
     c: M.IContext,
     x: readonly (readonly number[])[][],
@@ -100,13 +130,19 @@ export namespace HumanArmTrajectoryClear {
     let waypoint: number = -1;
     let excess: number = M.TOLERANCE;
     let deepest: number = 0;
-    let swept: { sweep: HumanArmTrajectorySweep.ISwept; later: boolean } | undefined;
+    let swept:
+      | { sweep: HumanArmTrajectorySweep.ISwept; later: boolean }
+      | undefined;
     {
       const a: number = arm;
       for (let k: number = from; k < to; ++k) {
-        const pairs: M.IEvaluation["pairs"][number][number] | undefined = at.pairs[a]?.[k];
+        const pairs: M.IEvaluation["pairs"][number][number] | undefined =
+          at.pairs[a]?.[k];
         if (k > from && pairs !== undefined)
-          for (const pair of [...pairs.deepest.values(), ...pairs.embedded.values()])
+          for (const pair of [
+            ...pairs.deepest.values(),
+            ...pairs.embedded.values(),
+          ])
             if (!pair.rested && pair.short - T.SKIN > excess) {
               excess = pair.short - T.SKIN;
               deepest = pair.short;
@@ -135,32 +171,46 @@ export namespace HumanArmTrajectoryClear {
     const all: J.IJacobian[][] = [];
     all[arm] = [];
     all[arm]![waypoint] = jac;
-    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![waypoint]!;
-    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced = at.placed[arm]![waypoint]!;
-    const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> = at.pairs[arm]![waypoint]!;
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame =
+      c.frames[arm]![waypoint]!;
+    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced =
+      at.placed[arm]![waypoint]!;
+    const pairs: NonNullable<M.IEvaluation["pairs"][number][number]> =
+      at.pairs[arm]![waypoint]!;
     const rows: { coef: number[]; gain: number }[] = [];
 
     // A sweep's row at its inner end: the shape's normal at that end of the
     // swept sphere, in that waypoint's frame, on the end's own Jacobian.
     if (swept !== undefined) {
       const { sweep, later } = swept;
-      const start: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[arm]![later ? waypoint - 1 : waypoint]!;
-      const end: IAutoMovieVector3 = later ? sweep.to : at.placed[arm]![waypoint]!.probes[sweep.probe]![0];
+      const start: IAutoMovieMotionHumanArmGeometry.IFrame =
+        c.frames[arm]![later ? waypoint - 1 : waypoint]!;
+      const end: IAutoMovieVector3 = later
+        ? sweep.to
+        : at.placed[arm]![waypoint]!.probes[sweep.probe]![0];
       const normal: IAutoMovieVector3 = S.normal(start, sweep.shape, end);
       const g: IAutoMovieVector3 = later
         ? Quaternion.rotateVector(Quaternion.inverse(sweep.turn), normal)
         : normal;
       rows.push({
-        coef: jac.probe(sweep.probe).map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+        coef: jac
+          .probe(sweep.probe)
+          .map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
         gain: deepest + M.TOLERANCE,
       });
     }
     // A declared rest is drawn to its contact, not cleared of it.
     for (const pair of pairs.deepest.values()) {
       if (pair.rested || pair.short < -M.TOLERANCE) continue;
-      const g: IAutoMovieVector3 = S.normal(frame, pair.shape, placed.probes[pair.probe]![0]);
+      const g: IAutoMovieVector3 = S.normal(
+        frame,
+        pair.shape,
+        placed.probes[pair.probe]![0],
+      );
       rows.push({
-        coef: jac.probe(pair.probe).map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
+        coef: jac
+          .probe(pair.probe)
+          .map((v: IAutoMovieVector3): number => Vector3.dot(v, g)),
         gain: pair.short + M.TOLERANCE,
       });
     }
@@ -182,8 +232,10 @@ export namespace HumanArmTrajectoryClear {
     }
     const step: number[] | undefined = least(rows, region);
     if (step === undefined) return undefined;
-    const delta: number[][] = x.map((own: readonly (readonly number[])[]): number[] =>
-      new Array<number>(own[0]!.length).fill(0));
+    const delta: number[][] = x.map(
+      (own: readonly (readonly number[])[]): number[] =>
+        new Array<number>(own[0]!.length).fill(0),
+    );
     c.free[arm]!.forEach((d: number, f: number): void => {
       delta[arm]![d] = step[f]!;
     });
@@ -208,14 +260,17 @@ export namespace HumanArmTrajectoryClear {
 
 /**
  * The change meeting the rows that need a gain, by damped least squares
- * (Wampler 1986, IEEE Trans SMC 16:93; Nakamura and Hanafusa 1986, J Dyn
- * Syst Meas Control 108:163): `A' (A A' + lambda^2 I)^-1 gain`, the damping
- * a share of the strongest row's own (`DAMPING`), so a row nearly
- * insensitive to every coordinate cannot ask an unbounded change; and the
- * change held inside a region, where the rows' linearisation is trusted,
- * the next round meeting what is left.
+ * (Wampler 1986, IEEE Trans SMC 16:93; Nakamura and Hanafusa 1986, J Dyn Syst
+ * Meas Control 108:163): `A' (A A' + lambda^2 I)^-1 gain`, the damping a share
+ * of the strongest row's own (`DAMPING`), so a row nearly insensitive to every
+ * coordinate cannot ask an unbounded change; and the change held inside a
+ * region, where the rows' linearisation is trusted, the next round meeting what
+ * is left.
  */
-function least(rows: readonly { coef: number[]; gain: number }[], region: number): number[] | undefined {
+function least(
+  rows: readonly { coef: number[]; gain: number }[],
+  region: number,
+): number[] | undefined {
   const chosen: { coef: number[]; gain: number }[] = rows.filter(
     (row: { coef: number[]; gain: number }): boolean => row.gain > 0,
   );
@@ -223,13 +278,23 @@ function least(rows: readonly { coef: number[]; gain: number }[], region: number
   const size: number = chosen[0]!.coef.length;
   const gram: number[][] = chosen.map((p: { coef: number[] }): number[] =>
     chosen.map((q: { coef: number[] }): number =>
-      p.coef.reduce((s: number, v: number, d: number): number => s + v * q.coef[d]!, 0)));
-  const strongest: number = Math.max(...gram.map((row: number[], i: number): number => row[i]!));
+      p.coef.reduce(
+        (s: number, v: number, d: number): number => s + v * q.coef[d]!,
+        0,
+      ),
+    ),
+  );
+  const strongest: number = Math.max(
+    ...gram.map((row: number[], i: number): number => row[i]!),
+  );
   if (!(strongest > 0)) return undefined;
   gram.forEach((row: number[], i: number): void => {
     row[i]! += DAMPING * strongest;
   });
-  const y: number[] | undefined = solve(gram, chosen.map((row: { gain: number }): number => row.gain));
+  const y: number[] | undefined = solve(
+    gram,
+    chosen.map((row: { gain: number }): number => row.gain),
+  );
   if (y === undefined) return undefined;
   const step: number[] = new Array<number>(size).fill(0);
   chosen.forEach((row: { coef: number[] }, r: number): void => {
@@ -239,16 +304,28 @@ function least(rows: readonly { coef: number[]; gain: number }[], region: number
   });
   const largest: number = Math.max(...step.map(Math.abs));
   if (!Number.isFinite(largest) || largest === 0) return undefined;
-  return largest > region ? step.map((v: number): number => (v * region) / largest) : step;
+  return largest > region
+    ? step.map((v: number): number => (v * region) / largest)
+    : step;
 }
 
-/** The damping of the detour's least squares, a share of the strongest row's squared norm (provisional: a row a tenth as sensitive as the strongest is met about halfway). */
+/**
+ * The damping of the detour's least squares, a share of the strongest row's
+ * squared norm (provisional: a row a tenth as sensitive as the strongest is met
+ * about halfway).
+ */
 const DAMPING: number = 0.01;
 
-/** A small dense system by Gaussian elimination with partial pivoting; none when singular. */
+/**
+ * A small dense system by Gaussian elimination with partial pivoting; none when
+ * singular.
+ */
 function solve(a: number[][], b: number[]): number[] | undefined {
   const n: number = b.length;
-  const m: number[][] = a.map((row: number[], i: number): number[] => [...row, b[i]!]);
+  const m: number[][] = a.map((row: number[], i: number): number[] => [
+    ...row,
+    b[i]!,
+  ]);
   for (let col: number = 0; col < n; ++col) {
     let pivot: number = col;
     for (let r: number = col + 1; r < n; ++r)

@@ -10,38 +10,50 @@ import { walkLeg } from "./walkLeg";
 import { walkStepFoot } from "./walkStepFoot";
 
 /**
- * The stance of a gait with a flight, as the spring-mass model of running
- * has it (Blickhan 1989, J Biomech 22:1217; McMahon and Cheng 1990, J
- * Biomech 23 Suppl 1:65): the leg lands nearly straight, compresses to
- * mid-stance, where the centre of mass is lowest, and extends again to
- * leave as it landed, the leg's length from the hip to the contact the same
- * at both ends. The knee is flexed about 20 degrees at contact and at
- * toe-off and about 45 at mid-stance (Novacheck 1998, Gait Posture 7:77;
- * the values provisional inside the reported curves).
+ * The stance of a gait with a flight, as the spring-mass model of running has
+ * it (Blickhan 1989, J Biomech 22:1217; McMahon and Cheng 1990, J Biomech 23
+ * Suppl 1:65): the leg lands nearly straight, compresses to mid-stance, where
+ * the centre of mass is lowest, and extends again to leave as it landed, the
+ * leg's length from the hip to the contact the same at both ends. The knee is
+ * flexed about 20 degrees at contact and at toe-off and about 45 at mid-stance
+ * (Novacheck 1998, Gait Posture 7:77; the values provisional inside the
+ * reported curves).
  *
  * In a cruising step the pelvis then stands, at contact, at the height where
  * the hip reaches the foot with the contact knee, the foot struck on its heel
- * or, with its heel held up, on its ball, and at mid-stance at the height
- * where it stands over the middle of the contact with the mid-stance knee,
- * the heel risen as far as the ankle's dorsal room asks (`walkLeg.heelRise`);
- * the pelvis's oscillation, lowest at mid-stance and one period long, runs
- * through both. The foot leaves at the pitch about its ball that sets the
- * ankle at the contact knee's reach from the hip at that height, no steeper
- * than a walk's push and no shallower than its held heel.
+ * or, with its heel held up, on its ball, and at mid-stance at the height where
+ * it stands over the middle of the contact with the mid-stance knee, the heel
+ * risen as far as the ankle's dorsal room asks (`walkLeg.heelRise`); the
+ * pelvis's oscillation, lowest at mid-stance and one period long, runs through
+ * both. The foot leaves at the pitch about its ball that sets the ankle at the
+ * contact knee's reach from the hip at that height, no steeper than a walk's
+ * push and no shallower than its held heel.
  */
 export namespace runStance {
-  /** The knee's flexion at contact and at toe-off, degrees (provisional, Novacheck 1998). */
+  /**
+   * The knee's flexion at contact and at toe-off, degrees (provisional,
+   * Novacheck 1998).
+   */
   export const CONTACT: number = 20;
 
-  /** The knee's flexion at mid-stance, degrees (provisional, Novacheck 1998: about 40 to 45). */
+  /**
+   * The knee's flexion at mid-stance, degrees (provisional, Novacheck 1998:
+   * about 40 to 45).
+   */
   export const MIDDLE: number = 45;
 
-  /** The knee flexion at the mid-stance search's deep end, degrees: well past `MIDDLE` and inside the knee's range. */
+  /**
+   * The knee flexion at the mid-stance search's deep end, degrees: well past
+   * `MIDDLE` and inside the knee's range.
+   */
   const BRACKET: number = 120;
 
   /** A cruising stance's oscillation and push. */
   export interface IStance {
-    /** The pelvis's oscillation about standing, hip heights: its mean and its amplitude, lowest at mid-stance. */
+    /**
+     * The pelvis's oscillation about standing, hip heights: its mean and its
+     * amplitude, lowest at mid-stance.
+     */
     bob: { mean: number; amplitude: number };
 
     /** The toe-off pitch, degrees toes-down. */
@@ -52,10 +64,10 @@ export namespace runStance {
    * A cruising stance of a gait with a flight.
    *
    * @param body The body.
-   * @param props The cruising step in metres, the swing in step periods,
-   *   how far ahead of the pelvis the landing ankle lies in steps, how far
-   *   ahead of the ankle the middle of the contact lies in metres, and how
-   *   far the heel is held up through stance, degrees (0 for a heel strike).
+   * @param props The cruising step in metres, the swing in step periods, how
+   *   far ahead of the pelvis the landing ankle lies in steps, how far ahead of
+   *   the ankle the middle of the contact lies in metres, and how far the heel
+   *   is held up through stance, degrees (0 for a heel strike).
    * @returns The oscillation and the push.
    */
   export function plan(
@@ -78,14 +90,19 @@ export namespace runStance {
     const twiceProduct: number = 2 * thigh * shank;
     const leg: (flexion: number) => number = (flexion: number): number =>
       Math.sqrt(
-        thighSquared + shankSquared + twiceProduct * Math.cos((flexion * Math.PI) / 180),
+        thighSquared +
+          shankSquared +
+          twiceProduct * Math.cos((flexion * Math.PI) / 180),
       );
     const heel: IAutoMovieVector3 = HumanFoot.offset(body, "left", "heel");
     const mtp: IAutoMovieVector3 = HumanFoot.offset(body, "left", "mtp");
 
     // The ankle about a point fixed on the floor, the foot pitched toes-up by
     // `degrees`: its height over the floor and how far ahead of the point.
-    const about: (point: IAutoMovieVector3, degrees: number) => { z: number; y: number } = (
+    const about: (
+      point: IAutoMovieVector3,
+      degrees: number,
+    ) => { z: number; y: number } = (
       point: IAutoMovieVector3,
       degrees: number,
     ): { z: number; y: number } => {
@@ -115,7 +132,11 @@ export namespace runStance {
     // Mid-stance: the hip over the middle of the contact, the foot on its
     // footprint with its heel risen as far as the ankle's dorsal room asks
     // (`walkLeg.heelRise`), at the height that bends the knee `MIDDLE`.
-    const flat: IAutoMovieVector3 = { x: ankle.x, y: above, z: ankle.z - props.lead };
+    const flat: IAutoMovieVector3 = {
+      x: ankle.x,
+      y: above,
+      z: ankle.z - props.lead,
+    };
     const ball: IAutoMovieVector3 = Vector3.add(flat, mtp);
     const rocker: ReturnType<typeof walkLeg.prepareHeelRise> =
       walkLeg.prepareHeelRise(body, "left", ball, 0, walkLeg.ROCKER);
@@ -124,18 +145,12 @@ export namespace runStance {
     const bent: (height: number) => number = (height: number): number => {
       const at: IAutoMovieVector3 = { x: hip.x, y: height, z: ankle.z };
       const pitch: number = rocker(at, -props.heels);
-      const d: number = distance(
-        at,
-        pivot(pitch).ankle,
-      );
+      const d: number = distance(at, pivot(pitch).ankle);
       return (
         (Math.acos(
           Math.max(
             -1,
-            Math.min(
-              1,
-              (d * d - thighSquared - shankSquared) / twiceProduct,
-            ),
+            Math.min(1, (d * d - thighSquared - shankSquared) / twiceProduct),
           ),
         ) *
           180) /
@@ -185,13 +200,14 @@ export namespace runStance {
   }
 
   /**
-   * What a foot in flight claims of the pelvis: it bears nothing, so it asks
-   * no lowering of its own, only what its stance claimed as it left and what
-   * its next stance claims as it lands, passed from one to the other on a
+   * What a foot in flight claims of the pelvis: it bears nothing, so it asks no
+   * lowering of its own, only what its stance claimed as it left and what its
+   * next stance claims as it lands, passed from one to the other on a
    * minimum-jerk weight (Flash and Hogan 1985), so the pelvis is continuous
    * with its rate through both contact events.
    *
-   * @param ends The lowering the leg claims at its toe-off and at its heel strike, metres.
+   * @param ends The lowering the leg claims at its toe-off and at its heel
+   *   strike, metres.
    * @param u The share of the swing.
    * @returns The claim, metres.
    */

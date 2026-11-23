@@ -78,11 +78,12 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * pivots the lead shoe around its ball and moves the root and rear shoe around
  * that anchor. A traveling turn takes two steps on a new line. A lead exchange
  * lets the old rear foot move first on its own lane and finishes in the new
- * lead. The AIBA coaching illustrations distinguish these support patterns.
- * A cut keeps the inherited bearing shoe as the first support or pivot, and
- * lands the airborne shoe within the incoming beat.
- * The beat windows, vertical load, heel rise and trunk lag are provisional
- * choreography, expressed as beat shares or relative to the body.
+ * lead. The AIBA coaching illustrations distinguish these support patterns. A
+ * cut keeps the inherited bearing shoe as the first support or pivot, and lands
+ * the airborne shoe within the incoming beat. The beat windows, vertical load,
+ * heel rise and trunk lag are provisional choreography, expressed as beat
+ * shares or relative to the body.
+ *
  * @see https://www.iba.sport/wp-content/uploads/2018/07/AIBA-Coach-Regulations-Manual_WEB.pdf
  */
 export namespace StrikingStepTransition {
@@ -90,7 +91,8 @@ export namespace StrikingStepTransition {
    * Plan the prescribed support transfers and the carried full-body posture.
    *
    * @param context The step's action context and actual entry placements.
-   * @param props The resolved beat count, duration, travel, turn and entry lead.
+   * @param props The resolved beat count, duration, travel, turn and entry
+   *   lead.
    * @returns The deterministic full-body plan and its support windows.
    */
   export function plan(

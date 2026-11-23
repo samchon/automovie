@@ -18,19 +18,23 @@ import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { prepareJumpFlight } from "./prepareJumpFlight";
 
 /**
- * Construct the actual jump phase dispatcher and its free-flight reader.
- * The middle branch owns the copied ballistic coefficients and the genuine
+ * Construct the actual jump phase dispatcher and its free-flight reader. The
+ * middle branch owns the copied ballistic coefficients and the genuine
  * immutable foot-curve construction; supplied before/after writers execute
  * strictly outside that branch.
  *
  * @param body Native unchanged body used by this plan.
  * @param model Its actual physical mass model.
  * @param shape Achieved endpoints and fixed heading of this same jump.
- * @param phase The original local phase times, seconds, and ballistic metre coefficients.
+ * @param phase The original local phase times, seconds, and ballistic metre
+ *   coefficients.
  * @param rotation Actual requested turns, delegated unchanged to jumpAirborne.
- * @param ground Original push and landing writers and their native bare-display fit producers.
- * @param touchdownRequirement The optional geometry requirement for a planted rotating jump.
- * @returns The public posture dispatcher, the turning declarations and the event-prepared display source.
+ * @param ground Original push and landing writers and their native bare-display
+ *   fit producers.
+ * @param touchdownRequirement The optional geometry requirement for a planted
+ *   rotating jump.
+ * @returns The public posture dispatcher, the turning declarations and the
+ *   event-prepared display source.
  */
 export function prepareJumpPosture(
   body: IAutoMovieMotionHumanBody,
@@ -63,7 +67,10 @@ export function prepareJumpPosture(
   };
   const centre: IAutoMovieVector3 = { ...phase.centre };
   const launch: IAutoMovieVector3 = { ...phase.launch };
-  /** Preserve the exact touchdown evaluation and arithmetic of the native COM law. */
+  /**
+   * Preserve the exact touchdown evaluation and arithmetic of the native COM
+   * law.
+   */
   const flying: IAutoMovieMotionHumanActionPlan["posture"] = (
     t: number,
     _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -96,7 +103,10 @@ export function prepareJumpPosture(
       t,
     );
   };
-  /** A retained touchdown turn changes the leg-fit root, so it requires a normal display fit. */
+  /**
+   * A retained touchdown turn changes the leg-fit root, so it requires a normal
+   * display fit.
+   */
   const landed: HumanPreparedPlayback.IPhase["sample"] = (
     ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
   ): HumanPreparedPlayback.ISample | undefined => {
@@ -131,9 +141,7 @@ export function prepareJumpPosture(
   return { posture, declared: turning.declared, playback };
 }
 
-/**
- * Numeric facts of the actual owned dispatch and its unchanged plan surface.
- */
+/** Numeric facts of the actual owned dispatch and its unchanged plan surface. */
 export namespace prepareJumpPosture {
   /** Original local clock coefficients of the actual native middle branch. */
   export interface IPhase {
@@ -147,7 +155,10 @@ export namespace prepareJumpPosture {
     flightSeconds: number;
   }
 
-  /** The phase with the flight's ballistic start and the landing's end, as the jump hands them over. */
+  /**
+   * The phase with the flight's ballistic start and the landing's end, as the
+   * jump hands them over.
+   */
   export interface IFlight extends IPhase {
     /** The centre of mass at take-off, world metres. */
     centre: IAutoMovieVector3;
@@ -165,7 +176,10 @@ export namespace prepareJumpPosture {
     posture: IAutoMovieMotionHumanActionPlan["posture"];
     /** Original requested flight and handed-back airborne callback. */
     declared: Pick<IAutoMovieMotionHumanActionPlan, "flight" | "airborne">;
-    /** The native bare-leaf source, aligned to exactly the same phase boundaries. */
+    /**
+     * The native bare-leaf source, aligned to exactly the same phase
+     * boundaries.
+     */
     playback: HumanPreparedPlayback.ISource;
   }
 

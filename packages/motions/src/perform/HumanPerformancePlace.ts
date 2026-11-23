@@ -52,22 +52,23 @@ import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 
 /**
- * One intent placed in the performance: its law found, its entry state
- * read, its context built, its plan made, its cut checked against the
- * interrupt tables, and its action added to its performer.
+ * One intent placed in the performance: its law found, its entry state read,
+ * its context built, its plan made, its cut checked against the interrupt
+ * tables, and its action added to its performer.
  */
 export namespace HumanPerformancePlace {
   /**
-   * The schedule's timing law: plan the intent from the state its person is
-   * in. A trial plans and returns the timing without placing anything, and
-   * its planning is kept for the placement of the same intent at the same
-   * start with nothing placed in between (`IAutoMovieMotionHumanPerformanceTrial`).
+   * The schedule's timing law: plan the intent from the state its person is in.
+   * A trial plans and returns the timing without placing anything, and its
+   * planning is kept for the placement of the same intent at the same start
+   * with nothing placed in between (`IAutoMovieMotionHumanPerformanceTrial`).
    * Participant registry/body/entry metadata is fixed for this action context,
    * so its private per-subject reader templates share closures until context
    * release. Every performer lookup still checks existence and returns a fresh
-   * wrapper; every reader still observes actual seconds/plans/stops/invalidation.
-   * At most the context's requested known participants are retained, with no
-   * pose, frame, time-result history or operation FK/projector stored there.
+   * wrapper; every reader still observes actual
+   * seconds/plans/stops/invalidation. At most the context's requested known
+   * participants are retained, with no pose, frame, time-result history or
+   * operation FK/projector stored there.
    */
   export function place(
     self: IAutoMovieMotionHumanPerformanceState,

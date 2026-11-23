@@ -24,19 +24,22 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const PUCK_CONTACT_ALLOWANCE: number = 0.015;
 
 /**
- * Reconstruct the finite ice blade face from the fitted grip sockets at
- * closure and impact. The nominal shaft frame can remain inside both arm
- * lengths even though the body cannot put its wrists there.
+ * Reconstruct the finite ice blade face from the fitted grip sockets at closure
+ * and impact. The nominal shaft frame can remain inside both arm lengths even
+ * though the body cannot put its wrists there.
  *
  * @param context The actor's body and any held entry grips.
  * @param action The composed stroke on its own support or carrier.
  * @param initial The stick's world frame before the new grips close.
- * @param blade The stick model's blade face, with local X across, Y out and Z up its face.
+ * @param blade The stick model's blade face, with local X across, Y out and Z
+ *   up its face.
  * @param rim The world point on the puck's rim that the blade must meet.
  * @param direction The authored puck's horizontal departure direction.
  * @param seconds The action-local contact second.
- * @param closed The action-local second the new grips close at: 0 for grips held from the entry, the end of the reach for a stick the hands take.
- * @throws {HumanRefusal} If the achieved finite face cannot make the authored contact.
+ * @param closed The action-local second the new grips close at: 0 for grips
+ *   held from the entry, the end of the reach for a stick the hands take.
+ * @throws {HumanRefusal} If the achieved finite face cannot make the authored
+ *   contact.
  */
 export function admitPuckContact(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStickBall.IParams>,

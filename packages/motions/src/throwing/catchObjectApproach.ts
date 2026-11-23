@@ -15,16 +15,21 @@ import type { catchObject } from "./catchObject";
 import { throwObject } from "./throwObject";
 
 /**
- * The interception of a catch (catchObject): another's throw met where
- * its path first comes within `REACH` arm lengths ahead of the
- * catcher, or the catcher's own toss met as it falls to the chest
- * (`TOSS`).
+ * The interception of a catch (catchObject): another's throw met where its path
+ * first comes within `REACH` arm lengths ahead of the catcher, or the catcher's
+ * own toss met as it falls to the chest (`TOSS`).
  */
 export namespace catchObjectApproach {
-  /** How far ahead of the root another's throw is met, arm lengths (provisional). */
+  /**
+   * How far ahead of the root another's throw is met, arm lengths
+   * (provisional).
+   */
   export const REACH: number = 0.6;
 
-  /** The height a self-tossed object is caught at on its way down, a share of the stature: the lower chest (provisional). */
+  /**
+   * The height a self-tossed object is caught at on its way down, a share of
+   * the stature: the lower chest (provisional).
+   */
   export const TOSS: number = 0.72;
 
   /**
@@ -34,7 +39,9 @@ export namespace catchObjectApproach {
    * @param frame The catcher's standing floor frame.
    * @param arm The catcher's arm length, metres.
    * @returns The interception.
-   * @throws {HumanRefusal} When the anchor is not a throw, a self-toss never rises to the chest, or another's throw starts within reach or never comes within it.
+   * @throws {HumanRefusal} When the anchor is not a throw, a self-toss never
+   *   rises to the chest, or another's throw starts within reach or never comes
+   *   within it.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,

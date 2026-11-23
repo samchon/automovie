@@ -18,14 +18,14 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The feet of a body going down, held where they stood. A fall that pitches
- * or turns the whole body about its root also turns the feet with it, so a
- * heel or a toe the floor holds swings across it; the feet stay flat and
- * planted at their entry places and attitudes, by leg goals, until the part
- * that lands first bears, and the legs then return to the fall's own shape
- * over `FADE`. A body lifted off its feet (a wire's hoist) may raise each
- * held heel about the ball once the leg has straightened (`hold`'s heels),
- * so the foot stays on the floor instead of the leg falling short of it.
+ * The feet of a body going down, held where they stood. A fall that pitches or
+ * turns the whole body about its root also turns the feet with it, so a heel or
+ * a toe the floor holds swings across it; the feet stay flat and planted at
+ * their entry places and attitudes, by leg goals, until the part that lands
+ * first bears, and the legs then return to the fall's own shape over `FADE`. A
+ * body lifted off its feet (a wire's hoist) may raise each held heel about the
+ * ball once the leg has straightened (`hold`'s heels), so the foot stays on the
+ * floor instead of the leg falling short of it.
  */
 export namespace ReactionFeet {
   /** The two feet's bones. */
@@ -38,24 +38,25 @@ export namespace ReactionFeet {
     "rightFoot",
   ];
 
-  /** How long the legs take to leave their planted goals for the fall's shape, seconds: authored. */
+  /**
+   * How long the legs take to leave their planted goals for the fall's shape,
+   * seconds: authored.
+   */
   export const FADE: number = 0.2;
 
   /** The bones a heel rise reads: the hips. */
-  const HIPS: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    "leftUpperLeg",
-    "rightUpperLeg",
-  ]);
+  const HIPS: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "rightUpperLeg"]);
 
   /**
    * A planted foot whose hip has risen past the leg's full length from its
-   * entry ankle, its heel raised about the ball by the least angle that
-   * brings the ankle back within the leg's reach, the toes lifting from the
-   * foot by the same angle so they stay flat, as a heel rises before the
-   * foot leaves the floor. Closed form: the ankle turns on a circle about
-   * the ball's lateral axis, and the circle meets the sphere of the leg's
-   * length about the hip where `A cos θ + B sin θ = c`. Unchanged when the
-   * leg reaches it flat; the angle of greatest reach where none reaches.
+   * entry ankle, its heel raised about the ball by the least angle that brings
+   * the ankle back within the leg's reach, the toes lifting from the foot by
+   * the same angle so they stay flat, as a heel rises before the foot leaves
+   * the floor. Closed form: the ankle turns on a circle about the ball's
+   * lateral axis, and the circle meets the sphere of the leg's length about the
+   * hip where `A cos θ + B sin θ = c`. Unchanged when the leg reaches it flat;
+   * the angle of greatest reach where none reaches.
    *
    * @param foot The entry foot: its ankle and rotation.
    * @param ball The ball's contact point on the floor, world metres.
@@ -100,7 +101,9 @@ export namespace ReactionFeet {
       );
     // Of the two crossings, the smaller turn that raises the ankle.
     const candidates: number[] = [phi - spread, phi + spread]
-      .map((theta: number): number => Math.atan2(Math.sin(theta), Math.cos(theta)))
+      .map((theta: number): number =>
+        Math.atan2(Math.sin(theta), Math.cos(theta)),
+      )
       .filter((theta: number): boolean => ankle(theta).y > foot.ankle.y);
     const theta: number =
       candidates.length === 0
@@ -118,7 +121,10 @@ export namespace ReactionFeet {
     };
   }
 
-  /** What a held foot's heel rise reads from the entry: its ball on the floor, world metres, and its leg's full length, metres. */
+  /**
+   * What a held foot's heel rise reads from the entry: its ball on the floor,
+   * world metres, and its leg's full length, metres.
+   */
   interface IRaise {
     /** The ball's contact point, world metres. */
     ball: IAutoMovieVector3;
@@ -126,7 +132,10 @@ export namespace ReactionFeet {
     length: number;
   }
 
-  /** A planted foot's placement under a heel rise and its toes' flexion, degrees. */
+  /**
+   * A planted foot's placement under a heel rise and its toes' flexion,
+   * degrees.
+   */
   interface IHeeled {
     /** The ankle, world metres. */
     ankle: IAutoMovieVector3;
@@ -137,18 +146,21 @@ export namespace ReactionFeet {
   }
 
   /**
-   * A plan whose feet stay planted until a second: its posture with both
-   * legs' goals at the entry feet; after it, over `FADE`, each goal travels
-   * to where the plan's own legs put the foot, so the legs return to the
-   * fall's shape without a jump. Written over the composed posture, so the
-   * fall's own leg joints stay one movement.
+   * A plan whose feet stay planted until a second: its posture with both legs'
+   * goals at the entry feet; after it, over `FADE`, each goal travels to where
+   * the plan's own legs put the foot, so the legs return to the fall's shape
+   * without a jump. Written over the composed posture, so the fall's own leg
+   * joints stay one movement.
    *
    * @param plan The fall's plan.
    * @param entry The entry state, its feet.
    * @param body The body, for the released feet's displayed frames.
    * @param until Seconds since the action's start the feet stay planted until.
-   * @param knee How high above the ankle the knee's hint lies, metres; it leans ahead along the heading by four tenths of that.
-   * @param heels Whether a held foot whose hip rises past its leg's reach raises its heel about the ball (`heeled`), as a body lifted off its feet does, instead of leaving the leg short of its foot; false when absent.
+   * @param knee How high above the ankle the knee's hint lies, metres; it leans
+   *   ahead along the heading by four tenths of that.
+   * @param heels Whether a held foot whose hip rises past its leg's reach
+   *   raises its heel about the ball (`heeled`), as a body lifted off its feet
+   *   does, instead of leaving the leg short of its foot; false when absent.
    * @returns The plan with its feet held.
    */
   export function hold(
@@ -168,7 +180,8 @@ export namespace ReactionFeet {
         poseBones(body, entry.pose);
       const of = (side: "left" | "right"): IRaise => ({
         ball: HumanFoot.sockets(body, bones, side).find(
-          (s: IAutoMovieMotionHumanFoot.ISocket): boolean => s.socket === "ball",
+          (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
+            s.socket === "ball",
         )!.point,
         length:
           Vector3.distance(
@@ -245,22 +258,24 @@ export namespace ReactionFeet {
         // heel; released, it leaves from the heel it was held on at the
         // release. The hips are read from the posture without its leg goals,
         // which they do not depend on.
-        const hips: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined =
-          heels
-            ? poseBones(
-                body,
-                resolveHumanPosture(body, {
-                  ...(s > 0
-                    ? plan.posture(until, channels, resolution, projection)
-                    : posture),
-                  limbs: {},
-                }),
-                undefined,
-                HIPS,
-              )
-            : undefined;
+        const hips:
+          | Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+          | undefined = heels
+          ? poseBones(
+              body,
+              resolveHumanPosture(body, {
+                ...(s > 0
+                  ? plan.posture(until, channels, resolution, projection)
+                  : posture),
+                limbs: {},
+              }),
+              undefined,
+              HIPS,
+            )
+          : undefined;
         for (const side of ["left", "right"] as const) {
-          const entered: IAutoMovieMotionHumanEntryState.IFoot = entry.feet[side];
+          const entered: IAutoMovieMotionHumanEntryState.IFoot =
+            entry.feet[side];
           const lifted: IHeeled | undefined =
             hips === undefined
               ? undefined
@@ -276,7 +291,8 @@ export namespace ReactionFeet {
               : { ...entered, ankle: lifted.ankle, rotation: lifted.rotation };
           if (lifted !== undefined)
             joints[`${side}Toes`] = [
-              lifted.toes * (1 - s) + (posture.joints[`${side}Toes`]?.[0] ?? 0) * s,
+              lifted.toes * (1 - s) +
+                (posture.joints[`${side}Toes`]?.[0] ?? 0) * s,
               0,
               0,
             ];

@@ -37,10 +37,10 @@ import { manipulateShape } from "./manipulateShape";
 
 /**
  * Brace a fixed garment's rim with the index finger while the opposite thumb
- * pushes its button through the opening. Register as `button`. The same
- * stroke clock moves the button mesh and places the thumb; the drive leaves
- * the button through the panel when the hands leave. A rigid straight slider
- * and authored bounding sphere approximate the closure without cloth dynamics.
+ * pushes its button through the opening. Register as `button`. The same stroke
+ * clock moves the button mesh and places the thumb; the drive leaves the button
+ * through the panel when the hands leave. A rigid straight slider and authored
+ * bounding sphere approximate the closure without cloth dynamics.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the authoring entry, two hands, persistent outcome and geometric premise.
  * @evidence contracts/development/design.md#principled-representation A planar rectangular passage and sphere enclosure admit a linear translation; arm and digit goals then follow two model contacts.
@@ -273,7 +273,10 @@ function part(
   return result;
 }
 
-/** The arm seeds a flexed fingertip; the independent digit fit closes the remaining contact error. */
+/**
+ * The arm seeds a flexed fingertip; the independent digit fit closes the
+ * remaining contact error.
+ */
 function fingers(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanButton>,
   clock: IAutoMovieMotionClock,

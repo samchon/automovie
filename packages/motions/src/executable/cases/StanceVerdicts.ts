@@ -11,17 +11,17 @@ import { AutoMovieMotionHumanAuditBalance } from "../../audit/AutoMovieMotionHum
 import { HumanFoot } from "../../posture/HumanFoot";
 
 /**
- * Measures of a held stance on displayed poses, shared by the step 4
- * capture cases (stretching, dance, sport): how far the body's extrapolated
- * centre of mass stands outside one standing foot, a joint's clinical angle,
- * and the angle between two bones.
+ * Measures of a held stance on displayed poses, shared by the step 4 capture
+ * cases (stretching, dance, sport): how far the body's extrapolated centre of
+ * mass stands outside one standing foot, a joint's clinical angle, and the
+ * angle between two bones.
  */
 export namespace StanceVerdicts {
   /**
    * How far the extrapolated centre of mass lies outside one standing foot's
-   * bearing outline, metres: the margin of stability negated, negative
-   * inside. The velocity is the central difference over the balance audit's
-   * step (`AutoMovieMotionHumanAuditBalance.STEP`), clamped into the film.
+   * bearing outline, metres: the margin of stability negated, negative inside.
+   * The velocity is the central difference over the balance audit's step
+   * (`AutoMovieMotionHumanAuditBalance.STEP`), clamped into the film.
    *
    * @param performance The performance.
    * @param subject The performer.

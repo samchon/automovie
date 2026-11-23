@@ -15,10 +15,10 @@ import { HumanFrame } from "../posture/HumanFrame";
 
 /**
  * The forward lunge of `exercise`: the hips come down until the lead thigh is
- * level over an upright shank and travel forward until the trailing thigh
- * hangs under its hip, that leg's shank level behind it on a foot stood on
- * its toes with the ankle at its dorsiflexion range; the lead foot steps out
- * to stand a thigh ahead of the hips there, and steps back.
+ * level over an upright shank and travel forward until the trailing thigh hangs
+ * under its hip, that leg's shank level behind it on a foot stood on its toes
+ * with the ankle at its dorsiflexion range; the lead foot steps out to stand a
+ * thigh ahead of the hips there, and steps back.
  */
 export namespace exerciseLunge {
   /** What the exercise hands the lunge. */
@@ -51,7 +51,8 @@ export namespace exerciseLunge {
   /**
    * The lunge's primitives and the trailing foot's plant.
    *
-   * @param props The body, the entry and its feet, the heading, the lead leg, the depth share, the extent and the duration.
+   * @param props The body, the entry and its feet, the heading, the lead leg,
+   *   the depth share, the extent and the duration.
    * @returns The primitives and the contact windows.
    */
   export function plan(props: IProps): {
@@ -107,7 +108,10 @@ export namespace exerciseLunge {
         reads: ["root"],
         from: 0,
         to: duration,
-        write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => ({
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => ({
           ...posture,
           root: Vector3.add(
             posture.root,
@@ -124,7 +128,10 @@ export namespace exerciseLunge {
         side: lead,
         from: 0,
         to: duration,
-        placement: (_: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanFoot.IPlacement =>
+        placement: (
+          _: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanFoot.IPlacement =>
           step(Math.min(1, 2 * any(s))),
         planted: (s: number): boolean => any(s) <= 0 || any(s) >= 0.5,
       }),
@@ -133,7 +140,10 @@ export namespace exerciseLunge {
         channels: [`${trail}Leg`],
         from: 0,
         to: duration,
-        write: (posture: IAutoMovieMotionHumanPosture, s: number): IAutoMovieMotionHumanPosture => {
+        write: (
+          posture: IAutoMovieMotionHumanPosture,
+          s: number,
+        ): IAutoMovieMotionHumanPosture => {
           const share: number = any(s) * extent;
           return {
             ...posture,

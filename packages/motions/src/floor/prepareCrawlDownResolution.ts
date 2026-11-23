@@ -12,7 +12,10 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** Actual canonical observations used during one synchronous crawl-descent solve. */
+/**
+ * Actual canonical observations used during one synchronous crawl-descent
+ * solve.
+ */
 interface IReading {
   /** The current two shoulders' midpoint, world metres. */
   shoulders(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3;
@@ -22,18 +25,20 @@ interface IReading {
 
   /** The current complete canonical pose, for the solved arms at hands-down. */
   pose(posture: IAutoMovieMotionHumanPosture): IAutoMoviePose;
-
 }
 
 /**
- * Prepare fixed ROM and FK metadata for one crawl-descent state search.
- * The caller releases these readers when that synchronous search ends;
- * each posture still undergoes complete canonical projection and fitting.
+ * Prepare fixed ROM and FK metadata for one crawl-descent state search. The
+ * caller releases these readers when that synchronous search ends; each posture
+ * still undergoes complete canonical projection and fitting.
  *
  * @param body The unchanged body of the descent.
- * @returns Actual shoulder, knee, full-pose and mass-centre readers for current candidates.
+ * @returns Actual shoulder, knee, full-pose and mass-centre readers for current
+ *   candidates.
  */
-export function prepareCrawlDownResolution(body: IAutoMovieMotionHumanBody): IReading {
+export function prepareCrawlDownResolution(
+  body: IAutoMovieMotionHumanBody,
+): IReading {
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
   const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -72,8 +77,9 @@ export function prepareCrawlDownResolution(body: IAutoMovieMotionHumanBody): IRe
         0.5,
       );
     },
-    knees: (posture: IAutoMovieMotionHumanPosture): ReturnType<typeof poseBones> =>
-      knees(pose(posture), resolution()),
+    knees: (
+      posture: IAutoMovieMotionHumanPosture,
+    ): ReturnType<typeof poseBones> => knees(pose(posture), resolution()),
     pose,
   };
 }

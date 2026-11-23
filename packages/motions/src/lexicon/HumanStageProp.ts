@@ -155,8 +155,8 @@ const BEATS: Readonly<Record<IAutoMovieMotionHumanStageProp["beat"], IBeat>> = {
 
 /**
  * A held digital prop display law. `stroke` is the authored screen beat,
- * available to another performance chain as a synchronization anchor.
- * The existing body and arm planners own support and grip fitting.
+ * available to another performance chain as a synchronization anchor. The
+ * existing body and arm planners own support and grip fitting.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents digital scope, mark ownership, phase cue and body reuse.
  * @evidence contracts/development/design.md#principled-representation The closed visual beats use the shared pose clock and fitted body. Each strike-like appearance is an authored visual timing beat.
@@ -175,7 +175,6 @@ export const HumanStageProp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
  *
  * @param context Entry body, held digital prop and authored beat.
  * @returns A fitted kinematic action with the `stroke` editing cue.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Defines entry scope, cue, body plan and held grip.
  * @evidence contracts/development/implementation.md#principled-implementation Read the actual held transform and the selected mark's visible articulation at the stroke, then evaluate the authored path with the shared clock and arm fitting. The actor's stance and turn carry the tool.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit hold and parameters, resolve one primary frame and any established support grip, then delegate the phase plan.
@@ -309,13 +308,13 @@ function plan(
 }
 
 /**
- * The support site from the leading grip in the hand's frame, expanded from
- * its offset in the tool's axis-edge basis.
+ * The support site from the leading grip in the hand's frame, expanded from its
+ * offset in the tool's axis-edge basis.
  *
  * @param tool The held tool and its axes.
  * @param support The support handle's offset.
- * @returns The support site from the grip socket, metres, in the hand bone's axes.
- *
+ * @returns The support site from the grip socket, metres, in the hand bone's
+ *   axes.
  * @evidence contracts/development/common.md#meaningful-documentation States the basis and the result's frame.
  * @evidence contracts/development/implementation.md#principled-implementation The inverse of the offset's projection onto the orthonormal axis, edge and their cross product.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One weighted sum of three axes.
@@ -337,7 +336,10 @@ function supportPoint(
   );
 }
 
-/** Keep the registered hold and read articulated model sites at the authored stroke accent. */
+/**
+ * Keep the registered hold and read articulated model sites at the authored
+ * stroke accent.
+ */
 function heldAtStroke(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageProp>,
   hand: AutoMovieHumanSide,

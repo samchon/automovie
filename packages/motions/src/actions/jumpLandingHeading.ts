@@ -5,11 +5,11 @@ import { HumanRefusal } from "../law/HumanRefusal";
 /**
  * Choose the heading of a jump's two-foot landing, in degrees about world +Y.
  *
- * A completed somersault restores the body's up axis, so a fractional twist
- * can finish upright with both footprints turned around the destination.
- * A fractional somersault needs a different support or recovery action. A
- * turned landing currently requires the level floor because a prop contact
- * does not establish room for the rotated footprints.
+ * A completed somersault restores the body's up axis, so a fractional twist can
+ * finish upright with both footprints turned around the destination. A
+ * fractional somersault needs a different support or recovery action. A turned
+ * landing currently requires the level floor because a prop contact does not
+ * establish room for the rotated footprints.
  *
  * @param params The authored rotation, destination and optional support.
  * @param heading The heading of the jump's unturned flight.

@@ -31,13 +31,13 @@ import { ReactionSource } from "./ReactionSource";
 
 /**
  * A struck body thrown clear of the floor by a blast or a jerk-back
- * (`IAutoMovieMotionHumanThrown`). The body takes its rig's shape over
- * `WINDUP` with the feet held flat where they stood, the feet leave the
- * floor at `takeoff`, and the root flies the
- * ballistic path of the authored distance and height under standard gravity
- * until it reaches the height it lies at, `land`, turning over onto its
- * back meanwhile into the knockdown's supine lie (`KnockdownFloor`). The
- * body faces against its travel, so it lands on its back.
+ * (`IAutoMovieMotionHumanThrown`). The body takes its rig's shape over `WINDUP`
+ * with the feet held flat where they stood, the feet leave the floor at
+ * `takeoff`, and the root flies the ballistic path of the authored distance and
+ * height under standard gravity until it reaches the height it lies at, `land`,
+ * turning over onto its back meanwhile into the knockdown's supine lie
+ * (`KnockdownFloor`). The body faces against its travel, so it lands on its
+ * back.
  */
 export namespace thrown {
   /** The action's name. */
@@ -51,7 +51,10 @@ export namespace thrown {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /** How long the rig's shape takes before the feet leave, seconds: provisional, about a reaction time of the rig. */
+  /**
+   * How long the rig's shape takes before the feet leave, seconds: provisional,
+   * about a reaction time of the rig.
+   */
   export const WINDUP: number = 0.1;
 
   /**
@@ -59,7 +62,8 @@ export namespace thrown {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On `distance` or `height` when not positive and finite, and on `seconds` when negative.
+   * @throws {HumanRefusal} On `distance` or `height` when not positive and
+   *   finite, and on `seconds` when negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrown.IParams>,
@@ -359,7 +363,10 @@ export namespace thrown {
     };
   }
 
-  /** The head's top above the feet, in statures: the reach of a body laid back along its travel. */
+  /**
+   * The head's top above the feet, in statures: the reach of a body laid back
+   * along its travel.
+   */
   const HEAD: number = 0.95;
 
   /**
@@ -399,9 +406,9 @@ export namespace thrown {
   };
 
   /**
-   * Sitting on the floor against the wall the flight struck: the hips
-   * folded square with the legs out along the floor, the trunk upright
-   * against the face (provisional stage reading).
+   * Sitting on the floor against the wall the flight struck: the hips folded
+   * square with the legs out along the floor, the trunk upright against the
+   * face (provisional stage reading).
    */
   const SITTING: KnockdownFloor.IFold = {
     pitch: 0,

@@ -27,21 +27,20 @@ import { ReactionFeet } from "./ReactionFeet";
 import { wireFlightTouches } from "./wireFlightTouches";
 
 /**
- * A wire flight along an authored path (`IAutoMovieMotionHumanWireFlight`).
- * The root moves along the polyline from the entry root through the
- * waypoints to the end by arc length on one minimum-jerk profile (Flash and
- * Hogan 1985), so it starts and ends at rest; the feet stay planted over
- * `LIFT`, a heel rising about its ball once its leg has straightened under
- * the rising body, and the shape blends in over
- * the first quarter of the flight and out over the last, from and back to
- * the quiet stance's joints: the column upright and the arms hanging
- * relaxed with their digits clear of the thighs (`stand.relaxed`), so a
- * flight lands in the stance the stand law holds. The heading turns
- * the body's front-back line onto the horizontal travel of the whole path
- * by the shorter turn (a travel behind is flown backward), once the wire has taken the
- * weight and the feet have left the floor, by the end of the first quarter:
- * planted feet hold the heading, which the hips cannot turn far. No gravity is checked: the
- * flight is staged on wires.
+ * A wire flight along an authored path (`IAutoMovieMotionHumanWireFlight`). The
+ * root moves along the polyline from the entry root through the waypoints to
+ * the end by arc length on one minimum-jerk profile (Flash and Hogan 1985), so
+ * it starts and ends at rest; the feet stay planted over `LIFT`, a heel rising
+ * about its ball once its leg has straightened under the rising body, and the
+ * shape blends in over the first quarter of the flight and out over the last,
+ * from and back to the quiet stance's joints: the column upright and the arms
+ * hanging relaxed with their digits clear of the thighs (`stand.relaxed`), so a
+ * flight lands in the stance the stand law holds. The heading turns the body's
+ * front-back line onto the horizontal travel of the whole path by the shorter
+ * turn (a travel behind is flown backward), once the wire has taken the weight
+ * and the feet have left the floor, by the end of the first quarter: planted
+ * feet hold the heading, which the hips cannot turn far. No gravity is checked:
+ * the flight is staged on wires.
  */
 export namespace wireFlight {
   /** The action's name. */
@@ -55,7 +54,8 @@ export namespace wireFlight {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On `seconds` when not positive and finite, and on `to` when the path has no length.
+   * @throws {HumanRefusal} On `seconds` when not positive and finite, and on
+   *   `to` when the path has no length.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
@@ -113,8 +113,7 @@ export namespace wireFlight {
     // lift whose end lies a few centimetres behind the stance's root (the
     // stand holds its root ahead of the feet) is thus no half turn.
     const facing: number = wrap(heading - entry.yaw);
-    const turn: number =
-      Math.abs(facing) > 90 ? wrap(facing - 180) : facing;
+    const turn: number = Math.abs(facing) > 90 ? wrap(facing - 180) : facing;
     const shape: IShape = SHAPES[context.params.shape ?? "hover"];
     // The quiet stance the flight leaves and lands in: the column upright
     // and the arms hanging relaxed, digits clear of the thighs
@@ -141,8 +140,7 @@ export namespace wireFlight {
       );
     };
     // The arc length gone at a second, on one minimum-jerk profile.
-    const gone = (t: number): number =>
-      total * minimumJerk.share(t / seconds);
+    const gone = (t: number): number => total * minimumJerk.share(t / seconds);
     // The feet stay planted while the wire takes the weight (`LIFT`), the
     // heels rising as the body rises past the straightened legs, then leave
     // the floor.
@@ -266,22 +264,37 @@ export namespace wireFlight {
     );
   }
 
-  /** The share of the flight the feet stay planted for while the wire takes the weight: authored; a foot whose leg straightens before it raises its heel. */
+  /**
+   * The share of the flight the feet stay planted for while the wire takes the
+   * weight: authored; a foot whose leg straightens before it raises its heel.
+   */
   export const LIFT: number = 0.08;
 
-  /** How long a touch comes in before its share and goes out after, seconds (`wireFlightTouches.TOUCH`). */
+  /**
+   * How long a touch comes in before its share and goes out after, seconds
+   * (`wireFlightTouches.TOUCH`).
+   */
   export const TOUCH: number = wireFlightTouches.TOUCH;
 
-  /** The shoulder's height on a standing body, in statures (`wireFlightTouches.SHOULDER`). */
+  /**
+   * The shoulder's height on a standing body, in statures
+   * (`wireFlightTouches.SHOULDER`).
+   */
   export const SHOULDER: number = wireFlightTouches.SHOULDER;
 
   /** The ankle's height above the sole, in statures (`wireFlightTouches.ANKLE`). */
   export const ANKLE: number = wireFlightTouches.ANKLE;
 
-  /** How far the wrist stands off a surface the palm lies on, metres (`wireFlightTouches.PALM`). */
+  /**
+   * How far the wrist stands off a surface the palm lies on, metres
+   * (`wireFlightTouches.PALM`).
+   */
   export const PALM: number = wireFlightTouches.PALM;
 
-  /** One flight shape: the body's pitch and joint angles, degrees (provisional stage readings). */
+  /**
+   * One flight shape: the body's pitch and joint angles, degrees (provisional
+   * stage readings).
+   */
   interface IShape {
     /** Whole-body pitch, degrees; positive face down. */
     pitch: number;

@@ -18,11 +18,11 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 
 /**
  * Prepare a limb's unchanged source pose, clinical mappings, reference and
- * clearance for every target of one contact re-aim operation. The caller
- * keeps these inputs fixed and releases the workspace when that fit ends.
- * The workspace is placed by the caller's plant, whose chain carries the
- * body's rig-only readers of the limb when it was placed from the body's
- * chain constants (`placeChainPlant`).
+ * clearance for every target of one contact re-aim operation. The caller keeps
+ * these inputs fixed and releases the workspace when that fit ends. The
+ * workspace is placed by the caller's plant, whose chain carries the body's
+ * rig-only readers of the limb when it was placed from the body's chain
+ * constants (`placeChainPlant`).
  */
 export function prepareHumanLimbFit(
   body: IAutoMovieMotionHumanBody,
@@ -52,9 +52,7 @@ export function prepareHumanLimbFit(
     pose,
     chain,
     bend: goal.bend,
-    ...(goal.rotation === undefined
-      ? {}
-      : { effectorRotation: goal.rotation }),
+    ...(goal.rotation === undefined ? {} : { effectorRotation: goal.rotation }),
     ...(obstruction === undefined ? {} : { obstruction }),
     ...(near === undefined ? {} : { near }),
     ...(strain === null ? {} : { strain }),
@@ -81,7 +79,13 @@ export function prepareHumanLimbFit(
     jointAxes: HUMANOID_JOINT_AXES,
     restFrames: HUMANOID_REST_FRAME,
   };
-  return fitSeededChainToTarget.prepare(source, readAuthored, resolution, body.poseResolution, plant);
+  return fitSeededChainToTarget.prepare(
+    source,
+    readAuthored,
+    resolution,
+    body.poseResolution,
+    plant,
+  );
 }
 
 /** Read the current clinical reference in degrees without a per-goal closure. */

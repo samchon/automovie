@@ -1,9 +1,10 @@
 import type { IAutoMovieMotionHumanStrike } from "@automovie/interface";
 
 /**
- * The rearHook preset: a hook with the rear hand. Spread into `punch`'s parameters beside the
- * rest that the composition gives; each value means what the law's member of
- * the same name does. The `rearHook` row of `HumanStrike` fixes these values.
+ * The rearHook preset: a hook with the rear hand. Spread into `punch`'s
+ * parameters beside the rest that the composition gives; each value means what
+ * the law's member of the same name does. The `rearHook` row of `HumanStrike`
+ * fixes these values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which row reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own named member types as one `IPunchPreset`, so a preset fixes exactly its members and the law keeps every other default.

@@ -19,9 +19,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/**
- * Open the working hand against its palmar plane as it arrives at the floor.
- */
+/** Open the working hand against its palmar plane as it arrives at the floor. */
 export function bendFloorHand(
   body: IAutoMovieMotionHumanBody,
   shape: IAutoMovieMotionHumanPosture,

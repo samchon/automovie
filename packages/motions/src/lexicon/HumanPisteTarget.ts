@@ -62,16 +62,16 @@ const STRUCK: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Refuse a bout's target outside the weapon's valid target: the foil's
- * trunk, every region for the epee and every region above the waist for the
- * sabre (FIE Technical Rules), and for kendo a struck region of the
- * opponent's worn armour (FIK, The Regulations of Kendo Shiai and Shinpan,
- * Articles 12 and 14).
+ * Refuse a bout's target outside the weapon's valid target: the foil's trunk,
+ * every region for the epee and every region above the waist for the sabre (FIE
+ * Technical Rules), and for kendo a struck region of the opponent's worn armour
+ * (FIK, The Regulations of Kendo Shiai and Shinpan, Articles 12 and 14).
  *
  * @param kind The weapon.
  * @param axis The take's input the target came from, named in the refusal.
  * @param target The target.
- * @throws {HumanRefusal} When the target lies outside the weapon's valid target.
+ * @throws {HumanRefusal} When the target lies outside the weapon's valid
+ *   target.
  */
 export function HumanPisteTarget(
   kind: HumanStagePiste.Kind,

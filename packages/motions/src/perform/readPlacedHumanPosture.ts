@@ -9,9 +9,7 @@ import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionH
 import { HumanBendRead } from "../compose/HumanBendRead";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
-/**
- * Read the raw active posture of an already resolved person, before layers.
- */
+/** Read the raw active posture of an already resolved person, before layers. */
 export function readPlacedHumanPosture(
   person: IAutoMovieMotionHumanSegment.IPerson,
   seconds: number,

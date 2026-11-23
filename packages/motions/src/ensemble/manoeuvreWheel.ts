@@ -10,35 +10,35 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFormation } from "./HumanFormation";
 
 /**
- * A wheel on a fixed pivot: the formation turned rigidly about its pivot
- * flank, so the line stays straight as it wheels. In the drill books one
- * flank stands fast while the rest moves round it; "the outward wheeling
- * man always lengthens his step to 33 inches" from the ordinary 30, and
- * every other man shortens his step "in proportion as he is nearer to the
- * standing flank on which the wheel is made" (Rules and Regulations for the
- * Formations and Movements of the Militia of Lower-Canada, c. 1814, after
- * Dundas 1792).
+ * A wheel on a fixed pivot: the formation turned rigidly about its pivot flank,
+ * so the line stays straight as it wheels. In the drill books one flank stands
+ * fast while the rest moves round it; "the outward wheeling man always
+ * lengthens his step to 33 inches" from the ordinary 30, and every other man
+ * shortens his step "in proportion as he is nearer to the standing flank on
+ * which the wheel is made" (Rules and Regulations for the Formations and
+ * Movements of the Militia of Lower-Canada, c. 1814, after Dundas 1792).
  *
- * The wheeling frame is a course standing on the pivot, the `from`
- * formation's blocks moved so each slot stands where it stood at the word,
- * its heading turning and sampled every `HumanFormation.SAMPLE` seconds: a
- * frame that only turns carries every slot round the pivot exactly between
- * samples. Its angular speed is the slowest
- * member's travel speed lengthened by `LENGTHENED`, over the outward
- * radius, so the outward man takes the lengthened step and nobody a longer
- * one; it gathers and sheds that speed at `HumanFormation.ACCELERATION`
+ * The wheeling frame is a course standing on the pivot, the `from` formation's
+ * blocks moved so each slot stands where it stood at the word, its heading
+ * turning and sampled every `HumanFormation.SAMPLE` seconds: a frame that only
+ * turns carries every slot round the pivot exactly between samples. Its angular
+ * speed is the slowest member's travel speed lengthened by `LENGTHENED`, over
+ * the outward radius, so the outward man takes the lengthened step and nobody a
+ * longer one; it gathers and sheds that speed at `HumanFormation.ACCELERATION`
  * over the same radius. Each member keeps its own slot of the wheeling
  * formation as a station, so at a called cadence its steps shorten with its
  * radius (`walkStation.cadenced`) and the pivot turns on its own ground. Its
  * way on paper is the arc its slot draws, a point every `ARC` degrees.
  *
- * @param ensemble The ensemble, its member `i` standing in slot `members[i].index` of `from`.
+ * @param ensemble The ensemble, its member `i` standing in slot
+ *   `members[i].index` of `from`.
  * @param manoeuvre The wheel.
  * @param starts Where each stands at the word.
  * @param ends Each one's slot in `to`.
  * @param speeds Each one's travel speed, m/s.
  * @returns Each member's way and station; no stations when nothing turns.
- * @throws {HumanRefusal} When `to` is not `from` turned about the pivot, naming the member whose slot lies elsewhere and how far.
+ * @throws {HumanRefusal} When `to` is not `from` turned about the pivot, naming
+ *   the member whose slot lies elsewhere and how far.
  */
 export function manoeuvreWheel(
   ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -158,14 +158,19 @@ export function manoeuvreWheel(
   };
 }
 
-/**
- * Constants and types of {@link manoeuvreWheel}.
- */
+/** Constants and types of {@link manoeuvreWheel}. */
 export namespace manoeuvreWheel {
-  /** The outward man's lengthened step over the ordinary one: 33 inches over 30 (Rules and Regulations for the Formations and Movements of the Militia of Lower-Canada, c. 1814, after Dundas 1792). */
+  /**
+   * The outward man's lengthened step over the ordinary one: 33 inches over 30
+   * (Rules and Regulations for the Formations and Movements of the Militia of
+   * Lower-Canada, c. 1814, after Dundas 1792).
+   */
   export const LENGTHENED: number = 33 / 30;
 
-  /** Metres a target slot may lie from the turned one: a millimetre, the rounding of a laid slot, so only a formation of another shape is refused. */
+  /**
+   * Metres a target slot may lie from the turned one: a millimetre, the
+   * rounding of a laid slot, so only a formation of another shape is refused.
+   */
   export const FIT: number = 1e-3;
 
   /** Degrees between two points of a wheeling member's arc. */
@@ -188,7 +193,10 @@ function turn(
   };
 }
 
-/** The wheel's pivot: the front rank's left or right file, or its centre, where the members stand at the word. */
+/**
+ * The wheel's pivot: the front rank's left or right file, or its centre, where
+ * the members stand at the word.
+ */
 function pivotOf(
   manoeuvre: IAutoMovieMotionHumanManoeuvre,
   members: readonly IAutoMovieMotionHumanEnsemble.IMember[],
@@ -231,7 +239,10 @@ function pivotOf(
   return starts[side === "left" ? front[0]! : front[front.length - 1]!]!;
 }
 
-/** A way about a pivot from one point to another: the radius and the angle each changed evenly, a point every `ARC` degrees. */
+/**
+ * A way about a pivot from one point to another: the radius and the angle each
+ * changed evenly, a point every `ARC` degrees.
+ */
 function arc(
   centre: IAutoMovieVector3,
   from: IAutoMovieVector3,

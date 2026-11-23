@@ -12,34 +12,31 @@ import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch
 import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 
 /**
- * Actual solve/strain sweeps sharing fixed arm geometry and optional paired trunk preparation.
+ * Actual solve/strain sweeps sharing fixed arm geometry and optional paired
+ * trunk preparation.
  */
 export namespace AutoMovieMotionHumanBendPreparation {
   /**
-   * Variable fields of the existing bend request, after body/trunk/side are fixed.
+   * Variable fields of the existing bend request, after body/trunk/side are
+   * fixed.
    */
   export type IGoal = Pick<
     IAutoMovieMotionHumanBend.ISolve,
     "point" | "rotation" | "fallback"
   >;
 
-  /**
-   * Two original numerical queries on one fixed body/trunk/side geometry.
-   */
+  /** Two original numerical queries on one fixed body/trunk/side geometry. */
   export interface IPrepared {
-    /**
-     * Run the original legality-first then least-strain sweep for this wrist.
-     */
+    /** Run the original legality-first then least-strain sweep for this wrist. */
     solve: (goal: IGoal) => IAutoMovieVector3;
 
-    /**
-     * Run the original elbow-side-ranked sweep and report its legal strain.
-     */
+    /** Run the original elbow-side-ranked sweep and report its legal strain. */
     strain: (goal: IGoal, bend: IAutoMovieVector3) => number;
   }
 
   /**
-   * Prepare one actual unchanged body/trunk/side for all of its requested sweeps.
+   * Prepare one actual unchanged body/trunk/side for all of its requested
+   * sweeps.
    */
   export function of(
     fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture" | "side">,
@@ -109,9 +106,7 @@ export namespace AutoMovieMotionHumanBendPreparation {
     };
   }
 
-  /**
-   * Select the original default elbow ranking for a current moving hand.
-   */
+  /** Select the original default elbow ranking for a current moving hand. */
   export function defaultBend(
     goal: IAutoMovieMotionHumanBend.ISolve,
     trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, 0 | 1],
@@ -121,7 +116,8 @@ export namespace AutoMovieMotionHumanBendPreparation {
       : of(goal, undefined, trial).solve(goal);
   }
   /**
-   * Prepare actual sides of one fixed trunk within one synchronous person operation.
+   * Prepare actual sides of one fixed trunk within one synchronous person
+   * operation.
    */
   export function both(
     fixed: Pick<IAutoMovieMotionHumanBend.ISolve, "body" | "posture">,

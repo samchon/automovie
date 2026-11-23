@@ -21,38 +21,46 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A foot kept within the ankle's dorsal range for the weight it bears. A
- * foot bearing the body dorsiflexes as far as the loaded limit, one bearing
- * nothing only to the passive one (`ANKLE_DORSIFLEXION`), and the limit
- * between follows the share of the weight (`walkLeg.dorsal`). A law that
- * carries a foot at a placement of its own (held flat, or turned as it was
- * set down) would ask the ankle past that limit whenever the shank leans
- * over it, so the placement's heel is raised about the toes' joint (about the
- * ball, for a support held under it) as the
- * forefoot rocker raises a walking foot's, read in closed form from the
- * shank's lean (`prepareWalkLegLean`): the forefoot stays where the law put
- * it, so a foot on the floor rises onto its ball rather than driving its
- * toes into the floor; a foot in the air turns toes down about its ankle, a
+ * A foot kept within the ankle's dorsal range for the weight it bears. A foot
+ * bearing the body dorsiflexes as far as the loaded limit, one bearing nothing
+ * only to the passive one (`ANKLE_DORSIFLEXION`), and the limit between follows
+ * the share of the weight (`walkLeg.dorsal`). A law that carries a foot at a
+ * placement of its own (held flat, or turned as it was set down) would ask the
+ * ankle past that limit whenever the shank leans over it, so the placement's
+ * heel is raised about the toes' joint (about the ball, for a support held
+ * under it) as the forefoot rocker raises a walking foot's, read in closed form
+ * from the shank's lean (`prepareWalkLegLean`): the forefoot stays where the
+ * law put it, so a foot on the floor rises onto its ball rather than driving
+ * its toes into the floor; a foot in the air turns toes down about its ankle, a
  * pointed foot left pointed. A planted foot takes the weight over the first
- * `LEAD` seconds of the plant and sheds it over the last (`load`), so it
- * lands on its ball and lowers its heel, and its heel is already up within
- * the passive limit when it leaves.
+ * `LEAD` seconds of the plant and sheds it over the last (`load`), so it lands
+ * on its ball and lowers its heel, and its heel is already up within the
+ * passive limit when it leaves.
  */
 export namespace AutoMovieMotionHumanFootRelax {
-  /** Seconds before a lift over which a planted foot sheds its weight (provisional: a tenth of a second, a walking weight shift's order). */
+  /**
+   * Seconds before a lift over which a planted foot sheds its weight
+   * (provisional: a tenth of a second, a walking weight shift's order).
+   */
   export const LEAD: number = 0.1;
 
-  /** How many times the heel's rise is corrected for the lean it changes; the lean moves by a fraction of the rise, so the residual shrinks geometrically. */
+  /**
+   * How many times the heel's rise is corrected for the lean it changes; the
+   * lean moves by a fraction of the rise, so the residual shrinks
+   * geometrically.
+   */
   export const PASSES: number = 3;
 
   /**
-   * The share of the weight a planted foot bears: it takes the weight over
-   * the lead after it lands and sheds it over the lead before it lifts.
+   * The share of the weight a planted foot bears: it takes the weight over the
+   * lead after it lands and sheds it over the lead before it lifts.
    *
    * @param seconds The action second.
    * @param leave The second the foot lifts.
-   * @param at The second the plant began; a plant shorter than twice `LEAD` takes and sheds over its halves.
-   * @returns Rising on a minimum-jerk share from 0 at the landing, 1 between the leads, falling to 0 at the lift.
+   * @param at The second the plant began; a plant shorter than twice `LEAD`
+   *   takes and sheds over its halves.
+   * @returns Rising on a minimum-jerk share from 0 at the landing, 1 between
+   *   the leads, falling to 0 at the lift.
    */
   export function load(
     seconds: number,
@@ -70,14 +78,22 @@ export namespace AutoMovieMotionHumanFootRelax {
    * The placement a foot bearing a share of the weight can hold.
    *
    * @param body The body.
-   * @param posture The posture written so far, read for its root, heading and pelvis.
+   * @param posture The posture written so far, read for its root, heading and
+   *   pelvis.
    * @param side Which foot.
    * @param placement The placement the law asks.
-   * @param share The share of the weight the foot bears, 0 to 1; none when absent.
-   * @param grounded Whether the forefoot is on the floor, so the heel rises about it; a foot in the air turns about its ankle instead.
-   * @param ball Whether the heel rises about the ball the foot bears on, for a support held under the ball (a line, a stirrup); about the toes' joint when false.
-   * @param edge The forefoot edge a foot rolled past the ankle's range bears on and turns about, in the foot's rest frame from the ankle (`HumanFoot.edge`); the pivot above when absent.
-   * @returns The placement with its heel raised about the toes' joint where the ask would pass the limit, else the ask.
+   * @param share The share of the weight the foot bears, 0 to 1; none when
+   *   absent.
+   * @param grounded Whether the forefoot is on the floor, so the heel rises
+   *   about it; a foot in the air turns about its ankle instead.
+   * @param ball Whether the heel rises about the ball the foot bears on, for a
+   *   support held under the ball (a line, a stirrup); about the toes' joint
+   *   when false.
+   * @param edge The forefoot edge a foot rolled past the ankle's range bears on
+   *   and turns about, in the foot's rest frame from the ankle
+   *   (`HumanFoot.edge`); the pivot above when absent.
+   * @returns The placement with its heel raised about the toes' joint where the
+   *   ask would pass the limit, else the ask.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -165,8 +181,8 @@ export namespace AutoMovieMotionHumanFootRelax {
 
   /**
    * How far a foot must roll past the roll asked of it so the ankle stays
-   * within its range: the shank's lean across the foot from the vertical,
-   * the hip over the ankle, less the ankle's own roll range
+   * within its range: the shank's lean across the foot from the vertical, the
+   * hip over the ankle, less the ankle's own roll range
    * (`DEFAULT_HUMANOID_ROM`'s foot abduction), signed as `HumanFoot.roll`.
    *
    * @param hip The hip joint, world metres.
@@ -199,9 +215,15 @@ export namespace AutoMovieMotionHumanFootRelax {
         : 0;
   }
 
-  /** The ankle's least roll, degrees: the foot's abduction range's low end (`DEFAULT_HUMANOID_ROM`). */
+  /**
+   * The ankle's least roll, degrees: the foot's abduction range's low end
+   * (`DEFAULT_HUMANOID_ROM`).
+   */
   const ROLL_LEAST: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.min;
 
-  /** The ankle's greatest roll, degrees: the foot's abduction range's high end (`DEFAULT_HUMANOID_ROM`). */
+  /**
+   * The ankle's greatest roll, degrees: the foot's abduction range's high end
+   * (`DEFAULT_HUMANOID_ROM`).
+   */
   const ROLL_MOST: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.max;
 }

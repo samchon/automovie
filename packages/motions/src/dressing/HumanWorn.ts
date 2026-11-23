@@ -17,11 +17,11 @@ import { HumanHand } from "../posture/HumanHand";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
- * Where a wearable sits once worn: its `wear` socket on the body region it
- * goes onto, the socket's `+Y` toward the body (into the region, against the
- * region's outward normal), and the thing turned so its front faces the way
- * the body faces (`createWearable`'s contacts: a hat's crown inside on the
- * head's crown, a pair of spectacles' bridge on the nose's bridge).
+ * Where a wearable sits once worn: its `wear` socket on the body region it goes
+ * onto, the socket's `+Y` toward the body (into the region, against the
+ * region's outward normal), and the thing turned so its front faces the way the
+ * body faces (`createWearable`'s contacts: a hat's crown inside on the head's
+ * crown, a pair of spectacles' bridge on the nose's bridge).
  */
 export namespace HumanWorn {
   /**
@@ -31,7 +31,8 @@ export namespace HumanWorn {
    * @param posture The posture the region is read on.
    * @param prop The wearable.
    * @param region The region it goes onto.
-   * @param turn A turn about the region's normal from facing the body's way, degrees; 0 when absent.
+   * @param turn A turn about the region's normal from facing the body's way,
+   *   degrees; 0 when absent.
    * @returns The wearable's world frame.
    * @throws {HumanRefusal} When the wearable declares no `wear` socket.
    */
@@ -52,11 +53,16 @@ export namespace HumanWorn {
    * @param posture The posture whose region receives the wearable.
    * @param prop The wearable.
    * @param region The region it goes onto.
-   * @returns `frame`, the wearable's world frame at a turn about the region's normal, degrees; `point`, a copy of the region's world point, metres.
+   * @returns `frame`, the wearable's world frame at a turn about the region's
+   *   normal, degrees; `point`, a copy of the region's world point, metres.
    * @throws {HumanRefusal} When the wearable declares no `wear` socket.
    */
-  export function prepareSite(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture,
-    prop: IAutoMovieMotionHumanProp, region: AutoMovieHumanoidRegion): {
+  export function prepareSite(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+    prop: IAutoMovieMotionHumanProp,
+    region: AutoMovieHumanoidRegion,
+  ): {
     frame: (turn: number) => IAutoMovieRigidTransform;
     point: () => IAutoMovieVector3;
   } {
@@ -67,78 +73,136 @@ export namespace HumanWorn {
       region,
     );
     const aligned: IAutoMovieQuaternion = alignment(wear)(at, posture.yaw);
-    const frame: (turn: number) => IAutoMovieRigidTransform = (turn: number): IAutoMovieRigidTransform => {
+    const frame: (turn: number) => IAutoMovieRigidTransform = (
+      turn: number,
+    ): IAutoMovieRigidTransform => {
       return placed(at, aligned, wear, turn);
     };
     return { frame, point: (): IAutoMovieVector3 => ({ ...at.point }) };
   }
 
   /**
-   * A wearable's frame on a posture that changes from call to call, such as
-   * the stroke that carries it onto the head.
+   * A wearable's frame on a posture that changes from call to call, such as the
+   * stroke that carries it onto the head.
    *
    * @param body The body.
    * @param prop The wearable.
    * @param region The region it goes onto.
-   * @returns For a posture, a turn in degrees and an optional pose workspace, the wearable's world frame.
-   * @throws {HumanRefusal} At the first call, when the wearable declares no `wear` socket.
+   * @returns For a posture, a turn in degrees and an optional pose workspace,
+   *   the wearable's world frame.
+   * @throws {HumanRefusal} At the first call, when the wearable declares no
+   *   `wear` socket.
    */
-  export function prepareMoving(body: IAutoMovieMotionHumanBody, prop: IAutoMovieMotionHumanProp,
-    region: AutoMovieHumanoidRegion): (posture: IAutoMovieMotionHumanPosture, turn: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]) => IAutoMovieRigidTransform {
+  export function prepareMoving(
+    body: IAutoMovieMotionHumanBody,
+    prop: IAutoMovieMotionHumanProp,
+    region: AutoMovieHumanoidRegion,
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    turn: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ) => IAutoMovieRigidTransform {
     let wear: IAutoMovieAffordance | undefined;
     let read: ReturnType<typeof HumanTrunk.prepareRegion> | undefined;
     let align: ReturnType<typeof alignment> | undefined;
-    return (posture: IAutoMovieMotionHumanPosture, turn: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0]): IAutoMovieRigidTransform => {
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      turn: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    ): IAutoMovieRigidTransform => {
       wear ??= socketOf(prop);
       read ??= HumanTrunk.prepareRegion(body, region);
-      const at: ReturnType<typeof HumanTrunk.region> = read(posture, resolution);
+      const at: ReturnType<typeof HumanTrunk.region> = read(
+        posture,
+        resolution,
+      );
       align ??= alignment(wear);
       return placed(at, align(at, posture.yaw), wear, turn);
     };
   }
 }
 
-/** The wearable's `wear` socket, or the refusal naming the contacts it does declare. */
+/**
+ * The wearable's `wear` socket, or the refusal naming the contacts it does
+ * declare.
+ */
 function socketOf(prop: IAutoMovieMotionHumanProp): IAutoMovieAffordance {
   const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
   const wear: IAutoMovieAffordance | undefined = affordances.find(
-    (a: IAutoMovieAffordance): boolean => a.id === "wear");
+    (a: IAutoMovieAffordance): boolean => a.id === "wear",
+  );
   if (wear === undefined)
-    throw new HumanRefusal({ kind: "affordance", axis: "prop", value: prop.subject,
-      feasible: { kind: "alternatives", values: affordances.map((a: IAutoMovieAffordance): string => a.id) },
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "prop",
+      value: prop.subject,
+      feasible: {
+        kind: "alternatives",
+        values: affordances.map((a: IAutoMovieAffordance): string => a.id),
+      },
       reason: `${prop.subject} declares no wear socket to put on by`,
-      fix: "dress in a wearable that declares where it is worn, as createWearable does" });
+      fix: "dress in a wearable that declares where it is worn, as createWearable does",
+    });
   return wear;
 }
 
 /**
- * The rotation that lays the wear socket on a region: the socket's `+Y`
- * onto the region's inward normal, and the wearable's front onto the
- * body's forward. A socket whose `+Y` runs within about 26 degrees of the
- * wearable's `Z` (|z| > 0.9, cos 26 degrees) takes `+Y` as its front and
- * the world's up as the target, since its `Z` is then too near the normal
- * to name a front.
+ * The rotation that lays the wear socket on a region: the socket's `+Y` onto
+ * the region's inward normal, and the wearable's front onto the body's forward.
+ * A socket whose `+Y` runs within about 26 degrees of the wearable's `Z` (|z| >
+ * 0.9, cos 26 degrees) takes `+Y` as its front and the world's up as the
+ * target, since its `Z` is then too near the normal to name a front.
  */
-function alignment(wear: IAutoMovieAffordance):
-  (at: ReturnType<typeof HumanTrunk.region>, yaw: number) => IAutoMovieQuaternion {
-  const into: IAutoMovieVector3 = Quaternion.rotateVector(wear.frame.rotation, { x: 0, y: 1, z: 0 });
+function alignment(
+  wear: IAutoMovieAffordance,
+): (
+  at: ReturnType<typeof HumanTrunk.region>,
+  yaw: number,
+) => IAutoMovieQuaternion {
+  const into: IAutoMovieVector3 = Quaternion.rotateVector(wear.frame.rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
   const along: boolean = Math.abs(into.z) > 0.9;
-  const align: ReturnType<typeof HumanHand.prepareAlignment> = HumanHand.prepareAlignment({
-    normal: into, forward: along ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
-  });
-  return (at: ReturnType<typeof HumanTrunk.region>, yaw: number): IAutoMovieQuaternion => align({
-    normal: Vector3.scale(at.normal, -1),
-    forward: along ? { x: 0, y: 1, z: 0 }
-      : HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, { x: 0, y: 0, z: 1 }),
-  });
+  const align: ReturnType<typeof HumanHand.prepareAlignment> =
+    HumanHand.prepareAlignment({
+      normal: into,
+      forward: along ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 },
+    });
+  return (
+    at: ReturnType<typeof HumanTrunk.region>,
+    yaw: number,
+  ): IAutoMovieQuaternion =>
+    align({
+      normal: Vector3.scale(at.normal, -1),
+      forward: along
+        ? { x: 0, y: 1, z: 0 }
+        : HumanFrame.point(
+            { origin: { x: 0, y: 0, z: 0 }, yaw },
+            { x: 0, y: 0, z: 1 },
+          ),
+    });
 }
 
-/** The wearable's frame at a turn about the region's normal, its socket on the region's point. */
-function placed(at: ReturnType<typeof HumanTrunk.region>, aligned: IAutoMovieQuaternion,
-  wear: IAutoMovieAffordance, turn: number): IAutoMovieRigidTransform {
+/**
+ * The wearable's frame at a turn about the region's normal, its socket on the
+ * region's point.
+ */
+function placed(
+  at: ReturnType<typeof HumanTrunk.region>,
+  aligned: IAutoMovieQuaternion,
+  wear: IAutoMovieAffordance,
+  turn: number,
+): IAutoMovieRigidTransform {
   const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(Quaternion.fromAxisAngle(at.normal, turn), aligned));
-  return { position: Vector3.subtract(at.point, Quaternion.rotateVector(rotation, wear.frame.translation)), rotation };
+    Quaternion.multiply(Quaternion.fromAxisAngle(at.normal, turn), aligned),
+  );
+  return {
+    position: Vector3.subtract(
+      at.point,
+      Quaternion.rotateVector(rotation, wear.frame.translation),
+    ),
+    rotation,
+  };
 }

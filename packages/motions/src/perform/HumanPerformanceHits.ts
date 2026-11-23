@@ -24,25 +24,25 @@ import { HumanPropOutcome } from "./HumanPropOutcome";
 
 /**
  * The hit record of a performance: every contact that strikes a person or a
- * thing, as the one shared record (`IAutoMovieInteractionEvent`) a reaction,
- * a force, a breakage or a review reads. Three producers write it:
+ * thing, as the one shared record (`IAutoMovieInteractionEvent`) a reaction, a
+ * force, a breakage or a review reads. Three producers write it:
  *
- * - melee stops: each weapon's resolved first contact with another person
+ * - Melee stops: each weapon's resolved first contact with another person
  *   (`HumanPerformanceContacts`), its velocity the central difference of the
  *   weapon's free path over the contact scan's step, its mass the striking
- *   limb's distal long segment's from the striker's profile (the forearm or
- *   the shank; provisional, since no source on effective striking mass has
- *   been read, and Walilko, Viano and Bir 2005 measured far more for an
- *   Olympic punch), its outcome `stick`, the limb stopping on the body;
- * - blasts: one hit per person within a blast's radius (`HumanBlast`), with
- *   an impulse along the line from the blast to the nearest point of their
+ *   limb's distal long segment's from the striker's profile (the forearm or the
+ *   shank; provisional, since no source on effective striking mass has been
+ *   read, and Walilko, Viano and Bir 2005 measured far more for an Olympic
+ *   punch), its outcome `stick`, the limb stopping on the body;
+ * - Blasts: one hit per person within a blast's radius (`HumanBlast`), with an
+ *   impulse along the line from the blast to the nearest point of their
  *   colliders and no mass;
- * - flights: each first and continuation contact (`HumanPropFlight`), with
- *   the prop's incoming velocity and mass, its outcome and outgoing velocity.
+ * - Flights: each first and continuation contact (`HumanPropFlight`), with the
+ *   prop's incoming velocity and mass, its outcome and outgoing velocity.
  *
- * A hit on a person names the bone it struck and the region nearest the
- * point; its normal is the struck surface's outward normal. Hits are in time
- * order, with ties sorted by event id.
+ * A hit on a person names the bone it struck and the region nearest the point;
+ * its normal is the struck surface's outward normal. Hits are in time order,
+ * with ties sorted by event id.
  */
 export namespace HumanPerformanceHits {
   /**
@@ -178,7 +178,10 @@ export namespace HumanPerformanceHits {
     return out;
   }
 
-  /** Each recorded impact, with the departure from the following leg if one exists. */
+  /**
+   * Each recorded impact, with the departure from the following leg if one
+   * exists.
+   */
   function flights(
     self: IAutoMovieMotionHumanPerformanceState,
     read: IReadBones,
@@ -244,7 +247,10 @@ export namespace HumanPerformanceHits {
     return out;
   }
 
-  /** Where a segment meets a person at a second: the bone, the surface point, its normal and the nearest region. */
+  /**
+   * Where a segment meets a person at a second: the bone, the surface point,
+   * its normal and the nearest region.
+   */
   function person(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -275,14 +281,20 @@ export namespace HumanPerformanceHits {
     return { ...near, ...(region === undefined ? {} : { region }) };
   }
 
-  /** Actual per-person observation, with outputs dictated by the current hit consumer. */
+  /**
+   * Actual per-person observation, with outputs dictated by the current hit
+   * consumer.
+   */
   type IReadBones = (
     who: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
     kind: "regions" | "contact",
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-  /** Static demand producers live only for this synchronous hit-record build, never their query results. */
+  /**
+   * Static demand producers live only for this synchronous hit-record build,
+   * never their query results.
+   */
   function reading(self: IAutoMovieMotionHumanPerformanceState): IReadBones {
     let readers:
       | Map<
@@ -328,7 +340,10 @@ export namespace HumanPerformanceHits {
     };
   }
 
-  /** The bones a reading of one kind resolves: the regions' owners, and for contact the colliders' too. */
+  /**
+   * The bones a reading of one kind resolves: the regions' owners, and for
+   * contact the colliders' too.
+   */
   function demand(
     body: IAutoMovieMotionHumanBody,
     kind: "regions" | "contact",
@@ -371,7 +386,10 @@ export namespace HumanPerformanceHits {
     | "leftLowerLeg"
     | "rightLowerLeg";
 
-  /** The profile's mass of a distal segment, its first record of the bone; none when the profile has none. */
+  /**
+   * The profile's mass of a distal segment, its first record of the bone; none
+   * when the profile has none.
+   */
   function distalMass(
     body: IAutoMovieMotionHumanBody,
     bone: IDistal,
@@ -383,12 +401,18 @@ export namespace HumanPerformanceHits {
     )?.mass;
   }
 
-  /** The body's regions with their bone-local frames, in the body's entry order, which strict first-minimum selection keeps. */
+  /**
+   * The body's regions with their bone-local frames, in the body's entry order,
+   * which strict first-minimum selection keeps.
+   */
   function regionFrames(body: IAutoMovieMotionHumanBody): IRegions {
     return Object.entries(body.surfaces.regions) as IRegions;
   }
 
-  /** The body's original entry order, used unchanged by strict first-minimum selection. */
+  /**
+   * The body's original entry order, used unchanged by strict first-minimum
+   * selection.
+   */
   type IRegions = readonly (readonly [
     AutoMovieHumanoidRegion,
     IAutoMovieHumanoidSurfaces.IFrame,

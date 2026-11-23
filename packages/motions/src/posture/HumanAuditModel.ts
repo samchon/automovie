@@ -30,9 +30,7 @@ export namespace HumanAuditModel {
    */
   export const ALLOWANCE: number = HumanArmTrajectoryTerms.DEPTH;
 
-  /**
-   * A body placed as the audit reads it, beside what else it is read against.
-   */
+  /** A body placed as the audit reads it, beside what else it is read against. */
   export interface IFrame {
     /** The body's tangle model. */
     model: M.IModel;

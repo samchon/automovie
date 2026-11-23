@@ -7,11 +7,11 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { pickUp } from "../handling/pickUp";
 
 /**
- * Take a mounted display object from its carrier with the ordinary pickup
- * grip and lift. Register this law in the composition that stages the carrier.
- * A cut to stand from grip closure through lift retains the hand's grip
- * and the last displayed pose, and a cut to `drawFromCarrier` from grip
- * closure starts the draw before the body straightens. The authored carrier and lift must allow
+ * Take a mounted display object from its carrier with the ordinary pickup grip
+ * and lift. Register this law in the composition that stages the carrier. A cut
+ * to stand from grip closure through lift retains the hand's grip and the last
+ * displayed pose, and a cut to `drawFromCarrier` from grip closure starts the
+ * draw before the body straightens. The authored carrier and lift must allow
  * that pose to remain clear.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the staged motion, registration, retained grip and clearance premise.

@@ -159,13 +159,11 @@ export function everydayTypeCases(
 
 /**
  * A keyboard as a prop: a home row contact at its origin and a key field as
- * wide as the letter rows, the prop placed
- * there and turned so its `+Z` side, where a typist sits, faces the typist
- * at the origin facing `+Z`.
+ * wide as the letter rows, the prop placed there and turned so its `+Z` side,
+ * where a typist sits, faces the typist at the origin facing `+Z`.
  *
  * @param at The home row's middle, world metres.
  * @returns The keyboard.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the contact, the placement and the turn.
  * @evidence contracts/development/implementation.md#principled-implementation The `homeRow` and `keys` contacts `createKeyboard` declares, here at the prop's origin, turned half round about `+Y`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.

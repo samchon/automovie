@@ -11,8 +11,8 @@ import { standingLegs } from "./standingLegs";
 
 /**
  * Prepare a standing body's two toe-out headings and metatarsophalangeal
- * contacts for one fixed yaw. Each query places the knees from its current
- * root and reads its supplied world-metre ankle targets.
+ * contacts for one fixed yaw. Each query places the knees from its current root
+ * and reads its supplied world-metre ankle targets.
  *
  * @param body The unchanged body of this stance.
  * @param yaw Its fixed heading, degrees about +Y.

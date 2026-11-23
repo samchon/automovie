@@ -9,19 +9,19 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Whether a body is back where it was: how far the joint centres of one
- * instant are from the same centres of an earlier instant.
+ * Whether a body is back where it was: how far the joint centres of one instant
+ * are from the same centres of an earlier instant.
  *
  * An action that says it returns to its entry (a wave that lowers the arm
- * again, a squat that stands back up, a punch that comes back to guard)
- * shows the entry's body at its end. Two readings tell the two ways that can
- * fail apart. `world` is the largest distance between a joint centre at the
- * two instants as displayed, so it also reads a body that kept its form but
- * drifted or turned. `shape` reads the same after each instant's centres are
- * expressed in that instant's own pelvis frame (origin at the hips, axes the
- * hips' orientation), so it reads the body's form alone: a walker who ends
- * in the stance they began in, two metres on and facing another way, has a
- * `shape` of zero and a `world` of two metres.
+ * again, a squat that stands back up, a punch that comes back to guard) shows
+ * the entry's body at its end. Two readings tell the two ways that can fail
+ * apart. `world` is the largest distance between a joint centre at the two
+ * instants as displayed, so it also reads a body that kept its form but drifted
+ * or turned. `shape` reads the same after each instant's centres are expressed
+ * in that instant's own pelvis frame (origin at the hips, axes the hips'
+ * orientation), so it reads the body's form alone: a walker who ends in the
+ * stance they began in, two metres on and facing another way, has a `shape` of
+ * zero and a `world` of two metres.
  */
 export namespace AutoMovieMotionHumanAuditReturn {
   /**
@@ -32,7 +32,8 @@ export namespace AutoMovieMotionHumanAuditReturn {
    * @param from The instant returned to, film seconds.
    * @param to The instant that should show it again, film seconds.
    * @returns The two readings.
-   * @throws {Error} When either instant displays no hips, or the later one lacks a bone of the earlier.
+   * @throws {Error} When either instant displays no hips, or the later one
+   *   lacks a bone of the earlier.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,

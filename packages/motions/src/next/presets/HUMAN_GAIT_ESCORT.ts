@@ -4,8 +4,8 @@ import type { IAutoMovieMotionHumanGait } from "@automovie/interface";
  * The escort preset: come to the person's left side (`from: "left"`) at the
  * personal distance (`at: "personal"`, `HumanProxemics.GAPS`), matching their
  * speed on the way (`track: "pace"`), as an escort takes station. Spread into
- * `approach`'s parameters with the person; the `escort` row of
- * `HumanPursuit` fixes these values.
+ * `approach`'s parameters with the person; the `escort` row of `HumanPursuit`
+ * fixes these values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the side, distance and tracking the preset fixes with their results, how it is applied and which row reads it.
  * @evidence contracts/development/design.md#principled-representation The approach's own side, band and tracking as one `ITrackingApproachPreset`, so it fits any body as the approach does.

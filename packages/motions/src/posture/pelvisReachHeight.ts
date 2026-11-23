@@ -10,21 +10,21 @@ import { HumanFrame } from "./HumanFrame";
 import { hipJoints } from "./hipJoints";
 
 /**
- * The highest the hips may ride over a set of ankles: at most the asked
- * height, and low enough that every ankle lies within a near-straight leg's
- * reach of its own hip joint. A body whose feet stand a stride apart cannot
- * keep its standing pelvis height, since the hip-to-ankle distance grows
- * with the horizontal offset; the pelvis lowers by exactly the excess
- * (Pythagoras on the hip joint's horizontal offset from the ankle), as the
- * compass gait's pelvis is lowest in double support, where the legs splay
- * (Saunders, Inman and Eberhart 1953, the compass gait their determinants
- * of gait start from).
+ * The highest the hips may ride over a set of ankles: at most the asked height,
+ * and low enough that every ankle lies within a near-straight leg's reach of
+ * its own hip joint. A body whose feet stand a stride apart cannot keep its
+ * standing pelvis height, since the hip-to-ankle distance grows with the
+ * horizontal offset; the pelvis lowers by exactly the excess (Pythagoras on the
+ * hip joint's horizontal offset from the ankle), as the compass gait's pelvis
+ * is lowest in double support, where the legs splay (Saunders, Inman and
+ * Eberhart 1953, the compass gait their determinants of gait start from).
  *
  * @param body The body, whose thigh, shank and rest hip joints are read.
  * @param hips The asked hips' world point.
  * @param yaw The pelvis heading, degrees about +Y, with a level pelvis.
  * @param ankles The ankles the legs must reach, world metres, by side.
- * @returns The hips' height, world metres: the asked one when every ankle is in reach.
+ * @returns The hips' height, world metres: the asked one when every ankle is in
+ *   reach.
  */
 export function pelvisReachHeight(
   body: IAutoMovieMotionHumanBody,
@@ -61,6 +61,10 @@ export function pelvisReachHeight(
 
 /** The bound's reach share. */
 export namespace pelvisReachHeight {
-  /** The share of the thigh and shank a leg may span from hip to ankle, keeping the knee off its lock (provisional, as `addressPrecisionStroke`'s planted leg). */
+  /**
+   * The share of the thigh and shank a leg may span from hip to ankle, keeping
+   * the knee off its lock (provisional, as `addressPrecisionStroke`'s planted
+   * leg).
+   */
   export const STRAIGHT: number = 0.98;
 }

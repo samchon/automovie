@@ -13,19 +13,21 @@ import type {
 import { HumanPerformance } from "./HumanPerformance";
 
 /**
- * Rebuild an authored take with a replacement after complete action groups.
- * The provider supplies the same immutable input and deterministic registered
+ * Rebuild an authored take with a replacement after complete action groups. The
+ * provider supplies the same immutable input and deterministic registered
  * bindings as the saved take. The source reader owns seconds before the join.
- * The branch reader owns the join and later seconds on the same clock.
- * Soft props and physical airborne rotation require another route. Take-wide
- * and retained-action events keep their exact join time in the branch reader.
+ * The branch reader owns the join and later seconds on the same clock. Soft
+ * props and physical airborne rotation require another route. Take-wide and
+ * retained-action events keep their exact join time in the branch reader.
  *
  * @param input Admitted source take, with an outer sequence of action groups.
  * @param sourceSeconds Saved source second, strictly before the join.
  * @param retainedParts Number of complete outer sequence groups to preserve.
  * @param suffix Replacement composition made of untimed groups and intents.
- * @returns The original reader, branch reader and exact source second of the join.
- * @throws {Error} When the join, preserved motion or replacement is unsupported.
+ * @returns The original reader, branch reader and exact source second of the
+ *   join.
+ * @throws {Error} When the join, preserved motion or replacement is
+ *   unsupported.
  */
 export function compileHumanPerformanceContinuation(
   input: IAutoMovieMotionHumanPerformance.IInput,
@@ -151,7 +153,10 @@ export function compileHumanPerformanceContinuation(
   return { source, branch, branchStart };
 }
 
-/** Read the already prepared owner entry for a performer starting a replacement action at the join. */
+/**
+ * Read the already prepared owner entry for a performer starting a replacement
+ * action at the join.
+ */
 function joinEntry(
   performance: HumanPerformance,
   subject: string,
@@ -166,7 +171,10 @@ function joinEntry(
     )?.context.entry;
 }
 
-/** Compare entry kinematics, contact supports and custody without comparing plan closures. */
+/**
+ * Compare entry kinematics, contact supports and custody without comparing plan
+ * closures.
+ */
 function entryState(
   entry: IAutoMovieMotionHumanEntryState | undefined,
 ): unknown {
@@ -203,7 +211,10 @@ function checkPhysicalFlights(performance: HumanPerformance): void {
         );
 }
 
-/** Count walk-order leaves and admit ordinary sequence and parallel groups in the replacement. */
+/**
+ * Count walk-order leaves and admit ordinary sequence and parallel groups in
+ * the replacement.
+ */
 function count(node: IAutoMovieComposition, replacement: boolean): number {
   switch (node.kind) {
     case "intent":
@@ -225,7 +236,10 @@ function count(node: IAutoMovieComposition, replacement: boolean): number {
   return refuse("the composition contains an unknown node kind");
 }
 
-/** Plain acyclic JSON-like data with no executable values or getters. Optional fields may be undefined. */
+/**
+ * Plain acyclic JSON-like data with no executable values or getters. Optional
+ * fields may be undefined.
+ */
 function portable(value: unknown, ancestry: Set<object> = new Set()): boolean {
   if (
     value === null ||
@@ -285,7 +299,10 @@ function checkTail(
     );
 }
 
-/** Require each prefix flight to have transferred custody before this branch route. */
+/**
+ * Require each prefix flight to have transferred custody before this branch
+ * route.
+ */
 function checkFlights(
   source: HumanPerformance,
   branch: HumanPerformance,

@@ -23,12 +23,14 @@ const maximumTime: number = 2;
 const samplesPerSecond: number = 120;
 
 /**
- * Resolve a mounted prop's closure frame and incoming translation before planning the grasp.
+ * Resolve a mounted prop's closure frame and incoming translation before
+ * planning the grasp.
  *
  * @param context The pickup's action context and displayed prop reader.
  * @param closeAt Seconds from the action's start to closure.
  * @returns The world-space closure frame, grasp target and incoming velocity.
- * @throws {HumanRefusal} When the closure, initial mount or sampled conveyor path is unsupported.
+ * @throws {HumanRefusal} When the closure, initial mount or sampled conveyor
+ *   path is unsupported.
  */
 export function pickUpIntercept(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUpMoving>,

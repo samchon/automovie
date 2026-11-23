@@ -8,47 +8,48 @@ import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingA
  * (`AutoMovieMotionHumanTouchDrink` admits each).
  */
 export namespace AutoMovieMotionHumanDrinkingLean {
-  /** The step between the leans toward the face a held vessel is tried at, degrees (provisional). */
+  /**
+   * The step between the leans toward the face a held vessel is tried at,
+   * degrees (provisional).
+   */
   export const STEP: number = 5;
 
   /**
-   * The most a held vessel is leaned toward the face to let the arm hold it
-   * as a drinker does, degrees: the lean that lays its wall level. A liquid
-   * at rest keeps a level surface, so a vessel of height `H` and radius `r`
-   * filled to a share `f` of its height first brings that surface to its rim
-   * at a lean of `atan((1 - f) H / r)`, and the last of what it holds
-   * reaches the rim when the wall is level, at 90 degrees. A drinker leans
-   * the vessel through that whole range as it empties, so pouring rules out
-   * no lean below it; past it nothing more reaches the lips. The drinking
-   * studies the drinking arm cites (Alt Murphy et al. 2006; Murphy, Willén
-   * and Sunnerhagen 2011) report the arm's joints and not the vessel's lean,
-   * and a search for a measured lean found none, so the bound is the
-   * geometry's. An earlier bound of 60 degrees, set as "past it the vessel
-   * pours", refused a glass the wrist holds at about 69.5 degrees (measured:
-   * its deviation at the range's end, the vessel's axis 54.7, 38.9, 25.0 and
-   * 10.2 degrees off the asked one at leans of 15, 30, 45 and 60).
+   * The most a held vessel is leaned toward the face to let the arm hold it as
+   * a drinker does, degrees: the lean that lays its wall level. A liquid at
+   * rest keeps a level surface, so a vessel of height `H` and radius `r` filled
+   * to a share `f` of its height first brings that surface to its rim at a lean
+   * of `atan((1 - f) H / r)`, and the last of what it holds reaches the rim
+   * when the wall is level, at 90 degrees. A drinker leans the vessel through
+   * that whole range as it empties, so pouring rules out no lean below it; past
+   * it nothing more reaches the lips. The drinking studies the drinking arm
+   * cites (Alt Murphy et al. 2006; Murphy, Willén and Sunnerhagen 2011) report
+   * the arm's joints and not the vessel's lean, and a search for a measured
+   * lean found none, so the bound is the geometry's. An earlier bound of 60
+   * degrees, set as "past it the vessel pours", refused a glass the wrist holds
+   * at about 69.5 degrees (measured: its deviation at the range's end, the
+   * vessel's axis 54.7, 38.9, 25.0 and 10.2 degrees off the asked one at leans
+   * of 15, 30, 45 and 60).
    */
   export const MOST: number = 90;
 
-  /** The step between the leans the walk tries first, degrees, inside whose first admitting bracket it tries every {@link STEP} (provisional). */
+  /**
+   * The step between the leans the walk tries first, degrees, inside whose
+   * first admitting bracket it tries every {@link STEP} (provisional).
+   */
   export const COARSE: number = 15;
 
-  /**
-   * What one lean's attempt saw of the arms it tried, for the walk.
-   */
+  /** What one lean's attempt saw of the arms it tried, for the walk. */
   export interface IMisses {
-    /**
-     * Forget the last attempt's arms; called when an attempt starts.
-     */
+    /** Forget the last attempt's arms; called when an attempt starts. */
     begin: () => void;
 
-    /**
-     * Show an arm the attempt tried.
-     */
+    /** Show an arm the attempt tried. */
     see: (arm: IAutoMovieMotionHumanDrinkingArm.IArm) => void;
 
     /**
-     * The least miss of the vessel's axis among the arms shown since the start that drink, degrees; none when none drinks.
+     * The least miss of the vessel's axis among the arms shown since the start
+     * that drink, degrees; none when none drinks.
      */
     least: () => number | undefined;
   }
@@ -76,28 +77,29 @@ export namespace AutoMovieMotionHumanDrinkingLean {
   }
 
   /**
-   * The least lean an attempt admits, in {@link STEP} degrees up to
-   * {@link MOST}: every {@link COARSE} degrees first, then every step from
-   * the bracket's low end up to the coarse lean that admitted, which returns
-   * the least admitting lean when admission holds at every lean above the
-   * least one inside the bracket.
+   * The least lean an attempt admits, in {@link STEP} degrees up to {@link MOST}:
+   * every {@link COARSE} degrees first, then every step from the bracket's low
+   * end up to the coarse lean that admitted, which returns the least admitting
+   * lean when admission holds at every lean above the least one inside the
+   * bracket.
    *
-   * A coarse lean may fail only because the hand cannot turn the vessel to
-   * it: its arm drinks, but a joint of the wrist stands at its range's end
-   * and holds the vessel's axis some degrees off the asked one. That hand
-   * holds one axis whatever lean is asked, so the miss falls a degree for
-   * each degree of lean and is zero at the coarse lean plus the miss
-   * (measured on a held glass: 54.7, 38.9, 25.0 and 10.2 degrees off at
-   * leans of 15, 30, 45 and 60, so 69.7, 68.9, 70.0 and 70.2). Once two
-   * coarse leans in a row place that zero within a step of each other, the
-   * grid's leans within a step of it are tried at once, nearest it first: the
-   * window an arm is admitted in is two steps wide and may hold no coarse
-   * lean, and past it the miss grows again, so the coarse walk alone steps
-   * over it.
+   * A coarse lean may fail only because the hand cannot turn the vessel to it:
+   * its arm drinks, but a joint of the wrist stands at its range's end and
+   * holds the vessel's axis some degrees off the asked one. That hand holds one
+   * axis whatever lean is asked, so the miss falls a degree for each degree of
+   * lean and is zero at the coarse lean plus the miss (measured on a held
+   * glass: 54.7, 38.9, 25.0 and 10.2 degrees off at leans of 15, 30, 45 and 60,
+   * so 69.7, 68.9, 70.0 and 70.2). Once two coarse leans in a row place that
+   * zero within a step of each other, the grid's leans within a step of it are
+   * tried at once, nearest it first: the window an arm is admitted in is two
+   * steps wide and may hold no coarse lean, and past it the miss grows again,
+   * so the coarse walk alone steps over it.
    *
    * @param attempt One lean's admission: its answer, or none.
-   * @param off After an attempt, the least miss of the vessel's axis among the arms it tried that drink, degrees; none when no arm it tried drinks.
-   * @returns The answer at the least lean admitted; none when no lean tried admits.
+   * @param off After an attempt, the least miss of the vessel's axis among the
+   *   arms it tried that drink, degrees; none when no arm it tried drinks.
+   * @returns The answer at the least lean admitted; none when no lean tried
+   *   admits.
    */
   export function least<T>(
     attempt: (lean: number) => T | undefined,

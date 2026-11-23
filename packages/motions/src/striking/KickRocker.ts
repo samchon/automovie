@@ -10,18 +10,19 @@ import { HumanFoot } from "../posture/HumanFoot";
 import type { KickChamber } from "./KickChamber";
 
 /**
- * The kicking leg's plant on its forefoot rocker: as the weight leaves the
- * foot its ankle bends no further than the share of the weight it still
- * bears allows (`walkLeg.dorsal`), a weightless ankle's at the launch, so
- * the heel rises about the toes' joint with the toes kept flat
- * (`walkLeg.heelRise`, as `rangeSteppingFoot` rocks a stepping foot). A
- * plant held flat left the foot at the loaded limit as it left the floor
- * (the cover breach's door kick: 39 degrees, 19 past a weightless ankle).
+ * The kicking leg's plant on its forefoot rocker: as the weight leaves the foot
+ * its ankle bends no further than the share of the weight it still bears allows
+ * (`walkLeg.dorsal`), a weightless ankle's at the launch, so the heel rises
+ * about the toes' joint with the toes kept flat (`walkLeg.heelRise`, as
+ * `rangeSteppingFoot` rocks a stepping foot). A plant held flat left the foot
+ * at the loaded limit as it left the floor (the cover breach's door kick: 39
+ * degrees, 19 past a weightless ankle).
  *
  * @param body The body.
  * @param side The kicking side.
  * @param plant The kicking leg on the floor at the launch.
- * @returns The rocker for a hip, the plant's displacement and the ankle's dorsal limit.
+ * @returns The rocker for a hip, the plant's displacement and the ankle's
+ *   dorsal limit.
  */
 export function KickRocker(
   body: IAutoMovieMotionHumanBody,
@@ -73,11 +74,12 @@ export function KickRocker(
   };
 }
 
-/**
- * Companion types of {@link KickRocker}.
- */
+/** Companion types of {@link KickRocker}. */
 export namespace KickRocker {
-  /** The rocker at a hip, the plant's displacement in world metres and the ankle's dorsal limit in degrees. */
+  /**
+   * The rocker at a hip, the plant's displacement in world metres and the
+   * ankle's dorsal limit in degrees.
+   */
   export type Reader = (
     hip: IAutoMovieVector3,
     moved: IAutoMovieVector3,

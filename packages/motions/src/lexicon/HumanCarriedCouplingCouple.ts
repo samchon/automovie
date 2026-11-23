@@ -57,7 +57,10 @@ interface IBearingContact {
   on: AutoMovieHumanoidRegion;
 }
 
-/** A borne hand that clings to a bearer: the bearer's role, the hand and the bearer's region it holds. */
+/**
+ * A borne hand that clings to a bearer: the bearer's role, the hand and the
+ * bearer's region it holds.
+ */
 interface IClingContact {
   role: string;
   hand: AutoMovieHumanSide;
@@ -74,16 +77,14 @@ type Bones = HumanCarriedCouplingFit.IRead["theirs"];
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /**
- * The per-pair solve of a named carry's coupling (`HumanCarriedCoupling`):
- * the key pose that rests the borne body on the bearer, the contacts read on
- * both key bodies, the bearing shares and the capacity, in one record. The
- * meeting kind and the carry's tables stay with `HumanCarriedCoupling`, which
- * delegates its `couple` here.
+ * The per-pair solve of a named carry's coupling (`HumanCarriedCoupling`): the
+ * key pose that rests the borne body on the bearer, the contacts read on both
+ * key bodies, the bearing shares and the capacity, in one record. The meeting
+ * kind and the carry's tables stay with `HumanCarriedCoupling`, which delegates
+ * its `couple` here.
  */
 export namespace HumanCarriedCouplingCouple {
-  /**
-   * The role names and contact tables supplied by `HumanCarriedCoupling`.
-   */
+  /** The role names and contact tables supplied by `HumanCarriedCoupling`. */
   export interface IContacts {
     /** The first bearer's role name. */
     readonly BEARER: string;
@@ -100,15 +101,18 @@ export namespace HumanCarriedCouplingCouple {
     /** Default held regions for every carry. */
     readonly HOLDS: Readonly<Record<IAutoMovieMotionHumanCarried.Carry, Grip>>;
 
-    /** Alternative grips in preference order, only for carries that provide them. */
+    /**
+     * Alternative grips in preference order, only for carries that provide
+     * them.
+     */
     readonly NEARER: Readonly<
       Partial<Record<IAutoMovieMotionHumanCarried.Carry, readonly Grip[]>>
     >;
   }
 
   /**
-   * The coupling of a carry between two bodies, refused when the bearer
-   * cannot balance the borne mass.
+   * The coupling of a carry between two bodies, refused when the bearer cannot
+   * balance the borne mass.
    *
    * @param rules The meeting's role names, default grips and nearer grips.
    * @param bearer The bearer's body.
@@ -116,9 +120,17 @@ export namespace HumanCarriedCouplingCouple {
    * @param row The carry's row.
    * @param carry The carry, for its holds.
    * @param extra Kilograms the borne person carries besides their body.
-   * @param second A second helper on the carry's other side: its body, its side's row and carry; none when absent.
-   * @returns The coupling, its key, holds and centre in the frame of the bearer's bone the resting region rides on.
-   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible borne mass, when no lean of the bearer balances it; a `reach` refusal on `carry` when no bearer's stance and borne legs within their ranges bring a held region within the bearer's arm (`HumanCarriedCouplingFit.fit`) by the carry's described grip nor any of its nearer ones (`HumanCarriedCoupling.NEARER`); a `parameter` refusal on `mass` for a negative extra mass.
+   * @param second A second helper on the carry's other side: its body, its
+   *   side's row and carry; none when absent.
+   * @returns The coupling, its key, holds and centre in the frame of the
+   *   bearer's bone the resting region rides on.
+   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible
+   *   borne mass, when no lean of the bearer balances it; a `reach` refusal on
+   *   `carry` when no bearer's stance and borne legs within their ranges bring
+   *   a held region within the bearer's arm (`HumanCarriedCouplingFit.fit`) by
+   *   the carry's described grip nor any of its nearer ones
+   *   (`HumanCarriedCoupling.NEARER`); a `parameter` refusal on `mass` for a
+   *   negative extra mass.
    */
   export function couple(
     rules: IContacts,

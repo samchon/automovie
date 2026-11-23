@@ -26,47 +26,57 @@ import { floorEntry } from "./floorEntry";
 import { getUp } from "./getUp";
 
 /**
- * The inchworm, the crawl's `inchworm` kind: from standing the body folds
- * until its palms are flat on the floor before its feet, walks the hands
- * out one at a time to a plank, then walks the feet in one at a time to
- * the hands, a number of cycles, and rises to standing where its feet have
- * come to.
+ * The inchworm, the crawl's `inchworm` kind: from standing the body folds until
+ * its palms are flat on the floor before its feet, walks the hands out one at a
+ * time to a plank, then walks the feet in one at a time to the hands, a number
+ * of cycles, and rises to standing where its feet have come to.
  *
- * The walk is a support sequence (`support`): each placement of the hands
- * and the feet is a stance whose key posture the whole-body fit solves on
- * those four contacts, started from and kept nearest the chain's shape at
- * that placement (`crawlInchwormPose`), so the hips sink as the hands walk
- * out and rise as the feet walk in, and
- * each step lets one limb go, swings it over the middle of its step and sets
- * it down while the other three bear. The fold's and the plank's reaches
- * are the body's middle-plane chain's (`crawlChain`); a cycle walks the
- * wrists from the fold's reach to the plank's and the feet after them by the
- * same length, a hand's step at most `HAND` of the arm's length and a
- * foot's `FOOT` of the leg's. Folding takes `DOWN` seconds, from standing or
- * from the displayed entry when it is entered crouched or on the knees
- * (`floorEntry`), each step `STEP`, and rising back to standing `RISE`. The
- * steps and the timing are provisional, scaled by the square root of the
- * hip height and the manner's tempo.
- * Events: `down`, per cycle `plank<n>` and `folded<n>`, `rising`, and per
- * limb and step `<limb>Liftoff<n>` and `<limb>Touchdown<n>`, the limb one of
- * `leftHand`, `rightHand`, `leftFoot`, `rightFoot`.
+ * The walk is a support sequence (`support`): each placement of the hands and
+ * the feet is a stance whose key posture the whole-body fit solves on those
+ * four contacts, started from and kept nearest the chain's shape at that
+ * placement (`crawlInchwormPose`), so the hips sink as the hands walk out and
+ * rise as the feet walk in, and each step lets one limb go, swings it over the
+ * middle of its step and sets it down while the other three bear. The fold's
+ * and the plank's reaches are the body's middle-plane chain's (`crawlChain`); a
+ * cycle walks the wrists from the fold's reach to the plank's and the feet
+ * after them by the same length, a hand's step at most `HAND` of the arm's
+ * length and a foot's `FOOT` of the leg's. Folding takes `DOWN` seconds, from
+ * standing or from the displayed entry when it is entered crouched or on the
+ * knees (`floorEntry`), each step `STEP`, and rising back to standing `RISE`.
+ * The steps and the timing are provisional, scaled by the square root of the
+ * hip height and the manner's tempo. Events: `down`, per cycle `plank<n>` and
+ * `folded<n>`, `rising`, and per limb and step `<limb>Liftoff<n>` and
+ * `<limb>Touchdown<n>`, the limb one of `leftHand`, `rightHand`, `leftFoot`,
+ * `rightFoot`.
  *
  * Not yet: a push-up at the plank.
  */
 export namespace crawlInchworm {
-  /** A hand's longest step as a share of the upper arm and the forearm (provisional). */
+  /**
+   * A hand's longest step as a share of the upper arm and the forearm
+   * (provisional).
+   */
   export const HAND: number = 0.4;
 
   /** A foot's longest step as a share of the thigh and the shank (provisional). */
   export const FOOT: number = 0.25;
 
-  /** One limb's step, in the body's own time unit, the square root of its hip height over gravity (provisional). */
+  /**
+   * One limb's step, in the body's own time unit, the square root of its hip
+   * height over gravity (provisional).
+   */
   export const STEP: number = 1.6;
 
-  /** The fold from standing to the palms on the floor, in the body's own time unit (provisional). */
+  /**
+   * The fold from standing to the palms on the floor, in the body's own time
+   * unit (provisional).
+   */
   export const DOWN: number = 4.9;
 
-  /** The rise from the last fold to standing, in the body's own time unit (provisional). */
+  /**
+   * The rise from the last fold to standing, in the body's own time unit
+   * (provisional).
+   */
   export const RISE: number = 4.9;
 
   /** The limbs that bear, in the order their contacts are listed. */
@@ -85,7 +95,8 @@ export namespace crawlInchworm {
    *
    * @param context The crawl's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the cycle count is not a positive integer, or a placement the body cannot bear on (`support`).
+   * @throws {HumanRefusal} When the cycle count is not a positive integer, or a
+   *   placement the body cannot bear on (`support`).
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrawl.IParams>,

@@ -32,28 +32,28 @@ import { standingLegs } from "./standingLegs";
  * the plumb line and inclined slightly forward at the ankles
  * ({@link standUpright}), arms hanging relaxed, and the body swaying slightly.
  *
- * The feet keep their entry plants so a stop never slides them; a foot that
- * was not planted lands at its rest place beside the other. The root moves
- * from its entry position to the midpoint of the feet over the first 0.5 s on
- * a minimum-jerk profile and sits 5 mm below full extension so the knees are
- * not locked. A planted foot keeps the heading it stands at, a flat sole
- * turned on the floor sliding across it; a foot set down turns out 7° from the heading, the mean adult foot
- * progression angle (Perry and Burnfield, Gait Analysis, 2nd ed.). Arms hang
- * relaxed (`relaxed`): 12° of elbow flexion, the hand in its position of rest
- * (`HumanHand.shape`, relaxed), and the least shoulder abduction that hangs
- * the hand beside the thigh, its digits clear of the body, read on the
- * stance the feet settle in (`standClearArms`), so a staggered or wide
- * stance kept from the entry hangs its arms clear of its own thighs. Postural sway moves the root on two
- * seeded smooth signals below 1 Hz, side to side and front to back in the
- * body's frame, with an RMS of 3 mm for an elite and 4.8
- * mm for a novice: quiet-stance centre-of-pressure sway of healthy adults is a
- * few millimetres RMS (Prieto et al. 1996), and experts sway less (Perrin et
- * al. 2002, provisional factor 1.6); a given `sway` replaces that RMS, and 0
- * stands still. The window of the noise keeps the start and the end of the
- * stand exact. A law acting with one side that stands on this law's body
- * passes that side (`plan`'s `side`): the side-to-side draw is signed in
- * that side's frame, so a left action's sway is the mirror of a right one's
- * for every seed, its statistics unchanged.
+ * The feet keep their entry plants so a stop never slides them; a foot that was
+ * not planted lands at its rest place beside the other. The root moves from its
+ * entry position to the midpoint of the feet over the first 0.5 s on a
+ * minimum-jerk profile and sits 5 mm below full extension so the knees are not
+ * locked. A planted foot keeps the heading it stands at, a flat sole turned on
+ * the floor sliding across it; a foot set down turns out 7° from the heading,
+ * the mean adult foot progression angle (Perry and Burnfield, Gait Analysis,
+ * 2nd ed.). Arms hang relaxed (`relaxed`): 12° of elbow flexion, the hand in
+ * its position of rest (`HumanHand.shape`, relaxed), and the least shoulder
+ * abduction that hangs the hand beside the thigh, its digits clear of the body,
+ * read on the stance the feet settle in (`standClearArms`), so a staggered or
+ * wide stance kept from the entry hangs its arms clear of its own thighs.
+ * Postural sway moves the root on two seeded smooth signals below 1 Hz, side to
+ * side and front to back in the body's frame, with an RMS of 3 mm for an elite
+ * and 4.8 mm for a novice: quiet-stance centre-of-pressure sway of healthy
+ * adults is a few millimetres RMS (Prieto et al. 1996), and experts sway less
+ * (Perrin et al. 2002, provisional factor 1.6); a given `sway` replaces that
+ * RMS, and 0 stands still. The window of the noise keeps the start and the end
+ * of the stand exact. A law acting with one side that stands on this law's body
+ * passes that side (`plan`'s `side`): the side-to-side draw is signed in that
+ * side's frame, so a left action's sway is the mirror of a right one's for
+ * every seed, its statistics unchanged.
  */
 export namespace stand {
   /** The action's name. */
@@ -64,7 +64,10 @@ export namespace stand {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** What quiet standing lets an overlay take: the arms, the hands, the head and the trunk's turn. */
+  /**
+   * What quiet standing lets an overlay take: the arms, the hands, the head and
+   * the trunk's turn.
+   */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = [
     "head",
     "leftHand",
@@ -78,9 +81,12 @@ export namespace stand {
    * Plan a stand.
    *
    * @param context The action's context.
-   * @param side The side of the law that stands on this body, whose frame the side-to-side sway is signed in: a left side's sway mirrors a right side's. The right when absent, as for a stand acting with no side.
+   * @param side The side of the law that stands on this body, whose frame the
+   *   side-to-side sway is signed in: a left side's sway mirrors a right
+   *   side's. The right when absent, as for a stand acting with no side.
    * @returns The plan.
-   * @throws {HumanRefusal} When the seconds are not positive or the sway is negative.
+   * @throws {HumanRefusal} When the seconds are not positive or the sway is
+   *   negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
@@ -92,8 +98,8 @@ export namespace stand {
   }
 
   /**
-   * Prepare fixed entry geometry for probe and final-duration standing
-   * plans; each positive duration retains its own settle, sway and streams.
+   * Prepare fixed entry geometry for probe and final-duration standing plans;
+   * each positive duration retains its own settle, sway and streams.
    */
   export function prepare(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
@@ -105,19 +111,32 @@ export namespace stand {
   /** A stand's seconds when the author gives none (provisional). */
   export const SECONDS: number = 1.5;
 
-  /** Seconds the root takes to settle from its entry over the feet (provisional). */
+  /**
+   * Seconds the root takes to settle from its entry over the feet
+   * (provisional).
+   */
   export const SETTLE: number = 0.5;
 
-  /** An elite's quiet-stance sway, RMS metres: a few millimetres of centre-of-pressure sway in healthy adults (Prieto et al. 1996), scaled up for lesser skill by `HumanSkill.sway`. */
+  /**
+   * An elite's quiet-stance sway, RMS metres: a few millimetres of
+   * centre-of-pressure sway in healthy adults (Prieto et al. 1996), scaled up
+   * for lesser skill by `HumanSkill.sway`.
+   */
   export const SWAY: number = 0.003;
 
-  /** The highest frequency of the sway's smooth signals, hertz: quiet-stance sway lies below 1 Hz (Prieto et al. 1996). */
+  /**
+   * The highest frequency of the sway's smooth signals, hertz: quiet-stance
+   * sway lies below 1 Hz (Prieto et al. 1996).
+   */
   export const SWAY_FREQUENCY: number = 0.8;
 
   /** The relaxed hanging elbow's flexion, degrees (provisional). */
   export const ELBOW: number = 12;
 
-  /** Foot progression angle, degrees outward from the heading (Perry and Burnfield). */
+  /**
+   * Foot progression angle, degrees outward from the heading (Perry and
+   * Burnfield).
+   */
   export const TOE_OUT: number = 7;
 
   /**
@@ -129,8 +148,8 @@ export namespace stand {
    * abduction is found once per body by bisection between none and the
    * shoulder's range, the depth falling as the arm swings out, until the
    * bracket is no wider than the resolution to which a solver resolves a
-   * joint's angle (`ROM_TOLERANCE`, the engine's range owner, as the limb
-   * fits resolve theirs), and kept: a wider build hangs its arms wider.
+   * joint's angle (`ROM_TOLERANCE`, the engine's range owner, as the limb fits
+   * resolve theirs), and kept: a wider build hangs its arms wider.
    *
    * @param body The body.
    * @returns Angles for both arms and hands.
@@ -142,8 +161,8 @@ export namespace stand {
   }
 
   /**
-   * The shoulder abduction a body's relaxed arms hang at, degrees
-   * (`relaxed`): the one a swinging or raised arm keeps across the body.
+   * The shoulder abduction a body's relaxed arms hang at, degrees (`relaxed`):
+   * the one a swinging or raised arm keeps across the body.
    *
    * @param body The body.
    * @returns Degrees.
@@ -152,13 +171,16 @@ export namespace stand {
     return relaxed(body).leftUpperArm![1];
   }
 
-  /** The bodiless relaxed table's shoulder abduction, degrees (provisional; `relaxed` measures each body's). */
+  /**
+   * The bodiless relaxed table's shoulder abduction, degrees (provisional;
+   * `relaxed` measures each body's).
+   */
   const RELAXED_ABDUCTION: number = 5;
 
   /**
-   * Relaxed hanging arms with no body, clinical degrees: 5 degrees of
-   * shoulder abduction, 12 of elbow flexion and the hands at rest. Kept only
-   * for the laws whose key tables do not yet take the body; each is moving to
+   * Relaxed hanging arms with no body, clinical degrees: 5 degrees of shoulder
+   * abduction, 12 of elbow flexion and the hands at rest. Kept only for the
+   * laws whose key tables do not yet take the body; each is moving to
    * `relaxed`, which hangs the arm clear of the body it belongs to, and this
    * goes with the last of them.
    */
@@ -177,9 +199,9 @@ export namespace stand {
   })();
 
   /**
-   * Quiet ankle targets: a planted foot flattened about its displayed
-   * bearing socket; another foot at rest on the same measured floor.
-   * The world contact stays fixed while the ankle follows its rocker.
+   * Quiet ankle targets: a planted foot flattened about its displayed bearing
+   * socket; another foot at rest on the same measured floor. The world contact
+   * stays fixed while the ankle follows its rocker.
    *
    * @param body The body.
    * @param entry The entry state.
@@ -197,13 +219,13 @@ export namespace stand {
   /**
    * The root of a quiet stance over two ankle points: the pelvis over the
    * feet's midpoint as it stands over its rest feet, shifted forward by the
-   * upright alignment's lean (`standUpright`), and `DROP` below its rest
-   * height above the mean ankle plane so the planted legs are not at full extension,
-   * and lowered where feet set wider or staggered than the rest feet would
-   * need a hip farther from its ankle than the quiet stance's, so each leg
-   * spans its foot with the quiet stance's knee. The single owner of
-   * standing root placement: any law that ends or rests standing on its feet
-   * places its root here.
+   * upright alignment's lean (`standUpright`), and `DROP` below its rest height
+   * above the mean ankle plane so the planted legs are not at full extension,
+   * and lowered where feet set wider or staggered than the rest feet would need
+   * a hip farther from its ankle than the quiet stance's, so each leg spans its
+   * foot with the quiet stance's knee. The single owner of standing root
+   * placement: any law that ends or rests standing on its feet places its root
+   * here.
    *
    * @param body The body.
    * @param feet Ankle points, world metres.
@@ -218,7 +240,10 @@ export namespace stand {
     return standRoot(body, feet, yaw, DROP);
   }
 
-  /** How far a quiet stance's root sits below its rest height, metres, keeping the planted knees off full extension. */
+  /**
+   * How far a quiet stance's root sits below its rest height, metres, keeping
+   * the planted knees off full extension.
+   */
   export const DROP: number = 0.005;
 
   /**
@@ -311,10 +336,10 @@ export namespace stand {
   }
 
   /**
-   * The stand a climb starts from, read at both ends: its first instant is
-   * the entry the climb continues, its last the settled quiet stance, so a
-   * foot entered on its rocker leaves the floor from where it is while the
-   * treads or rungs repeat the settled flat feet.
+   * The stand a climb starts from, read at both ends: its first instant is the
+   * entry the climb continues, its last the settled quiet stance, so a foot
+   * entered on its rocker leaves the floor from where it is while the treads or
+   * rungs repeat the settled flat feet.
    *
    * @template Params The climb's parameter type, which the stand replaces.
    * @param context The climb's context; its parameters are not read.
@@ -355,9 +380,7 @@ export namespace stand {
     };
   }
 
-  /**
-   * The stand's two ends as a climb reads them (`footprints`).
-   */
+  /** The stand's two ends as a climb reads them (`footprints`). */
   export interface IFootprints {
     /** The stand's first instant: the entry the climb continues. */
     standing: IAutoMovieMotionHumanPosture;

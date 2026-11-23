@@ -1,17 +1,23 @@
 import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
 /**
- * Solve U-transpose U x=b by the original two banded triangular sweeps.
- * Upper row i stores U(i,i+j) for j in [0,min(band,n-1-i)]; forward
- * row i stores its finalized U(t,i) in increasing t order. The same finite
- * nonsingular factor serves ADMM and every active-set refinement step.
+ * Solve U-transpose U x=b by the original two banded triangular sweeps. Upper
+ * row i stores U(i,i+j) for j in [0,min(band,n-1-i)]; forward row i stores its
+ * finalized U(t,i) in increasing t order. The same finite nonsingular factor
+ * serves ADMM and every active-set refinement step.
  *
- * @param factor Canonical upper factor plus exact forward-row copies from the same completed Cholesky recurrence; its n matches both vectors.
- * @param b Right-hand side, read before its corresponding destination entry is overwritten.
+ * @param factor Canonical upper factor plus exact forward-row copies from the
+ *   same completed Cholesky recurrence; its n matches both vectors.
+ * @param b Right-hand side, read before its corresponding destination entry is
+ *   overwritten.
  * @param x Caller-owned destination, distinct from the factor.
- * @param relaxed Optional distinct n-entry vector updated as alpha*x+(1-alpha)*old after each final x component is produced; it must alias neither b nor x.
- * @param alpha Finite relaxation coefficient, one by default; ADMM supplies its existing 1.6.
- * @returns Whether every final solution component is finite; the flag does not admit or clamp a value.
+ * @param relaxed Optional distinct n-entry vector updated as
+ *   alpha*x+(1-alpha)*old after each final x component is produced; it must
+ *   alias neither b nor x.
+ * @param alpha Finite relaxation coefficient, one by default; ADMM supplies its
+ *   existing 1.6.
+ * @returns Whether every final solution component is finite; the flag does not
+ *   admit or clamp a value.
  */
 export function HumanQuadraticSubstitute(
   factor: Work.IFactor,
@@ -50,8 +56,7 @@ export function HumanQuadraticSubstitute(
     const row: Float64Array = u[i]!;
     let v: number = x[i]!;
     const end: number = i + row.length;
-    for (let t: number = i + 1; t < end; ++t)
-      v -= row[t - i]! * x[t]!;
+    for (let t: number = i + 1; t < end; ++t) v -= row[t - i]! * x[t]!;
     const value: number = v / row[0]!;
     x[i] = value;
     if (!Number.isFinite(value)) finite = false;
@@ -60,4 +65,3 @@ export function HumanQuadraticSubstitute(
   }
   return finite;
 }
-

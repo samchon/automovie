@@ -39,11 +39,17 @@ interface ILook {
   direction: 1 | -1;
 }
 
-/** A support-relative response integrated before the ride fits its hands and feet. */
+/**
+ * A support-relative response integrated before the ride fits its hands and
+ * feet.
+ */
 interface IPrepared {
   /** Local seconds where the stirrups support the raised rider without the seat. */
   offSeat?: readonly [number, number];
-  /** Pose the pelvis and upper body relative to the saddle and keep the limb demands for the ride to fit. */
+  /**
+   * Pose the pelvis and upper body relative to the saddle and keep the limb
+   * demands for the ride to fit.
+   */
   at(
     seconds: number,
     posture: IAutoMovieMotionHumanPosture,
@@ -55,22 +61,25 @@ interface IPrepared {
 
 /**
  * Prepare opt-in riding articulation from the support's film cues. Collected
- * walk and trot show opposing saddle and pelvic pitch during early stance,
- * with the lumbar spine extending in early trot stance (Byström et al.,
- * PMID 20525053 and 19469236). Uses that relative phase and small authored
- * amplitudes. Canter varies with lead, using authored timing and amplitude;
- * the gallop rocks and rolls as the canter does, at the canter's amplitudes
- * (provisional: no source read gives a rider's pelvis at the gallop).
- * Jump flight starts at last hind liftoff and ends at first fore landing
- * (Clayton 1989, doi:10.1016/S0737-0806(89)80073-5). The scene author supplies
- * those instants from a jumping support. The over-shoulder pose follows a
- * single film cue, with pelvis and horse direction independent of the turn.
+ * walk and trot show opposing saddle and pelvic pitch during early stance, with
+ * the lumbar spine extending in early trot stance (Byström et al., PMID
+ * 20525053 and 19469236). Uses that relative phase and small authored
+ * amplitudes. Canter varies with lead, using authored timing and amplitude; the
+ * gallop rocks and rolls as the canter does, at the canter's amplitudes
+ * (provisional: no source read gives a rider's pelvis at the gallop). Jump
+ * flight starts at last hind liftoff and ends at first fore landing (Clayton
+ * 1989, doi:10.1016/S0737-0806(89)80073-5). The scene author supplies those
+ * instants from a jumping support. The over-shoulder pose follows a single film
+ * cue, with pelvis and horse direction independent of the turn.
  *
  * @param context The ride's context and its performance cue tracks.
  * @param origin The support frame when the ride begins.
- * @param saddle The support's seat, world metres at the ride's entry, resolved by the ride.
- * @returns The rider-only response for this ride, or undefined for ordinary riding.
- * @throws {HumanRefusal} For missing support, missing or ambiguous cues, or incompatible jumping support.
+ * @param saddle The support's seat, world metres at the ride's entry, resolved
+ *   by the ride.
+ * @returns The rider-only response for this ride, or undefined for ordinary
+ *   riding.
+ * @throws {HumanRefusal} For missing support, missing or ambiguous cues, or
+ *   incompatible jumping support.
  */
 export function prepareHumanEquestrianRide(
   context: Context,
@@ -381,7 +390,10 @@ function strideWindows(
   return result;
 }
 
-/** Locate the last begun cue track. Its phase reader owns the endpoint and gap semantics. */
+/**
+ * Locate the last begun cue track. Its phase reader owns the endpoint and gap
+ * semantics.
+ */
 function strideAt(
   strides: readonly IStrideWindow[],
   at: number,
@@ -396,7 +408,10 @@ function strideAt(
   return strides[low - 1];
 }
 
-/** Phases are fractions between adjacent touchdowns, with rest outside the track. */
+/**
+ * Phases are fractions between adjacent touchdowns, with rest outside the
+ * track.
+ */
 function phase(strides: readonly number[], at: number): number {
   let low: number = 0;
   let high: number = strides.length - 1;
@@ -409,7 +424,10 @@ function phase(strides: readonly number[], at: number): number {
   return (at - strides[low]!) / (strides[high]! - strides[low]!);
 }
 
-/** The supported two-point posture approaches smoothly and settles after landing. */
+/**
+ * The supported two-point posture approaches smoothly and settles after
+ * landing.
+ */
 function jumping(jump: Jump | undefined, at: number): number {
   if (jump === undefined) return 0;
   const [approach, takeoff, landing, recovery]: Jump = jump;
@@ -421,7 +439,10 @@ function jumping(jump: Jump | undefined, at: number): number {
   return 1;
 }
 
-/** Add a joint offset within the body's angle range. A missing degree of freedom stays untouched. */
+/**
+ * Add a joint offset within the body's angle range. A missing degree of freedom
+ * stays untouched.
+ */
 function bounded(
   start: number,
   delta: number,

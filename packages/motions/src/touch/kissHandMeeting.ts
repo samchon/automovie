@@ -24,11 +24,11 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanReach } from "../compose/AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
-import { touchPrimitive } from "../compose/touchPrimitive";
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionMeeting } from "../compose/AutoMovieMotionMeeting";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
+import { touchPrimitive } from "../compose/touchPrimitive";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -37,14 +37,17 @@ import { kissPitch } from "./kissPitch";
 import { touchReach } from "./touchReach";
 
 /**
- * One meeting for the two roles of a hand kiss. At the required hand
- * attitude the presenting wrist is a fixed offset from its back of hand,
- * so the lips must meet a point in that translated reach sphere. The
- * kisser's forward bow traces an arc about the hips. The nearest point on
- * the arc brackets the first shared point the arm can reach.
+ * One meeting for the two roles of a hand kiss. At the required hand attitude
+ * the presenting wrist is a fixed offset from its back of hand, so the lips
+ * must meet a point in that translated reach sphere. The kisser's forward bow
+ * traces an arc about the hips. The nearest point on the arc brackets the first
+ * shared point the arm can reach.
  */
 export namespace kissHandMeeting {
-  /** The back of the hand faces the kisser, with fingers across the mouth's approach. */
+  /**
+   * The back of the hand faces the kisser, with fingers across the mouth's
+   * approach.
+   */
   const hand: IAutoMovieMotionHumanTouchEffector.IEffector = {
     surface: "handBack",
     shape: "flat",
@@ -94,7 +97,7 @@ export namespace kissHandMeeting {
                       side,
                       hand,
                       point,
-                    "across",
+                      "across",
                       across(point, role.posture.root),
                     ),
               )
@@ -123,7 +126,8 @@ export namespace kissHandMeeting {
   ): IAutoMovieMotionHumanActionPlan {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
-    const placed: IAutoMovieMotionHumanTarget.IPlace = AutoMovieMotionMeeting.place(meeting, "contact", entry);
+    const placed: IAutoMovieMotionHumanTarget.IPlace =
+      AutoMovieMotionMeeting.place(meeting, "contact", entry);
     const bend: IAutoMovieVector3 = AutoMovieMotionHumanTouchLaid.bend(
       body,
       entry,
@@ -184,14 +188,33 @@ export namespace kissHandMeeting {
     const shoulder: IAutoMovieVector3 = presenter.bones.get(
       `${side}UpperArm`,
     )!.worldPosition;
-    const wrist = (surface: IAutoMovieMotionMeetingKind.ISurface): IAutoMovieVector3 =>
-      AutoMovieMotionHumanTouchLaid.rest(presenter.body, presenter.posture, side, hand, surface, "across", shoulder).point;
-    const arm: number = presenter.body.measure.upperArm + presenter.body.measure.forearm;
-    const region: IAutoMovieMotionMeetingRole["body"]["surfaces"]["regions"]["mouth"] = kisser.body.surfaces.regions.mouth;
-    const initial: IAutoMovieMotionMeetingKind.ISurface = resolveAutoMovieHumanoidSurfaces.place(region, kisser.bones.get(region.bone)!);
+    const wrist = (
+      surface: IAutoMovieMotionMeetingKind.ISurface,
+    ): IAutoMovieVector3 =>
+      AutoMovieMotionHumanTouchLaid.rest(
+        presenter.body,
+        presenter.posture,
+        side,
+        hand,
+        surface,
+        "across",
+        shoulder,
+      ).point;
+    const arm: number =
+      presenter.body.measure.upperArm + presenter.body.measure.forearm;
+    const region: IAutoMovieMotionMeetingRole["body"]["surfaces"]["regions"]["mouth"] =
+      kisser.body.surfaces.regions.mouth;
+    const initial: IAutoMovieMotionMeetingKind.ISurface =
+      resolveAutoMovieHumanoidSurfaces.place(
+        region,
+        kisser.bones.get(region.bone)!,
+      );
     const first: IAutoMovieVector3 = wrist(initial);
     if (Vector3.distance(shoulder, first) <= arm) return initial;
-    const center: IAutoMovieVector3 = Vector3.add(shoulder, Vector3.subtract(start, first));
+    const center: IAutoMovieVector3 = Vector3.add(
+      shoulder,
+      Vector3.subtract(start, first),
+    );
     const entry: IAutoMovieMotionHumanPosture | undefined =
       kisser.entry?.posture;
     if (entry === undefined)
@@ -240,7 +263,8 @@ export namespace kissHandMeeting {
       });
     const precision: number = (Math.sqrt(Number.EPSILON) * 180) / Math.PI;
     const pitch: number = bracketedBisection(
-      (angle: number): boolean => Vector3.distance(shoulder, wrist(placed(angle))) > arm,
+      (angle: number): boolean =>
+        Vector3.distance(shoulder, wrist(placed(angle))) > arm,
       0,
       closest,
       precision,
@@ -248,8 +272,14 @@ export namespace kissHandMeeting {
     return placed(pitch);
   }
 
-  /** Horizontal direction between the presentation and the presenter's stance for its transport clock. */
-  function across(from: IAutoMovieVector3, to: IAutoMovieVector3): IAutoMovieVector3 {
+  /**
+   * Horizontal direction between the presentation and the presenter's stance
+   * for its transport clock.
+   */
+  function across(
+    from: IAutoMovieVector3,
+    to: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
     return Vector3.normalize({ x: to.x - from.x, y: 0, z: to.z - from.z });
   }
 }

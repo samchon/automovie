@@ -16,9 +16,9 @@ const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 /**
  * A named point of a prop as a hand's grip at a film second: the displayed
- * point and normal, the handle's wrapped axis carried by the prop's frame,
- * and half its stated aperture as the radius, as a rider's hands read a
- * carried handle (`HumanRideHands`).
+ * point and normal, the handle's wrapped axis carried by the prop's frame, and
+ * half its stated aperture as the radius, as a rider's hands read a carried
+ * handle (`HumanRideHands`).
  *
  * @param context The action's context.
  * @param on The prop's subject id.

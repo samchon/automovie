@@ -13,10 +13,10 @@ import { prepareHumanTrunkBalance } from "../everyday/prepareHumanTrunkBalance";
 import { HumanPhysics } from "../law/HumanPhysics";
 
 /**
- * Prepare the requested correction for a grounded touch. The stance is
- * already written when the correction reads it. The arm reaches its fixed
- * site from the corrected body, and the existing hip or lumbar balance
- * owner sees that arm's geometric demand when it places the mass.
+ * Prepare the requested correction for a grounded touch. The stance is already
+ * written when the correction reads it. The arm reaches its fixed site from the
+ * corrected body, and the existing hip or lumbar balance owner sees that arm's
+ * geometric demand when it places the mass.
  *
  * @param body The canonical body.
  * @param window The admitted action-local balance window.
@@ -46,16 +46,27 @@ export function touchBalance(
       if (weight === 0) return posture;
       const limb: IAutoMovieHumanLimbGoal = arm(posture);
       const weighed: IAutoMovieMotionHumanPosture = {
-        ...posture, limbs: { ...posture.limbs, [`${side}Arm`]: limb },
+        ...posture,
+        limbs: { ...posture.limbs, [`${side}Arm`]: limb },
       };
       if (trunk !== undefined) {
-        const settled: IAutoMovieMotionHumanPosture = trunk(weighed, weight, resolution, projection);
+        const settled: IAutoMovieMotionHumanPosture = trunk(
+          weighed,
+          weight,
+          resolution,
+          projection,
+        );
         return { ...posture, joints: settled.joints };
       }
       const moved = (back: number): IAutoMovieMotionHumanPosture =>
-        AutoMovieMotionHumanRoot.place(weighed, { point: { x: 0, y: 0, z: -back }, yaw: 0 });
+        AutoMovieMotionHumanRoot.place(weighed, {
+          point: { x: 0, y: 0, z: -back },
+          yaw: 0,
+        });
       const touched: number = HumanBalance.shift(body, moved);
-      return touched === 0 ? posture : { ...posture, root: moved(touched * weight).root };
+      return touched === 0
+        ? posture
+        : { ...posture, root: moved(touched * weight).root };
     },
   };
 }

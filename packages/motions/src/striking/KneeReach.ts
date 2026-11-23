@@ -8,19 +8,16 @@ import { KneeForm } from "./KneeForm";
 
 /**
  * The knee strike's reach: the thigh carries the knee on a circle about the
- * hip, whose front lies one thigh plus one patella depth from the hip along
- * the thigh. The thigh rises to the elevation whose circle meets the
- * target's height, bounded by the hip's flexion range less the back lean
- * that tips the pelvis; the pelvis then travels horizontally along the line
- * toward the target until the knee's front is on it, forward (the hip thrust
- * of the clinch knee) or back (the hips drawn back to make room when the
- * opponent is chest to chest). The shank folds back under the knee by
- * {@link KneeForm.FLEXION}.
+ * hip, whose front lies one thigh plus one patella depth from the hip along the
+ * thigh. The thigh rises to the elevation whose circle meets the target's
+ * height, bounded by the hip's flexion range less the back lean that tips the
+ * pelvis; the pelvis then travels horizontally along the line toward the target
+ * until the knee's front is on it, forward (the hip thrust of the clinch knee)
+ * or back (the hips drawn back to make room when the opponent is chest to
+ * chest). The shank folds back under the knee by {@link KneeForm.FLEXION}.
  */
 export namespace KneeReach {
-  /**
-   * A solved knee: where its joint, ankle and pelvis go at the contact.
-   */
+  /** A solved knee: where its joint, ankle and pelvis go at the contact. */
   export interface ISolution {
     /** The knee joint, world metres. */
     knee: IAutoMovieVector3;
@@ -47,7 +44,8 @@ export namespace KneeReach {
    * @param patella The knee's front from its joint, metres.
    * @param shank The shank length, metres.
    * @param travel The pelvis's longest travel, metres.
-   * @param fallback A horizontal unit direction for a target straight above or below the hip.
+   * @param fallback A horizontal unit direction for a target straight above or
+   *   below the hip.
    * @returns The solution.
    */
   export function solve(
@@ -128,7 +126,8 @@ export namespace KneeReach {
    * @param from The direction at share 0, unit.
    * @param to The direction at share 1, unit.
    * @param share How far along the arc, 0 to 1.
-   * @returns The unit direction; `to` when the two are parallel or opposed, where the arc's plane is not defined.
+   * @returns The unit direction; `to` when the two are parallel or opposed,
+   *   where the arc's plane is not defined.
    */
   export function swing(
     from: IAutoMovieVector3,
@@ -153,7 +152,8 @@ export namespace KneeReach {
    *
    * @param shank The unit direction from the knee to the ankle.
    * @param heading The horizontal unit direction the knee faces.
-   * @returns The toes' direction and the instep's, both unit, for `StrikingBody.foot`.
+   * @returns The toes' direction and the instep's, both unit, for
+   *   `StrikingBody.foot`.
    */
   export function foot(
     shank: IAutoMovieVector3,

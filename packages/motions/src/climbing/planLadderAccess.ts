@@ -33,28 +33,49 @@ import { seatLadderAccessGrips } from "./seatLadderAccessGrips";
 /** Both sides, left first, the order each beat moves its limbs in. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** The widest gap between the ladder's rung plane and the landing's near edge, metres (provisional: a step across, not a stride). */
+/**
+ * The widest gap between the ladder's rung plane and the landing's near edge,
+ * metres (provisional: a step across, not a stride).
+ */
 const MAX_GAP: number = 0.25;
 
-/** How far behind the rungs the floor stance stands, metres (provisional: the toes under the first rung). */
+/**
+ * How far behind the rungs the floor stance stands, metres (provisional: the
+ * toes under the first rung).
+ */
 const FLOOR_STANCE: number = 0.38;
 
-/** Heel room on the landing beyond its near edge, foot lengths (provisional: the toe joint inside the edge by most of the foot). */
+/**
+ * Heel room on the landing beyond its near edge, foot lengths (provisional: the
+ * toe joint inside the edge by most of the foot).
+ */
 const HEEL_ROOM: number = 0.84;
 
-/** Height of the hands' first rung above the floor, statures (provisional: about shoulder height less the arm's bend). */
+/**
+ * Height of the hands' first rung above the floor, statures (provisional: about
+ * shoulder height less the arm's bend).
+ */
 const GRIP_HEIGHT: number = 0.69;
 
 /** Seconds per ladder beat (provisional). */
 const BEAT: number = 0.65;
 
-/** Lateral margin of a sole inside a rung's or landing's edge, metres (provisional). */
+/**
+ * Lateral margin of a sole inside a rung's or landing's edge, metres
+ * (provisional).
+ */
 const SOLE_MARGIN: number = 0.07;
 
-/** The swing waypoints' height above the landing, foot lengths (provisional: the toe clear of the edge). */
+/**
+ * The swing waypoints' height above the landing, foot lengths (provisional: the
+ * toe clear of the edge).
+ */
 const EDGE_RISE: number = 0.55;
 
-/** The near waypoint's distance outside the landing's edge, foot lengths (provisional: the toes clear of the edge's face). */
+/**
+ * The near waypoint's distance outside the landing's edge, foot lengths
+ * (provisional: the toes clear of the edge's face).
+ */
 const EDGE_BUFFER: number = 0.62;
 
 /** Seconds to let go of a rail and stand (provisional). */
@@ -63,7 +84,10 @@ const RELEASE: number = 0.4;
 /** Seconds to settle a standing stance at either end of the route (provisional). */
 const SETTLE: number = 0.3;
 
-/** Depth the landing needs beyond the heel room, metres (provisional: the far stance's heel). */
+/**
+ * Depth the landing needs beyond the heel room, metres (provisional: the far
+ * stance's heel).
+ */
 const LANDING_MARGIN: number = 0.12;
 
 /** The share of the body weight a grip bears on the ladder (provisional). */
@@ -72,16 +96,17 @@ const GRIP_LOAD: number = 0.1;
 /**
  * Connect a fixed rung ladder's floor and upper surface in either direction.
  * Every target is a floor point, a point on a real rung or rail, or the
- * landing's surface. The shared support planner fits each change of load.
- * The ascent ends with both feet at an edge stance just inside the landing's
- * near edge; a descent first steps each foot, one at a time, from where the
+ * landing's surface. The shared support planner fits each change of load. The
+ * ascent ends with both feet at an edge stance just inside the landing's near
+ * edge; a descent first steps each foot, one at a time, from where the
  * performer stands to that edge stance, then replays the ascent backwards.
  *
  * @param context The actor and fixed placed geometry.
  * @param ladder The existing physical rung geometry.
  * @param exit The upper supporting surface and selected direction.
  * @returns A fully staged continuous multi-contact route.
- * @throws {HumanRefusal} If the geometry and initial standing stance do not admit the route or a contact cannot bear.
+ * @throws {HumanRefusal} If the geometry and initial standing stance do not
+ *   admit the route or a contact cannot bear.
  */
 export function planLadderAccess(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbLadder.IParams>,

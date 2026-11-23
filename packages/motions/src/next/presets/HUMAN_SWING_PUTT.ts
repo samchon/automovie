@@ -1,7 +1,8 @@
 ﻿import type { IAutoMovieMotionHumanSwing } from "@automovie/interface";
 
 /**
- * A golf putt or chip: both hands, a level stroke along the ground line. Spread into the cut's parameters; the row adds the implement's measured speed.
+ * A golf putt or chip: both hands, a level stroke along the ground line. Spread
+ * into the cut's parameters; the row adds the implement's measured speed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which row reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IAutoMovieMotionHumanSwing.IGripPreset`, so it fits any body as the law does.

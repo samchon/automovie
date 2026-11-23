@@ -28,10 +28,16 @@ const KNEE: number = 0.75;
 /** The share by which the hands have left the deck for the rising key's arms. */
 const LET_GO: number = 0.88;
 
-/** The highest deck above the water a swimmer presses out over unaided, metres: provisional, about a forearm. */
+/**
+ * The highest deck above the water a swimmer presses out over unaided, metres:
+ * provisional, about a forearm.
+ */
 const FREEBOARD: number = 0.5;
 
-/** Palms this far behind the edge on the deck and this far either side, metres: provisional. */
+/**
+ * Palms this far behind the edge on the deck and this far either side, metres:
+ * provisional.
+ */
 const PALM_BACK: number = 0.12;
 const PALM_SIDE: number = 0.25;
 
@@ -42,13 +48,13 @@ const LIFT: number = 0.15;
 const STAND_BACK: number = 0.45;
 
 /**
- * Climb out over a pool's edge unaided, as a swimmer does at a deck a
- * forearm or less above the water: both palms go onto the deck behind the
- * edge (`hands`), the arms press the body up until the hips clear the deck
- * (`pressed`), a knee comes onto the deck (`knee`), and the swimmer stands
- * on the deck behind the edge (`standing`). The palms bear from `hands`
- * until the knee is down, so the hands load before the body rises. A deck
- * higher above the water than `FREEBOARD` is refused.
+ * Climb out over a pool's edge unaided, as a swimmer does at a deck a forearm
+ * or less above the water: both palms go onto the deck behind the edge
+ * (`hands`), the arms press the body up until the hips clear the deck
+ * (`pressed`), a knee comes onto the deck (`knee`), and the swimmer stands on
+ * the deck behind the edge (`standing`). The palms bear from `hands` until the
+ * knee is down, so the hands load before the body rises. A deck higher above
+ * the water than `FREEBOARD` is refused.
  */
 export namespace AquaticEdgeExit {
   /** Plan the exit at the named pool edge. */
@@ -225,8 +231,8 @@ export namespace AquaticEdgeExit {
   }
 
   /**
-   * A palm flat on the deck with the fingers away from the water, lowered
-   * onto it over the first share.
+   * A palm flat on the deck with the fingers away from the water, lowered onto
+   * it over the first share.
    */
   function palm(
     body: AquaticPosture.Context["body"],

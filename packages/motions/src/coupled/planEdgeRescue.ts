@@ -10,13 +10,14 @@ import { edgeRescueRescuer } from "./edgeRescueRescuer";
 import { edgeRescueScene } from "./edgeRescueScene";
 
 /**
- * Plan one role of an edge rescue. Both roles prepare the same scene from
- * the ledge and both bodies, the partner's read from the performance, so
- * the grip, the timeline and the refusals agree whichever is planned first.
+ * Plan one role of an edge rescue. Both roles prepare the same scene from the
+ * ledge and both bodies, the partner's read from the performance, so the grip,
+ * the timeline and the refusals agree whichever is planned first.
  *
  * @param context The performer's context.
  * @returns The role's plan.
- * @throws {HumanRefusal} From the scene when the ledge, the load or the margin cannot stage the rescue.
+ * @throws {HumanRefusal} From the scene when the ledge, the load or the margin
+ *   cannot stage the rescue.
  */
 export function planEdgeRescue(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEdgeRescue.IParams>,

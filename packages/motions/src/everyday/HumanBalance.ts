@@ -29,39 +29,50 @@ import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
 /**
  * Backward hip travel to support the body's segmental centre (Winter, ch. 4).
- * The closest boundary suffices (Hof et al. 2005). The planted legs may
- * move during fitting, so a rigid correction is checked on the actual pose.
+ * The closest boundary suffices (Hof et al. 2005). The planted legs may move
+ * during fitting, so a rigid correction is checked on the actual pose.
  */
 export namespace HumanBalance {
-  /** How far back the balance search looks unless told otherwise, hip heights: the shift of a trunk pitched over hips that stand over the feet. */
+  /**
+   * How far back the balance search looks unless told otherwise, hip heights:
+   * the shift of a trunk pitched over hips that stand over the feet.
+   */
   export const RANGE: number = 0.4;
 
   /**
    * How far back the balance search looks for a posture whose hips may stand
    * anywhere the planted legs let them, hip heights: a leg's length ahead of
-   * the feet, about one hip height, back to a foot's length behind them,
-   * about 0.3.
+   * the feet, about one hip height, back to a foot's length behind them, about
+   * 0.3.
    */
   export const REACH: number = 1.3;
 
-  /** The resolution a balance search solves a shift or a travel to, metres: half a millimetre, under the millimetre the margins are reported in. */
+  /**
+   * The resolution a balance search solves a shift or a travel to, metres: half
+   * a millimetre, under the millimetre the margins are reported in.
+   */
   export const TOLERANCE: number = 5e-4;
 
   /**
-   * The hips' backward shift that puts the whole-body centre of mass over
-   * the base of support along the heading, the feet where they bear
-   * (`HumanFoot.base`): over its middle (`offset`), or a stated distance
-   * ahead of it (`target`), as a lean holds the centre where the body stood.
+   * The hips' backward shift that puts the whole-body centre of mass over the
+   * base of support along the heading, the feet where they bear
+   * (`HumanFoot.base`): over its middle (`offset`), or a stated distance ahead
+   * of it (`target`), as a lean holds the centre where the body stood.
    *
    * Where fitting changes support, a feasible endpoint brackets the first
    * supported shift to `TOLERANCE`. If the heel cannot bear, the forefoot
    * bears, and a missing crossing leaves the nearer endpoint for the audit.
    *
    * @param body The body.
-   * @param build The posture for a backward shift of the hips, metres; a negative shift moves them forward.
-   * @param range How far the search looks either way, hip heights; `RANGE` when absent, and `REACH` for a posture whose hips do not start over the feet.
-   * @param target How far ahead of the base's middle the centre is put, metres. Without a target, first keep a supported posture or try the nearest boundary.
-   * @returns The shift, metres, negative forward; 0 when the centre lies inside the base no farther ahead than the target without one.
+   * @param build The posture for a backward shift of the hips, metres; a
+   *   negative shift moves them forward.
+   * @param range How far the search looks either way, hip heights; `RANGE` when
+   *   absent, and `REACH` for a posture whose hips do not start over the feet.
+   * @param target How far ahead of the base's middle the centre is put, metres.
+   *   Without a target, first keep a supported posture or try the nearest
+   *   boundary.
+   * @returns The shift, metres, negative forward; 0 when the centre lies inside
+   *   the base no farther ahead than the target without one.
    */
   export function shift(
     body: IAutoMovieMotionHumanBody,
@@ -72,20 +83,34 @@ export namespace HumanBalance {
     // Each shift is read once within a call: the searches below revisit
     // their brackets' ends.
     const read0: Map<number, IReading> = new Map();
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
-    const projection: ReturnType<typeof prepareHumanPostureProjection> = prepareHumanPostureProjection(body);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
     let frames: ReturnType<typeof poseBones.prepare> | undefined;
     let model: prepareAutoMovieMassModel.IPrepared | undefined;
-    const mass: () => prepareAutoMovieMassModel.IPrepared = (): prepareAutoMovieMassModel.IPrepared => {
-      model ??= prepareAutoMovieMassModel(body.massModel);
-      return model;
-    };
+    const mass: () => prepareAutoMovieMassModel.IPrepared =
+      (): prepareAutoMovieMassModel.IPrepared => {
+        model ??= prepareAutoMovieMassModel(body.massModel);
+        return model;
+      };
     const at: (back: number) => IReading = (back: number): IReading => {
       let r: IReading | undefined = read0.get(back);
       if (r === undefined) {
-        r = read(body, build(back), resolution, projection, frames, mass, back === 0 && target === undefined);
+        r = read(
+          body,
+          build(back),
+          resolution,
+          projection,
+          frames,
+          mass,
+          back === 0 && target === undefined,
+        );
         if (frames === undefined)
-          frames = poseBones.prepare(body, new Set([...HumanColliders.bones(body), ...HumanFoot.bones(body)]));
+          frames = poseBones.prepare(
+            body,
+            new Set([...HumanColliders.bones(body), ...HumanFoot.bones(body)]),
+          );
         read0.set(back, r);
       }
       return r;
@@ -97,16 +122,22 @@ export namespace HumanBalance {
       const nearest: (back: number) => number = (back: number): number => {
         if (target !== undefined || at(back).margin <= 0) return back;
         let supported: number = back;
-        bracketedBisection((current: number): boolean => {
-          if (at(current).margin < 0) return true;
-          supported = current;
-          return false;
-        }, 0, back, TOLERANCE);
+        bracketedBisection(
+          (current: number): boolean => {
+            if (at(current).margin < 0) return true;
+            supported = current;
+            return false;
+          },
+          0,
+          back,
+          TOLERANCE,
+        );
         return supported;
       };
       if (start.candidate !== undefined && Math.abs(start.candidate) <= span) {
         const landed: IReading = at(start.candidate);
-        if (landed.margin >= 0 && landed.flat === start.flat) return nearest(start.candidate);
+        if (landed.margin >= 0 && landed.flat === start.flat)
+          return nearest(start.candidate);
       }
       // The shift from `from` the given way, within the range, at which
       // `error` is no longer positive: the bracket is the range's two ends,
@@ -150,7 +181,8 @@ export namespace HumanBalance {
               ),
         };
       };
-      const ahead: (r: IReading) => number = (r: IReading): number => r.offset - (target ?? 0);
+      const ahead: (r: IReading) => number = (r: IReading): number =>
+        r.offset - (target ?? 0);
       // Flat feet first: a heel the planted leg lifted is brought down by
       // moving the hips back; on flat feet a centre ahead of the target is
       // brought back to it, and one behind it is left while it lies inside.
@@ -162,30 +194,36 @@ export namespace HumanBalance {
       );
       if (down.found) {
         const landed: IReading = at(down.back);
-        if (ahead(landed) > 0) return nearest(first(down.back, 1, ahead, true).back);
+        if (ahead(landed) > 0)
+          return nearest(first(down.back, 1, ahead, true).back);
         if (landed.margin > 0) return nearest(down.back);
       }
       // Otherwise the forefoot: the centre brought over its middle, back when
       // ahead of it, forward when outside behind it.
       if (ahead(start) > 0) return nearest(first(0, 1, ahead, true).back);
       if (start.margin > 0) return 0;
-      return nearest(first(0, -1, (r: IReading): number => -ahead(r), true).back);
+      return nearest(
+        first(0, -1, (r: IReading): number => -ahead(r), true).back,
+      );
     } finally {
       if (model !== undefined) prepareAutoMovieMassModel.release(model);
     }
   }
 
   /**
-   * The static margin of stability of a posture: the horizontal distance
-   * from the engine's whole-body centre of mass to the edge of the hull of
-   * base of support, the feet's outlines where they bear (`HumanFoot.base`) (Hof et al. 2005, with zero
-   * velocity), positive inside.
+   * The static margin of stability of a posture: the horizontal distance from
+   * the engine's whole-body centre of mass to the edge of the hull of base of
+   * support, the feet's outlines where they bear (`HumanFoot.base`) (Hof et al.
+   * 2005, with zero velocity), positive inside.
    *
    * @param body The body.
    * @param posture The posture.
    * @returns Metres.
    */
-  export function margin(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
+  export function margin(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): number {
     const placed: IPlaced = placement(body, posture);
     return resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
   }
@@ -196,9 +234,13 @@ export namespace HumanBalance {
    *
    * @param body The unchanged body owning its prepared classic mass model.
    * @param posture The actual posture with every limb and digit goal retained.
-   * @param resolution Optional exact FK workspace or lazy supplier borrowed from the same synchronous body operation.
-   * @param projection Optional genuine same-body ROM projector borrowed only from that synchronous operation; unissued functions keep ordinary admission.
-   * @param resolved The cold resolve of this very posture when its caller already holds it, read in place of solving the posture here.
+   * @param resolution Optional exact FK workspace or lazy supplier borrowed
+   *   from the same synchronous body operation.
+   * @param projection Optional genuine same-body ROM projector borrowed only
+   *   from that synchronous operation; unissued functions keep ordinary
+   *   admission.
+   * @param resolved The cold resolve of this very posture when its caller
+   *   already holds it, read in place of solving the posture here.
    * @returns The whole-body centre, world metres.
    */
   export function centre(
@@ -208,29 +250,43 @@ export namespace HumanBalance {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     resolved?: ReturnType<typeof resolveHumanPosture>,
   ): IAutoMovieVector3 {
-    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
     return resolveAutoMovieCenterOfMass.place(
       body.massModel,
-      body.colliderBones.map(resolved ?? resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose, read()),
+      body.colliderBones.map(
+        resolved ??
+          resolveHumanPosture.seeded(
+            body,
+            posture,
+            undefined,
+            {},
+            read,
+            undefined,
+            projection,
+          ).pose,
+        read(),
+      ),
     );
   }
 
   /**
-   * Fixed-body centre observations owned by prepareHumanBalanceCentre.
-   * Its actual profile-name producer prepares only immutable FK demand;
-   * each reader call keeps complete fitting, current mass placement and
-   * optional same-operation FK/ROM borrowing. Release it with the owning action.
+   * Fixed-body centre observations owned by prepareHumanBalanceCentre. Its
+   * actual profile-name producer prepares only immutable FK demand; each reader
+   * call keeps complete fitting, current mass placement and optional
+   * same-operation FK/ROM borrowing. Release it with the owning action.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names prepareHumanBalanceCentre as the implementation owner and states fixed metadata, complete current fitting, borrowed operation context and lifetime.
    */
-  export const prepareCentre: typeof prepareHumanBalanceCentre = prepareHumanBalanceCentre;
+  export const prepareCentre: typeof prepareHumanBalanceCentre =
+    prepareHumanBalanceCentre;
 
   /**
-   * The dynamic margin of stability at an instant of a movement (Hof,
-   * Gazendam and Sinke 2005): the engine's whole-body centre of mass plus
-   * its velocity (a central difference over 1/240 s) over the inverted
-   * pendulum's eigenfrequency `sqrt(g / l)` with `l` 1.34 hip heights (Hof's
-   * leg length), measured to the edge of the feet's base, positive inside.
+   * The dynamic margin of stability at an instant of a movement (Hof, Gazendam
+   * and Sinke 2005): the engine's whole-body centre of mass plus its velocity
+   * (a central difference over 1/240 s) over the inverted pendulum's
+   * eigenfrequency `sqrt(g / l)` with `l` 1.34 hip heights (Hof's leg length),
+   * measured to the edge of the feet's base, positive inside.
    *
    * @param body The body.
    * @param at The movement's posture at a second.
@@ -247,21 +303,25 @@ export namespace HumanBalance {
 
   /**
    * Fixed-body dynamic margin reader owned by HumanBalanceExtrapolated.prepare.
-   * Every t-h, t+h and t callback/full fit remains actual; current callbacks may
-   * synchronously borrow FK/ROM metadata and no sample enters retained state.
+   * Every t-h, t+h and t callback/full fit remains actual; current callbacks
+   * may synchronously borrow FK/ROM metadata and no sample enters retained
+   * state.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the fixed-body dynamic reader owner, original three-instant full-fit policy, optional synchronous loans and absence of retained movement samples.
    */
-  export const prepareExtrapolated: typeof HumanBalanceExtrapolated.prepare = HumanBalanceExtrapolated.prepare;
+  export const prepareExtrapolated: typeof HumanBalanceExtrapolated.prepare =
+    HumanBalanceExtrapolated.prepare;
 
   /**
-   * The engine's whole-body centre of mass of a posture and the support
-   * points of its feet (the bearing outline of each, `HumanFoot.base`), world metres.
+   * The engine's whole-body centre of mass of a posture and the support points
+   * of its feet (the bearing outline of each, `HumanFoot.base`), world metres.
    *
    * @param body The body.
    * @param posture The posture.
-   * @param resolution Optional exact FK workspace or lazy supplier borrowed only from this synchronous same-body operation.
-   * @param projection Optional genuine same-body ROM metadata; every current joint and goal still receives ordinary complete admission.
+   * @param resolution Optional exact FK workspace or lazy supplier borrowed
+   *   only from this synchronous same-body operation.
+   * @param projection Optional genuine same-body ROM metadata; every current
+   *   joint and goal still receives ordinary complete admission.
    * @returns The centre and the support points.
    */
   export function support(
@@ -271,7 +331,15 @@ export namespace HumanBalance {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     sides?: readonly AutoMovieHumanSide[],
   ): IAutoMovieMotionHumanBalance.ISupport {
-    const placed: IPlaced = placement(body, posture, resolution, projection, undefined, undefined, sides);
+    const placed: IPlaced = placement(
+      body,
+      posture,
+      resolution,
+      projection,
+      undefined,
+      undefined,
+      sides,
+    );
     return {
       centre: placed.centre,
       points: placed.base,
@@ -279,15 +347,17 @@ export namespace HumanBalance {
   }
 
   /**
-   * The margin of stability along one horizontal direction: how far a point
-   * may move that way before it leaves the convex hull of the support
-   * points, the margin against a perturbation pushing it that way (Hof et
-   * al. 2005 measure the margin along the perturbation's direction).
+   * The margin of stability along one horizontal direction: how far a point may
+   * move that way before it leaves the convex hull of the support points, the
+   * margin against a perturbation pushing it that way (Hof et al. 2005 measure
+   * the margin along the perturbation's direction).
    *
-   * @param point The point (a centre of mass or its extrapolation), world metres; its height is ignored.
+   * @param point The point (a centre of mass or its extrapolation), world
+   *   metres; its height is ignored.
    * @param points The support points.
    * @param direction The direction, horizontal; normalized here.
-   * @returns Metres to the hull's edge along the direction; negative when the point is outside the hull.
+   * @returns Metres to the hull's edge along the direction; negative when the
+   *   point is outside the hull.
    */
   export function along(
     point: IAutoMovieVector3,
@@ -319,24 +389,33 @@ export namespace HumanBalance {
   }
 
   /**
-   * How far the whole-body centre of mass lies ahead of the middle of the
-   * base of support along a posture's heading, metres: the middle between
-   * the rearmost and the foremost point of the feet where they bear
-   * (`HumanFoot.base`), so a heel lifted off the floor moves the middle
-   * forward over the forefoot the body then stands on.
+   * How far the whole-body centre of mass lies ahead of the middle of the base
+   * of support along a posture's heading, metres: the middle between the
+   * rearmost and the foremost point of the feet where they bear
+   * (`HumanFoot.base`), so a heel lifted off the floor moves the middle forward
+   * over the forefoot the body then stands on.
    *
    * @param body The body.
    * @param posture The posture.
    * @returns Metres; positive ahead.
    */
-  export function offset(body: IAutoMovieMotionHumanBody, posture: IAutoMovieMotionHumanPosture): number {
+  export function offset(
+    body: IAutoMovieMotionHumanBody,
+    posture: IAutoMovieMotionHumanPosture,
+  ): number {
     return projected(placement(body, posture), posture.yaw);
   }
 }
 
-/** A posture's balance: `HumanBalance.offset` and `HumanBalance.margin`, metres, and whether both heels bear. */
+/**
+ * A posture's balance: `HumanBalance.offset` and `HumanBalance.margin`, metres,
+ * and whether both heels bear.
+ */
 interface IReading {
-  /** How far the centre of mass lies ahead of the base's middle along the heading, metres. */
+  /**
+   * How far the centre of mass lies ahead of the base's middle along the
+   * heading, metres.
+   */
   offset: number;
 
   /** The static margin of stability, metres, positive inside the base. */
@@ -345,7 +424,10 @@ interface IReading {
   /** Whether both heels bear. */
   flat: boolean;
 
-  /** Rigid backward translation to the closest reachable boundary, when requested. */
+  /**
+   * Rigid backward translation to the closest reachable boundary, when
+   * requested.
+   */
   candidate?: number;
 }
 
@@ -359,11 +441,25 @@ function read(
   mass?: () => prepareAutoMovieMassModel.IPrepared,
   propose: boolean = false,
 ): IReading {
-  const placed: IPlaced = placement(body, posture, resolution, projection, frames, mass);
-  const margin: number = resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
-  const candidate: HumanPhysics.SupportOffset = propose && margin < 0
-    ? HumanPhysics.supportOffset({ centre: placed.centre, points: placed.base }, heading(posture.yaw))
-    : null;
+  const placed: IPlaced = placement(
+    body,
+    posture,
+    resolution,
+    projection,
+    frames,
+    mass,
+  );
+  const margin: number = resolveAutoMovieCenterOfMass.margin(
+    placed.centre,
+    placed.base,
+  );
+  const candidate: HumanPhysics.SupportOffset =
+    propose && margin < 0
+      ? HumanPhysics.supportOffset(
+          { centre: placed.centre, points: placed.base },
+          heading(posture.yaw),
+        )
+      : null;
   return {
     offset: projected(placed, posture.yaw),
     margin,
@@ -372,9 +468,12 @@ function read(
     // A heel bears within the bearing height of the lowest sole socket.
     flat: (["left", "right"] as const).every(
       (side: "left" | "right"): boolean => {
-        const sockets: readonly IAutoMovieMotionHumanFoot.ISocket[] = placed.feet.sockets(side);
-        return sockets[0]!.point.y <=
-          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING;
+        const sockets: readonly IAutoMovieMotionHumanFoot.ISocket[] =
+          placed.feet.sockets(side);
+        return (
+          sockets[0]!.point.y <=
+          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING
+        );
       },
     ),
   };
@@ -402,21 +501,38 @@ function placement(
   mass?: () => prepareAutoMovieMassModel.IPrepared,
   sides?: readonly AutoMovieHumanSide[],
 ): IPlaced {
-  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+  const read: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution(resolution);
   const pose: ReturnType<typeof resolveHumanPosture> =
-    resolveHumanPosture.seeded(body, posture, undefined, {}, read, undefined, projection).pose;
-  const bones: ReturnType<typeof poseBones> = frames === undefined
-    ? poseBones(body, pose, read()) : frames(pose, read());
-  const feet: ReturnType<typeof HumanFoot.reading> = HumanFoot.reading(body, bones);
+    resolveHumanPosture.seeded(
+      body,
+      posture,
+      undefined,
+      {},
+      read,
+      undefined,
+      projection,
+    ).pose;
+  const bones: ReturnType<typeof poseBones> =
+    frames === undefined ? poseBones(body, pose, read()) : frames(pose, read());
+  const feet: ReturnType<typeof HumanFoot.reading> = HumanFoot.reading(
+    body,
+    bones,
+  );
   return {
     feet,
-    centre: mass === undefined ? resolveAutoMovieCenterOfMass.place(body.massModel, bones)
-      : prepareAutoMovieMassModel.place(mass(), bones),
+    centre:
+      mass === undefined
+        ? resolveAutoMovieCenterOfMass.place(body.massModel, bones)
+        : prepareAutoMovieMassModel.place(mass(), bones),
     base: feet.base(sides),
   };
 }
 
-/** Project the same mass centre and base on the heading without a hull or heel query. */
+/**
+ * Project the same mass centre and base on the heading without a hull or heel
+ * query.
+ */
 function projected(placed: IPlaced, yaw: number): number {
   const forward: IAutoMovieVector3 = heading(yaw);
   let rear: number = Infinity;
@@ -436,4 +552,3 @@ function heading(yaw: number): IAutoMovieVector3 {
     { x: 0, y: 0, z: 1 },
   );
 }
-

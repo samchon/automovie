@@ -10,34 +10,48 @@ import type {
 import { HumanColliders } from "../posture/HumanColliders";
 
 /**
- * Prepare the seated palm's fixed ray against its own thigh in bone metres.
- * The same rigid bone transports both the collider and the authored ray, so
- * their intersection only needs to be found once. Each query places the hit
- * on the actual current thigh frame from the seated leg fit.
+ * Prepare the seated palm's fixed ray against its own thigh in bone metres. The
+ * same rigid bone transports both the collider and the authored ray, so their
+ * intersection only needs to be found once. Each query places the hit on the
+ * actual current thigh frame from the seated leg fit.
  */
 export function prepareThighSkin(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
 ): (thigh: IAutoMovieResolvedBone) => IAutoMovieVector3 {
   const frame: IAutoMovieMotionHumanBody["surfaces"]["regions"]["thighFrontLeft"] =
-    body.surfaces.regions[side === "left" ? "thighFrontLeft" : "thighFrontRight"];
-  const identity: IAutoMovieResolvedBone["worldRotation"] = { x: 0, y: 0, z: 0, w: 1 };
-  const neutral: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map([
-    [
-      frame.bone,
-      {
-        bone: frame.bone,
-        localRotation: identity,
-        worldPosition: { x: 0, y: 0, z: 0 },
-        worldRotation: identity,
-      },
-    ],
-  ]);
-  const skin: IAutoMovieVector3 = prepareThighSkin.cast(body, neutral, frame.point, frame.normal);
-  return (thigh: IAutoMovieResolvedBone): IAutoMovieVector3 => Vector3.add(
-    thigh.worldPosition,
-    Quaternion.rotateVector(thigh.worldRotation, skin),
+    body.surfaces.regions[
+      side === "left" ? "thighFrontLeft" : "thighFrontRight"
+    ];
+  const identity: IAutoMovieResolvedBone["worldRotation"] = {
+    x: 0,
+    y: 0,
+    z: 0,
+    w: 1,
+  };
+  const neutral: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    new Map([
+      [
+        frame.bone,
+        {
+          bone: frame.bone,
+          localRotation: identity,
+          worldPosition: { x: 0, y: 0, z: 0 },
+          worldRotation: identity,
+        },
+      ],
+    ]);
+  const skin: IAutoMovieVector3 = prepareThighSkin.cast(
+    body,
+    neutral,
+    frame.point,
+    frame.normal,
   );
+  return (thigh: IAutoMovieResolvedBone): IAutoMovieVector3 =>
+    Vector3.add(
+      thigh.worldPosition,
+      Quaternion.rotateVector(thigh.worldRotation, skin),
+    );
 }
 
 /** The shared ray for local and current world thigh frames. */

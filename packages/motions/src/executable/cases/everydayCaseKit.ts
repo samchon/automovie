@@ -20,7 +20,10 @@ import type { humanPolygonMan } from "../humanPolygonMan";
  * angle between two directions and a body's rest frame.
  */
 export namespace everydayCaseKit {
-  /** One body's case context: its id, its polygon man, its body and the case names' suffix. */
+  /**
+   * One body's case context: its id, its polygon man, its body and the case
+   * names' suffix.
+   */
   export interface IContext {
     /** The sweep body's id. */
     id: string;
@@ -50,7 +53,10 @@ export namespace everydayCaseKit {
   ): IAutoMovieMotionHumanPerformance =>
     perform([[c.man, { x: 0, y: 0, z: 0 }, 0]], chain, props);
 
-  /** A performance of polygon men at places and headings, the first `a` and the second `b`, among the scene's props. */
+  /**
+   * A performance of polygon men at places and headings, the first `a` and the
+   * second `b`, among the scene's props.
+   */
   export function perform(
     people: [humanPolygonMan.IPolygonMan, IAutoMovieVector3, number][],
     chain: IAutoMovieMotionHumanChain,
@@ -115,7 +121,10 @@ export namespace everydayCaseKit {
     );
   }
 
-  /** A neutral aiming frame, for reading person targets; its own bones are the body at rest. */
+  /**
+   * A neutral aiming frame, for reading person targets; its own bones are the
+   * body at rest.
+   */
   export function frame(
     body: IAutoMovieMotionHumanBody,
   ): Parameters<IAutoMovieMotionHumanPerformance["aim"]>[2] {

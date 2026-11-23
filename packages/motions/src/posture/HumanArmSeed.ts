@@ -15,38 +15,43 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
  * The seed of an arms' trajectory, as a manipulation planner seeds its
- * optimiser (MoveIt's pipeline: a goal by inverse kinematics, a path to it by
- * a sampling planner, then trajectory optimisation, Schulman et al. 2014,
- * IJRR 33:1251, which starts from a collision-free path where a straight line
+ * optimiser (MoveIt's pipeline: a goal by inverse kinematics, a path to it by a
+ * sampling planner, then trajectory optimisation, Schulman et al. 2014, IJRR
+ * 33:1251, which starts from a collision-free path where a straight line
  * fails).
  *
  * The goal is the hold's first waypoint: the arms' configuration with every
- * hand on its site and every arm clear, solved as a still problem of that
- * one instant (`HumanArmTrajectoryModel`, its ends left out) from starts in
- * a fixed order, the goal's own arm, the rest arm, then configurations drawn
- * from a seeded generator within the ranges, the first feasible kept (random
- * restarts, Beeson and Ames 2015, "TRAC-IK", Humanoids). The hold's later
- * waypoints carry it by the sites' motion (differential inverse kinematics,
- * the map the follower uses), and the trajectory's optimiser solves them.
- * The reach is RRT-Connect's path in the arms' joint space, indexed by the
- * share of the reach, from the rest arms to the hold's first configuration
+ * hand on its site and every arm clear, solved as a still problem of that one
+ * instant (`HumanArmTrajectoryModel`, its ends left out) from starts in a fixed
+ * order, the goal's own arm, the rest arm, then configurations drawn from a
+ * seeded generator within the ranges, the first feasible kept (random restarts,
+ * Beeson and Ames 2015, "TRAC-IK", Humanoids). The hold's later waypoints carry
+ * it by the sites' motion (differential inverse kinematics, the map the
+ * follower uses), and the trajectory's optimiser solves them. The reach is
+ * RRT-Connect's path in the arms' joint space, indexed by the share of the
+ * reach, from the rest arms to the hold's first configuration
  * (`HumanArmConnect`), the return its path from the exit arms to the hold's
  * last, each state valid by the one reading the trajectory refuses by
  * (`HumanArmTrajectoryModel.invalid`) at the waypoint its share reaches, the
- * hold's task points only for the hold itself, so every state is read where
- * it happens (time-indexed RRT-Connect, EXOTica). A
- * reach waypoint is the path's state at the share the carry has made at its
- * second.
+ * hold's task points only for the hold itself, so every state is read where it
+ * happens (time-indexed RRT-Connect, EXOTica). A reach waypoint is the path's
+ * state at the share the carry has made at its second.
  */
 export namespace HumanArmSeed {
   /** What the seed reads. */
   export interface IProblem extends HumanArmTrajectoryContext.IProblem {
     /** The arms, each with the arm its inverse kinematics starts from first. */
     arms: readonly (HumanArmTrajectoryContext.IProblem["arms"][number] & {
-      /** The arm the goal's own solution gives at the hold's start, the first start of its inverse kinematics. */
+      /**
+       * The arm the goal's own solution gives at the hold's start, the first
+       * start of its inverse kinematics.
+       */
       guess?: IAutoMovieMotionHumanArmClearance.IArm;
     })[];
-    /** The share of the reach made at a second of the reach, and of the return left at a second of the return, 0 at rest and 1 on the hold. */
+    /**
+     * The share of the reach made at a second of the reach, and of the return
+     * left at a second of the return, 0 at rest and 1 on the hold.
+     */
     share: (seconds: number) => number;
   }
 
@@ -55,9 +60,12 @@ export namespace HumanArmSeed {
    *
    * @param problem The problem.
    * @param context Its context.
-   * @param hold The arms' configuration at the hold's first waypoint of this context, already solved for this problem (`held`); solved here when absent.
+   * @param hold The arms' configuration at the hold's first waypoint of this
+   *   context, already solved for this problem (`held`); solved here when
+   *   absent.
    * @returns The seed.
-   * @throws {HumanRefusal} When no start gives a feasible hold, or no path joins the rest arms to it.
+   * @throws {HumanRefusal} When no start gives a feasible hold, or no path
+   *   joins the rest arms to it.
    */
   export function seed(
     problem: IProblem,
@@ -190,12 +198,12 @@ export namespace HumanArmSeed {
 
   /**
    * The hold's configurations, each a list of the arms' coordinates: the
-   * inverse kinematics of the hold's first waypoint, carried across the hold
-   * by the sites' motion. The return's path and the optimiser need a valid
-   * end, so a carried last configuration that is not clear is projected onto
-   * the feasible set by the last waypoint's own inverse kinematics, started
-   * from the carried configuration (the endpoint repair of a sampling
-   * planner's goal).
+   * inverse kinematics of the hold's first waypoint, carried across the hold by
+   * the sites' motion. The return's path and the optimiser need a valid end, so
+   * a carried last configuration that is not clear is projected onto the
+   * feasible set by the last waypoint's own inverse kinematics, started from
+   * the carried configuration (the endpoint repair of a sampling planner's
+   * goal).
    */
   function goal(
     problem: IProblem,
@@ -223,19 +231,23 @@ export namespace HumanArmSeed {
   }
 
   /**
-   * Refuse a problem whose hold no configuration meets, before any
-   * trajectory is optimised: the arms at the hold's first waypoint are
-   * solved as the still problem of that waypoint (`instant`), started from a
-   * given configuration first. A trajectory's hold waypoint is itself such a
-   * configuration, so a hold with none has no trajectory, and the still
-   * problem of three waypoints says so at a small fraction of what the
-   * whole trajectory's penalty ladder costs to fail.
+   * Refuse a problem whose hold no configuration meets, before any trajectory
+   * is optimised: the arms at the hold's first waypoint are solved as the still
+   * problem of that waypoint (`instant`), started from a given configuration
+   * first. A trajectory's hold waypoint is itself such a configuration, so a
+   * hold with none has no trajectory, and the still problem of three waypoints
+   * says so at a small fraction of what the whole trajectory's penalty ladder
+   * costs to fail.
    *
    * @param problem The problem.
    * @param context Its context.
-   * @param from Each arm's coordinates at each waypoint of a course, whose hold arm is the first start.
-   * @returns The configuration found, each arm's coordinates at the hold's first waypoint, which `seed` of the same problem and context takes as its hold; none for a problem without a hold.
-   * @throws {HumanRefusal} When no start gives the hold a feasible configuration, as `seed` refuses it.
+   * @param from Each arm's coordinates at each waypoint of a course, whose hold
+   *   arm is the first start.
+   * @returns The configuration found, each arm's coordinates at the hold's
+   *   first waypoint, which `seed` of the same problem and context takes as its
+   *   hold; none for a problem without a hold.
+   * @throws {HumanRefusal} When no start gives the hold a feasible
+   *   configuration, as `seed` refuses it.
    */
   export function held(
     problem: IProblem,
@@ -254,10 +266,9 @@ export namespace HumanArmSeed {
     return undefined;
   }
   /**
-   * The arms' configuration at one waypoint of the hold with every hand on
-   * its site and every arm clear: the first feasible from the starts in
-   * order, a given one, the goal's own arm, the rest arm, then the seeded
-   * draws.
+   * The arms' configuration at one waypoint of the hold with every hand on its
+   * site and every arm clear: the first feasible from the starts in order, a
+   * given one, the goal's own arm, the rest arm, then the seeded draws.
    */
   function instant(
     problem: IProblem,
@@ -353,14 +364,14 @@ export namespace HumanArmSeed {
   /**
    * The hold's first configuration carried to its last waypoint: at each
    * waypoint one damped least-squares step of every arm
-   * (`HumanArmDifferential.step`, the follower's map) toward its site,
-   * driven by the error at that waypoint, the site less the contact where
-   * the arm before puts it there, less the offset the inverse kinematics left
-   * at the first (closed-loop inverse kinematics, Sciavicco and Siciliano
-   * 1988, IEEE J Robot Autom 4:403), so a still site keeps the configuration,
-   * a moving one is followed and no step's linearisation accumulates. Nothing
-   * is solved here; the trajectory's optimiser keeps the hand on its site
-   * and the arm clear.
+   * (`HumanArmDifferential.step`, the follower's map) toward its site, driven
+   * by the error at that waypoint, the site less the contact where the arm
+   * before puts it there, less the offset the inverse kinematics left at the
+   * first (closed-loop inverse kinematics, Sciavicco and Siciliano 1988, IEEE J
+   * Robot Autom 4:403), so a still site keeps the configuration, a moving one
+   * is followed and no step's linearisation accumulates. Nothing is solved
+   * here; the trajectory's optimiser keeps the hand on its site and the arm
+   * clear.
    */
   function carried(
     context: M.IContext,
@@ -424,7 +435,10 @@ export namespace HumanArmSeed {
     return out;
   }
 
-  /** A uniform draw of the arms' coordinates within their ranges, and the space's largest extent. */
+  /**
+   * A uniform draw of the arms' coordinates within their ranges, and the
+   * space's largest extent.
+   */
   function sampler(c: M.IContext): ISpace {
     const radius: number[] = c.rest.map((rest: number[], a: number): number =>
       Math.max(
@@ -471,7 +485,10 @@ export namespace HumanArmSeed {
     return out;
   }
 
-  /** The configuration of a path, without its share coordinate, where its share (its last coordinate, rising along it) reaches a value. */
+  /**
+   * The configuration of a path, without its share coordinate, where its share
+   * (its last coordinate, rising along it) reaches a value.
+   */
   function at(path: readonly (readonly number[])[], share: number): number[] {
     const s: (q: readonly number[]) => number = (
       q: readonly number[],
@@ -491,19 +508,29 @@ export namespace HumanArmSeed {
   }
 }
 
-/** A uniform draw of the arms' coordinates within their ranges, and the space's largest extent, coordinate units. */
+/**
+ * A uniform draw of the arms' coordinates within their ranges, and the space's
+ * largest extent, coordinate units.
+ */
 interface ISpace {
   sample: (random: () => number) => number[];
   extent: number;
 }
 
-/** Random starts of the hold's inverse kinematics after the goal's own arm and the rest arm. */
+/**
+ * Random starts of the hold's inverse kinematics after the goal's own arm and
+ * the rest arm.
+ */
 const RESTARTS: number = 8;
 
 /** The restarts' generator's seed. */
 const SEED: number = 2;
 
-/** The waypoints inside the action at which every arm has a site, in order: the hold the seed reaches, read for all arms together as the laid course reads it. */
+/**
+ * The waypoints inside the action at which every arm has a site, in order: the
+ * hold the seed reaches, read for all arms together as the laid course reads
+ * it.
+ */
 function holdWindow(
   problem: HumanArmSeed.IProblem,
   context: M.IContext,

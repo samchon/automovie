@@ -31,10 +31,16 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const CROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/** Share of a curling delivery spent lowering into the slide (provisional staging; the cited study gives the stance, not its timing). */
+/**
+ * Share of a curling delivery spent lowering into the slide (provisional
+ * staging; the cited study gives the stance, not its timing).
+ */
 const CURL_SET: number = 0.3;
 
-/** Share of a curling delivery at which its `delivery` event is named, mid-slide (provisional staging). */
+/**
+ * Share of a curling delivery at which its `delivery` event is named, mid-slide
+ * (provisional staging).
+ */
 const CURL_DELIVERY: number = 0.5;
 
 type Skate = IAutoMovieMotionHumanSurface.ISkateParams;
@@ -45,12 +51,12 @@ type Posture = IAutoMovieMotionHumanPosture;
 /**
  * One ice glide with fitted runner edges, an optional step, or a low curling
  * delivery. The bilateral glide owns path, speed, entry and stopping. Ice
- * footwork owns each foot's support window and the point which a shoe or
- * blade rotates around. Instrumented short-track turns distinguish
- * stroke phases (van der Kruk et al., 2018,
- * https://doi.org/10.1080/14763141.2018.1441898). Curling delivery uses a
- * loaded flat leading shoe and a trailing forefoot as described by Hua et
- * al. (2025, Figure 2, https://doi.org/10.3389/fnhum.2025.1587118).
+ * footwork owns each foot's support window and the point which a shoe or blade
+ * rotates around. Instrumented short-track turns distinguish stroke phases (van
+ * der Kruk et al., 2018, https://doi.org/10.1080/14763141.2018.1441898).
+ * Curling delivery uses a loaded flat leading shoe and a trailing forefoot as
+ * described by Hua et al. (2025, Figure 2,
+ * https://doi.org/10.3389/fnhum.2025.1587118).
  */
 export namespace HumanIceGlide {
   /**
@@ -310,10 +316,10 @@ export namespace HumanIceGlide {
 
 /**
  * A stepping blade within the dorsal range of the weight it bears
- * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it
- * leaves, its heel rises about the toes' joint, which stays on the ice, so
- * it leaves within the unloaded ankle's range and flies so; it lowers again
- * as it takes the body back.
+ * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it leaves, its
+ * heel rises about the toes' joint, which stays on the ice, so it leaves within
+ * the unloaded ankle's range and flies so; it lowers again as it takes the body
+ * back.
  */
 function sheds(
   body: IAutoMovieMotionHumanBody,

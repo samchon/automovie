@@ -47,13 +47,19 @@ interface ILookup {
   frame(body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone): IFrame;
 }
 
-/** One unchanged endpoint pair's lazy numerical preparation, never a share result. */
+/**
+ * One unchanged endpoint pair's lazy numerical preparation, never a share
+ * result.
+ */
 interface IBetween {
   /** Installed only after actual interior metadata/endpoint admission. */
   read?: (share: number) => readonly [number, number, number];
 }
 
-/** Stateless standalone dispatch preserves targeted lookup without a per-call full index. */
+/**
+ * Stateless standalone dispatch preserves targeted lookup without a per-call
+ * full index.
+ */
 const COLD: ILookup = {
   constraint: (
     body: IAutoMovieMotionHumanBody,
@@ -98,9 +104,9 @@ function frameOf(
  * blended the way the joint moves: a ball joint as a rotation, a joint with
  * fewer freedoms angle by angle.
  *
- * A ball joint's rotation has more than one clinical triple: a raised upper
- * arm reads `[90, -30, -57]` and `[95, 112, 90]` for nearly the same arm, the
- * two readings of one rotation. A blend of the numbers would depend on which
+ * A ball joint's rotation has more than one clinical triple: a raised upper arm
+ * reads `[90, -30, -57]` and `[95, 112, 90]` for nearly the same arm, the two
+ * readings of one rotation. A blend of the numbers would depend on which
  * reading each end is written in, and a solver writes an end in either: a
  * drink's reach read its goal `85.8/145.4/87.1` and then `94.6/-26.7/-84.6`,
  * one rotation within a third of a degree, and a blend of angles stepped 7.8
@@ -111,37 +117,38 @@ function frameOf(
  * The arc between two rotations a joint can take may leave its range. A joint
  * whose range is stated by swing and twist (`IAutoMovieJointConstraint`
  * `swingTwist`: the shoulders and the hips) is blended inside it instead,
- * straight across the range's chart (`swingTwistRange.blend`): the chart
- * reads a rotation as its direction's place on the unit disc the region
- * spans about the rest direction and its twist inside its interval, which is
- * continuous and one to one over the range while the region stays short of
- * the rest direction's antipode (the shoulder's reach cap,
- * `DEFAULT_HUMANOID_ROM`). A straight line between two places of a disc
- * stays in the disc and an interval is convex, so the blend stays in the
- * range, moves continuously with both ends and meets each. Blended on the arc
- * and projected back, a shoulder carried from the nape read its twist 166,
- * -173 and -146 degrees on the way, was clamped to 135 and then to -110
- * between two frames, and swung the elbow 417 mm. The result is read back as
- * the triple the joint's three-angle box prefers, the reading the limb fit
- * gives its own solutions. Another ball joint (the spine, the neck, the head)
- * keeps the arc as it is: its range lies far from the flexion where two of
- * its angles turn about one axis, and the pose's clamp keeps it in its box.
+ * straight across the range's chart (`swingTwistRange.blend`): the chart reads
+ * a rotation as its direction's place on the unit disc the region spans about
+ * the rest direction and its twist inside its interval, which is continuous and
+ * one to one over the range while the region stays short of the rest
+ * direction's antipode (the shoulder's reach cap, `DEFAULT_HUMANOID_ROM`). A
+ * straight line between two places of a disc stays in the disc and an interval
+ * is convex, so the blend stays in the range, moves continuously with both ends
+ * and meets each. Blended on the arc and projected back, a shoulder carried
+ * from the nape read its twist 166, -173 and -146 degrees on the way, was
+ * clamped to 135 and then to -110 between two frames, and swung the elbow 417
+ * mm. The result is read back as the triple the joint's three-angle box
+ * prefers, the reading the limb fit gives its own solutions. Another ball joint
+ * (the spine, the neck, the head) keeps the arc as it is: its range lies far
+ * from the flexion where two of its angles turn about one axis, and the pose's
+ * clamp keeps it in its box.
  *
- * A joint whose range lacks a freedom (the elbow with the forearm's turn has
- * no abduction, the wrist no twist, the knee only flexion) has one triple per
+ * A joint whose range lacks a freedom (the elbow with the forearm's turn has no
+ * abduction, the wrist no twist, the knee only flexion) has one triple per
  * rotation, and the shorter arc between two of its rotations leaves the
  * freedoms it has: between an elbow at 12 degrees and one at 150 degrees
- * pronated 90 the arc passes through a forearm bent sideways, which reads
- * back as abduction the elbow does not own. Such a joint is therefore blended
- * angle by angle, each freedom moving on its own axis, and a freedom it lacks
- * stays where both ends hold it.
+ * pronated 90 the arc passes through a forearm bent sideways, which reads back
+ * as abduction the elbow does not own. Such a joint is therefore blended angle
+ * by angle, each freedom moving on its own axis, and a freedom it lacks stays
+ * where both ends hold it.
  *
  * @param body The body, for the joint's axes and range.
  * @param bone The joint.
  * @param from The `[flexion, abduction, twist]` at share 0, degrees.
  * @param to The same at share 1.
  * @param share How far from `from` to `to`, clamped to [0, 1].
- * @returns The blended `[flexion, abduction, twist]`, degrees; an end is returned as given.
+ * @returns The blended `[flexion, abduction, twist]`, degrees; an end is
+ *   returned as given.
  */
 export function blendHumanJoint(
   body: IAutoMovieMotionHumanBody,
@@ -153,16 +160,15 @@ export function blendHumanJoint(
   return blend(body, bone, from, to, share, COLD);
 }
 
-/**
- * Metadata preparation for a body's single synchronous multi-joint blend.
- */
+/** Metadata preparation for a body's single synchronous multi-joint blend. */
 export namespace blendHumanJoint {
   /**
-   * Blend one unchanged endpoint pair while body, canonical rig and tuple values
-   * stay unchanged. Construction reads no numerical endpoint or rig metadata.
-   * Each share keeps original clipping; endpoints return the supplied tuples
-   * before preparation. First actual interior use prepares only this pair's
-   * original numerical branch, and every later share returns a fresh reading.
+   * Blend one unchanged endpoint pair while body, canonical rig and tuple
+   * values stay unchanged. Construction reads no numerical endpoint or rig
+   * metadata. Each share keeps original clipping; endpoints return the supplied
+   * tuples before preparation. First actual interior use prepares only this
+   * pair's original numerical branch, and every later share returns a fresh
+   * reading.
    */
   export function between(
     body: IAutoMovieMotionHumanBody,
@@ -177,20 +183,20 @@ export namespace blendHumanJoint {
 
   /**
    * Prepare one body's metadata for a synchronous joint-blend pass; the body
-   * and canonical ROM, axes and rest-frame mappings stay unchanged until release.
-   * Endpoint shares still return the original from/to tuple before any rig
-   * lookup, and hinge joints still blend linearly without reading axes.
+   * and canonical ROM, axes and rest-frame mappings stay unchanged until
+   * release. Endpoint shares still return the original from/to tuple before any
+   * rig lookup, and hinge joints still blend linearly without reading axes.
    *
-   * The first interior query lazily indexes B bones with first-match
-   * constraint semantics. A ball query resolves the canonical axes table once
-   * with its existing last-declared precedence; each requested name owns one
-   * lazy admitted basis and prepared swing frame. Numerical from/to/share
+   * The first interior query lazily indexes B bones with first-match constraint
+   * semantics. A ball query resolves the canonical axes table once with its
+   * existing last-declared precedence; each requested name owns one lazy
+   * admitted basis and prepared swing frame. Numerical from/to/share
    * interpolation and output allocation still run on every query.
    *
-   * Metadata costs O(B+D) time and space for D queried names, plus each
-   * actual blend's existing numerical cost. Release the returned function on
-   * operation completion or failure; it holds only the body and this bounded
-   * metadata, with no retained input tuples, outputs or global collection.
+   * Metadata costs O(B+D) time and space for D queried names, plus each actual
+   * blend's existing numerical cost. Release the returned function on operation
+   * completion or failure; it holds only the body and this bounded metadata,
+   * with no retained input tuples, outputs or global collection.
    *
    * @param body The unchanged body used by every joint of this operation.
    * @returns A joint blender whose endpoint tuples retain input identity.
@@ -254,7 +260,10 @@ export namespace blendHumanJoint {
   }
 }
 
-/** One interpolation algorithm, with all original endpoint and hinge gates before frame admission. */
+/**
+ * One interpolation algorithm, with all original endpoint and hinge gates
+ * before frame admission.
+ */
 function blend(
   body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
@@ -328,7 +337,10 @@ function blend(
   return readRotation(blended, rig, bone, constraint);
 }
 
-/** Original endpoint literal/axis/frame argument ordering without a per-read closure. */
+/**
+ * Original endpoint literal/axis/frame argument ordering without a per-read
+ * closure.
+ */
 function rotationOf(
   of: readonly [number, number, number],
   rig: IFrame,

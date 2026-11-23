@@ -2,7 +2,11 @@ import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * The closed-form path of a rider leaving a saddle (`HumanUnseat`): from the release the root keeps the saddle's velocity and gains the fall's push over `TAKE` seconds at a constant rate, so the velocity has no jump; it flies under standard gravity to the height it lies or stands at, then slides on the floor under Coulomb friction until it stops.
+ * The closed-form path of a rider leaving a saddle (`HumanUnseat`): from the
+ * release the root keeps the saddle's velocity and gains the fall's push over
+ * `TAKE` seconds at a constant rate, so the velocity has no jump; it flies
+ * under standard gravity to the height it lies or stands at, then slides on the
+ * floor under Coulomb friction until it stops.
  */
 export namespace HumanUnseatFlight {
   /** Seconds the fall's push builds over (provisional). */
@@ -11,9 +15,7 @@ export namespace HumanUnseatFlight {
   /** Sliding friction of a clothed body on turf (provisional). */
   export const FRICTION: number = 0.5;
 
-  /**
-   * One flight.
-   */
+  /** One flight. */
   export interface IFlight {
     /** The root at the release. */
     origin: IAutoMovieVector3;
@@ -87,7 +89,8 @@ export namespace HumanUnseatFlight {
   }
 
   /**
-   * The root at a second after the release: flying until the landing, then sliding to a stop.
+   * The root at a second after the release: flying until the landing, then
+   * sliding to a stop.
    *
    * @param flight The flight.
    * @param t Seconds from the release.

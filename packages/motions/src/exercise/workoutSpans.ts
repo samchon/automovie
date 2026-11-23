@@ -7,14 +7,12 @@ import type {
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * A workout's spans: down from standing into the first key, each
- * repetition's way between its keys and its hold, and up again, each span
- * a clock phase named by the instant that opens it (`workout`).
+ * A workout's spans: down from standing into the first key, each repetition's
+ * way between its keys and its hold, and up again, each span a clock phase
+ * named by the instant that opens it (`workout`).
  */
 export namespace workoutSpans {
-  /**
-   * One span of the plan: from an instant, between two keys.
-   */
+  /** One span of the plan: from an instant, between two keys. */
   export interface ISpan {
     /** The instant that opens the span. */
     from: string;
@@ -26,9 +24,7 @@ export namespace workoutSpans {
     b: IAutoMovieMotionHumanExerciseKey.IKey;
   }
 
-  /**
-   * A repetition's span with the route events it goes between and its side.
-   */
+  /** A repetition's span with the route events it goes between and its side. */
   export interface IBetween {
     /** The instant that opens the span. */
     name: string;
@@ -43,9 +39,7 @@ export namespace workoutSpans {
     other: boolean;
   }
 
-  /**
-   * What the spans are built from.
-   */
+  /** What the spans are built from. */
   export interface IProps {
     /** The exercise. */
     kind: IAutoMovieMotionHumanWorkoutKind;
@@ -72,9 +66,7 @@ export namespace workoutSpans {
     relax: number;
   }
 
-  /**
-   * The planned spans.
-   */
+  /** The planned spans. */
   export interface IPlanned {
     /** The clock's phases. */
     phases: IAutoMovieMotionClockPhase[];

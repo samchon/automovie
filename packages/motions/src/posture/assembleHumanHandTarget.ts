@@ -18,9 +18,7 @@ type ITargetEmitter = ReturnType<
   typeof AutoMovieMotionHumanArmTarget.prepareTarget
 >;
 
-/**
- * Assemble a full hand target with its original default or authored elbow.
- */
+/** Assemble a full hand target with its original default or authored elbow. */
 export function assembleHumanHandTarget(
   body: IAutoMovieMotionHumanBody,
   posture: Parameters<typeof AutoMovieMotionHumanBend.arm>[1],

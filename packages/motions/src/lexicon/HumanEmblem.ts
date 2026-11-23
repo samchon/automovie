@@ -37,12 +37,21 @@ import { touch } from "../touch/touch";
  * `HumanChain.extend`).
  */
 export namespace HumanEmblem {
-  /** The military hand salute (US Army TC 3-21.5): the forefinger's end at the right brow, the hand in line with the forearm, the upper arm level. */
+  /**
+   * The military hand salute (US Army TC 3-21.5): the forefinger's end at the
+   * right brow, the hand in line with the forearm, the upper arm level.
+   */
   export const salute: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["salute"]
   > = HumanActionRow.of("salute", touch, HUMAN_TOUCH_EMBLEM_SALUTE);
 
-  /** Hush: the forefinger upright across the lips, its middle on them and the palm turned to the other side, so the thumb's side of the finger meets the mouth and the wrist stays near straight (provisional: the hold, the fifth of a hand the tip stands above the lips, and the twentieth of a hand, the finger's half thickness, its axis stands off them). */
+  /**
+   * Hush: the forefinger upright across the lips, its middle on them and the
+   * palm turned to the other side, so the thumb's side of the finger meets the
+   * mouth and the wrist stays near straight (provisional: the hold, the fifth
+   * of a hand the tip stands above the lips, and the twentieth of a hand, the
+   * finger's half thickness, its axis stands off them).
+   */
   export const hush: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["hush"]
   > = HumanActionRow.of("hush", handToFace, {
@@ -67,7 +76,10 @@ export namespace HumanEmblem {
     },
   });
 
-  /** Palms together ahead of the chest, as a prayer or a greeting (wai, gassho): the gesture's held meeting of the two palms. */
+  /**
+   * Palms together ahead of the chest, as a prayer or a greeting (wai, gassho):
+   * the gesture's held meeting of the two palms.
+   */
   export const palmsTogether: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["palmsTogether"]
   > = HumanActionRow.of(
@@ -81,7 +93,14 @@ export namespace HumanEmblem {
     IAutoMovieMotionHumanLexiconParams["emblem"]["handOnHeart"]
   > = HumanActionRow.of("handOnHeart", touch, HUMAN_TOUCH_EMBLEM_HAND_ON_HEART);
 
-  /** The blown kiss's send, performed after `blownKiss`: the open hand, palm up, swept forward from the lips and held a moment at the shoulder's height, 0.818 of the stature, the forearm and the hand's length, 0.146 and 0.108 of it, ahead of the performer (Drillis and Contini's segment proportions, as Winter's Biomechanics and Motor Control of Human Movement tabulates them), in the performer's own statures so it fits every body. */
+  /**
+   * The blown kiss's send, performed after `blownKiss`: the open hand, palm up,
+   * swept forward from the lips and held a moment at the shoulder's height,
+   * 0.818 of the stature, the forearm and the hand's length, 0.146 and 0.108 of
+   * it, ahead of the performer (Drillis and Contini's segment proportions, as
+   * Winter's Biomechanics and Motor Control of Human Movement tabulates them),
+   * in the performer's own statures so it fits every body.
+   */
   export const blownKissSend: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["blownKissSend"]
   > = HumanActionRow.of(
@@ -90,7 +109,12 @@ export namespace HumanEmblem {
     HUMAN_TOUCH_EMBLEM_BLOWN_KISS_SEND,
   );
 
-  /** A blown kiss: the fingertips to the lips, then away (provisional: the outward throw is the retraction). The hand leans half way between upright and level, the fingers pointing up and back at the mouth with the palm toward the chin, so the forearm comes from below. */
+  /**
+   * A blown kiss: the fingertips to the lips, then away (provisional: the
+   * outward throw is the retraction). The hand leans half way between upright
+   * and level, the fingers pointing up and back at the mouth with the palm
+   * toward the chin, so the forearm comes from below.
+   */
   export const blownKiss: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["blownKiss"]
   > = HumanActionRow.of("blownKiss", handToFace, {
@@ -111,7 +135,10 @@ export namespace HumanEmblem {
     },
   });
 
-  /** A facepalm: the palm over the face, the head bowed into it (15 degrees, provisional). */
+  /**
+   * A facepalm: the palm over the face, the head bowed into it (15 degrees,
+   * provisional).
+   */
   export const facepalm: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["facepalm"]
   > = HumanActionRow.of("facepalm", handToFace, {
@@ -147,12 +174,21 @@ export namespace HumanEmblem {
     IAutoMovieMotionHumanLexiconParams["emblem"]["dontKnow"]
   > = HumanActionRow.of("dontKnow", gesture, HUMAN_GESTURE_EMBLEM_DONT_KNOW);
 
-  /** A thumbs up: the fist held out before the shoulder, turned a quarter in its palm's plane and then aimed so the straight thumb itself stands up (it lies about 35 degrees off the knuckle line, so the quarter turn alone left it 42 degrees off). */
+  /**
+   * A thumbs up: the fist held out before the shoulder, turned a quarter in its
+   * palm's plane and then aimed so the straight thumb itself stands up (it lies
+   * about 35 degrees off the knuckle line, so the quarter turn alone left it 42
+   * degrees off).
+   */
   export const thumbsUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["thumbsUp"]
   > = HumanActionRow.of("thumbsUp", gesture, HUMAN_GESTURE_EMBLEM_THUMBS_UP);
 
-  /** A thumbs down: the fist ahead of the shoulder with the forearm turned over and the elbow raised outward, aimed so the straight thumb itself points down. */
+  /**
+   * A thumbs down: the fist ahead of the shoulder with the forearm turned over
+   * and the elbow raised outward, aimed so the straight thumb itself points
+   * down.
+   */
   export const thumbsDown: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["thumbsDown"]
   > = HumanActionRow.of(
@@ -161,12 +197,18 @@ export namespace HumanEmblem {
     HUMAN_GESTURE_EMBLEM_THUMBS_DOWN,
   );
 
-  /** The OK sign: the forefinger and thumb in a ring, held out (first pass, provisional attitude). */
+  /**
+   * The OK sign: the forefinger and thumb in a ring, held out (first pass,
+   * provisional attitude).
+   */
   export const okSign: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["okSign"]
   > = HumanActionRow.of("okSign", gesture, HUMAN_GESTURE_EMBLEM_OK_SIGN);
 
-  /** The V sign: forefinger and middle finger spread, held out (first pass, provisional attitude). */
+  /**
+   * The V sign: forefinger and middle finger spread, held out (first pass,
+   * provisional attitude).
+   */
   export const victorySign: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["victorySign"]
   > = HumanActionRow.of(
@@ -184,7 +226,10 @@ export namespace HumanEmblem {
     HUMAN_GESTURE_EMBLEM_CROSSED_FINGERS,
   );
 
-  /** Counting one on the fingers, from the forefinger on (one convention; cultures differ). */
+  /**
+   * Counting one on the fingers, from the forefinger on (one convention;
+   * cultures differ).
+   */
   export const countOne: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["countOne"]
   > = HumanActionRow.of("countOne", gesture, HUMAN_GESTURE_EMBLEM_COUNT_ONE);
@@ -213,12 +258,18 @@ export namespace HumanEmblem {
     IAutoMovieMotionHumanLexiconParams["emblem"]["countFive"]
   > = HumanActionRow.of("countFive", gesture, HUMAN_GESTURE_EMBLEM_COUNT_FIVE);
 
-  /** A shaken fist: the raised fist swung from side to side (first pass on the wave's stroke, provisional). */
+  /**
+   * A shaken fist: the raised fist swung from side to side (first pass on the
+   * wave's stroke, provisional).
+   */
   export const shakeFist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["shakeFist"]
   > = HumanActionRow.of("shakeFist", gesture, HUMAN_GESTURE_EMBLEM_SHAKE_FIST);
 
-  /** The hand set for a finger snap: the middle fingertip on the thumb's, held out (first pass: the snap's release is not moved). */
+  /**
+   * The hand set for a finger snap: the middle fingertip on the thumb's, held
+   * out (first pass: the snap's release is not moved).
+   */
   export const fingerSnap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["fingerSnap"]
   > = HumanActionRow.of(
@@ -227,7 +278,10 @@ export namespace HumanEmblem {
     HUMAN_GESTURE_EMBLEM_FINGER_SNAP,
   );
 
-  /** Air quotes: both hands raised with two fingers hooked (first pass on the raised hands of a cheer; the fingers do not flex twice yet). */
+  /**
+   * Air quotes: both hands raised with two fingers hooked (first pass on the
+   * raised hands of a cheer; the fingers do not flex twice yet).
+   */
   export const airQuotes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["emblem"]["airQuotes"]
   > = HumanActionRow.of("airQuotes", gesture, HUMAN_GESTURE_EMBLEM_AIR_QUOTES);

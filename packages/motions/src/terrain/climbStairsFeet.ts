@@ -14,40 +14,59 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
  * @returns Each foot's placement and bearing state at any action second.
  */
 export function climbStairsFeet(
-  prints: Readonly<Record<"left" | "right", readonly {
-    print: { placement: IAutoMovieMotionHumanFoot.IPlacement };
-    step: number;
-  }[]>>,
+  prints: Readonly<
+    Record<
+      "left" | "right",
+      readonly {
+        print: { placement: IAutoMovieMotionHumanFoot.IPlacement };
+        step: number;
+      }[]
+    >
+  >,
   clock: IAutoMovieMotionClock,
   swing: (
     side: "left" | "right",
     from: IAutoMovieMotionHumanFoot.IPlacement,
     to: IAutoMovieMotionHumanFoot.IPlacement,
   ) => (share: number) => IAutoMovieMotionHumanFoot.IPlacement,
-): (side: "left" | "right", seconds: number) => {
+): (
+  side: "left" | "right",
+  seconds: number,
+) => {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;
 } {
-  const intervals: Record<"left" | "right", {
-    off: number;
-    on: number;
-    from: IAutoMovieMotionHumanFoot.IPlacement;
-    progress: (seconds: number) => number;
-    read: (share: number) => IAutoMovieMotionHumanFoot.IPlacement;
-  }[]> = { left: [], right: [] };
+  const intervals: Record<
+    "left" | "right",
+    {
+      off: number;
+      on: number;
+      from: IAutoMovieMotionHumanFoot.IPlacement;
+      progress: (seconds: number) => number;
+      read: (share: number) => IAutoMovieMotionHumanFoot.IPlacement;
+    }[]
+  > = { left: [], right: [] };
   for (const side of ["left", "right"] as const)
     for (let i: number = 1; i < prints[side].length; i++) {
-      const from: IAutoMovieMotionHumanFoot.IPlacement = prints[side][i - 1]!.print.placement;
+      const from: IAutoMovieMotionHumanFoot.IPlacement =
+        prints[side][i - 1]!.print.placement;
       const step: number = prints[side][i]!.step;
       intervals[side].push({
         off: clock.at(`toeOff${step}`),
         on: clock.at(`treadContact${step}`),
         from,
-        progress: AutoMovieMotionClock.prepare(clock, `toeOff${step}`, `treadContact${step}`).linear,
+        progress: AutoMovieMotionClock.prepare(
+          clock,
+          `toeOff${step}`,
+          `treadContact${step}`,
+        ).linear,
         read: swing(side, from, prints[side][i]!.print.placement),
       });
     }
-  return (side: "left" | "right", seconds: number): {
+  return (
+    side: "left" | "right",
+    seconds: number,
+  ): {
     placement: IAutoMovieMotionHumanFoot.IPlacement;
     planted: boolean;
   } => {

@@ -11,19 +11,21 @@ import type {
  * Carry each hand that grips a moving crutch from the support course onto the
  * crutch's own track.
  *
- * A support sequence solves its keys with each hand on its crutch's grip
- * where the crutch stands at that key, and between two keys it lays the held
- * hand's goal on a minimum-jerk chord from one key's grip to the next
- * (`prepareSupportInterval`). A crutch advancing between those keys travels
- * its own course instead (lifted clear of the floor, or up and over a
- * nosing), so the law hands this function, per side, the crutch grip's offset
- * from that chord at the current second, and the hand's goal and elbow pole
- * are translated by it: the hand stays on the grip it holds, and at each key,
- * where the offset is zero, the posture is the support's own.
+ * A support sequence solves its keys with each hand on its crutch's grip where
+ * the crutch stands at that key, and between two keys it lays the held hand's
+ * goal on a minimum-jerk chord from one key's grip to the next
+ * (`prepareSupportInterval`). A crutch advancing between those keys travels its
+ * own course instead (lifted clear of the floor, or up and over a nosing), so
+ * the law hands this function, per side, the crutch grip's offset from that
+ * chord at the current second, and the hand's goal and elbow pole are
+ * translated by it: the hand stays on the grip it holds, and at each key, where
+ * the offset is zero, the posture is the support's own.
  *
  * @param posture The support sequence's posture at a second.
- * @param offset Per side, the crutch grip's world offset from the support chord at that second in metres, zero where the crutch stands still.
- * @returns The posture with each carried hand's goal on its crutch's grip; the same posture when no hand moves.
+ * @param offset Per side, the crutch grip's world offset from the support chord
+ *   at that second in metres, zero where the crutch stands still.
+ * @returns The posture with each carried hand's goal on its crutch's grip; the
+ *   same posture when no hand moves.
  */
 export function carryCrutchHands(
   posture: IAutoMovieMotionHumanPosture,

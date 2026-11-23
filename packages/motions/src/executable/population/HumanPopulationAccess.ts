@@ -8,8 +8,8 @@ import type { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 import { f1, f2, m1, m2 } from "./human-parameters/index";
 
 /**
- * Reads of a person's public inputs, shared by the people's construction and
- * by the audit that checks them, so both read the same field for the same
+ * Reads of a person's public inputs, shared by the people's construction and by
+ * the audit that checks them, so both read the same field for the same
  * measure.
  */
 export namespace HumanPopulationAccess {

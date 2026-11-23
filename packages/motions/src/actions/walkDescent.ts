@@ -15,14 +15,14 @@ import {
  * pelvis instead comes down from its mid-stance height to its double-support
  * one over the second half of single support (Perry and Burnfield): from
  * `START` of the swing it descends on a minimum-jerk profile (Flash and Hogan
- * 1985) to the largest lowering the leg will ask, arriving there at the
- * instant the leg asks it with the rate and the acceleration the leg's claim
- * has there (the engine's `carriedRate` and `carriedAcceleration`, mirrored
- * in time), and follows the leg's claim from then on. A leg near its full
- * reach turns a millimetre of slack into degrees of knee, so the slack the
- * schedule leaves has to close without a step in acceleration, which matching
- * the value and the rate alone would leave. The leg's own claim still holds
- * wherever it exceeds the schedule.
+ * 1985) to the largest lowering the leg will ask, arriving there at the instant
+ * the leg asks it with the rate and the acceleration the leg's claim has there
+ * (the engine's `carriedRate` and `carriedAcceleration`, mirrored in time), and
+ * follows the leg's claim from then on. A leg near its full reach turns a
+ * millimetre of slack into degrees of knee, so the slack the schedule leaves
+ * has to close without a step in acceleration, which matching the value and the
+ * rate alone would leave. The leg's own claim still holds wherever it exceeds
+ * the schedule.
  */
 export namespace walkDescent {
   /** A swing's scheduled descent. */
@@ -36,11 +36,17 @@ export namespace walkDescent {
     /** That lowering's rate there, metres per share of the swing. */
     rate: number;
 
-    /** That lowering's acceleration there, metres per squared share of the swing. */
+    /**
+     * That lowering's acceleration there, metres per squared share of the
+     * swing.
+     */
     bend: number;
   }
 
-  /** The share of a swing at which its descent begins: mid-swing, where the schedule turns from the stance the foot left to the one it lands in. */
+  /**
+   * The share of a swing at which its descent begins: mid-swing, where the
+   * schedule turns from the stance the foot left to the one it lands in.
+   */
   export const START: number = 0.5;
 
   /**
@@ -48,8 +54,8 @@ export namespace walkDescent {
    *
    * @param need The lowering the swinging leg asks at a share of its swing,
    *   metres, negative by its slack.
-   * @returns The schedule, meeting the claim at its largest sampled value
-   *   with the claim's rate and acceleration there, by backward differences.
+   * @returns The schedule, meeting the claim at its largest sampled value with
+   *   the claim's rate and acceleration there, by backward differences.
    */
   export function plan(need: (u: number) => number): IPlan {
     // The leg folds through mid-swing and asks nothing there, so the search
@@ -102,9 +108,21 @@ export namespace walkDescent {
     );
   }
 
-  /** The shares of a swing's second half sampled for its largest claim (provisional): the claim is smooth, and the schedule meets it at the sampled share with its rate and acceleration there, whichever share that is. */
+  /**
+   * The shares of a swing's second half sampled for its largest claim
+   * (provisional): the claim is smooth, and the schedule meets it at the
+   * sampled share with its rate and acceleration there, whichever share that
+   * is.
+   */
   const SAMPLES: number = 16;
 
-  /** The share of a swing over which the claim's rate and acceleration are differenced: the second difference's rounding error, the reach solve's nanometre root tolerance over `STEP^2`, stays near 1e-4 m per squared share, far under the claim's own curvature (centimetres over a tenth of the swing, about a metre per squared share), while its truncation error, of order `STEP` times the claim's third derivative, stays as small. */
+  /**
+   * The share of a swing over which the claim's rate and acceleration are
+   * differenced: the second difference's rounding error, the reach solve's
+   * nanometre root tolerance over `STEP^2`, stays near 1e-4 m per squared
+   * share, far under the claim's own curvature (centimetres over a tenth of the
+   * swing, about a metre per squared share), while its truncation error, of
+   * order `STEP` times the claim's third derivative, stays as small.
+   */
   const STEP: number = 4e-3;
 }

@@ -27,36 +27,51 @@ import { sprintStartSetHands } from "./sprintStartSetHands";
 
 /**
  * The sprint start's set geometry: block placement, the front knee's opening
- * and the body's centre of mass, solved on the performer's measured rig.
- * The athletics law owns timing and movements and delegates its set here.
+ * and the body's centre of mass, solved on the performer's measured rig. The
+ * athletics law owns timing and movements and delegates its set here.
  */
 export namespace sprintStartSet {
-  /** The front knee's included angle in the set, degrees: 90 (SD 8) measured with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One 14:e0213979, table 2), Harland and Steele's (1997) "about 90". */
+  /**
+   * The front knee's included angle in the set, degrees: 90 (SD 8) measured
+   * with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One
+   * 14:e0213979, table 2), Harland and Steele's (1997) "about 90".
+   */
   export const FRONT: number = 90;
 
-  /** The front knee's measured standard deviation in the set, degrees: 8 (Cavedon et al. 2019, table 2), the spread a set on placed plates may use. */
+  /**
+   * The front knee's measured standard deviation in the set, degrees: 8
+   * (Cavedon et al. 2019, table 2), the spread a set on placed plates may use.
+   */
   export const FRONT_SD: number = 8;
 
-  /** The front block's distance behind the start line, a share of the leg's length (greater trochanter to lateral malleolus): the anthropometry-driven setting (Cavedon et al. 2019, table 2). */
+  /**
+   * The front block's distance behind the start line, a share of the leg's
+   * length (greater trochanter to lateral malleolus): the anthropometry-driven
+   * setting (Cavedon et al. 2019, table 2).
+   */
   export const FRONT_DISTANCE: number = 0.6;
 
   /**
    * The rear knee's included angle in the set, degrees: 117 (SD 11) with the
-   * anthropometry-driven block setting (Cavedon et al. 2019, table 2). The
-   * rear block is placed where the rear leg from the set's hip has the mean,
-   * so the setting's spacing (0.45 of the leg) follows from the body's own
-   * set rather than being laid down beside it.
+   * anthropometry-driven block setting (Cavedon et al. 2019, table 2). The rear
+   * block is placed where the rear leg from the set's hip has the mean, so the
+   * setting's spacing (0.45 of the leg) follows from the body's own set rather
+   * than being laid down beside it.
    */
   export const REAR: [number, number] = [106, 128];
 
-  /** The front hip's included angle in the set between the knee and the shoulders, degrees: 43 (SD 6), the same setting (Cavedon et al. 2019, table 2). */
+  /**
+   * The front hip's included angle in the set between the knee and the
+   * shoulders, degrees: 43 (SD 6), the same setting (Cavedon et al. 2019, table
+   * 2).
+   */
   export const HIP: [number, number] = [37, 49];
 
   /**
    * The whole body's centre of mass behind the start line in the set, metres
-   * along the ground, by the sprinter's sex as the sources stratify it: 22.9
-   * cm for elite men (Slawinski et al. 2010, J Strength Cond Res 24:896, n =
-   * 6) and 16.2 cm for world-class women (Ciacci et al. 2017, J Sports Sci
+   * along the ground, by the sprinter's sex as the sources stratify it: 22.9 cm
+   * for elite men (Slawinski et al. 2010, J Strength Cond Res 24:896, n = 6)
+   * and 16.2 cm for world-class women (Ciacci et al. 2017, J Sports Sci
    * 35:1270, n = 4), both read as Valamatos et al. 2022 report them (Int J
    * Environ Res Public Health 19:4074, section 4.1.2), the primary texts being
    * closed.
@@ -66,24 +81,41 @@ export namespace sprintStartSet {
     male: 0.229,
   };
 
-  /** The front block's face from the floor, degrees (provisional, within a competition block's adjustment). */
+  /**
+   * The front block's face from the floor, degrees (provisional, within a
+   * competition block's adjustment).
+   */
   export const FRONT_BLOCK: number = 50;
 
-  /** The rear block's face from the floor, degrees (provisional, within a competition block's adjustment). */
+  /**
+   * The rear block's face from the floor, degrees (provisional, within a
+   * competition block's adjustment).
+   */
   export const REAR_BLOCK: number = 65;
 
-  /** The arm extension of the initial geometric guess (provisional); the whole-body fit may change it to meet the measured constraints. */
+  /**
+   * The arm extension of the initial geometric guess (provisional); the
+   * whole-body fit may change it to meet the measured constraints.
+   */
   export const REACH: number = 0.98;
 
   /**
    * The set position's hips, pitch and feet for a body in front of a line.
    *
-   * @param context The body and the entry, whose feet place the set's frame (`sprintStartSetHands.frame`).
-   * @param entry The standing posture; the line is a foot's length ahead of its stand's floor point.
+   * @param context The body and the entry, whose feet place the set's frame
+   *   (`sprintStartSetHands.frame`).
+   * @param entry The standing posture; the line is a foot's length ahead of its
+   *   stand's floor point.
    * @param front The front foot.
    * @param sex The measured centre-of-mass stratum.
-   * @param placedFeet Both feet on a placed block's plates (`sprintStartBlocks.of`), held in all three axes; the fit then keeps the front knee within its measured spread (FRONT_SD) and the rear knee and hip within theirs, and the centre follows from the plates instead of its measured setting, or refuses. Absent places the body-scaled blocks, the rear one from the rear knee's measured mean.
-   * @returns The hips' world point, the trunk's pitch, each palm's frame raised over its bridge and each foot's placement on its block, all as fitted.
+   * @param placedFeet Both feet on a placed block's plates
+   *   (`sprintStartBlocks.of`), held in all three axes; the fit then keeps the
+   *   front knee within its measured spread (FRONT_SD) and the rear knee and
+   *   hip within theirs, and the centre follows from the plates instead of its
+   *   measured setting, or refuses. Absent places the body-scaled blocks, the
+   *   rear one from the rear knee's measured mean.
+   * @returns The hips' world point, the trunk's pitch, each palm's frame raised
+   *   over its bridge and each foot's placement on its block, all as fitted.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
@@ -422,7 +454,10 @@ export namespace sprintStartSet {
   }
 }
 
-/** A set stance at one total tilt: pelvis pitch, spine flexion, and hips and root placed so the shoulders stand over the hands, world metres. */
+/**
+ * A set stance at one total tilt: pelvis pitch, spine flexion, and hips and
+ * root placed so the shoulders stand over the hands, world metres.
+ */
 interface IStance {
   pitch: number;
   joints: IAutoMovieMotionHumanPosture["joints"];

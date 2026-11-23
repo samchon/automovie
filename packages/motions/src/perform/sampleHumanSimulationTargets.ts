@@ -11,10 +11,10 @@ import { admitHumanSimulationTargets } from "./admitHumanSimulationTargets";
 import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 
 /**
- * One performer's sampled displayed bones as the solver takes them: the
- * profile the window solves, its hands welded with their fingers at the
- * first step (`weldHumanSimulationProfile`), and each step's segment frames
- * inside that profile's joints (`admitHumanSimulationTargets`).
+ * One performer's sampled displayed bones as the solver takes them: the profile
+ * the window solves, its hands welded with their fingers at the first step
+ * (`weldHumanSimulationProfile`), and each step's segment frames inside that
+ * profile's joints (`admitHumanSimulationTargets`).
  *
  * @param body The performer's body.
  * @param bones The displayed bones at each step of the window.

@@ -9,23 +9,23 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 /**
  * A shoulder's clinical triple on the reading nearest another triple.
  *
- * Three clinical angles name a rotation twice over: turning one of them to
- * its supplement and the other two by a half turn names the same rotation.
- * A decode taken alone picks one of the two by the joint's ranges, so two
- * neighbouring rotations of a moving arm can be read on different ones, and
- * a reading whose angles then leave the range is clamped where it is shown:
- * measured on a drink over a held object, the shoulder read
- * (60.4, -42.1, -75.8) and then (119.7, 135.2, 102.8) degrees one sample
- * later, the same rotation within three degrees, and the elbow jumped
- * 104.78 mm. Of the readings that show the rotation itself
- * (`HumanArmGeometry.rotation`, which clamps as the display does), this
- * takes the one nearest the given triple.
+ * Three clinical angles name a rotation twice over: turning one of them to its
+ * supplement and the other two by a half turn names the same rotation. A decode
+ * taken alone picks one of the two by the joint's ranges, so two neighbouring
+ * rotations of a moving arm can be read on different ones, and a reading whose
+ * angles then leave the range is clamped where it is shown: measured on a drink
+ * over a held object, the shoulder read (60.4, -42.1, -75.8) and then (119.7,
+ * 135.2, 102.8) degrees one sample later, the same rotation within three
+ * degrees, and the elbow jumped 104.78 mm. Of the readings that show the
+ * rotation itself (`HumanArmGeometry.rotation`, which clamps as the display
+ * does), this takes the one nearest the given triple.
  *
  * @param setup The arm.
  * @param shoulder The shoulder's rotation from its rest.
  * @param read Its clinical triple as decoded alone, degrees.
  * @param near The triple to stay near, degrees: the reading before it.
- * @returns The triple, `read` itself when no other reading shows the rotation nearer.
+ * @returns The triple, `read` itself when no other reading shows the rotation
+ *   nearer.
  */
 export function HumanArmBranch(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,

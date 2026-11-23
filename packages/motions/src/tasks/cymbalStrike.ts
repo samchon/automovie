@@ -12,13 +12,13 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { useTool } from "./useTool";
 
 /**
- * Strike the near edge of a mounted cymbal with the held stick's working
- * point, then lift the stick from the surface. The RITMO cymbal recordings
- * document struck cymbals and damping as distinct playing conditions
+ * Strike the near edge of a mounted cymbal with the held stick's working point,
+ * then lift the stick from the surface. The RITMO cymbal recordings document
+ * struck cymbals and damping as distinct playing conditions
  * (https://zenodo.org/records/21360429). This scenic action uses the existing
  * single-cycle held-tool arc and its provisional timing. Register it with
- * `HumanPerformance` and align `contact1` with the chain's `sync`.
- * Stage the named edge within reach in front of the performer.
+ * `HumanPerformance` and align `contact1` with the chain's `sync`. Stage the
+ * named edge within reach in front of the performer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the site, reference, inherited timing, cue and stage premise.
  * @evidence contracts/development/design.md#principled-representation One opt-in law over the existing held-tool arc, using the prop's named edge.
@@ -33,13 +33,13 @@ export const cymbalStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
   };
 
 /**
- * Validate the stationary edge and delegate the approach, strike, rebound
- * and recovery to the existing plan, which also validates the held tool.
+ * Validate the stationary edge and delegate the approach, strike, rebound and
+ * recovery to the existing plan, which also validates the held tool.
  *
  * @param context The action's inputs, body, entry state and prop readers.
  * @returns The held-stick plan with `contact1` as its decisive instant.
- * @throws {HumanRefusal} When the hand or either subject is invalid, the
- * hand lacks the stick or its required contacts, or the edge fails admission.
+ * @throws {HumanRefusal} When the hand or either subject is invalid, the hand
+ *   lacks the stick or its required contacts, or the edge fails admission.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCymbalStrike>,

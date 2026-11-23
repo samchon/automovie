@@ -15,10 +15,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Prepare one authored fracture from the performance's observed hit.
- * Detached pieces preserve their displayed orientation and fly under gravity
- * until their lowest collider point reaches the flat floor. The remainder
- * continues on the original prop carrier.
+ * Prepare one authored fracture from the performance's observed hit. Detached
+ * pieces preserve their displayed orientation and fly under gravity until their
+ * lowest collider point reaches the flat floor. The remainder continues on the
+ * original prop carrier.
  */
 export function HumanPropFracture<
   Piece extends IAutoMovieMotionHumanObject.IModel,

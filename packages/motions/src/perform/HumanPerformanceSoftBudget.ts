@@ -2,9 +2,7 @@ import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
-/**
- * Admit and return the number of native soft steps for a film duration.
- */
+/** Admit and return the number of native soft steps for a film duration. */
 export function HumanPerformanceSoftBudget(
   subject: string,
   domain: IAutoMovieSoftBodyDomain,

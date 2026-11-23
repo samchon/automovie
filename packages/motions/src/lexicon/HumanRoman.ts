@@ -18,7 +18,12 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoman>;
 
 /**
- * Roman riding (`IAutoMovieMotionHumanRoman`): each foot planted on its own horse's moving seat, the root standing over their middle at the hip's height, facing their mean heading; the stand is reached from the entry over `step` by a minimum-jerk share. A stance the legs cannot span, wider than both legs or narrower than the hips, is refused at any sampled second of the hold. Register `HumanRoman` to use it.
+ * Roman riding (`IAutoMovieMotionHumanRoman`): each foot planted on its own
+ * horse's moving seat, the root standing over their middle at the hip's height,
+ * facing their mean heading; the stand is reached from the entry over `step` by
+ * a minimum-jerk share. A stance the legs cannot span, wider than both legs or
+ * narrower than the hips, is refused at any sampled second of the hold.
+ * Register `HumanRoman` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stand, its reach and its refusal.
  * @evidence contracts/development/design.md#principled-representation One law over two carriers' contacts.

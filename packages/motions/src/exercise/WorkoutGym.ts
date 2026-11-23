@@ -12,23 +12,24 @@ import { WorkoutStance } from "./WorkoutStance";
 /**
  * The gym's standing movements of the workout law: free-weight exercises a
  * programme names beside the ones the other tables hold, shown here without
- * their load unless the author names one (`load`): the bent-over row, the
- * curl, the overhead triceps extension, the lateral and the front raise,
- * the shrug, the calf raise, the front and the goblet squat, the split squat, the wall
+ * their load unless the author names one (`load`): the bent-over row, the curl,
+ * the overhead triceps extension, the lateral and the front raise, the shrug,
+ * the calf raise, the front and the goblet squat, the split squat, the wall
  * sit, the Romanian deadlift, the good morning, and the power clean and the
  * snatch as their phases. The floor exercises and the dip are
  * `WorkoutBodyweight`'s.
  *
- * Every angle is provisional, read off the exercise's usual description
- * (NSCA's Essentials of Strength Training and Conditioning, 4th ed.,
- * exercise technique chapters); none is a measured value.
+ * Every angle is provisional, read off the exercise's usual description (NSCA's
+ * Essentials of Strength Training and Conditioning, 4th ed., exercise technique
+ * chapters); none is a measured value.
  *
- * A loaded take fits its hands to the authored prop through `WorkoutLoad`.
- * The snatch and clean-and-jerk use separate catches and recoveries from the
- * IWF's definitions (https://iwf.sport/weightlifting_/rules/). The trajectories are keyed kinematic staging. Nagao and Yamashita's example snatch
- * bar path (https://doi.org/10.1371/journal.pone.0263224, Fig. 3) motivates
- * preserving the continuous fore-aft path through turnover. The wall sit
- * uses a place. `WorkoutEquipment` owns bench and box support.
+ * A loaded take fits its hands to the authored prop through `WorkoutLoad`. The
+ * snatch and clean-and-jerk use separate catches and recoveries from the IWF's
+ * definitions (https://iwf.sport/weightlifting_/rules/). The trajectories are
+ * keyed kinematic staging. Nagao and Yamashita's example snatch bar path
+ * (https://doi.org/10.1371/journal.pone.0263224, Fig. 3) motivates preserving
+ * the continuous fore-aft path through turnover. The wall sit uses a place.
+ * `WorkoutEquipment` owns bench and box support.
  */
 export namespace WorkoutGym {
   /** A key of the body's, built once the body is known. */
@@ -36,7 +37,10 @@ export namespace WorkoutGym {
     body: IAutoMovieMotionHumanBody,
   ) => IAutoMovieMotionHumanExerciseKey.IKey;
 
-  /** A key from the whole body's part and the limbs' angles, on the body it is built for (`ExerciseKey.from`). */
+  /**
+   * A key from the whole body's part and the limbs' angles, on the body it is
+   * built for (`ExerciseKey.from`).
+   */
   const key =
     (
       trunk: IAutoMovieMotionHumanExerciseKey.ITrunk,
@@ -45,7 +49,10 @@ export namespace WorkoutGym {
     (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey =>
       ExerciseKey.from(body, trunk, both);
 
-  /** A squat's bottom: the trunk pitched, the knees bent over shanks that lean, with the arms as given. */
+  /**
+   * A squat's bottom: the trunk pitched, the knees bent over shanks that lean,
+   * with the arms as given.
+   */
   const squat = (
     pitch: number,
     knee: number,
@@ -83,7 +90,10 @@ export namespace WorkoutGym {
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** A bent-over row: the trunk held at 60 degrees, the elbows drawn back past it. */
+    /**
+     * A bent-over row: the trunk held at 60 degrees, the elbows drawn back past
+     * it.
+     */
     bentOverRow: pair(
       5,
       [
@@ -107,7 +117,10 @@ export namespace WorkoutGym {
       [key({}, { raise: 5, elbow: 140 }), 0.9, "curl", "top"],
     ),
 
-    /** An overhead triceps extension: the upper arms beside the head, the elbows straightened. */
+    /**
+     * An overhead triceps extension: the upper arms beside the head, the elbows
+     * straightened.
+     */
     tricepsExtension: pair(
       5,
       [
@@ -138,7 +151,10 @@ export namespace WorkoutGym {
       [key({}, { shoulder: 88, raise: 3, elbow: 5 }), 0.9, "raise", "top"],
     ),
 
-    /** A shrug: the shoulder girdles lifted 20 degrees toward the ears and lowered, the arms hanging (provisional). */
+    /**
+     * A shrug: the shoulder girdles lifted 20 degrees toward the ears and
+     * lowered, the arms hanging (provisional).
+     */
     shrug: pair(
       8,
       [key({}, { elbow: 5 }), 0.8, "lower", "down"],
@@ -167,7 +183,10 @@ export namespace WorkoutGym {
       true,
     ),
 
-    /** A front squat: the hands at the shoulders with the elbows high, the trunk more upright than a back squat's. */
+    /**
+     * A front squat: the hands at the shoulders with the elbows high, the trunk
+     * more upright than a back squat's.
+     */
     frontSquat: pair(
       5,
       [key({}, { shoulder: 85, raise: 5, elbow: 145 }), 1.2, "rise", "top"],
@@ -191,7 +210,10 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A split squat: a split stance lowered and raised, the feet where the stance put them. */
+    /**
+     * A split squat: a split stance lowered and raised, the feet where the
+     * stance put them.
+     */
     splitSquat: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -217,7 +239,10 @@ export namespace WorkoutGym {
       true,
     ),
 
-    /** A wall sit: the thighs level over upright shanks, the trunk upright, held 30 s. */
+    /**
+     * A wall sit: the thighs level over upright shanks, the trunk upright, held
+     * 30 s.
+     */
     wallSit: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -230,7 +255,10 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A Romanian deadlift: a hinge to 60 degrees over soft knees, the arms hanging. */
+    /**
+     * A Romanian deadlift: a hinge to 60 degrees over soft knees, the arms
+     * hanging.
+     */
     romanianDeadlift: {
       midfoot: true,
       ...pair(
@@ -267,10 +295,10 @@ export namespace WorkoutGym {
     ),
 
     /**
-     * A clean followed by a squat jerk. The IWF separates the rack and
-     * standing recovery from the dip, drive and overhead receive; the
-     * squat receive follows the shape compared with the lunge-style jerk
-     * in PMID 39337870. The transition durations are authored staging values.
+     * A clean followed by a squat jerk. The IWF separates the rack and standing
+     * recovery from the dip, drive and overhead receive; the squat receive
+     * follows the shape compared with the lunge-style jerk in PMID 39337870.
+     * The transition durations are authored staging values.
      */
     cleanAndJerk: WorkoutStance.of(
       WorkoutStance.ANKLES,
@@ -316,7 +344,10 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A snatch as its positions: the wide start, the full extension, the catch in an overhead squat, and standing up under the locked arms. */
+    /**
+     * A snatch as its positions: the wide start, the full extension, the catch
+     * in an overhead squat, and standing up under the locked arms.
+     */
     snatch: WorkoutStance.of(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,

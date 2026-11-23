@@ -39,59 +39,60 @@ import { restGoals } from "./restGoals";
 
 /**
  * Standing with the hands at rest places: in the front pockets, on the hips,
- * arms crossed, clasped in front or behind, behind the head, or the chin on
- * a fist, each hand moved there and held.
+ * arms crossed, clasped in front or behind, behind the head, or the chin on a
+ * fist, each hand moved there and held.
  *
  * Every rest place is an effector goal on the body's own surface: a hand
- * surface is laid on a region with the palm facing into it; the palm and
- * fist sockets lie on the hand's own collider surface, so a laid hand touches
- * the region rather than sinking into it ({@link HumanHand}). The places, with
- * the surface and region each uses:
+ * surface is laid on a region with the palm facing into it; the palm and fist
+ * sockets lie on the hand's own collider surface, so a laid hand touches the
+ * region rather than sinking into it ({@link HumanHand}). The places, with the
+ * surface and region each uses:
  *
  * - `side`: no goal; the arm hangs relaxed as the stand law holds it.
  * - `pocket`: the palm on the front pocket region of the same side's thigh,
  *   fingers down, as a hand slipped into a front pocket shows from outside.
- * - `hip`: the palm on the side of the pelvis midway between the hip
- *   region and the waist, fingers forward and down, elbow out (akimbo).
- * - `crossed`: each palm lies on the front of the other upper arm three
- *   quarters of the way to its elbow, fingers round its outside, so the
- *   forearms cross in front of the lower chest. Each arm's pose depends on
- *   the other's goal, so both upper arms are set first: hanging forward at
- *   least 20 degrees (provisional) and enough for the forearms to clear the
- *   chest, the elbows drawn in until each palm lies one forearm from its own
- *   elbow; each elbow's hint is then that elbow, so the solved arms are the
- *   arms the palms were laid on.
- * - `claspedFront`: the left palm lies on the front of the pelvis, at the
- *   height a slightly flexed arm reaches, and the right palm on the back of
- *   the left hand; each hand continues its forearm (`restClasped`).
- * - `claspedBehind`: the back of the left hand rests on the sacrum, palm
- *   facing back, and the back of the right hand lies in the left palm
+ * - `hip`: the palm on the side of the pelvis midway between the hip region and
+ *   the waist, fingers forward and down, elbow out (akimbo).
+ * - `crossed`: each palm lies on the front of the other upper arm three quarters
+ *   of the way to its elbow, fingers round its outside, so the forearms cross
+ *   in front of the lower chest. Each arm's pose depends on the other's goal,
+ *   so both upper arms are set first: hanging forward at least 20 degrees
+ *   (provisional) and enough for the forearms to clear the chest, the elbows
+ *   drawn in until each palm lies one forearm from its own elbow; each elbow's
+ *   hint is then that elbow, so the solved arms are the arms the palms were
+ *   laid on.
+ * - `claspedFront`: the left palm lies on the front of the pelvis, at the height
+ *   a slightly flexed arm reaches, and the right palm on the back of the left
+ *   hand; each hand continues its forearm (`restClasped`).
+ * - `claspedBehind`: the back of the left hand rests on the sacrum, palm facing
+ *   back, and the back of the right hand lies in the left palm
  *   (`restClasped`).
- * - `behindHead`: each palm on the back of the head beside the midline,
- *   elbows wide.
- * - `chinRest`: the top of the fist under the chin, fingers up and palm
- *   facing in, the elbow low and forward; with both hands, the chin on both
- *   fists, which meet at the midline.
- * - `elbowSupport`: the palm under the other arm's elbow while that hand is
- *   at `chinRest`, the thinking pose.
+ * - `behindHead`: each palm on the back of the head beside the midline, elbows
+ *   wide.
+ * - `chinRest`: the top of the fist under the chin, fingers up and palm facing
+ *   in, the elbow low and forward; with both hands, the chin on both fists,
+ *   which meet at the midline.
+ * - `elbowSupport`: the palm under the other arm's elbow while that hand is at
+ *   `chinRest`, the thinking pose.
  *
- * The arms are carried together in joint angles from where the entry left
- * them to their places on one minimum-jerk course
- * (`AutoMovieMotionHumanArm.carry`), the fingers taking the places' shapes
- * on the same course, over the free-space time of the farther hand's
- * distance (`AutoMovieMotionHumanTiming.transport`), and hold there: two
- * hands sent at once to targets of unequal distance arrive together
- * (Kelso, Southard and Goodman 1979, Science 203:1029). The places are
+ * The arms are carried together in joint angles from where the entry left them
+ * to their places on one minimum-jerk course (`AutoMovieMotionHumanArm.carry`),
+ * the fingers taking the places' shapes on the same course, over the free-space
+ * time of the farther hand's distance (`AutoMovieMotionHumanTiming.transport`),
+ * and hold there: two hands sent at once to targets of unequal distance arrive
+ * together (Kelso, Southard and Goodman 1979, Science 203:1029). The places are
  * solved once, on the body as it stands when the last hand arrives, and the
  * arms hold those angles, so the place follows the body the arms hang from:
- * breathing and sway carry the hands with it. A hand at `side` is not
- * moved.
+ * breathing and sway carry the hands with it. A hand at `side` is not moved.
  */
 export namespace rest {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "rest";
 
-  /** Cancel table: holding a rest place has no stroke, so it can be cut anywhere. */
+  /**
+   * Cancel table: holding a rest place has no stroke, so it can be cut
+   * anywhere.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     walk: [
@@ -107,7 +108,10 @@ export namespace rest {
     rest: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A rest may be performed over a carrier: it claims the arms it places, with their hands. */
+  /**
+   * A rest may be performed over a carrier: it claims the arms it places, with
+   * their hands.
+   */
   export const overlay: boolean = true;
 
   /** Places that hold both hands together, so both hands must name them. */
@@ -123,7 +127,8 @@ export namespace rest {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When a paired place names one hand only, or the time is not positive.
+   * @throws {HumanRefusal} When a paired place names one hand only, or the time
+   *   is not positive.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRest.IParams>,

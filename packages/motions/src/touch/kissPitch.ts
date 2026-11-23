@@ -2,10 +2,10 @@ import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * The pitch that aims the mouth's circular path toward a point, in degrees.
- * The forward-bow axis is the body's left. In the plane of that circle,
- * the vectors from the hip to the mouth and from the hip to the point
- * determine the minimum squared distance on the unconstrained arc.
+ * The pitch that aims the mouth's circular path toward a point, in degrees. The
+ * forward-bow axis is the body's left. In the plane of that circle, the vectors
+ * from the hip to the mouth and from the hip to the point determine the minimum
+ * squared distance on the unconstrained arc.
  *
  * @param hip The hip pivot, world metres.
  * @param yaw The yaw about world up, degrees.

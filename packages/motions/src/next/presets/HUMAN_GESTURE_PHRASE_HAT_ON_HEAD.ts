@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
 /**
- * The values the `hatOnHead` row of `HumanUpperRows` fixes on `armPhrase`, spread into its parameters. Putting on a hat: the hand that holds it visits the crown and stays a beat.
+ * The values the `hatOnHead` row of `HumanUpperRows` fixes on `armPhrase`,
+ * spread into its parameters. Putting on a hat: the hand that holds it visits
+ * the crown and stays a beat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IArmPhrasePhraseTargetSurfaceShapeHoldPreset`, so it fits any body as the law does.

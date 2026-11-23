@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
 /**
- * The values the `countOne` row of `HumanEmblem` fixes on `gesture`, spread into its parameters. Counting one on the fingers, from the forefinger on (one convention; cultures differ).
+ * The values the `countOne` row of `HumanEmblem` fixes on `gesture`, spread
+ * into its parameters. Counting one on the fingers, from the forefinger on (one
+ * convention; cultures differ).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IGestureKindShapePreset`, so it fits any body as the law does.

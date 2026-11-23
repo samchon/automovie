@@ -9,20 +9,20 @@ import type {
 import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 
 /**
- * Explicit contextual callbacks owned by the original native writer and raw reader.
+ * Explicit contextual callbacks owned by the original native writer and raw
+ * reader.
  */
 export namespace HumanBendRead {
   /**
-   * The private writer receives its loan before the otherwise unchanged arguments.
+   * The private writer receives its loan before the otherwise unchanged
+   * arguments.
    */
   export type Write = (
     read: AutoMovieMotionHumanBendRepeat.IRead,
     ...args: Parameters<IAutoMovieMotionHumanPrimitive["write"]>
   ) => IAutoMovieMotionHumanPosture;
 
-  /**
-   * Raw native reader with an explicit operation loan.
-   */
+  /** Raw native reader with an explicit operation loan. */
   export type Posture = (
     read: AutoMovieMotionHumanBendRepeat.IRead,
     seconds: number,
@@ -34,9 +34,7 @@ export namespace HumanBendRead {
     { original: IAutoMovieMotionHumanPrimitive["write"]; invoke: Write }
   > = new WeakMap();
 
-  /**
-   * Recheck the actual known primitive before taking its contextual write.
-   */
+  /** Recheck the actual known primitive before taking its contextual write. */
   export function writer(
     primitive: IAutoMovieMotionHumanPrimitive,
   ): Write | undefined {
@@ -75,9 +73,7 @@ export namespace HumanBendRead {
     IAutoMovieBendReadSegment
   > = new WeakMap();
 
-  /**
-   * Bind installed raw posture and duration only for an actual native segment.
-   */
+  /** Bind installed raw posture and duration only for an actual native segment. */
   export function placed(segment: IAutoMovieMotionHumanSegment): void {
     const plan: IAutoMovieMotionHumanActionPlan = segment.plan;
     const readFrom: number | undefined = starts.get(plan);
@@ -101,7 +97,8 @@ export namespace HumanBendRead {
   }
 
   /**
-   * Read the proved native phase, or leave the original caller to perform its exact expression.
+   * Read the proved native phase, or leave the original caller to perform its
+   * exact expression.
    */
   export function sample(
     state: IAutoMovieMotionHumanPerformanceState,

@@ -36,39 +36,78 @@ export function assembleHumanPosture(
   const clamp: ReturnType<typeof prepareHumanPostureProjection.joints> =
     prepareHumanPostureProjection.joints(body, body.projection);
   const value: ReturnType<typeof prepareHumanPostureProjection.values> =
-    clamp === undefined ? undefined : prepareHumanPostureProjection.values(body, body.projection);
+    clamp === undefined
+      ? undefined
+      : prepareHumanPostureProjection.values(body, body.projection);
   if (clamp !== undefined && value !== undefined) {
     // The turn first, as below, so a goal the turn refuses is refused before
     // any clamp runs.
-    const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(posture);
-    const root: NonNullable<IAutoMoviePose["root"]> = Transform.of({ ...turned.position }, turned.rotation);
+    const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+      turnHumanPosture(posture);
+    const root: NonNullable<IAutoMoviePose["root"]> = Transform.of(
+      { ...turned.position },
+      turned.rotation,
+    );
     const joints: IAutoMovieJointPose[] = body.skeleton.bones.map(
       (bone: IAutoMovieBone): IAutoMovieJointPose => {
-        const set: readonly [number, number, number] | undefined = posture.joints[bone.bone];
+        const set: readonly [number, number, number] | undefined =
+          posture.joints[bone.bone];
         return set === undefined
-          ? clamp(kept?.get(bone.bone) ?? { bone: bone.bone, flexion: 0, abduction: 0, twist: 0 })
+          ? clamp(
+              kept?.get(bone.bone) ?? {
+                bone: bone.bone,
+                flexion: 0,
+                abduction: 0,
+                twist: 0,
+              },
+            )
           : value(bone.bone, set[0], set[1], set[2]);
       },
     );
-    return { pose: { skeleton: body.skeleton.id, root, joints }, limbs: turned.limbs };
+    return {
+      pose: { skeleton: body.skeleton.id, root, joints },
+      limbs: turned.limbs,
+    };
   }
   const joints: IAutoMovieJointPose[] = body.skeleton.bones.map(
     (bone: IAutoMovieBone): IAutoMovieJointPose => {
-      const set: readonly [number, number, number] | undefined = posture.joints[bone.bone];
+      const set: readonly [number, number, number] | undefined =
+        posture.joints[bone.bone];
       return set === undefined
-        ? kept?.get(bone.bone) ?? { bone: bone.bone, flexion: 0, abduction: 0, twist: 0 }
-        : { bone: bone.bone, flexion: set[0], abduction: set[1], twist: set[2] };
+        ? (kept?.get(bone.bone) ?? {
+            bone: bone.bone,
+            flexion: 0,
+            abduction: 0,
+            twist: 0,
+          })
+        : {
+            bone: bone.bone,
+            flexion: set[0],
+            abduction: set[1],
+            twist: set[2],
+          };
     },
   );
-  const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned = turnHumanPosture(posture);
-  const root: NonNullable<IAutoMoviePose["root"]> = Transform.of({ ...turned.position }, turned.rotation);
+  const turned: IAutoMovieMotionHumanTurnHumanPosture.ITurned =
+    turnHumanPosture(posture);
+  const root: NonNullable<IAutoMoviePose["root"]> = Transform.of(
+    { ...turned.position },
+    turned.rotation,
+  );
 
   // A body whose projector lends no joint owner projects the pose whole.
   if (clamp === undefined)
     return {
-      pose: prepareHumanPostureProjection.project(body, { skeleton: body.skeleton.id, root, joints }, projection),
+      pose: prepareHumanPostureProjection.project(
+        body,
+        { skeleton: body.skeleton.id, root, joints },
+        projection,
+      ),
       limbs: turned.limbs,
     };
   for (let i: number = 0; i < joints.length; ++i) joints[i] = clamp(joints[i]!);
-  return { pose: { skeleton: body.skeleton.id, root, joints }, limbs: turned.limbs };
+  return {
+    pose: { skeleton: body.skeleton.id, root, joints },
+    limbs: turned.limbs,
+  };
 }

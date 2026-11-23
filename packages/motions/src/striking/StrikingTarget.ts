@@ -12,17 +12,17 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
- * The relations every striking law reads from its entry state and its
- * target: which side leads, the line to the target, the feet as placed, and
- * how a foot steps along the line or pivots on its ball.
+ * The relations every striking law reads from its entry state and its target:
+ * which side leads, the line to the target, the feet as placed, and how a foot
+ * steps along the line or pivots on its ball.
  */
 export namespace StrikingTarget {
   /**
    * How long before its start an action reads another performer to plan,
    * seconds: one film frame. Perception precedes action, and the rule keeps
    * every plan-time read in the other's earlier actions, so two performers
-   * starting at the same instant (simultaneous strikes, a guard facing a
-   * guard) never wait on each other's plans.
+   * starting at the same instant (simultaneous strikes, a guard facing a guard)
+   * never wait on each other's plans.
    */
   export const LOOK: number = 1 / 24;
 
@@ -46,8 +46,8 @@ export namespace StrikingTarget {
   }
 
   /**
-   * The horizontal unit line from a root to a target, or the heading's
-   * forward when the target stands over the root.
+   * The horizontal unit line from a root to a target, or the heading's forward
+   * when the target stands over the root.
    *
    * @param root The root, world metres.
    * @param target The target point, world metres.
@@ -126,9 +126,8 @@ export namespace StrikingTarget {
   }
 
   /**
-   * A foot turned about its ball, which stays fixed on the floor, with its
-   * heel raised: the forefoot pivot of a rear-hand punch or a kick's support
-   * foot.
+   * A foot turned about its ball, which stays fixed on the floor, with its heel
+   * raised: the forefoot pivot of a rear-hand punch or a kick's support foot.
    *
    * @param body The body.
    * @param side The foot.
@@ -156,8 +155,8 @@ export namespace StrikingTarget {
   }
 
   /**
-   * A strike's aim at a film second: the context's aim for a person, a prop
-   * or a point; for no target, a virtual opponent's point built from the
+   * A strike's aim at a film second: the context's aim for a person, a prop or
+   * a point; for no target, a virtual opponent's point built from the
    * performer's own measure on the stance's line (the heading turned back by
    * the stance turn when the feet are staggered), at the line's height (low:
    * the thigh's upper third, middle: the chest, high: the head less half its
@@ -166,7 +165,8 @@ export namespace StrikingTarget {
    * @param context The action's context.
    * @param target The target.
    * @param seconds Film seconds.
-   * @param range The technique's range from the stance centre, metres, given the line height.
+   * @param range The technique's range from the stance centre, metres, given
+   *   the line height.
    * @returns World point.
    */
   export function aim(
@@ -196,8 +196,8 @@ export namespace StrikingTarget {
 
   /**
    * The line a virtual opponent stands on: from midway between the entry's
-   * ankles, along the heading turned back by the stance turn when the feet
-   * are staggered (a 5 cm stagger decides).
+   * ankles, along the heading turned back by the stance turn when the feet are
+   * staggered (a 5 cm stagger decides).
    *
    * @param entry The action's entry.
    * @returns The stance centre and the unit direction toward the opponent.

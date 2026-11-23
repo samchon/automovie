@@ -53,34 +53,35 @@ import { handGoals } from "./handGoals";
 import { prepareGestureTransport } from "./prepareGestureTransport";
 
 /**
- * A communicative gesture while standing: the hand, head or trunk moves
- * through Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind):
- * preparation from rest to the stroke's start, the stroke that carries the
- * meaning, an optional post-stroke hold, and retraction to rest.
+ * A communicative gesture while standing: the hand, head or trunk moves through
+ * Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind): preparation from
+ * rest to the stroke's start, the stroke that carries the meaning, an optional
+ * post-stroke hold, and retraction to rest.
  *
  * The feet stay planted and the body stands as the stand law places it;
- * performed over a carrier (a walk, a seat, a ride) the body is the
- * carrier's, instant by instant, and the gesture takes only the parts it
- * moves. Each moving hand is an effector goal ({@link gestureStroke}),
- * solved by inverse kinematics with a natural elbow hint widened by the
- * gesture and the Effort; the moving arms are planned over the whole
- * gesture as one trajectory (`gestureHands.planned`): from what the entry
- * left to the stroke's goals in the preparation, on them through the
- * stroke, and back to the relaxed hanging arm's in the retraction, while
- * the fingers take the gesture's shape and leave it on the same share. Head, shoulder and trunk gestures add their joint angles under an
- * envelope that rises in the preparation and falls in the retraction; a bow
- * pitches the whole trunk about the hips by its depth (15, 30 or 45 degrees
- * are the conventional light, ordinary and deep bows) while the hips move
- * back to keep the body balanced over the feet (`HumanBalance.shift`).
+ * performed over a carrier (a walk, a seat, a ride) the body is the carrier's,
+ * instant by instant, and the gesture takes only the parts it moves. Each
+ * moving hand is an effector goal ({@link gestureStroke}), solved by inverse
+ * kinematics with a natural elbow hint widened by the gesture and the Effort;
+ * the moving arms are planned over the whole gesture as one trajectory
+ * (`gestureHands.planned`): from what the entry left to the stroke's goals in
+ * the preparation, on them through the stroke, and back to the relaxed hanging
+ * arm's in the retraction, while the fingers take the gesture's shape and leave
+ * it on the same share. Head, shoulder and trunk gestures add their joint
+ * angles under an envelope that rises in the preparation and falls in the
+ * retraction; a bow pitches the whole trunk about the hips by its depth (15, 30
+ * or 45 degrees are the conventional light, ordinary and deep bows) while the
+ * hips move back to keep the body balanced over the feet
+ * (`HumanBalance.shift`).
  *
  * Transport time is the free-space time of the distance moved
- * (`AutoMovieMotionHumanTiming.transport`), and at least the time each
- * moving arm's arc takes within the audit's travel bound
- * (`gestureHands.reaching`), 0.3 s for head and shoulder gestures (no source
- * found), and for a bow its depth at the measured rates of standing bows,
- * down in 1.21 s and up in 1.38 s for 60 degrees, held 0.95 s at the
- * deepest (Kawabata et al. 2009, ISBS 27). The Effort's tempo scales every phase, its extent the
- * gesture's size and its elbow term the arm's width ({@link HumanEffort}).
+ * (`AutoMovieMotionHumanTiming.transport`), and at least the time each moving
+ * arm's arc takes within the audit's travel bound (`gestureHands.reaching`),
+ * 0.3 s for head and shoulder gestures (no source found), and for a bow its
+ * depth at the measured rates of standing bows, down in 1.21 s and up in 1.38 s
+ * for 60 degrees, held 0.95 s at the deepest (Kawabata et al. 2009, ISBS 27).
+ * The Effort's tempo scales every phase, its extent the gesture's size and its
+ * elbow term the arm's width ({@link HumanEffort}).
  *
  * The plan names the hands it moves (`hands`), so a gesture with a hand that
  * holds a prop is refused, naming the free hand.
@@ -118,22 +119,42 @@ export namespace gesture {
     gesture: [{ window: ["retract", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A gesture may be performed over a carrier: it claims the moving arms with their hands, and the head or the trunk when its kind moves them. */
+  /**
+   * A gesture may be performed over a carrier: it claims the moving arms with
+   * their hands, and the head or the trunk when its kind moves them.
+   */
   export const overlay: boolean = true;
 
-  /** A bow's depth when the caller names none, degrees: the ordinary of the conventional light, ordinary and deep bows of 15, 30 and 45 degrees (the Japanese eshaku, keirei and saikeirei). */
+  /**
+   * A bow's depth when the caller names none, degrees: the ordinary of the
+   * conventional light, ordinary and deep bows of 15, 30 and 45 degrees (the
+   * Japanese eshaku, keirei and saikeirei).
+   */
   export const BOW: number = 30;
 
-  /** The deepest bow accepted, degrees: two standard deviations past the mean deepest trunk angle of 33 men's standing bows, 60.0 +- 11.1 degrees (Kawabata et al. 2009, ISBS 27, Table 1). */
+  /**
+   * The deepest bow accepted, degrees: two standard deviations past the mean
+   * deepest trunk angle of 33 men's standing bows, 60.0 +- 11.1 degrees
+   * (Kawabata et al. 2009, ISBS 27, Table 1).
+   */
   export const DEEPEST_BOW: number = 60 + 2 * 11.1;
 
-  /** How fast a bow goes down, degrees a second: the same bows reached their 60 degree mean depth in 1.21 +- 0.41 s (Kawabata et al. 2009, Table 2). */
+  /**
+   * How fast a bow goes down, degrees a second: the same bows reached their 60
+   * degree mean depth in 1.21 +- 0.41 s (Kawabata et al. 2009, Table 2).
+   */
   export const BOW_DOWN: number = 60 / 1.21;
 
-  /** How fast a bow comes back up, degrees a second: the same bows rose in 1.38 +- 0.32 s (Kawabata et al. 2009, Table 2). */
+  /**
+   * How fast a bow comes back up, degrees a second: the same bows rose in 1.38
+   * +- 0.32 s (Kawabata et al. 2009, Table 2).
+   */
   export const BOW_UP: number = 60 / 1.38;
 
-  /** The preparation and retraction of a head, shoulder or trunk gesture, seconds (provisional: no source found). */
+  /**
+   * The preparation and retraction of a head, shoulder or trunk gesture,
+   * seconds (provisional: no source found).
+   */
   export const JOINT_TRANSPORT: number = 0.3;
 
   /**
@@ -143,7 +164,9 @@ export namespace gesture {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On a missing pointing target, a count that is not a positive whole number, a negative hold, or a bow outside (0, `DEEPEST_BOW`] degrees.
+   * @throws {HumanRefusal} On a missing pointing target, a count that is not a
+   *   positive whole number, a negative hold, or a bow outside (0,
+   *   `DEEPEST_BOW`] degrees.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGesture.IParams>,
@@ -579,7 +602,10 @@ export namespace gesture {
             );
       },
     };
-    /** Read fingers and the base at the actual second, then write the prepared moving arms. */
+    /**
+     * Read fingers and the base at the actual second, then write the prepared
+     * moving arms.
+     */
     function interior(
       t: number,
       resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],

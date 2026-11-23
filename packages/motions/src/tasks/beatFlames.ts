@@ -36,27 +36,30 @@ const BEAT: number = 0.6;
 /** How high each beat raises the cloth above the region, metres: provisional. */
 const RAISE: number = 0.3;
 
-/** How far above the region's surface the cloth's face comes down to, metres: it smothers without pressing into the body. */
+/**
+ * How far above the region's surface the cloth's face comes down to, metres: it
+ * smothers without pressing into the body.
+ */
 const CLEAR: number = 0.02;
 
 /**
- * Beat flames on a lying partner with a held cloth: a wet sack or a
- * flapper brought down flat on the burning region again and again,
- * smothering it. Register as `beatFlames`.
+ * Beat flames on a lying partner with a held cloth: a wet sack or a flapper
+ * brought down flat on the burning region again and again, smothering it.
+ * Register as `beatFlames`.
  *
- * The cloth rides the hand that holds it, so its working `face` lies at a
- * fixed lever from the wrist; the wrist holds the attitude that lays the
- * face flat on the region, its normal turned the least way from where the
- * hand held it against the region's, and brings the face down to `CLEAR` above the region's surface along its
- * outward normal, then raises it `RAISE` above and back down, `count`
- * times on a `BEAT` each, reaching the first in the transport movement
+ * The cloth rides the hand that holds it, so its working `face` lies at a fixed
+ * lever from the wrist; the wrist holds the attitude that lays the face flat on
+ * the region, its normal turned the least way from where the hand held it
+ * against the region's, and brings the face down to `CLEAR` above the region's
+ * surface along its outward normal, then raises it `RAISE` above and back down,
+ * `count` times on a `BEAT` each, reaching the first in the transport movement
  * time. The region is read where the partner lies at the start. Events:
  * `strokeStart` at the first beat, `strokeEnd` after the last.
  *
  * The trunk leans in over the partner as far as the beats need
  * (`HumanTrunkLean`). Refusals: a hand that does not hold the cloth, a cloth
- * without a `face`, a non-positive whole count, and a region beyond the arm
- * at every hinge the hips' range allows.
+ * without a `face`, a non-positive whole count, and a region beyond the arm at
+ * every hinge the hips' range allows.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the beat, the clearance, the timing and the refusals.
  * @evidence contracts/development/design.md#principled-representation A law record over the held cloth's face and the partner's region.

@@ -7,11 +7,11 @@ import { HumanArmSwing } from "../posture/HumanArmSwing";
 
 /**
  * The arm carriage of a stepping take (`HumanArmSwing.carriage`), read over
- * every stride: each span between the take's left heel strikes, and the
- * spans before the first and after the last, at `HumanArmSwing.PHASES`
- * phases each. A turning walk's strides differ from one another (its pelvis
- * turns and its thighs swing across), so no one stride holds every place
- * the swinging hands pass the thighs.
+ * every stride: each span between the take's left heel strikes, and the spans
+ * before the first and after the last, at `HumanArmSwing.PHASES` phases each. A
+ * turning walk's strides differ from one another (its pelvis turns and its
+ * thighs swing across), so no one stride holds every place the swinging hands
+ * pass the thighs.
  */
 export namespace walkCarriage {
   /**
@@ -21,8 +21,10 @@ export namespace walkCarriage {
    * @param events The take's named instants, seconds.
    * @param duration The take's seconds.
    * @param posture The take's posture before the carriage.
-   * @param resolution Optional same-person FK loan for the actual synchronous phase observations.
-   * @param projection Optional genuine same-body ROM loan, never retained in the numeric carriage.
+   * @param resolution Optional same-person FK loan for the actual synchronous
+   *   phase observations.
+   * @param projection Optional genuine same-body ROM loan, never retained in
+   *   the numeric carriage.
    * @returns Degrees of abduction per arm.
    */
   export function of(
@@ -38,7 +40,9 @@ export namespace walkCarriage {
     const bounds: number[] = [
       0,
       ...events
-        .filter((e: { name: string }): boolean => /^leftHeelStrike/.test(e.name))
+        .filter((e: { name: string }): boolean =>
+          /^leftHeelStrike/.test(e.name),
+        )
         .map((e: { seconds: number }): number => e.seconds)
         .filter((s: number): boolean => s > 0 && s < duration),
       duration,

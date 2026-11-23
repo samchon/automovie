@@ -8,10 +8,10 @@ import type {
  * One capture of the motion harness: who is drawn, at which instants, with
  * which overlays, and which numeric verdicts the run reports.
  *
- * Every pose is a canonical pose of its performer's body, and every
- * overlay point is in world metres of the canonical frame (+Y up). A case is
- * a plain value built by a pure function of its options, so a capture
- * reproduces exactly from its name, options and source.
+ * Every pose is a canonical pose of its performer's body, and every overlay
+ * point is in world metres of the canonical frame (+Y up). A case is a plain
+ * value built by a pure function of its options, so a capture reproduces
+ * exactly from its name, options and source.
  */
 export interface IMotionCaptureCase {
   /** Output folder name under `media/capture/`. */
@@ -38,7 +38,10 @@ export interface IMotionCaptureCase {
     limit: number;
   }[];
 
-  /** Static boxes, such as a bag, a seat or a step: centre and half extents, metres. */
+  /**
+   * Static boxes, such as a bag, a seat or a step: centre and half extents,
+   * metres.
+   */
   boxes?: {
     centre: IAutoMovieVector3;
     half: IAutoMovieVector3;
@@ -51,9 +54,7 @@ export interface IMotionCaptureCase {
   /** Extra per-case data written to the manifest. */
   metrics?: Record<string, unknown>;
 }
-/**
- * Companion types of {@link IMotionCaptureCase}.
- */
+/** Companion types of {@link IMotionCaptureCase}. */
 export namespace IMotionCaptureCase {
   /** One drawn instant. */
   export interface ITime {
@@ -75,7 +76,7 @@ export namespace IMotionCaptureCase {
     /** The canonical pose at a film second. */
     pose(seconds: number): IAutoMoviePose;
 
-    /** sRGB hex colour of the body; clay when absent. */
+    /** SRGB hex colour of the body; clay when absent. */
     color?: number;
   }
 

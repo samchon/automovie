@@ -18,10 +18,10 @@ import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";
 
 /**
- * Place the wrist for a voicing from the key centers and the performer's
- * finger lengths. The wrist averages individual press placements at the
- * common orientation, with its forward reach set by the digit that needs
- * the wrist closest to the keys.
+ * Place the wrist for a voicing from the key centers and the performer's finger
+ * lengths. The wrist averages individual press placements at the common
+ * orientation, with its forward reach set by the digit that needs the wrist
+ * closest to the keys.
  */
 export function resolvePianoScoreVoicing(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoScore>,
@@ -120,9 +120,7 @@ export function resolvePianoScoreVoicing(
   return { score, notes, normal, arm, shape, ends: [{}, {}] };
 }
 
-/**
- * The key contacts, common arm placement and hand shapes read by pianoScore.
- */
+/** The key contacts, common arm placement and hand shapes read by pianoScore. */
 export namespace resolvePianoScoreVoicing {
   /**
    * An authored note with its key validated by the score law.
@@ -154,7 +152,10 @@ export namespace resolvePianoScoreVoicing {
     dip: number;
     /** The button's outward surface normal in world coordinates. */
     normal: IAutoMovieVector3;
-    /** The button's unpressed and fully depressed contact points, in world metres. */
+    /**
+     * The button's unpressed and fully depressed contact points, in world
+     * metres.
+     */
     points: readonly [IAutoMovieVector3, IAutoMovieVector3];
     /** The rig's pressing digit. */
     digit: AutoMovieHumanDigit;

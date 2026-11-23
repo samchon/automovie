@@ -10,24 +10,32 @@ import { HumanBound } from "../law/HumanBound";
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** How high a crutch tip clears a nosing as it moves, metres (provisional, as the crutch walk's lift). */
+/**
+ * How high a crutch tip clears a nosing as it moves, metres (provisional, as
+ * the crutch walk's lift).
+ */
 const LIFT: number = 0.04;
 
-/** The first nosing's distance ahead of the toes when the author gives none, metres: the climb's own default (`climbStairsFlight.START`). */
+/**
+ * The first nosing's distance ahead of the toes when the author gives none,
+ * metres: the climb's own default (`climbStairsFlight.START`).
+ */
 const START: number = 0.05;
 
-/** Where on its tread a foot's ball and a crutch's tip come down, as a share of the tread measured from its front edge back (provisional: the ball over the tread's rear part, the toes inside its front edge). */
+/**
+ * Where on its tread a foot's ball and a crutch's tip come down, as a share of
+ * the tread measured from its front edge back (provisional: the ball over the
+ * tread's rear part, the toes inside its front edge).
+ */
 const ON: number = 0.7;
 
 /**
- * The crutch stair climb's flight and clock, shared by the law's plan and
- * the track the scene's crutch props read, so both derive every crutch frame
- * and tread from the same flight.
+ * The crutch stair climb's flight and clock, shared by the law's plan and the
+ * track the scene's crutch props read, so both derive every crutch frame and
+ * tread from the same flight.
  */
 export namespace crutchStairsFlight {
-  /**
-   * One crutch move: when it lifts and plants, and the level it leaves.
-   */
+  /** One crutch move: when it lifts and plants, and the level it leaves. */
   export interface IMove {
     /** Lift, seconds since the climb's start. */
     from: number;
@@ -39,9 +47,7 @@ export namespace crutchStairsFlight {
     level: number;
   }
 
-  /**
-   * The climb's resolved shape and clock.
-   */
+  /** The climb's resolved shape and clock. */
   export interface IClimb {
     /** +1 going up, -1 going down. */
     sign: number;
@@ -66,11 +72,11 @@ export namespace crutchStairsFlight {
   }
 
   /**
-   * The climb's shape and clock from its parameters, refused where the
-   * climb's own bounds refuse: a riser above 0.35 of the hip height, a tread
-   * shorter than 0.6 of the foot, a count that is not whole, a step of no
-   * time. Going up the sound foot steps first, then the crutches; going down
-   * the crutches first.
+   * The climb's shape and clock from its parameters, refused where the climb's
+   * own bounds refuse: a riser above 0.35 of the hip height, a tread shorter
+   * than 0.6 of the foot, a count that is not whole, a step of no time. Going
+   * up the sound foot steps first, then the crutches; going down the crutches
+   * first.
    *
    * @param params The climb.
    * @param hipHeight The body's hip height, metres, or none for a track.
@@ -133,9 +139,9 @@ export namespace crutchStairsFlight {
   }
 
   /**
-   * A crutch's frame at a second: planted at its level, or on its move's
-   * path, up first and then over going up, over first and then down going
-   * down, clearing the nosing by `LIFT`.
+   * A crutch's frame at a second: planted at its level, or on its move's path,
+   * up first and then over going up, over first and then down going down,
+   * clearing the nosing by `LIFT`.
    *
    * @param climb The climb.
    * @param start The crutch's staged frame.
@@ -183,10 +189,10 @@ export namespace crutchStairsFlight {
   }
 
   /**
-   * How many treads the sound foot stands past for a plant window opening
-   * at a second: the window of a tread opens when the foot is set down
-   * there, after its step's foot stance begins (each step's start going up,
-   * its middle going down).
+   * How many treads the sound foot stands past for a plant window opening at a
+   * second: the window of a tread opens when the foot is set down there, after
+   * its step's foot stance begins (each step's start going up, its middle going
+   * down).
    *
    * @param climb The climb.
    * @param seconds The window's opening, seconds since the climb's start.

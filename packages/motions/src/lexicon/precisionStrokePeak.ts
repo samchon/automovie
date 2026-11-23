@@ -6,15 +6,17 @@ import type {
 
 import type { courseArmGoal } from "../compose/courseArmGoal";
 
-/** The step a stroke's hand path is read at, seconds: 240 Hz, ten samples per film frame. */
+/**
+ * The step a stroke's hand path is read at, seconds: 240 Hz, ten samples per
+ * film frame.
+ */
 const STEP: number = 1 / 240;
 
 /**
- * The delivery peak of a stroke's arm: the greatest speed its hand goal
- * travels at over the stroke, read along the whole path the stroke writes
- * for it (the swing, the body's turn and the address together), so the arm's
- * course is admitted against the stroke's own speed (`courseArmGoal`'s
- * `pace`).
+ * The delivery peak of a stroke's arm: the greatest speed its hand goal travels
+ * at over the stroke, read along the whole path the stroke writes for it (the
+ * swing, the body's turn and the address together), so the arm's course is
+ * admitted against the stroke's own speed (`courseArmGoal`'s `pace`).
  *
  * @param posture The stroke's posture, which writes the arm's goal.
  * @param limb The striking arm.

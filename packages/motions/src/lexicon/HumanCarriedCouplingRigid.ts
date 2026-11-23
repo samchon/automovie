@@ -16,16 +16,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
 /**
- * A carried key pose registered about its resting contact: the borne
- * resting region put exactly on the bearer's and the turn about that point
- * fitted to the row's hold places. The stance fit (`HumanCarriedCouplingFit`)
- * changes the bearer's stance and the borne legs and registers each trial
- * here.
+ * A carried key pose registered about its resting contact: the borne resting
+ * region put exactly on the bearer's and the turn about that point fitted to
+ * the row's hold places. The stance fit (`HumanCarriedCouplingFit`) changes the
+ * bearer's stance and the borne legs and registers each trial here.
  */
 export namespace HumanCarriedCouplingRigid {
-  /**
-   * A registration and the borne key pose's bones it was read on.
-   */
+  /** A registration and the borne key pose's bones it was read on. */
   export interface IRead {
     /** The rigid placement about the resting contact. */
     fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit;
@@ -35,8 +32,8 @@ export namespace HumanCarriedCouplingRigid {
   }
 
   /**
-   * Place the borne key posture's resting region on the bearer's and fit
-   * its turn to the row's hold places.
+   * Place the borne key posture's resting region on the bearer's and fit its
+   * turn to the row's hold places.
    *
    * @param bearer The bearer's body.
    * @param theirs Its bones in the fitted stance at the origin.
@@ -44,8 +41,10 @@ export namespace HumanCarriedCouplingRigid {
    * @param row The carry's row.
    * @param held The borne region held by each hand, left then right.
    * @param legs The borne legs' three angles, degrees.
-   * @param stance The bearer's inclination in degrees and fractional squat depth.
-   * @param swivel Rotation in degrees about the support normal through the fixed resting point.
+   * @param stance The bearer's inclination in degrees and fractional squat
+   *   depth.
+   * @param swivel Rotation in degrees about the support normal through the
+   *   fixed resting point.
    * @returns The placement and the borne key pose's bones it was read on.
    */
   export function read(

@@ -18,27 +18,32 @@ import { pickUpSearch } from "./pickUpSearch";
 /**
  * The body a pick up takes its grip and makes its lift from (`pickUp`).
  *
- * The grasp is chosen from the entry's body. Where the arm does not reach
- * it, the body is lowered toward the grip (`pickUpPosture`); still out of
- * reach, the trunk turns toward it, and a standing body takes one
- * adjustment step (`pickUpAdjust`). The lift is then carried by the arm,
- * the trunk or the stance's straightening (`pickUpLift.raise`). Where none
- * of them carries it, a standing body takes its one step for the whole
- * task, the grasp and the lifted place together, since a person who must
- * lift a thing steps where the lift can be made, not only the grasp.
+ * The grasp is chosen from the entry's body. Where the arm does not reach it,
+ * the body is lowered toward the grip (`pickUpPosture`); still out of reach,
+ * the trunk turns toward it, and a standing body takes one adjustment step
+ * (`pickUpAdjust`). The lift is then carried by the arm, the trunk or the
+ * stance's straightening (`pickUpLift.raise`). Where none of them carries it, a
+ * standing body takes its one step for the whole task, the grasp and the lifted
+ * place together, since a person who must lift a thing steps where the lift can
+ * be made, not only the grasp.
  */
 export namespace pickUpStance {
-  /**
-   * The body a pick up acts from.
-   */
+  /** The body a pick up acts from. */
   export interface IChosen {
     /** The grasp chosen from the stance. */
     found: pickUpSearch.ISearched;
 
-    /** The stance the body lowered, turned or stepped into; null where it reached from the entry. */
+    /**
+     * The stance the body lowered, turned or stepped into; null where it
+     * reached from the entry.
+     */
     lowered: pickUpPosture.IStance | null;
 
-    /** How the body carries the lift; `pickUpLift.ARM` where the arm alone does, or where nothing does and the plan's hand is left to the lift's judgement. */
+    /**
+     * How the body carries the lift; `pickUpLift.ARM` where the arm alone does,
+     * or where nothing does and the plan's hand is left to the lift's
+     * judgement.
+     */
     raise: pickUpLift.IRaise;
   }
 
@@ -49,10 +54,13 @@ export namespace pickUpStance {
    * @param side The reaching arm.
    * @param lift The asked lift, metres.
    * @param authored The grip as the archetype declares it.
-   * @param carried World displacement accumulated before lifting a moving prop, metres.
-   * @param closure The prop's world frame at moving grasp closure, or omitted for ordinary pickup.
+   * @param carried World displacement accumulated before lifting a moving prop,
+   *   metres.
+   * @param closure The prop's world frame at moving grasp closure, or omitted
+   *   for ordinary pickup.
    * @returns The grasp, the stance and the raise.
-   * @throws {HumanRefusal} When the entry neither stands nor sits and the grip is beyond the arm, or the lowering refuses a body that does not stand.
+   * @throws {HumanRefusal} When the entry neither stands nor sits and the grip
+   *   is beyond the arm, or the lowering refuses a body that does not stand.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
@@ -62,9 +70,13 @@ export namespace pickUpStance {
     carried?: IAutoMovieVector3,
     closure?: IAutoMovieRigidTransform,
   ): IChosen {
-    const search: (stance: pickUpPosture.IStance) => pickUpSearch.ISearched =
-      (stance: pickUpPosture.IStance): pickUpSearch.ISearched => pickUpSearch.of(context, side, lift, authored, stance, carried, closure);
-    const missed: (found: pickUpSearch.ISearched) => boolean = (found: pickUpSearch.ISearched): boolean =>
+    const search: (stance: pickUpPosture.IStance) => pickUpSearch.ISearched = (
+      stance: pickUpPosture.IStance,
+    ): pickUpSearch.ISearched =>
+      pickUpSearch.of(context, side, lift, authored, stance, carried, closure);
+    const missed: (found: pickUpSearch.ISearched) => boolean = (
+      found: pickUpSearch.ISearched,
+    ): boolean =>
       !pickUpPosture.reaches(
         context,
         side,
@@ -73,15 +85,13 @@ export namespace pickUpStance {
 
     // The grasp chosen from the entry's body; where its arm does not reach,
     // from the body lowered toward the grip (`pickUpPosture`).
-    let found: pickUpSearch.ISearched = search(
-      {
-        posture: context.entry.posture,
-        at: (): IAutoMovieMotionHumanPosture => context.entry.posture,
-        lower: (
-          posture: IAutoMovieMotionHumanPosture,
-        ): IAutoMovieMotionHumanPosture => posture,
-      },
-    );
+    let found: pickUpSearch.ISearched = search({
+      posture: context.entry.posture,
+      at: (): IAutoMovieMotionHumanPosture => context.entry.posture,
+      lower: (
+        posture: IAutoMovieMotionHumanPosture,
+      ): IAutoMovieMotionHumanPosture => posture,
+    });
     // A standing body no stoop or squat brings to the grip may still turn
     // or step toward it, below; anything else the lowering refuses stands.
     const standing: boolean = context.entry.base.kind === "standing";
@@ -92,8 +102,7 @@ export namespace pickUpStance {
       } catch (error) {
         if (!(standing && error instanceof HumanRefusal)) throw error;
       }
-    if (lowered !== null)
-      found = search(lowered);
+    if (lowered !== null) found = search(lowered);
 
     // Still out of reach, the trunk turns toward the grip first.
     if (missed(found)) {
@@ -110,7 +119,9 @@ export namespace pickUpStance {
     // where the lift is still out of reach of every freedom of the body,
     // the step is taken for the grasp and the lift together.
     const before: pickUpSearch.ISearched = found;
-    const step: (lifted?: IAutoMovieVector3) => Omit<IChosen, "raise"> | null = (
+    const step: (
+      lifted?: IAutoMovieVector3,
+    ) => Omit<IChosen, "raise"> | null = (
       lifted?: IAutoMovieVector3,
     ): Omit<IChosen, "raise"> | null => {
       const stepped: pickUpPosture.IStance | null = pickUpAdjust.stepped(

@@ -1,5 +1,6 @@
 /**
- * How far from a region's centre the sign of the cross may land, metres: the patch a fingertip touch reaches (provisional).
+ * How far from a region's centre the sign of the cross may land, metres: the
+ * patch a fingertip touch reaches (provisional).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the value, its unit and what it bounds.
  * @evidence contracts/development/design.md#principled-representation One authored tolerance of the sign of the cross, owned here.

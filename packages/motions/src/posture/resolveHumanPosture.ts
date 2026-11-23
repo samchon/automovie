@@ -26,27 +26,27 @@ import { refitHumanPosture } from "./refitHumanPosture";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
 
 /**
- * Resolve a posture into a canonical pose: the root from the posture's
- * position and heading, every directly set joint clamped to the rig's range
- * of motion, then each limb goal by the engine's two-bone fit with its bend
- * hint, legs before arms and each limb after a limb its goal rides
- * (`orderHumanLimbs`), last, so nothing moves a solved goal afterwards.
+ * Resolve a posture into a canonical pose: the root from the posture's position
+ * and heading, every directly set joint clamped to the rig's range of motion,
+ * then each limb goal by the engine's two-bone fit with its bend hint, legs
+ * before arms and each limb after a limb its goal rides (`orderHumanLimbs`),
+ * last, so nothing moves a solved goal afterwards.
  *
- * Bones a posture neither sets nor solves stand at clinical zero, so every
- * pose this returns lists every rig bone and reads the same on any renderer.
- * The limb fit is `fitChainToTarget`, which clamps its candidates to the
- * rig's range of motion and searches bend planes when the hinted one misses;
- * the set joints are clamped by `clampPose` before it, so no returned angle
- * exceeds the rig's declared range and the clamp never moves a plant. Two
- * arms with goals, neither riding the other, are one coupled problem
- * (`HumanLimbPair`): fitted each on its own, and solved together only
- * where the two fits meet, so a mirrored posture resolves to the mirror of
- * the original's bones. Digit goals are fitted after every limb, each
- * digit reaching from the hand its arm placed (`HumanDigitFit`).
+ * Bones a posture neither sets nor solves stand at clinical zero, so every pose
+ * this returns lists every rig bone and reads the same on any renderer. The
+ * limb fit is `fitChainToTarget`, which clamps its candidates to the rig's
+ * range of motion and searches bend planes when the hinted one misses; the set
+ * joints are clamped by `clampPose` before it, so no returned angle exceeds the
+ * rig's declared range and the clamp never moves a plant. Two arms with goals,
+ * neither riding the other, are one coupled problem (`HumanLimbPair`): fitted
+ * each on its own, and solved together only where the two fits meet, so a
+ * mirrored posture resolves to the mirror of the original's bones. Digit goals
+ * are fitted after every limb, each digit reaching from the hand its arm placed
+ * (`HumanDigitFit`).
  *
- * The seeded companion may restrict an explicit observation to requested
- * bone frames. Unsupported dependencies keep ordinary complete fitting.
- * prepare records an actual cold source for checked raw translation, and
+ * The seeded companion may restrict an explicit observation to requested bone
+ * frames. Unsupported dependencies keep ordinary complete fitting. prepare
+ * records an actual cold source for checked raw translation, and
  * translated/rigid construct its original demands at a new placement. Raw
  * composition retains ordinary fitting; source identity alone cannot certify
  * its current demand graph.
@@ -66,27 +66,39 @@ export function resolveHumanPosture(
   return resolveHumanPosture.seeded(body, posture, base, near).pose;
 }
 
-/**
- * Companion helpers of {@link resolveHumanPosture}.
- */
+/** Companion helpers of {@link resolveHumanPosture}. */
 export namespace resolveHumanPosture {
-  /** The least knee flexion of a planted leg, degrees: the knee's greatest extension in stance, about 5 degrees at initial contact and through terminal stance (Perry and Burnfield 2010, Gait Analysis: Normal and Pathological Function, ch. 7; provisional, read through secondary summaries, the primary not read). Every planted leg's lowering (`lower`) and every walking stance (`walkReach`) keeps it. */
+  /**
+   * The least knee flexion of a planted leg, degrees: the knee's greatest
+   * extension in stance, about 5 degrees at initial contact and through
+   * terminal stance (Perry and Burnfield 2010, Gait Analysis: Normal and
+   * Pathological Function, ch. 7; provisional, read through secondary
+   * summaries, the primary not read). Every planted leg's lowering (`lower`)
+   * and every walking stance (`walkReach`) keeps it.
+   */
   export const KNEE: number = 5;
 
   /**
-   * {@link resolveHumanPosture} with each limb's fit continued from a nearby
-   * one where `near` names it (`IAutoMovieSwivelNear`), reporting the seed
-   * each limb's fit was chosen at: the same pose, solved the same way, with
-   * what a fit of the same limb a moment away continues from.
+   * {@link resolveHumanPosture} with each limb's fit continued from a nearby one
+   * where `near` names it (`IAutoMovieSwivelNear`), reporting the seed each
+   * limb's fit was chosen at: the same pose, solved the same way, with what a
+   * fit of the same limb a moment away continues from.
    *
    * @param body The performer's body.
    * @param posture The posture.
    * @param base A pose whose joints replace clinical zero for unset bones.
-   * @param near Each limb's nearby fit to continue; a limb not named is solved cold.
-   * @param resolution Optional exact reader or lazy supplier borrowed from this same synchronous person evaluation; never retained by the result.
-   * @param requested Optional observational bone demand: only these frames equal full resolution; unneeded world limb goals may remain at clamped authored joints. Foot contacts retain re-aim/toe correction; continued, unsupported or arm-dependent context keeps full resolution.
-   * @param projection Unread: assembly projects through the body's own projector (`IHumanBody.projection`), which every caller's projection is.
-   * @returns The canonical pose and each actually fitted limb's seed; omission of requested preserves complete resolution.
+   * @param near Each limb's nearby fit to continue; a limb not named is solved
+   *   cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed from this
+   *   same synchronous person evaluation; never retained by the result.
+   * @param requested Optional observational bone demand: only these frames
+   *   equal full resolution; unneeded world limb goals may remain at clamped
+   *   authored joints. Foot contacts retain re-aim/toe correction; continued,
+   *   unsupported or arm-dependent context keeps full resolution.
+   * @param projection Unread: assembly projects through the body's own
+   *   projector (`IHumanBody.projection`), which every caller's projection is.
+   * @returns The canonical pose and each actually fitted limb's seed; omission
+   *   of requested preserves complete resolution.
    */
   export function seeded(
     body: IAutoMovieMotionHumanBody,
@@ -99,17 +111,20 @@ export namespace resolveHumanPosture {
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
     // A cold resolve with a native reader takes an issued preparation's
     // proven solve (`HumanPosturePreparation.read`) where the posture has one.
-    const native: boolean = prepareHumanPoseResolution.isNativeSource(resolution);
+    const native: boolean =
+      prepareHumanPoseResolution.isNativeSource(resolution);
     if (base === undefined && native && Object.keys(near).length === 0) {
-      const prepared: IAutoMovieMotionHumanResolveHumanPosture.ISeeded | undefined =
-        HumanPosturePreparation.read(body, posture);
+      const prepared:
+        | IAutoMovieMotionHumanResolveHumanPosture.ISeeded
+        | undefined = HumanPosturePreparation.read(body, posture);
       if (prepared !== undefined) return prepared;
     }
 
     // The owned route assembles fresh records from the raw demands and fits
     // them in place; a reader lends only exact FK, so a native one (this
     // owner's factory or the engine's) can alias no record of the result.
-    const owned: boolean = base === undefined && (resolution === undefined || native);
+    const owned: boolean =
+      base === undefined && (resolution === undefined || native);
     return owned
       ? resolveHumanPostureSource.owned(
           body,
@@ -130,7 +145,11 @@ export namespace resolveHumanPosture {
         );
   }
 
-  /** One issued preparation's canonical pose (`HumanPosturePreparation.IPrepared`); only `prepare` issues one, and a copied wrapper certifies nothing. */
+  /**
+   * One issued preparation's canonical pose
+   * (`HumanPosturePreparation.IPrepared`); only `prepare` issues one, and a
+   * copied wrapper certifies nothing.
+   */
   export type IPrepared = HumanPosturePreparation.IPrepared;
 
   /**
@@ -154,17 +173,31 @@ export namespace resolveHumanPosture {
     );
   }
 
-  /** Observe an issued source through fresh FK only; no private pose escapes or unused public pose is copied. */
+  /**
+   * Observe an issued source through fresh FK only; no private pose escapes or
+   * unused public pose is copied.
+   */
   export function preparedBones(
     ...args: Parameters<typeof HumanPosturePreparation.bones>
   ): ReturnType<typeof HumanPosturePreparation.bones> {
     return HumanPosturePreparation.bones(...args);
   }
 
-  /** A posture's direct part, assembled (`resolveHumanPostureSource.IAssembled`): the authored posture, its root and clamped direct joints as a pose before any limb fit, and its own goals turned. */
+  /**
+   * A posture's direct part, assembled
+   * (`resolveHumanPostureSource.IAssembled`): the authored posture, its root
+   * and clamped direct joints as a pose before any limb fit, and its own goals
+   * turned.
+   */
   export type IAssembled = resolveHumanPostureSource.IAssembled;
 
-  /** The first half of a resolve, held as a value: the posture's root, heading and direct joints clamped to the rig's range, before any limb is fitted; a cold resolve of the posture is `fit` of it. The posture is kept by reference for the goals' turning and the digits, so it stays unchanged while the assembly is used. */
+  /**
+   * The first half of a resolve, held as a value: the posture's root, heading
+   * and direct joints clamped to the rig's range, before any limb is fitted; a
+   * cold resolve of the posture is `fit` of it. The posture is kept by
+   * reference for the goals' turning and the digits, so it stays unchanged
+   * while the assembly is used.
+   */
   export function assemble(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -173,10 +206,10 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * The assembly of `posture` built from another posture's assembly of the
-   * same body (`deriveHumanPosture`): value for value the pose `assemble`
-   * gives it, sharing every record whose bone's angles are exactly the same
-   * and clamping only the others again.
+   * The assembly of `posture` built from another posture's assembly of the same
+   * body (`deriveHumanPosture`): value for value the pose `assemble` gives it,
+   * sharing every record whose bone's angles are exactly the same and clamping
+   * only the others again.
    */
   export function derive(
     body: IAutoMovieMotionHumanBody,
@@ -193,11 +226,19 @@ export namespace resolveHumanPosture {
    *
    * @param body The performer's body.
    * @param assembled The assembly (`assemble`, `derive`), left unchanged.
-   * @param limbs Goals to fit in place of the assembled posture's own, authored like them (world goals are turned here by the posture's whole-body rotation); absent, the posture's own.
-   * @param near Each limb's nearby fit to continue; a limb not named is solved cold.
-   * @param resolution Optional exact reader or lazy supplier borrowed from this same synchronous evaluation.
-   * @param solved A completed cold fit of another assembly of this body: a cold fit of this assembly's own goals is taken from it when every limb's fit reads exactly what it read there (`deriveHumanPosture.inherited`), and solved as ever otherwise.
-   * @returns The pose and each fitted limb's seed and value; untouched records are the assembly's own, which callers treat as immutable.
+   * @param limbs Goals to fit in place of the assembled posture's own, authored
+   *   like them (world goals are turned here by the posture's whole-body
+   *   rotation); absent, the posture's own.
+   * @param near Each limb's nearby fit to continue; a limb not named is solved
+   *   cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed from this
+   *   same synchronous evaluation.
+   * @param solved A completed cold fit of another assembly of this body: a cold
+   *   fit of this assembly's own goals is taken from it when every limb's fit
+   *   reads exactly what it read there (`deriveHumanPosture.inherited`), and
+   *   solved as ever otherwise.
+   * @returns The pose and each fitted limb's seed and value; untouched records
+   *   are the assembly's own, which callers treat as immutable.
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,
@@ -230,7 +271,11 @@ export namespace resolveHumanPosture {
     return HumanPosturePreparation.translated(prepared, root);
   }
 
-  /** An issued joint-only preparation placed at a world root and yaw/pitch/roll in degrees (`HumanPosturePreparation.rigid`); throws for any other preparation. */
+  /**
+   * An issued joint-only preparation placed at a world root and yaw/pitch/roll
+   * in degrees (`HumanPosturePreparation.rigid`); throws for any other
+   * preparation.
+   */
   export function rigid(
     prepared: IPrepared,
     root: IAutoMovieVector3,
@@ -241,7 +286,10 @@ export namespace resolveHumanPosture {
     return HumanPosturePreparation.rigid(prepared, root, yaw, pitch, roll);
   }
 
-  /** Construct an owned joint-only placement when its private source supports it, otherwise decline to the caller's original raw path. */
+  /**
+   * Construct an owned joint-only placement when its private source supports
+   * it, otherwise decline to the caller's original raw path.
+   */
   export function tryRigid(
     prepared: IPrepared,
     root: IAutoMovieVector3,
@@ -253,17 +301,19 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * Re-fit limb goals on an already displayed pose, after its parents,
-   * blending or transition have been placed. World goals have already
-   * received the posture's root turn; attached goals keep their `on` frame
-   * and are carried into the world once, by the limb fit.
+   * Re-fit limb goals on an already displayed pose, after its parents, blending
+   * or transition have been placed. World goals have already received the
+   * posture's root turn; attached goals keep their `on` frame and are carried
+   * into the world once, by the limb fit.
    *
    * @param body The performer's body.
    * @param pose The pose before these limb fits.
    * @param limbs The goals, world or attached to a posed bone.
    * @param near Each limb's nearby fit to continue, if any.
-   * @param resolution Optional parent-owned exact reader or lazy supplier, borrowed for the call.
-   * @returns The pose, seeds and values of the same limb solver `seeded` uses, a fresh copy; the input pose itself when no limb had a goal.
+   * @param resolution Optional parent-owned exact reader or lazy supplier,
+   *   borrowed for the call.
+   * @returns The pose, seeds and values of the same limb solver `seeded` uses,
+   *   a fresh copy; the input pose itself when no limb had a goal.
    */
   export function refit(
     body: IAutoMovieMotionHumanBody,
@@ -306,9 +356,9 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * A posture's root rotation: yaw about +Y, then pitch about the turned
-   * left axis (+X, a forward tip), then roll about the turned forward axis
-   * (+Z, a tip toward the right).
+   * A posture's root rotation: yaw about +Y, then pitch about the turned left
+   * axis (+X, a forward tip), then roll about the turned forward axis (+Z, a
+   * tip toward the right).
    *
    * @param posture The posture's heading.
    * @returns The rotation.
@@ -320,14 +370,14 @@ export namespace resolveHumanPosture {
   }
 
   /**
-   * The heading angles of a root rotation, the inverse of {@link heading}:
-   * with `R = Ry(yaw) Rx(pitch) Rz(roll)`, the turned forward axis is
-   * `(sin yaw cos pitch, -sin pitch, cos yaw cos pitch)` and the vertical
-   * components of the turned left and up axes are `sin roll cos pitch` and
-   * `cos roll cos pitch`. A rotation composed in the world (a pelvis tilted
-   * about a floor axis after its turn) becomes a posture's heading through
-   * it. The original atan2 readings and clamped asin operate directly on
-   * those three turned axes, including at a vertical forward axis.
+   * The heading angles of a root rotation, the inverse of {@link heading}: with
+   * `R = Ry(yaw) Rx(pitch) Rz(roll)`, the turned forward axis is `(sin yaw cos
+   * pitch, -sin pitch, cos yaw cos pitch)` and the vertical components of the
+   * turned left and up axes are `sin roll cos pitch` and `cos roll cos pitch`.
+   * A rotation composed in the world (a pelvis tilted about a floor axis after
+   * its turn) becomes a posture's heading through it. The original atan2
+   * readings and clamped asin operate directly on those three turned axes,
+   * including at a vertical forward axis.
    *
    * @param rotation The root's world rotation, unit.
    * @returns Yaw, pitch and roll, degrees.
@@ -338,7 +388,13 @@ export namespace resolveHumanPosture {
     return humanPostureHeading.angles(rotation);
   }
 
-  /** The posture's root lowered so every planted leg keeps at least knee degrees of knee flexion, KNEE when absent; an optional same-operation FK supplier is borrowed only by the actual hip reading, and the hip's largest vertical step a frame (step, metres) eases the reach over its soft band (lowerHumanPosture). */
+  /**
+   * The posture's root lowered so every planted leg keeps at least knee degrees
+   * of knee flexion, KNEE when absent; an optional same-operation FK supplier
+   * is borrowed only by the actual hip reading, and the hip's largest vertical
+   * step a frame (step, metres) eases the reach over its soft band
+   * (lowerHumanPosture).
+   */
   export function lower(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -349,7 +405,10 @@ export namespace resolveHumanPosture {
     return lowerHumanPosture(body, posture, knee, resolution, step);
   }
 
-  /** The lowering one leg asks of the root, metres; `-Infinity` beyond the leg's reach ({@link lowerHumanPosture.short}). */
+  /**
+   * The lowering one leg asks of the root, metres; `-Infinity` beyond the leg's
+   * reach ({@link lowerHumanPosture.short}).
+   */
   export function short(
     body: IAutoMovieMotionHumanBody,
     hip: IAutoMovieVector3,
@@ -360,7 +419,10 @@ export namespace resolveHumanPosture {
     return lowerHumanPosture.short(body, hip, ankle, knee, step);
   }
 
-  /** Prepare fixed body/knee reach geometry; every hip/ankle query retains the original lowering and refusal arithmetic. */
+  /**
+   * Prepare fixed body/knee reach geometry; every hip/ankle query retains the
+   * original lowering and refusal arithmetic.
+   */
   export function prepareShort(
     body: IAutoMovieMotionHumanBody,
     knee: number,
@@ -377,7 +439,8 @@ export namespace resolveHumanPosture {
    * @param pose The pose.
    * @param limb The limb.
    * @param goal Its goal.
-   * @param near A nearby fit of the limb to continue; omitted, it is solved cold.
+   * @param near A nearby fit of the limb to continue; omitted, it is solved
+   *   cold.
    * @returns The pose with the limb fitted.
    */
   export function limb(
@@ -397,9 +460,12 @@ export namespace resolveHumanPosture {
    * @param pose The pose.
    * @param limb The limb.
    * @param goal Its goal.
-   * @param near A nearby fit of the limb to continue; omitted, it is solved cold.
-   * @param resolution Optional exact reader or lazy supplier borrowed only from the same synchronous person evaluation.
-   * @returns An independent complete copy of the fitted pose, seed and value, including unrelated nested metadata.
+   * @param near A nearby fit of the limb to continue; omitted, it is solved
+   *   cold.
+   * @param resolution Optional exact reader or lazy supplier borrowed only from
+   *   the same synchronous person evaluation.
+   * @returns An independent complete copy of the fitted pose, seed and value,
+   *   including unrelated nested metadata.
    */
   export function limbSeeded(
     body: IAutoMovieMotionHumanBody,
@@ -425,9 +491,9 @@ export namespace resolveHumanPosture {
 
   /**
    * A limb's reference solution read off a pose: the clinical angles of its
-   * upper and lower bones. A law solves the limb once at the instant its
-   * action is about (the grasp, the clasp, the placement) and hands the
-   * result to every goal of the stroke as `HumanPosture.IGoal.reference`.
+   * upper and lower bones. A law solves the limb once at the instant its action
+   * is about (the grasp, the clasp, the placement) and hands the result to
+   * every goal of the stroke as `HumanPosture.IGoal.reference`.
    *
    * @param pose The pose the limb was solved in.
    * @param limb The limb.
@@ -461,18 +527,19 @@ export namespace resolveHumanPosture {
   /**
    * A limb goal in world terms: unchanged when it has no `on` bone, otherwise
    * its point and bend carried from the bone's posed frame to the world
-   * (`p_world = P + R p`) and its rotation composed after the bone's
-   * (`R q`), with the bone placed by the given pose. The attachment is
-   * refused for a bone of the limb's own chain (its upper bone, its lower
-   * bone or its end), because fitting the limb moves that bone and the goal
-   * would chase itself.
+   * (`p_world = P + R p`) and its rotation composed after the bone's (`R q`),
+   * with the bone placed by the given pose. The attachment is refused for a
+   * bone of the limb's own chain (its upper bone, its lower bone or its end),
+   * because fitting the limb moves that bone and the goal would chase itself.
    *
    * @param body The performer's body.
-   * @param pose The pose that places the attachment bone, before the limb is fitted.
+   * @param pose The pose that places the attachment bone, before the limb is
+   *   fitted.
    * @param limb The limb the goal is for.
    * @param goal The goal, attached or not.
    * @returns The goal with world point, bend and rotation and no `on`.
-   * @throws {Error} When the goal is attached to a bone of its own limb's chain, or to a bone the rig lacks.
+   * @throws {Error} When the goal is attached to a bone of its own limb's
+   *   chain, or to a bone the rig lacks.
    */
   export function world(
     body: IAutoMovieMotionHumanBody,

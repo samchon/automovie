@@ -8,9 +8,7 @@ import type {
 
 import { HumanPrehension } from "./HumanPrehension";
 
-/**
- * Time the loaded placement and the reverse of the empty-hand exit.
- */
+/** Time the loaded placement and the reverse of the empty-hand exit. */
 export function putDownTravel(
   context: IAutoMovieMotionHumanActionContext,
   entry: IAutoMovieRigidTransform,
@@ -177,9 +175,7 @@ function joinRoute(
   };
 }
 
-/**
- * The loaded and unloaded transports and the aperture's clock.
- */
+/** The loaded and unloaded transports and the aperture's clock. */
 export namespace putDownTravel {
   /** Seat-relative waypoint offsets in world metres, in travel order. */
   export interface IRoute {

@@ -14,22 +14,23 @@ import { poseBones } from "./poseBones";
  * What one limb's fit reads of a pose, and the fit's result written back.
  *
  * A limb fit reads the frames of a few bones (its chain, the bone its goal
- * rides, the colliders an arm keeps clear of) and the records of its own
- * chain. A bone's frame depends on its own record and its ancestors' alone,
- * so the pose of just those records (`of`) places every bone the fit reads
- * exactly where the whole pose does, and the fit's mirror image, its
- * root-position frame, its forward kinematics and its joint scans then run
- * over those few records instead of every joint of the body. The whole
- * pose's ordered admission, which refuses a malformed record anywhere in
- * it, is kept as its own step (`admitted`). The solved records go back
- * into the whole pose in the place the fit gives them (`merged`).
+ * rides, the colliders an arm keeps clear of) and the records of its own chain.
+ * A bone's frame depends on its own record and its ancestors' alone, so the
+ * pose of just those records (`of`) places every bone the fit reads exactly
+ * where the whole pose does, and the fit's mirror image, its root-position
+ * frame, its forward kinematics and its joint scans then run over those few
+ * records instead of every joint of the body. The whole pose's ordered
+ * admission, which refuses a malformed record anywhere in it, is kept as its
+ * own step (`admitted`). The solved records go back into the whole pose in the
+ * place the fit gives them (`merged`).
  */
 export namespace HumanLimbView {
-  /**
-   * The records one limb's fit reads.
-   */
+  /** The records one limb's fit reads. */
   export interface IView {
-    /** The pose with only the records the fit reads: the caller's root and other members, and the caller's own joint records in their order. */
+    /**
+     * The pose with only the records the fit reads: the caller's root and other
+     * members, and the caller's own joint records in their order.
+     */
     pose: IAutoMoviePose;
 
     /** The index of each of those records among the whole pose's joints, rising. */
@@ -37,10 +38,10 @@ export namespace HumanLimbView {
   }
 
   /**
-   * Whether a pose's whole ordered admission has run, shared by the fits of
-   * one pose whose owner fits several limbs in turn: the first fit admits
-   * the pose, and the others, whose poses differ from it only by the
-   * records earlier fits solved, do not admit it again.
+   * Whether a pose's whole ordered admission has run, shared by the fits of one
+   * pose whose owner fits several limbs in turn: the first fit admits the pose,
+   * and the others, whose poses differ from it only by the records earlier fits
+   * solved, do not admit it again.
    */
   export interface IAdmission {
     /** Whether the whole pose was admitted. */
@@ -48,9 +49,9 @@ export namespace HumanLimbView {
   }
 
   /**
-   * The records a limb's fit reads of a pose: those of its chain, of the
-   * bone its goal rides, of the bones whose colliders an arm keeps clear of
-   * and of a leg's toes, with every ancestor of each.
+   * The records a limb's fit reads of a pose: those of its chain, of the bone
+   * its goal rides, of the bones whose colliders an arm keeps clear of and of a
+   * leg's toes, with every ancestor of each.
    *
    * @param body The performer's body.
    * @param pose The pose before the fit.
@@ -74,8 +75,10 @@ export namespace HumanLimbView {
     // the limb's own bones are the body's (`IHumanBody.reads`); a goal on a
     // bone adds it and the parents the body's set does not already hold,
     // climbed until one it holds.
-    const others: boolean = arm && placed.some((other: "left" | "right"): boolean => other !== side);
-    const kept: ReadonlySet<AutoMovieHumanoidBone> = body.reads[limb][others ? 1 : 0].bones;
+    const others: boolean =
+      arm && placed.some((other: "left" | "right"): boolean => other !== side);
+    const kept: ReadonlySet<AutoMovieHumanoidBone> =
+      body.reads[limb][others ? 1 : 0].bones;
     let read: ReadonlySet<AutoMovieHumanoidBone> = kept;
     if (goal.on !== undefined && !kept.has(goal.on)) {
       const grown: Set<AutoMovieHumanoidBone> = new Set(kept);
@@ -102,8 +105,10 @@ export namespace HumanLimbView {
    *
    * @param body The performer's body.
    * @param pose The whole pose.
-   * @param admission The flag the pose's fits share; absent, the pose is admitted now.
-   * @throws {Error} What forward kinematics throws for the first malformed record or root.
+   * @param admission The flag the pose's fits share; absent, the pose is
+   *   admitted now.
+   * @throws {Error} What forward kinematics throws for the first malformed
+   *   record or root.
    */
   export function admitted(
     body: IAutoMovieMotionHumanBody,
@@ -118,21 +123,24 @@ export namespace HumanLimbView {
   /**
    * A fit's result written back into the whole pose.
    *
-   * The fit returns its source's joints with the records it solved: the
-   * chain's old records dropped and the solved ones appended, and the toes'
-   * record replaced where it stood. The same is done to the whole pose: a
-   * record the fit kept stays the caller's own object in its place, a
-   * dropped one leaves, a replaced one is replaced in its place and the
-   * appended ones are appended, so the whole pose's joints are in the order
-   * the fit would have given them had it been run on every joint.
+   * The fit returns its source's joints with the records it solved: the chain's
+   * old records dropped and the solved ones appended, and the toes' record
+   * replaced where it stood. The same is done to the whole pose: a record the
+   * fit kept stays the caller's own object in its place, a dropped one leaves,
+   * a replaced one is replaced in its place and the appended ones are appended,
+   * so the whole pose's joints are in the order the fit would have given them
+   * had it been run on every joint.
    *
    * @param full The whole pose before the fit.
    * @param view Its reduced pose (`of`).
-   * @param source The joints the fit was run on: the reduced pose's own, or their images record for record.
+   * @param source The joints the fit was run on: the reduced pose's own, or
+   *   their images record for record.
    * @param result The joints the fit returned.
-   * @param replaced The bone whose records the fit replaces where they stand rather than appending, in the fit's naming; null when it has none.
+   * @param replaced The bone whose records the fit replaces where they stand
+   *   rather than appending, in the fit's naming; null when it has none.
    * @param back Takes a record the fit made back to the whole pose's naming.
-   * @returns The whole pose with the fit's records; `full` itself when the fit returned its source's joints.
+   * @returns The whole pose with the fit's records; `full` itself when the fit
+   *   returned its source's joints.
    */
   export function merged(
     full: IAutoMoviePose,
@@ -172,5 +180,8 @@ export namespace HumanLimbView {
   }
 }
 
-/** No bone demanded: forward kinematics then admits every record and composes no frame. */
+/**
+ * No bone demanded: forward kinematics then admits every record and composes no
+ * frame.
+ */
 const NONE: ReadonlySet<AutoMovieHumanoidBone> = new Set();

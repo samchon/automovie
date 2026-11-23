@@ -15,15 +15,18 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 /** Seconds the landing takes to absorb into the stand (provisional). */
 const ABSORB: number = 0.4;
 
-/** How deep the hips dip in the absorb, a share of the hip height (provisional: a soft landing's knee bend). */
+/**
+ * How deep the hips dip in the absorb, a share of the hip height (provisional:
+ * a soft landing's knee bend).
+ */
 const DIP: number = 0.18;
 
 /**
- * Append a hang's release and drop to a plan that ends hanging: the body
- * keeps the hanging shape and falls freely until its lowest toe meets the
- * ground (`t = sqrt(2 h / g)`), then absorbs into the stand over `ABSORB`
- * with the hips dipping `DIP` and the stand's root on the toes' midpoint,
- * so the feet land under the stand they end in.
+ * Append a hang's release and drop to a plan that ends hanging: the body keeps
+ * the hanging shape and falls freely until its lowest toe meets the ground (`t
+ * = sqrt(2 h / g)`), then absorbs into the stand over `ABSORB` with the hips
+ * dipping `DIP` and the stand's root on the toes' midpoint, so the feet land
+ * under the stand they end in.
  *
  * @param context The action's context.
  * @param plan The plan ending in the hang.

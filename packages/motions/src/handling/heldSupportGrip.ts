@@ -21,8 +21,8 @@ import { HumanGraspUse } from "./HumanGraspUse";
 
 /**
  * The search a held support's grip runs: grip stations along the support's
- * material span, and the palm and finger colliders a candidate grip is
- * measured with.
+ * material span, and the palm and finger colliders a candidate grip is measured
+ * with.
  */
 export namespace heldSupportGrip {
   /** One grip candidate along the held support's material span. */
@@ -101,7 +101,10 @@ export namespace heldSupportGrip {
       );
   }
 
-  /** Retain a solved palm and fingers' wrist-local materials for one grip search. */
+  /**
+   * Retain a solved palm and fingers' wrist-local materials for one grip
+   * search.
+   */
   export function material(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,

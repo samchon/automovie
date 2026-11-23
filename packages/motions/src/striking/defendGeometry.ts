@@ -34,21 +34,19 @@ import { defendGoals } from "./defendGoals";
  *
  * The defender sees the attacker's moving limb (the hand, foot or shin whose
  * velocity over the last 1/24 s points most toward the struck region) and the
- * line from it to the region on its own body. Whole-body evasions move the
- * head off that line through the trunk's lean and the root's dip and shift:
- * a `slip` leans the head 0.7 of the clearance (the head's radius, the fist's
- * and a 4 cm margin) outside the weapon and shifts the root 0.3 of it, 2 % of
- * stature down; a `roll` drops the root two head radii with a 15 degree
- * forward lean; a `sway` leans back until the head clears. The arms and the
- * checking leg go to goals on the defender's own body ({@link defendGoals}),
- * reached from the guard with the movement's minimum-jerk share and left
- * again over the recovery. A check stands over the supporting foot, the root
- * moved 0.6 of the way to its ankle. The shares are provisional.
+ * line from it to the region on its own body. Whole-body evasions move the head
+ * off that line through the trunk's lean and the root's dip and shift: a `slip`
+ * leans the head 0.7 of the clearance (the head's radius, the fist's and a 4 cm
+ * margin) outside the weapon and shifts the root 0.3 of it, 2 % of stature
+ * down; a `roll` drops the root two head radii with a 15 degree forward lean; a
+ * `sway` leans back until the head clears. The arms and the checking leg go to
+ * goals on the defender's own body ({@link defendGoals}), reached from the guard
+ * with the movement's minimum-jerk share and left again over the recovery. A
+ * check stands over the supporting foot, the root moved 0.6 of the way to its
+ * ankle. The shares are provisional.
  */
 export namespace defendGeometry {
-  /**
-   * A defence's timing, seconds from its start unless stated.
-   */
+  /** A defence's timing, seconds from its start unless stated. */
   export interface ITiming {
     /** The struck region. */
     region: AutoMovieHumanoidRegion;
@@ -75,9 +73,7 @@ export namespace defendGeometry {
     read: number;
   }
 
-  /**
-   * A built defence.
-   */
+  /** A built defence. */
   export interface IGeometry {
     /**
      * The complete posture at action-relative seconds, borrowing only this
@@ -367,8 +363,8 @@ export namespace defendGeometry {
   }
 
   /**
-   * The defender's side a region lies on: its own side, or the lead side for
-   * a central region.
+   * The defender's side a region lies on: its own side, or the lead side for a
+   * central region.
    *
    * @param region The struck region.
    * @param lead The stance's lead side.
@@ -386,8 +382,8 @@ export namespace defendGeometry {
   }
 
   /**
-   * The feet's windows: both planted, except a checking leg off the floor
-   * from its read to its end.
+   * The feet's windows: both planted, except a checking leg off the floor from
+   * its read to its end.
    *
    * @param checking The checking leg's side, undefined when both feet stay.
    * @param timing The movement's start and the whole duration, seconds.
@@ -424,7 +420,10 @@ export namespace defendGeometry {
     );
   }
 
-  /** The roll sign that tips the body toward a horizontal direction: +1 when it lies on the body's right. */
+  /**
+   * The roll sign that tips the body toward a horizontal direction: +1 when it
+   * lies on the body's right.
+   */
   function sideRoll(yaw: number, direction: IAutoMovieVector3): number {
     const r: number = (yaw * Math.PI) / 180;
     const left: IAutoMovieVector3 = { x: Math.cos(r), y: 0, z: -Math.sin(r) };

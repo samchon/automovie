@@ -7,30 +7,32 @@ import type {
 import { walkReach } from "./walkReach";
 
 /**
- * What a stepping gait declares of its footstep plan, as shares of its
- * length: each named instant, and the floor contacts, each foot's stance a
- * `plant` but for the spans in which the foot spins on its ball, which are a
- * `pivot` on its toe pad.
+ * What a stepping gait declares of its footstep plan, as shares of its length:
+ * each named instant, and the floor contacts, each foot's stance a `plant` but
+ * for the spans in which the foot spins on its ball, which are a `pivot` on its
+ * toe pad.
  *
- * A pelvis turned from a stance foot further than the hip rotates is taken
- * by spinning on the ball of that foot (`walkReach.pelvis`), as a person
- * spins on the stance foot in a spin turn (Hase and Stein 1999). The foot
- * then turns on the floor about its toe pad, so it is declared as turning
- * about the contact there, never as fixed.
+ * A pelvis turned from a stance foot further than the hip rotates is taken by
+ * spinning on the ball of that foot (`walkReach.pelvis`), as a person spins on
+ * the stance foot in a spin turn (Hase and Stein 1999). The foot then turns on
+ * the floor about its toe pad, so it is declared as turning about the contact
+ * there, never as fixed.
  */
 export namespace walkWindows {
-  /** The spacing, seconds, at which a stance is read for its spin: half a frame at 60 frames a second. */
+  /**
+   * The spacing, seconds, at which a stance is read for its spin: half a frame
+   * at 60 frames a second.
+   */
   export const STEP: number = 1 / 120;
 
   /**
    * The events and contact windows of a gait's footstep plan.
    *
    * @param steps The gait's footstep plan.
-   * @returns The plan's named instants and its stances' windows, in the stances' order, as shares of the plan's duration.
+   * @returns The plan's named instants and its stances' windows, in the
+   *   stances' order, as shares of the plan's duration.
    */
-  export function of(
-    steps: IAutoMovieMotionHumanWalkSteps.IPlan,
-  ): IWindows {
+  export function of(steps: IAutoMovieMotionHumanWalkSteps.IPlan): IWindows {
     const duration: number = steps.duration;
     const events: IAutoMovieMotionEvent[] = [];
     for (const event of steps.events)
@@ -39,11 +41,11 @@ export namespace walkWindows {
     for (const stance of steps.stances) {
       const part: "leftFoot" | "rightFoot" =
         stance.side === "left" ? "leftFoot" : "rightFoot";
-      const push: (kind: "plant" | "pivot", from: number, to: number) => void = (
+      const push: (
         kind: "plant" | "pivot",
         from: number,
         to: number,
-      ): void => {
+      ) => void = (kind: "plant" | "pivot", from: number, to: number): void => {
         contacts.push({
           part,
           kind,

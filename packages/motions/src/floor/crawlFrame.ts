@@ -19,28 +19,39 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareCrawlPalms } from "./prepareCrawlPalms";
 
 /**
- * The pieces the crawls on the hands share: where a wrist stands over its
- * flat palm, the palms laid on their floor points, a body tilted forward by
- * a pitch with its pelvis turned about the spine's axis, the root that
- * puts the hip joints' middle at a place, the arms carried in joint space,
- * the hips over two knees, and the search for the pitch that brings the
- * shoulders to their place; the feet are `crawlFeet`'s.
+ * The pieces the crawls on the hands share: where a wrist stands over its flat
+ * palm, the palms laid on their floor points, a body tilted forward by a pitch
+ * with its pelvis turned about the spine's axis, the root that puts the hip
+ * joints' middle at a place, the arms carried in joint space, the hips over two
+ * knees, and the search for the pitch that brings the shoulders to their place;
+ * the feet are `crawlFeet`'s.
  */
 export namespace crawlFrame {
-  /** The chest's share of the turn that levels the shoulders over a hiked pelvis; the lumbar spine takes the rest (as `AutoMovieMotionHumanTrunk.CHEST`). */
+  /**
+   * The chest's share of the turn that levels the shoulders over a hiked
+   * pelvis; the lumbar spine takes the rest (as
+   * `AutoMovieMotionHumanTrunk.CHEST`).
+   */
   export const CHEST: number = 0.6;
 
-  /** The most a crawl's trunk is pitched in a search, degrees: past horizontal, beyond any body on its hands. */
+  /**
+   * The most a crawl's trunk is pitched in a search, degrees: past horizontal,
+   * beyond any body on its hands.
+   */
   export const PITCH: number = 120;
 
-  /** The halvings of a pitch search: `PITCH` to under a ten-thousandth of a degree. */
+  /**
+   * The halvings of a pitch search: `PITCH` to under a ten-thousandth of a
+   * degree.
+   */
   export const HALVINGS: number = 24;
 
   /**
    * The trunk's pitch at which a reading of the body stops holding, sought
    * between upright and `PITCH`.
    *
-   * @param short Whether the shoulders still fall short of their place at a pitch, degrees; true at upright and false past the place.
+   * @param short Whether the shoulders still fall short of their place at a
+   *   pitch, degrees; true at upright and false past the place.
    * @returns The pitch, degrees.
    */
   export function pitched(short: (degrees: number) => boolean): number {
@@ -87,9 +98,9 @@ export namespace crawlFrame {
   }
 
   /**
-   * A posture with both palms laid flat on floor points: each hand shaped
-   * flat and its arm's goal the one that puts the palm on its point facing
-   * up, the fingers along the heading.
+   * A posture with both palms laid flat on floor points: each hand shaped flat
+   * and its arm's goal the one that puts the palm on its point facing up, the
+   * fingers along the heading.
    *
    * @param body The body.
    * @param posture The posture whose trunk the arms hang from.
@@ -139,14 +150,16 @@ export namespace crawlFrame {
   }
 
   /**
-   * Write the crawl's flat fingers without constructing palm goals. This
-   * serves descent phases whose joint-space arm writer replaces both goals
+   * Write the crawl's flat fingers without constructing palm goals. This serves
+   * descent phases whose joint-space arm writer replaces both goals
    * immediately, while retaining the laid posture's finger fallback.
    *
    * @param posture The current kneeling posture with its leg goals.
    * @returns A new posture and joint map, with all other fields preserved.
    */
-  export function flatHands(posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanPosture {
+  export function flatHands(
+    posture: IAutoMovieMotionHumanPosture,
+  ): IAutoMovieMotionHumanPosture {
     return {
       ...posture,
       joints: { ...posture.joints, ...FLAT.left, ...FLAT.right },
@@ -155,8 +168,8 @@ export namespace crawlFrame {
 
   /**
    * A posture with both arms written by their joints, carried in joint space
-   * from held angles toward others by a share, each hand shaped flat with
-   * them (`HumanHand.shape`), and the arms' goals removed.
+   * from held angles toward others by a share, each hand shaped flat with them
+   * (`HumanHand.shape`), and the arms' goals removed.
    *
    * @param body The body.
    * @param posture The posture.
@@ -183,7 +196,10 @@ export namespace crawlFrame {
     body: IAutoMovieMotionHumanBody,
     held: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
     toward: Record<"left" | "right", IAutoMovieMotionHumanArmAngles.IAngles>,
-  ): (posture: IAutoMovieMotionHumanPosture, share: number) => IAutoMovieMotionHumanPosture {
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    share: number,
+  ) => IAutoMovieMotionHumanPosture {
     const arm: (side: "left" | "right") => IArmReaders["left"] = (
       side: "left" | "right",
     ): IArmReaders["left"] => ({
@@ -207,11 +223,17 @@ export namespace crawlFrame {
       ),
     });
     const readers: IArmReaders = { left: arm("left"), right: arm("right") };
-    return (posture: IAutoMovieMotionHumanPosture, share: number): IAutoMovieMotionHumanPosture =>
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+    ): IAutoMovieMotionHumanPosture =>
       writeArms(body, posture, held, toward, share, readers);
   }
 
-  /** Fixed clinical pairs use their numerical owner; changing pairs share one synchronous metadata pass. */
+  /**
+   * Fixed clinical pairs use their numerical owner; changing pairs share one
+   * synchronous metadata pass.
+   */
   function writeArms(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -220,7 +242,9 @@ export namespace crawlFrame {
     share: number,
     prepared?: IArmReaders,
   ): IAutoMovieMotionHumanPosture {
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
     const blend: ReturnType<typeof blendHumanJoint.prepare> | undefined =
       prepared !== undefined || share <= 0 || share >= 1
@@ -259,17 +283,18 @@ export namespace crawlFrame {
   }
 
   /**
-   * The body tilted forward by a pitch at a share of the way down, its
-   * pelvis turned about the spine's axis and the spine and the chest
-   * turning it back, the arms hanging as the body's relaxed arms
-   * (`stand.relaxed`).
+   * The body tilted forward by a pitch at a share of the way down, its pelvis
+   * turned about the spine's axis and the spine and the chest turning it back,
+   * the arms hanging as the body's relaxed arms (`stand.relaxed`).
    *
    * @param body The body.
    * @param yaw The heading, degrees about +Y.
    * @param share The share of the way down, 0 standing and 1 on the hands.
    * @param degrees The whole body's forward pitch on the hands, degrees.
-   * @param hike The pelvis's turn about the spine's axis, degrees; positive lifts the left hip.
-   * @param neck The neck's flexion on the hands, degrees; negative lifts the gaze.
+   * @param hike The pelvis's turn about the spine's axis, degrees; positive
+   *   lifts the left hip.
+   * @param neck The neck's flexion on the hands, degrees; negative lifts the
+   *   gaze.
    * @returns The posture at the origin, with no limb goal.
    */
   export function posed(
@@ -297,18 +322,20 @@ export namespace crawlFrame {
   }
 
   /**
-   * The hips over two knees: each hip joint a thigh from its knee, at its
-   * place along the heading from a level point, so their middle is the
-   * pelvis's height and their difference its turn about the spine's axis.
+   * The hips over two knees: each hip joint a thigh from its knee, at its place
+   * along the heading from a level point, so their middle is the pelvis's
+   * height and their difference its turn about the spine's axis.
    *
    * @param thigh The thigh's length, metres.
    * @param level The hips' middle on the floor, world metres.
    * @param forward The heading's unit vector.
    * @param knees Each knee joint, world metres.
-   * @param ahead How far each hip joint lies before the level point, metres along the heading.
+   * @param ahead How far each hip joint lies before the level point, metres
+   *   along the heading.
    * @param separation The hip joints' distance, metres.
    * @param pitch The trunk's pitch, degrees.
-   * @returns The hips' middle, world metres, and the pelvis's turn, degrees, positive lifting the left hip.
+   * @returns The hips' middle, world metres, and the pelvis's turn, degrees,
+   *   positive lifting the left hip.
    */
   export function over(
     thigh: number,
@@ -363,12 +390,17 @@ export namespace crawlFrame {
   }
 
   /** Side-only flat clinical shapes are immutable inputs to both palm writers. */
-  const FLAT: Readonly<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> = {
+  const FLAT: Readonly<
+    Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
+  > = {
     left: HumanHand.shape("left", "flat"),
     right: HumanHand.shape("right", "flat"),
   };
 
-  /** The same deterministic digit order is used when reading held finger endpoints. */
+  /**
+   * The same deterministic digit order is used when reading held finger
+   * endpoints.
+   */
   const FLAT_BONES: Readonly<
     Record<"left" | "right", readonly AutoMovieHumanoidBone[]>
   > = {

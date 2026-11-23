@@ -8,9 +8,11 @@ import { HumanFoot } from "./HumanFoot";
 /**
  * Collect the actual bones used by displayed foot sockets and sole outlines.
  *
- * @param body The canonical body whose actual surface and outline frames are read.
+ * @param body The canonical body whose actual surface and outline frames are
+ *   read.
  * @param sides The feet an observation consumes; both when absent.
- * @returns A fresh read-only bone-name union for genuine FK preparation; ancestors remain the FK owner's responsibility.
+ * @returns A fresh read-only bone-name union for genuine FK preparation;
+ *   ancestors remain the FK owner's responsibility.
  */
 export function humanFootBones(
   body: IAutoMovieMotionHumanBody,
@@ -19,7 +21,10 @@ export function humanFootBones(
   const bones: Set<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>();
   for (const side of sides) {
     for (const socket of HumanFoot.SOCKETS)
-      bones.add(body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`].bone);
+      bones.add(
+        body.surfaces.sockets[`${socket}${side === "left" ? "Left" : "Right"}`]
+          .bone,
+      );
     for (const frame of HumanFoot.outline(body, side)) bones.add(frame.bone);
   }
   return bones;

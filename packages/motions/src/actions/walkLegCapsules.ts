@@ -14,18 +14,24 @@ import { HumanColliders } from "../posture/HumanColliders";
 
 /**
  * The legs' geometry the clearance reads (`walkLegClearance`): one body's
- * leg-collider preparation (each segment's bounding capsule at rest, the
- * tangle model's indices and readable probes, the toes' rest offsets and the
- * collider placement readers), a leg's bones as posed, and the least
- * distance between two segments.
+ * leg-collider preparation (each segment's bounding capsule at rest, the tangle
+ * model's indices and readable probes, the toes' rest offsets and the collider
+ * placement readers), a leg's bones as posed, and the least distance between
+ * two segments.
  */
 export namespace walkLegCapsules {
-  /** One body's leg-collider geometry, prepared by the owner of a clearance search (`prepare`). */
+  /**
+   * One body's leg-collider geometry, prepared by the owner of a clearance
+   * search (`prepare`).
+   */
   export interface IPrepared {
     /** The body the geometry belongs to. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The tangle audit's model of the body (`AutoMovieMotionHumanAuditTangleModel.model`). */
+    /**
+     * The tangle audit's model of the body
+     * (`AutoMovieMotionHumanAuditTangleModel.model`).
+     */
     model: AutoMovieMotionHumanAuditTangleModel.IModel;
 
     /** Each leg segment's bounding capsule at rest (`ICapsule`). */
@@ -34,13 +40,20 @@ export namespace walkLegCapsules {
     /** Each segment's index among the audit model's parts. */
     indices: ReadonlyMap<AutoMovieHumanoidBone, number>;
 
-    /** The probes of segment `i` the audit reads in segment `j` (`IReadable`), read once per ordered pair. */
+    /**
+     * The probes of segment `i` the audit reads in segment `j` (`IReadable`),
+     * read once per ordered pair.
+     */
     readable: (i: number, j: number) => IReadable;
 
     /** Each side's toes joint less its foot joint at rest, metres. */
     toes: Record<"left" | "right", IAutoMovieVector3>;
 
-    /** A side's collider placement reader for its four leg bones (`HumanColliders.preparePlaced`), prepared when a reading first places that side. */
+    /**
+     * A side's collider placement reader for its four leg bones
+     * (`HumanColliders.preparePlaced`), prepared when a reading first places
+     * that side.
+     */
     placements: (
       side: "left" | "right",
     ) => ReturnType<typeof HumanColliders.preparePlaced>;
@@ -49,8 +62,10 @@ export namespace walkLegCapsules {
   /**
    * Prepare one body's leg-collider geometry for a clearance search.
    *
-   * @param body The body, whose rest joints and profile stay fixed while the preparation is used.
-   * @returns The capsules, indices, readable-pair reader, toes offsets and placement-reader source.
+   * @param body The body, whose rest joints and profile stay fixed while the
+   *   preparation is used.
+   * @returns The capsules, indices, readable-pair reader, toes offsets and
+   *   placement-reader source.
    */
   export function prepare(body: IAutoMovieMotionHumanBody): IPrepared {
     const model: AutoMovieMotionHumanAuditTangleModel.IModel =
@@ -99,12 +114,16 @@ export namespace walkLegCapsules {
   }
 
   /**
-   * The leg's requested posed bones, world frame; omitted demand reads all four.
+   * The leg's requested posed bones, world frame; omitted demand reads all
+   * four.
    *
-   * @param prepared The body's leg-collider preparation, for the foot-to-toes rest offset.
+   * @param prepared The body's leg-collider preparation, for the foot-to-toes
+   *   rest offset.
    * @param leg The posed hip, knee, ankle and segment rotations.
-   * @param requested Optional canonical bone demand: a reading requests only the segments that may meet the other leg.
-   * @returns Fresh resolved-bone records in thigh/shank/foot/toes order, restricted only by explicit demand.
+   * @param requested Optional canonical bone demand: a reading requests only
+   *   the segments that may meet the other leg.
+   * @returns Fresh resolved-bone records in thigh/shank/foot/toes order,
+   *   restricted only by explicit demand.
    */
   export function bones(
     prepared: IPrepared,
@@ -161,16 +180,26 @@ export namespace walkLegCapsules {
 
   /** A segment's bounding capsule (`prepare`). */
   export interface ICapsule {
-    /** Whether its axis lies on its bone's line, a thigh's or a shank's, which carries it as the leg bends; otherwise it is carried rigidly with the foot. */
+    /**
+     * Whether its axis lies on its bone's line, a thigh's or a shank's, which
+     * carries it as the leg bends; otherwise it is carried rigidly with the
+     * foot.
+     */
     line: boolean;
 
-    /** On a bone's line, where its axis begins, metres along the line from the joint toward the child joint. */
+    /**
+     * On a bone's line, where its axis begins, metres along the line from the
+     * joint toward the child joint.
+     */
     lo: number;
 
     /** On a bone's line, where its axis ends. */
     hi: number;
 
-    /** Carried with the foot, one end of its axis, metres from the bone's joint in the rest frame. */
+    /**
+     * Carried with the foot, one end of its axis, metres from the bone's joint
+     * in the rest frame.
+     */
     from: IAutoMovieVector3;
 
     /** Carried with the foot, the other end. */
@@ -180,7 +209,10 @@ export namespace walkLegCapsules {
     radius: number;
   }
 
-  /** The probes of one segment the audit reads in another (`IPrepared.readable`). */
+  /**
+   * The probes of one segment the audit reads in another
+   * (`IPrepared.readable`).
+   */
   export interface IReadable {
     /** The probes, in the first segment's frame. */
     probes: IAutoMovieVector3[];
@@ -188,7 +220,10 @@ export namespace walkLegCapsules {
     /** Their reference depths, metres. */
     references: number[];
 
-    /** Whether any is a corner of the first segment's shapes rather than a point of its bone's axis. */
+    /**
+     * Whether any is a corner of the first segment's shapes rather than a point
+     * of its bone's axis.
+     */
     surface: boolean;
   }
 
@@ -222,7 +257,8 @@ export namespace walkLegCapsules {
    *
    * @param from The axis's first endpoint, world metres.
    * @param to The axis's second endpoint, world metres.
-   * @returns The least distance, metres, from this axis to another segment given by its endpoints.
+   * @returns The least distance, metres, from this axis to another segment
+   *   given by its endpoints.
    */
   export function prepareApart(
     from: IAutoMovieVector3,
@@ -237,13 +273,13 @@ export namespace walkLegCapsules {
   /**
    * Each leg segment's bounding capsule at rest: a thigh's or a shank's about
    * its bone's line, as far along it as any of its probes (corners and points
-   * of the bone's axis) projects, so the leg carries it however the knee
-   * bends; a foot's or the toes' about the principal direction of its probes
-   * through their mean (the principal-axis bounding capsule, Eberly 2008,
-   * Fitting 3D Data with a Cylinder), carried rigidly with the foot. Each
-   * radius is the farthest any probe lies from its axis, so the capsule
-   * bounds the probes whichever axis the power iteration settles on. The
-   * canonical rig rests unrotated, so a bone's frame at rest is its joint.
+   * of the bone's axis) projects, so the leg carries it however the knee bends;
+   * a foot's or the toes' about the principal direction of its probes through
+   * their mean (the principal-axis bounding capsule, Eberly 2008, Fitting 3D
+   * Data with a Cylinder), carried rigidly with the foot. Each radius is the
+   * farthest any probe lies from its axis, so the capsule bounds the probes
+   * whichever axis the power iteration settles on. The canonical rig rests
+   * unrotated, so a bone's frame at rest is its joint.
    */
   function capsules(
     body: IAutoMovieMotionHumanBody,
@@ -332,7 +368,10 @@ export namespace walkLegCapsules {
     return out;
   }
 
-  /** The probes of segment `i` the audit reads in segment `j`: those with a bounded reference depth, and their reference depths. */
+  /**
+   * The probes of segment `i` the audit reads in segment `j`: those with a
+   * bounded reference depth, and their reference depths.
+   */
   function readable(
     m: AutoMovieMotionHumanAuditTangleModel.IModel,
     i: number,
@@ -408,12 +447,26 @@ export namespace walkLegCapsules {
     LowerLeg: "Foot",
   };
 
-  /** The power iteration's start: a unit vector off every coordinate axis and plane, so no principal direction of a foot's probes is orthogonal to it by the rig's own alignment (0.6² + 0.48² + 0.64² = 1). */
+  /**
+   * The power iteration's start: a unit vector off every coordinate axis and
+   * plane, so no principal direction of a foot's probes is orthogonal to it by
+   * the rig's own alignment (0.6² + 0.48² + 0.64² = 1).
+   */
   const SEED: IAutoMovieVector3 = { x: 0.6, y: 0.48, z: 0.64 };
 
-  /** Power-iteration steps for a foot's principal axis: a cap, not a tolerance, since the capsule's radius is measured about whichever axis it ends on and so bounds the probes either way; fifty steps shrink the off-axis share by the eigenvalue ratio to the fiftieth power. */
+  /**
+   * Power-iteration steps for a foot's principal axis: a cap, not a tolerance,
+   * since the capsule's radius is measured about whichever axis it ends on and
+   * so bounds the probes either way; fifty steps shrink the off-axis share by
+   * the eigenvalue ratio to the fiftieth power.
+   */
   const POWER_STEPS: number = 50;
 
-  /** A squared length or a length below which a segment or a scatter is degenerate, square metres or metres: 1e-12, the square of a micrometre, so only endpoints that coincide within a micrometre take the degenerate branch (the EPSILON of Ericson 2005, 5.1.9). */
+  /**
+   * A squared length or a length below which a segment or a scatter is
+   * degenerate, square metres or metres: 1e-12, the square of a micrometre, so
+   * only endpoints that coincide within a micrometre take the degenerate branch
+   * (the EPSILON of Ericson 2005, 5.1.9).
+   */
   const DEGENERATE: number = 1e-12;
 }

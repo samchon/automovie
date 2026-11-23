@@ -37,9 +37,9 @@ interface IKey {
  * folded into the chamber, extended through the contact and recoiled to its
  * plant, the knee hint and the foot's attitude carried between keys.
  *
- * The leg is solved once at the chamber and at the contact; every goal
- * between carries the solution of its two keys as its reference, so the fit
- * never takes the other knee between two seconds.
+ * The leg is solved once at the chamber and at the contact; every goal between
+ * carries the solution of its two keys as its reference, so the fit never takes
+ * the other knee between two seconds.
  *
  * @param props The leg's geometry and timing.
  * @returns The primitive writing the kicking leg.
@@ -263,9 +263,7 @@ export function FootStrikeLeg(
   return leg;
 }
 
-/**
- * Companion types of {@link FootStrikeLeg}.
- */
+/** Companion types of {@link FootStrikeLeg}. */
 export namespace FootStrikeLeg {
   /** The kicking leg's geometry and timing. */
   export interface IProps {
@@ -323,7 +321,13 @@ export namespace FootStrikeLeg {
     /** The share of the extension unit at which the foot meets the target. */
     meet: number;
 
-    /** An airborne ankle goal at a second brought inside the hip's reach (`FootStrikeTilt.chambered`); the goal unchanged when absent. */
-    reachable?: (point: IAutoMovieVector3, seconds: number) => IAutoMovieVector3;
+    /**
+     * An airborne ankle goal at a second brought inside the hip's reach
+     * (`FootStrikeTilt.chambered`); the goal unchanged when absent.
+     */
+    reachable?: (
+      point: IAutoMovieVector3,
+      seconds: number,
+    ) => IAutoMovieVector3;
   }
 }

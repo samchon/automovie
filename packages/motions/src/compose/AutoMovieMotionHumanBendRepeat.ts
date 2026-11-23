@@ -30,17 +30,13 @@ interface IAutoMovieCompletedBend {
   result: IAutoMovieBendResult;
 }
 
-/**
- * Two reusable ordinary elbow searches during one projectile contact sweep.
- */
+/** Two reusable ordinary elbow searches during one projectile contact sweep. */
 export class AutoMovieMotionHumanBendRepeat {
   /** Results belong to the sweep and to the actual owner of this writer. */
   readonly #plans: WeakMap<object, (IAutoMovieCompletedBend | undefined)[]> =
     new WeakMap();
 
-  /**
-   * Create the private per-read loan of an ordinary Bend numerical trial.
-   */
+  /** Create the private per-read loan of an ordinary Bend numerical trial. */
   public read(owner: object): AutoMovieMotionHumanBendRepeat.IRead {
     let slots: (IAutoMovieCompletedBend | undefined)[] | undefined =
       this.#plans.get(owner);
@@ -53,9 +49,7 @@ export class AutoMovieMotionHumanBendRepeat {
 }
 
 export namespace AutoMovieMotionHumanBendRepeat {
-  /**
-   * An operation-local loan for one actual arm writer.
-   */
+  /** An operation-local loan for one actual arm writer. */
   export type IRead = Read;
 }
 
@@ -184,7 +178,10 @@ class Trial {
     throw this.#repeat;
   }
 
-  /** Publish only a completed owner-proved search, or return the actual old refusal. */
+  /**
+   * Publish only a completed owner-proved search, or return the actual old
+   * refusal.
+   */
   public complete(
     run: () => IAutoMovieBendResult | null,
   ): IAutoMovieBendResult | null {

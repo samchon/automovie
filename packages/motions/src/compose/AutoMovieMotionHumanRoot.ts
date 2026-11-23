@@ -15,8 +15,8 @@ import { HumanFrame } from "../posture/HumanFrame";
  *
  * The root is the first channel written, so the trunk, the head and the limbs
  * of the same second are placed on the moved body. Planted legs keep their
- * world goals and are solved again on the moved pelvis, which is what bends
- * the knees when the root sinks.
+ * world goals and are solved again on the moved pelvis, which is what bends the
+ * knees when the root sinks.
  */
 export namespace AutoMovieMotionHumanRoot {
   /**
@@ -117,7 +117,8 @@ export namespace AutoMovieMotionHumanRoot {
    * @param clock The action's clock.
    * @param window The instants the body starts moving and arrives at.
    * @param by The move in the body's own floor frame, metres.
-   * @returns The primitive, on the root from the first instant to the clock's end.
+   * @returns The primitive, on the root from the first instant to the clock's
+   *   end.
    */
   export function shift(
     clock: IAutoMovieMotionClock,
@@ -141,8 +142,10 @@ export namespace AutoMovieMotionHumanRoot {
    *
    * @param clock The action's clock.
    * @param window The instants the turn starts and arrives at.
-   * @param yaw The turn about +Y, degrees; positive toward the performer's left.
-   * @returns The primitive, on the root from the first instant to the clock's end.
+   * @param yaw The turn about +Y, degrees; positive toward the performer's
+   *   left.
+   * @returns The primitive, on the root from the first instant to the clock's
+   *   end.
    */
   export function face(
     clock: IAutoMovieMotionClock,

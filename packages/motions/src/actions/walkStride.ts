@@ -9,17 +9,17 @@ import { WalkPace } from "./WalkPace";
 import type { walkStepFoot } from "./walkStepFoot";
 
 /**
- * A gait entered in stride: one entry foot standing and the other in the air
- * (a hurdler's trail leg over the bar, the lead foot landed). The foot in the
- * air bears nothing, so it steps first, its swing leaving from where it is
- * with the velocity it entered with, and it lands one period after the
- * standing foot's stance began, as the next footfall of a gait in progress
- * does; it stands on no opening stance. How long the standing foot has stood
- * is read from where the pelvis is over it: a cruising footprint lies `front`
- * periods of stride ahead of the pelvis at its heel strike, and the pelvis
- * has since closed on it at the entry's speed. A stance met at rest has stood
- * none, and none stands longer than a cruising stance or a period, by which
- * the foot in the air would have landed.
+ * A gait entered in stride: one entry foot standing and the other in the air (a
+ * hurdler's trail leg over the bar, the lead foot landed). The foot in the air
+ * bears nothing, so it steps first, its swing leaving from where it is with the
+ * velocity it entered with, and it lands one period after the standing foot's
+ * stance began, as the next footfall of a gait in progress does; it stands on
+ * no opening stance. How long the standing foot has stood is read from where
+ * the pelvis is over it: a cruising footprint lies `front` periods of stride
+ * ahead of the pelvis at its heel strike, and the pelvis has since closed on it
+ * at the entry's speed. A stance met at rest has stood none, and none stands
+ * longer than a cruising stance or a period, by which the foot in the air would
+ * have landed.
  */
 export namespace walkStride {
   /**
@@ -44,7 +44,8 @@ export namespace walkStride {
    * @param props The pace's inputs, without the stood time.
    * @param longest The longest step, metres.
    * @param entry The entry state.
-   * @param way The way's opening direction, a horizontal unit vector, or undefined for no way.
+   * @param way The way's opening direction, a horizontal unit vector, or
+   *   undefined for no way.
    * @returns The timing.
    */
   export function pace(
@@ -77,7 +78,8 @@ export namespace walkStride {
    *
    * @param entry The entry state.
    * @param side The foot.
-   * @returns Its placement, toes and velocity, or undefined for a standing foot.
+   * @returns Its placement, toes and velocity, or undefined for a standing
+   *   foot.
    */
   export function flying(
     entry: IAutoMovieMotionHumanEntryState,

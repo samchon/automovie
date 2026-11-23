@@ -18,26 +18,27 @@ import { StrikingTarget } from "./StrikingTarget";
 import { punchFootwork } from "./punchFootwork";
 
 /**
- * The lower body of a close strike: the pelvis turned about the vertical
- * and shifted along the line with both feet planted, or, for a spin, the
- * whole stance turned about the ball of the lead foot, which pivots in
- * place while the rear foot travels round it on a low arc.
+ * The lower body of a close strike: the pelvis turned about the vertical and
+ * shifted along the line with both feet planted, or, for a spin, the whole
+ * stance turned about the ball of the lead foot, which pivots in place while
+ * the rear foot travels round it on a low arc.
  *
- * The turn, the lean, the shift and the drop follow one share in [0, 1] of
- * the strike out and back, so the stance returns to the entry's when the
- * share does. A planted turn may pivot the rear foot on its ball by half the
- * turn with the heel raised, as a rear-hand punch does; a drop lowers the
- * hips for a low target; a jump lifts both feet and the root. The root is
- * lowered until both legs reach their feet (`resolveHumanPosture.lower`). A
- * kick's support may rise onto its ball with the share, and a tilt turns
- * the whole body about a world axis through the pivoting foot's hip, which
- * stays put. A leg another primitive writes (a kick's) is left out.
+ * The turn, the lean, the shift and the drop follow one share in [0, 1] of the
+ * strike out and back, so the stance returns to the entry's when the share
+ * does. A planted turn may pivot the rear foot on its ball by half the turn
+ * with the heel raised, as a rear-hand punch does; a drop lowers the hips for a
+ * low target; a jump lifts both feet and the root. The root is lowered until
+ * both legs reach their feet (`resolveHumanPosture.lower`). A kick's support
+ * may rise onto its ball with the share, and a tilt turns the whole body about
+ * a world axis through the pivoting foot's hip, which stays put. A leg another
+ * primitive writes (a kick's) is left out.
  *
  * @param body The body.
  * @param entry The entry posture.
  * @param feet The entry's feet.
  * @param lead The pivoting side: the stance's lead, or a kick's support foot.
- * @param motion The turn, lean, shift, spin, hop and drop by second, the rear pivot and the free leg.
+ * @param motion The turn, lean, shift, spin, hop and drop by second, the rear
+ *   pivot and the free leg.
  * @returns The primitive writing the root, the trunk and the legs it owns.
  */
 export function CloseStrikeLegs(
@@ -263,14 +264,18 @@ export function CloseStrikeLegs(
   }
 }
 
-/**
- * Companion types and constants of {@link CloseStrikeLegs}.
- */
+/** Companion types and constants of {@link CloseStrikeLegs}. */
 export namespace CloseStrikeLegs {
-  /** The rear foot's arc height on a spin, a share of the stance length (provisional). */
+  /**
+   * The rear foot's arc height on a spin, a share of the stance length
+   * (provisional).
+   */
   export const LIFT: number = 0.25;
 
-  /** The shares of a spin's turn between which the rear foot travels round the pivot, after it rises and before it lands (provisional). */
+  /**
+   * The shares of a spin's turn between which the rear foot travels round the
+   * pivot, after it rises and before it lands (provisional).
+   */
   export const ROUND: readonly [number, number] = [0.2, 0.8];
 
   /** The lower body's carriage over a close strike. */
@@ -278,7 +283,10 @@ export namespace CloseStrikeLegs {
     /** The action's duration, seconds. */
     duration: number;
 
-    /** The pelvis turn at full share, degrees, positive toward the performer's left. */
+    /**
+     * The pelvis turn at full share, degrees, positive toward the performer's
+     * left.
+     */
     turn: number;
 
     /** The trunk's forward lean at full share, degrees. */
@@ -290,25 +298,46 @@ export namespace CloseStrikeLegs {
     /** The share of the strike out and back at an action second, in [0, 1]. */
     share: (seconds: number) => number;
 
-    /** The spin about the lead ball at an action second, degrees; 0 without a spin. */
+    /**
+     * The spin about the lead ball at an action second, degrees; 0 without a
+     * spin.
+     */
     spin: (seconds: number) => number;
 
-    /** The height both feet and the root are lifted at an action second, metres; none when absent. */
+    /**
+     * The height both feet and the root are lifted at an action second, metres;
+     * none when absent.
+     */
     hop?: (seconds: number) => number;
 
-    /** The hips' drop at full share, metres, the support knee bending for a low target; none when absent. */
+    /**
+     * The hips' drop at full share, metres, the support knee bending for a low
+     * target; none when absent.
+     */
     drop?: number;
 
-    /** Whether a planted turn pivots the rear foot on its ball by half the turn, the heel raised; it stays flat when absent. */
+    /**
+     * Whether a planted turn pivots the rear foot on its ball by half the turn,
+     * the heel raised; it stays flat when absent.
+     */
     pivot?: boolean;
 
-    /** The leg another primitive writes, left out of this one's channels and goals; none when absent. */
+    /**
+     * The leg another primitive writes, left out of this one's channels and
+     * goals; none when absent.
+     */
     free?: AutoMovieHumanSide;
 
-    /** The pivoting foot's heel raise onto its ball at full share, degrees, its toes bent as far; flat when absent. */
+    /**
+     * The pivoting foot's heel raise onto its ball at full share, degrees, its
+     * toes bent as far; flat when absent.
+     */
     raise?: number;
 
-    /** The whole body's tilt at full share about a world axis through the pivoting foot's hip; none when absent. */
+    /**
+     * The whole body's tilt at full share about a world axis through the
+     * pivoting foot's hip; none when absent.
+     */
     tilt?: ITilt;
   }
 

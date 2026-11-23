@@ -26,7 +26,8 @@ const SIDES = ["left", "right"] as const;
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
- * The native canoe and kayak stance and its independently moving handheld paddle.
+ * The native canoe and kayak stance and its independently moving handheld
+ * paddle.
  */
 export namespace AquaticPaddleCraft {
   /** One native boat stance and paddle's two grip windows. */
@@ -42,9 +43,7 @@ export namespace AquaticPaddleCraft {
     ): IAutoMovieMotionHumanPosture;
   }
 
-  /**
-   * Fit the appropriate craft stance and both hands to the displayed prop.
-   */
+  /** Fit the appropriate craft stance and both hands to the displayed prop. */
   export function bind(
     context: AquaticPosture.Context,
     hull: string,
@@ -96,7 +95,10 @@ export namespace AquaticPaddleCraft {
   }
 }
 
-/** Carry the actual entered half-kneel and change only the stroke's upper-body joints. */
+/**
+ * Carry the actual entered half-kneel and change only the stroke's upper-body
+ * joints.
+ */
 function kneel(
   { body, entry, start }: AquaticPosture.Context,
   hull: IAutoMovieMotionHumanPropReader,

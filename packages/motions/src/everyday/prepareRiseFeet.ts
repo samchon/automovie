@@ -7,9 +7,9 @@ import type {
 import { stand } from "../actions/stand";
 
 /**
- * Prepare the two feet drawn beneath a seated body before rising. Each
- * foot has its original fixed swing interval, minimum-jerk travel and sine
- * clearance; the current root still determines its planted leg goal.
+ * Prepare the two feet drawn beneath a seated body before rising. Each foot has
+ * its original fixed swing interval, minimum-jerk travel and sine clearance;
+ * the current root still determines its planted leg goal.
  *
  * @param props Fixed entry/drawn ankles in world metres, swing seconds,
  *   positive draw seconds, lift metres and the standing law's leg builder.
@@ -33,7 +33,10 @@ export function prepareRiseFeet(props: {
 
   /** Fixed-yaw standing geometry with current-root knee goals. */
   legged: ReturnType<typeof stand.prepareLegs>;
-}): (root: IAutoMovieVector3, seconds: number) => IAutoMovieMotionHumanPosture["limbs"] {
+}): (
+  root: IAutoMovieVector3,
+  seconds: number,
+) => IAutoMovieMotionHumanPosture["limbs"] {
   const straight: Partial<
     Record<"left" | "right", ReturnType<typeof Vector3.prepareLerp>>
   > = {};
@@ -55,7 +58,10 @@ export function prepareRiseFeet(props: {
     ankle.y = ankle.y + props.lift * Math.sin(Math.PI * u);
     return { ankle, planted: false };
   }
-  return (root: IAutoMovieVector3, seconds: number): IAutoMovieMotionHumanPosture["limbs"] => {
+  return (
+    root: IAutoMovieVector3,
+    seconds: number,
+  ): IAutoMovieMotionHumanPosture["limbs"] => {
     const placed: Record<"left" | "right", ReturnType<typeof footAt>> = {
       left: footAt("left", seconds),
       right: footAt("right", seconds),

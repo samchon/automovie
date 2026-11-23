@@ -24,7 +24,10 @@ import { HumanMountOff } from "./HumanMountOff";
 /** Contact tolerance in metres for the stage's floor. */
 const FLOOR: number = 0.01;
 
-/** Frame comparison tolerance during the stopped transfer, in metres or unit-vector length. */
+/**
+ * Frame comparison tolerance during the stopped transfer, in metres or
+ * unit-vector length.
+ */
 const STILL: number = 1e-6;
 
 /** Number of intervals over which the authored stationary segment is probed. */
@@ -42,13 +45,14 @@ const AXES: readonly IAutoMovieVector3[] = [
 /**
  * Enter or leave the same stopped bicycle at a race boundary, using the
  * high-seat transfer and its displayed floor contacts. World Triathlon
- * Competition Rules §7.1(h,j) require a complete ground foot contact past
- * the mount line and short of the dismount line. This law checks the sole
- * geometry against a plane in the course frame and emits that event.
- * See https://www.triathlonmanitoba.ca/wp-content/uploads/World-Triathlon_Competition-Rules_20260429.pdf .
+ * Competition Rules §7.1(h,j) require a complete ground foot contact past the
+ * mount line and short of the dismount line. This law checks the sole geometry
+ * against a plane in the course frame and emits that event. See
+ * https://www.triathlonmanitoba.ca/wp-content/uploads/World-Triathlon_Competition-Rules_20260429.pdf
+ * .
  *
- * The scenic bicycle is authored independently while stopped or wheeled.
- * Rack and helmet choreography are separate equipment actions.
+ * The scenic bicycle is authored independently while stopped or wheeled. Rack
+ * and helmet choreography are separate equipment actions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the legal line, floor contact and stopped bicycle assumptions.
  * @evidence contracts/development/design.md#principled-representation Shared mounting laws own the pose. The displayed sole, world line and declared ground phases determine the boundary event.
@@ -181,7 +185,10 @@ export const HumanBikeTransfer: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
         { x: 0, y: 0, z: 1 },
       );
       const origin: IAutoMovieVector3 = { x: line.x, y: 0, z: line.z };
-      /** Whether an entire displayed sole is on the floor on the required side of the line. */
+      /**
+       * Whether an entire displayed sole is on the floor on the required side
+       * of the line.
+       */
       const qualifies = (
         side: "left" | "right",
         bone: IAutoMovieResolvedBone,

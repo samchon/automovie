@@ -30,9 +30,9 @@ import { ankleRidePedalFoot } from "./ankleRidePedalFoot";
 import { placeRideReinPalm } from "./placeRideReinPalm";
 
 /**
- * What a seated rider's own body gives to stay on a mount's parts: the
- * ankle that points a foot down to a pedal the leg would not reach, and
- * the trunk that leans forward to a bar the arms would not reach.
+ * What a seated rider's own body gives to stay on a mount's parts: the ankle
+ * that points a foot down to a pedal the leg would not reach, and the trunk
+ * that leans forward to a bar the arms would not reach.
  */
 export namespace HumanMountRider {
   /** A mounted hand's exact wrist goal and the axis the fingers follow. */
@@ -45,30 +45,46 @@ export namespace HumanMountRider {
     contact?: IAutoMovieVector3;
   }
 
-  /** The knee flexion a pedalling leg keeps at the bottom of the stroke, degrees: the low end of the 25 to 35 a saddle is set for (Bini, Hume and Croft 2011, Sports Med 41:463, as the bicycle archetype cites it; not re-read here, so provisional). */
+  /**
+   * The knee flexion a pedalling leg keeps at the bottom of the stroke,
+   * degrees: the low end of the 25 to 35 a saddle is set for (Bini, Hume and
+   * Croft 2011, Sports Med 41:463, as the bicycle archetype cites it; not
+   * re-read here, so provisional).
+   */
   export const KNEE: number = 25;
 
-  /** The furthest a pedalling foot points down from the pitch it mounted with, degrees (provisional, inside the ankle's 50 of plantar flexion). */
+  /**
+   * The furthest a pedalling foot points down from the pitch it mounted with,
+   * degrees (provisional, inside the ankle's 50 of plantar flexion).
+   */
   export const ANKLING: number = 35;
 
-  /** The share of the arm's length, shoulder to wrist, a rider's shoulder is brought within of what the hand holds (provisional: the elbows stay a little bent). */
+  /**
+   * The share of the arm's length, shoulder to wrist, a rider's shoulder is
+   * brought within of what the hand holds (provisional: the elbows stay a
+   * little bent).
+   */
   export const ARM: number = 0.9;
 
-  /** The most a rider's spine flexes forward to reach what the hands hold, degrees (provisional, inside the spine's 80 of flexion). */
+  /**
+   * The most a rider's spine flexes forward to reach what the hands hold,
+   * degrees (provisional, inside the spine's 80 of flexion).
+   */
   export const LEAN: number = 60;
 
   /**
-   * A foot goal turned toes-down about its contact until its ankle is
-   * within the leg's reach of the hip with the knee `KNEE` bent, no
-   * further than `ANKLING`: a cyclist's ankle through the bottom of the
-   * stroke.
+   * A foot goal turned toes-down about its contact until its ankle is within
+   * the leg's reach of the hip with the knee `KNEE` bent, no further than
+   * `ANKLING`: a cyclist's ankle through the bottom of the stroke.
    *
    * @param body The body.
    * @param side The foot.
    * @param goal The foot's goal on its pedal.
    * @param hip The hip joint, world metres.
-   * @param level The rotation a foot whose goal leaves its turn free stands with: level, facing as the body does.
-   * @returns The goal, turned about the ball of the foot where the leg would run short; the goal itself where it reaches.
+   * @param level The rotation a foot whose goal leaves its turn free stands
+   *   with: level, facing as the body does.
+   * @returns The goal, turned about the ball of the foot where the leg would
+   *   run short; the goal itself where it reaches.
    */
   export function ankled(
     body: IAutoMovieMotionHumanBody,
@@ -80,10 +96,19 @@ export namespace HumanMountRider {
     return ankleRidePedalFoot(body, side, goal, hip, level, KNEE, ANKLING);
   }
 
-  /** How far the wrist's centre lies off the palm's skin, hand lengths: half the hand's thickness (provisional, about 14 mm of a 190 mm hand). The wrist stays this plus the grip's own radius off a held point along its outward normal, so the palm's skin lies on the grip and the fingers wrap it. */
+  /**
+   * How far the wrist's centre lies off the palm's skin, hand lengths: half the
+   * hand's thickness (provisional, about 14 mm of a 190 mm hand). The wrist
+   * stays this plus the grip's own radius off a held point along its outward
+   * normal, so the palm's skin lies on the grip and the fingers wrap it.
+   */
   export const PALM: number = 0.075;
 
-  /** How far ahead of the wrist the middle of the palm lies, hand lengths (provisional: the palm is about half the hand and its middle a little short of that). */
+  /**
+   * How far ahead of the wrist the middle of the palm lies, hand lengths
+   * (provisional: the palm is about half the hand and its middle a little short
+   * of that).
+   */
   export const CENTRE: number = 0.35;
 
   /** Place the wrist by the grip's displayed palm normal and crossbar. */
@@ -127,29 +152,37 @@ export namespace HumanMountRider {
   }
 
   /**
-   * A hand holding a grip, a rein or a rim: where its wrist goes, how the
-   * hand turns and how its fingers close, a share of the way from where
-   * the posture shows the hand: its joints, or the arm goal it already
-   * gives, so a hand taken from rest leaves the place it rested.
+   * A hand holding a grip, a rein or a rim: where its wrist goes, how the hand
+   * turns and how its fingers close, a share of the way from where the posture
+   * shows the hand: its joints, or the arm goal it already gives, so a hand
+   * taken from rest leaves the place it rested.
    *
    * An articulated round handle uses the measured depth of the gripping palm.
-   * On other supports the wrist stays `PALM` of the hand's length plus the grip's radius
-   * (half the width the object states across it; none when it states none)
-   * off the point along the point's outward normal and `CENTRE` behind it along the fingers, so
-   * the grip lies across the middle of the palm, the palm faces the point, and the fingers lie
-   * across the grip's own axis on the side the body faces, so they wrap
-   * a bar that runs across the hand; with no axis they point the way the
-   * body faces. The fingers close from the relaxed hand to the closure
-   * given, which `closed` curls on the support's own colliders.
+   * On other supports the wrist stays `PALM` of the hand's length plus the
+   * grip's radius (half the width the object states across it; none when it
+   * states none) off the point along the point's outward normal and `CENTRE`
+   * behind it along the fingers, so the grip lies across the middle of the
+   * palm, the palm faces the point, and the fingers lie across the grip's own
+   * axis on the side the body faces, so they wrap a bar that runs across the
+   * hand; with no axis they point the way the body faces. The fingers close
+   * from the relaxed hand to the closure given, which `closed` curls on the
+   * support's own colliders.
    *
    * @param body The body.
    * @param side The hand.
    * @param posture The rider's posture at the instant.
-   * @param grip The held point and its outward unit normal, world, the unit axis the grip runs along when it has one, its radius, metres, when the object states one, and the side of the axis the fingers lie on (the sign of the axis crossed with the normal) when a hold keeps the side it was taken from; the side the body faces when absent.
+   * @param grip The held point and its outward unit normal, world, the unit
+   *   axis the grip runs along when it has one, its radius, metres, when the
+   *   object states one, and the side of the axis the fingers lie on (the sign
+   *   of the axis crossed with the normal) when a hold keeps the side it was
+   *   taken from; the side the body faces when absent.
    * @param share 0 where the joints hold the hand to 1 holding.
-   * @param closed The finger joints of the hand closed on the grip; none leaves the fingers as they are.
-   * @param resolution Optional exact FK reader or lazy supplier borrowed only for this synchronous partial hold.
-   * @param projection Optional genuine same-body ROM metadata projector borrowed from this same operation.
+   * @param closed The finger joints of the hand closed on the grip; none leaves
+   *   the fingers as they are.
+   * @param resolution Optional exact FK reader or lazy supplier borrowed only
+   *   for this synchronous partial hold.
+   * @param projection Optional genuine same-body ROM metadata projector
+   *   borrowed from this same operation.
    * @returns The arm's goal and the hand's finger joints.
    */
   export function hold(
@@ -176,9 +209,7 @@ export namespace HumanMountRider {
     );
   }
 
-  /**
-   * Start both acquiring hands from the same unoccupied posture for one query.
-   */
+  /** Start both acquiring hands from the same unoccupied posture for one query. */
   export function taking(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -192,7 +223,10 @@ export namespace HumanMountRider {
       });
   }
 
-  /** Acquire the selected hand using this query's relaxed origin and current grip. */
+  /**
+   * Acquire the selected hand using this query's relaxed origin and current
+   * grip.
+   */
   type Taking = (
     side: AutoMovieHumanSide,
     grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
@@ -269,11 +303,11 @@ export namespace HumanMountRider {
 
   /**
    * The wrists as the posture shows them, before either grip is assigned: an
-   * arm the posture already places, such as a hand resting on a thigh,
-   * starts from there. A hand whose arm goal the posture gives in the world,
-   * turned, is where that goal puts it, the wrist on its point turned to its
-   * rotation, the arm fit's own closed-form answer, so no read fits that arm
-   * again; the others are read off the posture resolved without those arms.
+   * arm the posture already places, such as a hand resting on a thigh, starts
+   * from there. A hand whose arm goal the posture gives in the world, turned,
+   * is where that goal puts it, the wrist on its point turned to its rotation,
+   * the arm fit's own closed-form answer, so no read fits that arm again; the
+   * others are read off the posture resolved without those arms.
    */
   function freeHands(
     body: IAutoMovieMotionHumanBody,
@@ -340,23 +374,29 @@ export namespace HumanMountRider {
     return out;
   }
 
-  /** A free wrist as the posture shows it, and the point its elbow bends toward there: the arm goal's own pole, or the elbow the fit placed. */
+  /**
+   * A free wrist as the posture shows it, and the point its elbow bends toward
+   * there: the arm goal's own pole, or the elbow the fit placed.
+   */
   interface IFree extends IAutoMovieRigidTransform {
-    /** The point the elbow bends toward, world metres; none when the fit did not place the elbow. */
+    /**
+     * The point the elbow bends toward, world metres; none when the fit did not
+     * place the elbow.
+     */
     pole?: IAutoMovieVector3;
   }
 
   /**
-   * The finger joints of a hand closed on a grip of the support: each
-   * digit curled from the relaxed hand until its phalanges meet the
-   * handle (`HumanGrip.close`, a power grip), the support's collider
-   * nearest the held point, as `HumanGrasp` picks a prop's handle, with the
-   * hand where `hold` puts it.
+   * The finger joints of a hand closed on a grip of the support: each digit
+   * curled from the relaxed hand until its phalanges meet the handle
+   * (`HumanGrip.close`, a power grip), the support's collider nearest the held
+   * point, as `HumanGrasp` picks a prop's handle, with the hand where `hold`
+   * puts it.
    *
-   * The closure is solved once, where the support stands with the rider
-   * seated so, and kept: the hand and the grip move together afterwards.
-   * First pass: the colliders are the support's at rest under its frame,
-   * so a bar that steers within the frame is closed on where it rests.
+   * The closure is solved once, where the support stands with the rider seated
+   * so, and kept: the hand and the grip move together afterwards. First pass:
+   * the colliders are the support's at rest under its frame, so a bar that
+   * steers within the frame is closed on where it rests.
    *
    * @param body The body.
    * @param side The hand.
@@ -441,7 +481,8 @@ export namespace HumanMountRider {
    * @param body The body.
    * @param seated The seated posture.
    * @param points What each hand holds, world metres.
-   * @returns Degrees of spine flexion to add; 0 when the arms reach as seated, `LEAN` when they do not even then.
+   * @returns Degrees of spine flexion to add; 0 when the arms reach as seated,
+   *   `LEAN` when they do not even then.
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,
@@ -457,7 +498,10 @@ export namespace HumanMountRider {
   }
 }
 
-/** The rider's forward direction when the grip has yet to establish its finger side. */
+/**
+ * The rider's forward direction when the grip has yet to establish its finger
+ * side.
+ */
 function forward(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
   return Quaternion.rotateVector(resolveHumanPosture.heading(posture), {
     x: 0,

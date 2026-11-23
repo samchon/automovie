@@ -1,24 +1,26 @@
 import type { IAutoMovieMotionHumanClearance } from "@automovie/interface";
 
 /**
- * The path of a swinging foot over a profile it must clear: the shortest
- * path from where it leaves to where it lands that stays on or above a
- * required height everywhere between, with its corners rounded.
+ * The path of a swinging foot over a profile it must clear: the shortest path
+ * from where it leaves to where it lands that stays on or above a required
+ * height everywhere between, with its corners rounded.
  *
- * A foot stepping onto a stair, over a threshold or across an obstacle moves
- * in the vertical plane of its step. What it must clear is a height required
- * of its ankle at each place along the step (the surface under each point of
- * its sole there, plus the clearance near an edge). The shortest path above
- * such a profile is the taut string over it: the upper convex hull of the
- * profile between the two ends, which rises steeply beside a riser, runs
- * along the line of the nosings and drops once the sole is past the last
- * edge, as the foot's path on stairs does. The hull's corners are rounded
- * within `RADIUS` so the foot's direction turns smoothly, which lowers the
- * path by at most half the radius at a corner; the caller's clearance
- * carries that.
+ * A foot stepping onto a stair, over a threshold or across an obstacle moves in
+ * the vertical plane of its step. What it must clear is a height required of
+ * its ankle at each place along the step (the surface under each point of its
+ * sole there, plus the clearance near an edge). The shortest path above such a
+ * profile is the taut string over it: the upper convex hull of the profile
+ * between the two ends, which rises steeply beside a riser, runs along the line
+ * of the nosings and drops once the sole is past the last edge, as the foot's
+ * path on stairs does. The hull's corners are rounded within `RADIUS` so the
+ * foot's direction turns smoothly, which lowers the path by at most half the
+ * radius at a corner; the caller's clearance carries that.
  */
 export namespace AutoMovieMotionHumanClearance {
-  /** The most a corner of the path is cut back along each of its sides, metres (provisional). */
+  /**
+   * The most a corner of the path is cut back along each of its sides, metres
+   * (provisional).
+   */
   export const RADIUS: number = 0.04;
 
   /** The spacing at which the required height is sampled along the step, metres. */
@@ -29,8 +31,11 @@ export namespace AutoMovieMotionHumanClearance {
    *
    * @param from Where the path starts.
    * @param to Where it ends; farther along the step than `from`.
-   * @param required The least height at a distance along the step, metres; read strictly between the two ends.
-   * @returns The path's point at a share of its arc length in [0, 1], with the share at which it first stands a height above its start (`IPath.lifted`).
+   * @param required The least height at a distance along the step, metres; read
+   *   strictly between the two ends.
+   * @returns The path's point at a share of its arc length in [0, 1], with the
+   *   share at which it first stands a height above its start
+   *   (`IPath.lifted`).
    */
   export function path(
     from: IAutoMovieMotionHumanClearance.IPoint,
@@ -156,10 +161,9 @@ export namespace AutoMovieMotionHumanClearance {
     (share: number): IAutoMovieMotionHumanClearance.IPoint;
 
     /**
-     * The first share of arc length at which the path stands `height`
-     * metres above its start, interpolated within the polyline piece that
-     * first reaches it; 1 when it never does, and 1 for a path of zero
-     * length.
+     * The first share of arc length at which the path stands `height` metres
+     * above its start, interpolated within the polyline piece that first
+     * reaches it; 1 when it never does, and 1 for a path of zero length.
      */
     lifted: (height: number) => number;
   }

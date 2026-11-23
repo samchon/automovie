@@ -5,17 +5,18 @@ import type {
 } from "@automovie/interface";
 
 /**
- * How far a shank leans forward from vertical, degrees, for an ankle at a
- * point below a hip, with the knee bent forward in the plane of the facing:
- * the two-link leg's closed form. A law that moves an ankle turns the foot
- * by the change of this lean, so the ankle keeps its angle and a foot that
- * bears nothing never dorsiflexes past what it held.
+ * How far a shank leans forward from vertical, degrees, for an ankle at a point
+ * below a hip, with the knee bent forward in the plane of the facing: the
+ * two-link leg's closed form. A law that moves an ankle turns the foot by the
+ * change of this lean, so the ankle keeps its angle and a foot that bears
+ * nothing never dorsiflexes past what it held.
  *
  * @param body The body, whose thigh and shank lengths are read.
  * @param hip The hip joint, world metres.
  * @param ankle The ankle, world metres.
  * @param facing The unit horizontal facing.
- * @returns The shank's forward lean from the vertical, degrees, within a right angle either way, positive with the knee ahead of the ankle.
+ * @returns The shank's forward lean from the vertical, degrees, within a right
+ *   angle either way, positive with the knee ahead of the ankle.
  */
 export function shankTilt(
   body: IAutoMovieMotionHumanBody,

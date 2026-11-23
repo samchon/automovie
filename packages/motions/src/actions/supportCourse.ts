@@ -17,16 +17,14 @@ import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
 
 /**
- * The fixed-geometry requirements a staged route hands the support law:
- * world waypoints a stepping foot passes over an edge, the contacts whose
- * foot bears flat with a level heel, and a reader of each published window.
- * The support law (`support.plan`) owns the keys and the clock; this module
- * owns only the goals and writers those requirements add.
+ * The fixed-geometry requirements a staged route hands the support law: world
+ * waypoints a stepping foot passes over an edge, the contacts whose foot bears
+ * flat with a level heel, and a reader of each published window. The support
+ * law (`support.plan`) owns the keys and the clock; this module owns only the
+ * goals and writers those requirements add.
  */
 export namespace supportCourse {
-  /**
-   * The requirements of one staged route; each is optional.
-   */
+  /** The requirements of one staged route; each is optional. */
   export interface ICourse {
     /**
      * Ordered world points, metres, the toe joint of a foot stepping from
@@ -38,7 +36,10 @@ export namespace supportCourse {
       next: IAutoMovieMotionHumanSupport.IContact,
     ): readonly IAutoMovieVector3[] | undefined;
 
-    /** Whether a foot bearing on this contact keeps its sole flat with the heel level. */
+    /**
+     * Whether a foot bearing on this contact keeps its sole flat with the heel
+     * level.
+     */
     level?(contact: IAutoMovieMotionHumanSupport.IContact): boolean;
 
     /** Told of each published contact window with the contact that opened it. */
@@ -46,23 +47,20 @@ export namespace supportCourse {
   }
 
   /**
-   * A contact's place: a world point in metres, or null for an unnamed floor place.
+   * A contact's place: a world point in metres, or null for an unnamed floor
+   * place.
    */
   export type Place = (
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => IAutoMovieVector3 | null;
 
-  /**
-   * A writer of one foot onto its course at a share in [0, 1] of the interval.
-   */
+  /** A writer of one foot onto its course at a share in [0, 1] of the interval. */
   export type Write = (
     posture: IAutoMovieMotionHumanPosture,
     share: number,
   ) => IAutoMovieMotionHumanPosture;
 
-  /**
-   * One stepping limb's move with the waypoints its course gives.
-   */
+  /** One stepping limb's move with the waypoints its course gives. */
   export interface ICrossing {
     /** The contact the limb steps to. */
     contact: IAutoMovieMotionHumanSupport.IContact;
@@ -70,13 +68,14 @@ export namespace supportCourse {
     /** The contact it leaves. */
     previous: IAutoMovieMotionHumanSupport.IContact;
 
-    /** World points, metres, its toe joint passes over in order; empty for the ordinary swing. */
+    /**
+     * World points, metres, its toe joint passes over in order; empty for the
+     * ordinary swing.
+     */
     waypoints: readonly IAutoMovieVector3[];
   }
 
-  /**
-   * One stepping foot's straight stretch between two course points.
-   */
+  /** One stepping foot's straight stretch between two course points. */
   export interface ILeg {
     /** The stepping foot. */
     side: AutoMovieHumanSide;
@@ -91,9 +90,7 @@ export namespace supportCourse {
     to: IAutoMovieVector3;
   }
 
-  /**
-   * A solved key as the level bearings read it.
-   */
+  /** A solved key as the level bearings read it. */
   export interface IKey {
     /** The key posture, whose yaw orders the flat foot. */
     posture: IAutoMovieMotionHumanPosture;
@@ -105,20 +102,21 @@ export namespace supportCourse {
     place: Place;
   }
 
-  /**
-   * The flat-foot writers of each key, and of each interval the bearing spans.
-   */
+  /** The flat-foot writers of each key, and of each interval the bearing spans. */
   export interface IBearings {
     /** Writers for the contacts level at each key, by key index. */
     keys: readonly (readonly Write[])[];
 
-    /** Writers for the level contacts held through each interval, by its first key's index. */
+    /**
+     * Writers for the level contacts held through each interval, by its first
+     * key's index.
+     */
     intervals: readonly (readonly Write[])[];
   }
 
   /**
-   * The level-heel goal of a foot: its heel socket's sole normal pointing
-   * down at the toe joint's height.
+   * The level-heel goal of a foot: its heel socket's sole normal pointing down
+   * at the toe joint's height.
    *
    * @param body The canonical motion body.
    * @param part The foot.
@@ -203,7 +201,12 @@ export namespace supportCourse {
           ? to(crossing.contact)
           : waypoints[Math.min(index, waypoints.length - 1)]!;
       if (start === null || end === null) continue;
-      legs.push({ side: side(crossing.contact), yaw: yaw(side(crossing.contact)), from: start, to: end });
+      legs.push({
+        side: side(crossing.contact),
+        yaw: yaw(side(crossing.contact)),
+        from: start,
+        to: end,
+      });
     }
     return legs;
   }

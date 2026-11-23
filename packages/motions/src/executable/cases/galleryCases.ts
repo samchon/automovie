@@ -16,9 +16,9 @@ import { MotionBodies } from "../MotionBodies";
  * single-joint clinical poses (each instant one pose), and `bodies` stands the
  * three fixture bodies side by side at clinical neutral.
  *
- * The gallery's verdicts check the frame: a left-arm forward flexion raises
- * the hand on +X (the anatomical left) and in front (+Z), and a right hip
- * flexion carries the right knee forward on -X.
+ * The gallery's verdicts check the frame: a left-arm forward flexion raises the
+ * hand on +X (the anatomical left) and in front (+Z), and a right hip flexion
+ * carries the right knee forward on -X.
  *
  * @returns The two cases.
  */

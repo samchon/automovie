@@ -20,10 +20,10 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 /**
  * The whole-body fit's merit (`HumanBodyFit`): an iterate read on the body,
  * what it misses each row by, the l1 merit of those misses (the objective's
- * pull toward the preferred posture plus each row's miss beyond the band at
- * its price, Fletcher 1985) and whether every row holds. The same reading
- * is what each step's rows linearise, so the model and the merit price the
- * same rows (Nocedal and Wright 2006, section 18.5).
+ * pull toward the preferred posture plus each row's miss beyond the band at its
+ * price, Fletcher 1985) and whether every row holds. The same reading is what
+ * each step's rows linearise, so the model and the merit price the same rows
+ * (Nocedal and Wright 2006, section 18.5).
  */
 export namespace HumanBodyFitMerit {
   /** The tolerance under which a row holds, metres or radians. */
@@ -34,7 +34,10 @@ export namespace HumanBodyFitMerit {
    * one-sided row is violated, signed for a goal.
    */
   export interface IMisses {
-    /** Each support candidate: a lowest one's distance from the floor, any other's depth under it. */
+    /**
+     * Each support candidate: a lowest one's distance from the floor, any
+     * other's depth under it.
+     */
     floor: number[];
 
     /** The centre's distance outside each edge of the base. */
@@ -53,9 +56,7 @@ export namespace HumanBodyFitMerit {
     pairs: number[];
   }
 
-  /**
-   * An iterate's reading for the loop.
-   */
+  /** An iterate's reading for the loop. */
   export interface IEvaluation
     extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
     /** The reading. */
@@ -64,19 +65,26 @@ export namespace HumanBodyFitMerit {
     /** Its misses. */
     misses: IMisses;
 
-    /** The selected lowest candidate for each bearing part with candidates, preserving part order and repeated indices for overlapping parts. */
+    /**
+     * The selected lowest candidate for each bearing part with candidates,
+     * preserving part order and repeated indices for overlapping parts.
+     */
     touching: readonly number[];
 
-    /** Membership of those same selected indices, shared read-only by floor misses and convexification without changing the ordered touching rows. */
+    /**
+     * Membership of those same selected indices, shared read-only by floor
+     * misses and convexification without changing the ordered touching rows.
+     */
     touchingSet: ReadonlySet<number>;
 
-    /** Actual gap and both current closest witnesses in the fit's unchanged pair order; shared read-only by active pair-row construction. */
+    /**
+     * Actual gap and both current closest witnesses in the fit's unchanged pair
+     * order; shared read-only by active pair-row construction.
+     */
     gaps: readonly HumanFitPairs.IGap[];
   }
 
-  /**
-   * The merit's inputs.
-   */
+  /** The merit's inputs. */
   export interface IProps extends Pick<
     IAutoMovieMotionHumanBodyFitTypes.IProps,
     "body" | "posture" | "balance" | "centre"
@@ -103,13 +111,9 @@ export namespace HumanBodyFitMerit {
     price: number;
   }
 
-  /**
-   * The merit of a fit.
-   */
+  /** The merit of a fit. */
   export interface IMerit {
-    /**
-     * The iterate's actual reading, misses, selected supports and merit terms.
-     */
+    /** The iterate's actual reading, misses, selected supports and merit terms. */
     evaluate(x: Float64Array): IEvaluation;
 
     /**
@@ -160,7 +164,10 @@ export namespace HumanBodyFitMerit {
         ? props.balance.parts.map((p: RegExp): string => p.source)
         : [],
     );
-    const supports: (r: HumanFloorReading.IReading) => { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } = (
+    const supports: (r: HumanFloorReading.IReading) => {
+      points: IAutoMovieVector3[];
+      owners: AutoMovieHumanoidBone[];
+    } = (
       r: HumanFloorReading.IReading,
     ): { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } => {
       const out: IAutoMovieVector3[] = [];
@@ -169,7 +176,10 @@ export namespace HumanBodyFitMerit {
         if (!named.has(part.source)) return;
         const mine: Set<number> = new Set(r.members[k] ?? []);
         r.heights.forEach((h: number, c: number): void => {
-          if (mine.has(r.of[c]!) && h <= r.parts[k]! + HumanBodyFitRows.MARGIN) {
+          if (
+            mine.has(r.of[c]!) &&
+            h <= r.parts[k]! + HumanBodyFitRows.MARGIN
+          ) {
             out.push(r.spots[c]!);
             owners.push(r.owners[r.of[c]!]!);
           }
@@ -209,7 +219,10 @@ export namespace HumanBodyFitMerit {
             measured.centre,
           ),
         };
-      const bearers: { points: IAutoMovieVector3[]; owners: AutoMovieHumanoidBone[] } = supports(r);
+      const bearers: {
+        points: IAutoMovieVector3[];
+        owners: AutoMovieHumanoidBone[];
+      } = supports(r);
       return {
         ...measured,
         balance: HumanFitBalance.of(
@@ -275,15 +288,24 @@ export namespace HumanBodyFitMerit {
       };
     };
 
-    /** The original one-sided feasibility predicate, shared across its separate row families. */
+    /**
+     * The original one-sided feasibility predicate, shared across its separate
+     * row families.
+     */
     const inside: (d: number) => boolean = (d: number): boolean =>
       d <= TOLERANCE;
 
-    /** The original two-sided feasibility predicate, with the same absolute tolerance. */
+    /**
+     * The original two-sided feasibility predicate, with the same absolute
+     * tolerance.
+     */
     const close: (d: number) => boolean = (d: number): boolean =>
       Math.abs(d) <= TOLERANCE;
 
-    /** Visit array iterators in order, preserving the original spread's treatment of sparse holes. */
+    /**
+     * Visit array iterators in order, preserving the original spread's
+     * treatment of sparse holes.
+     */
     const all: (
       values: readonly number[],
       test: (d: number) => boolean,
@@ -325,7 +347,9 @@ export namespace HumanBodyFitMerit {
         m.angles.forEach((d: number, k: number): void => {
           // A measured interval is held to its own ends, with no numerical
           // band beyond them (`HumanBodyFitRows.rows`); one value keeps it.
-          const [lo, hi]: readonly [number, number] = HumanFitGoals.bounds(props.angles[k]!);
+          const [lo, hi]: readonly [number, number] = HumanFitGoals.bounds(
+            props.angles[k]!,
+          );
           violation +=
             ((props.angles[k]!.price ?? price) / price) *
             (hi > lo ? Math.abs(d) : beyond(Math.abs(d)));

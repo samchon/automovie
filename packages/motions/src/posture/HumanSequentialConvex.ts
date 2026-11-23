@@ -1,34 +1,32 @@
 import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface";
 
 /**
- * Penalty sequential convex optimisation with a trust region, the outer loop
- * of TrajOpt (Schulman et al. 2014, "Motion planning with sequential convex
- * optimization and convex collision checking", IJRR 33:1251, Algorithm 1)
- * over any iterate: the caller convexifies its problem about an iterate at a
- * penalty and solves the convex model within a region; this loop takes or
- * rejects the step by the ratio of the merit's actual to its predicted
- * decrease, moves the region by the caller's schedule (`ISchedule`), and
- * raises the penalty along the caller's ladder while the constraints are not
- * met, or steers it at every iterate (`IOptions.steer`); a steered solve
- * with a ceiling that settles, or whose region collapses, with its
- * constraints unmet goes on at a tenfold penalty, up to the ceiling,
- * TrajOpt's outer loop. The merit is the
- * objective plus the penalty times the constraints' summed violation, the l1
- * exact penalty (Nocedal and Wright 2006, "Numerical Optimization", 2nd ed.,
- * section 17.2). A problem still infeasible at the last penalty is left to
- * the caller to refuse by its own reading.
+ * Penalty sequential convex optimisation with a trust region, the outer loop of
+ * TrajOpt (Schulman et al. 2014, "Motion planning with sequential convex
+ * optimization and convex collision checking", IJRR 33:1251, Algorithm 1) over
+ * any iterate: the caller convexifies its problem about an iterate at a penalty
+ * and solves the convex model within a region; this loop takes or rejects the
+ * step by the ratio of the merit's actual to its predicted decrease, moves the
+ * region by the caller's schedule (`ISchedule`), and raises the penalty along
+ * the caller's ladder while the constraints are not met, or steers it at every
+ * iterate (`IOptions.steer`); a steered solve with a ceiling that settles, or
+ * whose region collapses, with its constraints unmet goes on at a tenfold
+ * penalty, up to the ceiling, TrajOpt's outer loop. The merit is the objective
+ * plus the penalty times the constraints' summed violation, the l1 exact
+ * penalty (Nocedal and Wright 2006, "Numerical Optimization", 2nd ed., section
+ * 17.2). A problem still infeasible at the last penalty is left to the caller
+ * to refuse by its own reading.
  */
 export namespace HumanSequentialConvex {
   /**
    * The steering's constants (`IOptions.steer`), as KNITRO-Active applies
    * Algorithm 5.1 (Byrd, Nocedal and Waltz, p. 13 of the 2007 technical
-   * report): a step keeps `feasibility` = 0.1 of the best linearised
-   * reduction of the violation (their epsilon_1 in (5.13)), the model's
-   * decrease is `merit` = 0.5 of the penalty times the step's reduction (their
-   * epsilon_2 in (5.14)), and the penalty grows tenfold until both hold;
-   * `increases` bounds the growth where the objective falls under the
-   * merit's rounding, sixteen tenfold increases, the decimal digits of a
-   * double.
+   * report): a step keeps `feasibility` = 0.1 of the best linearised reduction
+   * of the violation (their epsilon_1 in (5.13)), the model's decrease is
+   * `merit` = 0.5 of the penalty times the step's reduction (their epsilon_2 in
+   * (5.14)), and the penalty grows tenfold until both hold; `increases` bounds
+   * the growth where the objective falls under the merit's rounding, sixteen
+   * tenfold increases, the decimal digits of a double.
    */
   export const STEERING: Readonly<{
     feasibility: number;
@@ -47,8 +45,14 @@ export namespace HumanSequentialConvex {
    *
    * @param problem The problem.
    * @param start The first iterate.
-   * @param options The schedule, the penalties, the rounds, a continued solve's penalty and region, whether the penalty is steered, and the violation's least tellable reduction, under which a steered solve stops at a stationary point of the violation.
-   * @returns The last iterate taken, its reading, its penalty and region, whether the last convexification collapsed, why the solve stopped and whether it converged; the caller refuses an infeasible one by its own reading.
+   * @param options The schedule, the penalties, the rounds, a continued solve's
+   *   penalty and region, whether the penalty is steered, and the violation's
+   *   least tellable reduction, under which a steered solve stops at a
+   *   stationary point of the violation.
+   * @returns The last iterate taken, its reading, its penalty and region,
+   *   whether the last convexification collapsed, why the solve stopped and
+   *   whether it converged; the caller refuses an infeasible one by its own
+   *   reading.
    */
   export function minimise<
     X,
@@ -282,7 +286,11 @@ export namespace HumanSequentialConvex {
     };
   }
 
-  /** Algorithm 5.1 of Byrd, Nocedal and Waltz at one region (`IOptions.steer`): the penalty, its model, the model's step and, where it was solved, the step of the violation alone. */
+  /**
+   * Algorithm 5.1 of Byrd, Nocedal and Waltz at one region (`IOptions.steer`):
+   * the penalty, its model, the model's step and, where it was solved, the step
+   * of the violation alone.
+   */
   function steering<
     X,
     E extends IAutoMovieMotionHumanSequentialConvex.IEvaluation,
@@ -378,7 +386,10 @@ export namespace HumanSequentialConvex {
   }
 }
 
-/** What one steering gives: the penalty reached, its model, the model's step and, where it was solved, the step of the violation alone. */
+/**
+ * What one steering gives: the penalty reached, its model, the model's step
+ * and, where it was solved, the step of the violation alone.
+ */
 interface ISteered<X> {
   /** The penalty reached. */
   mu: number;

@@ -30,31 +30,38 @@ const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 /**
- * One continuous bilateral glide for ice and snow. An authored arc travels
- * in a level or inclined plane and the two ankles travel with that frame.
- * The loaded stance lowers and the trunk leans into the turn. The speed
- * profile, crouch and lean are provisional staging choices. Instrumented
- * short-track curves distinguish phase durations and blade loads, while ski
- * turn measurements distinguish load transfer and skidding. The current
- * law represents only a bilateral arc and longitudinal deceleration.
+ * One continuous bilateral glide for ice and snow. An authored arc travels in a
+ * level or inclined plane and the two ankles travel with that frame. The loaded
+ * stance lowers and the trunk leans into the turn. The speed profile, crouch
+ * and lean are provisional staging choices. Instrumented short-track curves
+ * distinguish phase durations and blade loads, while ski turn measurements
+ * distinguish load transfer and skidding. The current law represents only a
+ * bilateral arc and longitudinal deceleration.
  * https://doi.org/10.1080/14763141.2018.1441898
  * https://doi.org/10.1371/journal.pone.0176975
  */
 export namespace HumanSurfaceGlide {
-  /** Fraction of the action used to reach nominal speed from the entry (provisional staging, as the speed profile is). */
+  /**
+   * Fraction of the action used to reach nominal speed from the entry
+   * (provisional staging, as the speed profile is).
+   */
   export const ACQUIRE: number = 0.2;
 
-  /** Fraction of the action used to decelerate when a stop is requested (provisional staging, as the speed profile is). */
+  /**
+   * Fraction of the action used to decelerate when a stop is requested
+   * (provisional staging, as the speed profile is).
+   */
   export const BRAKE: number = 0.35;
 
   /**
-   * Plan a straight glide or one arc on the plane of the entered stance;
-   * a descent bears its skis on the slope the scene names (`slope`).
+   * Plan a straight glide or one arc on the plane of the entered stance; a
+   * descent bears its skis on the slope the scene names (`slope`).
    *
    * @param context The entered stance, body and authored speed and arc.
    * @returns The bearing windows, speed events and pure posture query.
-   * @throws {HumanRefusal} For a non-standing entry, missing ground support,
-   * a grade with no slope named, infeasible arc radius or parameters outside the authored bounds.
+   * @throws {HumanRefusal} For a non-standing entry, missing ground support, a
+   *   grade with no slope named, infeasible arc radius or parameters outside
+   *   the authored bounds.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,

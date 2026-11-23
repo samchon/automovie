@@ -11,56 +11,55 @@ import { HumanBound } from "../law/HumanBound";
 
 /**
  * Breathing as an additive layer: the chest, the upper chest and the lumbar
- * spine extend and the shoulder girdles rise a little with each inhalation,
- * on every action, at a seeded resting rate that exertion raises and that
- * recovers afterwards, with an occasional seeded sigh.
+ * spine extend and the shoulder girdles rise a little with each inhalation, on
+ * every action, at a seeded resting rate that exertion raises and that recovers
+ * afterwards, with an occasional seeded sigh.
  *
- * Breathing is written as joint angles rather than an effector goal, because
- * no body point is brought anywhere: it is a rhythmic change of the trunk's
- * own shape. Every planted or gripping limb goal is left untouched, and the
- * arms and legs are solved by inverse kinematics after the trunk, so contacts
- * and held hand goals stay where they are.
+ * Breathing is written as joint angles rather than an effector goal, because no
+ * body point is brought anywhere: it is a rhythmic change of the trunk's own
+ * shape. Every planted or gripping limb goal is left untouched, and the arms
+ * and legs are solved by inverse kinematics after the trunk, so contacts and
+ * held hand goals stay where they are.
  *
  * The law, with its sources:
  *
- * - Resting rate 12 to 20 breaths a minute, the adult normal range
- *   (Cretikos et al. 2008, Med J Aust 188:657); each performer's rate is a
- *   seeded draw from a normal of mean 15 and SD 2 truncated to that band.
- *   Children breathe faster; the centiles of Fleming et al. 2011 (Lancet
- *   377:1011) apply below 18 years, and a caller passes such a rate as `rate`.
- * - Inspiration takes 0.42 of each cycle (Ti/Ttot of quiet breathing, Tobin
- *   et al. 1983, Chest 84:202); inhalation and exhalation each follow a
+ * - Resting rate 12 to 20 breaths a minute, the adult normal range (Cretikos et
+ *   al. 2008, Med J Aust 188:657); each performer's rate is a seeded draw from
+ *   a normal of mean 15 and SD 2 truncated to that band. Children breathe
+ *   faster; the centiles of Fleming et al. 2011 (Lancet 377:1011) apply below
+ *   18 years, and a caller passes such a rate as `rate`.
+ * - Inspiration takes 0.42 of each cycle (Ti/Ttot of quiet breathing, Tobin et
+ *   al. 1983, Chest 84:202); inhalation and exhalation each follow a
  *   minimum-jerk profile, so the layer is continuous in value and velocity.
- * - Sighs: humans sigh about twelve times an hour (Ramirez 2014, Prog Brain
- *   Res 209:91), so each cycle is a sigh with probability `period / 300 s`,
- *   drawn from the cycle's index; a sigh's amplitude is 2.5 times a tidal
- *   breath (provisional: a sigh is described as about two to three tidal
- *   volumes, the joint scale of that volume is unmeasured).
+ * - Sighs: humans sigh about twelve times an hour (Ramirez 2014, Prog Brain Res
+ *   209:91), so each cycle is a sigh with probability `period / 300 s`, drawn
+ *   from the cycle's index; a sigh's amplitude is 2.5 times a tidal breath
+ *   (provisional: a sigh is described as about two to three tidal volumes, the
+ *   joint scale of that volume is unmeasured).
  * - Exertion: each declared bout raises the rate toward 43 a minute and the
- *   amplitude toward 5 times tidal at level 1, the peak breathing frequency
- *   and tidal volume of exercise to exhaustion (Loe, Steinshamn and Wisloff
- *   2014, PLoS ONE 9:e113884). A bout's drive is `level g^3`, where its share
- *   `g` rises linearly from its start over `ONSET`, 60 s (ventilation's
+ *   amplitude toward 5 times tidal at level 1, the peak breathing frequency and
+ *   tidal volume of exercise to exhaustion (Loe, Steinshamn and Wisloff 2014,
+ *   PLoS ONE 9:e113884). A bout's drive is `level g^3`, where its share `g`
+ *   rises linearly from its start over `ONSET`, 60 s (ventilation's
  *   on-kinetics: a 15 to 20 s delay and a time constant of 40 to 60 s, Whipp
  *   and Ward 1990, Med Sci Sports Exerc 22:62), holds at 1 until it ends, and
- *   falls as `1 - u` over its recovery time, so the drive recovers as
- *   `(1 - u)^3` (the polynomial shapes are no measurement; ventilation rises and recovers roughly
- *   exponentially, and a polynomial keeps the computation exact in
- *   ECMAScript). Overlapping bouts do not add: the hardest one drives the
- *   breathing at each instant, the largest `level g^3`, so no number of
- *   bouts passes the level-1 rate and amplitude. The phase is the
- *   closed-form integral of the rate, so a rate change never jumps the
- *   phase: the drive's cube root is the upper envelope of linear pieces,
- *   whose crossings are found exactly, and the cube of a linear piece
- *   integrates in closed form.
+ *   falls as `1 - u` over its recovery time, so the drive recovers as `(1 -
+ *   u)^3` (the polynomial shapes are no measurement; ventilation rises and
+ *   recovers roughly exponentially, and a polynomial keeps the computation
+ *   exact in ECMAScript). Overlapping bouts do not add: the hardest one drives
+ *   the breathing at each instant, the largest `level g^3`, so no number of
+ *   bouts passes the level-1 rate and amplitude. The phase is the closed-form
+ *   integral of the rate, so a rate change never jumps the phase: the drive's
+ *   cube root is the upper envelope of linear pieces, whose crossings are found
+ *   exactly, and the cube of a linear piece integrates in closed form.
  * - Angles at one tidal breath (provisional; no located study gives the trunk
- *   joint angles of quiet breathing): chest extension 1.5 degrees, upper
- *   chest 1 degree, lumbar spine 0.5 degrees and each shoulder girdle raised
- *   1 degree.
+ *   joint angles of quiet breathing): chest extension 1.5 degrees, upper chest
+ *   1 degree, lumbar spine 0.5 degrees and each shoulder girdle raised 1
+ *   degree.
  *
  * The phase runs on film seconds from a seeded offset, so breathing continues
- * smoothly across action boundaries. The displayed pose evaluates this
- * layer at its own film second, independent of the preceding action.
+ * smoothly across action boundaries. The displayed pose evaluates this layer at
+ * its own film second, independent of the preceding action.
  */
 export namespace HumanBreath {
   /** Resting band, breaths a minute (Cretikos et al. 2008). */
@@ -75,16 +74,35 @@ export namespace HumanBreath {
   /** A sigh's amplitude in tidal breaths (provisional). */
   export const SIGH: number = 2.5;
 
-  /** Rate at full exertion, breaths a minute: the peak breathing frequency of graded treadmill exercise to exhaustion, 44 +- 8 in men and 42 +- 8 in women, their mean (Loe, Steinshamn and Wisloff 2014, PLoS ONE 9:e113884, Table 2, 4631 adults). */
+  /**
+   * Rate at full exertion, breaths a minute: the peak breathing frequency of
+   * graded treadmill exercise to exhaustion, 44 +- 8 in men and 42 +- 8 in
+   * women, their mean (Loe, Steinshamn and Wisloff 2014, PLoS ONE 9:e113884,
+   * Table 2, 4631 adults).
+   */
   export const EXERTION_RATE: number = 43;
 
-  /** Amplitude at full exertion, tidal breaths: the same study's peak tidal volume, 2.84 L in men and 1.94 L in women (Loe et al. 2014, Table 2), over a resting tidal volume of about 0.5 L (West, Respiratory Physiology: The Essentials), about five resting breaths. */
+  /**
+   * Amplitude at full exertion, tidal breaths: the same study's peak tidal
+   * volume, 2.84 L in men and 1.94 L in women (Loe et al. 2014, Table 2), over
+   * a resting tidal volume of about 0.5 L (West, Respiratory Physiology: The
+   * Essentials), about five resting breaths.
+   */
   export const EXERTION_AMPLITUDE: number = 5;
 
-  /** Seconds over which a bout with a start comes to its full drive: ventilation follows exercise onset after a 15 to 20 s delay with a time constant of about 40 to 60 s (Whipp and Ward 1990, Med Sci Sports Exerc 22:62), so the ramp spans the slower end. */
+  /**
+   * Seconds over which a bout with a start comes to its full drive: ventilation
+   * follows exercise onset after a 15 to 20 s delay with a time constant of
+   * about 40 to 60 s (Whipp and Ward 1990, Med Sci Sports Exerc 22:62), so the
+   * ramp spans the slower end.
+   */
   export const ONSET: number = 60;
 
-  /** A bout's recovery seconds when it names none: the same span as the onset, ventilation's off-kinetics mirroring its on-kinetics (Whipp and Ward 1990). */
+  /**
+   * A bout's recovery seconds when it names none: the same span as the onset,
+   * ventilation's off-kinetics mirroring its on-kinetics (Whipp and Ward
+   * 1990).
+   */
   export const RECOVERY: number = 60;
 
   /** Clinical degrees at one tidal breath (provisional). */
@@ -99,8 +117,8 @@ export namespace HumanBreath {
   };
 
   /**
-   * A performer's resting rate from a stream: N(15, 2) truncated to the
-   * adult band by redrawing, up to 16 tries, then the band's middle.
+   * A performer's resting rate from a stream: N(15, 2) truncated to the adult
+   * band by redrawing, up to 16 tries, then the band's middle.
    *
    * @param random The stream.
    * @returns Breaths a minute.
@@ -125,7 +143,9 @@ export namespace HumanBreath {
    * @param phase0 Phase at film second 0, cycles.
    * @param sigh The stream deciding which cycles are sighs.
    * @returns The rate, the cycle phase and the lung volume in tidal breaths.
-   * @throws {HumanRefusal} When the rate is not positive, or a bout's level lies outside [0, 1], its recovery is not positive or it ends before it starts.
+   * @throws {HumanRefusal} When the rate is not positive, or a bout's level
+   *   lies outside [0, 1], its recovery is not positive or it ends before it
+   *   starts.
    */
   export function state(
     seconds: number,
@@ -264,7 +284,10 @@ const NATIVE_LAYER_APPLY: WeakMap<
   IAutoMovieMotionHumanLayer["apply"]
 > = new WeakMap();
 
-/** One admitted bout: the cube root of its level, its start (`-Infinity` when under way since before the film), its end and its recovery, seconds. */
+/**
+ * One admitted bout: the cube root of its level, its start (`-Infinity` when
+ * under way since before the film), its end and its recovery, seconds.
+ */
 interface IBout {
   /** The cube root of the bout's level, so `weight × share` cubed is its drive. */
   weight: number;
@@ -279,7 +302,11 @@ interface IBout {
   recovery: number;
 }
 
-/** A bout's share of its full drive at a second, the cube root of its drive over its level: rising over `ONSET` from its start, 1 until it ends, falling over its recovery. Linear between its knots. */
+/**
+ * A bout's share of its full drive at a second, the cube root of its drive over
+ * its level: rising over `ONSET` from its start, 1 until it ends, falling over
+ * its recovery. Linear between its knots.
+ */
 function share(bout: IBout, t: number): number {
   return Math.max(
     0,
@@ -291,7 +318,10 @@ function share(bout: IBout, t: number): number {
   );
 }
 
-/** The largest bout's `weight × share` at a second, the cube root of the hardest bout's drive; 0 without bouts. */
+/**
+ * The largest bout's `weight × share` at a second, the cube root of the hardest
+ * bout's drive; 0 without bouts.
+ */
 function envelope(bouts: readonly IBout[], t: number): number {
   let most: number = 0;
   for (const bout of bouts) most = Math.max(most, bout.weight * share(bout, t));
@@ -303,9 +333,9 @@ function envelope(bouts: readonly IBout[], t: number): number {
  * envelope's cube integrated exactly. Between the bouts' knots (start, full
  * drive, end, recovered, and where a short bout's rise meets its fall) each
  * bout's `weight × share` is linear; between those and the crossings of two
- * bouts' lines inside them the envelope is one line `v`, whose cube
- * integrates to `(b - a)(v_a^3 + v_a^2 v_b + v_a v_b^2 + v_b^3) / 4`. Cost
- * O(B^3) in the B bouts, a handful.
+ * bouts' lines inside them the envelope is one line `v`, whose cube integrates
+ * to `(b - a)(v_a^3 + v_a^2 v_b + v_a v_b^2 + v_b^3) / 4`. Cost O(B^3) in the B
+ * bouts, a handful.
  */
 function integral(bouts: readonly IBout[], lo: number, hi: number): number {
   if (bouts.length === 0 || !(hi > lo)) return 0;
@@ -363,7 +393,10 @@ const TIDAL_ENTRIES: readonly [
   readonly [number, number, number],
 ][];
 
-/** Reuse one fixed-index scalar draw only while its pure stream seed is identical. */
+/**
+ * Reuse one fixed-index scalar draw only while its pure stream seed is
+ * identical.
+ */
 function fixedDraw(
   draw: (random: IAutoMovieRandom) => number,
 ): (random: IAutoMovieRandom) => number {

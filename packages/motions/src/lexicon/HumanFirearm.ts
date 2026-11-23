@@ -11,15 +11,15 @@ import { touch } from "../touch/touch";
 import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 
 /**
- * Firearm handling under film names. The rows of `HumanWeaponFirearm` take
- * the held firearm (`gun`, a handgun or long gun prop the hand picked up)
- * and aim its bore; with no gun named they are the same movements of the
- * empty hand. Register the ones a film uses.
+ * Firearm handling under film names. The rows of `HumanWeaponFirearm` take the
+ * held firearm (`gun`, a handgun or long gun prop the hand picked up) and aim
+ * its bore; with no gun named they are the same movements of the empty hand.
+ * Register the ones a film uses.
  *
- * `takeAim` and the ready rows take 0.9 s at novice to 0.5 s at elite and `recoil`
- * 0.42 s, provisional (`IAutoMovieMotionHumanWeaponPresent`). A shot from the holster is `HumanWeaponFirearm.draw`, then `takeAim`, then
- * `recoil`; `lowReady` lowers the weapon and `HumanWeaponFirearm.holster`
- * returns it.
+ * `takeAim` and the ready rows take 0.9 s at novice to 0.5 s at elite and
+ * `recoil` 0.42 s, provisional (`IAutoMovieMotionHumanWeaponPresent`). A shot
+ * from the holster is `HumanWeaponFirearm.draw`, then `takeAim`, then `recoil`;
+ * `lowReady` lowers the weapon and `HumanWeaponFirearm.holster` returns it.
  */
 export namespace HumanFirearm {
   /** Reach for a holster at the right hip. */

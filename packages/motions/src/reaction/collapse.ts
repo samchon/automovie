@@ -32,21 +32,24 @@ import { ReactionSource } from "./ReactionSource";
 import { knockdown } from "./knockdown";
 
 /**
- * A staged collapse in a chosen direction and tone, for a faint or a fatal
- * hit (`IAutoMovieMotionHumanCollapse`). `backward` is the knockdown itself;
- * the other directions drop onto the knees by `knockdown.SEATED`, about the
- * free-fall time of the pelvis slowed by the buckling legs, and lay the
- * trunk on the floor by `knockdown.DOWN`, while an optional sag softens the
- * knees first. The pelvis drops where it stood, the heading turns so the
- * body falls away from the blow, and the root height rests each pose's
- * lowest collider on the floor (`knockdown.rest`), so no pose penetrates it.
- * The fold's angles are `CollapseFold`'s.
+ * A staged collapse in a chosen direction and tone, for a faint or a fatal hit
+ * (`IAutoMovieMotionHumanCollapse`). `backward` is the knockdown itself; the
+ * other directions drop onto the knees by `knockdown.SEATED`, about the
+ * free-fall time of the pelvis slowed by the buckling legs, and lay the trunk
+ * on the floor by `knockdown.DOWN`, while an optional sag softens the knees
+ * first. The pelvis drops where it stood, the heading turns so the body falls
+ * away from the blow, and the root height rests each pose's lowest collider on
+ * the floor (`knockdown.rest`), so no pose penetrates it. The fold's angles are
+ * `CollapseFold`'s.
  */
 export namespace collapse {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionKey = "collapse";
 
-  /** A collapse is a staged fall, so its balance is judged over the fall (`IAutoMovieMotionHumanActionLaw.physical`). */
+  /**
+   * A collapse is a staged fall, so its balance is judged over the fall
+   * (`IAutoMovieMotionHumanActionLaw.physical`).
+   */
   export const physical: boolean = true;
 
   /** Cancel table: none; a collapsed performer stays down. */
@@ -277,12 +280,15 @@ export namespace collapse {
     };
   }
 
-  /** How long an in-place collapse takes to fold into its heap after the knees land, seconds, as the knockdown's roll-down measures it. */
+  /**
+   * How long an in-place collapse takes to fold into its heap after the knees
+   * land, seconds, as the knockdown's roll-down measures it.
+   */
   const FOLDED: number = knockdown.DOWN;
 
   /**
-   * The floor contacts a collapse declares: the knees from their landing,
-   * a protective body's hands before its trunk, and the trunk's lie.
+   * The floor contacts a collapse declares: the knees from their landing, a
+   * protective body's hands before its trunk, and the trunk's lie.
    */
   function contacts(
     direction: IAutoMovieMotionHumanCollapse.Direction,

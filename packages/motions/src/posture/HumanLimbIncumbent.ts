@@ -6,21 +6,21 @@ import type {
 
 /**
  * The seeds a caller holds for a body's swept limb fits while its reads run
- * (`within`): each limb's branch and swivel chosen for a nearby target, read
- * by the limb fit (`solveHumanLimbFit`) as the bounded sweep's incumbent
- * (`IAutoMovieFitChainToTargetProps.incumbent`), never as a continuation:
- * the answer is the swept fit's whether or not a seed is held.
+ * (`within`): each limb's branch and swivel chosen for a nearby target, read by
+ * the limb fit (`solveHumanLimbFit`) as the bounded sweep's incumbent
+ * (`IAutoMovieFitChainToTargetProps.incumbent`), never as a continuation: the
+ * answer is the swept fit's whether or not a seed is held.
  */
 export namespace HumanLimbIncumbent {
-  /**
-   * One body's held seeds.
-   */
+  /** One body's held seeds. */
   export interface IScope {
     /** The body whose limb fits read the seeds. */
     body: IAutoMovieMotionHumanBody;
 
     /** Each limb's seed, in the frame its own fit chose it in. */
-    seeds: Readonly<Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>>;
+    seeds: Readonly<
+      Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>
+    >;
   }
 
   /**
@@ -46,10 +46,16 @@ export namespace HumanLimbIncumbent {
    *
    * @param body The body of a fit.
    * @param limb Its limb.
-   * @returns The seed, or undefined outside a scope, for another body or where none is held.
+   * @returns The seed, or undefined outside a scope, for another body or where
+   *   none is held.
    */
-  export function of(body: IAutoMovieMotionHumanBody, limb: AutoMovieHumanLimb): IAutoMovieSwivelSeed | undefined {
-    return current !== undefined && current.body === body ? (current.seeds[limb] ?? undefined) : undefined;
+  export function of(
+    body: IAutoMovieMotionHumanBody,
+    limb: AutoMovieHumanLimb,
+  ): IAutoMovieSwivelSeed | undefined {
+    return current !== undefined && current.body === body
+      ? (current.seeds[limb] ?? undefined)
+      : undefined;
   }
 }
 

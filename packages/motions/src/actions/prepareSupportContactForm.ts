@@ -16,13 +16,15 @@ import type { supportContact } from "./supportContact";
 import { supportContactOnFloor } from "./supportContactOnFloor";
 
 /**
- * Prepare contact forms for one unchanged body operation. Foot normals
- * come from the original quiet stance at the first requested foot normal;
- * only the two resulting local vectors survive that measurement.
+ * Prepare contact forms for one unchanged body operation. Foot normals come
+ * from the original quiet stance at the first requested foot normal; only the
+ * two resulting local vectors survive that measurement.
  *
  * @param body The unchanged body, canonical rig and anatomical surfaces.
- * @param normals Whether the consumer needs target normals; false only for point observations.
- * @returns Contact forms with the original normal fields by default, or their point-only geometry when normals is false.
+ * @param normals Whether the consumer needs target normals; false only for
+ *   point observations.
+ * @returns Contact forms with the original normal fields by default, or their
+ *   point-only geometry when normals is false.
  */
 export function prepareSupportContactForm(
   body: IAutoMovieMotionHumanBody,
@@ -126,11 +128,17 @@ export function prepareSupportContactForm(
       };
     }
     // A palm-to-palm clasp fixes the exposed palm surface on both bodies.
-    const clasp: boolean = c.target !== "on" && c.target?.kind === "person" &&
+    const clasp: boolean =
+      c.target !== "on" &&
+      c.target?.kind === "person" &&
       (c.target.region === "palmLeft" || c.target.region === "palmRight");
     const surface: IAutoMovieMotionHumanHand.IFrame | undefined =
       !floor || (normals && c.kind === "bear")
-        ? HumanHand.offset(body, side, c.kind === "grip" && !clasp ? "grip" : "palm")
+        ? HumanHand.offset(
+            body,
+            side,
+            c.kind === "grip" && !clasp ? "grip" : "palm",
+          )
         : undefined;
     return {
       target: {

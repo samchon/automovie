@@ -53,8 +53,8 @@ interface IReachAt {
 }
 
 /**
- * Plan stepping locomotion in a gait: footprints, their timing, the pelvis
- * and the arms, shared by walking and running.
+ * Plan stepping locomotion in a gait: footprints, their timing, the pelvis and
+ * the arms, shared by walking and running.
  *
  * @param given The action's context; `pace` is read by the caller only.
  * @param gait The gait.

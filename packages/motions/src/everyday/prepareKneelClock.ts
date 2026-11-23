@@ -9,7 +9,9 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
  *
  * @param clock The unchanged phase clock.
  * @param phases Ordered records whose names exist on that clock.
- * @returns The active original phase, its index, its minimum-jerk progress `u` and its linear progress `linear` (the share of the phase's time, on which a swinging foot's lift is timed).
+ * @returns The active original phase, its index, its minimum-jerk progress `u`
+ *   and its linear progress `linear` (the share of the phase's time, on which a
+ *   swinging foot's lift is timed).
  */
 export function prepareKneelClock<T extends { name: string }>(
   clock: IAutoMovieMotionClock,
@@ -30,7 +32,9 @@ export function prepareKneelClock<T extends { name: string }>(
           index + 1 < phases.length ? phases[index + 1]!.name : "end",
         ),
     );
-  return (seconds: number): { phase: T; index: number; u: number; linear: number } => {
+  return (
+    seconds: number,
+  ): { phase: T; index: number; u: number; linear: number } => {
     let lo: number = 0;
     let hi: number = starts.length;
     while (lo < hi) {

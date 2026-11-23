@@ -1,9 +1,9 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
 /**
- * Bone frames whose colliders the forearm clearance reads: the trunk and
- * both whole legs, the segments the tangle audit reads an arm against,
- * plus each already placed arm's three segments.
+ * Bone frames whose colliders the forearm clearance reads: the trunk and both
+ * whole legs, the segments the tangle audit reads an arm against, plus each
+ * already placed arm's three segments.
  */
 export function HumanArmObstacleBones(
   arms: readonly ("left" | "right")[] = [],
@@ -16,18 +16,23 @@ export function HumanArmObstacleBones(
   return SETS[mask]!;
 }
 
-/**
- * The existing trunk-only clearance membership, shared with obstacle demand.
- */
+/** The existing trunk-only clearance membership, shared with obstacle demand. */
 export namespace HumanArmObstacleBones {
   /**
    * Original axial collider names; leave this shared set unchanged.
    *
-   * Defines the borrowed canonical trunk names shared by trunk filtering and obstacle demand.
+   * Defines the borrowed canonical trunk names shared by trunk filtering and
+   * obstacle demand.
    */
-  export const TRUNK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-    "hips", "spine", "chest", "upperChest", "neck", "head",
-  ]);
+  export const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
+    new Set<AutoMovieHumanoidBone>([
+      "hips",
+      "spine",
+      "chest",
+      "upperChest",
+      "neck",
+      "head",
+    ]);
 }
 
 /**
@@ -36,19 +41,28 @@ export namespace HumanArmObstacleBones {
  * digits in a shank or a foot the audit refuses.
  */
 const LEGS: readonly AutoMovieHumanoidBone[] = [
-  "leftUpperLeg", "rightUpperLeg",
-  "leftLowerLeg", "rightLowerLeg",
-  "leftFoot", "rightFoot",
-  "leftToes", "rightToes",
+  "leftUpperLeg",
+  "rightUpperLeg",
+  "leftLowerLeg",
+  "rightLowerLeg",
+  "leftFoot",
+  "rightFoot",
+  "leftToes",
+  "rightToes",
 ];
 
 /** Four fixed membership subsets; actual placement retains profile order. */
 const SETS: readonly ReadonlySet<AutoMovieHumanoidBone>[] = Array.from(
   { length: 4 },
-  (_: unknown, mask: number): ReadonlySet<AutoMovieHumanoidBone> => new Set<AutoMovieHumanoidBone>([
-    ...HumanArmObstacleBones.TRUNK,
-    ...LEGS,
-    ...((mask & 1) === 0 ? [] : ["leftUpperArm", "leftLowerArm", "leftHand"] as const),
-    ...((mask & 2) === 0 ? [] : ["rightUpperArm", "rightLowerArm", "rightHand"] as const),
-  ]),
+  (_: unknown, mask: number): ReadonlySet<AutoMovieHumanoidBone> =>
+    new Set<AutoMovieHumanoidBone>([
+      ...HumanArmObstacleBones.TRUNK,
+      ...LEGS,
+      ...((mask & 1) === 0
+        ? []
+        : (["leftUpperArm", "leftLowerArm", "leftHand"] as const)),
+      ...((mask & 2) === 0
+        ? []
+        : (["rightUpperArm", "rightLowerArm", "rightHand"] as const)),
+    ]),
 );

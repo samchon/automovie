@@ -5,19 +5,25 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Private unchanged +Y axis; its original magnitude is prepared on the first turn. */
-const TURN: (yaw: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle({
-  x: 0, y: 1, z: 0,
-});
+/**
+ * Private unchanged +Y axis; its original magnitude is prepared on the first
+ * turn.
+ */
+const TURN: (yaw: number) => IAutoMovieQuaternion = Quaternion.prepareAxisAngle(
+  {
+    x: 0,
+    y: 1,
+    z: 0,
+  },
+);
 
 /**
  * A performer's own horizontal frame: an origin on the floor and a heading.
  *
- * Local coordinates follow the canonical body: `x` toward the performer's
- * left, `y` up and `z` forward. A heading of 0 degrees faces world +Z and 90
- * faces world +X, a right-handed turn about +Y, so the left of a performer at
- * heading `h` is world `(cos h, 0, -sin h)` and the forward is
- * `(sin h, 0, cos h)`.
+ * Local coordinates follow the canonical body: `x` toward the performer's left,
+ * `y` up and `z` forward. A heading of 0 degrees faces world +Z and 90 faces
+ * world +X, a right-handed turn about +Y, so the left of a performer at heading
+ * `h` is world `(cos h, 0, -sin h)` and the forward is `(sin h, 0, cos h)`.
  */
 export namespace HumanFrame {
   /**
@@ -55,22 +61,28 @@ export namespace HumanFrame {
   }
 
   /**
-   * Snapshot a fixed floor frame for repeated conversions. Later mutations
-   * of the source origin or yaw do not change this prepared transform.
+   * Snapshot a fixed floor frame for repeated conversions. Later mutations of
+   * the source origin or yaw do not change this prepared transform.
    *
    * @param frame The frame whose current scalar origin and heading are copied.
-   * @returns Bound forward, inverse and origin-free direction conversions, each returning a fresh vector; point may explicitly supply another origin under the same fixed heading.
+   * @returns Bound forward, inverse and origin-free direction conversions, each
+   *   returning a fresh vector; point may explicitly supply another origin
+   *   under the same fixed heading.
    */
   export function prepare(frame: IAutoMovieMotionHumanFrame): IPrepared {
     const origin: IAutoMovieVector3 = {
-      x: frame.origin.x, y: frame.origin.y, z: frame.origin.z,
+      x: frame.origin.x,
+      y: frame.origin.y,
+      z: frame.origin.z,
     };
     const radians: number = (frame.yaw * Math.PI) / 180;
     const cosine: number = Math.cos(radians);
     const sine: number = Math.sin(radians);
     return {
-      point: (local: IAutoMovieVector3, at: IAutoMovieVector3 = origin): IAutoMovieVector3 =>
-        world(at, cosine, sine, local),
+      point: (
+        local: IAutoMovieVector3,
+        at: IAutoMovieVector3 = origin,
+      ): IAutoMovieVector3 => world(at, cosine, sine, local),
       local: (point: IAutoMovieVector3): IAutoMovieVector3 =>
         relative(origin, cosine, sine, point),
       direction: (local: IAutoMovieVector3): IAutoMovieVector3 =>
@@ -79,11 +91,12 @@ export namespace HumanFrame {
   }
 
   /**
-   * Prepare a fixed local point under a fixed floor heading, translated by
-   * each supplied world origin. Arithmetic grouping matches point exactly.
+   * Prepare a fixed local point under a fixed floor heading, translated by each
+   * supplied world origin. Arithmetic grouping matches point exactly.
    *
    * @param yaw The unchanged heading, degrees about world +Y.
-   * @param local The unchanged local point in metres, copied as scalar products.
+   * @param local The unchanged local point in metres, copied as scalar
+   *   products.
    * @returns A fresh world point for each varying origin in metres.
    */
   export function preparePoint(
@@ -106,21 +119,29 @@ export namespace HumanFrame {
   }
 
   /**
-   * Prepare a local segment under one fixed heading, then transform each
-   * actual interpolated point without allocating its local vector.
+   * Prepare a local segment under one fixed heading, then transform each actual
+   * interpolated point without allocating its local vector.
    *
    * @param frame The copied default world-metre origin and heading in degrees.
    * @param from The copied local left/up/forward starting point, metres.
    * @param to The copied local endpoint, metres.
-   * @returns A fresh world point for a share, optional current world origin and optional added local height in metres. Shares extrapolate outside [0,1]; absent height performs no extra addition.
+   * @returns A fresh world point for a share, optional current world origin and
+   *   optional added local height in metres. Shares extrapolate outside [0,1];
+   *   absent height performs no extra addition.
    */
   export function prepareLerp(
     frame: IAutoMovieMotionHumanFrame,
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
-  ): (share: number, origin?: IAutoMovieVector3, liftY?: number) => IAutoMovieVector3 {
+  ): (
+    share: number,
+    origin?: IAutoMovieVector3,
+    liftY?: number,
+  ) => IAutoMovieVector3 {
     const origin: IAutoMovieVector3 = {
-      x: frame.origin.x, y: frame.origin.y, z: frame.origin.z,
+      x: frame.origin.x,
+      y: frame.origin.y,
+      z: frame.origin.z,
     };
     const radians: number = (frame.yaw * Math.PI) / 180;
     const cosine: number = Math.cos(radians);
@@ -131,7 +152,11 @@ export namespace HumanFrame {
     const dx: number = to.x - ax;
     const dy: number = to.y - ay;
     const dz: number = to.z - az;
-    return (share: number, at: IAutoMovieVector3 = origin, liftY?: number): IAutoMovieVector3 => {
+    return (
+      share: number,
+      at: IAutoMovieVector3 = origin,
+      liftY?: number,
+    ): IAutoMovieVector3 => {
       const x: number = ax + dx * share;
       const y: number = ay + dy * share;
       const z: number = az + dz * share;
@@ -144,23 +169,24 @@ export namespace HumanFrame {
     };
   }
 
-  /**
-   * Coordinate readers bound to one copied horizontal frame.
-   */
+  /** Coordinate readers bound to one copied horizontal frame. */
   export interface IPrepared {
     /**
-     * Local left/up/forward metres to a fresh world point; an explicit world-metre origin replaces only the copied default translation.
+     * Local left/up/forward metres to a fresh world point; an explicit
+     * world-metre origin replaces only the copied default translation.
      */
-    point(local: IAutoMovieVector3, origin?: IAutoMovieVector3): IAutoMovieVector3;
+    point(
+      local: IAutoMovieVector3,
+      origin?: IAutoMovieVector3,
+    ): IAutoMovieVector3;
 
     /**
-     * World point to fresh local left/up/forward metres in the copied default frame.
+     * World point to fresh local left/up/forward metres in the copied default
+     * frame.
      */
     local(world: IAutoMovieVector3): IAutoMovieVector3;
 
-    /**
-     * Local vector to its fresh world direction, without applying the origin.
-     */
+    /** Local vector to its fresh world direction, without applying the origin. */
     direction(local: IAutoMovieVector3): IAutoMovieVector3;
   }
 
@@ -200,7 +226,10 @@ export namespace HumanFrame {
   }
 }
 
-/** Apply the original forward expression with a supplied origin and yaw coefficients. */
+/**
+ * Apply the original forward expression with a supplied origin and yaw
+ * coefficients.
+ */
 function world(
   origin: IAutoMovieVector3,
   cosine: number,
@@ -214,7 +243,10 @@ function world(
   };
 }
 
-/** Apply the original inverse expression with a supplied origin and yaw coefficients. */
+/**
+ * Apply the original inverse expression with a supplied origin and yaw
+ * coefficients.
+ */
 function relative(
   origin: IAutoMovieVector3,
   cosine: number,

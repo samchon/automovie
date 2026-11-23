@@ -25,7 +25,8 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  *
  * @param body The unchanged canonical body.
  * @param model Its unchanged physical segment model.
- * @returns A reader of an actual ballistic plan and its launch second, returning world-metre COM and velocity in metres per second.
+ * @returns A reader of an actual ballistic plan and its launch second,
+ *   returning world-metre COM and velocity in metres per second.
  */
 export function prepareGymnasticsLaunch(
   body: IAutoMovieMotionHumanBody,
@@ -38,8 +39,15 @@ export function prepareGymnasticsLaunch(
       prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
       prepareHumanPostureProjection(body);
-    const observe: (at: number) => IAutoMovieVector3 = (at: number): IAutoMovieVector3 => {
-      const raw: IAutoMovieMotionHumanPosture = plan.posture(at, undefined, resolution, projection);
+    const observe: (at: number) => IAutoMovieVector3 = (
+      at: number,
+    ): IAutoMovieVector3 => {
+      const raw: IAutoMovieMotionHumanPosture = plan.posture(
+        at,
+        undefined,
+        resolution,
+        projection,
+      );
       let requested: ReadonlySet<AutoMovieHumanoidBone> | undefined;
       if (readBones === undefined) {
         if (model === body.massModel) requested = HumanColliders.bones(body);
@@ -50,11 +58,19 @@ export function prepareGymnasticsLaunch(
         }
       }
       const pose: IAutoMoviePose = resolveHumanPosture.seeded(
-        body, raw, undefined, undefined, resolution, undefined, projection,
+        body,
+        raw,
+        undefined,
+        undefined,
+        resolution,
+        undefined,
+        projection,
       ).pose;
-      if (readBones === undefined) readBones = poseBones.prepare(body, requested!);
+      if (readBones === undefined)
+        readBones = poseBones.prepare(body, requested!);
       return resolveAutoMovieCenterOfMass.place(
-        model, readBones(pose, resolution()),
+        model,
+        readBones(pose, resolution()),
       );
     };
     const one: IAutoMovieVector3 = observe(seconds + delta);
@@ -78,7 +94,10 @@ export function prepareGymnasticsLaunch(
   };
 }
 
-/** The two numeric observations of one actual ballistic launch, with no retained pose or workspace. */
+/**
+ * The two numeric observations of one actual ballistic launch, with no retained
+ * pose or workspace.
+ */
 interface ILaunch {
   /** Centre at the requested launch second, world metres. */
   centre: IAutoMovieVector3;

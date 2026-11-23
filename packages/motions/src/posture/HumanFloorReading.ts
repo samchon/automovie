@@ -15,20 +15,23 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
  * What a posture shows of the floor, read as the floor audit reads it: the
- * lowest point of each collider of the posed body, the lowest of the
- * colliders each bearing part bears through, and the places of the points
- * a whole-body fit (`HumanBodyFit`) brings to goals.
+ * lowest point of each collider of the posed body, the lowest of the colliders
+ * each bearing part bears through, and the places of the points a whole-body
+ * fit (`HumanBodyFit`) brings to goals.
  */
 export namespace HumanFloorReading {
   /**
-   * A posture's actual collider and goal readings, with indices linking
-   * bearing parts, colliders and their smooth support candidates.
+   * A posture's actual collider and goal readings, with indices linking bearing
+   * parts, colliders and their smooth support candidates.
    */
   export interface IReading {
     /** Each bearing part's lowest height, metres, in the order given. */
     parts: number[];
 
-    /** Each bearing part's colliders, as indices into `lows`, in the order given. */
+    /**
+     * Each bearing part's colliders, as indices into `lows`, in the order
+     * given.
+     */
     members: number[][];
 
     /** Each target point's place, world metres, in the order given. */
@@ -43,10 +46,17 @@ export namespace HumanFloorReading {
     /** Each collider's bone, in the colliders' order. */
     owners: AutoMovieHumanoidBone[];
 
-    /** Each support candidate's lowest height, metres: the heights a collider's lowest point is the least of, each a smooth function of the posture. */
+    /**
+     * Each support candidate's lowest height, metres: the heights a collider's
+     * lowest point is the least of, each a smooth function of the posture.
+     */
     heights: number[];
 
-    /** Each support candidate's point, world metres: a sphere's centre, each end centre of a capsule, each corner of a box, each vertex of a hull, the point the candidate's height moves with. */
+    /**
+     * Each support candidate's point, world metres: a sphere's centre, each end
+     * centre of a capsule, each corner of a box, each vertex of a hull, the
+     * point the candidate's height moves with.
+     */
     spots: IAutoMovieVector3[];
 
     /** Each support candidate's collider, as an index into `lows`. */
@@ -62,8 +72,10 @@ export namespace HumanFloorReading {
    * @param body The body.
    * @param posture The posture, written by its joint angles alone.
    * @param bearing Each bearing part, as the bones it bears through.
-   * @param targets The points read: each a bone and a point in its frame, its origin when absent.
-   * @param source Optional exact FK reader or lazy supplier borrowed only during this synchronous reading.
+   * @param targets The points read: each a bone and a point in its frame, its
+   *   origin when absent.
+   * @param source Optional exact FK reader or lazy supplier borrowed only
+   *   during this synchronous reading.
    * @returns The reading.
    */
   export function of(
@@ -76,12 +88,21 @@ export namespace HumanFloorReading {
     }[],
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IReading {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+    const resolution:
+      | ReturnType<typeof prepareHumanPoseResolution>
+      | undefined =
       source === undefined ? undefined : prepareHumanPoseResolution(source);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
-      resolution === undefined ? resolveHumanPosture(body, posture) :
-        resolveHumanPosture.seeded(body, posture, undefined, undefined, resolution).pose,
+      resolution === undefined
+        ? resolveHumanPosture(body, posture)
+        : resolveHumanPosture.seeded(
+            body,
+            posture,
+            undefined,
+            undefined,
+            resolution,
+          ).pose,
       resolution?.(),
     );
     const lows: number[] = [];
@@ -95,7 +116,10 @@ export namespace HumanFloorReading {
       for (const shape of segment.shapes) {
         const centre: IAutoMovieVector3 = Vector3.add(
           segment.pose.position,
-          Quaternion.rotateVector(segment.pose.rotation, shape.transform.position),
+          Quaternion.rotateVector(
+            segment.pose.rotation,
+            shape.transform.position,
+          ),
         );
         const rotation: IAutoMovieQuaternion = Quaternion.multiply(
           segment.pose.rotation,
@@ -171,16 +195,16 @@ export namespace HumanFloorReading {
   }
 
   /**
-   * Append a placed collider's support candidates: the points its lowest point is
-   * the least of, each with how far below it the collider reaches. A
+   * Append a placed collider's support candidates: the points its lowest point
+   * is the least of, each with how far below it the collider reaches. A
    * collider's lowest height is the least of theirs, so each is a smooth
-   * function of the posture where their least is not: a shank lying flat
-   * has two, its knee end and its ankle end, and the one lowest turns from
-   * one to the other as the leg turns.
-   * Centre and rotation are the same freshly composed shape frame already
-   * consumed by the bounds owner, so no transform is applied twice.
-   * Hull vertices are transferred by that owner; this appender visits sphere,
-   * capsule and box points in the original end/corner order.
+   * function of the posture where their least is not: a shank lying flat has
+   * two, its knee end and its ankle end, and the one lowest turns from one to
+   * the other as the leg turns. Centre and rotation are the same freshly
+   * composed shape frame already consumed by the bounds owner, so no transform
+   * is applied twice. Hull vertices are transferred by that owner; this
+   * appender visits sphere, capsule and box points in the original end/corner
+   * order.
    */
   function candidates(
     centre: IAutoMovieVector3,
@@ -188,7 +212,9 @@ export namespace HumanFloorReading {
     shape: Exclude<Parameters<typeof physicalShapeBounds>[1], { kind: "hull" }>,
     out: ICandidate[],
   ): void {
-    const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (local: IAutoMovieVector3): IAutoMovieVector3 =>
+    const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+      local: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Vector3.add(centre, Quaternion.rotateVector(rotation, local));
     if (shape.kind === "sphere") {
       out.push({ point: centre, lift: shape.radius });

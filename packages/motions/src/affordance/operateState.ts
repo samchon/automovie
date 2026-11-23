@@ -10,12 +10,12 @@ import { operateDrive } from "./operateDrive";
 import { operateInsert } from "./operateInsert";
 
 /**
- * The moving part of an operated mechanism on a prop that does not
- * articulate, as the mechanism's own geometry moves it: a button's face in
- * along its axis, a knob turned about it, a slider's handle along it, a
- * leaf's handle about its hinge line (a door's vertical through the point it
- * names, or the line's own axis), an insertion's socket depth. A prop that
- * articulates poses its own part instead (`operateDrive.part`).
+ * The moving part of an operated mechanism on a prop that does not articulate,
+ * as the mechanism's own geometry moves it: a button's face in along its axis,
+ * a knob turned about it, a slider's handle along it, a leaf's handle about its
+ * hinge line (a door's vertical through the point it names, or the line's own
+ * axis), an insertion's socket depth. A prop that articulates poses its own
+ * part instead (`operateDrive.part`).
  */
 export namespace operateState {
   /**
@@ -23,9 +23,11 @@ export namespace operateState {
    *
    * @param mechanism The mechanism.
    * @param place The part's place at rest: its point and outward normal.
-   * @param hinge The hinge line, for a leaf: a point of it, and its unit axis, the vertical when absent.
+   * @param hinge The hinge line, for a leaf: a point of it, and its unit axis,
+   *   the vertical when absent.
    * @param progress 0 at rest, 1 at the end of the movement.
-   * @returns The point and the normal, and the roll about the normal in degrees.
+   * @returns The point and the normal, and the roll about the normal in
+   *   degrees.
    */
   export function at(
     mechanism: IAutoMovieMotionHumanOperate.Mechanism,
@@ -83,9 +85,12 @@ export namespace operateState {
         const arm: IAutoMovieVector3 = Vector3.subtract(place.point, foot);
         const sign: number =
           Vector3.dot(Vector3.cross(axis, arm), n) >= 0 ? 1 : -1;
-        const turning: ReturnType<typeof Quaternion.prepareAxisAngle> = Quaternion.prepareAxisAngle(axis);
+        const turning: ReturnType<typeof Quaternion.prepareAxisAngle> =
+          Quaternion.prepareAxisAngle(axis);
         return (progress: number): ReturnType<typeof at> => {
-          const turn: ReturnType<typeof turning> = turning(sign * mechanism.swing * progress);
+          const turn: ReturnType<typeof turning> = turning(
+            sign * mechanism.swing * progress,
+          );
           return {
             point: Vector3.add(foot, Quaternion.rotateVector(turn, arm)),
             normal: Quaternion.rotateVector(turn, n),

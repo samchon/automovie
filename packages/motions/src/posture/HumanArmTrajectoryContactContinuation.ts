@@ -299,7 +299,10 @@ export function HumanArmTrajectoryContactContinuation(
   return candidate.admitted ? candidate : course;
 }
 
-/** Sample one Hermite segment, matching the source's adjacent coordinate rates in seconds. */
+/**
+ * Sample one Hermite segment, matching the source's adjacent coordinate rates
+ * in seconds.
+ */
 function endpointCurve(
   c: M.IContext,
   x: readonly number[][][],

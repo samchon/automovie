@@ -11,11 +11,12 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * Time the crawl's support-transfer keys by cumulative limb-joint travel.
- * The first descent fixes the pace at the supplied sitting duration.
+ * Time the crawl's support-transfer keys by cumulative limb-joint travel. The
+ * first descent fixes the pace at the supplied sitting duration.
  *
  * @param body The unchanged performer.
- * @param keys Ordered support-transfer postures, with a nonzero first transition.
+ * @param keys Ordered support-transfer postures, with a nonzero first
+ *   transition.
  * @param sit Seconds assigned to the first transition.
  * @returns Each key's seconds from the first, starting at zero.
  */

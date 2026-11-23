@@ -15,22 +15,23 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
-/**
- * The ordered additive layers of one person's posture at a film second.
- */
+/** The ordered additive layers of one person's posture at a film second. */
 export namespace HumanSegmentLayer {
   /**
-   * Add the person's active layers in order, fading each contribution by
-   * its window's minimum-jerk ramp. Without layers, return the given posture.
-   * A retained action reader still reads current placed actions. When an
-   * action is present, each query returns fresh records and borrowed contacts.
+   * Add the person's active layers in order, fading each contribution by its
+   * window's minimum-jerk ramp. Without layers, return the given posture. A
+   * retained action reader still reads current placed actions. When an action
+   * is present, each query returns fresh records and borrowed contacts.
    *
    * @param person The person whose layer windows and draw keys are read.
    * @param posture The posture before the layers.
    * @param seconds Film seconds.
-   * @param resolution Optional same-body exact FK getter borrowed for this call; each layer receives a revocable synchronous loan.
-   * @param projection Optional genuine same-body ROM projection, lent only through a revocable lazy layer getter.
-   * @param phase Display evaluates all active layers. Entry leaves native breath for that display evaluation.
+   * @param resolution Optional same-body exact FK getter borrowed for this
+   *   call; each layer receives a revocable synchronous loan.
+   * @param projection Optional genuine same-body ROM projection, lent only
+   *   through a revocable lazy layer getter.
+   * @param phase Display evaluates all active layers. Entry leaves native
+   *   breath for that display evaluation.
    * @returns The mixed posture, preserving the existing endpoint identities.
    */
   export function apply(

@@ -70,7 +70,10 @@ interface IHand {
   closed: IAutoMovieMotionHumanPosture["joints"];
 }
 
-/** A rim's material rotation rates at the grip window's ends, radians per second. */
+/**
+ * A rim's material rotation rates at the grip window's ends, radians per
+ * second.
+ */
 interface IRimRates {
   /** The rate at the catch. */
   catch: number;
@@ -130,21 +133,21 @@ const refuseRim = (
 
 /**
  * One single-handed or bilateral handrim engagement over a seated ride.
- * Register the law and give the chair a circumferential contact reader,
- * such as `wheelchairHandrimFrame`. The hands approach, follow the
- * rotating rim points until release, and recover outward to the carried
- * seated pose. Wheel travel is supplied by the authored course.
+ * Register the law and give the chair a circumferential contact reader, such as
+ * `wheelchairHandrimFrame`. The hands approach, follow the rotating rim points
+ * until release, and recover outward to the carried seated pose. Wheel travel
+ * is supplied by the authored course.
  *
- * The contact and recovery phases follow the arcing path documented in
- * Slowik et al. (2015), Figure 1 and Table 1,
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC4631660/#T1 . The recovery
- * clearance is a staging dimension of one rider hand length. The wrist
- * enters and leaves at the rim's tangential rate, estimated from the material
- * point inside the grip window, then blends to the seated pose. The law
- * checks seat alignment, active wheel sides and solved wrists at nine points
- * through the push before publishing contact windows.
- * Chénier et al. (2022), https://pubmed.ncbi.nlm.nih.gov/34915435/,
- * also measured asymmetric propulsion during wheelchair basketball dribbles.
+ * The contact and recovery phases follow the arcing path documented in Slowik
+ * et al. (2015), Figure 1 and Table 1,
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC4631660/#T1 . The recovery clearance
+ * is a staging dimension of one rider hand length. The wrist enters and leaves
+ * at the rim's tangential rate, estimated from the material point inside the
+ * grip window, then blends to the seated pose. The law checks seat alignment,
+ * active wheel sides and solved wrists at nine points through the push before
+ * publishing contact windows. Chénier et al. (2022),
+ * https://pubmed.ncbi.nlm.nih.gov/34915435/, also measured asymmetric
+ * propulsion during wheelchair basketball dribbles.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry, prop reader, push and recovery phases, and the source of the wheel travel.
  * @evidence contracts/development/design.md#principled-representation The plan composes the ride's support path with a phase-clocked arm target and grip window for each hand. One-sided rim angles are measured in the chair frame so approach and recovery preserve the material tangent without querying a point outside its window.
@@ -300,7 +303,10 @@ export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
           if (!(sideOffset > 0)) return refuseRim(on, rim, side);
           const radius: number = geometry.radius!;
 
-          /** Read the point supplied by the rotating part and its tangent in world metres. */
+          /**
+           * Read the point supplied by the rotating part and its tangent in
+           * world metres.
+           */
           const gripAt = (
             at: number,
             frame: IAutoMovieRigidTransform,

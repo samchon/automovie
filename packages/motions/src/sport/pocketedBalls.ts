@@ -10,18 +10,22 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Credit the balls a baked precision shot drops into a pocket or a cup, in the order they drop.
+ * Credit the balls a baked precision shot drops into a pocket or a cup, in the
+ * order they drop.
  *
- * The bed, a cue table's or a green's, has open mouths at its pockets or cup, so a pocketed ball leaves the bed
- * plane. A ball is credited at the first cache frame where its centre is
- * more than one radius below the bed plane, so the whole ball has passed
- * the bed, to the mouth whose plan reach holds it at that frame. A ball
- * that falls below the bed outside every reach left the table over a rail
- * and is never credited.
+ * The bed, a cue table's or a green's, has open mouths at its pockets or cup,
+ * so a pocketed ball leaves the bed plane. A ball is credited at the first
+ * cache frame where its centre is more than one radius below the bed plane, so
+ * the whole ball has passed the bed, to the mouth whose plan reach holds it at
+ * that frame. A ball that falls below the bed outside every reach left the
+ * table over a rail and is never credited.
  *
- * @param params The `balls` to credit, each one rigid sphere whose centre of mass is its centre, the table's `pockets` at bed height and the baked `result` shot.
+ * @param params The `balls` to credit, each one rigid sphere whose centre of
+ *   mass is its centre, the table's `pockets` at bed height and the baked
+ *   `result` shot.
  * @returns The pocketed balls in drop order; empty when none drops.
- * @throws {RangeError} When a ball has no sphere shape, there is no pocket, or a ball is missing from the cache.
+ * @throws {RangeError} When a ball has no sphere shape, there is no pocket, or
+ *   a ball is missing from the cache.
  */
 export function pocketedBalls(
   params: IAutoMovieMotionHumanBilliards.IReadPocketed,

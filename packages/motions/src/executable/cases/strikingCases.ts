@@ -19,15 +19,15 @@ import { StrikingVerdicts } from "./StrikingVerdicts";
 import { strikingScenarios } from "./strikingScenarios";
 
 /**
- * Capture cases of the striking laws on the polygon man, for what the
- * numeric tests cannot show: whether a strike reads as the technique, whether
- * the body carries it, and what the limb meets.
+ * Capture cases of the striking laws on the polygon man, for what the numeric
+ * tests cannot show: whether a strike reads as the technique, whether the body
+ * carries it, and what the limb meets.
  *
  * Every body of `MotionBodies.SWEEP` plays subject `a` of every scenario of
- * {@link strikingScenarios}, one case per family and body
- * (`<family>-<body>`). Its partner, subject `b`, is the average man, except
- * that the tall man and the small woman face each other, so the sweep holds
- * the largest stature difference both ways.
+ * {@link strikingScenarios}, one case per family and body (`<family>-<body>`).
+ * Its partner, subject `b`, is the average man, except that the tall man and
+ * the small woman face each other, so the sweep holds the largest stature
+ * difference both ways.
  *
  * Each case draws the launch, the chamber or mid-delivery, the stop (or the
  * planned contact) and the end of every strike, trails the striking wrist or
@@ -35,11 +35,12 @@ import { strikingScenarios } from "./strikingScenarios";
  * {@link StrikingVerdicts} for every strike, the defence verdict of every
  * defence, and, where the scenario carries a late redirect, its refusal. The
  * metrics name the partner and the gap, and for each kick that reaches its
- * chamber key before any stop the heights of its knee, its hip, its target
- * and the defender's shoulders at that key, for the side-sheet review.
+ * chamber key before any stop the heights of its knee, its hip, its target and
+ * the defender's shoulders at that key, for the side-sheet review.
  *
  * @param family One scenario family, or all when absent.
- * @param only Keeps the cases whose name it accepts, the others not being built; every case when absent.
+ * @param only Keeps the cases whose name it accepts, the others not being
+ *   built; every case when absent.
  * @returns The cases, each built as it is read.
  */
 export function* strikingCases(

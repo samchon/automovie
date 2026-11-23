@@ -10,16 +10,14 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A staged wall's face as cover reads it: the face's plane through the
- * prop's origin with its outward normal along the prop's `+Z`, its length
- * along the prop's `+X` and its two ends, in world metres. A wall archetype
- * stands in its `XY` plane with its front face toward `+Z` and names that
- * face `face`, its width the wall's length.
+ * A staged wall's face as cover reads it: the face's plane through the prop's
+ * origin with its outward normal along the prop's `+Z`, its length along the
+ * prop's `+X` and its two ends, in world metres. A wall archetype stands in its
+ * `XY` plane with its front face toward `+Z` and names that face `face`, its
+ * width the wall's length.
  */
 export namespace coverWall {
-  /**
-   * A wall face in world metres.
-   */
+  /** A wall face in world metres. */
   export interface IFace {
     /** The face's centre on the floor, world metres. */
     center: IAutoMovieVector3;
@@ -39,9 +37,11 @@ export namespace coverWall {
    *
    * @param context The action's context.
    * @param subject The wall or window prop.
-   * @param face The surface or aperture affordance whose width is the face's length.
+   * @param face The surface or aperture affordance whose width is the face's
+   *   length.
    * @returns The face.
-   * @throws {HumanRefusal} If the prop moves or has no such affordance with a width.
+   * @throws {HumanRefusal} If the prop moves or has no such affordance with a
+   *   width.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,

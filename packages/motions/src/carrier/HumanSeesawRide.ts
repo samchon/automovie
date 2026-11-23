@@ -28,10 +28,17 @@ const STEP: number = 1 / 120;
 /** Seconds a foot takes to reach the ground or leave it (provisional staging). */
 const PLACE: number = 0.25;
 
-/** How high a foot arcs over the ground as it is placed or lifted, metres (provisional staging). */
+/**
+ * How high a foot arcs over the ground as it is placed or lifted, metres
+ * (provisional staging).
+ */
 const LIFT: number = 0.05;
 
-/** How far ahead of the seat a planted ankle lies, thigh lengths: short of the hanging knee, so the leg keeps slack as the seat rises to the end of its low interval (provisional staging). */
+/**
+ * How far ahead of the seat a planted ankle lies, thigh lengths: short of the
+ * hanging knee, so the leg keeps slack as the seat rises to the end of its low
+ * interval (provisional staging).
+ */
 const SLACK: number = 0.9;
 
 /** One interval with the feet on the ground, ride seconds. */
@@ -48,12 +55,12 @@ interface ILow {
 
 /**
  * Ride a seesaw seat: the seated ride with the hands on the handles
- * (`HumanRide`), and the feet planted on the ground while the seat is so
- * low that the soles, hanging below it as the seated entry holds them,
- * would meet the ground, so the rider can push off. Each foot is placed
- * where its knee is ahead of the seat just before it comes that low,
- * stays while it is, and is lifted just after it rises again; no ankle
- * ever goes below its height over the ground.
+ * (`HumanRide`), and the feet planted on the ground while the seat is so low
+ * that the soles, hanging below it as the seated entry holds them, would meet
+ * the ground, so the rider can push off. Each foot is placed where its knee is
+ * ahead of the seat just before it comes that low, stays while it is, and is
+ * lifted just after it rises again; no ankle ever goes below its height over
+ * the ground.
  *
  * @param context The seated entry, the beam and its points.
  * @returns The ride with the ground contacts of the low end.

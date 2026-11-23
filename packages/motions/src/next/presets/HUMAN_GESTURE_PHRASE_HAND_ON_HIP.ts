@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
 /**
- * The values the `handOnHip` row of `HumanUpperRows` fixes on `armPhrase`, spread into its parameters. Hand on the hip: the palm visits the near hip and stays.
+ * The values the `handOnHip` row of `HumanUpperRows` fixes on `armPhrase`,
+ * spread into its parameters. Hand on the hip: the palm visits the near hip and
+ * stays.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IArmPhrasePhraseTargetMirrorSurfaceShapeHoldPreset`, so it fits any body as the law does.

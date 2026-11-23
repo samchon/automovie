@@ -19,44 +19,54 @@ import { HumanFoot } from "../posture/HumanFoot";
  * The kinematic readings of an act's signature: what human-movement studies
  * measure on a performer, read off the displayed bones of a performance.
  *
- * A production checks its own composition with these the way the vocabulary
- * is checked: perform it, then read, at the instants the act's events name,
- * the quantities the literature reports (the trunk's inclination from
- * vertical in the sagittal plane, joint flexions, the whole-body centre of
- * mass, the head's pitch, which feet bear on the floor, the duty factor and
- * the cadence), and compare each with a cited value in a unit test. No
- * reading knows an action; the bounds and their sources belong to the test.
+ * A production checks its own composition with these the way the vocabulary is
+ * checked: perform it, then read, at the instants the act's events name, the
+ * quantities the literature reports (the trunk's inclination from vertical in
+ * the sagittal plane, joint flexions, the whole-body centre of mass, the head's
+ * pitch, which feet bear on the floor, the duty factor and the cadence), and
+ * compare each with a cited value in a unit test. No reading knows an action;
+ * the bounds and their sources belong to the test.
  *
  * ```ts
  * const reader = HumanSignature.of(performance, "a", body, 0);
- * const lean = HumanSignature.trunk(reader, seconds) - HumanSignature.trunk(reader, 0);
+ * const lean =
+ *   HumanSignature.trunk(reader, seconds) -
+ *   HumanSignature.trunk(reader, 0);
  * ```
  *
- * Conventions: the performer's forward is the heading given to the reader,
- * so a positive inclination tips the shoulders ahead of the hips; a flexion
- * is 0 with the joint straight and grows as it folds; a head pitch is
- * positive when the face turns down. A foot bears on the floor when its
- * lowest sole socket (heel, ball or toe) lies within `CONTACT` of the
- * floor's height and is nearly still over it (`SLIDE`). The trunk reading of
- * a quiet stance is not exactly zero on every body, so a lean is read
- * against the same body's standing value.
+ * Conventions: the performer's forward is the heading given to the reader, so a
+ * positive inclination tips the shoulders ahead of the hips; a flexion is 0
+ * with the joint straight and grows as it folds; a head pitch is positive when
+ * the face turns down. A foot bears on the floor when its lowest sole socket
+ * (heel, ball or toe) lies within `CONTACT` of the floor's height and is nearly
+ * still over it (`SLIDE`). The trunk reading of a quiet stance is not exactly
+ * zero on every body, so a lean is read against the same body's standing
+ * value.
  */
 export namespace HumanSignature {
-  /** How near the floor a sole socket bears, metres (the 10 mm skin tolerance plus 10 mm). */
+  /**
+   * How near the floor a sole socket bears, metres (the 10 mm skin tolerance
+   * plus 10 mm).
+   */
   export const CONTACT: number = 0.02;
 
-  /** The least time between two strikes of one foot, seconds (provisional: a sprint's stride lasts about 0.45 s, Mero et al. 1992). */
+  /**
+   * The least time between two strikes of one foot, seconds (provisional: a
+   * sprint's stride lasts about 0.45 s, Mero et al. 1992).
+   */
   export const STRIDE: number = 0.25;
 
-  /** The horizontal speed below which a low sole counts as bearing, metres per second (provisional: a fifth of a slow walk's speed). */
+  /**
+   * The horizontal speed below which a low sole counts as bearing, metres per
+   * second (provisional: a fifth of a slow walk's speed).
+   */
   export const SLIDE: number = 0.2;
 
   /**
    * Samples a second for a mean or an extreme over a held posture or a whole
    * act: a body settles or moves its trunk over tenths of a second, so ten a
-   * second reads it within the bounds' resolution at a third of a 30 Hz
-   * film's frames. Swing clearances and contact events keep their own finer
-   * rates.
+   * second reads it within the bounds' resolution at a third of a 30 Hz film's
+   * frames. Swing clearances and contact events keep their own finer rates.
    */
   export const HELD: number = 10;
 
@@ -117,12 +127,12 @@ export namespace HumanSignature {
   /**
    * The trunk's inclination: the line from the hip joints' midpoint to the
    * shoulder joints' midpoint against the vertical, in the sagittal plane,
-   * degrees, positive forward. These are the landmarks gait and squat
-   * studies take for the trunk segment (the greater trochanters and the
-   * acromia, or the joint centres under them), and in ideal standing
-   * alignment the plumb line passes through both, so a quiet stance reads
-   * about 0 (Kendall, McCreary, Provance, Rodgers and Romani 2005, Muscles:
-   * Testing and Function, 5th ed.).
+   * degrees, positive forward. These are the landmarks gait and squat studies
+   * take for the trunk segment (the greater trochanters and the acromia, or the
+   * joint centres under them), and in ideal standing alignment the plumb line
+   * passes through both, so a quiet stance reads about 0 (Kendall, McCreary,
+   * Provance, Rodgers and Romani 2005, Muscles: Testing and Function, 5th
+   * ed.).
    */
   export function trunk(
     reader: IAutoMovieMotionHumanSignature.IReader,
@@ -141,7 +151,10 @@ export namespace HumanSignature {
     return (Math.atan2(v.x * f.x + v.z * f.z, v.y) * 180) / Math.PI;
   }
 
-  /** The angle a distal segment turns from its proximal one at a joint: 0 straight, degrees. */
+  /**
+   * The angle a distal segment turns from its proximal one at a joint: 0
+   * straight, degrees.
+   */
   export function flexion(
     proximal: IAutoMovieVector3,
     centre: IAutoMovieVector3,
@@ -203,7 +216,10 @@ export namespace HumanSignature {
     );
   }
 
-  /** The head's pitch: how far its forward axis points below the horizon, degrees. */
+  /**
+   * The head's pitch: how far its forward axis points below the horizon,
+   * degrees.
+   */
   export function head(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
@@ -220,7 +236,10 @@ export namespace HumanSignature {
     return (Math.asin(Math.max(-1, Math.min(1, -f.y))) * 180) / Math.PI;
   }
 
-  /** The whole-body centre of mass of the performer, world metres, on the body's own mass model (`body.massModel`, built once with the body). */
+  /**
+   * The whole-body centre of mass of the performer, world metres, on the body's
+   * own mass model (`body.massModel`, built once with the body).
+   */
   export function centre(
     reader: IAutoMovieMotionHumanSignature.IReader,
     seconds: number,
@@ -248,15 +267,19 @@ export namespace HumanSignature {
   /**
    * Whether a foot bears on a floor at a height: its lowest sole socket is
    * within `CONTACT` of the floor and moves over it slower than `SLIDE`. A
-   * swinging foot passes as little as 13 mm over the floor at mid-swing
-   * (Winter 1992, Phys Ther 72:45, the minimum toe clearance), so height
-   * alone would count it as a contact; a bearing foot is still.
+   * swinging foot passes as little as 13 mm over the floor at mid-swing (Winter
+   * 1992, Phys Ther 72:45, the minimum toe clearance), so height alone would
+   * count it as a contact; a bearing foot is still.
    *
    * @param reader The performer.
    * @param seconds Film seconds.
    * @param side The foot.
    * @param floor The floor's height under it, metres; 0 when absent.
-   * @param origin The first instant of a series the caller reads at 120 Hz or a divisor of it (`times(origin, …)`). When `seconds` is an instant of the 120 Hz series from it, the speed is read on that series' own neighbours, the instants the caller reads anyway, in place of `seconds` less and plus a 120th, which binary rounding puts beside them. Absent, the latter.
+   * @param origin The first instant of a series the caller reads at 120 Hz or a
+   *   divisor of it (`times(origin, …)`). When `seconds` is an instant of the
+   *   120 Hz series from it, the speed is read on that series' own neighbours,
+   *   the instants the caller reads anyway, in place of `seconds` less and plus
+   *   a 120th, which binary rounding puts beside them. Absent, the latter.
    * @returns Whether the foot bears.
    */
   export function bears(
@@ -301,8 +324,8 @@ export namespace HumanSignature {
   /**
    * Instants from `from` to `to` at a rate, each `from + k / rate` from its
    * index: two series from one `from` whose rates divide one another share
-   * their common instants bit for bit (`k / 30` is `4k / 120`), where a
-   * running sum's rounding would have a film resolved twice at one instant.
+   * their common instants bit for bit (`k / 30` is `4k / 120`), where a running
+   * sum's rounding would have a film resolved twice at one instant.
    */
   export function times(from: number, to: number, rate: number = 60): number[] {
     const out: number[] = [];
@@ -369,10 +392,10 @@ export namespace HumanSignature {
    * The peak speed of a joint centre over a window, metres per second, by
    * central differences at 240 Hz: at each instant of the 240 Hz series from
    * the window's start (`times`), the displacement between the series' own
-   * neighbours over the time between them. Neighbouring differences share
-   * their instants, so each instant of the series, and one past either end,
-   * is read once; an instant less and plus a 240th would lie beside the
-   * series by binary rounding and be read apart.
+   * neighbours over the time between them. Neighbouring differences share their
+   * instants, so each instant of the series, and one past either end, is read
+   * once; an instant less and plus a 240th would lie beside the series by
+   * binary rounding and be read apart.
    *
    * @param reader The performer.
    * @param bone The bone whose joint it is.
@@ -437,9 +460,9 @@ export namespace HumanSignature {
   }
 
   /**
-   * How far apart two performers are: the least signed distance from any
-   * joint centre of either to the other's colliders, metres, negative when a
-   * joint lies inside the other body.
+   * How far apart two performers are: the least signed distance from any joint
+   * centre of either to the other's colliders, metres, negative when a joint
+   * lies inside the other body.
    *
    * @param reader One performer.
    * @param partner The other, in the same motion.

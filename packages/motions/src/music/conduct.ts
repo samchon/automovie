@@ -31,12 +31,11 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 
 /**
- * Each meter's ictus points, `[in, up]` in shares of the figure's half
- * width and half height about its centre: Rudolf's figures (*The Grammar
- * of Conducting*, 3rd ed., 1995), each beat's ictus reached by its
- * direction from the one before (4/4: down to the first, in to the second,
- * out to the third, up to the fourth). The shares themselves are
- * provisional.
+ * Each meter's ictus points, `[in, up]` in shares of the figure's half width
+ * and half height about its centre: Rudolf's figures (_The Grammar of
+ * Conducting_, 3rd ed., 1995), each beat's ictus reached by its direction from
+ * the one before (4/4: down to the first, in to the second, out to the third,
+ * up to the fourth). The shares themselves are provisional.
  */
 const FIGURES: Readonly<
   Record<
@@ -61,13 +60,25 @@ const FIGURES: Readonly<
   ],
 };
 
-/** The figure's half width and half height, metres: provisional, a forearm's sweep. */
+/**
+ * The figure's half width and half height, metres: provisional, a forearm's
+ * sweep.
+ */
 const HALF: number = 0.18;
 
-/** The rebound's height between ictuses, as a share of `HALF`: provisional, above the largest rise between ictuses times 1/π so each ictus is a lowest point. */
+/**
+ * The rebound's height between ictuses, as a share of `HALF`: provisional,
+ * above the largest rise between ictuses times 1/π so each ictus is a lowest
+ * point.
+ */
 const REBOUND: number = 0.6;
 
-/** The share of the lead before the first beat the arm takes to reach the figure: the rest of the lead is the preparatory arc into the first ictus, which the figure holds, as a conductor's preparation is part of the beat (provisional). */
+/**
+ * The share of the lead before the first beat the arm takes to reach the
+ * figure: the rest of the lead is the preparatory arc into the first ictus,
+ * which the figure holds, as a conductor's preparation is part of the beat
+ * (provisional).
+ */
 const PREP: number = 0.25;
 
 /** The tempo when none is given, beats per minute. */
@@ -76,21 +87,19 @@ const BPM: number = 120;
 /**
  * Beat time with a held baton. Register as `conduct`.
  *
- * The baton rides the hand rigidly, so its `tip` lies at a fixed lever
- * from the wrist (as `write` aims a held tool) and the arm aims the wrist
- * that puts the tip on its path, keeping the baton's entry attitude. The
- * path runs in the performer's frontal plane a forearm ahead of the chest:
- * from ictus to ictus of the meter's figure (`FIGURES`) in a straight line
- * lifted by a rebound arc, `REBOUND` of the figure's half height times
- * `sin(pi u)` over each beat's share `u`, so the tip leaves each ictus
- * upward and falls into the next from above: every ictus is its beat's
- * lowest point. The ictuses fall on the shared beat clock
- * (`prepareDanceBeats`): at `bpm`, or on a cue track's beats when locked.
- * The hand comes in over the lead before the first beat and returns over
- * one beat after the last. A beat is a delivered stroke, so the arm is
- * coursed at its goal's own peak speed (`courseArmAtPace`), not a reach's
- * pace. Events: `strokeStart` at the first ictus and
- * `strokeEnd` at the last.
+ * The baton rides the hand rigidly, so its `tip` lies at a fixed lever from the
+ * wrist (as `write` aims a held tool) and the arm aims the wrist that puts the
+ * tip on its path, keeping the baton's entry attitude. The path runs in the
+ * performer's frontal plane a forearm ahead of the chest: from ictus to ictus
+ * of the meter's figure (`FIGURES`) in a straight line lifted by a rebound arc,
+ * `REBOUND` of the figure's half height times `sin(pi u)` over each beat's
+ * share `u`, so the tip leaves each ictus upward and falls into the next from
+ * above: every ictus is its beat's lowest point. The ictuses fall on the shared
+ * beat clock (`prepareDanceBeats`): at `bpm`, or on a cue track's beats when
+ * locked. The hand comes in over the lead before the first beat and returns
+ * over one beat after the last. A beat is a delivered stroke, so the arm is
+ * coursed at its goal's own peak speed (`courseArmAtPace`), not a reach's pace.
+ * Events: `strokeStart` at the first ictus and `strokeEnd` at the last.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the held lever, the plane, the figure, the rebound, the beat clock and the events.
  * @evidence contracts/development/design.md#principled-representation A law record over the shared beat clock and the held tool's lever.

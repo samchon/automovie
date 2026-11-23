@@ -13,15 +13,19 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
 /**
  * The places of the air around a performer by name: the heights, lateral
- * offsets and distances a law states a hand's place with, the three rungs of
- * a place (a name, a nudged or in-between name, an explicit share record),
- * the share record each resolves to on a body (`place`, the
+ * offsets and distances a law states a hand's place with, the three rungs of a
+ * place (a name, a nudged or in-between name, an explicit share record), the
+ * share record each resolves to on a body (`place`, the
  * `AutoMovieMotionHumanTarget.IDefault` that `AutoMovieMotionHumanTarget`'s
  * `fallback` and `resolve` take), and the names a world point falls in
  * (`nearest`).
  */
 export namespace AutoMovieMotionHumanTargetGrid {
-  /** Every height, lowest first: the order `nearest` breaks a tie by and a nudge names a neighbour from, and the list {@link IAutoMovieMotionHumanTargetGrid.Height} is read from. */
+  /**
+   * Every height, lowest first: the order `nearest` breaks a tie by and a nudge
+   * names a neighbour from, and the list
+   * {@link IAutoMovieMotionHumanTargetGrid.Height} is read from.
+   */
   export const HEIGHTS = [
     "floor",
     "knee",
@@ -36,13 +40,16 @@ export namespace AutoMovieMotionHumanTargetGrid {
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTargetGrid.Height>[];
 
   /**
-   * How far above the shoulder a hand raised overhead stands, as a share of
-   * the arm (provisional: the arm nearly straight, from the `raiseHand` and
-   * `cheer` gestures, checked by their "hand above the head" verdicts).
+   * How far above the shoulder a hand raised overhead stands, as a share of the
+   * arm (provisional: the arm nearly straight, from the `raiseHand` and `cheer`
+   * gestures, checked by their "hand above the head" verdicts).
    */
   export const OVERHEAD: number = 0.92;
 
-  /** The lateral places of {@link IAutoMovieMotionHumanTargetGrid.Lateral}, as data. */
+  /**
+   * The lateral places of {@link IAutoMovieMotionHumanTargetGrid.Lateral}, as
+   * data.
+   */
   export const LATERAL_NAMES = [
     "centre",
     "inside",
@@ -52,10 +59,11 @@ export namespace AutoMovieMotionHumanTargetGrid {
 
   /**
    * The share of the half shoulder width each lateral name is, toward the
-   * acting hand's side: `centre` on the midline (`AutoMovieMotionHumanTarget.DEFAULTS`), `inside` at 0.6
-   * (`stopPalm`), `shoulder` above the joint (`raiseHand`), `outside` at 1.5
-   * (`wave`; provisional, checked by the place verdict of the
-   * `everyday-gesture-wave` captures across the body sweep).
+   * acting hand's side: `centre` on the midline
+   * (`AutoMovieMotionHumanTarget.DEFAULTS`), `inside` at 0.6 (`stopPalm`),
+   * `shoulder` above the joint (`raiseHand`), `outside` at 1.5 (`wave`;
+   * provisional, checked by the place verdict of the `everyday-gesture-wave`
+   * captures across the body sweep).
    */
   export const LATERALS: Readonly<
     Record<IAutoMovieMotionHumanTargetGrid.Lateral, number>
@@ -75,9 +83,10 @@ export namespace AutoMovieMotionHumanTargetGrid {
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTargetGrid.Distance>[];
 
   /**
-   * The share of the arm (upper arm and forearm) each distance name is:
-   * `close` at 0.1 (`raiseHand`), `near` at 0.25 (`wave`), `mid` at 0.6
-   * (`AutoMovieMotionHumanTarget.DEFAULTS.desk`), `far` at 0.8 (`AutoMovieMotionHumanTarget.DEFAULTS.ahead`, `stopPalm`).
+   * The share of the arm (upper arm and forearm) each distance name is: `close`
+   * at 0.1 (`raiseHand`), `near` at 0.25 (`wave`), `mid` at 0.6
+   * (`AutoMovieMotionHumanTarget.DEFAULTS.desk`), `far` at 0.8
+   * (`AutoMovieMotionHumanTarget.DEFAULTS.ahead`, `stopPalm`).
    */
   export const DISTANCES: Readonly<
     Record<IAutoMovieMotionHumanTargetGrid.Distance, number>
@@ -88,7 +97,10 @@ export namespace AutoMovieMotionHumanTargetGrid {
     far: 0.8,
   };
 
-  /** The largest size of a nudge's component, as a share of the arm (provisional). */
+  /**
+   * The largest size of a nudge's component, as a share of the arm
+   * (provisional).
+   */
   export const NUDGE: number = 0.25;
 
   /**
@@ -133,10 +145,13 @@ export namespace AutoMovieMotionHumanTargetGrid {
    * The share record a place resolves to on a body, for the acting side.
    *
    * @param body The body.
-   * @param side The acting hand, which the lateral names and a nudge's `out` mirror by.
+   * @param side The acting hand, which the lateral names and a nudge's `out`
+   *   mirror by.
    * @param place The place, on any rung.
    * @returns The share record `fallback` and `resolve` take.
-   * @throws {Error} When a nudge's component exceeds `NUDGE`, a between share lies outside [0, 1] or joins two facings, or an explicit place has an empty source.
+   * @throws {Error} When a nudge's component exceeds `NUDGE`, a between share
+   *   lies outside [0, 1] or joins two facings, or an explicit place has an
+   *   empty source.
    */
   export function place(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -189,8 +204,8 @@ export namespace AutoMovieMotionHumanTargetGrid {
 
   /**
    * The names of the place a world point falls in, for the acting side: the
-   * nearest `Height`, `Lateral` and `Distance` of the body as it stands in
-   * the posture.
+   * nearest `Height`, `Lateral` and `Distance` of the body as it stands in the
+   * posture.
    *
    * @param body The body.
    * @param posture The root and the heading; the root's own height is not read.
@@ -240,7 +255,10 @@ export namespace AutoMovieMotionHumanTargetGrid {
   }
 }
 
-/** The share record of a whole place name or of three grid names, the lateral mirrored by the side. */
+/**
+ * The share record of a whole place name or of three grid names, the lateral
+ * mirrored by the side.
+ */
 function named(
   body: Pick<IAutoMovieMotionHumanBody, "measure">,
   side: AutoMovieHumanSide,
@@ -261,9 +279,9 @@ function named(
 }
 
 /**
- * A share record moved by a nudge, each component converted from arm lengths
- * to its axis's unit; a component past the bound throws and names the
- * neighbouring name of `base`, when it has one.
+ * A share record moved by a nudge, each component converted from arm lengths to
+ * its axis's unit; a component past the bound throws and names the neighbouring
+ * name of `base`, when it has one.
  */
 function nudged(
   body: Pick<IAutoMovieMotionHumanBody, "measure">,

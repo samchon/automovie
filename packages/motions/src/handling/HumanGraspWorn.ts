@@ -23,23 +23,35 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The key pose a grasp taken to wear a thing must also hold
- * (`HumanGraspUse.IUse`, line `worn`): the thing's whole frame where it is
- * worn on the performer's own region (`HumanWorn.frame`, the one `dress`
- * puts it at), the hand following rigidly from the candidate grasp, so the
- * grasp is judged at the very pose it is put on in.
+ * (`HumanGraspUse.IUse`, line `worn`): the thing's whole frame where it is worn
+ * on the performer's own region (`HumanWorn.frame`, the one `dress` puts it
+ * at), the hand following rigidly from the candidate grasp, so the grasp is
+ * judged at the very pose it is put on in.
  */
 export namespace HumanGraspWorn {
-  /** The refinement step of a round worn thing's turn about its region, and the spacing of the turns tried first round it, degrees (search resolution: an eighth of a turn, halving to under 6). */
+  /**
+   * The refinement step of a round worn thing's turn about its region, and the
+   * spacing of the turns tried first round it, degrees (search resolution: an
+   * eighth of a turn, halving to under 6).
+   */
   export const ROUND: number = 45;
 
   /**
    * The key pose of a grasp taken to wear a thing.
    *
-   * @param props The action's context, the held thing and its world frame at closure and `wear` contact, the region and its point on the entry's body, the hand, the candidate grasp's hand, whether the thing is round about the region, and how far the closed hand at a wrist keeps out of the body's other parts (none when absent).
-   * @returns The key, with its judge: the fitted hand's wear socket off the region, metres.
+   * @param props The action's context, the held thing and its world frame at
+   *   closure and `wear` contact, the region and its point on the entry's body,
+   *   the hand, the candidate grasp's hand, whether the thing is round about
+   *   the region, and how far the closed hand at a wrist keeps out of the
+   *   body's other parts (none when absent).
+   * @returns The key, with its judge: the fitted hand's wear socket off the
+   *   region, metres.
    */
   export function key(props: {
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "start">;
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "start"
+    >;
     held: IAutoMovieMotionHumanPropReader;
     world: IAutoMovieRigidTransform;
     tip: IAutoMovieAffordance;
@@ -73,7 +85,9 @@ export namespace HumanGraspWorn {
         props.wrist.point,
       ),
     );
-    const keyed: (degrees: number) => IAutoMovieMotionHumanHand.IWrist = (degrees: number): IAutoMovieMotionHumanHand.IWrist => {
+    const keyed: (degrees: number) => IAutoMovieMotionHumanHand.IWrist = (
+      degrees: number,
+    ): IAutoMovieMotionHumanHand.IWrist => {
       const worn: IAutoMovieRigidTransform = HumanWorn.frame(
         context.body,
         context.entry.posture,
@@ -150,11 +164,7 @@ export namespace HumanGraspWorn {
         {
           kind: "wrapped",
           step:
-            props.round === true
-              ? props.side === "left"
-                ? -ROUND
-                : ROUND
-              : 0,
+            props.round === true ? (props.side === "left" ? -ROUND : ROUND) : 0,
           period: 360,
         },
       ],

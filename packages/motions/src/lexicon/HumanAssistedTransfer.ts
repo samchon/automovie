@@ -171,8 +171,8 @@ function gripReader(
  *
  * The phases share the same explicit hand target and seconds. The occupant
  * transfers support through the feet before moving to the next seat. The
- * helper's clasp stays until the new seat bears. The paired measurements
- * in [Riccoboni et al.](https://pubmed.ncbi.nlm.nih.gov/33070065/) motivate
+ * helper's clasp stays until the new seat bears. The paired measurements in
+ * [Riccoboni et al.](https://pubmed.ncbi.nlm.nih.gov/33070065/) motivate
  * observing the helper and occupant separately over the same motion.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the role clock, continuously held clasp, actual source and destination, and final release.

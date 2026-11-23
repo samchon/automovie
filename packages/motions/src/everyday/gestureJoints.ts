@@ -11,26 +11,25 @@ import { gestureSignal } from "./gestureSignal";
  * The joints a gesture moves directly.
  *
  * Gestures of the head, shoulders and trunk are joint angles because no body
- * point is brought anywhere; the movement is the segment's own rotation:
- * `nod` flexes the head lightly (11.25 degrees) and back twice a second (head
- * nods in conversation are small and quick, Hadar et al. 1985, J Nonverbal
- * Behav 9:214; values provisional), `shakeHead` turns it lightly (17.5
- * degrees) either way about 2.2 cycles a second (provisional), `shrug`
- * raises both shoulder girdles 18 degrees (provisional, inside the 30 degree
- * elevation range), `chinLift` extends the head 15 degrees,
- * `squareShoulders` retracts the girdles about 10 and extends the chest 4,
- * `slump` flexes the chest 12, the spine 6, the head about 10 and protracts
- * the girdles about 10 (display postures, provisional). `ANGLES` states each
- * as a level of the joint's range. `bow` is the trunk's pitch, handled by
- * the gesture law.
+ * point is brought anywhere; the movement is the segment's own rotation: `nod`
+ * flexes the head lightly (11.25 degrees) and back twice a second (head nods in
+ * conversation are small and quick, Hadar et al. 1985, J Nonverbal Behav 9:214;
+ * values provisional), `shakeHead` turns it lightly (17.5 degrees) either way
+ * about 2.2 cycles a second (provisional), `shrug` raises both shoulder girdles
+ * 18 degrees (provisional, inside the 30 degree elevation range), `chinLift`
+ * extends the head 15 degrees, `squareShoulders` retracts the girdles about 10
+ * and extends the chest 4, `slump` flexes the chest 12, the spine 6, the head
+ * about 10 and protracts the girdles about 10 (display postures, provisional).
+ * `ANGLES` states each as a level of the joint's range. `bow` is the trunk's
+ * pitch, handled by the gesture law.
  */
 export namespace gestureJoints {
   /**
-   * The size of each joint gesture at full extent, signed clinical degrees:
-   * a level of the joint's range, scaled where the provisional size the
-   * namespace doc states lies between two levels (provisional, read from no
-   * measured source except the nod's; `everydayGestureVerdicts` checks each
-   * gesture happens).
+   * The size of each joint gesture at full extent, signed clinical degrees: a
+   * level of the joint's range, scaled where the provisional size the namespace
+   * doc states lies between two levels (provisional, read from no measured
+   * source except the nod's; `everydayGestureVerdicts` checks each gesture
+   * happens).
    */
   export const ANGLES = {
     /** The head's flexion in a nod. */
@@ -122,15 +121,22 @@ export namespace gestureJoints {
   /**
    * Add the same gesture deltas directly into one caller-owned joint record.
    *
-   * @param joints The mutable output joint record already copied by the gesture.
+   * @param joints The mutable output joint record already copied by the
+   *   gesture.
    * @param kind The current admitted gesture kind.
    * @param u Stroke share in [0,1].
    * @param cycles Stroke cycles.
    * @param envelope Transport share in [0,1].
    * @param extent Effort extent multiplier.
    */
-  export function add(joints: Angles, kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number,
-    cycles: number, envelope: number, extent: number): void {
+  export function add(
+    joints: Angles,
+    kind: IAutoMovieMotionHumanGestureStroke.Kind,
+    u: number,
+    cycles: number,
+    envelope: number,
+    extent: number,
+  ): void {
     pattern(kind, u, cycles, envelope, extent, joints, true);
   }
 }
@@ -138,36 +144,125 @@ export namespace gestureJoints {
 /** The posture's clinical-degree joint record. */
 type Angles = IAutoMovieMotionHumanPosture["joints"];
 
-/** Evaluate a joint gesture at a share, writing its deltas into the record, or adding them to it. */
-function pattern(kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number, cycles: number, envelope: number,
-  extent: number, joints: Angles, additive: boolean): Angles {
+/**
+ * Evaluate a joint gesture at a share, writing its deltas into the record, or
+ * adding them to it.
+ */
+function pattern(
+  kind: IAutoMovieMotionHumanGestureStroke.Kind,
+  u: number,
+  cycles: number,
+  envelope: number,
+  extent: number,
+  joints: Angles,
+  additive: boolean,
+): Angles {
   const a: number = envelope * extent;
   switch (kind) {
     case "nod":
-      write(joints, additive, "head", gestureJoints.ANGLES.nod * a * (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)), 0, 0);
+      write(
+        joints,
+        additive,
+        "head",
+        gestureJoints.ANGLES.nod *
+          a *
+          (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u)),
+        0,
+        0,
+      );
       return joints;
     case "shakeHead":
-      write(joints, additive, "head", 0, 0, gestureJoints.ANGLES.shake * a * gestureSignal.oscillation(u, cycles));
+      write(
+        joints,
+        additive,
+        "head",
+        0,
+        0,
+        gestureJoints.ANGLES.shake * a * gestureSignal.oscillation(u, cycles),
+      );
       return joints;
     case "shrug":
-      write(joints, additive, "leftShoulder", 0, gestureJoints.ANGLES.shrug * a, 0);
-      write(joints, additive, "rightShoulder", 0, gestureJoints.ANGLES.shrug * a, 0);
+      write(
+        joints,
+        additive,
+        "leftShoulder",
+        0,
+        gestureJoints.ANGLES.shrug * a,
+        0,
+      );
+      write(
+        joints,
+        additive,
+        "rightShoulder",
+        0,
+        gestureJoints.ANGLES.shrug * a,
+        0,
+      );
       write(joints, additive, "head", 0, gestureJoints.ANGLES.shrugHead * a, 0);
       return joints;
     case "chinLift":
       write(joints, additive, "head", gestureJoints.ANGLES.chinLift * a, 0, 0);
       return joints;
     case "squareShoulders":
-      write(joints, additive, "leftShoulder", gestureJoints.ANGLES.square * a, 0, 0);
-      write(joints, additive, "rightShoulder", gestureJoints.ANGLES.square * a, 0, 0);
-      write(joints, additive, "chest", gestureJoints.ANGLES.squareChest * a, 0, 0);
+      write(
+        joints,
+        additive,
+        "leftShoulder",
+        gestureJoints.ANGLES.square * a,
+        0,
+        0,
+      );
+      write(
+        joints,
+        additive,
+        "rightShoulder",
+        gestureJoints.ANGLES.square * a,
+        0,
+        0,
+      );
+      write(
+        joints,
+        additive,
+        "chest",
+        gestureJoints.ANGLES.squareChest * a,
+        0,
+        0,
+      );
       return joints;
     case "slump":
-      write(joints, additive, "chest", gestureJoints.ANGLES.slumpChest * a, 0, 0);
-      write(joints, additive, "spine", gestureJoints.ANGLES.slumpSpine * a, 0, 0);
+      write(
+        joints,
+        additive,
+        "chest",
+        gestureJoints.ANGLES.slumpChest * a,
+        0,
+        0,
+      );
+      write(
+        joints,
+        additive,
+        "spine",
+        gestureJoints.ANGLES.slumpSpine * a,
+        0,
+        0,
+      );
       write(joints, additive, "head", gestureJoints.ANGLES.slumpHead * a, 0, 0);
-      write(joints, additive, "leftShoulder", gestureJoints.ANGLES.slumpGirdle * a, 0, 0);
-      write(joints, additive, "rightShoulder", gestureJoints.ANGLES.slumpGirdle * a, 0, 0);
+      write(
+        joints,
+        additive,
+        "leftShoulder",
+        gestureJoints.ANGLES.slumpGirdle * a,
+        0,
+        0,
+      );
+      write(
+        joints,
+        additive,
+        "rightShoulder",
+        gestureJoints.ANGLES.slumpGirdle * a,
+        0,
+        0,
+      );
       return joints;
     case "wave":
     case "raiseHand":
@@ -189,8 +284,14 @@ function pattern(kind: IAutoMovieMotionHumanGestureStroke.Kind, u: number, cycle
 }
 
 /** Write one bone's delta, or add it to the bone's angles. */
-function write(joints: Angles, additive: boolean, bone: AutoMovieHumanoidBone,
-  flexion: number, abduction: number, twist: number): void {
+function write(
+  joints: Angles,
+  additive: boolean,
+  bone: AutoMovieHumanoidBone,
+  flexion: number,
+  abduction: number,
+  twist: number,
+): void {
   if (additive) {
     const was: readonly [number, number, number] = joints[bone] ?? ZERO;
     joints[bone] = [was[0] + flexion, was[1] + abduction, was[2] + twist];

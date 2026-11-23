@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanStance } from "@automovie/interface";
 
 /**
- * The restSide preset of `rest`: Both hands at the sides: the arms hang. Spread into `rest`'s parameters; the `restSide` row reads it.
+ * The restSide preset of `rest`: Both hands at the sides: the arms hang. Spread
+ * into `rest`'s parameters; the `restSide` row reads it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, how it is applied, which row reads it and what is provisional.
  * @evidence contracts/development/design.md#principled-representation The rest law's own members as one `IRestPreset`, so it fits any body as the law does.

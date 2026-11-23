@@ -18,7 +18,8 @@ import { HumanHand } from "../posture/HumanHand";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * Live small-craft contacts for grips which ride a prop or its articulated parts.
+ * Live small-craft contacts for grips which ride a prop or its articulated
+ * parts.
  */
 export namespace AquaticProp {
   /** The model placements and grip geometry at one film instant. */
@@ -29,7 +30,10 @@ export namespace AquaticProp {
     require(id: string, kind: IAutoMovieAffordance["kind"]): IContact;
   }
 
-  /** Where a hand may slide along a long round handle: toward the shoulder, within the handle's length. */
+  /**
+   * Where a hand may slide along a long round handle: toward the shoulder,
+   * within the handle's length.
+   */
   export interface IReach {
     /** The holding arm's shoulder, world metres. */
     shoulder: IAutoMovieVector3;
@@ -47,9 +51,9 @@ export namespace AquaticProp {
   }
 
   /**
-   * Compose contact frames with the prop's current world frame. A planner
-   * that drives its own articulation supplies those same writer values
-   * explicitly, so its endpoints also resolve while the plan is being placed.
+   * Compose contact frames with the prop's current world frame. A planner that
+   * drives its own articulation supplies those same writer values explicitly,
+   * so its endpoints also resolve while the plan is being placed.
    */
   export function at(
     carrier: IAutoMovieMotionHumanPropReader,
@@ -112,9 +116,9 @@ export namespace AquaticProp {
   }
 
   /**
-   * Fit the hand's grip center to a rotating handle on a moving hull. The
-   * hand may give at its rotation limit while its anatomical grip stays on
-   * the axis of the handle.
+   * Fit the hand's grip center to a rotating handle on a moving hull. The hand
+   * may give at its rotation limit while its anatomical grip stays on the axis
+   * of the handle.
    */
   export function hold(
     body: IAutoMovieMotionHumanBody,

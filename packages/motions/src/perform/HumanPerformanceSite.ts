@@ -14,15 +14,14 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
  * A named point of a prop as a world frame at a film second: where the prop
- * itself places a part it moves (`IAutoMovieMotionHumanProp.point`, a pedal
- * on its crank, a stirrup on a trotting horse), its rotation the part's own
- * or else the prop's; otherwise the prop's
- * displayed frame composed with the point's own frame on the posed prop,
- * where an act or a track has moved its parts (a pedal on a turning crank,
- * a step plate on a moving tread), its rest frame otherwise. A contact
- * planted on a moving part is held in this frame, so it rides the part, not
- * the whole prop. A point the prop names without a frame keeps the prop's
- * own rotation.
+ * itself places a part it moves (`IAutoMovieMotionHumanProp.point`, a pedal on
+ * its crank, a stirrup on a trotting horse), its rotation the part's own or
+ * else the prop's; otherwise the prop's displayed frame composed with the
+ * point's own frame on the posed prop, where an act or a track has moved its
+ * parts (a pedal on a turning crank, a step plate on a moving tread), its rest
+ * frame otherwise. A contact planted on a moving part is held in this frame, so
+ * it rides the part, not the whole prop. A point the prop names without a frame
+ * keeps the prop's own rotation.
  *
  * @param self The performance.
  * @param subject The prop.

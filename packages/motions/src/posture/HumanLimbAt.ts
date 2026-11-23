@@ -29,11 +29,11 @@ import { poseBones } from "./poseBones";
  * search, score or continuation.
  *
  * A left limb is read as the right limb of its mirror image (`HumanLimbMirror`)
- * and mirrored back, as `HumanLimbFit.fit` solves it, so its swivel is the
- * one its fits' seeds carry. A goal attached to a bone is carried into the
- * world by the pose first (`HumanLimbFit.world`). The request is the fit's
- * own: the performer's skeleton, topology and the humanoid axis and rest
- * tables, the goal's point, bend and rotation.
+ * and mirrored back, as `HumanLimbFit.fit` solves it, so its swivel is the one
+ * its fits' seeds carry. A goal attached to a bone is carried into the world by
+ * the pose first (`HumanLimbFit.world`). The request is the fit's own: the
+ * performer's skeleton, topology and the humanoid axis and rest tables, the
+ * goal's point, bend and rotation.
  */
 export namespace HumanLimbAt {
   /**
@@ -43,9 +43,12 @@ export namespace HumanLimbAt {
    * @param pose The pose before the limb is placed.
    * @param limb The limb.
    * @param goal Its goal, attached or not; its point is the end joint's target.
-   * @param swivel The swivel, degrees, in the fit's seed frame (a left limb's in its mirror image).
+   * @param swivel The swivel, degrees, in the fit's seed frame (a left limb's
+   *   in its mirror image).
    * @param branch The bend branch, 0 or 1.
-   * @returns The pose with the limb placed, its seed and the shortfall on the legal shell, metres; null for a chain that is not hinged or is degenerate.
+   * @returns The pose with the limb placed, its seed and the shortfall on the
+   *   legal shell, metres; null for a chain that is not hinged or is
+   *   degenerate.
    */
   export function at(
     body: IAutoMovieMotionHumanBody,
@@ -57,20 +60,42 @@ export namespace HumanLimbAt {
   ): (IAutoMovieSeededChainFit & { shortfall: number }) | null {
     // The chain is posed on the records it reads (`HumanLimbView`), a left
     // limb's in their mirror image, and the posed records are merged back.
-    const view: HumanLimbView.IView = HumanLimbView.of(body, pose, limb, goal, []);
+    const view: HumanLimbView.IView = HumanLimbView.of(
+      body,
+      pose,
+      limb,
+      goal,
+      [],
+    );
     const left: boolean = limb.startsWith("left");
-    const image: IAutoMoviePose = left ? HumanLimbMirror.pose(view.pose) : view.pose;
+    const image: IAutoMoviePose = left
+      ? HumanLimbMirror.pose(view.pose)
+      : view.pose;
     const chain: AutoMovieHumanLimb = left ? HumanLimbMirror.limb(limb) : limb;
     const carried: IAutoMovieHumanLimbGoal = HumanLimbFit.world(
-      body, image, chain, left ? HumanLimbMirror.goal(goal) : goal);
+      body,
+      image,
+      chain,
+      left ? HumanLimbMirror.goal(goal) : goal,
+    );
     HumanLimbView.admitted(body, pose);
     const posed: (IAutoMovieSeededChainFit & { shortfall: number }) | null =
       fitHingedChainAt(request(body, image, chain, carried), swivel, branch);
-    return posed === null ? null : {
-      ...posed,
-      pose: HumanLimbView.merged(pose, view, image.joints, posed.pose.joints, null,
-        left ? HumanLimbMirror.joint : (joint: IAutoMovieJointPose): IAutoMovieJointPose => joint),
-    };
+    return posed === null
+      ? null
+      : {
+          ...posed,
+          pose: HumanLimbView.merged(
+            pose,
+            view,
+            image.joints,
+            posed.pose.joints,
+            null,
+            left
+              ? HumanLimbMirror.joint
+              : (joint: IAutoMovieJointPose): IAutoMovieJointPose => joint,
+          ),
+        };
   }
 
   /**
@@ -79,7 +104,9 @@ export namespace HumanLimbAt {
    * @param body The performer's body.
    * @param pose The posed body.
    * @param limb The limb.
-   * @returns Its seed in the fit's frame (a left limb's in its mirror image); null for a chain that is not hinged or is degenerate, or an end joint the rig lacks.
+   * @returns Its seed in the fit's frame (a left limb's in its mirror image);
+   *   null for a chain that is not hinged or is degenerate, or an end joint the
+   *   rig lacks.
    */
   export function seed(
     body: IAutoMovieMotionHumanBody,
@@ -89,28 +116,51 @@ export namespace HumanLimbAt {
     // Read on the records the chain's frames depend on (`HumanLimbView`), a
     // left limb's in their mirror image; the whole pose is admitted first.
     HumanLimbView.admitted(body, pose);
-    const view: HumanLimbView.IView = HumanLimbView.of(body, pose, limb, NOWHERE, []);
+    const view: HumanLimbView.IView = HumanLimbView.of(
+      body,
+      pose,
+      limb,
+      NOWHERE,
+      [],
+    );
     const left: boolean = limb.startsWith("left");
-    const image: IAutoMoviePose = left ? HumanLimbMirror.pose(view.pose) : view.pose;
+    const image: IAutoMoviePose = left
+      ? HumanLimbMirror.pose(view.pose)
+      : view.pose;
     const side: AutoMovieHumanLimb = left ? HumanLimbMirror.limb(limb) : limb;
     const chain: HumanLimbFit.IChain = HumanLimbFit.chain(side);
-    const end: IAutoMovieResolvedBone | undefined =
-      poseBones(body, image, undefined, new Set([chain.effector])).get(chain.effector);
+    const end: IAutoMovieResolvedBone | undefined = poseBones(
+      body,
+      image,
+      undefined,
+      new Set([chain.effector]),
+    ).get(chain.effector);
     if (end === undefined) return null;
     const joint = (bone: AutoMovieHumanoidBone): IAutoMovieJointPose => {
-      let found: IAutoMovieJointPose = { bone, flexion: 0, abduction: 0, twist: 0 };
+      let found: IAutoMovieJointPose = {
+        bone,
+        flexion: 0,
+        abduction: 0,
+        twist: 0,
+      };
       for (const j of image.joints) if (j.bone === bone) found = j;
       return found;
     };
     return readHingedChainSeed(
-      request(body, image, side, { point: end.worldPosition, bend: end.worldPosition }),
+      request(body, image, side, {
+        point: end.worldPosition,
+        bend: end.worldPosition,
+      }),
       joint(chain.upper),
       joint(chain.lower),
     );
   }
 }
 
-/** A goal that rides no bone, for a reading that has none: only its absent attachment is read. */
+/**
+ * A goal that rides no bone, for a reading that has none: only its absent
+ * attachment is read.
+ */
 const NOWHERE: IAutoMovieHumanLimbGoal = {
   point: { x: 0, y: 0, z: 0 },
   bend: { x: 0, y: 0, z: 0 },

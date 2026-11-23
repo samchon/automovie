@@ -2,8 +2,8 @@ import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
 /**
  * Whether a displayed second of an action can be evaluated for some bones
- * alone: no held prop, no stopped weapon and no entering offset still
- * decaying, each of which reads the whole pose.
+ * alone: no held prop, no stopped weapon and no entering offset still decaying,
+ * each of which reads the whole pose.
  *
  * @param person The person.
  * @param segment The action shown.

@@ -50,9 +50,7 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * segments pivot on the loop's centre, the last two on its back point.
  */
 export namespace placeOverHeadPath {
-  /**
-   * What the path is prepared from.
-   */
+  /** What the path is prepared from. */
   export interface IProps {
     /** The loop's world frame as the hand holds it at entry. */
     start: IAutoMovieRigidTransform;
@@ -73,9 +71,7 @@ export namespace placeOverHeadPath {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
-  /**
-   * The prepared path.
-   */
+  /** The prepared path. */
   export interface IPath {
     /** The loop's frame at a progress in [0, 1]. */
     at: (progress: number) => IAutoMovieRigidTransform;

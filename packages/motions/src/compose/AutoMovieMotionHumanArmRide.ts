@@ -21,18 +21,17 @@ import { poseBones } from "../posture/poseBones";
 
 /**
  * A planned arm's site that rides another arm of the same plan
- * (`HumanArmTrajectory.ISite.on`), read off where the base and the lead
- * arm's own site put it: a grip on an object both hands hold, in the lead
- * hand's frame, or a touch on a segment of the other arm, in that segment's
- * frame.
+ * (`HumanArmTrajectory.ISite.on`), read off where the base and the lead arm's
+ * own site put it: a grip on an object both hands hold, in the lead hand's
+ * frame, or a touch on a segment of the other arm, in that segment's frame.
  */
 export namespace AutoMovieMotionHumanArmRide {
   /**
-   * A grip on an object both hands hold, in the lead hand's frame as the
-   * lead's site puts it: the grip's point and the hand's rotation relative
-   * to the lead hand at its own site, and no surface normal, so the contact
-   * is held to the point on every axis (a closed chain, the second hand's
-   * pose the object's times its grasp offset).
+   * A grip on an object both hands hold, in the lead hand's frame as the lead's
+   * site puts it: the grip's point and the hand's rotation relative to the lead
+   * hand at its own site, and no surface normal, so the contact is held to the
+   * point on every axis (a closed chain, the second hand's pose the object's
+   * times its grasp offset).
    *
    * @param lead The lead hand's site, with its rotation.
    * @param own The gripping hand's site.
@@ -62,8 +61,8 @@ export namespace AutoMovieMotionHumanArmRide {
 
   /**
    * A site on a segment of another arm of the group, in that segment's own
-   * frame where the base holds it: the point, the touched collider's
-   * outward normal there and the hand's rotation.
+   * frame where the base holds it: the point, the touched collider's outward
+   * normal there and the hand's rotation.
    *
    * @param body The body.
    * @param pose The base pose the segment is read on.
@@ -86,8 +85,7 @@ export namespace AutoMovieMotionHumanArmRide {
       : bone.endsWith("LowerArm")
         ? "lower"
         : "hand";
-    const carried: AutoMovieHumanoidBone =
-      `${side}${owner === "upper" ? "UpperArm" : owner === "lower" ? "LowerArm" : "Hand"}`;
+    const carried: AutoMovieHumanoidBone = `${side}${owner === "upper" ? "UpperArm" : owner === "lower" ? "LowerArm" : "Hand"}`;
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
       pose,

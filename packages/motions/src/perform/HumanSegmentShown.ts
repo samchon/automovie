@@ -18,10 +18,9 @@ import { observableHumanSegment } from "./observableHumanSegment";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
- * A person's displayed pose at a film second as the person keeps it: the
- * pose is evaluated once and kept as a record (`HumanSegment.IShown`), and
- * what its readers take from it, the pose itself and its bones, comes from
- * that record.
+ * A person's displayed pose at a film second as the person keeps it: the pose
+ * is evaluated once and kept as a record (`HumanSegment.IShown`), and what its
+ * readers take from it, the pose itself and its bones, comes from that record.
  */
 export namespace HumanSegmentShown {
   /**
@@ -29,10 +28,16 @@ export namespace HumanSegmentShown {
    *
    * @param person The person.
    * @param seconds Film seconds.
-   * @param retain Whether a miss may produce a full pose for later readers. A transient observation uses the existing guarded bone selection.
-   * @param requested Optional observational bones. Where the person keeps poses the whole pose is read and kept, so every later reader of the second takes it; elsewhere only their frames are guaranteed and such a pose is not kept.
+   * @param retain Whether a miss may produce a full pose for later readers. A
+   *   transient observation uses the existing guarded bone selection.
+   * @param requested Optional observational bones. Where the person keeps poses
+   *   the whole pose is read and kept, so every later reader of the second
+   *   takes it; elsewhere only their frames are guaranteed and such a pose is
+   *   not kept.
    * @param prepared Same-body preparation borrowed for the evaluation.
-   * @returns The pose, and its record when the person keeps it: absent while the schedule is resolved outside any action's planning, where a bone demand is also evaluated alone.
+   * @returns The pose, and its record when the person keeps it: absent while
+   *   the schedule is resolved outside any action's planning, where a bone
+   *   demand is also evaluated alone.
    */
   export function of(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -136,15 +141,16 @@ export namespace HumanSegmentShown {
   }
 
   /**
-   * Read a person as an overlay placed `count`-th is laid on: the carrier,
-   * the overlays placed before it and the holds' carries, without it and
-   * the overlays after it. An overlay that reads its own performer's
-   * displayed pose (a held prop it works, a bow's string drawn over its
-   * presentation) reads it so, never re-entering its own posture; the
-   * person's state at the overlay's planning is exactly this one.
+   * Read a person as an overlay placed `count`-th is laid on: the carrier, the
+   * overlays placed before it and the holds' carries, without it and the
+   * overlays after it. An overlay that reads its own performer's displayed pose
+   * (a held prop it works, a bow's string drawn over its presentation) reads it
+   * so, never re-entering its own posture; the person's state at the overlay's
+   * planning is exactly this one.
    *
    * @param person The person.
-   * @param count How many of the person's overlays the read keeps, in placement order.
+   * @param count How many of the person's overlays the read keeps, in placement
+   *   order.
    * @param read The read.
    * @returns What the read returns.
    */
@@ -171,8 +177,8 @@ export namespace HumanSegmentShown {
   }
 
   /**
-   * A displayed pose read at a second, and the person's record of it where
-   * the person keeps it.
+   * A displayed pose read at a second, and the person's record of it where the
+   * person keeps it.
    */
   export interface IRead {
     /** The pose. */
@@ -182,14 +188,22 @@ export namespace HumanSegmentShown {
     kept?: HumanSegment.IShown;
   }
 
-  /** Whether a bone demand needs no arm channel (`demandedHumanChannels`): its bones hang from the root, the trunk, the head and the legs alone. */
+  /**
+   * Whether a bone demand needs no arm channel (`demandedHumanChannels`): its
+   * bones hang from the root, the trunk, the head and the legs alone.
+   */
   function armless(requested: ReadonlySet<AutoMovieHumanoidBone>): boolean {
     const channels: readonly AutoMovieMotionHumanChannel[] =
       demandedHumanChannels(requested);
     return !channels.includes("leftArm") && !channels.includes("rightArm");
   }
 
-  /** Keep a record at a second where the person keeps poses: in the planning's map while one action is planned (`HumanSegment.planning`, whose placed state is fixed), in the settled map otherwise, none while the schedule is resolved outside a planning. */
+  /**
+   * Keep a record at a second where the person keeps poses: in the planning's
+   * map while one action is planned (`HumanSegment.planning`, whose placed
+   * state is fixed), in the settled map otherwise, none while the schedule is
+   * resolved outside a planning.
+   */
   function keep(
     person: IAutoMovieMotionHumanSegment.IPerson,
     seconds: number,
@@ -210,14 +224,15 @@ export namespace HumanSegmentShown {
    * A person's displayed bones at a film second: the bones of the pose `of`
    * gives. A pose the person keeps is admitted by the body's rig once, at the
    * first read of its bones, and every later read of that pose's bones takes
-   * them from that one reading; a pose that is not kept has its bones
-   * resolved from it.
+   * them from that one reading; a pose that is not kept has its bones resolved
+   * from it.
    *
    * @param person The person.
    * @param seconds Film seconds.
    * @param requested The bones to return; every bone when absent.
    * @param prepared Same-body preparation of this synchronous query.
-   * @param bound One scan's fixed-demand readers, of a pose and of a reading, for the same names as `requested`; absent, the names are read live.
+   * @param bound One scan's fixed-demand readers, of a pose and of a reading,
+   *   for the same names as `requested`; absent, the names are read live.
    * @returns The bones, fresh.
    */
   export function bones(

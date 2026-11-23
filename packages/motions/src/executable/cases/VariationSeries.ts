@@ -9,9 +9,9 @@ import type {
 import { HumanPerformance } from "../../perform/HumanPerformance";
 
 /**
- * What the variation capture's series of repeats share: the repeat count,
- * the spread ratio every series is held to, the stage a series is performed
- * on and the two spread measures.
+ * What the variation capture's series of repeats share: the repeat count, the
+ * spread ratio every series is held to, the stage a series is performed on and
+ * the two spread measures.
  */
 export namespace VariationSeries {
   /** Repeats per series. */
@@ -20,7 +20,10 @@ export namespace VariationSeries {
   /** The least ratio of a spread at proficiency 0 to that at proficiency 1. */
   export const RATIO: number = 2;
 
-  /** One performer, trained, at the origin facing +Z, and an optional partner a gap ahead facing back. */
+  /**
+   * One performer, trained, at the origin facing +Z, and an optional partner a
+   * gap ahead facing back.
+   */
   export function perform(
     body: IAutoMovieMotionHumanBody,
     chain: IAutoMovieMotionHumanChain,

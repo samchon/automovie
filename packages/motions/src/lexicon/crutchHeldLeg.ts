@@ -26,18 +26,19 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The injured leg a crutch gait holds off the floor once the hands bear
- * (Physiopedia, Crutches: the three-point gait; HealthLinkBC, Using
- * crutches). Its foot first rises a stepping limb's rise (`crawl.LIFT`)
- * straight up over its place through the first third of the lift, as a
- * stepping foot clears the floor before it travels (`supportStep`), while the
- * pelvis moves on above it; the leg then folds from its angles there to the
- * held hip and knee flexion, the ankle dorsiflexing by the shank's tilt up to
- * a weightless ankle's limit (`ANKLE_DORSIFLEXION.unloaded`) so the toes do
- * not pitch down. A leg the posture holds by its joints alone rises from the
- * foot where those joints stand it.
+ * (Physiopedia, Crutches: the three-point gait; HealthLinkBC, Using crutches).
+ * Its foot first rises a stepping limb's rise (`crawl.LIFT`) straight up over
+ * its place through the first third of the lift, as a stepping foot clears the
+ * floor before it travels (`supportStep`), while the pelvis moves on above it;
+ * the leg then folds from its angles there to the held hip and knee flexion,
+ * the ankle dorsiflexing by the shank's tilt up to a weightless ankle's limit
+ * (`ANKLE_DORSIFLEXION.unloaded`) so the toes do not pitch down. A leg the
+ * posture holds by its joints alone rises from the foot where those joints
+ * stand it.
  *
  * @param props The leg, its timing and the posture it lifts from.
- * @returns The writer of a posture with the leg held, the base posture's other parts kept.
+ * @returns The writer of a posture with the leg held, the base posture's other
+ *   parts kept.
  */
 export function crutchHeldLeg(
   props: crutchHeldLeg.IProps,
@@ -125,8 +126,7 @@ export function crutchHeldLeg(
       posture.root.y +
       Quaternion.rotateVector(resolveHumanPosture.heading(posture), restHip).y;
     const drop: number =
-      hipY -
-      (props.floor(seconds) + reachDown + walkFoot.CLEARANCE);
+      hipY - (props.floor(seconds) + reachDown + walkFoot.CLEARANCE);
     const k: number = knee * Quaternion.DEG2RAD;
     const a: number = Math.hypot(
       thigh + shank * Math.cos(k),
@@ -135,7 +135,10 @@ export function crutchHeldLeg(
     if (drop >= a) return hip;
     // The ankle is too low within acos(D / A) of φ, the angle of its
     // lowest hang: the thigh is moved to the nearer edge of that band.
-    const phi: number = Math.atan2(shank * Math.sin(k), thigh + shank * Math.cos(k));
+    const phi: number = Math.atan2(
+      shank * Math.sin(k),
+      thigh + shank * Math.cos(k),
+    );
     const band: number = Math.acos(Math.max(-1, drop / a));
     const theta: number = (hip + posture.pitch) * Quaternion.DEG2RAD;
     if (Math.abs(theta - phi) >= band) return hip;
@@ -211,9 +214,7 @@ export function crutchHeldLeg(
   };
 }
 
-/**
- * Companion types of {@link crutchHeldLeg}.
- */
+/** Companion types of {@link crutchHeldLeg}. */
 export namespace crutchHeldLeg {
   /** The leg to hold and when. */
   export interface IProps {
@@ -238,11 +239,17 @@ export namespace crutchHeldLeg {
     /** The law's posture before the leg is held, by action second. */
     read: (seconds: number) => IAutoMovieMotionHumanPosture;
 
-    /** The height of the level beneath the held foot at an action second, world metres; the held angles alone when absent. */
+    /**
+     * The height of the level beneath the held foot at an action second, world
+     * metres; the held angles alone when absent.
+     */
     floor?: (seconds: number) => number;
   }
 
-  /** The leg where it starts to fold: its hip's and knee's angles and its ankle's, degrees. */
+  /**
+   * The leg where it starts to fold: its hip's and knee's angles and its
+   * ankle's, degrees.
+   */
   export interface IRaised extends IAutoMovieHumanLimbReference {
     /** The ankle's `[flexion, abduction, twist]`, degrees. */
     foot: readonly [number, number, number];

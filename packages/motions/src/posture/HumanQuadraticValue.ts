@@ -1,23 +1,30 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
-
 /**
  * Evaluate the existing quadratic and exact soft-interval l1 objective.
- * Omitting x means the exact zero vector of an already admitted finite
- * problem: every curvature/linear term and ordered row product then adds
- * only signed zero to positive zero, leaving the same positive-zero sums.
- * This origin entry does not itself admit or certify any problem data.
+ * Omitting x means the exact zero vector of an already admitted finite problem:
+ * every curvature/linear term and ordered row product then adds only signed
+ * zero to positive zero, leaving the same positive-zero sums. This origin entry
+ * does not itself admit or certify any problem data.
  *
- * @param problem Compatible admitted finite curvature, q and row coefficients with valid, possibly unbounded ordered intervals.
+ * @param problem Compatible admitted finite curvature, q and row coefficients
+ *   with valid, possibly unbounded ordered intervals.
  * @param x Current finite variable values, or the exact origin when absent.
- * @param observe Optional synchronous read-only consumer of each soft row's actual interval excess, in row order; it must not mutate the problem or x.
- * @param curvatureBand Actual upper curvature bandwidth, independent of row coupling; a narrower value requires exact zero entries outside it, as the fit's private diagonal producer guarantees.
- * @returns The objective in the original cost units, with the original overflow behavior.
+ * @param observe Optional synchronous read-only consumer of each soft row's
+ *   actual interval excess, in row order; it must not mutate the problem or x.
+ * @param curvatureBand Actual upper curvature bandwidth, independent of row
+ *   coupling; a narrower value requires exact zero entries outside it, as the
+ *   fit's private diagonal producer guarantees.
+ * @returns The objective in the original cost units, with the original overflow
+ *   behavior.
  */
 export function HumanQuadraticValue(
   problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   x?: Float64Array,
-  observe?: (row: IAutoMovieMotionHumanQuadraticProgram.IRow, miss: number) => void,
+  observe?: (
+    row: IAutoMovieMotionHumanQuadraticProgram.IRow,
+    miss: number,
+  ) => void,
   curvatureBand: number = problem.band,
 ): number {
   let v: number = 0;

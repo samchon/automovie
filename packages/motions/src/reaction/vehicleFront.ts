@@ -12,23 +12,28 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A moving car's front as a struck or diving pedestrian meets it, read in
- * the car's own frame (its front toward `+Z`, `+Y` up): the leading face,
- * the top of its leading edge, the bumper's lower face, the half width and
- * the bonnet's length and the roof's height, and the car's course read off the prop's frame at a
- * film second.
+ * A moving car's front as a struck or diving pedestrian meets it, read in the
+ * car's own frame (its front toward `+Z`, `+Y` up): the leading face, the top
+ * of its leading edge, the bumper's lower face, the half width and the bonnet's
+ * length and the roof's height, and the car's course read off the prop's frame
+ * at a film second.
  *
- * The front is the collider that reaches furthest forward together with
- * every collider whose front lies within `BAND` of it: the leading edge is
- * the highest top among them, the bumper the lowest bottom, the width the
- * widest. A named affordance, when the scene gives one, places the leading
- * edge instead.
+ * The front is the collider that reaches furthest forward together with every
+ * collider whose front lies within `BAND` of it: the leading edge is the
+ * highest top among them, the bumper the lowest bottom, the width the widest. A
+ * named affordance, when the scene gives one, places the leading edge instead.
  */
 export namespace vehicleFront {
-  /** Colliders whose front lies this far behind the foremost one still form the front face, metres (provisional: a bumper's depth). */
+  /**
+   * Colliders whose front lies this far behind the foremost one still form the
+   * front face, metres (provisional: a bumper's depth).
+   */
   export const BAND: number = 0.15;
 
-  /** The step the course is searched at for the contact, seconds: a 120 Hz scan, refined by bisection. */
+  /**
+   * The step the course is searched at for the contact, seconds: a 120 Hz scan,
+   * refined by bisection.
+   */
   export const STEP: number = 1 / 120;
 
   /** The half span of the central difference a velocity is read over, seconds. */
@@ -74,7 +79,8 @@ export namespace vehicleFront {
    * @param vehicle The car's subject id.
    * @param edge The affordance at the top of its leading edge, when named.
    * @returns The front.
-   * @throws {HumanRefusal} When the car has no colliders, no course, or no affordance of that name.
+   * @throws {HumanRefusal} When the car has no colliders, no course, or no
+   *   affordance of that name.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,
@@ -87,7 +93,10 @@ export namespace vehicleFront {
     const shapes: readonly IAutoMoviePhysicalShape[] | undefined =
       reader.prop.shapes;
     if (shapes === undefined || shapes.length === 0)
-      throw refusal(vehicle, `${vehicle} has no colliders to read a front from`);
+      throw refusal(
+        vehicle,
+        `${vehicle} has no colliders to read a front from`,
+      );
     const still: IAutoMovieRigidTransform = {
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
@@ -106,7 +115,9 @@ export namespace vehicleFront {
         b.max.z >= foremost - BAND,
     );
     let top: number = Math.max(
-      ...face.map((b: IAutoMoviePhysicalShapeBounds.IResult): number => b.max.y),
+      ...face.map(
+        (b: IAutoMoviePhysicalShapeBounds.IResult): number => b.max.y,
+      ),
     );
     let front: number = foremost;
     if (edge !== undefined) {
@@ -203,15 +214,16 @@ export namespace vehicleFront {
   }
 
   /**
-   * The first film second the car's leading face reaches the legs, within
-   * its width, on its course.
+   * The first film second the car's leading face reaches the legs, within its
+   * width, on its course.
    *
    * @param reader The car.
    * @param front The car's front.
    * @param legs Where the legs stand.
    * @param from The first film second searched.
    * @param to The last film second searched.
-   * @returns The contact's film second, or undefined when the course never meets the legs.
+   * @returns The contact's film second, or undefined when the course never
+   *   meets the legs.
    */
   export function contact(
     reader: IAutoMovieMotionHumanPropReader,

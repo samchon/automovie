@@ -13,18 +13,20 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Which of a partner's segments a hand laid on one of their regions rests
- * on: the region's segment, and a segment jointed to it (its skeleton
- * parent or child) where the hand can reach it from the region, some shape
- * of it within a hand's length of the region's point; a hand laid on a part
- * meets the parts jointed to it where they meet (a palm on the side of the
- * neck under the jaw, a grip on a forearm by the wrist). Every other
- * segment is only in the arm's way.
+ * Which of a partner's segments a hand laid on one of their regions rests on:
+ * the region's segment, and a segment jointed to it (its skeleton parent or
+ * child) where the hand can reach it from the region, some shape of it within a
+ * hand's length of the region's point; a hand laid on a part meets the parts
+ * jointed to it where they meet (a palm on the side of the neck under the jaw,
+ * a grip on a forearm by the wrist). Every other segment is only in the arm's
+ * way.
  *
  * @param partner The partner's body.
  * @param region The region the hand is laid on.
- * @param hand The performer's hand length, metres (`IAutoMovieBodyMeasure.hand`).
- * @returns At the partner's bones of a second, whether a placed segment is one the hand rests on.
+ * @param hand The performer's hand length, metres
+ *   (`IAutoMovieBodyMeasure.hand`).
+ * @returns At the partner's bones of a second, whether a placed segment is one
+ *   the hand rests on.
  */
 export function touchHoldRests(
   partner: IAutoMovieMotionHumanBody,

@@ -16,37 +16,37 @@ import type {
 
 /**
  * A displayed pose with the solver's bones laid over it: every bone whose
- * segment the solver owns at the instant takes its articulation from the
- * solved state, and every other bone keeps the kinematic pose's own.
+ * segment the solver owns at the instant takes its articulation from the solved
+ * state, and every other bone keeps the kinematic pose's own.
  *
- * A rig bone's world rotation is its parent's times its rest rotation times
- * its articulation (`resolvePoseBone`). A bone on a three-axis joint takes
- * the articulation `inverse(rest) * inverse(parent) * world`, lowered to
- * clinical angles by the rig's codec (`poseJointCodec`) exactly: the angles
- * compose back to the solved rotation. So is a bone whose joint declares the
- * rig's sequential chart (`IAutoMoviePhysicalJoint.order`), which the solver
- * keeps its rotation in, its locked angles at rest. Any other bone on a
- * joint with fewer axes is read on its own mobile axes: the solver keeps such a joint on the
- * coordinates of its free axes (`projectPhysicalJointRotation`: with
- * positive w each free coordinate is `2 atan(q.axis / w)` and a locked one
- * is held at zero), so each free coordinate is the joint's exact
- * representation, and it maps back to its clinical axis through the axis's
- * channel, sign and the clinical rest frame
- * (`AutoMovieHumanCanonicalProfile.axesOf`); a locked clinical axis reads
- * as rest. The coordinate chart of these axes is not the clinical chart, so
- * the displayed bone can differ from the solved one where both mobile axes
- * turn (a design debt of the profile, whose rig-axis limits differ from the
- * clinical ranges they are read from). Children are read against the
- * displayed parent, so no difference passes down the chain. An owned root
- * keeps its own articulation and moves the pose's root transform instead.
- * A hand the solver owns holds its welded fingers at their articulation at
- * the window's start (`held`), the shape the solver gave the welded hand.
- * Positions follow the rotations through the rig's rest translations; the
- * solver's joint drift, within its contact tolerance, is not displayed. A
- * pose with no owned bone is returned as given.
+ * A rig bone's world rotation is its parent's times its rest rotation times its
+ * articulation (`resolvePoseBone`). A bone on a three-axis joint takes the
+ * articulation `inverse(rest) * inverse(parent) * world`, lowered to clinical
+ * angles by the rig's codec (`poseJointCodec`) exactly: the angles compose back
+ * to the solved rotation. So is a bone whose joint declares the rig's
+ * sequential chart (`IAutoMoviePhysicalJoint.order`), which the solver keeps
+ * its rotation in, its locked angles at rest. Any other bone on a joint with
+ * fewer axes is read on its own mobile axes: the solver keeps such a joint on
+ * the coordinates of its free axes (`projectPhysicalJointRotation`: with
+ * positive w each free coordinate is `2 atan(q.axis / w)` and a locked one is
+ * held at zero), so each free coordinate is the joint's exact representation,
+ * and it maps back to its clinical axis through the axis's channel, sign and
+ * the clinical rest frame (`AutoMovieHumanCanonicalProfile.axesOf`); a locked
+ * clinical axis reads as rest. The coordinate chart of these axes is not the
+ * clinical chart, so the displayed bone can differ from the solved one where
+ * both mobile axes turn (a design debt of the profile, whose rig-axis limits
+ * differ from the clinical ranges they are read from). Children are read
+ * against the displayed parent, so no difference passes down the chain. An
+ * owned root keeps its own articulation and moves the pose's root transform
+ * instead. A hand the solver owns holds its welded fingers at their
+ * articulation at the window's start (`held`), the shape the solver gave the
+ * welded hand. Positions follow the rotations through the rig's rest
+ * translations; the solver's joint drift, within its contact tolerance, is not
+ * displayed. A pose with no owned bone is returned as given.
  *
  * @param body The performer's body, the rig the pose articulates.
- * @param codec The rig's joint codec, built with the body's joint axes and the humanoid rest frames.
+ * @param codec The rig's joint codec, built with the body's joint axes and the
+ *   humanoid rest frames.
  * @param profile The profile the window solved, its joints' free axes.
  * @param kinematic The pose the window replaces, at the same instant.
  * @param frame The solver's world states of this performer's segments, by bone.
@@ -193,11 +193,11 @@ function rest(
 }
 
 /**
- * A fewer-axis joint's clinical record from the solver's free coordinates:
- * each free axis's coordinate `2 atan(q.axis / w)` in degrees, mapped to its
+ * A fewer-axis joint's clinical record from the solver's free coordinates: each
+ * free axis's coordinate `2 atan(q.axis / w)` in degrees, mapped to its
  * clinical axis as `rest + coordinateSign * angle`, the inverse of the
- * profile's `sign * (clinical - rest) / restSign` reading; a clinical axis
- * with no free axis reads null, its rest.
+ * profile's `sign * (clinical - rest) / restSign` reading; a clinical axis with
+ * no free axis reads null, its rest.
  */
 function mobile(
   bone: AutoMovieHumanoidBone,

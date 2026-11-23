@@ -17,20 +17,24 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
- * The sprint start's foot placements on its blocks: a placed starting
- * block's two plates, which the athletics law reads in place of the
- * body-scaled setting when the take names a block, and the body-scaled
- * setting's own foot in its block (`scaled`).
+ * The sprint start's foot placements on its blocks: a placed starting block's
+ * two plates, which the athletics law reads in place of the body-scaled setting
+ * when the take names a block, and the body-scaled setting's own foot in its
+ * block (`scaled`).
  */
 export namespace sprintStartBlocks {
-  /**
-   * The runner's sides on a placed block.
-   */
+  /** The runner's sides on a placed block. */
   export interface IPlaced {
-    /** The foot on the front plate, decided by which side of the lane the front plate sits. */
+    /**
+     * The foot on the front plate, decided by which side of the lane the front
+     * plate sits.
+     */
     front: AutoMovieHumanSide;
 
-    /** Each foot's world placement: the ball at the middle of its plate's lower edge and the sole on the face. */
+    /**
+     * Each foot's world placement: the ball at the middle of its plate's lower
+     * edge and the sole on the face.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
   }
 
@@ -43,29 +47,40 @@ export namespace sprintStartBlocks {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts No roll: a plate tilted across the lane is refused.
    */
   interface IPlate {
-    /** The middle of the face's lower edge, where the ball of the foot rests with the toes on the track, world metres. */
+    /**
+     * The middle of the face's lower edge, where the ball of the foot rests
+     * with the toes on the track, world metres.
+     */
     point: IAutoMovieVector3;
 
     /** The heading of the face normal's horizontal part, degrees about +Y. */
     yaw: number;
 
-    /** The sole's pitch that lays it on the face, degrees, positive toes up: a face leaning back gives a negative pitch, the heel higher than the toes. */
+    /**
+     * The sole's pitch that lays it on the face, degrees, positive toes up: a
+     * face leaning back gives a negative pitch, the heel higher than the toes.
+     */
     pitch: number;
   }
 
   /**
-   * The largest share of a plate normal's forward component allowed across the lane: about 11 degrees of yaw, the lateral play an athlete accepts before the sole slides on the face (provisional).
+   * The largest share of a plate normal's forward component allowed across the
+   * lane: about 11 degrees of yaw, the lateral play an athlete accepts before
+   * the sole slides on the face (provisional).
    */
   const ACROSS: number = 0.2;
 
   /**
    * Fit the set's two foot placements to a starting block's plates.
    *
-   * @param context The runner's body and entry, the action's film second and the prop reader.
+   * @param context The runner's body and entry, the action's film second and
+   *   the prop reader.
    * @param subject The starting block's scene id.
    * @param preferred The authored front foot, when named.
    * @returns The runner's front side and both feet seated on their plates.
-   * @throws {HumanRefusal} For a missing plate, a plate that does not face forward and up the lane, plates not staggered across and along the lane, or an authored front foot on the other side.
+   * @throws {HumanRefusal} For a missing plate, a plate that does not face
+   *   forward and up the lane, plates not staggered across and along the lane,
+   *   or an authored front foot on the other side.
    */
   export function of(
     context: Pick<
@@ -189,7 +204,9 @@ export namespace sprintStartBlocks {
   }
 
   /**
-   * A foot in a body-scaled block: the ball on the floor `behind` metres behind the start line (the entry's foot length ahead of its stand, where the hands lie), the sole turned up onto a face `face` degrees from the floor.
+   * A foot in a body-scaled block: the ball on the floor `behind` metres behind
+   * the start line (the entry's foot length ahead of its stand, where the hands
+   * lie), the sole turned up onto a face `face` degrees from the floor.
    *
    * @param body The body.
    * @param entry The standing posture, whose heading the foot takes.

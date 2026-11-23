@@ -26,10 +26,10 @@ import { grappleSumo } from "./grappleSumo";
 /**
  * One role of a scripted judo, wrestling or mat grappling scene. The actors
  * share an authored clock and outcome. The floor solver moves each actor
- * through changing supports and the initiator's hand goals follow the
- * displayed receiver during the declared grip window. The receiver's pose is
- * authored independently, which keeps the two performers' reads acyclic.
- * Scene events identify staging beats for cuts, camera and referee cues.
+ * through changing supports and the initiator's hand goals follow the displayed
+ * receiver during the declared grip window. The receiver's pose is authored
+ * independently, which keeps the two performers' reads acyclic. Scene events
+ * identify staging beats for cuts, camera and referee cues.
  */
 export namespace grapple {
   /** Action key used by both performed roles. */
@@ -73,7 +73,10 @@ export namespace grapple {
     rest: number;
   }
 
-  /** Timing of the visible partner contact relative to the shared floor transfer. */
+  /**
+   * Timing of the visible partner contact relative to the shared floor
+   * transfer.
+   */
   function window(p: IAutoMovieMotionHumanGrapple.IParams): IWindow {
     if (grappleSumo.is(p.kind)) return grappleSumo.window();
     // A thigh contact is staged at the lowered entry. The upright approach's grip
@@ -110,10 +113,10 @@ export namespace grapple {
    * chests cannot meet when both lean into the scene's entry stance: each
    * body's head and chest fronts stand forward of its hips by the stance's
    * trunk pitch about the hip over their heights above it, plus the head's
-   * radius or half the chest's depth, and the two partners' farther fronts
-   * meet at their sum. A staged scene's marks derived from it suit both
-   * bodies, where a fixed spacing let the leaning heads overlap (the MMA
-   * reset's 4.3 cm).
+   * radius or half the chest's depth, and the two partners' farther fronts meet
+   * at their sum. A staged scene's marks derived from it suit both bodies,
+   * where a fixed spacing let the leaning heads overlap (the MMA reset's 4.3
+   * cm).
    *
    * @param kind The scene.
    * @param initiator The initiating body.
@@ -152,8 +155,11 @@ export namespace grapple {
    * Build the pose plan for one role.
    *
    * @param context Staged role, other actor and initial support.
-   * @returns The support and partner-contact plan with approach, entry, transfer and recovery events.
-   * @throws {HumanRefusal} For a nonpositive duration, self as partner or a held palm outside the actor's measured reach. The support action can refuse a stance outside its own fit bounds.
+   * @returns The support and partner-contact plan with approach, entry,
+   *   transfer and recovery events.
+   * @throws {HumanRefusal} For a nonpositive duration, self as partner or a
+   *   held palm outside the actor's measured reach. The support action can
+   *   refuse a stance outside its own fit bounds.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGrapple.IParams>,

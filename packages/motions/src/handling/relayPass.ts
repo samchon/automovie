@@ -32,24 +32,24 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 /**
  * A relay baton pass, one role of it, performed over a run (`HumanChain.over`):
  * the outgoing runner's hand goes back, open, palm back, and the incoming
- * runner pushes the baton's end into it at a film second both roles state
- * alike (`at`), from where the baton passes to the outgoing hand.
+ * runner pushes the baton's end into it at a film second both roles state alike
+ * (`at`), from where the baton passes to the outgoing hand.
  *
- * The outgoing hand is placed in the runner's own frame: behind and below
- * the shoulder by shares of the arm (the upsweep's hand, provisional), the
- * palm back and the fingers down. The incoming hand is placed each second so
- * the baton's end, read in the hand's frame where the baton is worn
+ * The outgoing hand is placed in the runner's own frame: behind and below the
+ * shoulder by shares of the arm (the upsweep's hand, provisional), the palm
+ * back and the fingers down. The incoming hand is placed each second so the
+ * baton's end, read in the hand's frame where the baton is worn
  * (`IHumanProp.worn`), lies on the outgoing runner's displayed palm. Each arm
- * leaves the run's swing over `REACH` seconds before `at` and goes back to
- * it over `REACH` after `HOLD`. The outgoing role wears the baton on its
- * hand from `at` (`IHumanActionPlan.wears`), so it rides that hand from the
- * exchange on; without a baton the pass is mimed.
+ * leaves the run's swing over `REACH` seconds before `at` and goes back to it
+ * over `REACH` after `HOLD`. The outgoing role wears the baton on its hand from
+ * `at` (`IHumanActionPlan.wears`), so it rides that hand from the exchange on;
+ * without a baton the pass is mimed.
  *
  * With a `zone`, each role refuses a pass whose runner stands outside the
- * takeover zone's two lines at `at` (World Athletics TR24.19).
- * First pass: the free distance is the composition's (where the two runs put
- * the runners at `at`); the runners do not adjust their speed to meet, and
- * the fingers do not close on the baton.
+ * takeover zone's two lines at `at` (World Athletics TR24.19). First pass: the
+ * free distance is the composition's (where the two runs put the runners at
+ * `at`); the runners do not adjust their speed to meet, and the fingers do not
+ * close on the baton.
  */
 export namespace relayPass {
   /** The action's name. */
@@ -63,13 +63,19 @@ export namespace relayPass {
   /** A pass is performed over a run: it claims one arm and its hand. */
   export const overlay: boolean = true;
 
-  /** Seconds each arm takes to leave the run's swing for the pass, and to go back (provisional). */
+  /**
+   * Seconds each arm takes to leave the run's swing for the pass, and to go
+   * back (provisional).
+   */
   export const REACH: number = 0.4;
 
   /** Seconds the hands stay together after `at` (provisional). */
   export const HOLD: number = 0.25;
 
-  /** The outgoing wrist's place from the shoulder, shares of the arm: down and behind (provisional, the upsweep). */
+  /**
+   * The outgoing wrist's place from the shoulder, shares of the arm: down and
+   * behind (provisional, the upsweep).
+   */
   export const BACK: Readonly<{ down: number; back: number }> = {
     down: 0.75,
     back: 0.5,
@@ -80,7 +86,9 @@ export namespace relayPass {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When `at` lies before this action can reach, a baton is named without its end, or the runner is outside the named takeover zone at `at`.
+   * @throws {HumanRefusal} When `at` lies before this action can reach, a baton
+   *   is named without its end, or the runner is outside the named takeover
+   *   zone at `at`.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRelayPass.IParams>,

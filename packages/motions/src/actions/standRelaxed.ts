@@ -22,11 +22,11 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { stand } from "./stand";
 
 /**
- * The relaxed arm's least shoulder abduction that leaves its digits clear
- * of the body in a quiet stance. The elbow stays at the standing law's
+ * The relaxed arm's least shoulder abduction that leaves its digits clear of
+ * the body in a quiet stance. The elbow stays at the standing law's
  * `stand.ELBOW` and the digits in the relaxed shape; wider bodies need wider
- * hanging arms. The depth is measured before any digit clearing changes
- * that shape. Bisection ends at the engine's joint-angle resolution.
+ * hanging arms. The depth is measured before any digit clearing changes that
+ * shape. Bisection ends at the engine's joint-angle resolution.
  *
  * @param body The body.
  * @returns The two arms' and hands' clinical angles, cached for this body.
@@ -39,7 +39,10 @@ export function standRelaxed(
     | Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
     | undefined = HUNG.get(body);
   if (known !== undefined) return known;
-  const fingers: Record<AutoMovieHumanSide, ReturnType<typeof HumanHand.shape>> = {
+  const fingers: Record<
+    AutoMovieHumanSide,
+    ReturnType<typeof HumanHand.shape>
+  > = {
     left: HumanHand.shape("left", "relaxed"),
     right: HumanHand.shape("right", "relaxed"),
   };
@@ -77,14 +80,18 @@ export function standRelaxed(
   const clampJoint: ReturnType<typeof prepareHumanPostureProjection.joints> =
     prepareHumanPostureProjection.joints(body, projection);
   let first:
-    | { pose: IAutoMoviePose; still: readonly IAutoMovieMotionHumanColliders.IPlaced[] }
+    | {
+        pose: IAutoMoviePose;
+        still: readonly IAutoMovieMotionHumanColliders.IPlaced[];
+      }
     | undefined;
   let carried: ReadonlySet<AutoMovieHumanoidBone> | undefined;
   let clearance: ReturnType<typeof HumanDigitFit.hanging>;
-  const shoulders: Set<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
-  let placeCarried:
-    | ReturnType<typeof HumanColliders.preparePlaced>
-    | undefined;
+  const shoulders: Set<AutoMovieHumanoidBone> = new Set([
+    "leftUpperArm",
+    "rightUpperArm",
+  ]);
+  let placeCarried: ReturnType<typeof HumanColliders.preparePlaced> | undefined;
   const shape: (
     resolved: IAutoMoviePose,
     joints: Partial<
@@ -112,7 +119,11 @@ export function standRelaxed(
     abduction: number,
   ): boolean => {
     standing ??= stand.stance(body, { x: 0, y: 0, z: 0 }, 0, {});
-    if (first !== undefined && carried !== undefined && placeCarried !== undefined) {
+    if (
+      first !== undefined &&
+      carried !== undefined &&
+      placeCarried !== undefined
+    ) {
       const turned: IAutoMoviePose = {
         ...first.pose,
         joints: first.pose.joints.map(
@@ -123,17 +134,17 @@ export function standRelaxed(
         ),
       };
       if (clearance !== undefined) {
-        const status: boolean | undefined = clearance(poseBones(body, turned, prepared(), shoulders));
+        const status: boolean | undefined = clearance(
+          poseBones(body, turned, prepared(), shoulders),
+        );
         if (status !== undefined) return status;
       }
       const moved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         poseBones(body, turned, prepared(), carried);
-      return (
-        HumanDigitFit.penetrates(body, moved, [
-          ...first.still,
-          ...placeCarried(moved),
-        ])
-      );
+      return HumanDigitFit.penetrates(body, moved, [
+        ...first.still,
+        ...placeCarried(moved),
+      ]);
     }
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -174,8 +185,17 @@ export function standRelaxed(
         pose: shaped,
         still: HumanColliders.preparePlaced(body, fixed)(bones),
       };
-      const placed: IAutoMovieMotionHumanColliders.IPlaced[] = [...first.still, ...placeCarried(bones)];
-      clearance = HumanDigitFit.hanging(body, bones, placed, below(body, ["leftUpperArm"]), below(body, ["rightUpperArm"]));
+      const placed: IAutoMovieMotionHumanColliders.IPlaced[] = [
+        ...first.still,
+        ...placeCarried(bones),
+      ];
+      clearance = HumanDigitFit.hanging(
+        body,
+        bones,
+        placed,
+        below(body, ["leftUpperArm"]),
+        below(body, ["rightUpperArm"]),
+      );
       return HumanDigitFit.penetrates(body, bones, placed);
     }
     return HumanDigitFit.penetrates(body, bones);

@@ -12,7 +12,8 @@ import type { HumanArmTrajectoryEffector } from "./HumanArmTrajectoryEffector";
  * @param ends The unchanged joint coordinates at both ends, in arm order.
  * @param solvers The prepared two-bone reach for each arm.
  * @param reference The joint-space transport defining the bend preference.
- * @returns Frame coordinates per arm when each moving arm has a reachable interior frame.
+ * @returns Frame coordinates per arm when each moving arm has a reachable
+ *   interior frame.
  */
 export function HumanArmTrajectoryBridge(
   times: readonly number[],
@@ -30,7 +31,10 @@ export function HumanArmTrajectoryBridge(
     const poses: number[][] = [[...ends[arm]![0]]];
     const frames: (number[] | undefined)[] = [poses[0]];
     for (let k: number = 1; k < end; ++k) {
-      const pose: number[] | undefined = solvers[arm]!(progress[k]!, reference(arm, progress[k]!));
+      const pose: number[] | undefined = solvers[arm]!(
+        progress[k]!,
+        reference(arm, progress[k]!),
+      );
       frames.push(pose);
       if (pose === undefined) continue;
       seconds.push(times[k]!);
@@ -40,9 +44,12 @@ export function HumanArmTrajectoryBridge(
     seconds.push(times[end]!);
     poses.push([...ends[arm]![1]]);
     frames.push(poses[poses.length - 1]);
-    result.push(frames.map((pose: number[] | undefined, k: number): number[] =>
-      pose ?? HumanArmRefine.hermite(seconds, poses, times[k]!),
-    ));
+    result.push(
+      frames.map(
+        (pose: number[] | undefined, k: number): number[] =>
+          pose ?? HumanArmRefine.hermite(seconds, poses, times[k]!),
+      ),
+    );
   }
   return result;
 }

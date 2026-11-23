@@ -7,10 +7,10 @@ import type { HumanQuadraticPreparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticTranspose } from "./HumanQuadraticTranspose";
 
 /**
- * The equilibration of one quadratic program's data: exact-zero
- * compression and modified Ruiz scaling (Stellato et al. 2020, section 5.1,
- * algorithm 2), and the finite admission of what it produces, the numeric
- * work `HumanQuadraticPreparation` runs on a miss.
+ * The equilibration of one quadratic program's data: exact-zero compression and
+ * modified Ruiz scaling (Stellato et al. 2020, section 5.1, algorithm 2), and
+ * the finite admission of what it produces, the numeric work
+ * `HumanQuadraticPreparation` runs on a miss.
  */
 export namespace HumanQuadraticEquilibration {
   /**
@@ -19,10 +19,14 @@ export namespace HumanQuadraticEquilibration {
    * and one Ruiz row step in one pass.
    *
    * @param problem The admitted program.
-   * @param admitted What the admission proved equal to the previous preparation.
-   * @param dr Row-sized scratch, the row scales' work, left holding the last row step.
-   * @param previous The caller's previous preparation, whose proved-equal raw data and topology are shared.
-   * @param fixed The variables' and the cost's scales to apply in place of the ten passes.
+   * @param admitted What the admission proved equal to the previous
+   *   preparation.
+   * @param dr Row-sized scratch, the row scales' work, left holding the last
+   *   row step.
+   * @param previous The caller's previous preparation, whose proved-equal raw
+   *   data and topology are shared.
+   * @param fixed The variables' and the cost's scales to apply in place of the
+   *   ten passes.
    * @returns The new preparation.
    * @throws {RangeError} For nonfinite scaled data or noninvertible scaling.
    */
@@ -383,13 +387,18 @@ export namespace HumanQuadraticEquilibration {
 /**
  * Return the original reciprocal square root of a bounded Ruiz norm.
  *
- * Uses the existing minimum/maximum scale rule; norms below MIN_SCALE and exactly one both produce exactly one in the original formula.
- * Owns the identical column/row norm transformation for all ten preparation passes; cost equilibration retains its separate reciprocal norm.
- * Folds only exact unit results, with no approximate comparison or changed threshold; all other values use the original min, square root and division association, including nonfinite propagation.
- * Takes O(1) time/space and avoids square root/division for exact unit-scale rows/columns, including unchanged unit trust rows.
- * Reuses the generic norm transformation as one private function, retaining no numeric input or cached result.
- * Allocates and retains nothing; the current scaling pass owns the returned dimensionless factor.
- * States the unchanged rule, exact unit cases, arithmetic order and ownership.
+ * Uses the existing minimum/maximum scale rule; norms below MIN_SCALE and
+ * exactly one both produce exactly one in the original formula. Owns the
+ * identical column/row norm transformation for all ten preparation passes; cost
+ * equilibration retains its separate reciprocal norm. Folds only exact unit
+ * results, with no approximate comparison or changed threshold; all other
+ * values use the original min, square root and division association, including
+ * nonfinite propagation. Takes O(1) time/space and avoids square root/division
+ * for exact unit-scale rows/columns, including unchanged unit trust rows.
+ * Reuses the generic norm transformation as one private function, retaining no
+ * numeric input or cached result. Allocates and retains nothing; the current
+ * scaling pass owns the returned dimensionless factor. States the unchanged
+ * rule, exact unit cases, arithmetic order and ownership.
  */
 function inverseScale(norm: number): number {
   return norm < MIN_SCALE || norm === 1

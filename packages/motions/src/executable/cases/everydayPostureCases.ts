@@ -22,8 +22,8 @@ import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
  * The seat, bend and step cases of `everydayCases` (`everyday-seat`,
- * `everyday-bend` and `everyday-step`), with the verdicts
- * `everydayCases` lists.
+ * `everyday-bend` and `everyday-step`), with the verdicts `everydayCases`
+ * lists.
  *
  * @param c The body's case context.
  * @param wants Whether a family is wanted.
@@ -269,9 +269,9 @@ export function everydayPostureCases(
  * `top` face's depth behind it, the contacts `createKerb` declares, turned so
  * its near side faces a performer at the origin facing `+Z`.
  *
- * @param box The near side's middle on the floor, the height and the depth, metres.
+ * @param box The near side's middle on the floor, the height and the depth,
+ *   metres.
  * @returns The prop.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the contacts and the turn.
  * @evidence contracts/development/implementation.md#principled-implementation `createKerb`'s `edge` and `top` at its frames, the kerb half turned about `+Y`.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One prop literal.

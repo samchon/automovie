@@ -36,9 +36,7 @@ interface ITrack {
   frequency: number;
 }
 
-/**
- * Sample the reach, held handshake and withdrawal by their actual events.
- */
+/** Sample the reach, held handshake and withdrawal by their actual events. */
 export function handshakePlayback(track: ITrack): {
   posture: IAutoMovieMotionHumanActionPlan["posture"];
   phases: readonly IAutoMovieMotionHumanPlayback.IPhase[];

@@ -62,12 +62,16 @@ interface IShape {
  *
  * @param error The owned trajectory failure already enriched with mass history.
  * @param body The same unchanged body used by the failed flight.
- * @param plan Its original pure action plan, before any flight rotation handback.
+ * @param plan Its original pure action plan, before any flight rotation
+ *   handback.
  * @param start The action's placed start in film seconds.
  * @param takeoff The flight's actual takeoff in film seconds.
  * @param unturned The same composed displayed-pose reader used by its history.
- * @param resolution Optional original FK supplier borrowed for these synchronous full-bone diagnostic reads only.
- * @returns The same error, with copied boundary numbers in its fields and message; a secondary read failure is recorded without masking the original.
+ * @param resolution Optional original FK supplier borrowed for these
+ *   synchronous full-bone diagnostic reads only.
+ * @returns The same error, with copied boundary numbers in its fields and
+ *   message; a secondary read failure is recorded without masking the
+ *   original.
  */
 export function HumanPerformanceFlightFailure(
   error: Error,
@@ -85,7 +89,11 @@ export function HumanPerformanceFlightFailure(
     error: string | null;
   }[] = [];
   const view: DataView = new DataView(new ArrayBuffer(8));
-  for (const time of [neighbour(takeoff, -1, view), takeoff, neighbour(takeoff, 1, view)]) {
+  for (const time of [
+    neighbour(takeoff, -1, view),
+    takeoff,
+    neighbour(takeoff, 1, view),
+  ]) {
     const local: number = Math.min(plan.duration, Math.max(0, time - start));
     try {
       const raw: ReturnType<typeof plan.posture> = plan.posture(local);
@@ -108,23 +116,42 @@ export function HumanPerformanceFlightFailure(
             limb,
             point: vector(goal.point),
             bend: vector(goal.bend),
-            rotation: goal.rotation === undefined ? null : rotation(goal.rotation),
+            rotation:
+              goal.rotation === undefined ? null : rotation(goal.rotation),
             contact: goal.contact === undefined ? null : vector(goal.contact),
             planted: goal.planted ?? null,
             on: goal.on ?? null,
           });
       const pose: IAutoMoviePose = unturned(time);
-      shape.rootPosition = pose.root === null ? null : vector(pose.root.translation);
-      shape.rootRotation = pose.root === null ? null : rotation(pose.root.rotation);
-      shape.joints = pose.joints.map((joint: IAutoMovieJointPose): IShape["joints"][number] => [
-        joint.bone, joint.flexion, joint.abduction, joint.twist,
-      ]);
-      for (const bone of poseBones(body, { ...pose, root: null }, resolution?.()).values())
+      shape.rootPosition =
+        pose.root === null ? null : vector(pose.root.translation);
+      shape.rootRotation =
+        pose.root === null ? null : rotation(pose.root.rotation);
+      shape.joints = pose.joints.map(
+        (joint: IAutoMovieJointPose): IShape["joints"][number] => [
+          joint.bone,
+          joint.flexion,
+          joint.abduction,
+          joint.twist,
+        ],
+      );
+      for (const bone of poseBones(
+        body,
+        { ...pose, root: null },
+        resolution?.(),
+      ).values())
         shape.bones.push(boneNumbers(bone));
       boundary.push({ time, local, shape, error: null });
     } catch (problem) {
-      boundary.push({ time, local, shape: null,
-        error: problem instanceof Error ? problem.message : "Boundary query threw a non-Error value" });
+      boundary.push({
+        time,
+        local,
+        shape: null,
+        error:
+          problem instanceof Error
+            ? problem.message
+            : "Boundary query threw a non-Error value",
+      });
     }
   }
   error.message += `; takeoff ${JSON.stringify(boundary)}`;

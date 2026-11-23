@@ -20,41 +20,51 @@ import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";
 
 /**
- * A crowd that keeps no formation, steered: each member (or each walking
- * group, as one agent) heads for its goals at its own drawn speed and avoids
- * the others and the obstacles, by one plan-time pass of the engine's
- * `steerAutoMovieCrowd`. The pass gives each member a course; the member's
- * own walk or run then keeps station on it (`walkStation`), so its feet are
- * still whole steps.
+ * A crowd that keeps no formation, steered: each member (or each walking group,
+ * as one agent) heads for its goals at its own drawn speed and avoids the
+ * others and the obstacles, by one plan-time pass of the engine's
+ * `steerAutoMovieCrowd`. The pass gives each member a course; the member's own
+ * walk or run then keeps station on it (`walkStation`), so its feet are still
+ * whole steps.
  *
  * A member's agent is a disc of its shoulders' half breadth (the shoulder
  * joint's half width plus the upper arm's radius) at its desired speed: its
  * gait's speed at its leg length by dynamic similarity (the walk's normal
- * Froude number, or the run's), scaled by a normal draw with the
- * coefficient of variation of pedestrians' desired speeds, 0.26 over 1.34
- * m/s (Helbing and Molnar 1995), by fatigue, and in flight by morale
+ * Froude number, or the run's), scaled by a normal draw with the coefficient of
+ * variation of pedestrians' desired speeds, 0.26 over 1.34 m/s (Helbing and
+ * Molnar 1995), by fatigue, and in flight by morale
  * (`HUMAN_ATTRIBUTE_EFFECTS`). Its start is the cue plus its latency
- * (`HumanResponse`), and in flight its herding share is morale's. Every
- * draw is keyed by the member; adding a member changes the others' courses
- * (they avoid it) but never their draws.
+ * (`HumanResponse`), and in flight its herding share is morale's. Every draw is
+ * keyed by the member; adding a member changes the others' courses (they avoid
+ * it) but never their draws.
  */
 export namespace HumanCrowd {
-  /** The coefficient of variation of desired walking speeds: 0.26 over 1.34 m/s (Helbing and Molnar 1995). */
+  /**
+   * The coefficient of variation of desired walking speeds: 0.26 over 1.34 m/s
+   * (Helbing and Molnar 1995).
+   */
   export const SPREAD: number = 0.26 / 1.34;
 
-  /** The least share of its gait's speed a member's draw may give: one half, about 2.6 `SPREAD`s below the mean (provisional: a floor that keeps the normal draw's far tail from a walker who barely moves). */
+  /**
+   * The least share of its gait's speed a member's draw may give: one half,
+   * about 2.6 `SPREAD`s below the mean (provisional: a floor that keeps the
+   * normal draw's far tail from a walker who barely moves).
+   */
   export const SLOWEST: number = 0.5;
 
-  /** Seconds between two samples of a steered course, and between two checks of a manoeuvre's spacing: the 24 frames a second the motion's checks are read at (provisional: no film's own rate is known to the laws). */
+  /**
+   * Seconds between two samples of a steered course, and between two checks of
+   * a manoeuvre's spacing: the 24 frames a second the motion's checks are read
+   * at (provisional: no film's own rate is known to the laws).
+   */
   export const STEP: number = 1 / 24;
 
   /**
-   * A member's desired speed and delay as the pass draws them: its gait's
-   * speed at its leg length scaled by its keyed normal draw (floored at
-   * `SLOWEST`, its spread widened in flight by low morale's fluctuation,
-   * `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight
-   * by morale, and its response
-   * latency when the request names one.
+   * A member's desired speed and delay as the pass draws them: its gait's speed
+   * at its leg length scaled by its keyed normal draw (floored at `SLOWEST`,
+   * its spread widened in flight by low morale's fluctuation,
+   * `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight by
+   * morale, and its response latency when the request names one.
    *
    * @param ensemble The ensemble.
    * @param m The member.
@@ -127,15 +137,16 @@ export namespace HumanCrowd {
   }
 
   /**
-   * Plan the crowd's routes and sample all leaders together on the 24 Hz
-   * course grid. A group shares its leader's route and arrival. The combined
-   * breadth disc is a steering proxy; placed members' clearances depend on
-   * their formation offsets and course heading.
+   * Plan the crowd's routes and sample all leaders together on the 24 Hz course
+   * grid. A group shares its leader's route and arrival. The combined breadth
+   * disc is a steering proxy; placed members' clearances depend on their
+   * formation offsets and course heading.
    *
    * @param ensemble The ensemble.
    * @param request The goals, the gait, the cue and the obstacles.
    * @returns The course frames and arrivals.
-   * @throws {HumanRefusal} When two steering proxies, or a proxy and an obstacle, overlap at two successive integration knots.
+   * @throws {HumanRefusal} When two steering proxies, or a proxy and an
+   *   obstacle, overlap at two successive integration knots.
    */
   export function steer(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -262,8 +273,8 @@ export namespace HumanCrowd {
   }
 
   /**
-   * A member's half breadth at the shoulders: the shoulder joint's half
-   * width plus the upper arm's radius, metres.
+   * A member's half breadth at the shoulders: the shoulder joint's half width
+   * plus the upper arm's radius, metres.
    *
    * @param member The member.
    * @returns The half breadth.

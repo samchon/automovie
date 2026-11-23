@@ -12,7 +12,10 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 
-/** The body and ball geometry shared by the candidate rolls of one catching hand. */
+/**
+ * The body and ball geometry shared by the candidate rolls of one catching
+ * hand.
+ */
 interface ICatchObjectFingers {
   /** The catcher. */
   body: IAutoMovieMotionHumanBody;
@@ -20,7 +23,10 @@ interface ICatchObjectFingers {
   /** The standing pose on which the candidate wrist and elbow are ranked. */
   standing: IAutoMovieMotionHumanPosture;
 
-  /** The catcher's heading in degrees, used when upward lies along the palm normal. */
+  /**
+   * The catcher's heading in degrees, used when upward lies along the palm
+   * normal.
+   */
   yaw: number;
 
   /** The catching hand. */
@@ -48,8 +54,10 @@ interface ICatchObjectFingers {
 /**
  * Rank the palm rolls for one catching hand by the displayed arm's strain.
  *
- * @param input The catcher and contact with the ball, and any worn-glove correction.
- * @returns The selected world-space finger direction, upward first when equivalent.
+ * @param input The catcher and contact with the ball, and any worn-glove
+ *   correction.
+ * @returns The selected world-space finger direction, upward first when
+ *   equivalent.
  */
 export function catchObjectFingers(
   input: ICatchObjectFingers,

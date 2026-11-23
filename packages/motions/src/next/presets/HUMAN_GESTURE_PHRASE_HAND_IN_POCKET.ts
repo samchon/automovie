@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
 /**
- * The values the `handInPocket` row of `HumanUpperRows` fixes on `armPhrase`, spread into its parameters. A hand in the pocket: the fingertips visit the front pocket and stay.
+ * The values the `handInPocket` row of `HumanUpperRows` fixes on `armPhrase`,
+ * spread into its parameters. A hand in the pocket: the fingertips visit the
+ * front pocket and stay.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IArmPhrasePhraseTargetMirrorSurfaceShapeHoldPreset`, so it fits any body as the law does.

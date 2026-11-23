@@ -46,28 +46,31 @@ const PAIRS: readonly IPair[] = [
   { side: "left", face: "inside" },
 ];
 
-/** The head's speed when none is given, revolutions per minute: a provisional throwing speed. */
+/**
+ * The head's speed when none is given, revolutions per minute: a provisional
+ * throwing speed.
+ */
 const RPM: number = 120;
 
 /**
  * Draw up a clay wall on a turning wheel with both hands. Register as
  * `throwPottery`.
  *
- * The right palm lies on the wall's `outside` face and the left on its
- * `inside` face, each placed by the wrist that puts the palm's surface on
- * the face (`placeHumanHandSurface`'s rule) with the hand's entry attitude.
- * The faces ride the wheel's `raise` slider, which the pull drives from its
- * travel at the start up by `rise` over `seconds`, so both palms rise with
- * the wall and its height grows monotonically; the trunk leans forward over
- * the wheel, by the least hip hinge (`HumanTrunkLean`) that brings every palm place within the
- * arms, coming in and going out with the hands; the head's crank turns at
- * `rpm` throughout. The clay is round about the head's axis, so each palm
- * stays on the same surface in the turning head's frame. The hands reach
- * the wall over the transport movement time and leave over another.
- * Events: `strokeStart` and `strokeEnd` bound the pull.
+ * The right palm lies on the wall's `outside` face and the left on its `inside`
+ * face, each placed by the wrist that puts the palm's surface on the face
+ * (`placeHumanHandSurface`'s rule) with the hand's entry attitude. The faces
+ * ride the wheel's `raise` slider, which the pull drives from its travel at the
+ * start up by `rise` over `seconds`, so both palms rise with the wall and its
+ * height grows monotonically; the trunk leans forward over the wheel, by the
+ * least hip hinge (`HumanTrunkLean`) that brings every palm place within the
+ * arms, coming in and going out with the hands; the head's crank turns at `rpm`
+ * throughout. The clay is round about the head's axis, so each palm stays on
+ * the same surface in the turning head's frame. The hands reach the wall over
+ * the transport movement time and leave over another. Events: `strokeStart` and
+ * `strokeEnd` bound the pull.
  *
- * Refusals: a wheel without its head, rise or wall faces; a rise outside
- * the wheel's; a non-positive duration; a face beyond either arm.
+ * Refusals: a wheel without its head, rise or wall faces; a rise outside the
+ * wheel's; a non-positive duration; a face beyond either arm.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two contacts, the drives, why the contact holds in the turning frame, the timing and the refusals.
  * @evidence contracts/development/design.md#principled-representation A law record over the wheel's declared articulations and faces.

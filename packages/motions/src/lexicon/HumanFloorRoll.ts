@@ -11,14 +11,22 @@ import { HumanActionRow } from "../law/HumanActionRow";
  * uses.
  */
 export namespace HumanFloorRoll {
-  /** A forward roll: crouch, roll over the back forward, rise on the feet. Crouches over 0.7 s, turns over 1.1 s and rises over 0.7 s (`roll.CROUCH`, `roll.TURN`, provisional): 2.5 s. */
+  /**
+   * A forward roll: crouch, roll over the back forward, rise on the feet.
+   * Crouches over 0.7 s, turns over 1.1 s and rises over 0.7 s (`roll.CROUCH`,
+   * `roll.TURN`, provisional): 2.5 s.
+   */
   export const forwardRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorRoll"]["forwardRoll"]
   > = HumanActionRow.of("forwardRoll", roll, {
     direction: "forward",
   });
 
-  /** A backward roll: crouch, roll over the back backward, rise on the feet. Crouches over 0.7 s, turns over 1.1 s and rises over 0.7 s (`roll.CROUCH`, `roll.TURN`, provisional): 2.5 s. */
+  /**
+   * A backward roll: crouch, roll over the back backward, rise on the feet.
+   * Crouches over 0.7 s, turns over 1.1 s and rises over 0.7 s (`roll.CROUCH`,
+   * `roll.TURN`, provisional): 2.5 s.
+   */
   export const backwardRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorRoll"]["backwardRoll"]
   > = HumanActionRow.of("backwardRoll", roll, {

@@ -22,31 +22,36 @@ import { HUMAN_GAIT_ESCORT } from "../next/presets/HUMAN_GAIT_ESCORT";
 import { HUMAN_GAIT_FOLLOW } from "../next/presets/HUMAN_GAIT_FOLLOW";
 
 /**
- * Travel relative to another person, each a row of `approach`: the
- * composition gives the person as the target. Register the ones a film
- * uses.
+ * Travel relative to another person, each a row of `approach`: the composition
+ * gives the person as the target. Register the ones a film uses.
  *
- * `follow` and `escort` go where the person goes: the stop is
- * taken where the person comes to rest, read from their placed actions, and
- * the pursuer sets off late enough to arrive just after them. So the person
- * pursued is composed before the pursuer (`leader.with(follower)`), and a
- * pursuit composed the other way round is refused, saying so. First pass:
- * the pursuer does not match the person's speed on the way or keep a gap
- * through their turns. `confront` steps up to a person where they stand.
+ * `follow` and `escort` go where the person goes: the stop is taken where the
+ * person comes to rest, read from their placed actions, and the pursuer sets
+ * off late enough to arrive just after them. So the person pursued is composed
+ * before the pursuer (`leader.with(follower)`), and a pursuit composed the
+ * other way round is refused, saying so. First pass: the pursuer does not match
+ * the person's speed on the way or keep a gap through their turns. `confront`
+ * steps up to a person where they stand.
  *
- * `intercept` heads a moving person off, running to where they will be,
- * and `chase` is a row of it: a chase runs.
- * `flee` is the opposite travel: a run straight away from a person, read
- * where they are when it begins. It is a law of its own over the run,
- * since its destination comes from the person and not from the scene.
+ * `intercept` heads a moving person off, running to where they will be, and
+ * `chase` is a row of it: a chase runs. `flee` is the opposite travel: a run
+ * straight away from a person, read where they are when it begins. It is a law
+ * of its own over the run, since its destination comes from the person and not
+ * from the scene.
  */
 export namespace HumanPursuit {
-  /** Come up behind a person at the social distance, as a follower closes the gap. */
+  /**
+   * Come up behind a person at the social distance, as a follower closes the
+   * gap.
+   */
   export const follow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["follow"]
   > = HumanActionRow.of("follow", approach, HUMAN_GAIT_FOLLOW);
 
-  /** Come to a person's left side at the personal distance, as an escort takes station. */
+  /**
+   * Come to a person's left side at the personal distance, as an escort takes
+   * station.
+   */
   export const escort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["escort"]
   > = HumanActionRow.of("escort", approach, HUMAN_GAIT_ESCORT);
@@ -57,19 +62,18 @@ export namespace HumanPursuit {
   > = HumanActionRow.of("confront", approach, HUMAN_GAIT_CONFRONT);
 
   /**
-   * Head a moving person off: a run to where they will be when the runner
-   * gets there, stopping at arm's length of that place (the handing gap of
+   * Head a moving person off: a run to where they will be when the runner gets
+   * there, stopping at arm's length of that place (the handing gap of
    * `HumanProxemics`), not to where they are when it begins.
    *
-   * The meeting instant is the one at which the run to the person's place
-   * at that instant ends at that instant, found by planning the run to
-   * where they are at each estimate and taking its end as the next, up to
-   * eight times, to within one 24th of a second. Their place is read from
-   * their placed actions, so they are composed before the runner. A person
-   * the pace does not close on is refused with the last estimate. First
-   * pass: one straight run, so the bearing to the person is held only as
-   * far as both go straight (Fajen and Warren 2007 describe the curved
-   * approach of real interceptions).
+   * The meeting instant is the one at which the run to the person's place at
+   * that instant ends at that instant, found by planning the run to where they
+   * are at each estimate and taking its end as the next, up to eight times, to
+   * within one 24th of a second. Their place is read from their placed actions,
+   * so they are composed before the runner. A person the pace does not close on
+   * is refused with the last estimate. First pass: one straight run, so the
+   * bearing to the person is held only as far as both go straight (Fajen and
+   * Warren 2007 describe the curved approach of real interceptions).
    */
   export const intercept: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPursuit.IIntercept> =
     {
@@ -129,21 +133,30 @@ export namespace HumanPursuit {
       },
     };
 
-  /** Run after a person to arm's length of where they will be, as a chase ends: a chase runs, so it is a row of `intercept` (the run's `run` pace when none is given), never a walk. */
+  /**
+   * Run after a person to arm's length of where they will be, as a chase ends:
+   * a chase runs, so it is a row of `intercept` (the run's `run` pace when none
+   * is given), never a walk.
+   */
   export const chase: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["chase"]
   > = HumanActionRow.of("chase", intercept, {});
 
-  /** Seconds one glance back at a pursuer lasts before the eyes return ahead (provisional: no study of fleeing gaze was read). */
+  /**
+   * Seconds one glance back at a pursuer lasts before the eyes return ahead
+   * (provisional: no study of fleeing gaze was read).
+   */
   export const GLANCE: number = 0.6;
 
   /**
-   * Glances back at a pursuer, as a layer for the performance: each turns
-   * the eyes and the head toward the person's head and returns them ahead
-   * after `GLANCE` seconds, leaving the trunk to the run.
+   * Glances back at a pursuer, as a layer for the performance: each turns the
+   * eyes and the head toward the person's head and returns them ahead after
+   * `GLANCE` seconds, leaving the trunk to the run.
    *
    * ```ts
-   * layers: { a: [HumanPursuit.glances("b", [1.5, 3.2])] }
+   * layers: {
+   *   a: [HumanPursuit.glances("b", [1.5, 3.2])];
+   * }
    * ```
    *
    * @param at The person looked back at, by subject id.
@@ -167,17 +180,21 @@ export namespace HumanPursuit {
     );
   }
 
-  /** A search's stop: seconds stood at each place, and how far to each side the look goes, degrees from straight ahead (provisional: no study of search pauses was read). */
+  /**
+   * A search's stop: seconds stood at each place, and how far to each side the
+   * look goes, degrees from straight ahead (provisional: no study of search
+   * pauses was read).
+   */
   export const SEARCH: Readonly<{ pause: number; aside: number }> = {
     pause: 2,
     aside: 60,
   };
 
   /**
-   * Search a set of places: walk to each in turn and stand there a while,
-   * as a pursuer who has lost sight of the quarry goes from place to place
-   * and stops to look. Each stop is anchored `<name><index>` from 0, so
-   * `sweeps` can time the looks to them and another action can sync to one.
+   * Search a set of places: walk to each in turn and stand there a while, as a
+   * pursuer who has lost sight of the quarry goes from place to place and stops
+   * to look. Each stop is anchored `<name><index>` from 0, so `sweeps` can time
+   * the looks to them and another action can sync to one.
    *
    * ```ts
    * const chain = HumanPursuit.search(HumanChain.subject("a"), [p, q], "seek");
@@ -209,14 +226,14 @@ export namespace HumanPursuit {
   }
 
   /**
-   * The looks of a search, as layers for the searcher: at each stop the
-   * eyes and the head turn `SEARCH.aside` degrees to the left for the
-   * first half of the stop and to the right for the second, then return
-   * ahead. Each is windowed on its stop's anchor, so it needs no film
-   * second.
+   * The looks of a search, as layers for the searcher: at each stop the eyes
+   * and the head turn `SEARCH.aside` degrees to the left for the first half of
+   * the stop and to the right for the second, then return ahead. Each is
+   * windowed on its stop's anchor, so it needs no film second.
    *
    * @param count How many stops the search has.
-   * @param name The stops' anchor prefix given to `search`; `search` when absent.
+   * @param name The stops' anchor prefix given to `search`; `search` when
+   *   absent.
    * @param pause Seconds stood at each place, as given to `search`.
    * @returns One scheduled layer per stop, for the searcher's `layers`.
    */
@@ -259,13 +276,16 @@ export namespace HumanPursuit {
     );
   }
 
-  /** How far a flight runs when no distance is given, hip heights (provisional: about eight metres for an adult, out of a room's reach). */
+  /**
+   * How far a flight runs when no distance is given, hip heights (provisional:
+   * about eight metres for an adult, out of a room's reach).
+   */
   export const FLIGHT: number = 9;
 
   /**
-   * Run straight away from a person: a run to the point `metres` from where
-   * the performer stands, on the line from the person through the
-   * performer. Glances back are a look performed over it.
+   * Run straight away from a person: a run to the point `metres` from where the
+   * performer stands, on the line from the person through the performer.
+   * Glances back are a look performed over it.
    */
   export const flee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPursuit.IFlee> =
     {

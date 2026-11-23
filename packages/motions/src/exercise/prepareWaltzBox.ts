@@ -10,13 +10,13 @@ import { HumanFrame } from "../posture/HumanFrame";
 /**
  * Prepare the optional waltz box's common clock, turning placements and
  * vertical excursion. Yoshida et al. (2022, DOI 10.3389/fspor.2022.941042)
- * observed role-dependent rotation in a closed-hold spin. This figure
- * rotates the dancer through whichever angle the score gives them; the
- * modest excursion of the pelvis is provisional. With 	ravel, the pivot
- * itself progresses along the line of dance on the figure's minimum-jerk
- * clock, so a pair sharing pivot and travel moves down the floor together
- * and successive figures with different travels change direction; each foot
- * reads the pivot at its own footfall, so a planted foot stays put.
+ * observed role-dependent rotation in a closed-hold spin. This figure rotates
+ * the dancer through whichever angle the score gives them; the modest excursion
+ * of the pelvis is provisional. With ravel, the pivot itself progresses along
+ * the line of dance on the figure's minimum-jerk clock, so a pair sharing pivot
+ * and travel moves down the floor together and successive figures with
+ * different travels change direction; each foot reads the pivot at its own
+ * footfall, so a planted foot stays put.
  *
  * @param options The pivot and signed turn for this dancer's figure.
  * @param origin The dancer's starting root in world metres.
@@ -25,7 +25,8 @@ import { HumanFrame } from "../posture/HumanFrame";
  * @param firstBeat The first beat's second, local to the action.
  * @param lastBeat The last beat's second, local to the action.
  * @param duration The duration including the exit beat, in seconds.
- * @returns The timed placement, heading change and lowering from standing height.
+ * @returns The timed placement, heading change and lowering from standing
+ *   height.
  */
 export function prepareWaltzBox(
   options: NonNullable<IAutoMovieMotionHumanDance.IParams["waltz"]>,

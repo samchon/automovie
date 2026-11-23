@@ -17,22 +17,22 @@ import { crawlFrame } from "./crawlFrame";
 
 /**
  * The inchworm's posture at a placement of its hands and feet, by its
- * middle-plane chain (`crawlChain`): the stated posture each stance of the
- * walk is solved from and kept nearest (`HumanSupport.IStance.prefer`), so
- * the whole-body fit starts at the chain's own shape instead of the
- * standing it would otherwise climb down from, where its l1 merit can stop
- * at a stationary point of the violation that meets no contact (Nocedal and
- * Wright 2006, chapter 17).
+ * middle-plane chain (`crawlChain`): the stated posture each stance of the walk
+ * is solved from and kept nearest (`HumanSupport.IStance.prefer`), so the
+ * whole-body fit starts at the chain's own shape instead of the standing it
+ * would otherwise climb down from, where its l1 merit can stop at a stationary
+ * point of the violation that meets no contact (Nocedal and Wright 2006,
+ * chapter 17).
  *
  * The body pitches as the chain's trunk lies, each foot pivoted on its ball
- * with the heel lifted as the chain lifts it and the knee bent toward the
- * front of the leg by `KNEE` of the shank (provisional), each palm laid flat
- * on the floor at its place; the posture is then resolved to joint angles.
+ * with the heel lifted as the chain lifts it and the knee bent toward the front
+ * of the leg by `KNEE` of the shank (provisional), each palm laid flat on the
+ * floor at its place; the posture is then resolved to joint angles.
  */
 export namespace crawlInchwormPose {
   /**
-   * How far the knee's bend point lies before the straight leg's middle,
-   * as a share of the shank (provisional).
+   * How far the knee's bend point lies before the straight leg's middle, as a
+   * share of the shank (provisional).
    */
   export const KNEE: number = 0.25;
 
@@ -44,9 +44,13 @@ export namespace crawlInchwormPose {
    * @param frame The floor frame of the heading.
    * @param feet Each foot's ball along the heading, metres in the frame.
    * @param wrists Each wrist along the heading, metres in the frame.
-   * @param laid Fixed palm geometry from this unchanged body/frame, or the same native preparation when omitted; current FK is borrowed only during this placement.
-   * @param source Optional exact FK source belonging only to this synchronous preference construction.
-   * @param projector Optional genuine ROM metadata from that same construction; every current joint remains projected.
+   * @param laid Fixed palm geometry from this unchanged body/frame, or the same
+   *   native preparation when omitted; current FK is borrowed only during this
+   *   placement.
+   * @param source Optional exact FK source belonging only to this synchronous
+   *   preference construction.
+   * @param projector Optional genuine ROM metadata from that same construction;
+   *   every current joint remains projected.
    * @returns The whole body's tilt and its joint angles.
    */
   export function of(
@@ -73,8 +77,11 @@ export namespace crawlInchwormPose {
    * @param body The unchanged body and its foot/hand geometry.
    * @param chain The fixed standing-source planar chain.
    * @param frame Fixed world-metre floor origin and degree heading.
-   * @param laid The existing fixed palm reader, or its original preparation when absent.
-   * @returns A fresh clinical-posture builder for current local-metre foot-ball/wrist coordinates, borrowing optional FK/ROM inputs only during each actual synchronous call.
+   * @param laid The existing fixed palm reader, or its original preparation
+   *   when absent.
+   * @returns A fresh clinical-posture builder for current local-metre
+   *   foot-ball/wrist coordinates, borrowing optional FK/ROM inputs only during
+   *   each actual synchronous call.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -136,7 +143,14 @@ export namespace crawlInchwormPose {
         ) *
           DEG -
         chain.lean;
-      const target: IAutoMovieMotionHumanPosture = crawlFrame.posed(body, yaw, 1, pitch, 0, 0);
+      const target: IAutoMovieMotionHumanPosture = crawlFrame.posed(
+        body,
+        yaw,
+        1,
+        pitch,
+        0,
+        0,
+      );
       const posture: IAutoMovieMotionHumanPosture = {
         ...target,
         root: crawlFrame.rootFor(

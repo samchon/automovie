@@ -20,7 +20,10 @@ interface IPinFloor {
   /** Achieved pin of the unshifted direct posture, world metres. */
   point: IAutoMovieVector3;
 
-  /** The smallest world root height keeping the direct colliders above the floor, metres. */
+  /**
+   * The smallest world root height keeping the direct colliders above the
+   * floor, metres.
+   */
   floor: number;
 }
 
@@ -29,8 +32,10 @@ interface IPinFloor {
  *
  * @param body The unchanged body and collider profile.
  * @param contact The contact pinned by the interval's root.
- * @param at The material contact's captured target or unnamed floor place, world metres.
- * @returns A reader of the blend's exact pin and floor from the same forward kinematics.
+ * @param at The material contact's captured target or unnamed floor place,
+ *   world metres.
+ * @returns A reader of the blend's exact pin and floor from the same forward
+ *   kinematics.
  */
 export function prepareSupportPinFloor(
   body: IAutoMovieMotionHumanBody,

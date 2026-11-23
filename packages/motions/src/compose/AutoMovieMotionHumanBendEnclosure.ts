@@ -1,36 +1,40 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
 /**
- * Closed-form enclosures of angles read from sinusoids of a swivel, the
- * pieces the elbow search's certified bounds are built from
+ * Closed-form enclosures of angles read from sinusoids of a swivel, the pieces
+ * the elbow search's certified bounds are built from
  * (`AutoMovieMotionHumanBendBound`, `AutoMovieMotionHumanBendUnmadeBound`).
  *
- * A sinusoid `a + b cos θ + c sin θ` of a parameter `θ` (degrees) is
- * `a + R cos(θ − φ)` with `R = hypot(b, c)` and `φ = atan2(c, b)`: on an
- * interval it takes its maximum `a + R` where `φ` lies in it, its minimum
- * `a − R` where `φ + 180` does, and its values at the ends otherwise. An
- * angle read as `asin(s)` of one sinusoid is increasing in `s`, so it lies
- * between the `asin` of that range. An angle read as `atan2(y, x)` of two
- * turns at `|x y' − y x'| / |v|² ≤ |v'| / |v|` with `v = (x, y)`, where
- * `|v'| ≤ M`, the root sum of the four cosine and sine coefficients
- * squared; on an interval of half width `w` radians about its middle `m`,
- * `|v| ≥ r = |v(m)| − w M`, so where `r > 0` the angle stays within
- * `w M / r` of its value at `m`. An enclosure whose vector may come nearer
- * the origin than `FLOOR`, where the angle's reading turns ill-conditioned
- * and a decomposition pins it at gimbal lock, is refused, and every
- * enclosure is widened by `SLACK` degrees, far above the rounding of the
+ * A sinusoid `a + b cos θ + c sin θ` of a parameter `θ` (degrees) is `a + R
+ * cos(θ − φ)` with `R = hypot(b, c)` and `φ = atan2(c, b)`: on an interval it
+ * takes its maximum `a + R` where `φ` lies in it, its minimum `a − R` where `φ
+ * + 180` does, and its values at the ends otherwise. An angle read as `asin(s)`
+ * of one sinusoid is increasing in `s`, so it lies between the `asin` of that
+ * range. An angle read as `atan2(y, x)` of two turns at `|x y' − y x'| / |v|² ≤
+ * |v'| / |v|` with `v = (x, y)`, where `|v'| ≤ M`, the root sum of the four
+ * cosine and sine coefficients squared; on an interval of half width `w`
+ * radians about its middle `m`, `|v| ≥ r = |v(m)| − w M`, so where `r > 0` the
+ * angle stays within `w M / r` of its value at `m`. An enclosure whose vector
+ * may come nearer the origin than `FLOOR`, where the angle's reading turns
+ * ill-conditioned and a decomposition pins it at gimbal lock, is refused, and
+ * every enclosure is widened by `SLACK` degrees, far above the rounding of the
  * fits and the decompositions it encloses.
  */
 export namespace AutoMovieMotionHumanBendEnclosure {
-  /** The least length of an angle's vector, or the projected cosine of a middle angle, over which an enclosure is certified. */
+  /**
+   * The least length of an angle's vector, or the projected cosine of a middle
+   * angle, over which an enclosure is certified.
+   */
   export const FLOOR: number = 1e-3;
 
-  /** Degrees every enclosure is widened by: far above the fit's and the decomposition's rounding (about 1e-12 degrees at `FLOOR`), far below any strain a sweep compares. */
+  /**
+   * Degrees every enclosure is widened by: far above the fit's and the
+   * decomposition's rounding (about 1e-12 degrees at `FLOOR`), far below any
+   * strain a sweep compares.
+   */
   export const SLACK: number = 1e-6;
 
-  /**
-   * An enclosure of an angle, degrees, the lesser end first.
-   */
+  /** An enclosure of an angle, degrees, the lesser end first. */
   export type IInterval = [number, number];
 
   /**
@@ -51,7 +55,8 @@ export namespace AutoMovieMotionHumanBendEnclosure {
    * @param sine The sinusoid of the angle's sine.
    * @param low The interval's start, degrees.
    * @param high The interval's end, degrees, not before `low`.
-   * @returns The enclosure in degrees, or null where the angle may come within `FLOOR` of its right angle.
+   * @returns The enclosure in degrees, or null where the angle may come within
+   *   `FLOOR` of its right angle.
    */
   export function middle(
     sine: IAutoMovieSwivelArcs.ISinusoid,
@@ -75,7 +80,8 @@ export namespace AutoMovieMotionHumanBendEnclosure {
    * @param turn The sign the reading takes.
    * @param low The interval's start, degrees.
    * @param high The interval's end, degrees, not before `low`.
-   * @returns The enclosure in degrees, not wrapped, or null where the vector may come within `FLOOR` of the origin.
+   * @returns The enclosure in degrees, not wrapped, or null where the vector
+   *   may come within `FLOOR` of the origin.
    */
   export function outer(
     y: IAutoMovieSwivelArcs.ISinusoid,
@@ -101,8 +107,8 @@ export namespace AutoMovieMotionHumanBendEnclosure {
   }
 
   /**
-   * The least distance, degrees, from an angle to an interval and its
-   * full-turn shifts.
+   * The least distance, degrees, from an angle to an interval and its full-turn
+   * shifts.
    *
    * @param angle The angle, degrees.
    * @param interval The interval, degrees.
@@ -127,7 +133,9 @@ export namespace AutoMovieMotionHumanBendEnclosure {
   export function excess(interval: IInterval, lo: number, hi: number): number {
     if (!(interval[1] - interval[0] < 360)) return 0;
     const aim: number = (lo + hi) / 2;
-    const near: number = Math.round((aim - (interval[0] + interval[1]) / 2) / 360);
+    const near: number = Math.round(
+      (aim - (interval[0] + interval[1]) / 2) / 360,
+    );
     let out: number = Infinity;
     for (let k: number = near - 1; k <= near + 1; ++k) {
       const v: number = Math.min(

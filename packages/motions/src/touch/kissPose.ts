@@ -10,15 +10,17 @@ import { kissBody } from "./kissBody";
 
 /**
  * Build each kiss-search candidate: the kiss's body at its full share
- * (`kissBody`, the model the displayed kiss writes), with the neck's
- * flexion and the head's turn added.
+ * (`kissBody`, the model the displayed kiss writes), with the neck's flexion
+ * and the head's turn added.
  *
  * @param body The unchanged canonical body for this synchronous search.
  * @param entry The entry posture the kiss is written over.
  * @param stance The standing placements every candidate rises from.
  * @param twist The fixed head twist, degrees.
- * @param seated Whether a seat bears the body, so it neither rises nor is lowered onto the feet.
- * @returns A fresh complete candidate posture for a pitch, roll, flexion and raise.
+ * @param seated Whether a seat bears the body, so it neither rises nor is
+ *   lowered onto the feet.
+ * @returns A fresh complete candidate posture for a pitch, roll, flexion and
+ *   raise.
  */
 export function kissPose(
   body: IAutoMovieMotionHumanBody,
@@ -29,7 +31,15 @@ export function kissPose(
 ): (
   s: Pick<
     IAutoMovieMotionHumanKiss.ISolved,
-    "pitch" | "roll" | "flexion" | "raise" | "sink" | "twist" | "shift" | "advance" | "bearing"
+    | "pitch"
+    | "roll"
+    | "flexion"
+    | "raise"
+    | "sink"
+    | "twist"
+    | "shift"
+    | "advance"
+    | "bearing"
   >,
 ) => IAutoMovieMotionHumanPosture {
   const initialTurn: ReturnType<typeof AutoMovieMotionHumanHead.share> =
@@ -37,10 +47,21 @@ export function kissPose(
   return (
     s: Pick<
       IAutoMovieMotionHumanKiss.ISolved,
-      "pitch" | "roll" | "flexion" | "raise" | "sink" | "twist" | "shift" | "advance" | "bearing"
+      | "pitch"
+      | "roll"
+      | "flexion"
+      | "raise"
+      | "sink"
+      | "twist"
+      | "shift"
+      | "advance"
+      | "bearing"
     >,
   ): IAutoMovieMotionHumanPosture => {
-    const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> = s.twist === undefined ? initialTurn : AutoMovieMotionHumanHead.share(2, s.twist);
+    const turn: ReturnType<typeof AutoMovieMotionHumanHead.share> =
+      s.twist === undefined
+        ? initialTurn
+        : AutoMovieMotionHumanHead.share(2, s.twist);
     const leaned: IAutoMovieMotionHumanPosture = kissBody(
       body,
       entry,

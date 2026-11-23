@@ -15,17 +15,16 @@ import { StrikingBody } from "../striking/StrikingBody";
 import { prepareExerciseKeyBlend } from "./prepareExerciseKeyBlend";
 
 /**
- * A keyed whole-body posture of an exercise: the body's tilt, its turn and
- * its joints, with no place of its own. Where the body is follows from what
- * bears it: the key is pinned by naming bones whose mean stays at a point
- * (`pinned`), so the support neither slides nor sinks while the joints move.
+ * A keyed whole-body posture of an exercise: the body's tilt, its turn and its
+ * joints, with no place of its own. Where the body is follows from what bears
+ * it: the key is pinned by naming bones whose mean stays at a point (`pinned`),
+ * so the support neither slides nor sinks while the joints move.
  *
- * Angles are clinical degrees. A leg stood on a flat foot under a pitched
- * trunk is written by `stood`, which gives the hip and the ankle the angles
- * that keep the foot level.
+ * Angles are clinical degrees. A leg stood on a flat foot under a pitched trunk
+ * is written by `stood`, which gives the hip and the ankle the angles that keep
+ * the foot level.
  */
 export namespace ExerciseKey {
-
   /**
    * The key of a body's relaxed standing: its arms hanging as the stand law
    * hangs them (`stand.relaxed`). A plan that names it in its spans holds the
@@ -34,7 +33,9 @@ export namespace ExerciseKey {
    * @param body The body.
    * @returns The key.
    */
-  export function standing(body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function standing(
+    body: IAutoMovieMotionHumanBody,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     return {
       pitch: 0,
       roll: 0,
@@ -53,7 +54,9 @@ export namespace ExerciseKey {
    * @param pose The displayed pose, an action's entry.
    * @returns The key.
    */
-  export function shown(pose: IAutoMoviePose): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function shown(
+    pose: IAutoMoviePose,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const joint of pose.joints)
       joints[joint.bone] = [
@@ -65,8 +68,8 @@ export namespace ExerciseKey {
   }
 
   /**
-   * A key from the whole body's part and the limbs' angles, on a body: an
-   * arm's unstated abduction and elbow are the body's relaxed ones
+   * A key from the whole body's part and the limbs' angles, on a body: an arm's
+   * unstated abduction and elbow are the body's relaxed ones
    * (`stand.relaxed`).
    *
    * @param body The body.
@@ -86,7 +89,10 @@ export namespace ExerciseKey {
     const rest: IAutoMovieMotionHumanJoints.Angles = standing(body).joints;
     const joints: IAutoMovieMotionHumanJoints.Angles = { ...rest };
     for (const side of ["left", "right"] as const) {
-      const a: IAutoMovieMotionHumanExerciseKey.ILimb = { ...both, ...(side === "left" ? left : right) };
+      const a: IAutoMovieMotionHumanExerciseKey.ILimb = {
+        ...both,
+        ...(side === "left" ? left : right),
+      };
       const arm: readonly [number, number, number] = rest[`${side}UpperArm`]!;
       const elbow: readonly [number, number, number] = rest[`${side}LowerArm`]!;
       joints[`${side}UpperLeg`] = [a.hip ?? 0, a.spread ?? 0, a.turn ?? 0];
@@ -115,21 +121,29 @@ export namespace ExerciseKey {
   }
 
   /**
-   * A leg stood on a level foot under a pitched trunk: the shank leans
-   * forward by `shank`, the knee bends by `knee`, and the hip takes what is
-   * left so the thigh meets the pitched pelvis.
+   * A leg stood on a level foot under a pitched trunk: the shank leans forward
+   * by `shank`, the knee bends by `knee`, and the hip takes what is left so the
+   * thigh meets the pitched pelvis.
    *
    * @param pitch The whole body's forward tilt, degrees.
    * @param knee Knee flexion, degrees.
    * @param shank The shank's forward lean from the vertical, degrees.
    * @returns The hip, knee and ankle angles.
    */
-  export function stood(pitch: number, knee: number, shank: number): IAutoMovieMotionHumanExerciseKey.ILimb {
+  export function stood(
+    pitch: number,
+    knee: number,
+    shank: number,
+  ): IAutoMovieMotionHumanExerciseKey.ILimb {
     return { hip: pitch + knee - shank, knee, ankle: shank };
   }
 
-  /** A random-access blend reader for two fixed keys, sharing their ordered joint union (`prepareExerciseKeyBlend`). */
-  export const prepareBlend: typeof prepareExerciseKeyBlend = prepareExerciseKeyBlend;
+  /**
+   * A random-access blend reader for two fixed keys, sharing their ordered
+   * joint union (`prepareExerciseKeyBlend`).
+   */
+  export const prepareBlend: typeof prepareExerciseKeyBlend =
+    prepareExerciseKeyBlend;
 
   /**
    * The same key on the other side.
@@ -137,7 +151,9 @@ export namespace ExerciseKey {
    * @param key The key.
    * @returns Its mirror image.
    */
-  export function mirror(key: IAutoMovieMotionHumanExerciseKey.IKey): IAutoMovieMotionHumanExerciseKey.IKey {
+  export function mirror(
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
+  ): IAutoMovieMotionHumanExerciseKey.IKey {
     const joints: IAutoMovieMotionHumanJoints.Angles = {};
     for (const [bone, angles] of Object.entries(key.joints) as [
       AutoMovieHumanoidBone,
@@ -157,7 +173,9 @@ export namespace ExerciseKey {
    * @param body The body.
    * @param posture The posture.
    * @param bones The bones or grip sockets.
-   * @param resolved An exact map for this same body and posture from the caller's synchronous evaluation; when absent the full raw trunk read is retained.
+   * @param resolved An exact map for this same body and posture from the
+   *   caller's synchronous evaluation; when absent the full raw trunk read is
+   *   retained.
    * @returns World metres.
    */
   export function mean(
@@ -174,8 +192,8 @@ export namespace ExerciseKey {
   }
 
   /**
-   * A pin's place on resolved bones: a bone's origin, or a grip socket's
-   * point on its hand.
+   * A pin's place on resolved bones: a bone's origin, or a grip socket's point
+   * on its hand.
    *
    * @param body The body.
    * @param resolved The resolved bones.
@@ -211,7 +229,10 @@ export namespace ExerciseKey {
    * @param yaw The heading the exercise is entered on, degrees.
    * @returns The posture.
    */
-  export function posed(key: IAutoMovieMotionHumanExerciseKey.IKey, yaw: number): IAutoMovieMotionHumanPosture {
+  export function posed(
+    key: IAutoMovieMotionHumanExerciseKey.IKey,
+    yaw: number,
+  ): IAutoMovieMotionHumanPosture {
     return {
       root: { x: 0, y: 0, z: 0 },
       yaw: yaw + key.yaw,
@@ -223,17 +244,20 @@ export namespace ExerciseKey {
   }
 
   /**
-   * A key placed by what bears it: the posture whose named bones' mean is at
-   * a point, lifted by the key's lift.
+   * A key placed by what bears it: the posture whose named bones' mean is at a
+   * point, lifted by the key's lift.
    *
    * @param body The body.
    * @param key The key.
    * @param yaw The heading the exercise is entered on, degrees.
    * @param pin The bones, or the grip sockets, that bear.
    * @param place Where their mean stays, world metres.
-   * @param requested Optional output demand containing every pin bone, or its socket's bone; omitted, the full raw trunk read is retained.
-   * @param resolution Optional same-person FK reader/supplier borrowed only by this actual pin observation.
-   * @param projection Optional genuine same-body ROM projector; every actual direct joint still passes canonical admission.
+   * @param requested Optional output demand containing every pin bone, or its
+   *   socket's bone; omitted, the full raw trunk read is retained.
+   * @param resolution Optional same-person FK reader/supplier borrowed only by
+   *   this actual pin observation.
+   * @param projection Optional genuine same-body ROM projector; every actual
+   *   direct joint still passes canonical admission.
    * @returns The posture.
    */
   export function pinned(
@@ -247,9 +271,15 @@ export namespace ExerciseKey {
     projection?: Parameters<typeof StrikingBody.trunk>[4],
   ): IAutoMovieMotionHumanPosture {
     const free: IAutoMovieMotionHumanPosture = posed(key, yaw);
-    const offset: IAutoMovieVector3 = mean(body, free, pin,
-      requested === undefined && resolution === undefined && projection === undefined
-        ? undefined : StrikingBody.trunk(body, free, resolution, requested, projection),
+    const offset: IAutoMovieVector3 = mean(
+      body,
+      free,
+      pin,
+      requested === undefined &&
+        resolution === undefined &&
+        projection === undefined
+        ? undefined
+        : StrikingBody.trunk(body, free, resolution, requested, projection),
     );
     return {
       ...free,

@@ -27,60 +27,86 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * The body a pick up reaches from, and the reach it reads.
  *
  * A grip the arm reaches from the posture the action is entered in is taken
- * from that posture. A grip it does not reach, from a standing body, is
- * taken by lowering the body the way the bend law lowers it, the strategy
- * chosen from the grip's height (`bend.lowering`): a stoop that inclines
- * the trunk only as far as the shoulder must come to the grip, a slight lean
- * at a counter, a deep one at a low shelf, a semi-squat below mid-shank and
- * a squat where that cannot reach, the hips moved back to keep the body over
- * its feet. Whole-body reaching apportions the movement among the legs, the
- * trunk and the arm under two constraints, the hand on the target and the
- * centre of mass over the base of support (Sha and Thomas 2011,
- * arXiv:1108.1940), and the posture people choose between a stoop and a
- * squat depends on the height of what they take (Burgess-Limerick et al.
- * 2001, Hum Mov Sci 20:549). A grip a seated body does not reach is taken
- * by leaning the trunk forward from the seat, the feet and the seat kept
- * (`SEATED_LEAN`). A grip no lowering or lean reaches, or one beyond the arm
- * from a body that neither stands nor sits, is refused: the person stands
- * and steps closer first.
+ * from that posture. A grip it does not reach, from a standing body, is taken
+ * by lowering the body the way the bend law lowers it, the strategy chosen from
+ * the grip's height (`bend.lowering`): a stoop that inclines the trunk only as
+ * far as the shoulder must come to the grip, a slight lean at a counter, a deep
+ * one at a low shelf, a semi-squat below mid-shank and a squat where that
+ * cannot reach, the hips moved back to keep the body over its feet. Whole-body
+ * reaching apportions the movement among the legs, the trunk and the arm under
+ * two constraints, the hand on the target and the centre of mass over the base
+ * of support (Sha and Thomas 2011, arXiv:1108.1940), and the posture people
+ * choose between a stoop and a squat depends on the height of what they take
+ * (Burgess-Limerick et al. 2001, Hum Mov Sci 20:549). A grip a seated body does
+ * not reach is taken by leaning the trunk forward from the seat, the feet and
+ * the seat kept (`SEATED_LEAN`). A grip no lowering or lean reaches, or one
+ * beyond the arm from a body that neither stands nor sits, is refused: the
+ * person stands and steps closer first.
  */
 export namespace pickUpPosture {
-  /** The furthest a seated trunk leans forward from the seat to reach, degrees: a search bound (provisional: no source gives the trunk's angle from vertical at a seated reach's limit; a seated pick up from the floor flexes the lumbar spine about 50 degrees, Shum, Crosbie and Lee 2007, Eur Spine J 16:749, Table 2), the reach itself bounded by `SEATED_REACH`. */
+  /**
+   * The furthest a seated trunk leans forward from the seat to reach, degrees:
+   * a search bound (provisional: no source gives the trunk's angle from
+   * vertical at a seated reach's limit; a seated pick up from the floor flexes
+   * the lumbar spine about 50 degrees, Shum, Crosbie and Lee 2007, Eur Spine J
+   * 16:749, Table 2), the reach itself bounded by `SEATED_REACH`.
+   */
   export const SEATED_LEAN: number = 60;
 
-  /** How far a seated person reaches from the shoulder, shares of the arm's length (acromion to fingertip, the hand included), straight ahead and to the reaching arm's side: 163.3 and 125.2 percent (Haas et al. 2023, PLoS One 18:e0289115, Table 4, 15 healthy adults on a stable seat, feet supported); between them the squared cosine and sine of the angle from the facing blend them. */
+  /**
+   * How far a seated person reaches from the shoulder, shares of the arm's
+   * length (acromion to fingertip, the hand included), straight ahead and to
+   * the reaching arm's side: 163.3 and 125.2 percent (Haas et al. 2023, PLoS
+   * One 18:e0289115, Table 4, 15 healthy adults on a stable seat, feet
+   * supported); between them the squared cosine and sine of the angle from the
+   * facing blend them.
+   */
   export const SEATED_REACH: readonly [number, number] = [1.633, 1.2515];
 
   /**
-   * The original lowering, borrowing observations only for the current person call.
+   * The original lowering, borrowing observations only for the current person
+   * call.
    */
   export interface IStance {
     /** The posture at the bottom: the entry's, or the entry lowered. */
     posture: IAutoMovieMotionHumanPosture;
 
-    /**
-     * The body at a share down, entry at zero and bottom at one.
-     */
-    at: (share: number, resolution?: IFK, projection?: IROM) => IAutoMovieMotionHumanPosture;
+    /** The body at a share down, entry at zero and bottom at one. */
+    at: (
+      share: number,
+      resolution?: IFK,
+      projection?: IROM,
+    ) => IAutoMovieMotionHumanPosture;
+
+    /** Carry the lowering onto a current posture of the same base. */
+    lower: (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+      resolution?: IFK,
+      projection?: IROM,
+    ) => IAutoMovieMotionHumanPosture;
 
     /**
-     * Carry the lowering onto a current posture of the same base.
+     * The adjustment step the stance takes, if any: the stepping foot and the
+     * shares of the way down at which it leaves the floor and lands.
      */
-    lower: (posture: IAutoMovieMotionHumanPosture, share: number, resolution?: IFK, projection?: IROM) => IAutoMovieMotionHumanPosture;
-
-    /** The adjustment step the stance takes, if any: the stepping foot and the shares of the way down at which it leaves the floor and lands. */
     step?: { side: "left" | "right"; off: number; on: number };
   }
 
   /**
-   * The entry's body lowered until the arm reaches a grip, the trunk leaned toward a grip beside or behind the shoulder rather than pitched away from it; a seated body is leaned instead.
+   * The entry's body lowered until the arm reaches a grip, the trunk leaned
+   * toward a grip beside or behind the shoulder rather than pitched away from
+   * it; a seated body is leaned instead.
    *
    * @param context The action's context; its entry posture is lowered.
    * @param side The reaching arm.
    * @param grip The grip point, world metres.
-   * @param reach How near the shoulder must come to the grip, metres; a palm laid on it when absent (`bendLower.pitch`).
+   * @param reach How near the shoulder must come to the grip, metres; a palm
+   *   laid on it when absent (`bendLower.pitch`).
    * @returns The lowered stance.
-   * @throws {HumanRefusal} When the entry neither stands nor sits, or no lowering or lean brings the shoulder within reach: the person stands and steps closer first.
+   * @throws {HumanRefusal} When the entry neither stands nor sits, or no
+   *   lowering or lean brings the shoulder within reach: the person stands and
+   *   steps closer first.
    */
   export function lowered(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -165,8 +191,15 @@ export namespace pickUpPosture {
         fix: "step closer to the prop first",
       });
     }
-    const prepare: ReturnType<typeof bendLower.prepare> = bendLower.prepare(context.body, solved.strategy);
-    const lower: IStance["lower"] = (posture: IAutoMovieMotionHumanPosture, share: number, resolution?: IFK): IAutoMovieMotionHumanPosture =>
+    const prepare: ReturnType<typeof bendLower.prepare> = bendLower.prepare(
+      context.body,
+      solved.strategy,
+    );
+    const lower: IStance["lower"] = (
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+      resolution?: IFK,
+    ): IAutoMovieMotionHumanPosture =>
       prepare(
         posture,
         solved.pitch * share,
@@ -175,27 +208,37 @@ export namespace pickUpPosture {
         resolution,
         lateral,
       );
-    const at: IStance["at"] = (share: number, resolution?: IFK): IAutoMovieMotionHumanPosture => lower(entry, share, resolution);
+    const at: IStance["at"] = (
+      share: number,
+      resolution?: IFK,
+    ): IAutoMovieMotionHumanPosture => lower(entry, share, resolution);
     return { posture: at(1), at, lower };
   }
 
   /**
    * A seated body leaned forward until the arm reaches a grip: the trunk
    * inclines about the seat, the pelvis and the spine sharing the lean
-   * (`HumanTrunk.incline`), the seat socket kept on the seat and the feet
-   * where they rest, as a seated person reaches past the arm by leaning
+   * (`HumanTrunk.incline`), the seat socket kept on the seat and the feet where
+   * they rest, as a seated person reaches past the arm by leaning
    * (`SEATED_LEAN`), up to the seated reach (`SEATED_REACH`). The least lean
    * that brings the shoulder within the reach is taken.
    *
    * @param context The action's context; its entry is seated.
    * @param side The reaching arm.
    * @param grip The grip point, world metres.
-   * @param reach How near the shoulder must come to the grip, metres; the upper arm and the forearm together when absent.
+   * @param reach How near the shoulder must come to the grip, metres; the upper
+   *   arm and the forearm together when absent.
    * @returns The leaned stance.
-   * @throws {HumanRefusal} When the grip lies beyond the seated reach, or no lean up to `SEATED_LEAN` brings the shoulder within reach: the person stands and steps closer first.
+   * @throws {HumanRefusal} When the grip lies beyond the seated reach, or no
+   *   lean up to `SEATED_LEAN` brings the shoulder within reach: the person
+   *   stands and steps closer first.
    */
-  const leaned: (context: IAutoMovieMotionHumanActionContext<object>, side: AutoMovieHumanSide,
-    grip: IAutoMovieVector3, reach?: number) => IStance = (
+  const leaned: (
+    context: IAutoMovieMotionHumanActionContext<object>,
+    side: AutoMovieHumanSide,
+    grip: IAutoMovieVector3,
+    reach?: number,
+  ) => IStance = (
     context: IAutoMovieMotionHumanActionContext<object>,
     side: AutoMovieHumanSide,
     grip: IAutoMovieVector3,
@@ -209,38 +252,69 @@ export namespace pickUpPosture {
       reach ?? context.body.measure.upperArm + context.body.measure.forearm;
     const free: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const freeArm: Arm = `${free}Arm`;
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-      `${free}UpperArm`, `${free}LowerArm`, `${free}Hand`,
-    ]);
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([
+        `${free}UpperArm`,
+        `${free}LowerArm`,
+        `${free}Hand`,
+      ]);
     type Bones = ReturnType<typeof poseBones> | undefined;
     let initial: Bones;
     // Reach probes read only the trunk, so hand-rest goals belong to actual
     // output lowering rather than every discarded bisection trial.
-    const leanBody: (posture: IAutoMovieMotionHumanPosture, pitch: number, resolution?: IFK) => IAutoMovieMotionHumanPosture =
-      (posture: IAutoMovieMotionHumanPosture, pitch: number, resolution?: IFK): IAutoMovieMotionHumanPosture => {
+    const leanBody: (
+      posture: IAutoMovieMotionHumanPosture,
+      pitch: number,
+      resolution?: IFK,
+    ) => IAutoMovieMotionHumanPosture = (
+      posture: IAutoMovieMotionHumanPosture,
+      pitch: number,
+      resolution?: IFK,
+    ): IAutoMovieMotionHumanPosture => {
       if (pitch <= 0) return posture;
       const socket: IAutoMovieVector3 = seated.socket(context.body, posture);
-      const tilt: { pitch: number; joints: IAutoMovieMotionHumanPosture["joints"]; } =
-        HumanTrunk.incline(posture.joints, pitch);
-      const heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
+      const tilt: {
+        pitch: number;
+        joints: IAutoMovieMotionHumanPosture["joints"];
+      } = HumanTrunk.incline(posture.joints, pitch);
+      const heading: Pick<
+        IAutoMovieMotionHumanPosture,
+        "yaw" | "pitch" | "roll"
+      > = {
         yaw: posture.yaw,
         pitch: posture.pitch + tilt.pitch,
         roll: posture.roll,
       };
-      return resolveHumanPosture.lower(context.body, {
-        ...posture,
-        ...heading,
-        root: seated.root(context.body, socket, heading),
-        joints: tilt.joints,
-      }, undefined, resolution);
+      return resolveHumanPosture.lower(
+        context.body,
+        {
+          ...posture,
+          ...heading,
+          root: seated.root(context.body, socket, heading),
+          joints: tilt.joints,
+        },
+        undefined,
+        resolution,
+      );
     };
     const lower: IStance["lower"] = (
-      posture: IAutoMovieMotionHumanPosture, share: number, resolution?: IFK, projection?: IROM,
+      posture: IAutoMovieMotionHumanPosture,
+      share: number,
+      resolution?: IFK,
+      projection?: IROM,
     ): IAutoMovieMotionHumanPosture => {
       const angle: number = pitch * share;
       if (angle <= 0) return posture;
-      const leant: IAutoMovieMotionHumanPosture = leanBody(posture, angle, resolution);
-      if (context.entry.holds[free] !== undefined || base.seat?.armrests?.[free] !== undefined) return leant;
+      const leant: IAutoMovieMotionHumanPosture = leanBody(
+        posture,
+        angle,
+        resolution,
+      );
+      if (
+        context.entry.holds[free] !== undefined ||
+        base.seat?.armrests?.[free] !== undefined
+      )
+        return leant;
 
       // A free hand rests where the leaned body sets it, on the thigh or
       // the armrest, as it rested sitting; a hand that holds keeps its goal.
@@ -276,12 +350,27 @@ export namespace pickUpPosture {
       };
       const goal: FreeGoal = rested.limbs[freeArm];
       if (goal === undefined) return leant;
-      initial ??= poseBones(context.body, context.entry.pose, undefined, requested);
+      initial ??= poseBones(
+        context.body,
+        context.entry.pose,
+        undefined,
+        requested,
+      );
       const wrist: IAutoMovieResolvedBone = initial.get(`${free}Hand`)!;
       const elbow: IAutoMovieResolvedBone = initial.get(`${free}LowerArm`)!;
-      const slide: number = Math.min(0.5 * context.body.measure.thigh, Math.max(0, Vector3.dot(
-        Vector3.subtract(shoulder(context, free, leant), initial.get(`${free}UpperArm`)!.worldPosition), ahead,
-      )));
+      const slide: number = Math.min(
+        0.5 * context.body.measure.thigh,
+        Math.max(
+          0,
+          Vector3.dot(
+            Vector3.subtract(
+              shoulder(context, free, leant),
+              initial.get(`${free}UpperArm`)!.worldPosition,
+            ),
+            ahead,
+          ),
+        ),
+      );
       // Start and finish on the displayed entry arm. A new full thigh goal
       // at the first nonzero lean lets the swivel choose a different elbow.
       return {
@@ -290,8 +379,16 @@ export namespace pickUpPosture {
           ...leant.limbs,
           [freeArm]: {
             ...goal,
-            point: Vector3.lerp(wrist.worldPosition, Vector3.addScaled(goal.point, ahead, slide), share),
-            rotation: Quaternion.slerp(wrist.worldRotation, goal.rotation ?? wrist.worldRotation, share),
+            point: Vector3.lerp(
+              wrist.worldPosition,
+              Vector3.addScaled(goal.point, ahead, slide),
+              share,
+            ),
+            rotation: Quaternion.slerp(
+              wrist.worldRotation,
+              goal.rotation ?? wrist.worldRotation,
+              share,
+            ),
             bend: Vector3.lerp(elbow.worldPosition, goal.bend, share),
             reference: {
               upper: entry.joints[`${free}UpperArm`] ?? ZERO,
@@ -345,7 +442,11 @@ export namespace pickUpPosture {
             SEATED_LEAN,
             0.01,
           );
-    const at: IStance["at"] = (share: number, resolution?: IFK, projection?: IROM): IAutoMovieMotionHumanPosture =>
+    const at: IStance["at"] = (
+      share: number,
+      resolution?: IFK,
+      projection?: IROM,
+    ): IAutoMovieMotionHumanPosture =>
       lower(entry, share, resolution, projection);
     return {
       posture: at(1),
@@ -355,10 +456,10 @@ export namespace pickUpPosture {
   };
 
   /**
-   * Whether a wrist goal lies within the straight arm's reach from its
-   * shoulder in a posture: the reach `reachable` refuses beyond, for a grasp
-   * search to admit by (`HumanGrasp.reachable`'s `admits`), so the search
-   * never chooses a wrist the law then refuses.
+   * Whether a wrist goal lies within the straight arm's reach from its shoulder
+   * in a posture: the reach `reachable` refuses beyond, for a grasp search to
+   * admit by (`HumanGrasp.reachable`'s `admits`), so the search never chooses a
+   * wrist the law then refuses.
    *
    * @param context The action's context.
    * @param side The arm.
@@ -378,14 +479,15 @@ export namespace pickUpPosture {
   }
 
   /**
-   * Refuse a wrist goal beyond the straight arm's reach from its shoulder in
-   * a posture.
+   * Refuse a wrist goal beyond the straight arm's reach from its shoulder in a
+   * posture.
    *
    * @param context The action's context.
    * @param side The arm.
    * @param wrist The wrist goal, world metres.
    * @param posture The posture the arm reaches from; the entry's when absent.
-   * @throws {HumanRefusal} When the goal is farther than the upper arm and forearm together: the person bends or steps closer first.
+   * @throws {HumanRefusal} When the goal is farther than the upper arm and
+   *   forearm together: the person bends or steps closer first.
    */
   export function reachable(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -415,14 +517,25 @@ export namespace pickUpPosture {
     side: AutoMovieHumanSide,
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMovieVector3 =>
-    HumanTrunk.resolve(context.body, posture, undefined, undefined, new Set<AutoMovieHumanoidBone>([`${side}UpperArm`])).get(`${side}UpperArm`)!
-      .worldPosition;
+    HumanTrunk.resolve(
+      context.body,
+      posture,
+      undefined,
+      undefined,
+      new Set<AutoMovieHumanoidBone>([`${side}UpperArm`]),
+    ).get(`${side}UpperArm`)!.worldPosition;
 }
 
-/** Optional parent-owned exact FK source for this same current person evaluation. */
+/**
+ * Optional parent-owned exact FK source for this same current person
+ * evaluation.
+ */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-/** Genuine current-person ROM projection borrowed only by actual solved observations. */
+/**
+ * Genuine current-person ROM projection borrowed only by actual solved
+ * observations.
+ */
 type IROM = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];
 
 /** An arm owned by its side of the body. */

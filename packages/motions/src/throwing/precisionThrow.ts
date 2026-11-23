@@ -12,14 +12,13 @@ import type {
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { HumanFrame } from "../posture/HumanFrame";
 
-/**
- * Geometry added by the three precision delivery styles to the shared throw.
- */
+/** Geometry added by the three precision delivery styles to the shared throw. */
 export namespace precisionThrow {
   /**
-   * A full windmill arm circle blending from the entry hand pose to the regular release chamber.
-   * The radius is proportional to arm length and provisional. See WBSC 2026–2029 Fast Pitch
-   * Rule 4.3.3 and Oliver et al., the windmill pelvis and trunk measurements (PMC8358524).
+   * A full windmill arm circle blending from the entry hand pose to the regular
+   * release chamber. The radius is proportional to arm length and provisional.
+   * See WBSC 2026–2029 Fast Pitch Rule 4.3.3 and Oliver et al., the windmill
+   * pelvis and trunk measurements (PMC8358524).
    */
   export function windmill(
     frame: IAutoMovieMotionHumanFrame,
@@ -46,10 +45,11 @@ export namespace precisionThrow {
   }
 
   /**
-   * Prepare the two-foot bowling stance for a settled solo release. The pelvis descends through
-   * knee flexion while the soles hold their entry placements. The depth is a provisional share
-   * of leg length. Seiferheld et al. (doi:10.3390/s23198284) distinguish support and release during
-   * the bowling delivery. A carrier remains responsible for its own base and feet.
+   * Prepare the two-foot bowling stance for a settled solo release. The pelvis
+   * descends through knee flexion while the soles hold their entry placements.
+   * The depth is a provisional share of leg length. Seiferheld et al.
+   * (doi:10.3390/s23198284) distinguish support and release during the bowling
+   * delivery. A carrier remains responsible for its own base and feet.
    */
   export function stance(
     context: Pick<
@@ -84,7 +84,8 @@ export namespace precisionThrow {
   }
 
   /**
-   * Add the existing spherical collision input to a precision delivery with a sized ball grip.
+   * Add the existing spherical collision input to a precision delivery with a
+   * sized ball grip.
    */
   export function launches(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop">,

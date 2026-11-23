@@ -26,20 +26,21 @@ interface Endpoint {
 }
 
 /**
- * Check dock alignment on the film clock through trailing touchdown.
- * Co-moving supports must preserve the deck's position and orientation in
- * the platform's frame and keep both rectangles level. Prop readers provide
- * evaluated frames, so admission samples at intervals of at most 1/120 s.
- * Co-moving admission allows 1 mm at the deck centre and at all four corners,
- * and 0.1 degrees of relative rotation. Stationary docking uses these bounds
- * at each prop frame.
+ * Check dock alignment on the film clock through trailing touchdown. Co-moving
+ * supports must preserve the deck's position and orientation in the platform's
+ * frame and keep both rectangles level. Prop readers provide evaluated frames,
+ * so admission samples at intervals of at most 1/120 s. Co-moving admission
+ * allows 1 mm at the deck centre and at all four corners, and 0.1 degrees of
+ * relative rotation. Stationary docking uses these bounds at each prop frame.
  *
  * @param from The source support and its prop's live world frame reader.
  * @param to The destination support and its prop's live world frame reader.
  * @param start The film second of entry.
  * @param duration Film seconds from entry until trailing touchdown.
- * @param coMoving Compare alignment in the source frame when true, and in the world otherwise.
- * @throws {HumanRefusal} If a checked sample violates the selected dock alignment.
+ * @param coMoving Compare alignment in the source frame when true, and in the
+ *   world otherwise.
+ * @throws {HumanRefusal} If a checked sample violates the selected dock
+ *   alignment.
  */
 export function checkSupportTransferDock(
   from: Endpoint,

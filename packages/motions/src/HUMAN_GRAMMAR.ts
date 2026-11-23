@@ -2,9 +2,9 @@ import type { IAutoMovieMotionHumanGrammar } from "@automovie/interface";
 
 /**
  * The composition grammar as data: the axes an action is decided on and the
- * operators that join actions, each with the surface that carries it. A
- * page, a test generator and documentation read this, so they name the
- * grammar as the package does.
+ * operators that join actions, each with the surface that carries it. A page, a
+ * test generator and documentation read this, so they name the grammar as the
+ * package does.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the table is and who reads it.
  * @evidence contracts/development/design.md#principled-representation Two closed lists of named entries, each pointing at the export that carries it.

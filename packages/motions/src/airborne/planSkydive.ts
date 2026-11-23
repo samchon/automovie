@@ -35,16 +35,17 @@ const ABSORB: number = 0.5;
 const POINTS: readonly string[] = ["calf", "thigh", "buttock", "pushUp"];
 
 /**
- * Plan a parachute jump from a named edge to the ground at the world floor:
- * the hips follow `skydivePath`, and the body turns from the stance at the
- * edge into the arch, opens into the hang, turns the canopy with the toggles
- * (each pulled toggle's arm brought down to the flare's), flares, and lands
- * in the parachute landing fall onto the left side, its four later points
- * of contact each a contact window in order, or on the feet.
+ * Plan a parachute jump from a named edge to the ground at the world floor: the
+ * hips follow `skydivePath`, and the body turns from the stance at the edge
+ * into the arch, opens into the hang, turns the canopy with the toggles (each
+ * pulled toggle's arm brought down to the flare's), flares, and lands in the
+ * parachute landing fall onto the left side, its four later points of contact
+ * each a contact window in order, or on the feet.
  *
  * @param context The action's context, standing at the edge facing out.
  * @returns The jump.
- * @throws {HumanRefusal} If the edge is missing or the deployment is refused by the path.
+ * @throws {HumanRefusal} If the edge is missing or the deployment is refused by
+ *   the path.
  */
 export function planSkydive(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSkydive.IParams>,

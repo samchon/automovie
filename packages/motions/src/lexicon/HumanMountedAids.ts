@@ -63,9 +63,7 @@ export namespace HumanMountedAids {
   /** How far the pelvis tips back in a seat aid, degrees (provisional). */
   export const SEAT: number = 5;
 
-  /**
-   * One aid given at one transition.
-   */
+  /** One aid given at one transition. */
   export interface IGiven {
     /** The aid. */
     kind: IAutoMovieMotionHumanMounted.Aid;

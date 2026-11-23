@@ -7,13 +7,13 @@ import { HumanHand } from "../posture/HumanHand";
 
 /**
  * The parachute jump's key poses, as whole-body tilt and joint angles in
- * degrees (`[flexion, abduction, twist]`), all provisional: the
- * belly-to-earth arch with the hips pressed forward, the limbs spread and
- * bent and the head up, as the USPA Skydiver's Information Manual teaches
- * it; the upright hang under the canopy with the hands up on the toggles;
- * hands a riser's width apart; the flare with both toggles pulled down and the feet and knees together;
- * and the parachute landing fall's keys from the feet to the side of the
- * back, as US Army FM 3-21.220 orders its five points of contact.
+ * degrees (`[flexion, abduction, twist]`), all provisional: the belly-to-earth
+ * arch with the hips pressed forward, the limbs spread and bent and the head
+ * up, as the USPA Skydiver's Information Manual teaches it; the upright hang
+ * under the canopy with the hands up on the toggles; hands a riser's width
+ * apart; the flare with both toggles pulled down and the feet and knees
+ * together; and the parachute landing fall's keys from the feet to the side of
+ * the back, as US Army FM 3-21.220 orders its five points of contact.
  */
 export namespace skydivePoses {
   /** The belly-to-earth arch. */
@@ -34,7 +34,10 @@ export namespace skydivePoses {
     neck: 0,
   });
 
-  /** The arms spread out level at the deployment's snatch, on their way from the arch up to the risers: the hands pass wide of the head. */
+  /**
+   * The arms spread out level at the deployment's snatch, on their way from the
+   * arch up to the risers: the hands pass wide of the head.
+   */
   export const SPREAD: IAutoMovieMotionHumanLieDown.IPose = pose(45, 0, {
     leg: [0, 15, 0],
     knee: 30,
@@ -52,9 +55,7 @@ export namespace skydivePoses {
     neck: 0,
   });
 
-  /**
-   * One key of the parachute landing fall.
-   */
+  /** One key of the parachute landing fall. */
   export interface IKey {
     /** Share of the landing fall. */
     at: number;
@@ -63,7 +64,10 @@ export namespace skydivePoses {
     pose: IAutoMovieMotionHumanLieDown.IPose;
   }
 
-  /** The landing fall's keys after the flare: the calf, the thigh, the buttock and the push-up muscle; the lying side ends it. */
+  /**
+   * The landing fall's keys after the flare: the calf, the thigh, the buttock
+   * and the push-up muscle; the lying side ends it.
+   */
   export const PLF: readonly IKey[] = [
     {
       at: 0.2,

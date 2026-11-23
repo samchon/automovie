@@ -18,9 +18,10 @@ interface IField {
 }
 
 /**
- * Admit the law's own standing entry without borrowing an outside posture reader.
- * The body factory requires a new body after a rig or profile edit. Capture only
- * its actual reader identities and the ordinary entry data this law borrows.
+ * Admit the law's own standing entry without borrowing an outside posture
+ * reader. The body factory requires a new body after a rig or profile edit.
+ * Capture only its actual reader identities and the ordinary entry data this
+ * law borrows.
  */
 export function stretchHoldInputs(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
@@ -110,7 +111,10 @@ export function stretchHoldInputs(
         ),
     );
 }
-/** Reject non-data input without evaluating an accessor on behalf of the compact clock. */
+/**
+ * Reject non-data input without evaluating an accessor on behalf of the compact
+ * clock.
+ */
 function capture(
   input: unknown,
   records: IRecord[],

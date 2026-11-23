@@ -29,9 +29,7 @@ import { supportWindows } from "./supportWindows";
  * `support.plan` solves the keys; this module owns everything after them.
  */
 export namespace supportPlan {
-  /**
-   * A key posture of the plan.
-   */
+  /** A key posture of the plan. */
   export interface IKey {
     /** The posture, by joint angles alone. */
     posture: IAutoMovieMotionHumanPosture;
@@ -57,7 +55,8 @@ export namespace supportPlan {
    * @param duration The sequence's seconds.
    * @param entry The posture the body enters with.
    * @param course The staged route's requirements, if any.
-   * @param routes The waypoint stretches of stepping feet, by the interval they span; each is carried by the root between that interval's keys.
+   * @param routes The waypoint stretches of stepping feet, by the interval they
+   *   span; each is carried by the root between that interval's keys.
    * @returns The plan, balanced on request.
    */
   export function of(
@@ -142,19 +141,26 @@ export namespace supportPlan {
     // hand on anything, though the hand may take a hold later (a wall run's
     // hands before the catch).
     const free: AutoMovieHumanSide[][] = intervals.map(
-      (_: ReturnType<typeof prepareSupportInterval>, index: number): AutoMovieHumanSide[] =>
-        (["left", "right"] as const).filter((side: AutoMovieHumanSide): boolean =>
-          [keys[index]!, keys[Math.min(index + 1, keys.length - 1)]!].every(
-            (key: IKey): boolean =>
-              !key.contacts.some(
-                (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
-                  contact.part === `${side}Hand`,
-              ),
-          ),
+      (
+        _: ReturnType<typeof prepareSupportInterval>,
+        index: number,
+      ): AutoMovieHumanSide[] =>
+        (["left", "right"] as const).filter(
+          (side: AutoMovieHumanSide): boolean =>
+            [keys[index]!, keys[Math.min(index + 1, keys.length - 1)]!].every(
+              (key: IKey): boolean =>
+                !key.contacts.some(
+                  (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
+                    contact.part === `${side}Hand`,
+                ),
+            ),
         ),
     );
 
-    /** Carry a support interval, its hanging arms let out of the legs and trunk the keys move under them (`HumanArmClearance.swung`). */
+    /**
+     * Carry a support interval, its hanging arms let out of the legs and trunk
+     * the keys move under them (`HumanArmClearance.swung`).
+     */
     const transfer = (
       index: number,
       seconds: number,
@@ -172,13 +178,7 @@ export namespace supportPlan {
       const sides: AutoMovieHumanSide[] = free[index] ?? hanging;
       return sides.length === 0
         ? carried
-        : HumanArmClearance.swung(
-            body,
-            carried,
-            sides,
-            resolution,
-            projection,
-          );
+        : HumanArmClearance.swung(body, carried, sides, resolution, projection);
     };
 
     /** Carry a support interval after the containing transfer has been selected. */

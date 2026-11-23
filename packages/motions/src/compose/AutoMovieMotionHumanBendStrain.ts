@@ -21,11 +21,11 @@ import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendS
 
 /**
  * The strain of an elbow place that `AutoMovieMotionHumanBendSearch` ranks
- * places by, the terms `AutoMovieMotionHumanBend.solve` states: the
- * shoulder's angles from the hanging arm's, each over half its range,
- * squared, and with a hand rotation the forearm's and the wrist's shares of
- * the turn the hand asks, a place whose turn they cannot make ranking behind
- * every place that makes it.
+ * places by, the terms `AutoMovieMotionHumanBend.solve` states: the shoulder's
+ * angles from the hanging arm's, each over half its range, squared, and with a
+ * hand rotation the forearm's and the wrist's shares of the turn the hand asks,
+ * a place whose turn they cannot make ranking behind every place that makes
+ * it.
  */
 export namespace AutoMovieMotionHumanBendStrain {
   /**
@@ -35,9 +35,11 @@ export namespace AutoMovieMotionHumanBendStrain {
    * @param body The body, for the hand's range.
    * @param side The arm.
    * @param rotation The hand's world rotation, when its turn counts as strain.
-   * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
+   * @param neutral The hanging arm's shoulder angles; null leaves the
+   *   shoulder's strain at 0.
    * @param lowerAxes The lower arm's axes.
-   * @returns The strain of the shoulder's clinical angles and the lower arm's world rotation, read only with a hand rotation.
+   * @returns The strain of the shoulder's clinical angles and the lower arm's
+   *   world rotation, read only with a hand rotation.
    */
   export function of(
     chain: AutoMovieMotionHumanBendChain.IChain,
@@ -126,9 +128,12 @@ export namespace AutoMovieMotionHumanBendStrain {
    * deviation).
    *
    * @param chain The prepared chain.
-   * @param rotation The hand's world rotation; absent, the strain is the shoulder's share alone and nothing is deferred.
-   * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
-   * @returns The bound of a place from its shoulder angles, or null where the hand's turn adds no strain.
+   * @param rotation The hand's world rotation; absent, the strain is the
+   *   shoulder's share alone and nothing is deferred.
+   * @param neutral The hanging arm's shoulder angles; null leaves the
+   *   shoulder's strain at 0.
+   * @returns The bound of a place from its shoulder angles, or null where the
+   *   hand's turn adds no strain.
    */
   export function least(
     chain: AutoMovieMotionHumanBendChain.IChain,
@@ -148,11 +153,15 @@ export namespace AutoMovieMotionHumanBendStrain {
       );
   }
 
-  /** The strain from which a place counts as leaving the hand's turn unmade; every made place strains less. */
+  /**
+   * The strain from which a place counts as leaving the hand's turn unmade;
+   * every made place strains less.
+   */
   export const UNMADE: number = 1e6;
 
   /**
-   * The hand's range and clinical axes the strain decomposes the wrist's swing on.
+   * The hand's range and clinical axes the strain decomposes the wrist's swing
+   * on.
    */
   export interface IHand {
     /** The hand's range of motion, or null where the rig gives none. */
@@ -224,7 +233,8 @@ export namespace AutoMovieMotionHumanBendStrain {
   }
 
   /**
-   * The squared share of a clinical range a departure takes, the term the strain sums; a fixed axis contributes nothing.
+   * The squared share of a clinical range a departure takes, the term the
+   * strain sums; a fixed axis contributes nothing.
    *
    * @param value The departure from the hanging arm's angle, degrees.
    * @param of The axis's half range, degrees, or null for a fixed axis.

@@ -3,17 +3,15 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
  * The part of an arms' trajectory's objective that is quadratic in the
- * coordinates themselves (`HumanArmTrajectoryModel`): each free
- * coordinate's squared second difference over the waypoints, and a still
- * configuration's squared distance from its anchor. Its curvature depends
- * on the waypoints' count and the free coordinates alone, so it is built
- * once for a context and every convex model of that context starts from a
- * copy of it; only its gradient is read at an iterate.
+ * coordinates themselves (`HumanArmTrajectoryModel`): each free coordinate's
+ * squared second difference over the waypoints, and a still configuration's
+ * squared distance from its anchor. Its curvature depends on the waypoints'
+ * count and the free coordinates alone, so it is built once for a context and
+ * every convex model of that context starts from a copy of it; only its
+ * gradient is read at an iterate.
  */
 export namespace HumanArmTrajectorySmooth {
-  /**
-   * One squared residual `weight * r^2` with `r` linear in the coordinates.
-   */
+  /** One squared residual `weight * r^2` with `r` linear in the coordinates. */
   export interface ITerm {
     /** The term's weight. */
     weight: number;
@@ -33,13 +31,14 @@ export namespace HumanArmTrajectorySmooth {
     /** The waypoints the value sums, each with its factor, in the order summed. */
     from: readonly (readonly [number, number])[];
 
-    /** A constant added to the value: the anchor's coordinate, negated; zero for a second difference. */
+    /**
+     * A constant added to the value: the anchor's coordinate, negated; zero for
+     * a second difference.
+     */
     offset: number;
   }
 
-  /**
-   * The quadratic terms of a context and their curvature.
-   */
+  /** The quadratic terms of a context and their curvature. */
   export interface ISmooth {
     /** The convex model's variables. */
     vars: number;
@@ -47,10 +46,16 @@ export namespace HumanArmTrajectorySmooth {
     /** Its half-bandwidth. */
     band: number;
 
-    /** The terms' summed curvature, twice each weight times its coefficients' outer product. */
+    /**
+     * The terms' summed curvature, twice each weight times its coefficients'
+     * outer product.
+     */
     p: Float64Array[];
 
-    /** The terms, each arm's second differences by waypoint and coordinate, then its anchor's. */
+    /**
+     * The terms, each arm's second differences by waypoint and coordinate, then
+     * its anchor's.
+     */
     terms: ITerm[];
   }
 
@@ -136,14 +141,15 @@ export namespace HumanArmTrajectorySmooth {
           if (term.index[j]! >= term.index[i]!) {
             const row: Float64Array = p[term.index[i]!]!;
             const at: number = term.index[j]! - term.index[i]!;
-            row[at] = row[at]! + 2 * term.weight * term.coef[i]! * term.coef[j]!;
+            row[at] =
+              row[at]! + 2 * term.weight * term.coef[i]! * term.coef[j]!;
           }
     return { vars, band, p, terms };
   }
 
   /**
-   * Add the terms' gradient at an iterate to a convex model's linear term:
-   * `2 w c r` per term, with `r` its residual at the iterate.
+   * Add the terms' gradient at an iterate to a convex model's linear term: `2 w
+   * c r` per term, with `r` its residual at the iterate.
    *
    * @param smooth The context's terms.
    * @param x Each arm's coordinates at each waypoint.

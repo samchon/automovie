@@ -20,12 +20,12 @@ import type { punchGeometry } from "./punchGeometry";
  * Read what a punch fixes of its own entry alone: the trunk's turn, the
  * punching shoulder under that turn and the arms as the entry shows them.
  *
- * A punch's geometry is built again whenever the performance settles
- * (another action was placed, a stop was committed), three or four times a
- * punch, and each build read these again though no target, no partner and
- * no committed stop enters them. They are the plan's launch, made once; what
- * follows the target as shown (the line, the tracker, the room, the reach
- * and its corrections) and the stop is built on it at every settle.
+ * A punch's geometry is built again whenever the performance settles (another
+ * action was placed, a stop was committed), three or four times a punch, and
+ * each build read these again though no target, no partner and no committed
+ * stop enters them. They are the plan's launch, made once; what follows the
+ * target as shown (the line, the tracker, the room, the reach and its
+ * corrections) and the stop is built on it at every settle.
  *
  * @param context The action's context.
  * @param timing The punch's timing.
@@ -53,7 +53,10 @@ export function punchLaunch(
         yaw: entry.yaw + punchFootwork.PELVIS_SHARE * turn,
         joints: {
           ...entry.joints,
-          ...StrikingTwist.trunk(entry.joints, punchFootwork.SPINE_SHARE * turn),
+          ...StrikingTwist.trunk(
+            entry.joints,
+            punchFootwork.SPINE_SHARE * turn,
+          ),
         },
       },
       undefined,
@@ -65,19 +68,23 @@ export function punchLaunch(
   };
 }
 
-/**
- * Companion type of {@link punchLaunch}.
- */
+/** Companion type of {@link punchLaunch}. */
 export namespace punchLaunch {
   /** What a punch reads of its own entry alone. */
   export interface ILaunch {
     /** The trunk turn at contact, degrees. */
     turn: number;
 
-    /** The punching shoulder under that turn, before a body shot lowers it, world metres. */
+    /**
+     * The punching shoulder under that turn, before a body shot lowers it,
+     * world metres.
+     */
     shoulder: IAutoMovieVector3;
 
-    /** The entry's six arm joints as displayed, world frame: the launch wrist and elbow and both arm sweeps read them. */
+    /**
+     * The entry's six arm joints as displayed, world frame: the launch wrist
+     * and elbow and both arm sweeps read them.
+     */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 }

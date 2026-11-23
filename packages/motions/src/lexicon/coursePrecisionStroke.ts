@@ -16,22 +16,24 @@ import { precisionStrokePeak } from "./precisionStrokePeak";
 /**
  * A precision stroke's arms laid as one course on the stroke's own goals
  * (`courseArmGoal`), instead of a fit per instant: the striking arm reaches
- * through its backswing to the contact, holds the stroke's goal on the
- * contact instant and returns by `end`, admitted against the stroke's own
- * speed, the hand goal's peak along its whole path
- * (`precisionStrokePeak`). A second hand on the same implement (a putter, a
- * club, a stick, a bat) is laid in the same course, the two hands' closing
- * segments the grasp's contact.
+ * through its backswing to the contact, holds the stroke's goal on the contact
+ * instant and returns by `end`, admitted against the stroke's own speed, the
+ * hand goal's peak along its whole path (`precisionStrokePeak`). A second hand
+ * on the same implement (a putter, a club, a stick, a bat) is laid in the same
+ * course, the two hands' closing segments the grasp's contact.
  *
  * @param plan The stroke's plan, whose posture writes the arms' goals.
  * @param body The body.
  * @param side The striking arm.
- * @param entry The pose the stroke starts from, whose arm angles the reach leaves.
+ * @param entry The pose the stroke starts from, whose arm angles the reach
+ *   leaves.
  * @param clock The stroke's clock.
- * @param hand The striking hand's grip point at the entry, world metres, where the reach to the backswing starts and the return ends.
+ * @param hand The striking hand's grip point at the entry, world metres, where
+ *   the reach to the backswing starts and the return ends.
  * @param second The other hand on the implement; none for a one-handed stroke.
  * @returns The plan with its arms written by the course.
- * @throws {HumanRefusal} When no arm course meets the trajectory's constraints, as the plan is composed.
+ * @throws {HumanRefusal} When no arm course meets the trajectory's constraints,
+ *   as the plan is composed.
  */
 export function coursePrecisionStroke(
   plan: IAutoMovieMotionHumanActionPlan,
@@ -105,7 +107,11 @@ export function coursePrecisionStroke(
 
 /** Companion constants of `coursePrecisionStroke`. */
 export namespace coursePrecisionStroke {
-  /** The segments of each hand that close on a two-handed implement, the grasp's contact between the two arms; the address judges its contact pose with the same grasp (`PrecisionStrokeForms.address`). */
+  /**
+   * The segments of each hand that close on a two-handed implement, the grasp's
+   * contact between the two arms; the address judges its contact pose with the
+   * same grasp (`PrecisionStrokeForms.address`).
+   */
   export const GRASP: NonNullable<
     IAutoMovieMotionHumanArmCarry.ICarry["grasp"]
   > = ["hand", "lowerArm"];

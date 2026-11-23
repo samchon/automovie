@@ -40,13 +40,16 @@ interface IShape {
 
 const RAD = Math.PI / 180;
 
-/** Surface convergence, metres, within the existing one-centimetre placement fit. */
+/**
+ * Surface convergence, metres, within the existing one-centimetre placement
+ * fit.
+ */
 const SURFACE_PRECISION = 0.00005;
 
 /**
  * Fit the ankle against the carrying leg's posed body; first travel outside
- * that leg, then over it, then settle vertically into its bearing region.
- * The seat, supporting leg, and planted foot keep the entry pose throughout.
+ * that leg, then over it, then settle vertically into its bearing region. The
+ * seat, supporting leg, and planted foot keep the entry pose throughout.
  */
 export function fitSeatedAnkleCross(
   body: IAutoMovieMotionHumanBody,
@@ -419,10 +422,11 @@ interface ISweepPlane {
 /**
  * An axis from a real material witness certifies a pair only when the actual
  * projected solids are farther apart than the same swept displacement bound.
- * The exact pair distance remains authoritative whenever the plane falls short.
+ * The exact pair distance remains authoritative whenever the plane falls
+ * short.
  *
- * This uses the axial projection in Gottschalk, Lin and Manocha (1996),
- * section 5, https://www.cs.cornell.edu/courses/cs667/2005sp/readings/gottschalk96.pdf,
+ * This uses the axial projection in Gottschalk, Lin and Manocha (1996), section
+ * 5, https://www.cs.cornell.edu/courses/cs667/2005sp/readings/gottschalk96.pdf,
  * alongside a displacement bound as in Tang, Kim and Manocha (2009),
  * https://gamma-web.iacs.umd.edu/papers/documents/articles/2009/tang09.pdf.
  */

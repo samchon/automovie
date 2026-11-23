@@ -19,17 +19,16 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**
- * The advance of a stroke: how the body goes with a held tool's cut, thrust
- * or presentation. The leading foot, the one on the tool's side, leaves the
- * floor, lands its travel ahead along a line and comes back; the pelvis is
- * carried a share of that travel and lowered until both legs reach their
- * feet. A lunge's full travel is `LUNGE` of the stature and a step's `STEP`
- * (both provisional: fencing studies report lunge lengths, and none was
- * read for this pass); a stroke takes less when its target needs less, as
- * fencing measure works (`HumanSword.aim`).
+ * The advance of a stroke: how the body goes with a held tool's cut, thrust or
+ * presentation. The leading foot, the one on the tool's side, leaves the floor,
+ * lands its travel ahead along a line and comes back; the pelvis is carried a
+ * share of that travel and lowered until both legs reach their feet. A lunge's
+ * full travel is `LUNGE` of the stature and a step's `STEP` (both provisional:
+ * fencing studies report lunge lengths, and none was read for this pass); a
+ * stroke takes less when its target needs less, as fencing measure works
+ * (`HumanSword.aim`).
  */
 export namespace StrikingAdvance {
-
   /** The leading foot's travel in a lunge, a share of the stature (provisional). */
   export const LUNGE: number = 0.45;
 
@@ -115,17 +114,19 @@ export namespace StrikingAdvance {
   };
 
   /**
-   * The body with its lead foot advanced along the given world line.
-   * The pelvis follows CARRY of the foot's travel and the original native
-   * lower keeps both legs in reach; raised is metres or null for planting.
+   * The body with its lead foot advanced along the given world line. The pelvis
+   * follows CARRY of the foot's travel and the original native lower keeps both
+   * legs in reach; raised is metres or null for planting.
    *
    * @param context The current native body and entry posture/feet.
    * @param lead The advancing foot.
    * @param line The world horizontal travel direction.
    * @param along Metres of lead-foot travel.
    * @param raised Swinging foot height in metres, or null when planted.
-   * @param resolution Optional exact FK source borrowed only for this synchronous same-body evaluation.
-   * @returns The original carried and lowered posture with both actual leg goals.
+   * @param resolution Optional exact FK source borrowed only for this
+   *   synchronous same-body evaluation.
+   * @returns The original carried and lowered posture with both actual leg
+   *   goals.
    */
   export const stood = (
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
@@ -139,7 +140,10 @@ export namespace StrikingAdvance {
     const rear: "left" | "right" = lead === "left" ? "right" : "left";
     const feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> =
       StrikingTarget.feet(context.entry);
-    const placed: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement> = {
+    const placed: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanFoot.IPlacement
+    > = {
       ...feet,
       [lead]: {
         ankle: Vector3.add(feet[lead].ankle, {

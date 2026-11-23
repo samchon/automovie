@@ -1,4 +1,8 @@
-import { Vector3, resolveAutoMovieHumanoidSurfaces, wrapDegrees } from "@automovie/engine";
+import {
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+  wrapDegrees,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -22,12 +26,12 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { stand } from "./stand";
 import { admittedSupportPosture } from "./admittedSupportPosture";
 import { prepareBilateralSupport } from "./prepareBilateralSupport";
-import { prepareRaisedKneeSupport } from "./prepareRaisedKneeSupport";
 import { preparePairedFloorSupport } from "./preparePairedFloorSupport";
+import { prepareRaisedKneeSupport } from "./prepareRaisedKneeSupport";
 import { prepareSupportSeed } from "./prepareSupportSeed";
+import { stand } from "./stand";
 import { supportContact } from "./supportContact";
 
 /** A contact with no authored or previously laid world position yet. */
@@ -51,11 +55,15 @@ export namespace supportKey {
    * @param at Each contact's target point.
    * @param label The key's name, for the refusal.
    * @param miss How far a contact may miss its target, millimetres.
-   * @param swings The targets of the parts stepping, which bear on nothing; none when absent.
-   * @param form The contact frames for the plan's unchanged body, including its measured quiet-foot normals.
-   * @param held Whether the preceding transfer already established this stance's preference and exact contact set.
+   * @param swings The targets of the parts stepping, which bear on nothing;
+   *   none when absent.
+   * @param form The contact frames for the plan's unchanged body, including its
+   *   measured quiet-foot normals.
+   * @param held Whether the preceding transfer already established this
+   *   stance's preference and exact contact set.
    * @returns The posture.
-   * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact misses by more than `miss`.
+   * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact
+   *   misses by more than `miss`.
    */
   export function solved(
     body: IAutoMovieMotionHumanBody,
@@ -66,13 +74,17 @@ export namespace supportKey {
     label: string,
     miss: number,
     swings: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [],
-    form: ReturnType<typeof supportContact.prepareForm> = supportContact.prepareForm(body),
+    form: ReturnType<
+      typeof supportContact.prepareForm
+    > = supportContact.prepareForm(body),
     held: boolean = false,
   ): IAutoMovieMotionHumanPosture {
     const points: ContactPoint[] = contacts.map(at);
     const forms: supportContact.IForm[] = contacts.map(
-      (c: IAutoMovieMotionHumanSupport.IContact, k: number): supportContact.IForm =>
-        form(c, points[k]!),
+      (
+        c: IAutoMovieMotionHumanSupport.IContact,
+        k: number,
+      ): supportContact.IForm => form(c, points[k]!),
     );
     const bearing: RegExp[] = forms.flatMap(
       (f: supportContact.IForm): RegExp[] =>
@@ -85,7 +97,10 @@ export namespace supportKey {
       ),
       ...heels(body, from, preferred, contacts, points, miss),
     ];
-    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [...holding, ...swings];
+    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [
+      ...holding,
+      ...swings,
+    ];
     // Select the less violated of the previous solution and the geometrically
     // placed preference before the one SQP solve. This is a seed selection,
     // not a retry: both candidates are measured on the same full merit rows.
@@ -105,30 +120,58 @@ export namespace supportKey {
     const stated: HumanBodyFitMerit.IEvaluation = merit.evaluate(
       HumanFitVariables.vector(variables, preferred),
     );
-    if (merit.holds(stated.misses)) return admittedSupportPosture(preferred, stated.r.written);
+    if (merit.holds(stated.misses))
+      return admittedSupportPosture(preferred, stated.r.written);
     if (swings.length === 0) {
       const paired: ReturnType<typeof preparePairedFloorSupport> =
-        preparePairedFloorSupport(body, preferred, from, contacts, targets, bearing, merit);
+        preparePairedFloorSupport(
+          body,
+          preferred,
+          from,
+          contacts,
+          targets,
+          bearing,
+          merit,
+        );
       if (paired !== undefined) return paired;
     }
-    const previous: HumanBodyFitMerit.IEvaluation = preferred === from ? stated : merit.evaluate(
-      HumanFitVariables.vector(variables, from),
-    );
-    if (held && merit.holds(previous.misses)) return admittedSupportPosture(from, previous.r.written);
+    const previous: HumanBodyFitMerit.IEvaluation =
+      preferred === from
+        ? stated
+        : merit.evaluate(HumanFitVariables.vector(variables, from));
+    if (held && merit.holds(previous.misses))
+      return admittedSupportPosture(from, previous.r.written);
     let start: IAutoMovieMotionHumanPosture =
       stated.violation < previous.violation ? preferred : from;
     if (!merit.holds(previous.misses)) {
       if (swings.length === 0) {
         const closed: ReturnType<typeof prepareRaisedKneeSupport> =
-          prepareRaisedKneeSupport(body, preferred, from, contacts, holding, bearing, merit);
+          prepareRaisedKneeSupport(
+            body,
+            preferred,
+            from,
+            contacts,
+            holding,
+            bearing,
+            merit,
+          );
         if (closed !== undefined) return closed;
       }
-      const aligned: ReturnType<typeof prepareSupportSeed> =
-        prepareSupportSeed(body, preferred, contacts, holding);
+      const aligned: ReturnType<typeof prepareSupportSeed> = prepareSupportSeed(
+        body,
+        preferred,
+        contacts,
+        holding,
+      );
       if (aligned !== undefined) {
-        const corrected: HumanBodyFitMerit.IEvaluation = merit.evaluate(HumanFitVariables.vector(variables, aligned));
-        if (merit.holds(corrected.misses)) return admittedSupportPosture(aligned, corrected.r.written);
-        if (corrected.violation < Math.min(stated.violation, previous.violation))
+        const corrected: HumanBodyFitMerit.IEvaluation = merit.evaluate(
+          HumanFitVariables.vector(variables, aligned),
+        );
+        if (merit.holds(corrected.misses))
+          return admittedSupportPosture(aligned, corrected.r.written);
+        if (
+          corrected.violation < Math.min(stated.violation, previous.violation)
+        )
           start = aligned;
       }
     }
@@ -151,9 +194,7 @@ export namespace supportKey {
     ): boolean =>
       r.residuals.some(
         (residual: Residual, k: number): boolean =>
-          k < contacts.length &&
-          points[k] !== null &&
-          residual.point > miss,
+          k < contacts.length && points[k] !== null && residual.point > miss,
       );
     // A stepping part's swing is an aim of the step, never one of what
     // bears: where its top cannot be reached with every contact kept (a
@@ -161,43 +202,55 @@ export namespace supportKey {
     // is the supports' posture without it, and a contact that misses there
     // is refused.
     let result: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(targets);
-    if (swings.length > 0 && misses(result))
-      result = fitted(holding);
+    if (swings.length > 0 && misses(result)) result = fitted(holding);
     // The preceding support can leave a limb against its range boundary.
     // The authored stance supplies its own articulation on the other side
     // of that boundary, even when its initial aggregate error is larger.
     if (start !== preferred && misses(result)) {
-      const statedFit: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(holding, preferred);
+      const statedFit: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(
+        holding,
+        preferred,
+      );
       if (!misses(statedFit)) result = statedFit;
     }
     // A three-support predecessor may be closer in aggregate while its
     // fourth limb is on the wrong side of a joint limit. A fully bilateral
     // support has a second physical branch from the already placed side.
     if (misses(result)) {
-      const symmetric: ReturnType<typeof prepareBilateralSupport> = prepareBilateralSupport(
-        body, from, contacts, forms.map((form: supportContact.IForm): typeof form.target => form.target),
-      );
+      const symmetric: ReturnType<typeof prepareBilateralSupport> =
+        prepareBilateralSupport(
+          body,
+          from,
+          contacts,
+          forms.map(
+            (form: supportContact.IForm): typeof form.target => form.target,
+          ),
+        );
       if (symmetric !== undefined) {
-        const paired: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(holding, symmetric);
+        const paired: IAutoMovieMotionHumanBodyFitTypes.IResult = fitted(
+          holding,
+          symmetric,
+        );
         if (!misses(paired)) result = paired;
       }
     }
-    result.residuals.forEach(
-      (r: Residual, k: number): void => {
-        if (k < contacts.length && points[k] !== null && r.point > miss)
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: "stances",
-            value: r.point,
-            reason: `the ${contacts[k]!.part} misses its target by ${r.point.toFixed(1)} mm at ${label}, past the ${miss} mm a contact may miss by`,
-            fix: "move the target nearer the stance's other contacts, or add a stance between",
-          });
-      },
-    );
+    result.residuals.forEach((r: Residual, k: number): void => {
+      if (k < contacts.length && points[k] !== null && r.point > miss)
+        throw new HumanRefusal({
+          kind: "reach",
+          axis: "stances",
+          value: r.point,
+          reason: `the ${contacts[k]!.part} misses its target by ${r.point.toFixed(1)} mm at ${label}, past the ${miss} mm a contact may miss by`,
+          fix: "move the target nearer the stance's other contacts, or add a stance between",
+        });
+    });
     return result.posture;
   }
 
-  /** Keep the horizontal heel datum of a foot already on an unnamed floor placement. */
+  /**
+   * Keep the horizontal heel datum of a foot already on an unnamed floor
+   * placement.
+   */
   function heels(
     body: IAutoMovieMotionHumanBody,
     from: IAutoMovieMotionHumanPosture,
@@ -209,9 +262,16 @@ export namespace supportKey {
     const feet: IHeel[] = [];
     for (const [k, contact] of contacts.entries()) {
       const target: ContactPoint = points[k] ?? null;
-      if (target === null || !supportContact.onFloorTarget(target) || !contact.part.endsWith("Foot")) continue;
-      const side: AutoMovieHumanSide = contact.part === "leftFoot" ? "left" : "right";
-      const frame: HeelFrame = body.surfaces.sockets[side === "left" ? "heelLeft" : "heelRight"];
+      if (
+        target === null ||
+        !supportContact.onFloorTarget(target) ||
+        !contact.part.endsWith("Foot")
+      )
+        continue;
+      const side: AutoMovieHumanSide =
+        contact.part === "leftFoot" ? "left" : "right";
+      const frame: HeelFrame =
+        body.surfaces.sockets[side === "left" ? "heelLeft" : "heelRight"];
       if (frame === undefined) continue;
       feet.push({
         frame,
@@ -222,7 +282,10 @@ export namespace supportKey {
     }
     if (feet.length === 0) return [];
     const names: ReadonlySet<AutoMovieHumanoidBone> = new Set(
-      feet.flatMap((foot: IHeel): AutoMovieHumanoidBone[] => [foot.frame.bone, foot.toes]),
+      feet.flatMap((foot: IHeel): AutoMovieHumanoidBone[] => [
+        foot.frame.bone,
+        foot.toes,
+      ]),
     );
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
@@ -231,37 +294,76 @@ export namespace supportKey {
       names,
     );
     const intended: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      preferred === from ? bones : poseBones(body, resolveHumanPosture(body, preferred), undefined, names);
-    return feet.map((foot: IHeel): IAutoMovieMotionHumanBodyFitTypes.ITarget => {
-      const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(foot.frame, bones.get(foot.frame.bone)!);
-      const toes: IAutoMovieVector3 = bones.get(foot.toes)!.worldPosition;
-      const current: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(body, bones, foot.side);
-      const planted: boolean = Math.hypot(toes.x - foot.target.x, toes.z - foot.target.z) <= miss / 1000 &&
-        current.some((socket: (typeof current)[number]): boolean => Math.abs(socket.point.y - foot.target.y) <= HumanFoot.BEARING);
-      // A retained floor target carries its actual bearing surface forward.
-      // A requested new foot placement uses the preferred posture's sole.
-      const sole: ReturnType<typeof HumanFoot.sockets> = planted || intended === bones
-        ? current : HumanFoot.sockets(body, intended, foot.side);
-      const lowest: (typeof sole)[number] = sole.reduce((a: (typeof sole)[number], b: (typeof sole)[number]): (typeof sole)[number] =>
-        a.point.y <= b.point.y ? a : b);
-      // A foot supported on the ball or toe can carry its heel above the
-      // floor in quadruped or half kneel. Place the supporting skin itself.
-      if (sole[0]!.point.y > lowest.point.y + HumanFoot.BEARING) {
-        const socket: IAutoMovieHumanoidSurfaces.IFrame =
-          body.surfaces.sockets[`${lowest.socket}${foot.side === "left" ? "Left" : "Right"}`];
-        return { bone: socket.bone, point: socket.point, goal: foot.target, axes: ["y"] };
-      }
-      return {
-        bone: foot.frame.bone,
-        point: foot.frame.point,
-        goal: { x: foot.target.x + heel.x - toes.x, y: foot.target.y, z: foot.target.z + heel.z - toes.z },
-        axes: ["x", "y", "z"],
-      };
-    });
+      preferred === from
+        ? bones
+        : poseBones(
+            body,
+            resolveHumanPosture(body, preferred),
+            undefined,
+            names,
+          );
+    return feet.map(
+      (foot: IHeel): IAutoMovieMotionHumanBodyFitTypes.ITarget => {
+        const heel: IAutoMovieVector3 = resolveAutoMovieHumanoidSurfaces.point(
+          foot.frame,
+          bones.get(foot.frame.bone)!,
+        );
+        const toes: IAutoMovieVector3 = bones.get(foot.toes)!.worldPosition;
+        const current: ReturnType<typeof HumanFoot.sockets> = HumanFoot.sockets(
+          body,
+          bones,
+          foot.side,
+        );
+        const planted: boolean =
+          Math.hypot(toes.x - foot.target.x, toes.z - foot.target.z) <=
+            miss / 1000 &&
+          current.some(
+            (socket: (typeof current)[number]): boolean =>
+              Math.abs(socket.point.y - foot.target.y) <= HumanFoot.BEARING,
+          );
+        // A retained floor target carries its actual bearing surface forward.
+        // A requested new foot placement uses the preferred posture's sole.
+        const sole: ReturnType<typeof HumanFoot.sockets> =
+          planted || intended === bones
+            ? current
+            : HumanFoot.sockets(body, intended, foot.side);
+        const lowest: (typeof sole)[number] = sole.reduce(
+          (
+            a: (typeof sole)[number],
+            b: (typeof sole)[number],
+          ): (typeof sole)[number] => (a.point.y <= b.point.y ? a : b),
+        );
+        // A foot supported on the ball or toe can carry its heel above the
+        // floor in quadruped or half kneel. Place the supporting skin itself.
+        if (sole[0]!.point.y > lowest.point.y + HumanFoot.BEARING) {
+          const socket: IAutoMovieHumanoidSurfaces.IFrame =
+            body.surfaces.sockets[
+              `${lowest.socket}${foot.side === "left" ? "Left" : "Right"}`
+            ];
+          return {
+            bone: socket.bone,
+            point: socket.point,
+            goal: foot.target,
+            axes: ["y"],
+          };
+        }
+        return {
+          bone: foot.frame.bone,
+          point: foot.frame.point,
+          goal: {
+            x: foot.target.x + heel.x - toes.x,
+            y: foot.target.y,
+            z: foot.target.z + heel.z - toes.z,
+          },
+          axes: ["x", "y", "z"],
+        };
+      },
+    );
   }
 
   /** The solver's measured miss of one target. */
-  type Residual = IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number];
+  type Residual =
+    IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number];
 
   /** An existing floor toe target and the heel whose horizontal offset it keeps. */
   interface IHeel {
@@ -281,14 +383,15 @@ export namespace supportKey {
    * A stance's preferred posture: its stated posture (`prefer`) over the key
    * before it, turned by the stance's turn and rested on the floor by its
    * lowest collider and moved across the floor so its contacts that already
-   * have a place lie over them, a seed the fit then places by what bears;
-   * the posture the body entered with when the stance states none.
+   * have a place lie over them, a seed the fit then places by what bears; the
+   * posture the body entered with when the stance states none.
    *
    * @param body The body.
    * @param base The posture the body entered with, by its joint angles.
    * @param stance The stance.
    * @param from The key before.
-   * @param place Each contact's place, world metres, or null for one without; none placed when absent.
+   * @param place Each contact's place, world metres, or null for one without;
+   *   none placed when absent.
    * @returns The posture.
    */
   export function preferred(
@@ -370,10 +473,10 @@ export namespace supportKey {
   }
 
   /**
-   * Prepare interpolation between two joint-space support keys the caller
-   * holds unchanged: each joint on its own range (`blendHumanJoint`), the
-   * root linearly and the heading the shorter way. Reads take the share
-   * unclipped; outputs carry no limb goals.
+   * Prepare interpolation between two joint-space support keys the caller holds
+   * unchanged: each joint on its own range (`blendHumanJoint`), the root
+   * linearly and the heading the shorter way. Reads take the share unclipped;
+   * outputs carry no limb goals.
    *
    * @param body The unchanged body and its canonical axes/ranges.
    * @param a The fixed key at zero progress, in world metres and degrees.
@@ -452,7 +555,10 @@ export namespace supportKey {
     /** Its authored second tuple, absent for clinical zero. */
     to: readonly [number, number, number] | undefined;
 
-    /** The joint owner's lazy fixed-endpoint reader, absent when an endpoint falls back to clinical zero. */
+    /**
+     * The joint owner's lazy fixed-endpoint reader, absent when an endpoint
+     * falls back to clinical zero.
+     */
     read: ReturnType<typeof blendHumanJoint.between> | undefined;
   }
 }

@@ -20,13 +20,13 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /**
  * Fit one person's already placed pose in attachment order, with independent
- * arms handled by the same coupled pair solver. The first goal prepares a
- * lazy reader getter, and the first FK demand creates or borrows its reader.
- * An explicit parent may lend its reader within the same person evaluation.
- * Reader snapshots never enter returned poses, seeds or values. Every limb
- * fit is solved directly (`solveHumanLimbFit`); the entries differ only in
- * whether the pose is the assembly's own (`constructed`, whose admission is
- * known) and in the continued curve's solver policy (`continued`).
+ * arms handled by the same coupled pair solver. The first goal prepares a lazy
+ * reader getter, and the first FK demand creates or borrows its reader. An
+ * explicit parent may lend its reader within the same person evaluation. Reader
+ * snapshots never enter returned poses, seeds or values. Every limb fit is
+ * solved directly (`solveHumanLimbFit`); the entries differ only in whether the
+ * pose is the assembly's own (`constructed`, whose admission is known) and in
+ * the continued curve's solver policy (`continued`).
  */
 export function refitHumanPosture(
   body: IAutoMovieMotionHumanBody,
@@ -39,8 +39,8 @@ export function refitHumanPosture(
 }
 
 /**
- * The refit routes of an assembly's own pose and of the owned continuous
- * curve, both on the direct solve.
+ * The refit routes of an assembly's own pose and of the owned continuous curve,
+ * both on the direct solve.
  */
 export namespace refitHumanPosture {
   /**
@@ -52,7 +52,8 @@ export namespace refitHumanPosture {
    * @param pose The assembly's pose.
    * @param limbs The goals, world goals already turned.
    * @param near Each limb's nearby fit to continue.
-   * @param resolution Optional FK reader or lazy supplier of the same synchronous evaluation.
+   * @param resolution Optional FK reader or lazy supplier of the same
+   *   synchronous evaluation.
    * @returns The pose, seeds and values; untouched records are the assembly's.
    */
   export function constructed(
@@ -63,19 +64,34 @@ export namespace refitHumanPosture {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     assess?: HumanLimbPair.Assessment,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit, true, assess);
+    return fitted(
+      body,
+      pose,
+      limbs,
+      near,
+      resolution,
+      applyHumanLimbFit,
+      true,
+      assess,
+    );
   }
 
   /**
-   * Correct an actual owned free-leg curve under its explicit continuous policy.
+   * Correct an actual owned free-leg curve under its explicit continuous
+   * policy.
    *
-   * Defines the owned free-leg source, current actual goals/seeds and independent fit result.
-   * The free-curve producer owns deterministic phase continuation and independently checks all current physical constraints; this entry chooses the engine's current hinged correction for its actual legs.
-   * Reuses the same ordered refit kernel and pair solve; the supported curve has no arm/contact context.
-   * Public cold/near fitting retains its original entry; no changed goal, branch answer, readiness flag or relaxed bound is introduced.
-   * Avoids generic pole/source ranking before an accepted current hinged correction while preserving actual checks; gains are unmeasured.
-   * Uses the same actual source reader, solving every request afresh with no prior pose replay.
-   * Source, readers and policy remain synchronous and no output or query history is retained here.
+   * Defines the owned free-leg source, current actual goals/seeds and
+   * independent fit result. The free-curve producer owns deterministic phase
+   * continuation and independently checks all current physical constraints;
+   * this entry chooses the engine's current hinged correction for its actual
+   * legs. Reuses the same ordered refit kernel and pair solve; the supported
+   * curve has no arm/contact context. Public cold/near fitting retains its
+   * original entry; no changed goal, branch answer, readiness flag or relaxed
+   * bound is introduced. Avoids generic pole/source ranking before an accepted
+   * current hinged correction while preserving actual checks; gains are
+   * unmeasured. Uses the same actual source reader, solving every request
+   * afresh with no prior pose replay. Source, readers and policy remain
+   * synchronous and no output or query history is retained here.
    */
   export function continued(
     body: IAutoMovieMotionHumanBody,
@@ -84,11 +100,22 @@ export namespace refitHumanPosture {
     near: IAutoMovieMotionHumanResolveHumanPosture.INear,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit.continued, true);
+    return fitted(
+      body,
+      pose,
+      limbs,
+      near,
+      resolution,
+      applyHumanLimbFit.continued,
+      true,
+    );
   }
 }
 
-/** Whether each of a record's three angles is finite or null, which is all forward kinematics asks of a named bone's record. */
+/**
+ * Whether each of a record's three angles is finite or null, which is all
+ * forward kinematics asks of a named bone's record.
+ */
 function wellFormed(joint: IAutoMovieJointPose): boolean {
   return (
     (joint.flexion === null || Number.isFinite(joint.flexion)) &&
@@ -97,7 +124,11 @@ function wellFormed(joint: IAutoMovieJointPose): boolean {
   );
 }
 
-/** Keep the original limb-order loop once; only the entry's limb fit differs. An `assembled` pose is the base-free assembly's own, one clamped record a rig bone. */
+/**
+ * Keep the original limb-order loop once; only the entry's limb fit differs. An
+ * `assembled` pose is the base-free assembly's own, one clamped record a rig
+ * bone.
+ */
 function fitted(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,

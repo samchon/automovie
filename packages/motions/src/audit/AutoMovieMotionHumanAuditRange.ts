@@ -13,18 +13,18 @@ import type {
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
 /**
- * Whether every joint of a displayed motion stays inside its anatomical
- * range of motion at every instant.
+ * Whether every joint of a displayed motion stays inside its anatomical range
+ * of motion at every instant.
  *
- * A body cannot bend an elbow backward or turn a knee sideways, however
- * smooth and collision-free the result looks. The reading takes the
- * displayed pose's clinical joint angles at each grid instant and measures
- * each joint against the humanoid range table the pose gate enforces
- * (`DEFAULT_HUMANOID_ROM`), by the gate's own scan (`scanJointRom`): an
- * angle outside its interval overshoots by its distance to the nearer bound,
- * an angle on an axis the joint does not have by its whole magnitude, and a
- * ball joint's combined flexion and abduction by what it exceeds the swing
- * cone. A joint the table does not list is unconstrained.
+ * A body cannot bend an elbow backward or turn a knee sideways, however smooth
+ * and collision-free the result looks. The reading takes the displayed pose's
+ * clinical joint angles at each grid instant and measures each joint against
+ * the humanoid range table the pose gate enforces (`DEFAULT_HUMANOID_ROM`), by
+ * the gate's own scan (`scanJointRom`): an angle outside its interval
+ * overshoots by its distance to the nearer bound, an angle on an axis the joint
+ * does not have by its whole magnitude, and a ball joint's combined flexion and
+ * abduction by what it exceeds the swing cone. A joint the table does not list
+ * is unconstrained.
  */
 export namespace AutoMovieMotionHumanAuditRange {
   /**
@@ -83,22 +83,23 @@ export namespace AutoMovieMotionHumanAuditRange {
    * ankle's limit.
    *
    * A foot bearing the body dorsiflexes as far as the loaded limit
-   * (`ANKLE_DORSIFLEXION.loaded`); a foot that bears no weight reaches only
-   * the passive, unloaded one (`ANKLE_DORSIFLEXION.unloaded`), read here
-   * apart from the range table's one limit for the joint. A foot bears
-   * weight while a plant, a pivot or a bearing slide window holds it, on the ground or on a prop or a
-   * person that bears it (a tread, a deck, a partner's hands), the windows the
-   * contact audit reads (`AutoMovieMotionHumanAuditMotion.windows`), so a
-   * foot's load has one source. At each grid instant each foot outside such a
-   * window is read: its dorsiflexion past the unloaded limit overshoots. An
-   * instant whose plants hold both feet has nothing to read, and its pose is
-   * not resolved.
+   * (`ANKLE_DORSIFLEXION.loaded`); a foot that bears no weight reaches only the
+   * passive, unloaded one (`ANKLE_DORSIFLEXION.unloaded`), read here apart from
+   * the range table's one limit for the joint. A foot bears weight while a
+   * plant, a pivot or a bearing slide window holds it, on the ground or on a
+   * prop or a person that bears it (a tread, a deck, a partner's hands), the
+   * windows the contact audit reads
+   * (`AutoMovieMotionHumanAuditMotion.windows`), so a foot's load has one
+   * source. At each grid instant each foot outside such a window is read: its
+   * dorsiflexion past the unloaded limit overshoots. An instant whose plants
+   * hold both feet has nothing to read, and its pose is not resolved.
    *
    * @param motion The motion's windows.
    * @param posed The motion's poses.
    * @param subject The person.
    * @param rate Grid samples per second.
-   * @returns The reading: the farthest an unloaded ankle dorsiflexes past its limit, degrees, and the share of instants it does.
+   * @returns The reading: the farthest an unloaded ankle dorsiflexes past its
+   *   limit, degrees, and the share of instants it does.
    * @throws {Error} When the rate is not positive.
    */
   export function unloaded(

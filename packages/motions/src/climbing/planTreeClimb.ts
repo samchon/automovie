@@ -14,7 +14,10 @@ import { treeClimbDrop } from "./treeClimbDrop";
 import { treeClimbRoute } from "./treeClimbRoute";
 import { treeLimbs } from "./treeLimbs";
 
-/** How far from the bole's face the climber stands on the ground, metres (provisional: a forearm's length). */
+/**
+ * How far from the bole's face the climber stands on the ground, metres
+ * (provisional: a forearm's length).
+ */
 const STAND_OFF: number = 0.3;
 
 /** The feet's half spacing on the ground, metres (provisional). */
@@ -23,12 +26,13 @@ const STANCE: number = 0.12;
 /**
  * Plan a tree climb, sit or descent on the shared support law over staged
  * points of the tree (`treeClimbRoute`). A climb starts from the feet where
- * they stand; a descent ends standing `STAND_OFF` from the bole, or hangs
- * from the lowest branch and drops (`treeClimbDrop`).
+ * they stand; a descent ends standing `STAND_OFF` from the bole, or hangs from
+ * the lowest branch and drops (`treeClimbDrop`).
  *
  * @param context The action's context.
  * @returns The plan.
- * @throws {HumanRefusal} If the tree has no such branch, the lowest is beyond reach, or a stance overloads a branch.
+ * @throws {HumanRefusal} If the tree has no such branch, the lowest is beyond
+ *   reach, or a stance overloads a branch.
  */
 export function planTreeClimb(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTreeClimb.IParams>,

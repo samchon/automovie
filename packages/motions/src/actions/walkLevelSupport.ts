@@ -16,14 +16,13 @@ import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
- * Plan a walk that starts bearing on a fixed level prop as the floor gait
- * at that prop's height. The entry's loaded soles give the height
- * (`HumanSupportFrame.floor`), less the height a flat foot's sole sockets
- * stand above its floor; the entry is lowered by it, the ordinary
- * floor gait plans from there, and every posture it writes is raised back,
- * so the steps bear on the top the walk began on. A walk that boards a
- * prop from the floor, rides a moving or sloped one, or starts on the
- * floor plans unchanged.
+ * Plan a walk that starts bearing on a fixed level prop as the floor gait at
+ * that prop's height. The entry's loaded soles give the height
+ * (`HumanSupportFrame.floor`), less the height a flat foot's sole sockets stand
+ * above its floor; the entry is lowered by it, the ordinary floor gait plans
+ * from there, and every posture it writes is raised back, so the steps bear on
+ * the top the walk began on. A walk that boards a prop from the floor, rides a
+ * moving or sloped one, or starts on the floor plans unchanged.
  *
  * @param context The walk's context in world metres.
  * @param subject The prop the walk is `on`.

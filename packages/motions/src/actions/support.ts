@@ -26,7 +26,10 @@ import { supportKey } from "./supportKey";
 import { supportPlan } from "./supportPlan";
 import { supportStep } from "./supportStep";
 
-/** Offset decay time of a cut from a support sequence into standing, seconds (provisional: no study of the transition was located). */
+/**
+ * Offset decay time of a cut from a support sequence into standing, seconds
+ * (provisional: no study of the transition was located).
+ */
 const BLEND: number = 0.3;
 
 /** A support point in world metres, or an unnamed floor place. */
@@ -37,61 +40,63 @@ type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;
 
 /**
  * Moving the body's weight across a sequence of supports: each stance's
- * contacts (`HumanSupport.IStance`) solved into one static key posture, and
- * the body carried from key to key with every new contact placed and
- * bearing before any contact the next stance lacks lets go.
+ * contacts (`HumanSupport.IStance`) solved into one static key posture, and the
+ * body carried from key to key with every new contact placed and bearing before
+ * any contact the next stance lacks lets go.
  *
  * A key posture is the static multi-contact posture nearest the posture the
- * body enters with that puts every contact on its target and keeps every
- * joint in its range (HumanBodyFit, Bouyarmane and Kheddar 2010, Escande et al. 2013).
- * An explicit positive balance request uses the fitted world contacts and
- * the selected part on the prepared clock. Each new key is solved from the key before it, as a planner grows its next
- * stance from its parent. Between two stances the planner solves a third key
- * on the union of both stances' contacts, so the new contacts bear before
- * the old ones release (Escande et al.'s transition configurations, in
- * both stances at once), except a part the stance lets go free
- * (`IStance.free`), which bears no more from the stance's start and hangs as
- * the posture carries it; the body moves between keys on a minimum-jerk
- * course in joint space (Flash and Hogan 1985), each joint on its own range
- * (`blendHumanJoint`). A part that bears in two stances in a row on
+ * body enters with that puts every contact on its target and keeps every joint
+ * in its range (HumanBodyFit, Bouyarmane and Kheddar 2010, Escande et al.
+ * 2013). An explicit positive balance request uses the fitted world contacts
+ * and the selected part on the prepared clock. Each new key is solved from the
+ * key before it, as a planner grows its next stance from its parent. Between
+ * two stances the planner solves a third key on the union of both stances'
+ * contacts, so the new contacts bear before the old ones release (Escande et
+ * al.'s transition configurations, in both stances at once), except a part the
+ * stance lets go free (`IStance.free`), which bears no more from the stance's
+ * start and hangs as the posture carries it; the body moves between keys on a
+ * minimum-jerk course in joint space (Flash and Hogan 1985), each joint on its
+ * own range (`blendHumanJoint`). A part that bears in two stances in a row on
  * different targets steps: the planner first solves a key without its old
- * contact, the part over the middle of its step lifted a stepping limb's
- * rise (`crawl.LIFT`) clear of the higher end and bearing on nothing, then
- * the transition key with it set down, so a contact is broken before it is
- * made again; a foot stepping across the floor lifts over its old place
- * and lowers from over its new one instead, so it never travels within the
- * floor band (`supportStep`). Along the joint-space course the root keeps the first common
- * contact on its point, and every held hand and foot is then fitted by its
- * own two-bone chain to where the two keys hold it (`prepareSupportInterval`);
- * a held knee or trunk contact rides the root pin and the floor bound alone.
- * A staged route may add a course (`supportCourse`): a stepping foot then
- * passes the course's world waypoints over a fixture edge, one lift key per
- * waypoint and a straight toe course between them, and a foot the course
- * names as level bears flat with its heel level at every key and through
- * every interval that holds it.
- * A contact no key
- * posture reaches is refused with the contact, its stance and the miss.
+ * contact, the part over the middle of its step lifted a stepping limb's rise
+ * (`crawl.LIFT`) clear of the higher end and bearing on nothing, then the
+ * transition key with it set down, so a contact is broken before it is made
+ * again; a foot stepping across the floor lifts over its old place and lowers
+ * from over its new one instead, so it never travels within the floor band
+ * (`supportStep`). Along the joint-space course the root keeps the first common
+ * contact on its point, and every held hand and foot is then fitted by its own
+ * two-bone chain to where the two keys hold it (`prepareSupportInterval`); a
+ * held knee or trunk contact rides the root pin and the floor bound alone. A
+ * staged route may add a course (`supportCourse`): a stepping foot then passes
+ * the course's world waypoints over a fixture edge, one lift key per waypoint
+ * and a straight toe course between them, and a foot the course names as level
+ * bears flat with its heel level at every key and through every interval that
+ * holds it. A contact no key posture reaches is refused with the contact, its
+ * stance and the miss.
  *
  * A bearing foot lies on the floor at its toes' joint with its toes flat; a
- * bearing hand lies on its palm laid flat on the surface; on the floor a
- * knee bears on its shin and the trunk on its colliders, resting on their
- * lowest points, and on a raised surface each lays its own skin flat on it
- * (the knee, the seat, the upper back or the abdomen); a contact held across
- * stances without a place stays where it was first laid; a gripping hand
- * closes on its target at its grip. Each move
- * takes `SECONDS` (provisional: no study of the timing of a general support
- * sequence was located) or its stance's own, a step's third of it each to
- * lift, to set down and to settle. Events: `lift<i>` when the move into
- * stance `i` has its stepping parts at the top of their swing, `bear<i>`
- * when it has placed its new contacts, `stance<i>` (or the stance's own
- * event) when stance `i` is held alone. The plan lets overlays move the
- * head and any arm and hand that have no contact window in the sequence.
+ * bearing hand lies on its palm laid flat on the surface; on the floor a knee
+ * bears on its shin and the trunk on its colliders, resting on their lowest
+ * points, and on a raised surface each lays its own skin flat on it (the knee,
+ * the seat, the upper back or the abdomen); a contact held across stances
+ * without a place stays where it was first laid; a gripping hand closes on its
+ * target at its grip. Each move takes `SECONDS` (provisional: no study of the
+ * timing of a general support sequence was located) or its stance's own, a
+ * step's third of it each to lift, to set down and to settle. Events: `lift<i>`
+ * when the move into stance `i` has its stepping parts at the top of their
+ * swing, `bear<i>` when it has placed its new contacts, `stance<i>` (or the
+ * stance's own event) when stance `i` is held alone. The plan lets overlays
+ * move the head and any arm and hand that have no contact window in the
+ * sequence.
  */
 export namespace support {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "support";
 
-  /** Cancel table: a support sequence stands up from any stance it holds on its feet. */
+  /**
+   * Cancel table: a support sequence stands up from any stance it holds on its
+   * feet.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
   };
@@ -99,16 +104,23 @@ export namespace support {
   /** Seconds a move into a stance takes (provisional). */
   export const SECONDS: number = 1;
 
-  /** How far a contact may miss its target, millimetres: the give of a pressed skin the audits read a contact with (`AutoMovieMotionHumanAuditSkin.BUILT`). */
+  /**
+   * How far a contact may miss its target, millimetres: the give of a pressed
+   * skin the audits read a contact with
+   * (`AutoMovieMotionHumanAuditSkin.BUILT`).
+   */
   export const MISS: number = AutoMovieMotionHumanAuditSkin.BUILT * 1000;
 
   /**
    * Plan a support sequence.
    *
    * @param context The action's context.
-   * @param course A staged route's waypoints, level feet and window reader; the ordinary sequence when absent.
+   * @param course A staged route's waypoints, level feet and window reader; the
+   *   ordinary sequence when absent.
    * @returns The plan.
-   * @throws {HumanRefusal} When there is no stance, a stance's seconds are not positive, or a key posture leaves a contact more than `MISS` off its target.
+   * @throws {HumanRefusal} When there is no stance, a stance's seconds are not
+   *   positive, or a key posture leaves a contact more than `MISS` off its
+   *   target.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,

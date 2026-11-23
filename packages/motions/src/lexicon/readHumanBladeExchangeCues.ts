@@ -12,8 +12,10 @@ import type {
  * An instant at the cut remains.
  *
  * @param schedule Placed schedule containing the exchange.
- * @param cue Cue id passed to composeHumanBladeExchange, without a phase suffix.
- * @returns A cue track in time order, with the opening before the block on a tie.
+ * @param cue Cue id passed to composeHumanBladeExchange, without a phase
+ *   suffix.
+ * @returns A cue track in time order, with the opening before the block on a
+ *   tie.
  * @throws {Error} When either of the exchange's required phases is absent.
  */
 export function readHumanBladeExchangeCues(

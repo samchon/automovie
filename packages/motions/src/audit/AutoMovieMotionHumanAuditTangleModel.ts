@@ -18,22 +18,23 @@ import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 
 /**
- * The per-body model the tangle audit (`AutoMovieMotionHumanAuditTangle`)
- * reads a pose against: each collider segment's probes and bounding sphere,
- * which pairs of segments are one part or share a joint, the two reference
- * postures, and how deep a probe lies in another segment beyond what the
- * reference postures already show.
+ * The per-body model the tangle audit (`AutoMovieMotionHumanAuditTangle`) reads
+ * a pose against: each collider segment's probes and bounding sphere, which
+ * pairs of segments are one part or share a joint, the two reference postures,
+ * and how deep a probe lies in another segment beyond what the reference
+ * postures already show.
  *
- * The reasons for the probes, the related pairs and the reference depths
- * are stated on the audit; this holds their construction and the depth
- * arithmetic.
+ * The reasons for the probes, the related pairs and the reference depths are
+ * stated on the audit; this holds their construction and the depth arithmetic.
  */
 export namespace AutoMovieMotionHumanAuditTangleModel {
-  /** The reference overlap beyond which two segments' surfaces are one volume by their build, metres (`AutoMovieMotionHumanAuditSkin.BUILT`). */
+  /**
+   * The reference overlap beyond which two segments' surfaces are one volume by
+   * their build, metres (`AutoMovieMotionHumanAuditSkin.BUILT`).
+   */
   export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
-  /** One collider segment's probes and bounding sphere in its own frame.
-   */
+  /** One collider segment's probes and bounding sphere in its own frame. */
   export interface IPart {
     /** The bone that carries the segment. */
     bone: AutoMovieHumanoidBone;
@@ -44,7 +45,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     /** The probes: the shapes' corners, then points along the bone. */
     probes: IAutoMovieVector3[];
 
-    /** How many of the probes, the first ones, are corners of the shapes; the rest lie on the bone's axis. */
+    /**
+     * How many of the probes, the first ones, are corners of the shapes; the
+     * rest lie on the bone's axis.
+     */
     surface: number;
 
     /** The bounding sphere's centre. */
@@ -54,16 +58,15 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     radius: number;
 
     /**
-     * How far from the segment's own origin any of its probes, or any point
-     * of the bounding spheres of its shapes, lies, metres: a turn of the
-     * segment by an angle moves none of them farther than this times the
-     * chord of the angle, which bounds how fast a reading against it moves.
+     * How far from the segment's own origin any of its probes, or any point of
+     * the bounding spheres of its shapes, lies, metres: a turn of the segment
+     * by an angle moves none of them farther than this times the chord of the
+     * angle, which bounds how fast a reading against it moves.
      */
     extent: number;
   }
 
-  /** What is derived once per body.
-   */
+  /** What is derived once per body. */
   export interface IModel {
     /** The segments, in the order the colliders are placed. */
     parts: IPart[];
@@ -71,7 +74,10 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
     /** Whether two segments are one part or share a joint. */
     related: boolean[][];
 
-    /** Whether each segment is of that side's arm: its upper arm, its forearm, or its hand with the fingers. */
+    /**
+     * Whether each segment is of that side's arm: its upper arm, its forearm,
+     * or its hand with the fingers.
+     */
     arms: Record<"left" | "right", boolean[]>;
 
     /** The segments placed in the rest T-pose. */
@@ -85,8 +91,8 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   }
 
   /**
-   * The part of the body a bone belongs to when several bones are one part:
-   * a hand with its fingers, a foot with its toes.
+   * The part of the body a bone belongs to when several bones are one part: a
+   * hand with its fingers, a foot with its toes.
    *
    * @param bone The bone.
    * @returns The part's name; the bone's own otherwise.
@@ -313,13 +319,14 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
 
   /**
    * Each probe of segment `i`'s reference depth in segment `j`: the depth it
-   * may keep there before the audit reads it as a tangle, which a planner
-   * keeps its probes within.
+   * may keep there before the audit reads it as a tangle, which a planner keeps
+   * its probes within.
    *
    * @param m The body's model.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
-   * @returns Metres per probe; `Infinity` for a corner of a pair whose colliders overlap past the skin by their build.
+   * @returns Metres per probe; `Infinity` for a corner of a pair whose
+   *   colliders overlap past the skin by their build.
    */
   export function reference(m: IModel, i: number, j: number): Float64Array {
     const key: number = i * m.parts.length + j;
@@ -357,8 +364,13 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param placed The body's placed segments.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
-   * @param targets The caller's own list for this one reading of `placed`, empty when first given: each segment read in is prepared into it once (`prepareAutoMovieMotionHumanAuditDepths`) and read from it after. The caller drops it with `placed` and gives it with no other placement.
-   * @param room An array of the probes' length to receive each probe's room in `j` (`prepareAutoMovieMotionHumanAuditDepths`), for a caller that certifies how long the pair stays clear; not filled when absent.
+   * @param targets The caller's own list for this one reading of `placed`,
+   *   empty when first given: each segment read in is prepared into it once
+   *   (`prepareAutoMovieMotionHumanAuditDepths`) and read from it after. The
+   *   caller drops it with `placed` and gives it with no other placement.
+   * @param room An array of the probes' length to receive each probe's room in
+   *   `j` (`prepareAutoMovieMotionHumanAuditDepths`), for a caller that
+   *   certifies how long the pair stays clear; not filled when absent.
    * @returns Metres per probe; zero or less where it lies no deeper.
    */
   export function beyond(
@@ -392,7 +404,8 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
    * @param placed The body's placed segments.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
-   * @param targets The caller's list of prepared segments for this reading of `placed` (`beyond`).
+   * @param targets The caller's list of prepared segments for this reading of
+   *   `placed` (`beyond`).
    * @returns Metres; zero when no probe lies deeper.
    */
   export function excess(

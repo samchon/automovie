@@ -1,15 +1,13 @@
 /**
  * Matrix-free projected Gauss–Newton step for interaction-mesh deformation.
  *
- * Li et al. 2020 §4.3's positive curvature term is a sum of local
- * outer products. Using the Laplacian and constraint Jacobians in the
- * same form supports a diagonally conditioned conjugate-gradient solve
- * without filling an all-point quadratic program.
+ * Li et al. 2020 §4.3's positive curvature term is a sum of local outer
+ * products. Using the Laplacian and constraint Jacobians in the same form
+ * supports a diagonally conditioned conjugate-gradient solve without filling an
+ * all-point quadratic program.
  */
 export namespace HumanInteractionMeshStep {
-  /**
-   * A scalar objective's contribution along one sparse derivative.
-   */
+  /** A scalar objective's contribution along one sparse derivative. */
   export interface IRow {
     /** The indices of the included Cartesian components. */
     index: readonly number[];
@@ -32,7 +30,11 @@ export namespace HumanInteractionMeshStep {
    * @param first The first barrier term in those rows.
    * @returns The scalar minimising the combined gradient norm.
    */
-  export function balance(size: number, rows: readonly IRow[], first: number): number {
+  export function balance(
+    size: number,
+    rows: readonly IRow[],
+    first: number,
+  ): number {
     const elastic: Float64Array = new Float64Array(size);
     const barrier: Float64Array = new Float64Array(size);
     for (let i: number = 0; i < rows.length; i++) {
@@ -51,16 +53,22 @@ export namespace HumanInteractionMeshStep {
    *
    * @param size The Cartesian dimension.
    * @param rows The current iterate's local scalar terms.
-   * @param background The diagonal scale of the undamped deformation, before contact stiffness.
+   * @param background The diagonal scale of the undamped deformation, before
+   *   contact stiffness.
    * @returns The Newton step, in metres.
    */
-  export function of(size: number, rows: readonly IRow[], background: number): Float64Array {
+  export function of(
+    size: number,
+    rows: readonly IRow[],
+    background: number,
+  ): Float64Array {
     const residual: Float64Array = new Float64Array(size);
     const diagonal: Float64Array = new Float64Array(size);
     // Pack this iterate's row derivatives in the order of both Jacobian
     // products. Every conjugate direction uses the same sparse structure.
     const offsets: Uint32Array = new Uint32Array(rows.length + 1);
-    for (let r: number = 0; r < rows.length; r++) offsets[r + 1] = offsets[r]! + rows[r]!.index.length;
+    for (let r: number = 0; r < rows.length; r++)
+      offsets[r + 1] = offsets[r]! + rows[r]!.index.length;
     const columns: Uint32Array = new Uint32Array(offsets[rows.length]!);
     const derivatives: Float64Array = new Float64Array(columns.length);
     const curvatures: Float64Array = new Float64Array(rows.length);
@@ -91,15 +99,21 @@ export namespace HumanInteractionMeshStep {
     }
     let prior: number = dot(residual, direction);
     const limit: number = Number.EPSILON * prior;
-    for (let iteration: number = 0; iteration < size && prior > limit; iteration++) {
+    for (
+      let iteration: number = 0;
+      iteration < size && prior > limit;
+      iteration++
+    ) {
       for (let i: number = 0; i < size; i++) product[i] = shift * direction[i]!;
       for (let r: number = 0; r < rows.length; r++) {
         const begin: number = offsets[r]!;
         const end: number = offsets[r + 1]!;
         let scalar: number = 0;
-        for (let i: number = begin; i < end; i++) scalar += derivatives[i]! * direction[columns[i]!]!;
+        for (let i: number = begin; i < end; i++)
+          scalar += derivatives[i]! * direction[columns[i]!]!;
         scalar *= curvatures[r]!;
-        for (let i: number = begin; i < end; i++) product[columns[i]!]! += scalar * derivatives[i]!;
+        for (let i: number = begin; i < end; i++)
+          product[columns[i]!]! += scalar * derivatives[i]!;
       }
       const projected: number = dot(direction, product);
       if (!(projected > 0)) break;
@@ -111,7 +125,8 @@ export namespace HumanInteractionMeshStep {
         present += residual[i]! ** 2 / diagonal[i]!;
       }
       const beta: number = present / prior;
-      for (let i: number = 0; i < size; i++) direction[i] = residual[i]! / diagonal[i]! + beta * direction[i]!;
+      for (let i: number = 0; i < size; i++)
+        direction[i] = residual[i]! / diagonal[i]! + beta * direction[i]!;
       prior = present;
     }
     return result;

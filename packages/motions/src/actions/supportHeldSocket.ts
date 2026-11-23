@@ -16,14 +16,14 @@ import { supportContact } from "./supportContact";
 import type { supportPlan } from "./supportPlan";
 
 /**
- * The sole socket each floor foot holds through its window: its ball, the
- * point a turning foot pivots on, unless at the key it is set down on the ball is off the
- * floor above a bearing heel (`HumanFoot.BEARING`), when its heel. A
- * foot whose stance turns the body over it rolls about that one point in
- * every interval of the window (`prepareSupportHeldFrames`), and the window
- * declares it (`IAutoMovieMotionHumanContactWindow.socket`), so the audits
- * read the point the foot holds: a heel swinging about a held ball as the
- * body turns is a pivot, not a slip (the staged clinch's 25 mm).
+ * The sole socket each floor foot holds through its window: its ball, the point
+ * a turning foot pivots on, unless at the key it is set down on the ball is off
+ * the floor above a bearing heel (`HumanFoot.BEARING`), when its heel. A foot
+ * whose stance turns the body over it rolls about that one point in every
+ * interval of the window (`prepareSupportHeldFrames`), and the window declares
+ * it (`IAutoMovieMotionHumanContactWindow.socket`), so the audits read the
+ * point the foot holds: a heel swinging about a held ball as the body turns is
+ * a pivot, not a slip (the staged clinch's 25 mm).
  *
  * @param body The body.
  * @param keys The solved keys in time order.

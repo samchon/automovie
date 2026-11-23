@@ -30,9 +30,7 @@ import { crutchSitPath } from "./crutchSitPath";
  * the law courses.
  */
 export namespace crutchSitKit {
-  /**
-   * The crutch sit's shared reads.
-   */
+  /** The crutch sit's shared reads. */
   export interface IKit {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -82,9 +80,7 @@ export namespace crutchSitKit {
     at: (plan: IAutoMovieMotionHumanActionPlan, name: string) => number;
   }
 
-  /**
-   * One order's plan before the arms are coursed.
-   */
+  /** One order's plan before the arms are coursed. */
   export interface IOrder {
     /** Seconds. */
     duration: number;

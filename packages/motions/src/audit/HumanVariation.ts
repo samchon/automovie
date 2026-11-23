@@ -1,17 +1,18 @@
 import type { IAutoMovieMotionHumanVariation } from "@automovie/interface";
 
 /**
- * How much a quantity varies over seeds: build the same composition under
- * each seed, read one number from each, and report its spread. A film's
- * crowd must not move as clones, and no draw may leave its bounds; this is
- * the reading both are asserted on.
+ * How much a quantity varies over seeds: build the same composition under each
+ * seed, read one number from each, and report its spread. A film's crowd must
+ * not move as clones, and no draw may leave its bounds; this is the reading
+ * both are asserted on.
  */
 export namespace HumanVariation {
   /**
    * Read one quantity under each seed.
    *
    * @param seeds The seeds, or how many to generate (`seed-0`, `seed-1`, ...).
-   * @param read The quantity under a seed, usually from a performance built with it.
+   * @param read The quantity under a seed, usually from a performance built
+   *   with it.
    * @returns The report.
    * @throws {Error} When no seed is given.
    */

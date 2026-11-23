@@ -13,13 +13,9 @@ import { jumpJoints } from "./jumpJoints";
 import { jumpPushEnd } from "./jumpPushEnd";
 import { jumpState } from "./jumpState";
 
-/**
- * One preparation of the achieved endpoints shared by flight goals and COM.
- */
+/** One preparation of the achieved endpoints shared by flight goals and COM. */
 export namespace jumpEndpoints {
-  /**
-   * Achieved terminal push and touchdown states.
-   */
+  /** Achieved terminal push and touchdown states. */
   export interface IEnds {
     /** Achieved push end after lowering and physical fitting. */
     start: jumpState.IState;

@@ -22,17 +22,17 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
 /**
- * The prop a hand holds as an action enters, in that hand's own frame: the
- * one reading every action that works with a held thing starts from, whether
- * it brings a glass's lip to the mouth or a blade's point to a target.
+ * The prop a hand holds as an action enters, in that hand's own frame: the one
+ * reading every action that works with a held thing starts from, whether it
+ * brings a glass's lip to the mouth or a blade's point to a target.
  *
  * A held prop is rigid in the hand from the instant its grip closed, so the
- * prop's frame, and with it every point and direction the prop declares, is
- * a constant of the hand's grip frame for as long as it is held. The grip
- * frame is the performance's own: the grip socket's point with the hand
- * bone's rotation, the frame a held prop is carried in. It is read once, at
- * the action's entry, from the displayed prop and the displayed hand, so an
- * action aims what the film shows whichever way the hand took the prop.
+ * prop's frame, and with it every point and direction the prop declares, is a
+ * constant of the hand's grip frame for as long as it is held. The grip frame
+ * is the performance's own: the grip socket's point with the hand bone's
+ * rotation, the frame a held prop is carried in. It is read once, at the
+ * action's entry, from the displayed prop and the displayed hand, so an action
+ * aims what the film shows whichever way the hand took the prop.
  *
  * Whether the hand holds the prop is the entry state's fact
  * (`IHumanEntryState.holds`), never a judgment from how near it lies.
@@ -45,10 +45,15 @@ export namespace AutoMovieMotionHumanHeld {
    * @param side The holding hand.
    * @param prop The prop's subject id.
    * @returns The prop in the hand's grip frame.
-   * @throws {HumanRefusal} An `affordance` refusal when that hand does not hold that prop at the entry, naming what it holds; a `participant` refusal on `side` when the body has no bone for that hand, naming the hands it has.
+   * @throws {HumanRefusal} An `affordance` refusal when that hand does not hold
+   *   that prop at the entry, naming what it holds; a `participant` refusal on
+   *   `side` when the body has no bone for that hand, naming the hands it has.
    */
   export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop"
+    >,
     side: "left" | "right",
     prop: string,
   ): IAutoMovieMotionHumanHeld.IHeld {
@@ -81,9 +86,7 @@ export namespace AutoMovieMotionHumanHeld {
         reason: `the body has no ${side}Hand bone to hold ${prop} in`,
         fix: "perform the action with a hand the body has, or with a body whose skeleton has that hand",
       });
-    if (
-      readHumanBone(context.body, `${side}Hand`) === undefined
-    )
+    if (readHumanBone(context.body, `${side}Hand`) === undefined)
       throw handless();
     const read: IAutoMovieMotionHumanPropReader = context.prop(prop);
     const world: IAutoMovieRigidTransform = read.frame(context.entry.seconds);
@@ -167,8 +170,10 @@ export namespace AutoMovieMotionHumanHeld {
    *
    * @param held The held prop.
    * @param id The affordance's id.
-   * @returns Its point from the grip socket, metres, and the unit direction its `+Y` runs, both in the hand bone's axes.
-   * @throws {HumanRefusal} An `affordance` refusal when the prop declares no such contact, listing the ones it has.
+   * @returns Its point from the grip socket, metres, and the unit direction its
+   *   `+Y` runs, both in the hand bone's axes.
+   * @throws {HumanRefusal} An `affordance` refusal when the prop declares no
+   *   such contact, listing the ones it has.
    */
   export function point(
     held: IAutoMovieMotionHumanHeld.IHeld,
@@ -211,7 +216,9 @@ export namespace AutoMovieMotionHumanHeld {
    * @param held The held prop.
    * @returns The contact window.
    */
-  export function grip(held: IAutoMovieMotionHumanHeld.IHeld): IAutoMovieMotionHumanContactWindow {
+  export function grip(
+    held: IAutoMovieMotionHumanHeld.IHeld,
+  ): IAutoMovieMotionHumanContactWindow {
     return {
       part: `${held.side}Hand`,
       kind: "grip",

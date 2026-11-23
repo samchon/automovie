@@ -35,36 +35,42 @@ import { placeRideFeet } from "./placeRideFeet";
 import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
 
 /**
- * Riding: a seated person carried by a support that moves by itself, such
- * as a car, a bicycle or a horse given to the performance as a moving prop
+ * Riding: a seated person carried by a support that moves by itself, such as a
+ * car, a bicycle or a horse given to the performance as a moving prop
  * (`HumanObject.prop` with a motion).
  *
- * The rider sits down on the support first (`sit` on its seat where it
- * stands at that second; `HumanObject.seat` reads a saddle with its pedals
- * or stirrups) and then rides it: the seated posture is carried rigidly
- * with the support, turning, leaning and pitching as it does, the seat and
- * each foot that rested on it bearing on it, so nothing slides in the
- * support's frame. The arms, the hands, the head and the trunk's turn are
- * yielded, so steering, holding on, waving, looking and aiming from the
- * saddle are actions performed over the ride. Register `HumanRide.ride` to use it.
+ * The rider sits down on the support first (`sit` on its seat where it stands
+ * at that second; `HumanObject.seat` reads a saddle with its pedals or
+ * stirrups) and then rides it: the seated posture is carried rigidly with the
+ * support, turning, leaning and pitching as it does, the seat and each foot
+ * that rested on it bearing on it, so nothing slides in the support's frame.
+ * The arms, the hands, the head and the trunk's turn are yielded, so steering,
+ * holding on, waving, looking and aiming from the saddle are actions performed
+ * over the ride. Register `HumanRide.ride` to use it.
  *
- * With `rising` the rider posts to a trot, by a stride time or on the
- * strides of a cue track; with `feet` each foot stays on a part that moves
- * within the support, a pedal on its crank or a stirrup; with `hands` each
- * hand holds a grip, a rein or a wheel's rim and follows it the same way,
- * the trunk leaning to keep the grips in reach. With `equestrian` the
- * rider can articulate relative to the saddle on the horse's touchdown
- * clock, ride an authored jump, or turn over one shoulder on a film cue.
- * The ride passes its original seat on as its base for dismounting.
+ * With `rising` the rider posts to a trot, by a stride time or on the strides
+ * of a cue track; with `feet` each foot stays on a part that moves within the
+ * support, a pedal on its crank or a stirrup; with `hands` each hand holds a
+ * grip, a rein or a wheel's rim and follows it the same way, the trunk leaning
+ * to keep the grips in reach. With `equestrian` the rider can articulate
+ * relative to the saddle on the horse's touchdown clock, ride an authored jump,
+ * or turn over one shoulder on a film cue. The ride passes its original seat on
+ * as its base for dismounting.
  */
 export namespace HumanRide {
   /** Seconds a hand takes to reach the point it is to hold (provisional). */
   export const TAKE: number = 0.6;
 
-  /** The sole socket a foot bears on its rest by: the ball, which the seat places on the tread. */
+  /**
+   * The sole socket a foot bears on its rest by: the ball, which the seat
+   * places on the tread.
+   */
   const BALL: IAutoMovieMotionHumanContactWindow.Socket = "ball";
 
-  /** How far a rising trot lifts the seat off the saddle, thigh lengths (provisional: no rider kinematics were read). */
+  /**
+   * How far a rising trot lifts the seat off the saddle, thigh lengths
+   * (provisional: no rider kinematics were read).
+   */
   export const POST: number = 0.25;
 
   /** Ride a moving support, seated on it. */
@@ -84,7 +90,8 @@ export namespace HumanRide {
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
     ): WorkingSeatRidePlan.IPlan => {
-      const { on, duration: seconds }: IAutoMovieMotionHumanRide.IParams = context.params;
+      const { on, duration: seconds }: IAutoMovieMotionHumanRide.IParams =
+        context.params;
       HumanBound.above("duration", seconds, 0, "s");
       const placeFeet: boolean = context.params.placeFeet === true;
       if (placeFeet) HumanBound.least("duration", seconds, TAKE, "s");

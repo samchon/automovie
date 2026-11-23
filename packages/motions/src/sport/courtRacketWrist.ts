@@ -21,7 +21,10 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 interface IRacketWrist {
   /** World displacement from the wrist to the face at the contact orientation. */
   readonly faceOffset: IAutoMovieVector3;
-  /** Fit the strike approach and carry the entry wrist with the moving chest during recovery. */
+  /**
+   * Fit the strike approach and carry the entry wrist with the moving chest
+   * during recovery.
+   */
   readonly goal: (
     posture: IAutoMovieMotionHumanPosture,
     wrist: IAutoMovieVector3,
@@ -125,15 +128,16 @@ export function courtRacketWrist(
 /** Reads a racket's actual held frame for wrist fitting. */
 export namespace courtRacketWrist {
   /**
-   * Read the finite face point and orient it by the racket's perpendicular
-   * face and long axes.
+   * Read the finite face point and orient it by the racket's perpendicular face
+   * and long axes.
    *
    * @param context The entering holds and prop readers for this performer.
    * @param side The hitting hand.
    * @param implement The racket subject already held by that hand.
-   * @returns The face point, working normal and shaft direction in the retained grip frame.
-   * @throws {HumanRefusal} When the racket is absent from the hand or lacks the named affordances.
-   *
+   * @returns The face point, working normal and shaft direction in the retained
+   *   grip frame.
+   * @throws {HumanRefusal} When the racket is absent from the hand or lacks the
+   *   named affordances.
    * @evidence contracts/development/common.md#meaningful-documentation Names the held subject, affordances, frame and failure.
    * @evidence contracts/development/implementation.md#principled-implementation The face and sweet spot supply their own directions in the actual held frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold and working point, then attach the two racket directions.

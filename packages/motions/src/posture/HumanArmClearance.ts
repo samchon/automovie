@@ -28,21 +28,21 @@ import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
  * The other arm's room is the far side of the chest's median plane: an elbow
  * crosses it only as far as its wrist's goal does.
  *
- * A hand goal fixes the wrist and leaves the elbow free on a circle. An
- * elbow place whose point is outside the trunk can still run the forearm
- * through it, so the forearm is judged along its whole length: its axis,
- * sampled from the elbow toward the wrist, keeps the forearm's radius from
- * the colliders of the trunk, the neck and the head at the elbow, tapering to
- * the wrist's own clearance at the wrist, where the palm lies on the surface
- * the hand was sent to. The limb fit, which places the legs before the arms,
- * judges the whole legs too (`obstacles`); a caller that poses only the trunk
- * judges the trunk alone (`trunk`).
+ * A hand goal fixes the wrist and leaves the elbow free on a circle. An elbow
+ * place whose point is outside the trunk can still run the forearm through it,
+ * so the forearm is judged along its whole length: its axis, sampled from the
+ * elbow toward the wrist, keeps the forearm's radius from the colliders of the
+ * trunk, the neck and the head at the elbow, tapering to the wrist's own
+ * clearance at the wrist, where the palm lies on the surface the hand was sent
+ * to. The limb fit, which places the legs before the arms, judges the whole
+ * legs too (`obstacles`); a caller that poses only the trunk judges the trunk
+ * alone (`trunk`).
  *
  * An arm that is not fitted to a goal but carried in joint space between two
  * arms has no elbow place to choose and no goal under its wrist; it is read
  * whole (`room`), against another body's colliders too when one stands in its
- * way, and its elbow let out or folded until the forearm asks no more room
- * than the carry's two ends hold (`cleared`).
+ * way, and its elbow let out or folded until the forearm asks no more room than
+ * the carry's two ends hold (`cleared`).
  */
 export namespace HumanArmClearance {
   /**
@@ -50,27 +50,33 @@ export namespace HumanArmClearance {
    *
    * @param body The body.
    * @param bones Its posed bones, world frame; only the trunk's are read.
-   * @returns The placed segments of the hips, the spine, the chest, the neck and the head.
+   * @returns The placed segments of the hips, the spine, the chest, the neck
+   *   and the head.
    */
   export function trunk(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
     return HumanColliders.placed(body, bones).filter(
-      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean => HumanArmObstacleBones.TRUNK.has(segment.bone),
+      (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
+        HumanArmObstacleBones.TRUNK.has(segment.bone),
     );
   }
 
   /**
-   * The colliders a forearm may not enter in a pose whose legs are placed:
-   * the trunk's, both whole legs' and those of any arm already placed, the
-   * segments the tangle audit reads the arm against.
+   * The colliders a forearm may not enter in a pose whose legs are placed: the
+   * trunk's, both whole legs' and those of any arm already placed, the segments
+   * the tangle audit reads the arm against.
    *
    * @param body The body.
-   * @param bones Its posed bones, world frame, the legs where the pose puts them.
-   * @param arms The arms already placed whose upper arm, forearm and hand count; none when absent.
-   * @param placed An existing placement of this exact body and bone reading in the same unchanged synchronous evaluation; computed here when absent.
-   * @returns The placed segments of `trunk`, of the two legs and of the named arms.
+   * @param bones Its posed bones, world frame, the legs where the pose puts
+   *   them.
+   * @param arms The arms already placed whose upper arm, forearm and hand
+   *   count; none when absent.
+   * @param placed An existing placement of this exact body and bone reading in
+   *   the same unchanged synchronous evaluation; computed here when absent.
+   * @returns The placed segments of `trunk`, of the two legs and of the named
+   *   arms.
    */
   export function obstacles(
     body: IAutoMovieMotionHumanBody,
@@ -78,7 +84,8 @@ export namespace HumanArmClearance {
     arms: readonly ("left" | "right")[] = [],
     placed?: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
-    const limbs: ReadonlySet<AutoMovieHumanoidBone> = HumanArmObstacleBones(arms);
+    const limbs: ReadonlySet<AutoMovieHumanoidBone> =
+      HumanArmObstacleBones(arms);
     return (placed ?? HumanColliders.placed(body, bones)).filter(
       (segment: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
         limbs.has(segment.bone),
@@ -94,12 +101,19 @@ export namespace HumanArmClearance {
    * @param elbow The elbow, world metres.
    * @param wrist The wrist, world metres.
    * @param side The arm.
-   * @param others Placed colliders the wrist has no goal on (another body's); none when absent.
-   * @param goal Whether the wrist is where a goal put it, which excuses its own depth in `shapes`; a carried arm between its ends has none.
-   * @param rival The world point the other arm's goal will put its wrist at, while that arm is still to be fitted; absent, the room is kept unless the other arm's colliders are among `shapes`.
-   * @param hint The world point the goal hints the elbow toward; none when absent.
-   * @param rests Placed colliders of another body the goal lays the hand on; none when absent.
-   * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps its side.
+   * @param others Placed colliders the wrist has no goal on (another body's);
+   *   none when absent.
+   * @param goal Whether the wrist is where a goal put it, which excuses its own
+   *   depth in `shapes`; a carried arm between its ends has none.
+   * @param rival The world point the other arm's goal will put its wrist at,
+   *   while that arm is still to be fitted; absent, the room is kept unless the
+   *   other arm's colliders are among `shapes`.
+   * @param hint The world point the goal hints the elbow toward; none when
+   *   absent.
+   * @param rests Placed colliders of another body the goal lays the hand on;
+   *   none when absent.
+   * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps
+   *   its side.
    */
   export function overshoot(
     body: IAutoMovieMotionHumanBody,
@@ -176,7 +190,8 @@ export namespace HumanArmClearance {
    *
    * @param pose The pose.
    * @param side The hand.
-   * @param fingers Clinical triples by bone; the other hand's and every other bone's are ignored.
+   * @param fingers Clinical triples by bone; the other hand's and every other
+   *   bone's are ignored.
    * @returns The pose, every other joint as it was.
    */
   export function fingered(
@@ -208,17 +223,24 @@ export namespace HumanArmClearance {
   }
 
   /**
-   * A forearm's overshoot (`overshoot`) with the arm at given joint angles
-   * in a pose.
+   * A forearm's overshoot (`overshoot`) with the arm at given joint angles in a
+   * pose.
    *
    * @param body The body.
-   * @param pose The pose; the trunk, the legs and the other arm are read where it puts them.
+   * @param pose The pose; the trunk, the legs and the other arm are read where
+   *   it puts them.
    * @param side The arm.
    * @param arm The arm's joint angles, which replace the pose's.
-   * @param others Another body's placed colliders in the arm's way; none when absent.
-   * @param baseline What each of the two readings may keep, degrees (`IBaseline`); none when absent.
-   * @param prepared An actual FK reader borrowed only through this synchronous unchanged-rig search; every pose still receives full admission and fresh resolved bones.
-   * @returns Degrees; 0 when the forearm clears the trunk, the thighs, the other arm and the others, and no segment of the arm lies deeper in the body than at rest or in the quiet stance, each beyond its baseline.
+   * @param others Another body's placed colliders in the arm's way; none when
+   *   absent.
+   * @param baseline What each of the two readings may keep, degrees
+   *   (`IBaseline`); none when absent.
+   * @param prepared An actual FK reader borrowed only through this synchronous
+   *   unchanged-rig search; every pose still receives full admission and fresh
+   *   resolved bones.
+   * @returns Degrees; 0 when the forearm clears the trunk, the thighs, the
+   *   other arm and the others, and no segment of the arm lies deeper in the
+   *   body than at rest or in the quiet stance, each beyond its baseline.
    */
   export function room(
     body: IAutoMovieMotionHumanBody,
@@ -229,47 +251,70 @@ export namespace HumanArmClearance {
     baseline: IAutoMovieMotionHumanArmClearance.IBaseline = NONE,
     prepared?: ReturnType<typeof preparePoseResolution>,
   ): number {
-    const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(body, pose, side, arm, others, baseline, prepared);
+    const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(
+      body,
+      pose,
+      side,
+      arm,
+      others,
+      baseline,
+      prepared,
+    );
     return Math.max(0, terms.forearm, terms.segments);
   }
 
-  /**
-   * Read both independent zero-allowance baselines on the same actual arm.
-   */
-  export function baseline(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, side: "left" | "right",
-    arm: IAutoMovieMotionHumanArmClearance.IArm, others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
-    prepared?: ReturnType<typeof preparePoseResolution>): IAutoMovieMotionHumanArmClearance.IBaseline {
-    const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(body, pose, side, arm, others, NONE, prepared);
-    return { forearm: Math.max(0, terms.forearm, terms.segments - Infinity),
-      segments: Math.max(0, terms.forearm - Infinity, terms.segments) };
+  /** Read both independent zero-allowance baselines on the same actual arm. */
+  export function baseline(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    side: "left" | "right",
+    arm: IAutoMovieMotionHumanArmClearance.IArm,
+    others: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
+    prepared?: ReturnType<typeof preparePoseResolution>,
+  ): IAutoMovieMotionHumanArmClearance.IBaseline {
+    const terms: IAutoMovieMotionHumanArmClearance.IBaseline = roomTerms(
+      body,
+      pose,
+      side,
+      arm,
+      others,
+      NONE,
+      prepared,
+    );
+    return {
+      forearm: Math.max(0, terms.forearm, terms.segments - Infinity),
+      segments: Math.max(0, terms.forearm - Infinity, terms.segments),
+    };
   }
 
   /**
    * An arm turned at the shoulder and the elbow until its room (`room`) is
-   * within an allowance: the least turn, along the first direction of a
-   * fixed order that clears it (`HumanArmClearing`), not the nearest clear
-   * arm in every direction.
+   * within an allowance: the least turn, along the first direction of a fixed
+   * order that clears it (`HumanArmClearing`), not the nearest clear arm in
+   * every direction.
    *
-   * A hanging arm lies along the flank, so a forearm that swings forward
-   * from it while the upper arm turns inward crosses the front of the waist,
-   * and a person lets the elbow out as the hand comes up; a hand raised
-   * toward someone who stands close would pass through them, and a person
-   * folds the elbow and brings the hand up near their own chest. Both are
-   * one rule over the two freedoms that move a forearm without a goal, the
-   * upper arm's abduction and the elbow's flexion: `HumanArmClearing` takes
-   * the least turn, along the first of its fixed order of directions that
-   * clears the arm, inside both joints' ranges. The room is not smooth (a
-   * forearm leaves one shape as it meets another), so no slope is followed.
-   * When no direction clears the arm, the turn with the least room is taken.
+   * A hanging arm lies along the flank, so a forearm that swings forward from
+   * it while the upper arm turns inward crosses the front of the waist, and a
+   * person lets the elbow out as the hand comes up; a hand raised toward
+   * someone who stands close would pass through them, and a person folds the
+   * elbow and brings the hand up near their own chest. Both are one rule over
+   * the two freedoms that move a forearm without a goal, the upper arm's
+   * abduction and the elbow's flexion: `HumanArmClearing` takes the least turn,
+   * along the first of its fixed order of directions that clears the arm,
+   * inside both joints' ranges. The room is not smooth (a forearm leaves one
+   * shape as it meets another), so no slope is followed. When no direction
+   * clears the arm, the turn with the least room is taken.
    *
    * @param body The body.
    * @param pose The pose the arm is read in.
    * @param side The arm.
    * @param arm The arm's joint angles.
    * @param allowed The room the arm may lack, degrees.
-   * @param others Another body's placed colliders in the arm's way; none when absent.
+   * @param others Another body's placed colliders in the arm's way; none when
+   *   absent.
    * @param baseline What each of `room`'s readings may keep; none when absent.
-   * @param source Optional exact FK reader or lazy supplier borrowed only by actual room observations in this synchronous search.
+   * @param source Optional exact FK reader or lazy supplier borrowed only by
+   *   actual room observations in this synchronous search.
    * @returns The arm's joint angles, the hand's unchanged.
    */
   export function cleared(
@@ -285,14 +330,27 @@ export namespace HumanArmClearance {
     let prepared: ReturnType<typeof preparePoseResolution> | undefined;
     let borrowed: ReturnType<typeof prepareHumanPoseResolution> | undefined;
     let first: boolean = true;
-    const over: (of: IAutoMovieMotionHumanArmClearance.IArm) => number = (of: IAutoMovieMotionHumanArmClearance.IArm): number => {
-      const value: number = room(body, pose, side, of, others, baseline,
-        source === undefined ? first ? undefined : (prepared ??= preparePoseResolution()) :
-          (borrowed ??= prepareHumanPoseResolution(source))());
+    const over: (of: IAutoMovieMotionHumanArmClearance.IArm) => number = (
+      of: IAutoMovieMotionHumanArmClearance.IArm,
+    ): number => {
+      const value: number = room(
+        body,
+        pose,
+        side,
+        of,
+        others,
+        baseline,
+        source === undefined
+          ? first
+            ? undefined
+            : (prepared ??= preparePoseResolution())
+          : (borrowed ??= prepareHumanPoseResolution(source))(),
+      );
       first = false;
       return value - allowed;
     };
-    const outside: ReturnType<typeof prepareHumanJointRom> = prepareHumanJointRom(body);
+    const outside: ReturnType<typeof prepareHumanJointRom> =
+      prepareHumanJointRom(body);
     return HumanArmClearing.of({
       arm,
       over,
@@ -303,18 +361,20 @@ export namespace HumanArmClearance {
   }
 
   /**
-   * A posture whose arms, written by joint angles with no hand goal (a
-   * gait's swing), are kept clear of the body: a swinging arm passing the
-   * thigh is let out at the shoulder, so each named arm takes the least added
-   * abduction, up to `HumanArmSwing.SPAN`, at which each reading of its room is within that
-   * reading in the quiet stance (`IBaseline`), found by bisection; an arm
-   * that swings no deeper than it hangs is left as written.
+   * A posture whose arms, written by joint angles with no hand goal (a gait's
+   * swing), are kept clear of the body: a swinging arm passing the thigh is let
+   * out at the shoulder, so each named arm takes the least added abduction, up
+   * to `HumanArmSwing.SPAN`, at which each reading of its room is within that
+   * reading in the quiet stance (`IBaseline`), found by bisection; an arm that
+   * swings no deeper than it hangs is left as written.
    *
    * @param body The body.
    * @param posture The posture, the arms' joints set and their goals absent.
    * @param sides The arms to keep clear.
-   * @param source Optional exact FK source borrowed only for this synchronous same-body operation.
-   * @param projection Optional genuine same-body ROM projector; every actual joint still projects normally.
+   * @param source Optional exact FK source borrowed only for this synchronous
+   *   same-body operation.
+   * @param projection Optional genuine same-body ROM projector; every actual
+   *   joint still projects normally.
    * @returns The posture with the arms' upper arm joints let out.
    */
   export function swung(
@@ -328,22 +388,50 @@ export namespace HumanArmClearance {
   }
 }
 
-/** Keep overshoot, its allowance read, tangle and its allowance read in original order. */
-function roomTerms(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose, side: "left" | "right",
-  arm: IAutoMovieMotionHumanArmClearance.IArm, others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-  baseline: IAutoMovieMotionHumanArmClearance.IBaseline, prepared?: ReturnType<typeof preparePoseResolution>): IAutoMovieMotionHumanArmClearance.IBaseline {
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    poseBones(body, HumanArmClearance.posed(pose, side, arm), prepared);
-  const placed: IAutoMovieMotionHumanColliders.IPlaced[] = HumanColliders.placed(body, bones);
+/**
+ * Keep overshoot, its allowance read, tangle and its allowance read in original
+ * order.
+ */
+function roomTerms(
+  body: IAutoMovieMotionHumanBody,
+  pose: IAutoMoviePose,
+  side: "left" | "right",
+  arm: IAutoMovieMotionHumanArmClearance.IArm,
+  others: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  baseline: IAutoMovieMotionHumanArmClearance.IBaseline,
+  prepared?: ReturnType<typeof preparePoseResolution>,
+): IAutoMovieMotionHumanArmClearance.IBaseline {
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    HumanArmClearance.posed(pose, side, arm),
+    prepared,
+  );
+  const placed: IAutoMovieMotionHumanColliders.IPlaced[] =
+    HumanColliders.placed(body, bones);
   return {
-    forearm: HumanArmClearance.overshoot(body,
-      HumanArmClearance.obstacles(body, bones, [side === "left" ? "right" : "left"], placed),
-      bones.get(`${side}LowerArm`)!.worldPosition, bones.get(`${side}Hand`)!.worldPosition,
-      side, others, false) - baseline.forearm,
-    segments: AutoMovieMotionHumanAuditTangle.arm(body, bones, side, placed) - baseline.segments,
+    forearm:
+      HumanArmClearance.overshoot(
+        body,
+        HumanArmClearance.obstacles(
+          body,
+          bones,
+          [side === "left" ? "right" : "left"],
+          placed,
+        ),
+        bones.get(`${side}LowerArm`)!.worldPosition,
+        bones.get(`${side}Hand`)!.worldPosition,
+        side,
+        others,
+        false,
+      ) - baseline.forearm,
+    segments:
+      AutoMovieMotionHumanAuditTangle.arm(body, bones, side, placed) -
+      baseline.segments,
   };
 }
 
 /** No baseline: every reading of an arm's room counts from zero. */
-const NONE: IAutoMovieMotionHumanArmClearance.IBaseline = { forearm: 0, segments: 0 };
-
+const NONE: IAutoMovieMotionHumanArmClearance.IBaseline = {
+  forearm: 0,
+  segments: 0,
+};

@@ -21,30 +21,29 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { HandOverlap } from "./HandOverlap";
 
 /**
- * Capture cases of the handshake on the polygon man, for what the numeric
- * tests cannot show: whether the reach reads as reaching for a hand, whether
- * the fingers wrap the partner's hand, and whether the pump reads.
+ * Capture cases of the handshake on the polygon man, for what the numeric tests
+ * cannot show: whether the reach reads as reaching for a hand, whether the
+ * fingers wrap the partner's hand, and whether the pump reads.
  *
- * `handling-handshake-<pair>`: two people of `MotionBodies.SWEEP`, standing
- * at `handshake.gap` (where their offering arms meet), shake hands. The pairs
- * span the sweep's stature, girth and arm-length extremes: the tall man with
- * the small woman, two average men, two small women, the large man with the
- * small woman, the long-armed man with the short-armed man, and the broad man
- * with the narrow man. Instants at the start, the reach's peak aperture band
- * (60 and 70 % of the reach), the clasp, the pump's top and bottom, the
- * release and the end. Both right wrists leave trails and the meeting point
- * is marked. Verdicts: the palms meet within 15 mm at the clasp and stay
- * within 10 mm through the pump, the chests stand in Hall's personal zone, no
- * right-hand phalanx, palm or forearm collider enters the other's by more
- * than 10 mm (`HandOverlap`), every joint stays in the default range, the
- * ankles move at most 5 mm, and neither shaking upper arm leaves the vertical
- * by more than 45 degrees from the clasp to the release. That last bound is
- * the upper limit of the second upper-arm band of the Rapid Upper Limb
- * Assessment (20 to 45 degrees, McAtamney and Corlett 1993, Applied
- * Ergonomics 24(2):91), the band of an arm offered forward with the elbow
- * low; the law's own offering arm stands 30 degrees forward
- * (`handshakeOffer.SHOULDER`), and an elbow raised to the side to turn the hand
- * reads 57 to 70 degrees.
+ * `handling-handshake-<pair>`: two people of `MotionBodies.SWEEP`, standing at
+ * `handshake.gap` (where their offering arms meet), shake hands. The pairs span
+ * the sweep's stature, girth and arm-length extremes: the tall man with the
+ * small woman, two average men, two small women, the large man with the small
+ * woman, the long-armed man with the short-armed man, and the broad man with
+ * the narrow man. Instants at the start, the reach's peak aperture band (60 and
+ * 70 % of the reach), the clasp, the pump's top and bottom, the release and the
+ * end. Both right wrists leave trails and the meeting point is marked.
+ * Verdicts: the palms meet within 15 mm at the clasp and stay within 10 mm
+ * through the pump, the chests stand in Hall's personal zone, no right-hand
+ * phalanx, palm or forearm collider enters the other's by more than 10 mm
+ * (`HandOverlap`), every joint stays in the default range, the ankles move at
+ * most 5 mm, and neither shaking upper arm leaves the vertical by more than 45
+ * degrees from the clasp to the release. That last bound is the upper limit of
+ * the second upper-arm band of the Rapid Upper Limb Assessment (20 to 45
+ * degrees, McAtamney and Corlett 1993, Applied Ergonomics 24(2):91), the band
+ * of an arm offered forward with the elbow low; the law's own offering arm
+ * stands 30 degrees forward (`handshakeOffer.SHOULDER`), and an elbow raised to
+ * the side to turn the hand reads 57 to 70 degrees.
  *
  * @returns The cases.
  */

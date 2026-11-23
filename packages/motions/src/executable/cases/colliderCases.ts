@@ -30,22 +30,22 @@ import { MotionBodies } from "../MotionBodies";
  * position, and the two are measured against each other in both directions.
  *
  * A segment whose shapes are all hulls is built from the rings the drawing is
- * lofted through, so its verdicts are those of one surface: every drawn
- * vertex lies on one of the segment's hulls within 10 micrometres (the single
+ * lofted through, so its verdicts are those of one surface: every drawn vertex
+ * lies on one of the segment's hulls within 10 micrometres (the single
  * precision of the mesh buffer over a two metre body), every drawn edge
- * midpoint and triangle centroid within 3 mm of one, and every sampled point
- * of every hull face within 3 mm of the segment's drawn triangles. The 3 mm
- * is the fidelity the contact laws rely on: a hull of two rings of different
- * proportions may join one ring's corner to the next ring's neighbouring
- * corner where the drawing folds the quad of matching corners.
+ * midpoint and triangle centroid within 3 mm of one, and every sampled point of
+ * every hull face within 3 mm of the segment's drawn triangles. The 3 mm is the
+ * fidelity the contact laws rely on: a hull of two rings of different
+ * proportions may join one ring's corner to the next ring's neighbouring corner
+ * where the drawing folds the quad of matching corners.
  *
  * A finger phalanx keeps a capsule, which a curl needs for its closed form
- * contact, so it is an approximation of the drawn eight-sided prism and is
- * held to the same 3 mm in both directions: no drawn vertex more than 3 mm
- * outside the capsule, and no sampled point of the capsule more than 3 mm
- * outside every drawn mesh. A drawn vertex inside the capsule is not counted
- * by itself, as a prism's end cap is buried in the joint it shares with the
- * next phalanx; a capsule fatter than its finger fails the second direction.
+ * contact, so it is an approximation of the drawn eight-sided prism and is held
+ * to the same 3 mm in both directions: no drawn vertex more than 3 mm outside
+ * the capsule, and no sampled point of the capsule more than 3 mm outside every
+ * drawn mesh. A drawn vertex inside the capsule is not counted by itself, as a
+ * prism's end cap is buried in the joint it shares with the next phalanx; a
+ * capsule fatter than its finger fails the second direction.
  *
  * Only the centre and the left side are measured, the body being built
  * mirrored.
@@ -251,7 +251,10 @@ interface IWorst {
 /** The single precision of a mesh buffer over a two metre body, metres. */
 const PRECISION: number = 1e-5;
 
-/** How far a collider and the drawn surface may lie apart between shared vertices, metres. */
+/**
+ * How far a collider and the drawn surface may lie apart between shared
+ * vertices, metres.
+ */
 const FIDELITY: number = 3e-3;
 
 /** A fixed direction no drawn edge or face is parallel to, for the parity test. */
@@ -285,9 +288,9 @@ function inside(p: THREE.Vector3, triangles: THREE.Triangle[]): boolean {
 }
 
 /**
- * Points on a shape's surface, canonical metres: a hull's face centres,
- * corners and a four step fan over each face; a capsule's caps by latitude
- * and longitude and its side at eighths of its length.
+ * Points on a shape's surface, canonical metres: a hull's face centres, corners
+ * and a four step fan over each face; a capsule's caps by latitude and
+ * longitude and its side at eighths of its length.
  */
 function samples(
   pose: IAutoMovieRigidTransform,

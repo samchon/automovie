@@ -13,7 +13,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMount } from "./HumanMount";
 
 /**
- * A leg that has lost its stirrup on a seat sat astride: the thigh dropped and spread in `HumanMount.HANG.astride`'s direction from its hip joint, the shank hanging plumb under the knee, the foot level and bearing on nothing, as a sitting leg with no rest hangs (`HumanMountOn`).
+ * A leg that has lost its stirrup on a seat sat astride: the thigh dropped and
+ * spread in `HumanMount.HANG.astride`'s direction from its hip joint, the shank
+ * hanging plumb under the knee, the foot level and bearing on nothing, as a
+ * sitting leg with no rest hangs (`HumanMountOn`).
  *
  * @param body The body.
  * @param posture The seated posture, in the carrier frame whose `+Y` is up.

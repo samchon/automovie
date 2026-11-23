@@ -47,66 +47,75 @@ import { climbStairsRocker } from "./climbStairsRocker";
 import { climbStairsSwing } from "./climbStairsSwing";
 import { climbStairsWeight } from "./climbStairsWeight";
 
-/** Offset decay time of a cut out of the arrived climb, seconds (a deliberate change of the whole body's action, `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`). */
+/**
+ * Offset decay time of a cut out of the arrived climb, seconds (a deliberate
+ * change of the whole body's action,
+ * `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`).
+ */
 const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
 
 /**
- * Climbing a flight of stairs up or down from standing before its first
- * nosing, step over step (one foot per tread) or step by step (both feet on
- * each tread), ending with both feet on the last tread.
+ * Climbing a flight of stairs up or down from standing before its first nosing,
+ * step over step (one foot per tread) or step by step (both feet on each
+ * tread), ending with both feet on the last tread.
  *
  * The flight lies ahead along the heading: its first nosing `start` metres
  * ahead of the toes, `count` treads of `riser` and `tread` metres, rising for
  * `up` and falling below the floor for `down`. The goals are footprints: each
  * foot lands with the middle of its sole on the middle of its tread, at its
- * standing lateral place; a sole too long to keep `EDGE` from both edges
- * there hangs its heel over the nosing ascending and its toes over the next
- * one descending, as a long foot stands on a short tread, and on the landing
- * stands `EDGE` past the last nosing. A swinging foot
- * takes the shortest path over the flight that keeps every point of its sole
- * above the surface under it and `CLEARANCE` above each edge it passes
- * (`AutoMovieMotionHumanClearance`): ascending it lifts beside the riser and
- * follows the line of the nosings, descending it moves forward and lowers
- * once its heel is past the nosing; it lifts over the floor's contact
- * height before it travels along the flight. The pelvis moves between the stances on
- * minimum-jerk progress over the middle of the two feet, half a step behind
- * them over the floor (`climbStairsPelvis`). Its height at a
- * stance is the highest from which both legs reach their feet, so the lower
- * foot's leg is straight and the upper one's bent; it changes while a foot
- * swings and holds in double support, and is lowered wherever either leg,
- * planted or swinging, could not reach its foot.
+ * standing lateral place; a sole too long to keep `EDGE` from both edges there
+ * hangs its heel over the nosing ascending and its toes over the next one
+ * descending, as a long foot stands on a short tread, and on the landing stands
+ * `EDGE` past the last nosing. A swinging foot takes the shortest path over the
+ * flight that keeps every point of its sole above the surface under it and
+ * `CLEARANCE` above each edge it passes (`AutoMovieMotionHumanClearance`):
+ * ascending it lifts beside the riser and follows the line of the nosings,
+ * descending it moves forward and lowers once its heel is past the nosing; it
+ * lifts over the floor's contact height before it travels along the flight. The
+ * pelvis moves between the stances on minimum-jerk progress over the middle of
+ * the two feet, half a step behind them over the floor (`climbStairsPelvis`).
+ * Its height at a stance is the highest from which both legs reach their feet,
+ * so the lower foot's leg is straight and the upper one's bent; it changes
+ * while a foot swings and holds in double support, and is lowered wherever
+ * either leg, planted or swinging, could not reach its foot.
  *
  * The trunk inclines forward by `ASCENT_LEAN` going up and by a walk's
  * inclination going down, shared between the pelvis and the spine by the
- * lumbopelvic rhythm and tipped about the hips, since the trunk flexes
- * forward more in stair ascent than in level walking (McFadyen and Winter
- * 1988, J Biomech 21:733).
+ * lumbopelvic rhythm and tipped about the hips, since the trunk flexes forward
+ * more in stair ascent than in level walking (McFadyen and Winter 1988, J
+ * Biomech 21:733).
  *
  * The cadence is 90 steps a minute (Mian, Narici, Minetti and Baltzopoulos
  * 2007, Gait Posture 26:463), scaled by the square root of the hip height
  * (Alexander 1984) and by the manner's tempo; each swing takes 0.8 of a step
  * and the double support the rest (provisional). Risers from 100 to 180 mm and
- * treads from 280 mm are the 2010 ADA ranges (504.2), the defaults 170 and
- * 280 mm; a riser above 0.35 of the hip height or a tread shorter than 0.6
- * of the foot is refused with the body's feasible range (provisional limits).
- * Events: `toeOff<n>` and `treadContact<n>` per step, numbered from 1. A foot
- * on a tread bears on the prop `on` names, or on the fixed floor frame when
- * no prop is named; a foot on the floor before the flight bears on the
- * ground. The treads repeat the settled stance's flat feet, while the feet
- * leave the floor from where the entry put them.
+ * treads from 280 mm are the 2010 ADA ranges (504.2), the defaults 170 and 280
+ * mm; a riser above 0.35 of the hip height or a tread shorter than 0.6 of the
+ * foot is refused with the body's feasible range (provisional limits). Events:
+ * `toeOff<n>` and `treadContact<n>` per step, numbered from 1. A foot on a
+ * tread bears on the prop `on` names, or on the fixed floor frame when no prop
+ * is named; a foot on the floor before the flight bears on the ground. The
+ * treads repeat the settled stance's flat feet, while the feet leave the floor
+ * from where the entry put them.
  *
- * An optional handrail names the gripping hand and a bar on the fixed
- * stair prop. The grip bears along that axis, then releases before the
- * final stance. A following walk can turn on the landing.
+ * An optional handrail names the gripping hand and a bar on the fixed stair
+ * prop. The grip bears along that axis, then releases before the final stance.
+ * A following walk can turn on the landing.
  */
 export namespace climbStairs {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "climbStairs";
 
-  /** The legs and trunk carry the climb while the head, arms and hands remain free. */
+  /**
+   * The legs and trunk carry the climb while the head, arms and hands remain
+   * free.
+   */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
 
-  /** Cancel table: the climb ends into standing or walking once both feet are on the last tread. */
+  /**
+   * Cancel table: the climb ends into standing or walking once both feet are on
+   * the last tread.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["arrived", 1], kind: "inertialize", entry: 0, blend: BLEND },
@@ -116,10 +125,16 @@ export namespace climbStairs {
     ],
   };
 
-  /** How far above an edge a swinging sole passes it, metres (provisional; the issue's 20 mm toe clearance is the bound the capture checks). */
+  /**
+   * How far above an edge a swinging sole passes it, metres (provisional; the
+   * issue's 20 mm toe clearance is the bound the capture checks).
+   */
   export const CLEARANCE: number = 0.05;
 
-  /** The least distance along the flight a planted sole's heel and toe keep from an edge, metres (provisional). */
+  /**
+   * The least distance along the flight a planted sole's heel and toe keep from
+   * an edge, metres (provisional).
+   */
   export const EDGE: number = 0.025;
 
   /** Steps a minute (Mian et al. 2007). */
@@ -295,7 +310,10 @@ export namespace climbStairs {
     }
 
     // A swinging foot's path over the flight, lifted before it travels.
-    const swing: ReturnType<typeof climbStairsSwing> = climbStairsSwing(framed, required);
+    const swing: ReturnType<typeof climbStairsSwing> = climbStairsSwing(
+      framed,
+      required,
+    );
     const footAt: ReturnType<typeof climbStairsFeet> = climbStairsFeet(
       prints,
       clock,
@@ -462,11 +480,21 @@ export namespace climbStairs {
   type IPrint = climbStairsPrints.IPrint;
 }
 
-/** The trunk's forward inclination ascending stairs, degrees (provisional: more than a walk's, McFadyen and Winter 1988, J Biomech 21:733). */
+/**
+ * The trunk's forward inclination ascending stairs, degrees (provisional: more
+ * than a walk's, McFadyen and Winter 1988, J Biomech 21:733).
+ */
 const ASCENT_LEAN: number = 8;
 
-/** How much narrower than `EDGE` the band around a nosing that asks for clearance is, metres: a planted sole held `EDGE` from the nosing lies outside the band, not on its edge. */
+/**
+ * How much narrower than `EDGE` the band around a nosing that asks for
+ * clearance is, metres: a planted sole held `EDGE` from the nosing lies outside
+ * the band, not on its edge.
+ */
 const EDGE_MARGIN: number = 0.003;
 
-/** Step periods the climb holds both feet on the last tread after arriving (provisional). */
+/**
+ * Step periods the climb holds both feet on the last tread after arriving
+ * (provisional).
+ */
 const SETTLE: number = 0.3;

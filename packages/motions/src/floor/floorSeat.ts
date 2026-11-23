@@ -17,25 +17,27 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The legs of a body seated on the floor with them folded: crossed in
- * front of it (tailor sitting), or both folded to its right with the
- * knees to its left and a hand on the floor at its left (side sitting).
+ * The legs of a body seated on the floor with them folded: crossed in front of
+ * it (tailor sitting), or both folded to its right with the knees to its left
+ * and a hand on the floor at its left (side sitting).
  *
- * A folded leg is not a set of joint angles here but a place for its
- * ankle on the floor and a point its knee bends toward, which the leg
- * solve meets inside the hip's range: the thigh spreads by turning out as
- * it flexes. Places are in the pelvis's own frame on the floor, from the
- * point under the middle of the hip joints, in thigh lengths (`CROSSED`,
- * `SIDE`, all provisional: no measured foot placement of floor sitting was
- * read; Hemmerich et al. 2006, J Orthop Res 24:770, measure the knee of
- * cross-legged sitting near 130 to 150 degrees of flexion, which these
- * places give a leg of equal thigh and shank).
+ * A folded leg is not a set of joint angles here but a place for its ankle on
+ * the floor and a point its knee bends toward, which the leg solve meets inside
+ * the hip's range: the thigh spreads by turning out as it flexes. Places are in
+ * the pelvis's own frame on the floor, from the point under the middle of the
+ * hip joints, in thigh lengths (`CROSSED`, `SIDE`, all provisional: no measured
+ * foot placement of floor sitting was read; Hemmerich et al. 2006, J Orthop Res
+ * 24:770, measure the knee of cross-legged sitting near 130 to 150 degrees of
+ * flexion, which these places give a leg of equal thigh and shank).
  */
 export namespace floorSeat {
   /** A folded sitting. */
   export type Kind = "crossed" | "side";
 
-  /** A place in the pelvis's floor frame, from the floor point under the middle of the hip joints: to the body's left, up and ahead, thigh lengths. */
+  /**
+   * A place in the pelvis's floor frame, from the floor point under the middle
+   * of the hip joints: to the body's left, up and ahead, thigh lengths.
+   */
   export interface IPlace {
     /** To the body's left; negative to its right. */
     left: number;
@@ -47,7 +49,11 @@ export namespace floorSeat {
     ahead: number;
   }
 
-  /** Tailor sitting, by leg: each ankle on the floor past the other hip, the left shank in front of the right, each knee out, ahead and a little up (provisional). */
+  /**
+   * Tailor sitting, by leg: each ankle on the floor past the other hip, the
+   * left shank in front of the right, each knee out, ahead and a little up
+   * (provisional).
+   */
   export const CROSSED: Readonly<
     Record<"left" | "right", { ankle: IPlace; knee: IPlace }>
   > = {
@@ -61,7 +67,11 @@ export namespace floorSeat {
     },
   };
 
-  /** Side sitting, by leg: both ankles to the right, the left one ahead of the right hip and the right one out beside it, both knees ahead and to the left, low (provisional). */
+  /**
+   * Side sitting, by leg: both ankles to the right, the left one ahead of the
+   * right hip and the right one out beside it, both knees ahead and to the
+   * left, low (provisional).
+   */
   export const SIDE: Readonly<
     Record<"left" | "right", { ankle: IPlace; knee: IPlace }>
   > = {
@@ -75,24 +85,35 @@ export namespace floorSeat {
     },
   };
 
-  /** The share of the arm's length, shoulder to wrist, at which the supporting hand of side sitting is set down: nearly straight, as an arm leant on is (provisional). */
+  /**
+   * The share of the arm's length, shoulder to wrist, at which the supporting
+   * hand of side sitting is set down: nearly straight, as an arm leant on is
+   * (provisional).
+   */
   export const REACH: number = 0.95;
 
-  /** The height of a folded leg's ankle joint over the floor, in standing ankle heights: the foot lies on its side, so the joint is about half the ankle's breadth up (provisional). */
+  /**
+   * The height of a folded leg's ankle joint over the floor, in standing ankle
+   * heights: the foot lies on its side, so the joint is about half the ankle's
+   * breadth up (provisional).
+   */
   export const ANKLE: number = 0.5;
 
   /**
-   * A posture's legs moved a share of the way from where its joints hold
-   * them to a folded sitting, and for side sitting its left hand to the
-   * floor.
+   * A posture's legs moved a share of the way from where its joints hold them
+   * to a folded sitting, and for side sitting its left hand to the floor.
    *
    * @param body The body.
    * @param posture The posture, its root placed and its legs set by joints.
    * @param kind The sitting.
    * @param share 0 where the joints hold the legs to 1 folded.
-   * @param resolution Optional exact FK source borrowed only during this current placement.
-   * @param projection Optional genuine same-body ROM metadata from the current query.
-   * @returns The posture with the leg goals, and the hand's for side sitting; the posture itself at no share. The hand bears (`planted`) once it is down.
+   * @param resolution Optional exact FK source borrowed only during this
+   *   current placement.
+   * @param projection Optional genuine same-body ROM metadata from the current
+   *   query.
+   * @returns The posture with the leg goals, and the hand's for side sitting;
+   *   the posture itself at no share. The hand bears (`planted`) once it is
+   *   down.
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
@@ -107,12 +128,13 @@ export namespace floorSeat {
   }
 
   /**
-   * Prepare a fixed body's folded-sitting targets and actual FK demand.
-   * Each changing posture still supplies its own hips, limbs and heading.
+   * Prepare a fixed body's folded-sitting targets and actual FK demand. Each
+   * changing posture still supplies its own hips, limbs and heading.
    *
    * @param body The unchanged body/rest/surface geometry of this floor plan.
    * @param kind The unchanged authored crossed or side sitting.
-   * @returns A current posture/share writer with optional nonescaping same-query FK/ROM loans; nonpositive share returns its input unchanged.
+   * @returns A current posture/share writer with optional nonescaping
+   *   same-query FK/ROM loans; nonpositive share returns its input unchanged.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,

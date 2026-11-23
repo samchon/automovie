@@ -24,20 +24,26 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
-/** Default duration of the visible playing pose, an authoring convention in seconds. */
+/**
+ * Default duration of the visible playing pose, an authoring convention in
+ * seconds.
+ */
 const PLAY_SECONDS: number = 1;
 
-/** Small provisional angular freedom, in degrees, for the instrument's playing attitude. */
+/**
+ * Small provisional angular freedom, in degrees, for the instrument's playing
+ * attitude.
+ */
 const PLAY_CONE: number = 10;
 
 /**
- * A held bugle is lifted, held with the mouthpiece at the lips and lowered.
- * The bell faces away along the reverse of the mouthpiece socket's axis.
- * Yamaha's brass playing guide places the mouthpiece at the center of the
- * lips and shows the bell ahead of the player in its side view
- * (https://www.yamaha.com/en/musical_instrument_guide/trumpet/play/).
- * Register this law explicitly to use it. Events are lift, atMouth and
- * playEnd. The last two mark the sustained playing pose.
+ * A held bugle is lifted, held with the mouthpiece at the lips and lowered. The
+ * bell faces away along the reverse of the mouthpiece socket's axis. Yamaha's
+ * brass playing guide places the mouthpiece at the center of the lips and shows
+ * the bell ahead of the player in its side view
+ * (https://www.yamaha.com/en/musical_instrument_guide/trumpet/play/). Register
+ * this law explicitly to use it. Events are lift, atMouth and playEnd. The last
+ * two mark the sustained playing pose.
  */
 export namespace playWindInstrument {
   /** Registered name. */
@@ -51,7 +57,8 @@ export namespace playWindInstrument {
    *
    * @param context The entry state and authored cue.
    * @returns A plan that keeps carrying the instrument after its return.
-   * @throws {HumanRefusal} For invalid timing, an absent hold or socket, or an infeasible arm pose.
+   * @throws {HumanRefusal} For invalid timing, an absent hold or socket, or an
+   *   infeasible arm pose.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlayWindInstrument.IParams>,

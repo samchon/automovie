@@ -20,36 +20,38 @@ export function prepareHumanPostureProjection(
   return body.projection;
 }
 
-/**
- * Consumption of a body's projector where a caller may pass a function.
- */
+/** Consumption of a body's projector where a caller may pass a function. */
 export namespace prepareHumanPostureProjection {
   /**
    * The one-joint ROM projection of a body's own projector. An analytic
-   * consumer still performs its full live rig checks before and after use.
-   * No projected joint or source-validation verdict is returned.
+   * consumer still performs its full live rig checks before and after use. No
+   * projected joint or source-validation verdict is returned.
    *
    * @param body The body.
    * @param source The pose clamp the caller holds, if any.
-   * @returns The body's projector's one-joint owner when `source` is that projector, or undefined for ordinary cold preparation.
+   * @returns The body's projector's one-joint owner when `source` is that
+   *   projector, or undefined for ordinary cold preparation.
    *
-   * Identity with the body's projector is tested before its joints member
-   * is read. Another function declines without being invoked. No
-   * numerical answer, verdict, query history or handle is retained.
+   *   Identity with the body's projector is tested before its joints member is
+   *   read. Another function declines without being invoked. No numerical
+   *   answer, verdict, query history or handle is retained.
    */
   export function joints(
     body: IAutoMovieMotionHumanBody,
     source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): clampPose.IPrepared["joints"] | undefined {
-    return source !== undefined && source === body.projection ? body.projection.joints : undefined;
+    return source !== undefined && source === body.projection
+      ? body.projection.joints
+      : undefined;
   }
 
   /**
    * The angle-taking form of the body's projector's one-joint owner
-   * (`clampPose.IPrepared.values`, a member of the projector): a joint's record made in range from its bone and
-   * three clinical angles, the record `joints`' owner gives for the record
-   * of those values. Identity with the body's projector is tested first;
-   * another function declines without being invoked.
+   * (`clampPose.IPrepared.values`, a member of the projector): a joint's record
+   * made in range from its bone and three clinical angles, the record `joints`'
+   * owner gives for the record of those values. Identity with the body's
+   * projector is tested first; another function declines without being
+   * invoked.
    *
    * @param body The body.
    * @param source The pose clamp the caller holds, if any.
@@ -59,10 +61,16 @@ export namespace prepareHumanPostureProjection {
     body: IAutoMovieMotionHumanBody,
     source?: (pose: IAutoMoviePose) => IAutoMoviePose,
   ): clampPose.IPrepared["values"] | undefined {
-    return source !== undefined && source === body.projection ? body.projection.values : undefined;
+    return source !== undefined && source === body.projection
+      ? body.projection.values
+      : undefined;
   }
 
-  /** Project every actual joint of a pose through the body's projector; `source`, the function a caller passes along, is used only when it is that projector, which it then is. */
+  /**
+   * Project every actual joint of a pose through the body's projector;
+   * `source`, the function a caller passes along, is used only when it is that
+   * projector, which it then is.
+   */
   export function project(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,

@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanTouch } from "@automovie/interface";
 
 /**
- * The values the `comfort` row of `HumanSocial` fixes on `touch`, spread into its parameters. A comforting hand held on the partner. Held 2 s after the reach (provisional); condolence, reassurance.
+ * The values the `comfort` row of `HumanSocial` fixes on `touch`, spread into
+ * its parameters. A comforting hand held on the partner. Held 2 s after the
+ * reach (provisional); condolence, reassurance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `ITouchEffectorKindHoldPreset`, so it fits any body as the law does.

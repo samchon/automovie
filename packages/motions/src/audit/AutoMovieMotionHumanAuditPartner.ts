@@ -11,27 +11,27 @@ import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "./AutoMovieMoti
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
 
 /**
- * How deep two people's bodies pass into one another: the hand that sinks
- * into a partner's shoulder, the fist that ends inside a head, the two
- * trunks of an embrace run through each other.
+ * How deep two people's bodies pass into one another: the hand that sinks into
+ * a partner's shoulder, the fist that ends inside a head, the two trunks of an
+ * embrace run through each other.
  *
  * It is the two-body counterpart of the self-penetration audit and reads the
  * same probes against the same colliders, in both directions, since a small
  * part may lie wholly inside a large one whose own corners stay outside.
  * Nothing is removed from the reading: two bodies share no joint and no rest
- * pose, and a declared contact between them is a statement that the skins
- * meet, never that one body may enter the other. How much a pressed skin
- * gives is the caller's limit to state.
+ * pose, and a declared contact between them is a statement that the skins meet,
+ * never that one body may enter the other. How much a pressed skin gives is the
+ * caller's limit to state.
  */
 export namespace AutoMovieMotionHumanAuditPartner {
   /**
    * Read how deep two people pass into each other over the whole motion.
    *
-   * The result is the one reading both directions at every grid instant
-   * gives (`AutoMovieMotionHumanAuditTangle.across` at each instant, each
-   * directed pair keeping its deepest, first instant on a tie), from fewer
-   * pair readings: a directed pair read at an instant is read again only at
-   * the first instant its margin does not certify
+   * The result is the one reading both directions at every grid instant gives
+   * (`AutoMovieMotionHumanAuditTangle.across` at each instant, each directed
+   * pair keeping its deepest, first instant on a tie), from fewer pair
+   * readings: a directed pair read at an instant is read again only at the
+   * first instant its margin does not certify
    * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceAutoMovieGrid`).
    *
    * @param motion The motion.
@@ -156,7 +156,10 @@ export namespace AutoMovieMotionHumanAuditPartner {
   }
 }
 
-/** One person as the walk reads them: their model, their placed segments at every grid instant and each segment's travel to it. */
+/**
+ * One person as the walk reads them: their model, their placed segments at
+ * every grid instant and each segment's travel to it.
+ */
 interface IPerson {
   person: IAutoMovieMotionHumanAuditPartner.IPerson;
   model: M.IModel;
@@ -164,7 +167,12 @@ interface IPerson {
   travelled: Float64Array[];
 }
 
-/** One direction of the reading, the first person's probes in the second's segments, with each directed pair's next due instant and its record (the greatest depth it read, or the nanometre a first record must pass) by its index. */
+/**
+ * One direction of the reading, the first person's probes in the second's
+ * segments, with each directed pair's next due instant and its record (the
+ * greatest depth it read, or the nanometre a first record must pass) by its
+ * index.
+ */
 interface IDirection {
   from: IPerson;
   to: IPerson;

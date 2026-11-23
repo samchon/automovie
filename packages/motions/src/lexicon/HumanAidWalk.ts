@@ -31,7 +31,10 @@ const FLOOR: number = 0.01;
 /** Fixed world vertical for floor, pivot and grip reads. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** One prop advance and the floor poses it joins, in film seconds and world metres. */
+/**
+ * One prop advance and the floor poses it joins, in film seconds and world
+ * metres.
+ */
 interface IAdvance {
   /** Lift begins. */
   from: number;
@@ -45,7 +48,11 @@ interface IAdvance {
 
 /** The aid's course: when the body is ready and each advance after it. */
 interface ICourse {
-  /** Seconds from the action's start of the opening stance that settles the grip, a quarter of the first station's time; the first advance begins then. */
+  /**
+   * Seconds from the action's start of the opening stance that settles the
+   * grip, a quarter of the first station's time; the first advance begins
+   * then.
+   */
   ready: number;
 
   /** Each aid advance in order. */
@@ -150,7 +157,10 @@ function course(
   return { ready, moves };
 }
 
-/** Read the supported prop pose or its single minimum-jerk swing between placements. */
+/**
+ * Read the supported prop pose or its single minimum-jerk swing between
+ * placements.
+ */
 function frameAt(
   moves: readonly IAdvance[],
   start: IAutoMovieRigidTransform,
@@ -183,13 +193,14 @@ function frameAt(
 }
 
 /**
- * A floor-aid gait with an explicit prop curve and body fitting on the same clock.
+ * A floor-aid gait with an explicit prop curve and body fitting on the same
+ * clock.
  *
  * A walker advances while both feet support the actor. A cane or crutch
- * advances during the opposite foot's swing. The parked aid stays fixed.
- * The screen orders are based on measured aid and foot contacts in
- * [Thies et al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7057469/)
- * and [Kang et al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7506684/).
+ * advances during the opposite foot's swing. The parked aid stays fixed. The
+ * screen orders are based on measured aid and foot contacts in [Thies et
+ * al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7057469/) and [Kang et
+ * al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC7506684/).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two floor support orders and the prepared grip.
  * @evidence contracts/development/design.md#principled-representation The native prop track and performer use the same seconds and floor stations.

@@ -10,21 +10,24 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 
 /**
- * A bounded fighting area: a square ring on the floor, centred on a point
- * and turned by a heading, inside its ropes. Footwork and staging read it to
- * keep the fighters' stances inside the ropes and to find its corners.
+ * A bounded fighting area: a square ring on the floor, centred on a point and
+ * turned by a heading, inside its ropes. Footwork and staging read it to keep
+ * the fighters' stances inside the ropes and to find its corners.
  *
- * The ring is a square of `size` metres between the ropes (GLORY rings are
- * 6.1 to 7.3 m inside the ropes; the size is the production's). Corners are
- * named in the ring's own frame: the red and blue corners on one diagonal,
- * the two neutral corners on the other. A ring placed in the scene is read
- * from its own contacts (`of`, `createRing`'s): its centre and floor from the
- * `canvas`, its size from the top ropes on opposite sides, its heading from
- * the placement, and its corners named on its posts' tops, `corner1` (`+X
- * +Z`) blue, `corner3` red, `corner4` and `corner2` the neutral corners.
+ * The ring is a square of `size` metres between the ropes (GLORY rings are 6.1
+ * to 7.3 m inside the ropes; the size is the production's). Corners are named
+ * in the ring's own frame: the red and blue corners on one diagonal, the two
+ * neutral corners on the other. A ring placed in the scene is read from its own
+ * contacts (`of`, `createRing`'s): its centre and floor from the `canvas`, its
+ * size from the top ropes on opposite sides, its heading from the placement,
+ * and its corners named on its posts' tops, `corner1` (`+X +Z`) blue, `corner3`
+ * red, `corner4` and `corner2` the neutral corners.
  */
 export namespace KickboxingRing {
-  /** The posts' tops by corner (`createRing`'s `corner1` to `corner4`, counted round from `+X +Z`). */
+  /**
+   * The posts' tops by corner (`createRing`'s `corner1` to `corner4`, counted
+   * round from `+X +Z`).
+   */
   export const POSTS: Readonly<
     Record<IAutoMovieMotionHumanKickboxingRing.Corner, string>
   > = {
@@ -38,14 +41,19 @@ export namespace KickboxingRing {
    * The ring a placed prop is.
    *
    * @param prop The ring's prop.
-   * @returns Its centre on the canvas, its size between the ropes and its heading.
-   * @throws {HumanRefusal} When the prop declares no canvas, a top rope or a corner post, its ropes stand no square apart, or a post stands off its corner.
+   * @returns Its centre on the canvas, its size between the ropes and its
+   *   heading.
+   * @throws {HumanRefusal} When the prop declares no canvas, a top rope or a
+   *   corner post, its ropes stand no square apart, or a post stands off its
+   *   corner.
    */
   export function of(
     prop: Pick<IAutoMovieMotionHumanProp, "subject" | "frame" | "affordances">,
   ): IAutoMovieMotionHumanKickboxingRing.IRing {
     const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
-    const refuse: (reason: string) => IAutoMovieMotionHumanRefusal = (reason: string): IAutoMovieMotionHumanRefusal =>
+    const refuse: (reason: string) => IAutoMovieMotionHumanRefusal = (
+      reason: string,
+    ): IAutoMovieMotionHumanRefusal =>
       new HumanRefusal({
         kind: "affordance",
         axis: "ring",
@@ -57,7 +65,9 @@ export namespace KickboxingRing {
         reason,
         fix: "name a ring whose canvas, top ropes and corner posts its contacts declare, as createRing does",
       });
-    const at: (id: string) => IAutoMovieVector3 = (id: string): IAutoMovieVector3 => {
+    const at: (id: string) => IAutoMovieVector3 = (
+      id: string,
+    ): IAutoMovieVector3 => {
       const found: IAutoMovieAffordance | undefined = affordances.find(
         (a: IAutoMovieAffordance): boolean => a.id === id,
       );
@@ -69,7 +79,10 @@ export namespace KickboxingRing {
       );
     };
     const canvas: IAutoMovieVector3 = at("canvas");
-    const across: (a: string, b: string) => number = (a: string, b: string): number => {
+    const across: (a: string, b: string) => number = (
+      a: string,
+      b: string,
+    ): number => {
       const d: IAutoMovieVector3 = Vector3.subtract(at(a), at(b));
       return Math.hypot(d.x, d.z);
     };

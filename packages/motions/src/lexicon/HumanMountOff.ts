@@ -30,39 +30,40 @@ import { HumanMount } from "./HumanMount";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanSwungLeg } from "./HumanSwungLeg";
 
-/** Where the pelvis is at an instant of getting off: the root, the heading, the pelvis pitch and the set joints. */
+/**
+ * Where the pelvis is at an instant of getting off: the root, the heading, the
+ * pelvis pitch and the set joints.
+ */
 type Frame = Pick<
   IAutoMovieMotionHumanPosture,
   "root" | "yaw" | "pitch" | "joints"
 >;
 
 /**
- * Getting off a high seat onto the floor: what `rise` plans where a foot is
- * off the floor, on a rest or hanging.
+ * Getting off a high seat onto the floor: what `rise` plans where a foot is off
+ * the floor, on a rest or hanging.
  *
  * The goal is the standing posture of the stand law over two floor places:
- * ahead of the seat, the pelvis `HumanMount.AHEAD` thigh lengths ahead of
- * where it sat, or beside a seat sat astride, `HumanMount.BESIDE` thigh
- * lengths beyond where the near foot rode. The seat socket travels from the
- * seat to where it stands there, the root follows from it and the trunk's
- * pitch, and the legs and the hands are solved by inverse kinematics.
+ * ahead of the seat, the pelvis `HumanMount.AHEAD` thigh lengths ahead of where
+ * it sat, or beside a seat sat astride, `HumanMount.BESIDE` thigh lengths
+ * beyond where the near foot rode. The seat socket travels from the seat to
+ * where it stands there, the root follows from it and the trunk's pitch, and
+ * the legs and the hands are solved by inverse kinematics.
  *
- * The socket leaves the seat at 15 % of the time, the `seatOff`; sideways
- * it first rises `HumanMount.HOP` so the thigh clears the seat. Both feet
- * leave their rests before that, while the seat still bears the body: a
- * leg cannot hold a fixed rest under a pelvis that travels. The first foot
- * off, at 5 %, is the left one, or sideways the far one, whose ankle passes
- * back over the seat (`HumanMount.OVER`); the other follows at 10 %. Each
- * lands at the first instant, from 30 %, at which its leg reaches its floor
- * place from the descending hip, the second at least 20 % after it left.
- * Where no leg reaches the floor from the seat, the body slides off it
- * until the first foot lands; stepping down in a stirrup is not modelled.
- * `standing` comes at 90 %.
+ * The socket leaves the seat at 15 % of the time, the `seatOff`; sideways it
+ * first rises `HumanMount.HOP` so the thigh clears the seat. Both feet leave
+ * their rests before that, while the seat still bears the body: a leg cannot
+ * hold a fixed rest under a pelvis that travels. The first foot off, at 5 %, is
+ * the left one, or sideways the far one, whose ankle passes back over the seat
+ * (`HumanMount.OVER`); the other follows at 10 %. Each lands at the first
+ * instant, from 30 %, at which its leg reaches its floor place from the
+ * descending hip, the second at least 20 % after it left. Where no leg reaches
+ * the floor from the seat, the body slides off it until the first foot lands;
+ * stepping down in a stirrup is not modelled. `standing` comes at 90 %.
  *
- * The time is `2 (1 + 0.6 (r - 1))` seconds for a socket resting at `r` of
- * the popliteal height, at most 4 (provisional, as getting on). First pass:
- * the pelvis does not turn while a leg swings over, and the hands hold
- * nothing.
+ * The time is `2 (1 + 0.6 (r - 1))` seconds for a socket resting at `r` of the
+ * popliteal height, at most 4 (provisional, as getting on). First pass: the
+ * pelvis does not turn while a leg swings over, and the hands hold nothing.
  */
 export namespace HumanMountOff {
   /**

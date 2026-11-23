@@ -22,29 +22,36 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
 /**
  * A striking limb as the capsule weapons the performance's joint contact
- * resolution sweeps: the limb's joints read from the striking action's own
- * free course, its posture fitted at the asked second, which is what the
- * figure shows until the performance commits a stop, so the resolution meets
- * the limb as it moves, wherever along it a body is first met. The
- * performer's displayed bones cannot serve: a performer reading their own
- * body is read as they entered the action (`IHumanActionContext.performer`),
- * which left the capsules on the entry's resting limb. A limb that narrows
- * from one joint to the next is a tapered capsule between the two girths, so
- * a capsule never carries the widest girth of its segment to the joint where
- * the shown limb has narrowed.
+ * resolution sweeps: the limb's joints read from the striking action's own free
+ * course, its posture fitted at the asked second, which is what the figure
+ * shows until the performance commits a stop, so the resolution meets the limb
+ * as it moves, wherever along it a body is first met. The performer's displayed
+ * bones cannot serve: a performer reading their own body is read as they
+ * entered the action (`IHumanActionContext.performer`), which left the capsules
+ * on the entry's resting limb. A limb that narrows from one joint to the next
+ * is a tapered capsule between the two girths, so a capsule never carries the
+ * widest girth of its segment to the joint where the shown limb has narrowed.
  */
 export namespace StrikingWeapon {
-  /** How long past the planned contact a striking limb stays a weapon and its stop is looked for, seconds, every strike's limb alike (provisional: the through-travel's settling). */
+  /**
+   * How long past the planned contact a striking limb stays a weapon and its
+   * stop is looked for, seconds, every strike's limb alike (provisional: the
+   * through-travel's settling).
+   */
   export const TAIL: number = 0.1;
 
   /**
-   * The striking action's free course: its posture at a film second before
-   * any committed stop moves it.
+   * The striking action's free course: its posture at a film second before any
+   * committed stop moves it.
    *
    * @param seconds Film seconds.
-   * @param channels Optional demands whose observed values equal the complete course; unsupported producers return the complete posture.
-   * @param resolution Optional exact FK supplier borrowed only for this synchronous sample, never retained by the course.
-   * @param projection Optional lazy genuine same-body ROM metadata supplier for this unchanged-table sample; never retained, and legacy courses may ignore it.
+   * @param channels Optional demands whose observed values equal the complete
+   *   course; unsupported producers return the complete posture.
+   * @param resolution Optional exact FK supplier borrowed only for this
+   *   synchronous sample, never retained by the course.
+   * @param projection Optional lazy genuine same-body ROM metadata supplier for
+   *   this unchanged-table sample; never retained, and legacy courses may
+   *   ignore it.
    * @returns The posture.
    */
   export type Course = (
@@ -55,10 +62,10 @@ export namespace StrikingWeapon {
   ) => IAutoMovieMotionHumanPosture;
 
   /**
-   * A striking arm at a film second, fitted on its action's free course:
-   * the shoulder, the elbow, the wrist, and the fist's axis end one forearm
-   * radius behind the knuckles, so a capsule of that radius from the wrist
-   * ends on the knuckles.
+   * A striking arm at a film second, fitted on its action's free course: the
+   * shoulder, the elbow, the wrist, and the fist's axis end one forearm radius
+   * behind the knuckles, so a capsule of that radius from the wrist ends on the
+   * knuckles.
    *
    * @param body The performer's body.
    * @param course The action's free course.
@@ -77,7 +84,16 @@ export namespace StrikingWeapon {
   ): IAutoMovieVector3[] {
     return posed(
       body,
-      StrikingWeaponBones(body, course, seconds, ENDS[`${side}Arm`], undefined, near, kept, prepared),
+      StrikingWeaponBones(
+        body,
+        course,
+        seconds,
+        ENDS[`${side}Arm`],
+        undefined,
+        near,
+        kept,
+        prepared,
+      ),
       side,
     );
   }
@@ -99,8 +115,8 @@ export namespace StrikingWeapon {
   }
 
   /**
-   * An arm's axis ends on posed bones: the shoulder, the elbow, the wrist,
-   * and the fist's axis end one forearm radius behind the knuckles.
+   * An arm's axis ends on posed bones: the shoulder, the elbow, the wrist, and
+   * the fist's axis end one forearm radius behind the knuckles.
    *
    * @param body The arm's body.
    * @param bones Its posed bones, world frame.
@@ -153,16 +169,17 @@ export namespace StrikingWeapon {
     kept?: Parameters<typeof StrikingWeaponBones>[6],
     prepared?: Parameters<typeof StrikingWeaponBones>[7],
   ): IAutoMovieVector3[] {
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = StrikingWeaponBones(
-      body,
-      course,
-      seconds,
-      ENDS[`${side}Leg`],
-      LEG_CHANNELS[side],
-      near,
-      kept,
-      prepared,
-    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      StrikingWeaponBones(
+        body,
+        course,
+        seconds,
+        ENDS[`${side}Leg`],
+        LEG_CHANNELS[side],
+        near,
+        kept,
+        prepared,
+      );
     const foot: IAutoMovieResolvedBone = bones.get(`${side}Foot`)!;
     return [
       bones.get(`${side}UpperLeg`)!.worldPosition,
@@ -175,10 +192,7 @@ export namespace StrikingWeapon {
     ];
   }
 
-
-  /**
-   * A limb's capsules.
-   */
+  /** A limb's capsules. */
   export interface IChain {
     /** One id per capsule, from the trunk outward. */
     ids: readonly string[];
@@ -187,9 +201,9 @@ export namespace StrikingWeapon {
     limb: IAutoMovieMotionWeaponPath["limb"];
 
     /**
-     * One radius per capsule, metres: one number for a capsule of one
-     * radius, or the radii at its two axis ends for a tapered capsule, as a
-     * limb narrows from one joint's girth to the next.
+     * One radius per capsule, metres: one number for a capsule of one radius,
+     * or the radii at its two axis ends for a tapered capsule, as a limb
+     * narrows from one joint's girth to the next.
      */
     radii: readonly (number | readonly [number, number])[];
 
@@ -199,7 +213,10 @@ export namespace StrikingWeapon {
     /** Film second they stop being live. */
     to: number;
 
-    /** The reader of the record the ends are read on: kept ends hold while it returns the same object. */
+    /**
+     * The reader of the record the ends are read on: kept ends hold while it
+     * returns the same object.
+     */
     on: StrikingWeaponRecord;
 
     /**
@@ -211,7 +228,11 @@ export namespace StrikingWeapon {
      */
     ends(seconds: number): readonly IAutoMovieVector3[];
 
-    /** The same ends with the limb's fits continued from a neighbouring second's and their seeds returned; with it the capsules read the course off its knot table (`StrikingWeaponTable`) instead of solving every second cold. */
+    /**
+     * The same ends with the limb's fits continued from a neighbouring second's
+     * and their seeds returned; with it the capsules read the course off its
+     * knot table (`StrikingWeaponTable`) instead of solving every second cold.
+     */
     read?: StrikingWeaponTable.IRead;
   }
 
@@ -272,10 +293,11 @@ export namespace StrikingWeapon {
     );
   }
 
-  /**
-   * A weapon's actual centre and optional other capsule end, world metres.
-   */
-  export type IAxis = readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined];
+  /** A weapon's actual centre and optional other capsule end, world metres. */
+  export type IAxis = readonly [
+    IAutoMovieVector3,
+    IAutoMovieVector3 | undefined,
+  ];
 
   /**
    * Read both ends of one weapon in one synchronous sample.
@@ -284,7 +306,10 @@ export namespace StrikingWeapon {
    * @param seconds The exact film second requested by the consumer.
    * @returns Its centre and optional capsule end.
    */
-  export function read(weapon: IAutoMovieMotionWeaponPath, seconds: number): IAxis {
+  export function read(
+    weapon: IAutoMovieMotionWeaponPath,
+    seconds: number,
+  ): IAxis {
     return StrikingWeaponSample.read(weapon, seconds);
   }
 
@@ -302,7 +327,6 @@ export namespace StrikingWeapon {
     return StrikingWeaponSample.sample(weapons, seconds);
   }
 
-
   /** A shown leg's girths at its joints (`StrikingWeaponGirth.legRadii`). */
   export const legRadii: typeof StrikingWeaponGirth.legRadii =
     StrikingWeaponGirth.legRadii;
@@ -311,8 +335,12 @@ export namespace StrikingWeapon {
   export const armRadii: typeof StrikingWeaponGirth.armRadii =
     StrikingWeaponGirth.armRadii;
 
-  /** A chain capsule's radius at a share of its axis (`StrikingWeaponGirth.girth`). */
-  export const girth: typeof StrikingWeaponGirth.girth = StrikingWeaponGirth.girth;
+  /**
+   * A chain capsule's radius at a share of its axis
+   * (`StrikingWeaponGirth.girth`).
+   */
+  export const girth: typeof StrikingWeaponGirth.girth =
+    StrikingWeaponGirth.girth;
 
   /** A capsule's radius members as a weapon carries them. */
   function radius(
@@ -359,16 +387,42 @@ export namespace StrikingWeapon {
   }
 }
 
-/** Fixed demanded limb outputs; FK still admits all joints and computes every required ancestor. */
-const ENDS: Readonly<Record<AutoMovieHumanLimb, ReadonlySet<AutoMovieHumanoidBone>>> = {
-  leftArm: new Set<AutoMovieHumanoidBone>(["leftUpperArm", "leftLowerArm", "leftHand"]),
-  rightArm: new Set<AutoMovieHumanoidBone>(["rightUpperArm", "rightLowerArm", "rightHand"]),
-  leftLeg: new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "leftLowerLeg", "leftFoot"]),
-  rightLeg: new Set<AutoMovieHumanoidBone>(["rightUpperLeg", "rightLowerLeg", "rightFoot"]),
+/**
+ * Fixed demanded limb outputs; FK still admits all joints and computes every
+ * required ancestor.
+ */
+const ENDS: Readonly<
+  Record<AutoMovieHumanLimb, ReadonlySet<AutoMovieHumanoidBone>>
+> = {
+  leftArm: new Set<AutoMovieHumanoidBone>([
+    "leftUpperArm",
+    "leftLowerArm",
+    "leftHand",
+  ]),
+  rightArm: new Set<AutoMovieHumanoidBone>([
+    "rightUpperArm",
+    "rightLowerArm",
+    "rightHand",
+  ]),
+  leftLeg: new Set<AutoMovieHumanoidBone>([
+    "leftUpperLeg",
+    "leftLowerLeg",
+    "leftFoot",
+  ]),
+  rightLeg: new Set<AutoMovieHumanoidBone>([
+    "rightUpperLeg",
+    "rightLowerLeg",
+    "rightFoot",
+  ]),
 };
 
-/** A striking leg depends on its base and trunk, while arms are fitted later and cannot move it. */
-const LEG_CHANNELS: Readonly<Record<"left" | "right", readonly AutoMovieMotionHumanChannel[]>> = {
+/**
+ * A striking leg depends on its base and trunk, while arms are fitted later and
+ * cannot move it.
+ */
+const LEG_CHANNELS: Readonly<
+  Record<"left" | "right", readonly AutoMovieMotionHumanChannel[]>
+> = {
   left: ["root", "trunk", "leftLeg"],
   right: ["root", "trunk", "rightLeg"],
 };

@@ -18,37 +18,49 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The stance a sled push (`pushSled`) takes its handles from: how far the
- * trunk inclines into the load and how far the body sinks onto bent knees.
+ * The stance a sled push (`pushSled`) takes its handles from: how far the trunk
+ * inclines into the load and how far the body sinks onto bent knees.
  *
  * The incline is the measured one for the handles' height. Lim, Case and
  * D'Souza (2016, Proc HFES 60:970; 12 men, two-handed isometric pushes)
- * measured the torso's flexion from upright standing at three handle
- * heights, each the subject's own: 45.0 (SD 14.3) degrees at the hip, 26.9
- * (6.7) midway and 18.7 (8.4) at the shoulder at their highest force, the
- * one a sled push takes (`INCLINES`). A handle between two of them takes the
- * incline between theirs in proportion; a handle below the hip continues the
- * hip-to-midway slope, up to `RANGE`; above the shoulder keeps the
- * shoulder's; and never less than the push's own `lean`. An incline asked
- * outright (a haul at a declared load, `pushPullLean`) replaces all of it.
+ * measured the torso's flexion from upright standing at three handle heights,
+ * each the subject's own: 45.0 (SD 14.3) degrees at the hip, 26.9 (6.7) midway
+ * and 18.7 (8.4) at the shoulder at their highest force, the one a sled push
+ * takes (`INCLINES`). A handle between two of them takes the incline between
+ * theirs in proportion; a handle below the hip continues the hip-to-midway
+ * slope, up to `RANGE`; above the shoulder keeps the shoulder's; and never less
+ * than the push's own `lean`. An incline asked outright (a haul at a declared
+ * load, `pushPullLean`) replaces all of it.
  *
  * The body then sinks onto bent knees as far as brings each wrist within the
- * arm's reach from its shoulder at the highest the walk raises it (`rise`),
- * so the hands keep their handles through the gait's rise and fall.
+ * arm's reach from its shoulder at the highest the walk raises it (`rise`), so
+ * the hands keep their handles through the gait's rise and fall.
  */
 export namespace pushSledStance {
-  /** The torso's flexion from upright standing at the subject's hip, midway and shoulder handle heights, degrees, at the highest push force (Lim, Case and D'Souza 2016, motion capture means). The study gives the midway handle no height; it is read as halfway between the hip and the shoulder. */
+  /**
+   * The torso's flexion from upright standing at the subject's hip, midway and
+   * shoulder handle heights, degrees, at the highest push force (Lim, Case and
+   * D'Souza 2016, motion capture means). The study gives the midway handle no
+   * height; it is read as halfway between the hip and the shoulder.
+   */
   export const INCLINES: Readonly<
     Record<"hip" | "midway" | "shoulder", number>
   > = { hip: 45.0, midway: 26.9, shoulder: 18.7 };
 
-  /** The steepest incline a push takes, degrees: the hip-height mean and two of its standard deviations, 45.0 + 2 x 14.3 (Lim, Case and D'Souza 2016), which leaves out the steepest fortieth of pushers. */
+  /**
+   * The steepest incline a push takes, degrees: the hip-height mean and two of
+   * its standard deviations, 45.0 + 2 x 14.3 (Lim, Case and D'Souza 2016),
+   * which leaves out the steepest fortieth of pushers.
+   */
   export const RANGE: number = 45.0 + 2 * 14.3;
 
   /** The rate the walk's rise is read at, per second: the display's 30 frames. */
   export const RATE: number = 30;
 
-  /** The trunk's incline from the vertical, degrees, and the body's sink onto bent knees, metres. */
+  /**
+   * The trunk's incline from the vertical, degrees, and the body's sink onto
+   * bent knees, metres.
+   */
   export interface IStance {
     /** Degrees from the vertical, from the push's lean to `RANGE`. */
     incline: number;
@@ -66,7 +78,9 @@ export namespace pushSledStance {
    * @param feet Each foot at the entry, whose lower sole is the floor.
    * @param handles Each hand's handle frame.
    * @param lean The least incline, degrees from the vertical.
-   * @param incline The incline asked outright, degrees from the vertical, negative leaning back, which replaces the measured one and `lean` (a haul at a declared load, `pushPullLean`); the measured one when absent.
+   * @param incline The incline asked outright, degrees from the vertical,
+   *   negative leaning back, which replaces the measured one and `lean` (a haul
+   *   at a declared load, `pushPullLean`); the measured one when absent.
    * @returns The stance.
    */
   export function solved(
@@ -85,7 +99,10 @@ export namespace pushSledStance {
     const floor: number = pushSledStance.floor(body, feet);
     let rise: number = 0;
     for (let t: number = settle; t <= walk.duration; t += 1 / RATE)
-      rise = Math.max(rise, walk.posture(t, ROOT_CHANNELS).root.y - standing.root.y);
+      rise = Math.max(
+        rise,
+        walk.posture(t, ROOT_CHANNELS).root.y - standing.root.y,
+      );
     const asked: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: HumanHand.reach(body, "left", "grip", handles.left, "fist").point,
       right: HumanHand.reach(body, "right", "grip", handles.right, "fist")
@@ -98,9 +115,12 @@ export namespace pushSledStance {
     const hip: number = body.measure.hipHeight;
     const shoulder: number = body.measure.shoulderHeight;
     const midway: number = (hip + shoulder) / 2;
-    const between: (a: number, b: number, at: number, to: number) => number =
-      (a: number, b: number, at: number, to: number): number =>
-      at + ((to - at) * (height - a)) / (b - a);
+    const between: (a: number, b: number, at: number, to: number) => number = (
+      a: number,
+      b: number,
+      at: number,
+      to: number,
+    ): number => at + ((to - at) * (height - a)) / (b - a);
     const measured: number =
       height >= shoulder
         ? INCLINES.shoulder
@@ -112,14 +132,20 @@ export namespace pushSledStance {
 
     // The sink that keeps each wrist within reach of its risen shoulder.
     const reach: number = body.measure.upperArm + body.measure.forearm;
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set(["leftUpperArm", "rightUpperArm"]);
+    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+      "leftUpperArm",
+      "rightUpperArm",
+    ]);
     const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       poseBones(
         body,
         resolveHumanPosture.seeded(
           body,
           AutoMovieMotionHumanTrunk.sunk(body, standing, 0, inclined, 0),
-          undefined, {}, undefined, requested,
+          undefined,
+          {},
+          undefined,
+          requested,
         ).pose,
         undefined,
         requested,
@@ -165,5 +191,8 @@ export namespace pushSledStance {
   }
 }
 
-/** The display-rate rise observes only the current world's authored root position. */
+/**
+ * The display-rate rise observes only the current world's authored root
+ * position.
+ */
 const ROOT_CHANNELS: readonly ["root"] = ["root"];

@@ -16,11 +16,11 @@ import { HumanMountPush } from "./HumanMountPush";
 
 /**
  * A swinging leg's course in getting onto a high seat (`HumanMountOn`): the
- * ankle travels from where it leaves to its place (`HumanMount.between`),
- * kept a little short of the leg's straight reach, the knee bending toward
- * a pole that turns from where an unturned hip points it to the rest's own
- * (`HumanMountPush.pole`), and a pushing foot turning from its roll back to
- * its rest's own turn. Its toes are not yet turned down (`HumanMountPush.tip`).
+ * ankle travels from where it leaves to its place (`HumanMount.between`), kept
+ * a little short of the leg's straight reach, the knee bending toward a pole
+ * that turns from where an unturned hip points it to the rest's own
+ * (`HumanMountPush.pole`), and a pushing foot turning from its roll back to its
+ * rest's own turn. Its toes are not yet turned down (`HumanMountPush.tip`).
  */
 export namespace HumanMountFlight {
   /** What a leg's flight reads from the climb. */
@@ -87,7 +87,8 @@ export namespace HumanMountFlight {
    * The flight's reader.
    *
    * @param props What the flight reads from the climb.
-   * @returns A leg's goal at a second of the climb; each ankle's distance from its hip as it leaves is read once.
+   * @returns A leg's goal at a second of the climb; each ankle's distance from
+   *   its hip as it leaves is read once.
    */
   export function of(
     props: IProps,

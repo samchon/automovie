@@ -19,8 +19,8 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { FootSlip } from "./FootSlip";
 
 /**
- * One walk or run capture case of `locomotionCases`: one body walks or runs
- * to its goal at the row's pace, with the frames, trails and verdicts that
+ * One walk or run capture case of `locomotionCases`: one body walks or runs to
+ * its goal at the row's pace, with the frames, trails and verdicts that
  * builder's documentation lists.
  *
  * @param input The body, the row's law, pace, Froude number, label, goal and

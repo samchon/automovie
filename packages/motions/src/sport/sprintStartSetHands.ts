@@ -63,9 +63,7 @@ export namespace sprintStartSetHands {
     };
   }
 
-  /**
-   * A hand's bridge.
-   */
+  /** A hand's bridge. */
   export interface IBridge {
     /** The index pad's and the thumb pad's targets on the track. */
     targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[];

@@ -12,7 +12,10 @@ import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { stretchHoldInputs } from "./stretchHoldInputs";
 
-/** The original plan's own reader and the exact location wrapper placement gave it. */
+/**
+ * The original plan's own reader and the exact location wrapper placement gave
+ * it.
+ */
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Reader = Plan["posture"];
 type Build = (clock: IAutoMovieMotionClock, prepared: boolean) => Plan;
@@ -20,11 +23,15 @@ type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>;
 /**
  * A standing stretch holds one material pose between the two movement phases.
- * Preserve the original grid cells straddling arrival and release. Only complete
- * grid intervals inside the hold collapse onto a single contact event.
+ * Preserve the original grid cells straddling arrival and release. Only
+ * complete grid intervals inside the hold collapse onto a single contact
+ * event.
  */
 export namespace stretchHoldClock {
-  /** Issue an ordinary plan and its bounded internal phase clock for a bare standing stretch. */
+  /**
+   * Issue an ordinary plan and its bounded internal phase clock for a bare
+   * standing stretch.
+   */
   export function plan(
     context: Context,
     clock: IAutoMovieMotionClock,
@@ -73,20 +80,23 @@ export namespace stretchHoldClock {
     original.posture = raw;
     HumanPreparedPlayback.attach(original, context.body, {
       mode: "bare-posture",
-      phases: [{
-        from: 0,
-        to: clock.duration,
-        sample: (...args: Parameters<Reader>): HumanPreparedPlayback.ISample => ({
-          posture: hold(...args),
-        }),
-      }],
+      phases: [
+        {
+          from: 0,
+          to: clock.duration,
+          sample: (
+            ...args: Parameters<Reader>
+          ): HumanPreparedPlayback.ISample => ({
+            posture: hold(...args),
+          }),
+        },
+      ],
     });
     const window: readonly [number, number] = [first, last];
     Object.defineProperty(original, "still", {
       configurable: true,
       get: (): readonly [number, number] | undefined =>
-        HumanPreparedPlayback.owns(original, original.posture) &&
-        unchanged()
+        HumanPreparedPlayback.owns(original, original.posture) && unchanged()
           ? window
           : undefined,
       set: (value: Plan["still"]): void => {

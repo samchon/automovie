@@ -4,17 +4,16 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-/**
- * Assemble a prop's grip, worn and mounted spans in the existing film order.
- */
+/** Assemble a prop's grip, worn and mounted spans in the existing film order. */
 export namespace HumanPerformanceGrips {
   /**
-   * Read every grip and worn/mounted span on one prop in film order.
-   * Placement records remain unchanged during this synchronous assembly.
+   * Read every grip and worn/mounted span on one prop in film order. Placement
+   * records remain unchanged during this synchronous assembly.
    *
    * @param self The resolved state and its existing grip cache.
    * @param subject The prop whose spans are collected.
-   * @returns The cached list or the newly assembled list with existing ownership.
+   * @returns The cached list or the newly assembled list with existing
+   *   ownership.
    */
   export function of(
     self: IAutoMovieMotionHumanPerformanceState,

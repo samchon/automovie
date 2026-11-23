@@ -15,25 +15,26 @@ import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
 /**
- * The lean of a standing body into a hand's work that lies beyond its
- * standing arm: the trunk tips about the hips by the least pitch that keeps
- * the wrist within a share of the arm's length, and straightens as the work
- * comes nearer. With balance asked (`IAutoMovieMotionHumanBalance`),
- * the hips move back by the balance shift of that pitch so the centre of
- * mass stays over the feet where it stood; otherwise they stay where they
- * stand and no centre of mass is computed.
+ * The lean of a standing body into a hand's work that lies beyond its standing
+ * arm: the trunk tips about the hips by the least pitch that keeps the wrist
+ * within a share of the arm's length, and straightens as the work comes nearer.
+ * With balance asked (`IAutoMovieMotionHumanBalance`), the hips move back by
+ * the balance shift of that pitch so the centre of mass stays over the feet
+ * where it stood; otherwise they stay where they stand and no centre of mass is
+ * computed.
  *
- * A person wiping the far side of a counter or pulling a drawer does not
- * lock the elbow: the trunk inclines as far as the hand needs and no
- * further. Work still out of reach at the lean's limit
- * (`AutoMovieMotionHumanReach.LEAN_LIMIT`) is refused, since it is walked up
- * to first.
+ * A person wiping the far side of a counter or pulling a drawer does not lock
+ * the elbow: the trunk inclines as far as the hand needs and no further. Work
+ * still out of reach at the lean's limit
+ * (`AutoMovieMotionHumanReach.LEAN_LIMIT`) is refused, since it is walked up to
+ * first.
  */
 export namespace AutoMovieMotionHumanLeanInto {
   /**
    * Solve the lean of a stroke.
    *
-   * @param props The body, the standing posture, the hand, the share, the wrist's goal and the arm's.
+   * @param props The body, the standing posture, the hand, the share, the
+   *   wrist's goal and the arm's.
    * @returns The lean.
    */
   export function solve(

@@ -12,7 +12,8 @@ import type {
  * @param setup The unchanged rig metadata and body measurements.
  * @param at The current frame carrying the fingertip and surface probe offsets.
  * @param chain The completed world joint positions and segment rotations.
- * @param surface Whether to include collider probes after the eight axis probes.
+ * @param surface Whether to include collider probes after the eight axis
+ *   probes.
  * @returns The chain with the same ordered world probes as full arm placement.
  */
 export function placeHumanArmGeometry(

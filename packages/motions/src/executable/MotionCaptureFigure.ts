@@ -17,8 +17,8 @@ import * as THREE from "three";
  * `AutoMovieHumanCanonicalBody.display` (the T-pose bones and placements
  * reflected back) and sits under a group carrying
  * `AutoMovieHumanCanonicalBody.REFLECTION`, which shows it in the canonical
- * world; three.js reverses winding for that mirrored matrix,
- * so faces keep their orientation. The drawing is the bare polygon body.
+ * world; three.js reverses winding for that mirrored matrix, so faces keep
+ * their orientation. The drawing is the bare polygon body.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Uses Human's own canonical adapter for placements and the renderer's own polygon builder for geometry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Build once, then `place` applies each pose.

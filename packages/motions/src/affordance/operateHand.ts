@@ -19,12 +19,15 @@ import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
 
 /**
- * Prepare an operation's original hand geometry for its actual arm targets
- * and the lean's wrist-only reach observations.
+ * Prepare an operation's original hand geometry for its actual arm targets and
+ * the lean's wrist-only reach observations.
  *
  * @param context The unchanged operation, canonical body and actual film start.
- * @param props The fixed initial place, optional actual articulation/hinge/tool, and original stroke clock.
- * @returns Full current arm targets and world-metre wrist points from the actual posture and stroke progress, an articulated part read at the action-relative second given, else at the progress's stroke time.
+ * @param props The fixed initial place, optional actual
+ *   articulation/hinge/tool, and original stroke clock.
+ * @returns Full current arm targets and world-metre wrist points from the
+ *   actual posture and stroke progress, an articulated part read at the
+ *   action-relative second given, else at the progress's stroke time.
  */
 export function operateHand(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,

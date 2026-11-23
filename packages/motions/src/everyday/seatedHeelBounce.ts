@@ -28,22 +28,23 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 
 /**
- * Repeated seated heel raises, with the moving foot rocking about its ball.
- * Qi et al. (2019, doi:10.1038/s41598-019-43824-0) used unilateral seated
- * heel tapping as one of their lower-limb rhythm tasks.
- * Narayanan et al. (2026, doi:10.1038/s41598-025-33921-8) instructed seated
- * rhythmic foot tapping or bouncing on one leg. Pettit-Mee et al. (2021,
- * doi:10.1002/oby.23173) used heel tapping and knee bouncing at self-selected
- * cadence. The author sets cadence and amplitude. Soucie et al. (2011,
+ * Repeated seated heel raises, with the moving foot rocking about its ball. Qi
+ * et al. (2019, doi:10.1038/s41598-019-43824-0) used unilateral seated heel
+ * tapping as one of their lower-limb rhythm tasks. Narayanan et al. (2026,
+ * doi:10.1038/s41598-025-33921-8) instructed seated rhythmic foot tapping or
+ * bouncing on one leg. Pettit-Mee et al. (2021, doi:10.1002/oby.23173) used
+ * heel tapping and knee bouncing at self-selected cadence. The author sets
+ * cadence and amplitude. Soucie et al. (2011,
  * doi:10.1111/j.1365-2516.2010.02399.x) measured passive ankle range, which
- * informs the rig range used by the shared fit, rather than a fidget amplitude.
+ * informs the rig range used by the shared fit, rather than a fidget
+ * amplitude.
  *
  * Each beat rises and falls on two minimum-jerk halves. Heel travel follows
- * from the body's own ball-to-heel geometry and the authored rotation.
- * The ball stays fixed, the toes counter-rotate to maintain their entry
- * height, and the knee follows the ankle through the existing leg fit.
- * The seat and opposite foot retain their entry contacts. When they share
- * a prop with the moving foot, the whole posture rides that prop.
+ * from the body's own ball-to-heel geometry and the authored rotation. The ball
+ * stays fixed, the toes counter-rotate to maintain their entry height, and the
+ * knee follows the ankle through the existing leg fit. The seat and opposite
+ * foot retain their entry contacts. When they share a prop with the moving
+ * foot, the whole posture rides that prop.
  */
 export namespace seatedHeelBounce {
   /** The action's registry name. */
@@ -62,7 +63,8 @@ export namespace seatedHeelBounce {
    *
    * @param context The action's body, entry supports and authored beats.
    * @returns The plan in action seconds.
-   * @throws {HumanRefusal} If timing, entry contacts or peak rotation are infeasible.
+   * @throws {HumanRefusal} If timing, entry contacts or peak rotation are
+   *   infeasible.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSeatedHeelBounce>,

@@ -12,19 +12,19 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
- * The arms of the cross-body shoulder stretch (`stretch`): the stretched
- * arm crosses the chest until its wrist stands 1.2 shoulder half-widths
- * across the midline at shoulder height, a little ahead of the chest
- * (provisional place), so the hand as a whole is past the other shoulder,
- * the palm facing back and the fingers pointing across; the other palm
- * presses the stretched arm a little short of half way from that wrist to
- * its shoulder, near its elbow.
+ * The arms of the cross-body shoulder stretch (`stretch`): the stretched arm
+ * crosses the chest until its wrist stands 1.2 shoulder half-widths across the
+ * midline at shoulder height, a little ahead of the chest (provisional place),
+ * so the hand as a whole is past the other shoulder, the palm facing back and
+ * the fingers pointing across; the other palm presses the stretched arm a
+ * little short of half way from that wrist to its shoulder, near its elbow.
  */
 export namespace stretchCrossBody {
   /**
    * The two arms' primitives.
    *
-   * @param props The body, the stretched side, the stretch's seconds, each arm's resting angles, the weight over time and the heading's forward.
+   * @param props The body, the stretched side, the stretch's seconds, each
+   *   arm's resting angles, the weight over time and the heading's forward.
    * @returns The primitives.
    */
   export function arms(props: {

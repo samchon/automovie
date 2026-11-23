@@ -21,21 +21,23 @@ import { HumanSword } from "./HumanSword";
 /**
  * A taken blade: the attacker's blade, stopped by a parry that takes it
  * (`IAutoMovieMotionHumanSword.IAttack.taken`), kept on the parrying blade
- * while that parry carries it aside, then held where it was left until a
- * named action ends.
+ * while that parry carries it aside, then held where it was left until a named
+ * action ends.
  *
- * The attack ended where it was stopped, so this starts on that pose. The
- * hand keeps its grip and its attitude, and is carried by the parrying
- * blade's own displayed translation since this action's start, the two
- * blades staying together as the parry carries them (`HumanSwordParry`),
- * up to the parry's relax, where the parry leaves the blade; it holds that
- * place until the action named by `until` ends, or the parry ends. The body
- * keeps its entry posture, an advance's stance included. The row fixes no
- * number: its duration is the named action's end.
+ * The attack ended where it was stopped, so this starts on that pose. The hand
+ * keeps its grip and its attitude, and is carried by the parrying blade's own
+ * displayed translation since this action's start, the two blades staying
+ * together as the parry carries them (`HumanSwordParry`), up to the parry's
+ * relax, where the parry leaves the blade; it holds that place until the action
+ * named by `until` ends, or the parry ends. The body keeps its entry posture,
+ * an advance's stance included. The row fixes no number: its duration is the
+ * named action's end.
  */
 export namespace HumanSwordTaken {
   /**
-   * Taken: the stopped blade kept on the parry that took it while it is carried aside, then held there until `until` ends. A parry that wields no blade is refused on `against`; an action that ends before this starts on `until`.
+   * Taken: the stopped blade kept on the parry that took it while it is carried
+   * aside, then held there until `until` ends. A parry that wields no blade is
+   * refused on `against`; an action that ends before this starts on `until`.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the hand follows, the duration and the refusals.
    * @evidence contracts/development/implementation.md#principled-implementation The hand is the entry hold translated by the parrying blade's displayed translation since this action's start, read no later than the parry's relax, so the blades that met stay together while the parry carries them; the arm keeps the entry's reference.

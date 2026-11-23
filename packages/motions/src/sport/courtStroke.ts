@@ -51,18 +51,18 @@ const REFERENCE_STATURE: number = 1.75;
 const RACKET_CONTACT_HALF: number = 0.018;
 
 /**
- * Plan the court athlete from entry stance through support, load, strike
- * and recovery. The planted foot targets stay fixed. A jump carries the
- * feet on a ballistic arc while the pelvis bends into landing over the
- * new support. A named held racket uses its actual face and longitudinal
- * axis in the fitted hand frame; one ball trajectory can use the exposed
- * `stroke` event.
+ * Plan the court athlete from entry stance through support, load, strike and
+ * recovery. The planted foot targets stay fixed. A jump carries the feet on a
+ * ballistic arc while the pelvis bends into landing over the new support. A
+ * named held racket uses its actual face and longitudinal axis in the fitted
+ * hand frame; one ball trajectory can use the exposed `stroke` event.
  *
  * @param context The body, actual entry stance, handedness and manner.
  * @param kind The sport-specific support and stroke profile.
  * @param options The optional explicit contact and held implement.
  * @returns The motion, support windows and retained racket grip.
- * @throws {HumanRefusal} When a named implement is unavailable to the hand or a constrained arm path cannot be fitted.
+ * @throws {HumanRefusal} When a named implement is unavailable to the hand or a
+ *   constrained arm path cannot be fitted.
  */
 export function courtStroke(
   context: Context,

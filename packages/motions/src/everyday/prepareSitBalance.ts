@@ -1,4 +1,9 @@
-import { Vector3, bracketedRoot, minimumJerk, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import {
+  Vector3,
+  bracketedRoot,
+  minimumJerk,
+  resolveAutoMovieCenterOfMass,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -40,12 +45,24 @@ interface ISeatCourse {
 }
 
 /**
- * Prepare the backward socket travel that precedes seat contact. The
- * absolute event bounds include the preliminary foot placements while the
- * lowering's evaluator reads descent-local seconds.
+ * Prepare the backward socket travel that precedes seat contact. The absolute
+ * event bounds include the preliminary foot placements while the lowering's
+ * evaluator reads descent-local seconds.
  */
 export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
-  const { context, start, goal, yaw0, across, contact, descent, duration, prefix, shares, lowered }: ISeatDescent = props;
+  const {
+    context,
+    start,
+    goal,
+    yaw0,
+    across,
+    contact,
+    descent,
+    duration,
+    prefix,
+    shares,
+    lowered,
+  }: ISeatDescent = props;
   const body: typeof context.body = context.body;
   // The weight stays over the feet until the seat takes it (Kralj, Jaeger
   // and Munih 1990): until a pendulum's time constant before contact
@@ -59,29 +76,41 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
   // The weight-over-the-feet course is the balance option's
   // (`IAutoMovieMotionHumanBalance`); without it the seat socket goes
   // back on its own minimum-jerk progress and no centre of mass is read.
-  const clock: ReturnType<typeof AutoMovieMotionClock.of> = AutoMovieMotionClock.of(duration, [
-    { name: "commit", seconds: contact },
-    { name: "seatContact", seconds: contact },
-    { name: "seated", seconds: descent },
-  ]);
+  const clock: ReturnType<typeof AutoMovieMotionClock.of> =
+    AutoMovieMotionClock.of(duration, [
+      { name: "commit", seconds: contact },
+      { name: "seatContact", seconds: contact },
+      { name: "seated", seconds: descent },
+    ]);
 
   const total: number = prefix + duration;
   const timing: Parameters<typeof HumanPhysics.prepare>[3] = {
     duration: total,
-    events: clock.events().map((event: Event): Event => ({
-      ...event, share: (prefix + duration * event.share) / total,
-    })),
+    events: clock.events().map(
+      (event: Event): Event => ({
+        ...event,
+        share: (prefix + duration * event.share) / total,
+      }),
+    ),
   };
   const window: HumanPhysics.Window = HumanPhysics.prepare(
-    context.params, { balance: { by: "hips" } }, context.start, timing, context.instant,
+    context.params,
+    { balance: { by: "hips" } },
+    context.start,
+    timing,
+    context.instant,
   );
   if (window !== null && window.by !== "hips")
     throw new HumanRefusal({
-      kind: "parameter", axis: "balance.by", value: window.by,
-      reason: "sitting adjusts the hips over the planted feet before seat contact",
+      kind: "parameter",
+      axis: "balance.by",
+      value: window.by,
+      reason:
+        "sitting adjusts the hips over the planted feet before seat contact",
       fix: "give hips for balance.by",
     });
-  const freeTravel: (seconds: number) => number = (seconds: number): number => minimumJerk.share(seconds / across);
+  const freeTravel: (seconds: number) => number = (seconds: number): number =>
+    minimumJerk.share(seconds / across);
   if (window === null || window.from >= prefix + contact || window.to <= prefix)
     return { clock, window, travel: freeTravel };
   const fall: number = Math.min(
@@ -159,11 +188,10 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
       return sample + (reaches[k + 1 - first]! - sample) * (x - k);
     };
     if (t <= held) return free + weight * (Math.min(free, kept(t)) - free);
-    const from: number = Math.min(
-      minimumJerk.share(held / across),
-      kept(held),
+    const from: number = Math.min(minimumJerk.share(held / across), kept(held));
+    return (
+      free + weight * (from - free) * (1 - minimumJerk.share((t - held) / fall))
     );
-    return free + weight * (from - free) * (1 - minimumJerk.share((t - held) / fall));
   }
   return { clock, window, travel };
 }

@@ -39,56 +39,55 @@ import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
 
 /**
- * Sitting down on a chair, bench or stool from standing in front of it:
- * the body's seat socket is lowered onto the seat while the trunk leans
- * forward and the feet stay where they stand.
+ * Sitting down on a chair, bench or stool from standing in front of it: the
+ * body's seat socket is lowered onto the seat while the trunk leans forward and
+ * the feet stay where they stand.
  *
- * Stand-to-sit is the rise reversed under eccentric control (Kralj, Jaeger
- * and Munih 1990, J Biomech 23:1123): the hips travel back and down, the
- * trunk flexes forward to keep the weight over the feet until the seat takes
- * it, then the trunk settles into the seated posture. The goal is the seat
- * socket on its point on the seat ({@link seated}); the root follows from
- * that goal and the trunk's pitch, the planted legs and the hands are solved
- * by inverse kinematics. The socket moves back over the first 70 % of the
- * descent, no further than keeps the centre of mass where it stands over
- * the feet until a pendulum's time constant before contact (Hof, Gazendam
- * and Sinke 2005), over which the body comes down onto the seat, and down
- * from 10 % to its end, so it reaches the seat from above;
- * the trunk pitches forward to its peak by 45 % of the descent and settles
- * after contact; each hand is brought to its rest along the arm trajectory
- * planner's path, onto its armrest as the seat takes the body, the two
- * supports loaded together where the armrest lies nearest the shoulder, or,
- * with none, onto its thigh from contact to seated, once the thighs no longer
- * rise under it, the fingers straightening to lie flat.
+ * Stand-to-sit is the rise reversed under eccentric control (Kralj, Jaeger and
+ * Munih 1990, J Biomech 23:1123): the hips travel back and down, the trunk
+ * flexes forward to keep the weight over the feet until the seat takes it, then
+ * the trunk settles into the seated posture. The goal is the seat socket on its
+ * point on the seat ({@link seated}); the root follows from that goal and the
+ * trunk's pitch, the planted legs and the hands are solved by inverse
+ * kinematics. The socket moves back over the first 70 % of the descent, no
+ * further than keeps the centre of mass where it stands over the feet until a
+ * pendulum's time constant before contact (Hof, Gazendam and Sinke 2005), over
+ * which the body comes down onto the seat, and down from 10 % to its end, so it
+ * reaches the seat from above; the trunk pitches forward to its peak by 45 % of
+ * the descent and settles after contact; each hand is brought to its rest along
+ * the arm trajectory planner's path, onto its armrest as the seat takes the
+ * body, the two supports loaded together where the armrest lies nearest the
+ * shoulder, or, with none, onto its thigh from contact to seated, once the
+ * thighs no longer rise under it, the fingers straightening to lie flat.
  *
- * Peak trunk flexion `35 + 50 (1 - r)` degrees and descent time
- * `2 (1 + 0.6 (1 - r))` seconds for a seat at `r` of the popliteal height
- * (provisional coefficients; a lower seat needs more trunk flexion and more
- * time, Janssen, Bussmann and Stam 2002, and sit-to-stand takes about 1.5 to
- * 2.5 s in healthy adults). Contact comes at 75 % of the descent. The seated
- * back is `upright` (pitch 0), `lean` (12 degrees back onto a backrest, which
- * the seat must have) or `slump` (pelvis 10 degrees back, chest 12 and spine
- * 8 flexed), all provisional.
+ * Peak trunk flexion `35 + 50 (1 - r)` degrees and descent time `2 (1 + 0.6 (1
+ * - r))` seconds for a seat at `r` of the popliteal height (provisional
+ * coefficients; a lower seat needs more trunk flexion and more time, Janssen,
+ * Bussmann and Stam 2002, and sit-to-stand takes about 1.5 to 2.5 s in healthy
+ * adults). Contact comes at 75 % of the descent. The seated back is `upright`
+ * (pitch 0), `lean` (12 degrees back onto a backrest, which the seat must have)
+ * or `slump` (pelvis 10 degrees back, chest 12 and spine 8 flexed), all
+ * provisional.
  *
- * The performer must stand facing within 20 degrees of the seat's heading
- * with feet the legs can reach from the seat; otherwise the sit is refused
- * with the range of foot distances that work. Events `commit` (the last
- * instant the sitting can be abandoned for standing), `seatContact` and
- * `seated`; the seat window starts at contact.
+ * The performer must stand facing within 20 degrees of the seat's heading with
+ * feet the legs can reach from the seat; otherwise the sit is refused with the
+ * range of foot distances that work. Events `commit` (the last instant the
+ * sitting can be abandoned for standing), `seatContact` and `seated`; the seat
+ * window starts at contact.
  *
  * A seat above 1.2 of the popliteal height, or one sat astride, is got onto
- * instead ({@link HumanMountOn}): the feet leave the floor for the seat's
- * rests or hang, under the same parameters, events and cancel table.
+ * instead ({@link HumanMountOn}): the feet leave the floor for the seat's rests
+ * or hang, under the same parameters, events and cancel table.
  */
 export namespace sit {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "sit";
 
   /**
-   * Cancel table. Sitting is abandoned for standing only until `commit`,
-   * while both feet still stand on the floor: the seat's contact on a seat
-   * inside the band, and the first foot leaving the floor on a high seat.
-   * Past it the body is got down by `rise`.
+   * Cancel table. Sitting is abandoned for standing only until `commit`, while
+   * both feet still stand on the floor: the seat's contact on a seat inside the
+   * band, and the first foot leaving the floor on a high seat. Past it the body
+   * is got down by `rise`.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
@@ -110,10 +109,17 @@ export namespace sit {
     shift: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Largest heading difference from the seat's at which a sit starts, degrees (provisional: a small turn the descent absorbs). */
+  /**
+   * Largest heading difference from the seat's at which a sit starts, degrees
+   * (provisional: a small turn the descent absorbs).
+   */
   const FACING: number = 20;
 
-  /** Shares of the descent: the seat takes the body at `CONTACT`, the socket travels back over `ACROSS`, comes down from `DOWN` and the trunk peaks by `FLEXED` (provisional, as the namespace states). */
+  /**
+   * Shares of the descent: the seat takes the body at `CONTACT`, the socket
+   * travels back over `ACROSS`, comes down from `DOWN` and the trunk peaks by
+   * `FLEXED` (provisional, as the namespace states).
+   */
   const CONTACT: number = 0.75;
 
   /** See `CONTACT`. */
@@ -125,20 +131,33 @@ export namespace sit {
   /** See `CONTACT`. */
   const FLEXED: number = 0.45;
 
-  /** The share of the descent at which a hand leaves for its armrest (provisional). */
+  /**
+   * The share of the descent at which a hand leaves for its armrest
+   * (provisional).
+   */
   const REACHING: number = 0.2;
 
-  /** Where the crossed left foot sets down, by shares of the feet's rest spacing: `ahead` of the right ankle, `over` across it, and the `lift` of its swing (provisional). */
+  /**
+   * Where the crossed left foot sets down, by shares of the feet's rest
+   * spacing: `ahead` of the right ankle, `over` across it, and the `lift` of
+   * its swing (provisional).
+   */
   const CROSSED: Readonly<Record<"ahead" | "over" | "lift", number>> = {
     ahead: 0.6,
     over: 0.4,
     lift: 0.3,
   };
 
-  /** Seconds the left foot takes to cross over the right ankle once seated (provisional). */
+  /**
+   * Seconds the left foot takes to cross over the right ankle once seated
+   * (provisional).
+   */
   export const CROSS: number = 0.6;
 
-  /** Shares of the descent before the fall onto the seat at which the balanced travel back is solved. */
+  /**
+   * Shares of the descent before the fall onto the seat at which the balanced
+   * travel back is solved.
+   */
   export const SHARES: number = 8;
 
   /**
@@ -146,7 +165,10 @@ export namespace sit {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the seat is too low for the body, the performer does not face away from it, the feet are out of reach of a seat inside the band, the body stands more than a leg's length from a high seat, or `lean` has no backrest.
+   * @throws {HumanRefusal} When the seat is too low for the body, the performer
+   *   does not face away from it, the feet are out of reach of a seat inside
+   *   the band, the body stands more than a leg's length from a high seat, or
+   *   `lean` has no backrest.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSit.IParams>,
@@ -414,7 +436,11 @@ export namespace sit {
       });
     };
 
-    /** When a hand leaves its hanging rest and when it rests: on its armrest from `REACHING` of the descent to contact, on its thigh from contact to seated; it stays there. */
+    /**
+     * When a hand leaves its hanging rest and when it rests: on its armrest
+     * from `REACHING` of the descent to contact, on its thigh from contact to
+     * seated; it stays there.
+     */
     function span(
       side: "left" | "right",
     ): IAutoMovieMotionHumanArmPlanned.ISpan {

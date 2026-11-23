@@ -27,14 +27,14 @@ type Shape = IAutoMovieMotionHumanColliders.IPlaced["shapes"][number];
 
 /**
  * What a touch reads of the body it lays its hand on: the long axis of a
- * partner's touched limb, along which a flat hand lies (`limb`), and the
- * other parts of that body the hand must not sink into.
+ * partner's touched limb, along which a flat hand lies (`limb`), and the other
+ * parts of that body the hand must not sink into.
  */
 export namespace touchLimb {
   /**
-   * The long axis of a partner's touched segment where the touch starts:
-   * its capsule collider's, which runs along the segment's local `+Y`. A
-   * segment with no capsule (a box of the trunk) has none.
+   * The long axis of a partner's touched segment where the touch starts: its
+   * capsule collider's, which runs along the segment's local `+Y`. A segment
+   * with no capsule (a box of the trunk) has none.
    */
   export function axis(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -66,9 +66,8 @@ export namespace touchLimb {
 
   /**
    * The parts of the touched body a laid hand must not sink into: on the
-   * performer's own body every part but the touched one and the touching
-   * arm; on a partner every part but the touched one, where the touch
-   * starts.
+   * performer's own body every part but the touched one and the touching arm;
+   * on a partner every part but the touched one, where the touch starts.
    */
   export function others(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,

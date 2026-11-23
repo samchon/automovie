@@ -25,29 +25,36 @@ import type {
 } from "@automovie/interface";
 
 import { HumanArmOvershoot } from "../posture/HumanArmOvershoot";
+import { AutoMovieMotionHumanBendBound } from "./AutoMovieMotionHumanBendBound";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
-import { AutoMovieMotionHumanBendBound } from "./AutoMovieMotionHumanBendBound";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
 /**
  * The best elbow place of a prepared arm chain for a wrist's place under a
- * ranking: the engine's swivel sweep over the elbow's circle, each place
- * read for its joints' overshoot, the forearm's clearance of the body and
- * its strain (`AutoMovieMotionHumanBendSearch`).
+ * ranking: the engine's swivel sweep over the elbow's circle, each place read
+ * for its joints' overshoot, the forearm's clearance of the body and its strain
+ * (`AutoMovieMotionHumanBendSearch`).
  *
  * @param chain The prepared chain.
  * @param body The body, for the hand's range and the colliders.
  * @param side The arm.
  * @param point The wrist, world metres.
  * @param rotation The hand's world rotation, when its turn counts as strain.
- * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's strain at 0.
+ * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's
+ *   strain at 0.
  * @param score The ranking of a candidate.
- * @param near The seed of a nearby solve to refine instead of sweeping (`IAutoMovieSwivelNear`).
- * @param repeat The ordinary search's repeat trial, when its owner lends one (`AutoMovieMotionHumanBendRepeat`).
- * @param byStrain Whether `score` is `AutoMovieMotionHumanBendSearch.strained`, whose deviation is the strain: a cold sweep without a trial is then decided by branch and bound on the strain's certified swivel-interval bound (`AutoMovieMotionHumanBendBound`).
- * @returns The chosen candidate with its true overshoot and its seed, or null for a degenerate chain.
+ * @param near The seed of a nearby solve to refine instead of sweeping
+ *   (`IAutoMovieSwivelNear`).
+ * @param repeat The ordinary search's repeat trial, when its owner lends one
+ *   (`AutoMovieMotionHumanBendRepeat`).
+ * @param byStrain Whether `score` is `AutoMovieMotionHumanBendSearch.strained`,
+ *   whose deviation is the strain: a cold sweep without a trial is then decided
+ *   by branch and bound on the strain's certified swivel-interval bound
+ *   (`AutoMovieMotionHumanBendBound`).
+ * @returns The chosen candidate with its true overshoot and its seed, or null
+ *   for a degenerate chain.
  */
 export function AutoMovieMotionHumanBendSweep(
   chain: AutoMovieMotionHumanBendChain.IChain,
@@ -228,7 +235,9 @@ export function AutoMovieMotionHumanBendSweep(
   // first score, so a search with one keeps the full sweep.
   const wrist: AutoMovieMotionHumanBendStrain.IHand =
     AutoMovieMotionHumanBendStrain.handOf(chain, body, side);
-  const bound: ReturnType<typeof AutoMovieMotionHumanBendBound.prepare> | undefined =
+  const bound:
+    | ReturnType<typeof AutoMovieMotionHumanBendBound.prepare>
+    | undefined =
     byStrain && near === undefined && trial === undefined && neutral !== null
       ? AutoMovieMotionHumanBendBound.prepare({
           basis: upperBasis,

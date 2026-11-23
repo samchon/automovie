@@ -8,8 +8,8 @@ import type {
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 
 /**
- * Playback of a flight's supplied orientation about its composed centre, constructed
- * outside the performance's shape-evaluation scope.
+ * Playback of a flight's supplied orientation about its composed centre,
+ * constructed outside the performance's shape-evaluation scope.
  */
 export function HumanPerformanceFlightRotation(props: {
   start: number;
@@ -18,7 +18,10 @@ export function HumanPerformanceFlightRotation(props: {
   step: number;
   times: readonly number[];
   table: readonly { about: IAutoMovieVector3; root: IAutoMovieQuaternion }[];
-  orientation: (seconds: number, root: IAutoMovieQuaternion) => IAutoMovieQuaternion;
+  orientation: (
+    seconds: number,
+    root: IAutoMovieQuaternion,
+  ) => IAutoMovieQuaternion;
 }): (seconds: number) => IAutoMovieHumanPostureRotation {
   const roots: (IRootInterpolation | undefined)[] = [];
   return (seconds: number): IAutoMovieHumanPostureRotation => {
@@ -36,10 +39,28 @@ export function HumanPerformanceFlightRotation(props: {
     const from: IAutoMovieQuaternion = props.table[i]!.root;
     const to: IAutoMovieQuaternion = props.table[i + 1]!.root;
     let root: IRootInterpolation | undefined = roots[i];
-    if (root === undefined || !sameQuaternion(root.from, from) || !sameQuaternion(root.to, to)) {
-      const before: IAutoMovieQuaternion = { x: from.x, y: from.y, z: from.z, w: from.w };
-      const after: IAutoMovieQuaternion = { x: to.x, y: to.y, z: to.z, w: to.w };
-      root = { from: before, to: after, read: Quaternion.prepareSlerp(before, after) };
+    if (
+      root === undefined ||
+      !sameQuaternion(root.from, from) ||
+      !sameQuaternion(root.to, to)
+    ) {
+      const before: IAutoMovieQuaternion = {
+        x: from.x,
+        y: from.y,
+        z: from.z,
+        w: from.w,
+      };
+      const after: IAutoMovieQuaternion = {
+        x: to.x,
+        y: to.y,
+        z: to.z,
+        w: to.w,
+      };
+      root = {
+        from: before,
+        to: after,
+        read: Quaternion.prepareSlerp(before, after),
+      };
       roots[i] = root;
     }
     const unturned: IAutoMovieQuaternion = root.read(u);
@@ -68,6 +89,14 @@ interface IRootInterpolation {
 }
 
 /** Exact copied keys preserve table mutation and signed-zero behavior. */
-function sameQuaternion(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): boolean {
-  return Object.is(a.x, b.x) && Object.is(a.y, b.y) && Object.is(a.z, b.z) && Object.is(a.w, b.w);
+function sameQuaternion(
+  a: IAutoMovieQuaternion,
+  b: IAutoMovieQuaternion,
+): boolean {
+  return (
+    Object.is(a.x, b.x) &&
+    Object.is(a.y, b.y) &&
+    Object.is(a.z, b.z) &&
+    Object.is(a.w, b.w)
+  );
 }

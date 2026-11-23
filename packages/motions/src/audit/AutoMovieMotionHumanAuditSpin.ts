@@ -12,29 +12,27 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * Whether every bone turns continuously: the orientation counterpart of the
  * joint-centre continuity audit.
  *
- * A joint centre shows a bone's snap only through the bones below it, so a
- * bone with nothing below it (a fingertip's phalanx, the toes, an eye, the
- * jaw) can flip without any centre moving, and a head or a hand that snaps
- * by a few degrees moves the centres below it by less than the jump limit.
- * This audit reads the orientations themselves.
+ * A joint centre shows a bone's snap only through the bones below it, so a bone
+ * with nothing below it (a fingertip's phalanx, the toes, an eye, the jaw) can
+ * flip without any centre moving, and a head or a hand that snaps by a few
+ * degrees moves the centres below it by less than the jump limit. This audit
+ * reads the orientations themselves.
  *
- * - `spin`: the fastest any bone turns over a grid interval, degrees per
- *   second.
- * - `turn`: the largest turn of any bone that is still there when the
- *   interval around it has been halved `LEVELS` times, degrees. A bone that
- *   turns smoothly turns half as far in half the time, so after ten halvings
- *   a thousandth of its interval's turn is left; a snap keeps its size. An
+ * - `spin`: the fastest any bone turns over a grid interval, degrees per second.
+ * - `turn`: the largest turn of any bone that is still there when the interval
+ *   around it has been halved `LEVELS` times, degrees. A bone that turns
+ *   smoothly turns half as far in half the time, so after ten halvings a
+ *   thousandth of its interval's turn is left; a snap keeps its size. An
  *   interval is resolved only where a bone's turn exceeds the mean of its
- *   neighbouring intervals' (of the one neighbour at either end of the
- *   motion) by more than `limit`, so a smooth motion costs no pose beyond
- *   the grid. A bisection stops once it follows a smooth turn: the larger
- *   half's excess over half its interval's turn, which a smooth turn's
- *   angular acceleration makes fall fourfold a halving while a snap keeps
- *   about half its size, is below half of `limit` and has fallen at least
- *   twofold since the level above (a Richardson test: Richardson 1911, Phil
- *   Trans R Soc A 210:307, an order-p error falls 2^p-fold a halving and a
- *   non-smooth path breaks that ratio), so a fast smooth spin
- *   costs two poses, not ten.
+ *   neighbouring intervals' (of the one neighbour at either end of the motion)
+ *   by more than `limit`, so a smooth motion costs no pose beyond the grid. A
+ *   bisection stops once it follows a smooth turn: the larger half's excess
+ *   over half its interval's turn, which a smooth turn's angular acceleration
+ *   makes fall fourfold a halving while a snap keeps about half its size, is
+ *   below half of `limit` and has fallen at least twofold since the level above
+ *   (a Richardson test: Richardson 1911, Phil Trans R Soc A 210:307, an order-p
+ *   error falls 2^p-fold a halving and a non-smooth path breaks that ratio), so
+ *   a fast smooth spin costs two poses, not ten.
  */
 export namespace AutoMovieMotionHumanAuditSpin {
   /** How many times a departing interval is halved. */
@@ -68,11 +66,7 @@ export namespace AutoMovieMotionHumanAuditSpin {
     rate: number = 24,
     limit: number = SNAP,
   ): IAutoMovieMotionHumanAuditSpin.IResult {
-    const times: number[] = HumanAuditMotion.grid(
-      0,
-      motion.duration,
-      rate,
-    );
+    const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
     const frames: IBones[] = times.map(
       (t: number): IBones => motion.bones(subject, t),
     );
@@ -154,7 +148,11 @@ export namespace AutoMovieMotionHumanAuditSpin {
 /** A person's displayed bones at an instant. */
 type IBones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-/** The fall of a bisection's excess, from one level to the next, that marks a smooth turn: 2, the geometric mean of a smooth turn's fourfold fall and a snap's none. */
+/**
+ * The fall of a bisection's excess, from one level to the next, that marks a
+ * smooth turn: 2, the geometric mean of a smooth turn's fourfold fall and a
+ * snap's none.
+ */
 const RICHARDSON: number = 2;
 
 /** The angle between one bone's orientations in two instants, degrees. */

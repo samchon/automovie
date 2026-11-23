@@ -33,21 +33,21 @@ type Feet = IAutoMovieMotionHumanEntryState["feet"];
 type Ankles = Record<"left" | "right", IAutoMovieVector3>;
 
 /**
- * Static rear-seat egress via the adjacent, already-open door. Shippen
- * (2012, IJTTE 2:107–117) studied occupants leaving the rear seat through
- * the nearest door and measured lumbar flexion, lateral bending and axial
- * rotation. This provisional staging uses a seated turn and staggered
- * ground placements followed by the existing sit-to-stand law.
+ * Static rear-seat egress via the adjacent, already-open door. Shippen (2012,
+ * IJTTE 2:107–117) studied occupants leaving the rear seat through the nearest
+ * door and measured lumbar flexion, lateral bending and axial rotation. This
+ * provisional staging uses a seated turn and staggered ground placements
+ * followed by the existing sit-to-stand law.
  * https://pure.coventry.ac.uk/ws/portalfiles/portal/4013131/shippen2comb.pdf
  */
 export namespace HumanTravelCarExit {
   /**
-   * Turn and move to the bench edge, pass each foot over the sill, then rise
-   * on the exterior floor. Refuses loss of seat support, an opening too
-   * narrow or low at seat-off, or a final stance inside. The author supplies
-   * the opening clearance, turn timing, landing offset and flexion. The
-   * pelvis rocks back about the supported seat socket through the two
-   * sill crossings, and the spine completes its duck before the last one.
+   * Turn and move to the bench edge, pass each foot over the sill, then rise on
+   * the exterior floor. Refuses loss of seat support, an opening too narrow or
+   * low at seat-off, or a final stance inside. The author supplies the opening
+   * clearance, turn timing, landing offset and flexion. The pelvis rocks back
+   * about the supported seat socket through the two sill crossings, and the
+   * spine completes its duck before the last one.
    *
    * @evidence contracts/development/common.md#meaningful-documentation Names the entered support, authored phase controls and refusal conditions.
    * @evidence contracts/development/design.md#principled-representation Stages authored foot trajectories outside the aperture before transferring support through rise.

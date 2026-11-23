@@ -11,17 +11,25 @@ import { readHumanBone } from "../body/readHumanBone";
 /**
  * Read actual joint ROM overshoot during one synchronous evaluation whose
  * skeleton bone order and identities stay unchanged. Only each bone's first
- * matching record is shared; current constraints and angles are still read
- * for every score. A later evaluation creates a new reader.
+ * matching record is shared; current constraints and angles are still read for
+ * every score. A later evaluation creates a new reader.
  *
- * @param body The body with unchanged skeleton membership/order for this evaluation.
- * @returns A reader of a bone's clinical triple, degrees, returning the original ROM overshoot in degrees, including its null/nonfinite cases.
+ * @param body The body with unchanged skeleton membership/order for this
+ *   evaluation.
+ * @returns A reader of a bone's clinical triple, degrees, returning the
+ *   original ROM overshoot in degrees, including its null/nonfinite cases.
  */
 export function prepareHumanJointRom(
   body: IAutoMovieMotionHumanBody,
-): (bone: AutoMovieHumanoidBone, angles: readonly [number, number, number]) => number {
+): (
+  bone: AutoMovieHumanoidBone,
+  angles: readonly [number, number, number],
+) => number {
   let records: Map<AutoMovieHumanoidBone, IAutoMovieBone | null> | undefined;
-  return (bone: AutoMovieHumanoidBone, angles: readonly [number, number, number]): number => {
+  return (
+    bone: AutoMovieHumanoidBone,
+    angles: readonly [number, number, number],
+  ): number => {
     const joint: IAutoMovieJointPose = {
       bone,
       flexion: angles[0],
@@ -34,6 +42,9 @@ export function prepareHumanJointRom(
       record = readHumanBone(body, bone) ?? null;
       records.set(bone, record);
     }
-    return jointRomOvershoot(joint, getConstraint(bone, record?.constraint ?? null));
+    return jointRomOvershoot(
+      joint,
+      getConstraint(bone, record?.constraint ?? null),
+    );
   };
 }

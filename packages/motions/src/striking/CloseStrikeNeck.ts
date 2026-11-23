@@ -19,11 +19,10 @@ import { clinch } from "../grappling/clinch";
 import { poseBones } from "../posture/poseBones";
 
 /**
- * A headbutt's hands on the partner's neck: each palm reaches the opposite
- * side of the neck by the take on a path that bows round the partner's
- * trunk, the elbows tucked, holds it through the impact to the release,
- * following the displayed partner, and comes home over the rest of the
- * recoil.
+ * A headbutt's hands on the partner's neck: each palm reaches the opposite side
+ * of the neck by the take on a path that bows round the partner's trunk, the
+ * elbows tucked, holds it through the impact to the release, following the
+ * displayed partner, and comes home over the rest of the recoil.
  *
  * @param props The strike's context, the partner, the take and the duration.
  * @returns The two arms' primitives and their grip windows.
@@ -110,11 +109,12 @@ export function CloseStrikeNeck(
   return { primitives, contacts };
 }
 
-/**
- * Companion types of {@link CloseStrikeNeck}.
- */
+/** Companion types of {@link CloseStrikeNeck}. */
 export namespace CloseStrikeNeck {
-  /** The hands' path's bow round the partner's trunk, the grapple's arc to a shoulder (`grapple`'s curvature). */
+  /**
+   * The hands' path's bow round the partner's trunk, the grapple's arc to a
+   * shoulder (`grapple`'s curvature).
+   */
   export const ARC: number = 0.62;
 
   /** The headbutt's hold. */

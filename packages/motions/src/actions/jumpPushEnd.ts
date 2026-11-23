@@ -14,14 +14,17 @@ import { jumpPush } from "./jumpPush";
 import { walkLeg } from "./walkLeg";
 
 /**
- * The raw end of the planted push, shared with the airborne initial state.
- * All carried entry rates vanish here; the heel rule still reads the actual
+ * The raw end of the planted push, shared with the airborne initial state. All
+ * carried entry rates vanish here; the heel rule still reads the actual
  * terminal hip, so its pitch is not replaced by the provisional request.
  *
- * @param props The push's body, geometry and knee rule, without its timed root path.
+ * @param props The push's body, geometry and knee rule, without its timed root
+ *   path.
  * @param root The unlowered terminal root, world metres.
- * @param resolution Optional exact FK source borrowed only for this synchronous terminal hip read.
- * @returns The terminal pelvis/toes and leg goals; the caller still owns lowering and physical resolution.
+ * @param resolution Optional exact FK source borrowed only for this synchronous
+ *   terminal hip read.
+ * @returns The terminal pelvis/toes and leg goals; the caller still owns
+ *   lowering and physical resolution.
  */
 export function jumpPushEnd(
   props: Pick<
@@ -40,7 +43,8 @@ export function jumpPushEnd(
   root: IAutoMovieVector3,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): Pick<IAutoMovieMotionHumanPosture, "joints" | "limbs"> {
-  const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
+  const read: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution(resolution);
   const hip: IAutoMovieVector3 = hipJoints(
     props.body,
     root,
@@ -97,7 +101,10 @@ export function jumpPushEnd(
         contact: HumanFoot.offset(props.body, props.takeoff, "mtp"),
       },
       [`${props.reaching}Leg`]: {
-        point: HumanFrame.point({ origin: root, yaw: props.heading }, props.tuck),
+        point: HumanFrame.point(
+          { origin: root, yaw: props.heading },
+          props.tuck,
+        ),
         rotation: HumanFoot.rotation(props.heading, 0),
         bend: props.knee(root, props.reaching, props.heading),
       },

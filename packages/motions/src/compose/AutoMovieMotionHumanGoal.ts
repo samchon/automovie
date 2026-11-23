@@ -9,15 +9,15 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Limb goals between two goals: the one owner of how an arm or a leg leaves
- * the goal an action's base gives it for the goal a primitive asks.
+ * Limb goals between two goals: the one owner of how an arm or a leg leaves the
+ * goal an action's base gives it for the goal a primitive asks.
  *
  * The end joint and the bend hint move on straight lines and the hand's or
  * foot's rotation turns by spherical interpolation, all by one weight. A limb
- * between two goals bears on nothing, so it is not planted; it keeps the
- * asked goal's contact, the point the resolver holds when the rotation is out
- * of range, and its reference solution. Both goals are in one frame: the
- * world, or the same bone.
+ * between two goals bears on nothing, so it is not planted; it keeps the asked
+ * goal's contact, the point the resolver holds when the rotation is out of
+ * range, and its reference solution. Both goals are in one frame: the world, or
+ * the same bone.
  */
 export namespace AutoMovieMotionHumanGoal {
   /**
@@ -69,7 +69,8 @@ export namespace AutoMovieMotionHumanGoal {
    * @param posture The posture so far at this second.
    * @param seconds Seconds since the action's start.
    * @returns The goal.
-   * @throws {Error} When no origin is given and the posture holds no goal for the limb.
+   * @throws {Error} When no origin is given and the posture holds no goal for
+   *   the limb.
    */
   export function toward(
     props: IAutoMovieMotionHumanGoal.IToward,

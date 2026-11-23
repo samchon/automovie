@@ -31,9 +31,9 @@ import type { touchHold } from "./touchHold";
  */
 export namespace touchReach {
   /**
-   * The shortest reach of a touch's hands: for each, from its arm at the
-   * entry to the arm laid on its region with the elbow hung naturally, the
-   * longest of them.
+   * The shortest reach of a touch's hands: for each, from its arm at the entry
+   * to the arm laid on its region with the elbow hung naturally, the longest of
+   * them.
    *
    * @param body The body.
    * @param entry The entry pose.
@@ -84,11 +84,11 @@ export namespace touchReach {
   }
 
   /**
-   * How long a hand's reach to a mutual meeting's point takes: the
-   * free-space time of its distance (`AutoMovieMotionHumanTiming.transport`),
-   * and at least what its arm's arc needs within the audit's travel bound
-   * (`place`) where the performer's posture is known, so the reach the
-   * meeting's instant pins meets the bound its arm is laid by.
+   * How long a hand's reach to a mutual meeting's point takes: the free-space
+   * time of its distance (`AutoMovieMotionHumanTiming.transport`), and at least
+   * what its arm's arc needs within the audit's travel bound (`place`) where
+   * the performer's posture is known, so the reach the meeting's instant pins
+   * meets the bound its arm is laid by.
    *
    * @param body The body.
    * @param bones The performer's world bones where it stands.
@@ -132,10 +132,10 @@ export namespace touchReach {
   }
 
   /**
-   * The shortest reach of one hand to a point: from its arm at the entry to
-   * the arm laid there with the elbow hung naturally, its effector's skin on
-   * the point and the point's normal looking back at the performer, level,
-   * as a mutual meeting lays two hands on their shared point.
+   * The shortest reach of one hand to a point: from its arm at the entry to the
+   * arm laid there with the elbow hung naturally, its effector's skin on the
+   * point and the point's normal looking back at the performer, level, as a
+   * mutual meeting lays two hands on their shared point.
    *
    * @param body The body.
    * @param entry The posture and the pose the arm leaves from.
@@ -181,9 +181,9 @@ export namespace touchReach {
 }
 
 /**
- * The shortest reach of one arm onto a place: from its angles at the entry
- * to the arm laid there with the elbow hung naturally, solved on the posture
- * the arms are solved on, and the audit's travel bound between the two
+ * The shortest reach of one arm onto a place: from its angles at the entry to
+ * the arm laid there with the elbow hung naturally, solved on the posture the
+ * arms are solved on, and the audit's travel bound between the two
  * (`touchReach.duration` for a region, `touchReach.place` for a point).
  *
  * @param body The body.

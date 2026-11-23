@@ -12,12 +12,13 @@ export namespace HumanSupportContacts {
   ];
 
   /**
-   * A part on the action's surface (`support.IParams.on`), on its own side,
-   * in from the edge by an inset in forearm-and-hand lengths
+   * A part on the action's surface (`support.IParams.on`), on its own side, in
+   * from the edge by an inset in forearm-and-hand lengths
    * (`IAutoMovieMotionHumanSupport.IContact.inset`).
    *
    * @param part The part that bears.
-   * @param inset The inset from the edge, in forearm-and-hand lengths; 0 when absent.
+   * @param inset The inset from the edge, in forearm-and-hand lengths; 0 when
+   *   absent.
    * @returns The contact.
    */
   export const on = (

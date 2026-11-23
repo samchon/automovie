@@ -42,21 +42,20 @@ const CLEARANCE: number = 0.035;
 const TILT: number = Math.PI / 15;
 
 /**
- * One staged open-string violin stroke with a held bow. Register this law
- * with HumanChain.extend and HumanPerformance.laws. The bow moves to a
- * raised ready pose, lowers to contact, slides frog-to-tip or tip-to-frog
- * during the stroke and leaves the string after lift, still in the hand.
+ * One staged open-string violin stroke with a held bow. Register this law with
+ * HumanChain.extend and HumanPerformance.laws. The bow moves to a raised ready
+ * pose, lowers to contact, slides frog-to-tip or tip-to-frog during the stroke
+ * and leaves the string after lift, still in the hand.
  *
- * The straight hair line is perpendicular to the selected string, following
- * the straight-stroke condition in Schoonderwaldt (2010, DOI 10.3813/AAA.918314).
- * The sounding point is one tenth of the bar's length from the bridge, as
- * in the range for a sustained note in Schoonderwaldt (2009, DOI
- * 10.1121/1.3203209, Fig. 1). The provisional stroke travels over 18–42%
- * of the playable hair. Inclination clears the other strings on the
- * simplified coplanar instrument. The performer moves the right arm and
- * holds the same grip throughout. The violin is staged as a fixed prop.
- * This geometry models contact only, with hair deflection and note acoustics
- * outside the law.
+ * The straight hair line is perpendicular to the selected string, following the
+ * straight-stroke condition in Schoonderwaldt (2010, DOI 10.3813/AAA.918314).
+ * The sounding point is one tenth of the bar's length from the bridge, as in
+ * the range for a sustained note in Schoonderwaldt (2009, DOI
+ * 10.1121/1.3203209, Fig. 1). The provisional stroke travels over 18–42% of the
+ * playable hair. Inclination clears the other strings on the simplified
+ * coplanar instrument. The performer moves the right arm and holds the same
+ * grip throughout. The violin is staged as a fixed prop. This geometry models
+ * contact only, with hair deflection and note acoustics outside the law.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives registration, phases, measurements, staging and limits.
  */
@@ -69,7 +68,10 @@ export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowV
   plan: planStroke,
 };
 
-/** Place the bow from its held frame, then pose its hand on the four stroke phases. */
+/**
+ * Place the bow from its held frame, then pose its hand on the four stroke
+ * phases.
+ */
 function planStroke(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBowViolinParams>,
 ): IAutoMovieMotionHumanActionPlan {

@@ -36,21 +36,34 @@ import { sideRideGrips } from "./sideRideGrips";
 /**
  * The hands of a ride (`HumanRide`): the support's points they are told to
  * hold, checked against the support, the trunk's lean that brings them in
- * reach, where each point is at a film second, and the fingers closed on
- * the support's own colliders where the ride begins.
+ * reach, where each point is at a film second, and the fingers closed on the
+ * support's own colliders where the ride begins.
  */
 export namespace HumanRideHands {
-  /** Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1), degrees. */
+  /**
+   * Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1),
+   * degrees.
+   */
   const ROWING: readonly [number, number] = [-28, 49];
 
-  /** Material-aware round handles and rein contacts over the ride's ordinary hold geometry. */
+  /**
+   * Material-aware round handles and rein contacts over the ride's ordinary
+   * hold geometry.
+   */
   export interface IMaterialGrip
     extends IAutoMovieMotionHumanMountRider.IHoldGrip {
-    /** Metres from the palm centreline to its skin at the authored holding station. */
+    /**
+     * Metres from the palm centreline to its skin at the authored holding
+     * station.
+     */
     palmDepth?: number;
     /** A rein meets the body's actual wrist-relative palm surface. */
     reinPalm?: IAutoMovieMotionHumanHand.IFrame;
-    /** Degrees a rein's hold turns about its outward normal from fingers square across the line: the angle the line crosses the fist at (`crossRideReinGrip`); none holds the fingers square. */
+    /**
+     * Degrees a rein's hold turns about its outward normal from fingers square
+     * across the line: the angle the line crosses the fist at
+     * (`crossRideReinGrip`); none holds the fingers square.
+     */
     cross?: number;
   }
 
@@ -68,22 +81,29 @@ export namespace HumanRideHands {
     /** The hands that hold in it. */
     holding: ReadonlySet<AutoMovieHumanSide>;
 
-    /** The posture the law before wrote there, whose arm goals asked the holding hands' turns. */
+    /**
+     * The posture the law before wrote there, whose arm goals asked the holding
+     * hands' turns.
+     */
     posture: IAutoMovieMotionHumanPosture;
   }
 
-  /**
-   * A holding hand's affordance and resting geometry, fixed for this ride.
-   */
+  /** A holding hand's affordance and resting geometry, fixed for this ride. */
   export interface IHandle {
     /** The holding hand. */
     side: AutoMovieHumanSide;
 
-    /** The hand's measured palm depth to the held surface, metres; absent until a full articulated frame has been observed. */
+    /**
+     * The hand's measured palm depth to the held surface, metres; absent until
+     * a full articulated frame has been observed.
+     */
     palmDepth?: number;
     /** The canonical palm frame retained for a rein over all pose reads. */
     reinPalm?: IAutoMovieMotionHumanHand.IFrame;
-    /** The angle a rein crosses the palm at, degrees, chosen once where the ride begins (`IMaterialGrip.cross`). */
+    /**
+     * The angle a rein crosses the palm at, degrees, chosen once where the ride
+     * begins (`IMaterialGrip.cross`).
+     */
     cross?: number;
     /** The named point within the support. */
     id: string;
@@ -95,17 +115,18 @@ export namespace HumanRideHands {
     affordance?: IAutoMovieAffordance;
   }
 
-  /**
-   * The ride's holding hands.
-   */
+  /** The ride's holding hands. */
   export interface IHands {
-    /** The planted working-seat alternatives when pelvic inclination exceeds the legs' reach. */
+    /**
+     * The planted working-seat alternatives when pelvic inclination exceeds the
+     * legs' reach.
+     */
     alternatives?: NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
     /**
-     * The trunk's forward lean that brings the holding hands in reach of
-     * what they hold, read by `gripAt` at a film second, the support in its
-     * frame then, degrees: the grips are followed as they move, as a rower
-     * leans to the catch the oar's handle comes to (`HumanMountReach.reach`).
+     * The trunk's forward lean that brings the holding hands in reach of what
+     * they hold, read by `gripAt` at a film second, the support in its frame
+     * then, degrees: the grips are followed as they move, as a rower leans to
+     * the catch the oar's handle comes to (`HumanMountReach.reach`).
      */
     posture(
       grips: Grips,
@@ -114,7 +135,10 @@ export namespace HumanRideHands {
       heldAt?: number,
     ): IAutoMovieMotionHumanPosture;
 
-    /** What each holding hand holds, where the support has it at a film second in its frame then. */
+    /**
+     * What each holding hand holds, where the support has it at a film second
+     * in its frame then.
+     */
     gripsAt: (
       film: number,
       frame: IAutoMovieRigidTransform,
@@ -130,15 +154,21 @@ export namespace HumanRideHands {
   /**
    * Read the hands of a ride.
    *
-   * @param context The ride's context, for the body, the start and the hands asked.
+   * @param context The ride's context, for the body, the start and the hands
+   *   asked.
    * @param on The support's subject id.
    * @param support The support.
    * @param seated The seated posture the ride is entered with.
    * @param origin The support's frame when the ride begins.
    * @param take Seconds a hand takes to reach what it holds.
-   * @param shown For a law entered with hands already holding: the pose displayed where the plan begins and the hands that hold there. Each such rein keeps the crossing it is displayed with (`crossRideReinGrip`); none when every hand takes its hold.
+   * @param shown For a law entered with hands already holding: the pose
+   *   displayed where the plan begins and the hands that hold there. Each such
+   *   rein keeps the crossing it is displayed with (`crossRideReinGrip`); none
+   *   when every hand takes its hold.
    * @returns The hands.
-   * @throws {HumanRefusal} When a hand names a point the support lacks, the support declares no colliders to close on, or no crossing of a rein the hand takes lies within its arm's ranges.
+   * @throws {HumanRefusal} When a hand names a point the support lacks, the
+   *   support declares no colliders to close on, or no crossing of a rein the
+   *   hand takes lies within its arm's ranges.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,

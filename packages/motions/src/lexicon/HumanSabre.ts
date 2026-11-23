@@ -38,26 +38,45 @@ import { HumanUnseatPose } from "./HumanUnseatPose";
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSabre>;
 
-/** The longest a gallop stride lasts, seconds, the most a charge may take to come to the engage (provisional: a gallop of about two strides a second). */
+/**
+ * The longest a gallop stride lasts, seconds, the most a charge may take to
+ * come to the engage (provisional: a gallop of about two strides a second).
+ */
 const STRIDE: number = 0.5;
 
-/** The share of the arm's full length the engage reaches forward, short of the straight elbow's singular reach (provisional). */
+/**
+ * The share of the arm's full length the engage reaches forward, short of the
+ * straight elbow's singular reach (provisional).
+ */
 const REACHED: number = 0.95;
 
-/** How far ahead along the seat's forward the engage points when no target is named, metres: far enough that the shoulder's own offset leaves the line level and straight ahead. */
+/**
+ * How far ahead along the seat's forward the engage points when no target is
+ * named, metres: far enough that the shoulder's own offset leaves the line
+ * level and straight ahead.
+ */
 const FAR: number = 10;
 
-/** Seconds the arms take from the entry to the bridle and the carriage (provisional). */
+/**
+ * Seconds the arms take from the entry to the bridle and the carriage
+ * (provisional).
+ */
 const REACH: number = 0.5;
 
-/** How far in front of the shoulder joint the slope's blade lies, metres: the shoulder's skin, which the back of the blade rests on (provisional). */
+/**
+ * How far in front of the shoulder joint the slope's blade lies, metres: the
+ * shoulder's skin, which the back of the blade rests on (provisional).
+ */
 const SKIN: number = 0.06;
 
 /** The bone whose joint the stations are laid from: the right shoulder. */
 const SHOULDER: ReadonlySet<AutoMovieHumanoidBone> =
   new Set<AutoMovieHumanoidBone>(["rightUpperArm"]);
 
-/** A carriage's station in the seat frame: the grip's place, the way the blade points and the way its true edge faces. */
+/**
+ * A carriage's station in the seat frame: the grip's place, the way the blade
+ * points and the way its true edge faces.
+ */
 interface IStation {
   /** The grip's place, metres. */
   grip: IAutoMovieVector3;
@@ -70,7 +89,22 @@ interface IStation {
 }
 
 /**
- * A sabre's slope and engage from the saddle (`IAutoMovieMotionHumanSabre`): carried on the seat contact, the right hand closes on the held sabre's grip and is placed by the sabre's own geometry (`StrikingHeld`) at stations laid from the right shoulder joint. At the slope the upper arm hangs and the forearm lies level forward, the hand in front of the elbow holding the blade upright with the edge forward, and the grip is loosened: the blade turns in the hand about the grip (the grip window's in-hand motion) until its back rests on the front of the right shoulder, point up and a little back, edge forward, as the historical slope carries it with the hilt pivoting between the thumb and the fingers; at the charge the fingers close back to the full grip and the hand comes to the engage, the ox's raised hilt about the shoulder turned toward the line with the point leading along it. The left hand holds both reins at their middle. A charge cue brings the slope to the engage after the rider's warned reaction over `transition` seconds by a minimum-jerk path in the seat frame; the grip stays closed throughout. Register `HumanSabre` to use it.
+ * A sabre's slope and engage from the saddle (`IAutoMovieMotionHumanSabre`):
+ * carried on the seat contact, the right hand closes on the held sabre's grip
+ * and is placed by the sabre's own geometry (`StrikingHeld`) at stations laid
+ * from the right shoulder joint. At the slope the upper arm hangs and the
+ * forearm lies level forward, the hand in front of the elbow holding the blade
+ * upright with the edge forward, and the grip is loosened: the blade turns in
+ * the hand about the grip (the grip window's in-hand motion) until its back
+ * rests on the front of the right shoulder, point up and a little back, edge
+ * forward, as the historical slope carries it with the hilt pivoting between
+ * the thumb and the fingers; at the charge the fingers close back to the full
+ * grip and the hand comes to the engage, the ox's raised hilt about the
+ * shoulder turned toward the line with the point leading along it. The left
+ * hand holds both reins at their middle. A charge cue brings the slope to the
+ * engage after the rider's warned reaction over `transition` seconds by a
+ * minimum-jerk path in the seat frame; the grip stays closed throughout.
+ * Register `HumanSabre` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both carriages, the bridle hand, the charge and its timing.
  * @evidence contracts/development/design.md#principled-representation One law; carriages as grip stations and blade directions in the seat frame.

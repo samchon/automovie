@@ -10,13 +10,14 @@ import { StrikingVerdicts } from "./StrikingVerdicts";
  */
 export namespace StrikingEventVerdicts {
   /**
-   * Whether a defence's own events class as its declared outcome: in time
-   * when the guard is set by the contact, late when it is set within half its
+   * Whether a defence's own events class as its declared outcome: in time when
+   * the guard is set by the contact, late when it is set within half its
    * movement after it, and failed otherwise.
    *
    * @param id The defender's subject id.
    * @param segment The defence's segment.
-   * @returns The defence verdict; a plan missing its read, set or contact event fails.
+   * @returns The defence verdict; a plan missing its read, set or contact event
+   *   fails.
    */
   export function defence(
     id: string,
@@ -49,8 +50,8 @@ export namespace StrikingEventVerdicts {
   }
 
   /**
-   * Whether a redirect after the chamber key is refused as an illegal cut
-   * into a kick; any other error, or none, fails.
+   * Whether a redirect after the chamber key is refused as an illegal cut into
+   * a kick; any other error, or none, fails.
    *
    * @param attempt Builds the late redirect.
    * @returns The refusal verdict.

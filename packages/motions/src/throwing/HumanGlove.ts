@@ -16,8 +16,8 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
 /**
- * A glove a catching hand wears, as a catch reads it: where its `pocket`
- * stands from the palm (`createGlove`'s contacts).
+ * A glove a catching hand wears, as a catch reads it: where its `pocket` stands
+ * from the palm (`createGlove`'s contacts).
  */
 export namespace HumanGlove {
   /**
@@ -29,7 +29,8 @@ export namespace HumanGlove {
    * @param subject The glove's prop subject.
    * @param sides The catching hands.
    * @returns The pocket from the palm's point, metres, in the hand bone's axes.
-   * @throws {HumanRefusal} When the catch is two-handed, the glove is not worn on the catching hand of this performer, or it declares no `pocket`.
+   * @throws {HumanRefusal} When the catch is two-handed, the glove is not worn
+   *   on the catching hand of this performer, or it declares no `pocket`.
    */
   export function pocket(
     context: Pick<
@@ -86,7 +87,11 @@ export namespace HumanGlove {
       undefined,
       new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
     );
-    const palm: IAutoMovieVector3 = HumanHand.preparePoint(context.body, side, "palm")(bones);
+    const palm: IAutoMovieVector3 = HumanHand.preparePoint(
+      context.body,
+      side,
+      "palm",
+    )(bones);
     return Quaternion.rotateVector(
       Quaternion.inverse(bones.get(`${side}Hand`)!.worldRotation),
       Vector3.subtract(at, palm),

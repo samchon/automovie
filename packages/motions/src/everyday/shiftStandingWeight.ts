@@ -37,14 +37,14 @@ const PLANT_TURN: number = Math.cos(Math.PI / 720);
  * independently. The respective transition events are shifted, release and
  * returned, with the last two present only on a return.
  *
- * A force-plate study of prolonged standing observed spontaneous lateral
- * shifts with both feet on the ground (https://stacks.cdc.gov/view/cdc/224979).
+ * A force-plate study of prolonged standing observed spontaneous lateral shifts
+ * with both feet on the ground (https://stacks.cdc.gov/view/cdc/224979).
  * Center-of-pressure shifts (https://pubmed.ncbi.nlm.nih.gov/9924098/) reflect
- * force distribution. The law takes an authored pelvis distance and checks
- * the fitted body's static center-of-mass margin at entry, midway and at the
- * held displacement.
- * The default transfer time of 0.8 s is provisional. This law models
- * kinematic staging and leaves individual foot loads and dynamics unspecified.
+ * force distribution. The law takes an authored pelvis distance and checks the
+ * fitted body's static center-of-mass margin at entry, midway and at the held
+ * displacement. The default transfer time of 0.8 s is provisional. This law
+ * models kinematic staging and leaves individual foot loads and dynamics
+ * unspecified.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the required support, author-controlled distance and events, and distinguishes published measurements from the authored motion.
  * @evidence contracts/development/design.md#principled-representation Moves the existing root channel while retaining the entry leg goals and both ground plants.
@@ -74,7 +74,8 @@ export const shiftStandingWeight: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
  *
  * @param context Body, action parameters and entry state.
  * @returns The fixed-foot plan.
- * @throws {HumanRefusal} For invalid parameters, an unsupported entry or failure to fit the path witnesses.
+ * @throws {HumanRefusal} For invalid parameters, an unsupported entry or
+ *   failure to fit the path witnesses.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanShiftStandingWeight>,

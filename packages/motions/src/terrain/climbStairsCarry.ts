@@ -26,12 +26,12 @@ const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
 /**
  * A flight climbed onto a moving prop, carried footprint by footprint: the
  * climb is planned in the world as the prop stood at its start, a foot on a
- * floor print stays where it stands in the world, and a foot on a tread
- * aims at where the tread will be at its touchdown and is carried by the
- * prop from then on, a swing passing from the one carry to the other on a
- * minimum-jerk weight. The root and the heading pass from the floor's
- * stillness to the prop's carry as the weight passes onto it, from the first
- * tread touchdown to the last floor print's lift.
+ * floor print stays where it stands in the world, and a foot on a tread aims at
+ * where the tread will be at its touchdown and is carried by the prop from then
+ * on, a swing passing from the one carry to the other on a minimum-jerk weight.
+ * The root and the heading pass from the floor's stillness to the prop's carry
+ * as the weight passes onto it, from the first tread touchdown to the last
+ * floor print's lift.
  *
  * @param context The action's context.
  * @param plan The climb planned in the world at the start.
@@ -47,11 +47,13 @@ export function climbStairsCarry(
     seconds: number,
   ): IAutoMovieRigidTransform => context.prop(prop).frame(seconds);
   const duration: number = plan.duration;
-  const plants: Record<AutoMovieHumanSide, IAutoMovieMotionHumanContactWindow[]> =
-    {
-      left: footPlants(plan.contacts, "leftFoot"),
-      right: footPlants(plan.contacts, "rightFoot"),
-    };
+  const plants: Record<
+    AutoMovieHumanSide,
+    IAutoMovieMotionHumanContactWindow[]
+  > = {
+    left: footPlants(plan.contacts, "leftFoot"),
+    right: footPlants(plan.contacts, "rightFoot"),
+  };
   const onProp: (w: IAutoMovieMotionHumanContactWindow) => boolean = (
     w: IAutoMovieMotionHumanContactWindow,
   ): boolean => w.support.kind === "prop" && w.support.subject === prop;
@@ -113,7 +115,9 @@ export function climbStairsCarry(
   ];
   const first: number = Math.min(
     1,
-    ...all.filter(onProp).map((w: IAutoMovieMotionHumanContactWindow): number => w.from),
+    ...all
+      .filter(onProp)
+      .map((w: IAutoMovieMotionHumanContactWindow): number => w.from),
   );
   const last: number = Math.max(
     first,
@@ -184,7 +188,10 @@ export function climbStairsCarry(
         point: (p: IAutoMovieVector3): IAutoMovieVector3 =>
           Vector3.add(
             anchor,
-            Quaternion.rotateVector(turned.turn, Vector3.subtract(p, made.root)),
+            Quaternion.rotateVector(
+              turned.turn,
+              Vector3.subtract(p, made.root),
+            ),
           ),
         turn: turned.turn,
         yaw: turned.yaw,
@@ -198,7 +205,11 @@ export function climbStairsCarry(
           limb === "leftLeg" || limb === "rightLeg"
             ? leg(
                 goal,
-                footCarry(limb === "leftLeg" ? "left" : "right", at, goal.point),
+                footCarry(
+                  limb === "leftLeg" ? "left" : "right",
+                  at,
+                  goal.point,
+                ),
               )
             : leg(goal, body);
       return {
@@ -211,22 +222,22 @@ export function climbStairsCarry(
   };
 }
 
-/**
- * Companions of {@link climbStairsCarry}.
- */
+/** Companions of {@link climbStairsCarry}. */
 export namespace climbStairsCarry {
-  /** How far above the world floor a standing ankle's own height may lie and still stand on it, metres (provisional: a sole's give). */
+  /**
+   * How far above the world floor a standing ankle's own height may lie and
+   * still stand on it, metres (provisional: a sole's give).
+   */
   const FLOOR: number = 0.02;
 
   /**
-   * Whether the body already stands on the moving prop at the climb's start,
-   * a rider on an escalator's steps rather than one boarding from the floor:
-   * its feet stand raised off the world floor, which only the prop beneath
-   * them holds up.
+   * Whether the body already stands on the moving prop at the climb's start, a
+   * rider on an escalator's steps rather than one boarding from the floor: its
+   * feet stand raised off the world floor, which only the prop beneath them
+   * holds up.
    *
    * @param context The action's context.
    * @returns Whether the feet stand above the world floor.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the test and its use.
    * @evidence contracts/development/implementation.md#principled-implementation Each entry ankle against the world floor raised by the body's own ankle height.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Two feet, one comparison each.
@@ -256,7 +267,9 @@ function footPlants(
         w.part === part && w.kind === "plant",
     )
     .sort(
-      (a: IAutoMovieMotionHumanContactWindow, b: IAutoMovieMotionHumanContactWindow): number =>
-        a.from - b.from,
+      (
+        a: IAutoMovieMotionHumanContactWindow,
+        b: IAutoMovieMotionHumanContactWindow,
+      ): number => a.from - b.from,
     );
 }

@@ -9,7 +9,11 @@ import type {
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The side of each grip's axis the fingers close over, chosen once where a ride's hold begins (`HumanRideHands`): the sign of the axis crossed with the grip's outward normal against the rider's forward, so the fingers wrap the grip on the side the body faces and keep that side afterwards. A sign re-taken at every second could flip the hand on an oar.
+ * The side of each grip's axis the fingers close over, chosen once where a
+ * ride's hold begins (`HumanRideHands`): the sign of the axis crossed with the
+ * grip's outward normal against the rider's forward, so the fingers wrap the
+ * grip on the side the body faces and keep that side afterwards. A sign
+ * re-taken at every second could flip the hand on an oar.
  *
  * @param grips Each holding hand's grip where the hold begins.
  * @param seated The seated posture the hold begins from.

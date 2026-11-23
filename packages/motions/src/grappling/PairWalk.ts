@@ -10,8 +10,8 @@ import type {
 
 /**
  * A shared walk of a coupled pair: both feet of each performer step one
- * displacement over a window, alternating, the root carried on its own
- * profile by the law that uses it (`hostageHold`, `heldHostage`).
+ * displacement over a window, alternating, the root carried on its own profile
+ * by the law that uses it (`hostageHold`, `heldHostage`).
  */
 export namespace PairWalk {
   /** One foot's step over the walk: which foot, when, from where to where. */

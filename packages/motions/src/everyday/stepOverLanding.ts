@@ -9,18 +9,20 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { crossingSurface } from "../terrain/crossingSurface";
 
 /**
- * Where a step over's feet land: on the floor the step leaves at the
- * stride's landing, or on the named landing surface (`onto`), drawn back
- * from the stride's landing so the toes stay on it but never nearer than
- * the obstacle allows.
+ * Where a step over's feet land: on the floor the step leaves at the stride's
+ * landing, or on the named landing surface (`onto`), drawn back from the
+ * stride's landing so the toes stay on it but never nearer than the obstacle
+ * allows.
  *
  * @param context The action's context, whose `onto` names the surface.
  * @param framed The crossing frame on the starting floor.
  * @param rest Each foot's lateral rest coordinate in that frame, metres.
- * @param nearest The nearest landing the obstacle allows, metres along the path.
+ * @param nearest The nearest landing the obstacle allows, metres along the
+ *   path.
  * @param stride The stride's own landing, metres along the path.
  * @returns The landing's height and place.
- * @throws {HumanRefusal} When the surface is not fixed, level and square to the path, or a landing foot cannot lie on it.
+ * @throws {HumanRefusal} When the surface is not fixed, level and square to the
+ *   path, or a landing foot cannot lie on it.
  */
 export function stepOverLanding(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
@@ -64,11 +66,12 @@ export function stepOverLanding(
   return { height: extent.height, z: landing };
 }
 
-/**
- * Companion types of {@link stepOverLanding}.
- */
+/** Companion types of {@link stepOverLanding}. */
 export namespace stepOverLanding {
-  /** Where the ankles land along the path and the height they land on, metres in the crossing frame. */
+  /**
+   * Where the ankles land along the path and the height they land on, metres in
+   * the crossing frame.
+   */
   export interface ILanding {
     /** The landing floor's height over the floor the step leaves. */
     height: number;

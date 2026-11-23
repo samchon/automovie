@@ -4,28 +4,36 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
+
 import type { walkStation } from "./walkStation";
 
 /**
- * A stepping plan with its steps taken a little unevenly in time, as a
- * person's are: each step, from one heel strike to the next, lasts its
- * planned time stretched or shrunk by its own small share.
+ * A stepping plan with its steps taken a little unevenly in time, as a person's
+ * are: each step, from one heel strike to the next, lasts its planned time
+ * stretched or shrunk by its own small share.
  *
  * A healthy adult's stride time varies by 1 to 3 % from stride to stride
  * (Hausdorff, as the travel family's acceptance cites it), so a gait whose
  * every step lasts exactly as long as the last reads as a machine's. The
- * footprints, the path and the poses are the plan's own: only the film
- * second at which the body passes each of them moves. Within a step the
- * plan's clock runs at `1 + k sin^2(pi u)` of the film's, `u` the share of
- * the step gone, with `k` chosen so the step's planned time is covered in
- * its stretched time. That rate is 1 at every heel strike, so the body's
- * velocity is continuous across them. Before the first strike and after the
- * last the two clocks run alike.
+ * footprints, the path and the poses are the plan's own: only the film second
+ * at which the body passes each of them moves. Within a step the plan's clock
+ * runs at `1 + k sin^2(pi u)` of the film's, `u` the share of the step gone,
+ * with `k` chosen so the step's planned time is covered in its stretched time.
+ * That rate is 1 at every heel strike, so the body's velocity is continuous
+ * across them. Before the first strike and after the last the two clocks run
+ * alike.
  *
- * @param plan The stepping plan; its heel strikes are the events named `leftHeelStrike<n>` and `rightHeelStrike<n>`.
- * @param stretch The share by which step `index`, from 0, lasts longer than planned; negative for shorter. With the limp's share added, it is held within `walkTempo.HOLD` either way.
- * @param limp A limp, when the gait has one: each step standing on the spared leg (the one whose heel strike begins it) is cut short by the share and each step standing on the other drawn out by it.
- * @returns The plan on the uneven clock, with its duration, events, contact windows and decisive instant moved to their film seconds; the plan itself when it names fewer than two heel strikes.
+ * @param plan The stepping plan; its heel strikes are the events named
+ *   `leftHeelStrike<n>` and `rightHeelStrike<n>`.
+ * @param stretch The share by which step `index`, from 0, lasts longer than
+ *   planned; negative for shorter. With the limp's share added, it is held
+ *   within `walkTempo.HOLD` either way.
+ * @param limp A limp, when the gait has one: each step standing on the spared
+ *   leg (the one whose heel strike begins it) is cut short by the share and
+ *   each step standing on the other drawn out by it.
+ * @returns The plan on the uneven clock, with its duration, events, contact
+ *   windows and decisive instant moved to their film seconds; the plan itself
+ *   when it names fewer than two heel strikes.
  */
 export function walkTempo(
   plan: walkStation.IPlan,
@@ -53,11 +61,22 @@ export function walkTempo(
 }
 
 /**
- * The heel strikes a stepping plan names and the time warp that sends them
- * to given seconds, companions of {@link walkTempo}.
+ * The heel strikes a stepping plan names and the time warp that sends them to
+ * given seconds, companions of {@link walkTempo}.
  */
 export namespace walkTempo {
-  /** The most a drawn variability stretches or shrinks a step's planned time, and the most a beat's period may differ from the gait's own step, as a share of it: beyond it the gait the footprints were planned at no longer describes the steps. A fifth either way spans the paced tempi walkers synchronise their steps to: 22.5 % faster than the preferred step rate (Leow, Parrott and Grahn 2014, Front Hum Neurosci 8:811, metronome and music cueing) and 0.9 to 1.1 of it (Brain Sci 2020, 10:273); its symmetric rounding is provisional. A single entrained step may depart further while phase correction draws its strike onto a beat; the warp stays increasing up to a step twice its planned time. */
+  /**
+   * The most a drawn variability stretches or shrinks a step's planned time,
+   * and the most a beat's period may differ from the gait's own step, as a
+   * share of it: beyond it the gait the footprints were planned at no longer
+   * describes the steps. A fifth either way spans the paced tempi walkers
+   * synchronise their steps to: 22.5 % faster than the preferred step rate
+   * (Leow, Parrott and Grahn 2014, Front Hum Neurosci 8:811, metronome and
+   * music cueing) and 0.9 to 1.1 of it (Brain Sci 2020, 10:273); its symmetric
+   * rounding is provisional. A single entrained step may depart further while
+   * phase correction draws its strike onto a beat; the warp stays increasing up
+   * to a step twice its planned time.
+   */
   export const HOLD: number = 0.2;
 
   /** A heel strike of a plan. */
@@ -70,7 +89,8 @@ export namespace walkTempo {
   }
 
   /**
-   * The heel strikes a plan names (`leftHeelStrike<n>`, `rightHeelStrike<n>`), in time order.
+   * The heel strikes a plan names (`leftHeelStrike<n>`, `rightHeelStrike<n>`),
+   * in time order.
    *
    * @param plan The stepping plan.
    * @returns Its strikes.
@@ -107,9 +127,11 @@ export namespace walkTempo {
    * boundary so velocities agree across steps.
    *
    * @param planned The nominal sequence of heel strikes.
-   * @param seconds Their entrained film-local seconds. If an endpoint has no given time, keep the planned step.
+   * @param seconds Their entrained film-local seconds. If an endpoint has no
+   *   given time, keep the planned step.
    * @returns Both maps of the clock, or nothing for fewer than two strikes.
-   * @throws {Error} When an entrained interval is at most zero or at least twice the planned interval; the warp would stop or reverse.
+   * @throws {Error} When an entrained interval is at most zero or at least
+   *   twice the planned interval; the warp would stop or reverse.
    */
   export function entrainment(
     planned: readonly IStrike[],
@@ -147,8 +169,11 @@ export namespace walkTempo {
  * The warp shared by the drawn and the entrained clocks.
  *
  * @param plan The stepping plan.
- * @param length Each step's film seconds from its index, its planned seconds and the foot whose strike begins it; above zero and under twice the planned seconds.
- * @returns The plan on the warped clock, or the plan itself when it names fewer than two heel strikes.
+ * @param length Each step's film seconds from its index, its planned seconds
+ *   and the foot whose strike begins it; above zero and under twice the planned
+ *   seconds.
+ * @returns The plan on the warped clock, or the plan itself when it names fewer
+ *   than two heel strikes.
  */
 function warped(
   plan: walkStation.IPlan,
@@ -182,7 +207,12 @@ function makeClock(
   for (let i: number = 0; i + 1 < strikes.length; ++i) {
     const planned: number = strikes[i + 1]! - strikes[i]!;
     const lasts: number = length(i, planned, struck[i]!.side);
-    steps.push({ plan: strikes[i]!, film, amplitude: 2 * (planned / lasts - 1), lasts });
+    steps.push({
+      plan: strikes[i]!,
+      film,
+      amplitude: 2 * (planned / lasts - 1),
+      lasts,
+    });
     film += lasts;
   }
   const end: { plan: number; film: number } = {
@@ -191,14 +221,21 @@ function makeClock(
   };
 
   // The plan's seconds gone at a share of a step: the integral of the rate.
-  const gone: (step: { amplitude: number; lasts: number }, u: number) => number = (step: { amplitude: number; lasts: number }, u: number): number =>
+  const gone: (
+    step: { amplitude: number; lasts: number },
+    u: number,
+  ) => number = (
+    step: { amplitude: number; lasts: number },
+    u: number,
+  ): number =>
     step.lasts *
-    (u +
-      step.amplitude *
-        (u / 2 - Math.sin(2 * Math.PI * u) / (4 * Math.PI)));
+    (u + step.amplitude * (u / 2 - Math.sin(2 * Math.PI * u) / (4 * Math.PI)));
 
   // The step a second falls in, on either clock: the last one that has begun.
-  const within: (clock: "plan" | "film", seconds: number) => number = (clock: "plan" | "film", seconds: number): number => {
+  const within: (clock: "plan" | "film", seconds: number) => number = (
+    clock: "plan" | "film",
+    seconds: number,
+  ): number => {
     let index: number = 0;
     let high: number = steps.length - 1;
     while (index < high) {
@@ -211,8 +248,7 @@ function makeClock(
   const toPlan: (seconds: number) => number = (seconds: number): number => {
     if (seconds <= steps[0]!.film) return seconds;
     if (seconds >= end.film) return end.plan + (seconds - end.film);
-    const step: (typeof steps)[number] =
-      steps[within("film", seconds)]!;
+    const step: (typeof steps)[number] = steps[within("film", seconds)]!;
     return step.plan + gone(step, (seconds - step.film) / step.lasts);
   };
 
@@ -220,8 +256,7 @@ function makeClock(
   const toFilm: (seconds: number) => number = (seconds: number): number => {
     if (seconds <= steps[0]!.plan) return seconds;
     if (seconds >= end.plan) return end.film + (seconds - end.plan);
-    const step: (typeof steps)[number] =
-      steps[within("plan", seconds)]!;
+    const step: (typeof steps)[number] = steps[within("plan", seconds)]!;
     let low: number = 0;
     let high: number = 1;
     for (let i: number = 0; i < 40; ++i) {
@@ -241,7 +276,8 @@ function retime(
 ): walkStation.IPlan {
   const { toPlan, toFilm }: walkTempo.IClock = clock;
   const duration: number = toFilm(plan.duration);
-  const share: (was: number) => number = (was: number): number => toFilm(was * plan.duration) / duration;
+  const share: (was: number) => number = (was: number): number =>
+    toFilm(was * plan.duration) / duration;
   const source: walkStation.HorizontalRoot | undefined = plan.horizontalRoot;
   const sourceTime: (seconds: number) => number = (seconds: number): number =>
     toPlan(Math.min(duration, Math.max(0, seconds)));
@@ -255,17 +291,27 @@ function retime(
       }),
     ),
     contacts: plan.contacts.map(
-      (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+      (
+        c: IAutoMovieMotionHumanContactWindow,
+      ): IAutoMovieMotionHumanContactWindow => ({
         ...c,
         from: share(c.from),
         to: share(c.to),
       }),
     ),
     ...(plan.contact === undefined ? {} : { contact: toFilm(plan.contact) }),
-    ...(source === undefined ? {} : {
-      horizontalRoot: (seconds: number): walkStation.HorizontalPoint => source(sourceTime(seconds)),
-    }),
-    posture: (seconds: number, channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2], projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture =>
+    ...(source === undefined
+      ? {}
+      : {
+          horizontalRoot: (seconds: number): walkStation.HorizontalPoint =>
+            source(sourceTime(seconds)),
+        }),
+    posture: (
+      seconds: number,
+      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+    ): IAutoMovieMotionHumanPosture =>
       plan.posture(sourceTime(seconds), channels, resolution, projection),
   };
 }

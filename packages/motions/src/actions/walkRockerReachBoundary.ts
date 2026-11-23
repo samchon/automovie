@@ -13,11 +13,14 @@ type ReachBoundary = (
 ) => number | undefined;
 
 /**
- * Prepare the intersection of a rigid ankle's pitch orbit and the leg's reach sphere.
+ * Prepare the intersection of a rigid ankle's pitch orbit and the leg's reach
+ * sphere.
  *
- * @param ankle The rigid, single-axis ankle orbit, metres, evaluated at signed degrees.
+ * @param ankle The rigid, single-axis ankle orbit, metres, evaluated at signed
+ *   degrees.
  * @param reach The measured maximum hip-to-ankle span, metres.
- * @returns The last reachable pitch on the original bisection lattice, or undefined when the original bracket is required.
+ * @returns The last reachable pitch on the original bisection lattice, or
+ *   undefined when the original bracket is required.
  */
 export function walkRockerReachBoundary(
   ankle: (pitch: number) => IAutoMovieVector3,

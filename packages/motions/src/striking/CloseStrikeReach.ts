@@ -22,24 +22,23 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 
 /**
- * Where a close strike's effector lands and what carries it there: the
- * elbow joint on the target with the forearm folded behind it, the back of
- * a spinning fist on the target with the arm nearly extended, or the
- * forehead on the target by the trunk's lean; and the pelvis shift along the
- * line that brings the striking shoulder or the head into range.
+ * Where a close strike's effector lands and what carries it there: the elbow
+ * joint on the target with the forearm folded behind it, the back of a spinning
+ * fist on the target with the arm nearly extended, or the forehead on the
+ * target by the trunk's lean; and the pelvis shift along the line that brings
+ * the striking shoulder or the head into range.
  *
- * An elbow is carried on a circle about the shoulder by the upper arm, so
- * the elbow joint, a forearm radius behind the struck point along the
- * travel, must lie one upper-arm length from the shoulder. The pelvis
- * shifts along the line by what closes that distance, at most half a stance
- * length (provisional), or the target is refused with the band of distances
- * the shift reaches. The forearm folds `FOLD` degrees from the upper arm,
- * within the technique's plane: across the body for a horizontal or spinning
- * elbow, up for a rising one, back for a descending one. A spinning backfist
- * lays the back of the hand on the target with the elbow bent toward its
- * travel. A headbutt leans the trunk forward until the forehead is at the
- * target's height, at most `LEAN` degrees, then shifts the pelvis along the
- * line onto it.
+ * An elbow is carried on a circle about the shoulder by the upper arm, so the
+ * elbow joint, a forearm radius behind the struck point along the travel, must
+ * lie one upper-arm length from the shoulder. The pelvis shifts along the line
+ * by what closes that distance, at most half a stance length (provisional), or
+ * the target is refused with the band of distances the shift reaches. The
+ * forearm folds `FOLD` degrees from the upper arm, within the technique's
+ * plane: across the body for a horizontal or spinning elbow, up for a rising
+ * one, back for a descending one. A spinning backfist lays the back of the hand
+ * on the target with the elbow bent toward its travel. A headbutt leans the
+ * trunk forward until the forehead is at the target's height, at most `LEAN`
+ * degrees, then shifts the pelvis along the line onto it.
  *
  * @param body The body.
  * @param technique The technique.
@@ -48,9 +47,11 @@ import { StrikingStance } from "./StrikingStance";
  * @param line The horizontal unit line to the target.
  * @param travel The unit direction the effector travels at contact.
  * @param at The lower-body posture at contact for a pelvis shift and a lean.
- * @param room How far the hips may shift toward the person struck before they meet theirs, metres; unbounded when absent.
+ * @param room How far the hips may shift toward the person struck before they
+ *   meet theirs, metres; unbounded when absent.
  * @returns The landing.
- * @throws {HumanRefusal} When no shift within its band brings the elbow or the head onto the target, naming that band.
+ * @throws {HumanRefusal} When no shift within its band brings the elbow or the
+ *   head onto the target, naming that band.
  */
 export function CloseStrikeReach(
   body: IAutoMovieMotionHumanBody,
@@ -307,26 +308,39 @@ function refuse(
   });
 }
 
-/**
- * Companion types and constants of {@link CloseStrikeReach}.
- */
+/** Companion types and constants of {@link CloseStrikeReach}. */
 export namespace CloseStrikeReach {
-  /** The trunk's forward lean that brings an elbow's shoulder toward its target, degrees (provisional). */
+  /**
+   * The trunk's forward lean that brings an elbow's shoulder toward its target,
+   * degrees (provisional).
+   */
   export const ELBOW_LEAN: number = 15;
 
-  /** The elbow's flexion at contact, degrees: past the 120 the issue's band sets, provisional. */
+  /**
+   * The elbow's flexion at contact, degrees: past the 120 the issue's band
+   * sets, provisional.
+   */
   export const FOLD: number = 135;
 
   /** The headbutt's greatest trunk lean, degrees (provisional). */
   export const LEAN: number = 40;
 
-  /** The headbutt's greatest lean back, degrees, that lifts the forehead to a target above it (provisional). */
+  /**
+   * The headbutt's greatest lean back, degrees, that lifts the forehead to a
+   * target above it (provisional).
+   */
   export const BACK: number = 10;
 
-  /** The pelvis's greatest shift along the line, a share of the stance length (provisional). */
+  /**
+   * The pelvis's greatest shift along the line, a share of the stance length
+   * (provisional).
+   */
   export const SHIFT: number = 0.5;
 
-  /** An elbow's fold: the joint, the pelvis shift that brings it one upper arm from the shoulder and the forearm's unit direction. */
+  /**
+   * An elbow's fold: the joint, the pelvis shift that brings it one upper arm
+   * from the shoulder and the forearm's unit direction.
+   */
   export interface IFold {
     /** The elbow joint, world metres. */
     elbow: IAutoMovieVector3;
@@ -367,7 +381,10 @@ export namespace CloseStrikeReach {
     /** The hand's world rotation. */
     rotation: IAutoMovieQuaternion;
 
-    /** The elbow's bend hint, world metres: the elbow joint itself for an elbow strike. */
+    /**
+     * The elbow's bend hint, world metres: the elbow joint itself for an elbow
+     * strike.
+     */
     bend: IAutoMovieVector3;
 
     /** The distance from the shoulder the effector is carried at, metres. */

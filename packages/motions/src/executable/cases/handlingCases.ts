@@ -28,39 +28,40 @@ import { handoverCases } from "./handoverCases";
 import { handshakeCases } from "./handshakeCases";
 
 /**
- * Capture cases of the handling laws on the polygon man, for what the
- * numeric tests cannot show: whether a reach reads as reaching for a hand,
- * whether the fingers wrap the partner's hand, and whether the pump reads.
+ * Capture cases of the handling laws on the polygon man, for what the numeric
+ * tests cannot show: whether a reach reads as reaching for a hand, whether the
+ * fingers wrap the partner's hand, and whether the pump reads.
  *
  * - `handling-handshake-<pair>`: the handshake cases of `handshakeCases`.
- * - `handling-grasp-<body>`: the small woman, the average man and the tall
- *   man pick up a bottle (an upright 70 by 190 mm capsule) from a standing
- *   work surface 15 cm below their own elbow height, walk 0.6 m and put it on
- *   one 10 cm below it, the two edges of Grandjean's band for light standing
- *   work (Fitting the Task to the Man: 10 to 15 cm below the elbow; a fixed
- *   0.91 m counter lies below the tall man's standing reach, and these laws
- *   do not bend), the grip each time at 85 % of
- *   the arm's reach (upper arm and forearm) from the shoulder where the
- *   standing body actually holds it at the action's entry. Key frames at the start, 60 and 70 % of the reach,
+ * - `handling-grasp-<body>`: the small woman, the average man and the tall man
+ *   pick up a bottle (an upright 70 by 190 mm capsule) from a standing work
+ *   surface 15 cm below their own elbow height, walk 0.6 m and put it on one 10
+ *   cm below it, the two edges of Grandjean's band for light standing work
+ *   (Fitting the Task to the Man: 10 to 15 cm below the elbow; a fixed 0.91 m
+ *   counter lies below the tall man's standing reach, and these laws do not
+ *   bend), the grip each time at 85 % of the arm's reach (upper arm and
+ *   forearm) from the shoulder where the standing body actually holds it at the
+ *   action's entry. Key frames at the start, 60 and 70 % of the reach,
  *   `gripClosed`, `lifted`, mid-carry, `placed` and the end. Boxes: the two
  *   surfaces (sand), the bottle where it starts (green) and where it ends
- *   (brown), drawn statically since an overlay does not move; trails: the
- *   right wrist (red) and the bottle's centre (green). Verdicts: peak
- *   aperture inside 60-70 % of the transport, each digit within 2 mm of the
- *   bottle without entering it, the bottle within 1 mm of its grip through
- *   the carry, the put down's place and uprightness, ankle slip while
- *   handling, and the range of motion.
- * - `handling-handover-<giver>-<receiver>`: the small woman hands a bottle
- *   to the tall man, and an average man to another, standing at
- *   `handshake.gap`; key frames at the offer's start, `offered`,
- *   `gripClosed`, the shared hold, `release` and the end; the bottle's path
- *   is a trail and the chests' midpoint is marked. Verdicts: the release
- *   after the receiver's grip, the bottle's middle within 0.15 m of the
- *   chests' midpoint at the exchange, no jump of the bottle, the receiver's hold within 1 mm, no
- *   hand or forearm interpenetration beyond 10 mm (`HandOverlap`), ankle slip
- *   and the range of motion.
+ *   (brown), drawn statically since an overlay does not move; trails: the right
+ *   wrist (red) and the bottle's centre (green). Verdicts: peak aperture inside
+ *   60-70 % of the transport, each digit within 2 mm of the bottle without
+ *   entering it, the bottle within 1 mm of its grip through the carry, the put
+ *   down's place and uprightness, ankle slip while handling, and the range of
+ *   motion.
+ * - `handling-handover-<giver>-<receiver>`: the small woman hands a bottle to the
+ *   tall man, and an average man to another, standing at `handshake.gap`; key
+ *   frames at the offer's start, `offered`, `gripClosed`, the shared hold,
+ *   `release` and the end; the bottle's path is a trail and the chests'
+ *   midpoint is marked. Verdicts: the release after the receiver's grip, the
+ *   bottle's middle within 0.15 m of the chests' midpoint at the exchange, no
+ *   jump of the bottle, the receiver's hold within 1 mm, no hand or forearm
+ *   interpenetration beyond 10 mm (`HandOverlap`), ankle slip and the range of
+ *   motion.
  *
- * @param family One case family (`handshake`, `grasp`, `handover`) or all when absent.
+ * @param family One case family (`handshake`, `grasp`, `handover`) or all when
+ *   absent.
  * @returns The cases.
  */
 export function handlingCases(

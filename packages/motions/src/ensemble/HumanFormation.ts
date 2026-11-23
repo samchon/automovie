@@ -14,17 +14,17 @@ import { HumanFormationPath } from "./HumanFormationPath";
 import { formationCourseFrame } from "./formationCourseFrame";
 
 /**
- * Formations: validating one, and reading where each member's slot stands at
- * a film second, the way it travels between two seconds, and which member
- * takes which slot.
+ * Formations: validating one, and reading where each member's slot stands at a
+ * film second, the way it travels between two seconds, and which member takes
+ * which slot.
  *
  * A slot is laid by the engine's `formationSlotPosition` in its block's own
  * frame (the layout's geometry and dressing have that one owner), its depth
  * turned to run from the front rank to the rear, then turned by the block's
  * facing, moved by its offset and placed in the formation's frame at that
- * second. A member keeps its slot by its own travel: a cadenced march walks
- * the slot's way (`path`) and lets its step give, a free walk follows the
- * slot by speed matching (`walkStation`).
+ * second. A member keeps its slot by its own travel: a cadenced march walks the
+ * slot's way (`path`) and lets its step give, a free walk follows the slot by
+ * speed matching (`walkStation`).
  */
 export namespace HumanFormation {
   /**
@@ -35,10 +35,16 @@ export namespace HumanFormation {
    */
   export const ACCELERATION: number = 1.34 / 0.5;
 
-  /** Metres of path over which a path frame turns at a corner when it states none (provisional: about two marching steps). */
+  /**
+   * Metres of path over which a path frame turns at a corner when it states
+   * none (provisional: about two marching steps).
+   */
   export const TURN: number = 1.5;
 
-  /** Seconds between two samples of a slot's way when the caller asks no other (provisional: a few samples a step, as `walkFollowed.STEP`). */
+  /**
+   * Seconds between two samples of a slot's way when the caller asks no other
+   * (provisional: a few samples a step, as `walkFollowed.STEP`).
+   */
   export const SAMPLE: number = 0.25;
 
   /**
@@ -47,7 +53,8 @@ export namespace HumanFormation {
    *
    * @param formation The formation.
    * @returns The same formation.
-   * @throws {HumanRefusal} A `parameter` refusal naming the block and the value at fault.
+   * @throws {HumanRefusal} A `parameter` refusal naming the block and the value
+   *   at fault.
    */
   export function of(
     formation: IAutoMovieMotionHumanFormation,
@@ -131,9 +138,9 @@ export namespace HumanFormation {
   }
 
   /**
-   * A slot in the formation's own frame: its lateral and depth offsets from
-   * the frame's origin, its facing relative to the frame, and its block, rank
-   * and file.
+   * A slot in the formation's own frame: its lateral and depth offsets from the
+   * frame's origin, its facing relative to the frame, and its block, rank and
+   * file.
    *
    * @param formation The formation.
    * @param index The slot, from 0 in member order.
@@ -263,9 +270,9 @@ export namespace HumanFormation {
   }
 
   /**
-   * The film second the formation's frame comes to rest: a path frame's
-   * stop, a course's last sample; null for a fixed frame, which never moves,
-   * and for a guide frame, whose guide's rest only the performance knows.
+   * The film second the formation's frame comes to rest: a path frame's stop, a
+   * course's last sample; null for a fixed frame, which never moves, and for a
+   * guide frame, whose guide's rest only the performance knows.
    *
    * @param formation The formation.
    * @returns The second, or null.
@@ -362,7 +369,8 @@ export namespace HumanFormation {
    *
    * @param formation The formation.
    * @param members Where each member stands, world metres.
-   * @param rule `order` keeps member order; `nearest` minimises the total distance.
+   * @param rule `order` keeps member order; `nearest` minimises the total
+   *   distance.
    * @param seconds The film second the slots are read at.
    * @param read Reads the guide's placed root, for a guide frame.
    * @returns The slot of each member.
@@ -441,8 +449,8 @@ function laid(
  * A local place moved into a frame: the frame's lateral axis is its right,
  * `(-cos h, 0, sin h)`, and its depth runs to the rear, `-(sin h, 0, cos h)`,
  * which is the engine's `formationSlotPosition` placing the block with its
- * facing turned about, so a population designed from the same block stands
- * on the same slots.
+ * facing turned about, so a population designed from the same block stands on
+ * the same slots.
  */
 function place_(
   origin: { at: IAutoMovieVector3; heading: number },

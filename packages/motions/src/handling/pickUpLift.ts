@@ -22,47 +22,55 @@ import type { pickUpPosture } from "./pickUpPosture";
 /**
  * The body that carries a pick up's lift, and the judgement of the lift.
  *
- * A lift is a whole-body task: where the arm alone cannot bring the wrist
- * to its lifted place from the body the grip was taken from, the body
- * carries the rest, as whole-body reaching apportions a hand's movement
- * among the arm, the trunk and the legs (Sha and Thomas 2011,
- * arXiv:1108.1940). The freedoms are taken in order: the arm alone; then
- * the trunk inclined toward the lifted place within its sagittal range,
- * as the bend law inclines it (`bendLower.solve`, the hips moved back to
- * keep the body over its feet); then a lowered stance straightened part of
- * the way, never past the landing of a foot it stepped. Each closes on the
- * arm near full extension (`bendLower.REACH`) first and on the straight
- * arm after. Where none of them reaches, a standing body steps for the
- * lift (`pickUpStance`); what is still beyond is left to the arm, and the
- * plan's own hand is judged: a lift it falls short of is refused.
+ * A lift is a whole-body task: where the arm alone cannot bring the wrist to
+ * its lifted place from the body the grip was taken from, the body carries the
+ * rest, as whole-body reaching apportions a hand's movement among the arm, the
+ * trunk and the legs (Sha and Thomas 2011, arXiv:1108.1940). The freedoms are
+ * taken in order: the arm alone; then the trunk inclined toward the lifted
+ * place within its sagittal range, as the bend law inclines it
+ * (`bendLower.solve`, the hips moved back to keep the body over its feet); then
+ * a lowered stance straightened part of the way, never past the landing of a
+ * foot it stepped. Each closes on the arm near full extension
+ * (`bendLower.REACH`) first and on the straight arm after. Where none of them
+ * reaches, a standing body steps for the lift (`pickUpStance`); what is still
+ * beyond is left to the arm, and the plan's own hand is judged: a lift it falls
+ * short of is refused.
  */
 export namespace pickUpLift {
-  /**
-   * How the body carries a lift past the arm.
-   */
+  /** How the body carries a lift past the arm. */
   export interface IRaise {
-    /** The trunk's inclination at `lifted`, as the bend law solves it on the stance's bottom posture; null when the trunk is not used. */
+    /**
+     * The trunk's inclination at `lifted`, as the bend law solves it on the
+     * stance's bottom posture; null when the trunk is not used.
+     */
     trunk: IAutoMovieMotionHumanBendLower.ISolved | null;
 
-    /** The share of the way down the stance holds at `lifted`, 0 to 1: 1 where it does not straighten. */
+    /**
+     * The share of the way down the stance holds at `lifted`, 0 to 1: 1 where
+     * it does not straighten.
+     */
     share: number;
   }
 
   /** The arm alone: no trunk, no straightening. */
   export const ARM: IRaise = { trunk: null, share: 1 };
 
-  /** The share of the way down a straightening is scanned by before its bisection (provisional: fine enough that the reach, which turns at most once over the way, cannot close and open again between two steps). */
+  /**
+   * The share of the way down a straightening is scanned by before its
+   * bisection (provisional: fine enough that the reach, which turns at most
+   * once over the way, cannot close and open again between two steps).
+   */
   export const SCAN: number = 0.05;
 
   /**
    * The body that brings the wrist to its lifted place.
    *
-   * A standing body lowered for the grip lifts with its legs: the stance straightens
-   * the least share that raises the shoulder by the lift, so the arm keeps
-   * about the angles it gripped with. An arm lifting on its own inside a
-   * lowered stance passes the thigh it folded beside, which the arm's planned
-   * course refuses. Otherwise, and where the legs do not rise far enough,
-   * the arm alone, the trunk's inclination and the stance's least
+   * A standing body lowered for the grip lifts with its legs: the stance
+   * straightens the least share that raises the shoulder by the lift, so the
+   * arm keeps about the angles it gripped with. An arm lifting on its own
+   * inside a lowered stance passes the thigh it folded beside, which the arm's
+   * planned course refuses. Otherwise, and where the legs do not rise far
+   * enough, the arm alone, the trunk's inclination and the stance's least
    * straightening that reaches are tried in that order.
    *
    * @param context The pick up's context.
@@ -71,7 +79,8 @@ export namespace pickUpLift {
    * @param lift The asked lift, metres.
    * @param stance The stance the grip was taken from, if the body moved for it.
    * @param held The stance's bottom posture, the entry's when it did not.
-   * @returns The raise, `ARM` where the arm alone reaches; null where nothing does, for the stance to step for the lift (`pickUpStance`).
+   * @returns The raise, `ARM` where the arm alone reaches; null where nothing
+   *   does, for the stance to step for the lift (`pickUpStance`).
    */
   export function raise(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -166,13 +175,13 @@ export namespace pickUpLift {
   }
 
   /**
-   * The body at a share of the way down and a share of the trunk's
-   * inclination.
+   * The body at a share of the way down and a share of the trunk's inclination.
    *
    * @param body The body.
    * @param raise The raise.
    * @param at The stance's body at a share of the way down.
-   * @returns The posture reader at a share of the way down and a share of the trunk's inclination, each from 0 to 1.
+   * @returns The posture reader at a share of the way down and a share of the
+   *   trunk's inclination, each from 0 to 1.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -218,13 +227,12 @@ export namespace pickUpLift {
   /**
    * Refuse a lift the plan's hand falls short of.
    *
-   * The plan is solved at the grip's close and at `lifted`, and the hand's
-   * rise between them is read against the lift: a hand the body cannot
-   * raise as far as asked is refused, never lifted less in silence. Only
-   * the height counts; position and attitude remain one complete limb goal
-   * throughout the lift, with every other limb and digit goal preserved.
-   * The hand counts as risen where the
-   * arm's solver counts a wrist constraint as met
+   * The plan is solved at the grip's close and at `lifted`, and the hand's rise
+   * between them is read against the lift: a hand the body cannot raise as far
+   * as asked is refused, never lifted less in silence. Only the height counts;
+   * position and attitude remain one complete limb goal throughout the lift,
+   * with every other limb and digit goal preserved. The hand counts as risen
+   * where the arm's solver counts a wrist constraint as met
    * (`HumanArmTrajectoryTerms.TOLERANCE`, millimetres of place).
    *
    * @param context The pick up's context.
@@ -233,7 +241,8 @@ export namespace pickUpLift {
    * @param plan The pick up's plan.
    * @param closed When the grip closes, seconds into the plan.
    * @param lifted When the lift ends, seconds into the plan.
-   * @throws {HumanRefusal} When the hand rises short of the lift by more than the solver's tolerance.
+   * @throws {HumanRefusal} When the hand rises short of the lift by more than
+   *   the solver's tolerance.
    */
   export function judged(
     context: IAutoMovieMotionHumanActionContext<{

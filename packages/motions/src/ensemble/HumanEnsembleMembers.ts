@@ -16,20 +16,22 @@ import { HumanFormation } from "./HumanFormation";
 
 /**
  * How an ensemble's members are resolved from its input (`HumanEnsemble.of`):
- * each member's attributes and proficiency drawn from the group's
- * distributions by its own keys, its body drawn from the pool, its place
- * its formation slot at second 0 or the place given, then the roles filled
- * in the order given from the members each pick names, and each member's
- * detail read once its role is known.
+ * each member's attributes and proficiency drawn from the group's distributions
+ * by its own keys, its body drawn from the pool, its place its formation slot
+ * at second 0 or the place given, then the roles filled in the order given from
+ * the members each pick names, and each member's detail read once its role is
+ * known.
  */
 export namespace HumanEnsembleMembers {
   /**
    * Resolve an ensemble's members, as `HumanEnsemble.of` documents.
    *
    * @param input The ensemble.
-   * @param read Reads a guide's placed root, when the formation follows a guide.
+   * @param read Reads a guide's placed root, when the formation follows a
+   *   guide.
    * @returns The ensemble.
-   * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a place cannot be met, naming the ensemble and the axis.
+   * @throws {HumanRefusal} When the count, the pool, a distribution, a role or
+   *   a place cannot be met, naming the ensemble and the axis.
    */
   export function resolve(
     input: IAutoMovieMotionHumanEnsemble.IInput,
@@ -249,7 +251,10 @@ function placeOf(
   return { at: slot.at, yaw: slot.heading };
 }
 
-/** The free members on a flank: file 0 first, then the last file of each block; without a formation, the first and the last. */
+/**
+ * The free members on a flank: file 0 first, then the last file of each block;
+ * without a formation, the first and the last.
+ */
 function flank(
   free: readonly IAutoMovieMotionHumanEnsemble.IMember[],
   formation: IAutoMovieMotionHumanFormation | undefined,

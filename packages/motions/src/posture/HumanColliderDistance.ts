@@ -10,10 +10,10 @@ import type {
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
 /**
- * Ordered signed-distance reduction over one actual collider placement.
- * The first strict minimum wins; conservative world spheres screen only
- * shapes unable to improve it. Optional scratch belongs to this unchanged
- * placement's synchronous query operation.
+ * Ordered signed-distance reduction over one actual collider placement. The
+ * first strict minimum wins; conservative world spheres screen only shapes
+ * unable to improve it. Optional scratch belongs to this unchanged placement's
+ * synchronous query operation.
  */
 export function HumanColliderDistance(
   placements: readonly IAutoMovieMotionHumanColliders.IPlaced[],
@@ -60,21 +60,27 @@ export function HumanColliderDistance(
   return best;
 }
 
-/**
- * Operation-scoped fixed-geometry preparation for the same distance owner.
- */
+/** Operation-scoped fixed-geometry preparation for the same distance owner. */
 export namespace HumanColliderDistance {
   /**
    * Query varying segments during one unchanged placement operation. World
-   * spheres and opaque shape readers are prepared lazily at original use sites.
+   * spheres and opaque shape readers are prepared lazily at original use
+   * sites.
    *
-   * States varying world segments, fixed geometry, lazy preparation and operation release.
-   * A shape's world sphere and local query frame depend only on its unchanged placement, so the existing ordered reducer can share them across actual segment queries.
-   * One closure owns bounds/readers and delegates all numeric query policy to HumanColliderDistance.
-   * Every new segment/taper runs original proximity math and first-minimum rules; no distance, query point or verdict is stored.
-   * At most F world spheres and F fixed shape readers are prepared across K queries on F shapes, while screening and exact query costs remain per segment.
-   * The caller keeps actual ordered placement, shape definitions and transforms unchanged through this synchronous operation; changed geometry requires another reader.
-   * The operation owns one closure, borrowed placement and at most F spheres/readers until return or throw; no global map, point/result history, task or handle is added.
+   * States varying world segments, fixed geometry, lazy preparation and
+   * operation release. A shape's world sphere and local query frame depend only
+   * on its unchanged placement, so the existing ordered reducer can share them
+   * across actual segment queries. One closure owns bounds/readers and
+   * delegates all numeric query policy to HumanColliderDistance. Every new
+   * segment/taper runs original proximity math and first-minimum rules; no
+   * distance, query point or verdict is stored. At most F world spheres and F
+   * fixed shape readers are prepared across K queries on F shapes, while
+   * screening and exact query costs remain per segment. The caller keeps actual
+   * ordered placement, shape definitions and transforms unchanged through this
+   * synchronous operation; changed geometry requires another reader. The
+   * operation owns one closure, borrowed placement and at most F
+   * spheres/readers until return or throw; no global map, point/result history,
+   * task or handle is added.
    */
   export function prepare(
     placements: readonly IAutoMovieMotionHumanColliders.IPlaced[],

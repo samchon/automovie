@@ -13,20 +13,26 @@ import { HumanRefusal } from "../law/HumanRefusal";
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
- * The crutch walk's clock and each crutch's course over its stations, shared
- * by the law's plan and the track the scene's crutch props read, so both
- * derive every crutch frame from the same stations.
+ * The crutch walk's clock and each crutch's course over its stations, shared by
+ * the law's plan and the track the scene's crutch props read, so both derive
+ * every crutch frame from the same stations.
  */
 export namespace crutchWalkCourse {
-  /** The crutch's visible lift as it swings forward, metres (provisional, as the aided walk's). */
+  /**
+   * The crutch's visible lift as it swings forward, metres (provisional, as the
+   * aided walk's).
+   */
   export const LIFT: number = 0.04;
 
-  /** The share of each station the crutches take to advance before the body swings (provisional: the crutches lead, the swing follows). */
+  /**
+   * The share of each station the crutches take to advance before the body
+   * swings (provisional: the crutches lead, the swing follows).
+   */
   export const ADVANCE: number = 1 / 3;
 
   /**
-   * One crutch advance: when it lifts, when its tip plants, and its two
-   * floor frames.
+   * One crutch advance: when it lifts, when its tip plants, and its two floor
+   * frames.
    */
   export interface IAdvance {
     /** Lift begins, action seconds. */
@@ -47,13 +53,14 @@ export namespace crutchWalkCourse {
     /** The opening stance's seconds, a quarter of the first station's. */
     ready: number;
 
-    /** Each station's crutch advance window and its body swing's end, action seconds. */
+    /**
+     * Each station's crutch advance window and its body swing's end, action
+     * seconds.
+     */
     stations: readonly IStationClock[];
   }
 
-  /**
-   * One station's instants, action seconds.
-   */
+  /** One station's instants, action seconds. */
   export interface IStationClock {
     /** The crutches lift. */
     lift: number;
@@ -86,12 +93,13 @@ export namespace crutchWalkCourse {
 
   /**
    * The common clock of a crutch walk's stations: an opening stance of a
-   * quarter of the first station, then per station the crutches' advance
-   * over `ADVANCE` of its time and the body's swing over the rest.
+   * quarter of the first station, then per station the crutches' advance over
+   * `ADVANCE` of its time and the body's swing over the rest.
    *
    * @param params The walk.
    * @returns The clock.
-   * @throws {HumanRefusal} When there is no station, or a station is not finite or has no positive time.
+   * @throws {HumanRefusal} When there is no station, or a station is not finite
+   *   or has no positive time.
    */
   export function clock(params: IAutoMovieMotionHumanCrutchWalk): IClock {
     if (!Array.isArray(params.stations) || params.stations.length === 0)
@@ -129,9 +137,9 @@ export namespace crutchWalkCourse {
   }
 
   /**
-   * A frame carried rigidly with the walker from its entry pose to a
-   * station: displaced by the station's `x` and `z` and turned by its `turn`
-   * about the pivot, p' = p + d + (R - I)(p - pivot).
+   * A frame carried rigidly with the walker from its entry pose to a station:
+   * displaced by the station's `x` and `z` and turned by its `turn` about the
+   * pivot, p' = p + d + (R - I)(p - pivot).
    *
    * @param start The entry frame.
    * @param pivot The point the turn is about, world metres.
@@ -158,9 +166,8 @@ export namespace crutchWalkCourse {
   }
 
   /**
-   * The point a crutch turns about at each station: the walk's entry
-   * station (`origin`), or the crutch's own tip on the floor when the walk
-   * gives none.
+   * The point a crutch turns about at each station: the walk's entry station
+   * (`origin`), or the crutch's own tip on the floor when the walk gives none.
    *
    * @param start The crutch's staged frame.
    * @param params The walk.
@@ -174,9 +181,9 @@ export namespace crutchWalkCourse {
   }
 
   /**
-   * One crutch's advances over the walk, from its staged frame: each
-   * station's advance moves it from the frame the station before left it in
-   * to its carry to this station.
+   * One crutch's advances over the walk, from its staged frame: each station's
+   * advance moves it from the frame the station before left it in to its carry
+   * to this station.
    *
    * @param start The crutch's staged frame.
    * @param params The walk.

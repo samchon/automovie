@@ -17,21 +17,24 @@ import { staggerBounds } from "./staggerBounds";
 
 /**
  * The body readings a stagger's legs and trunk share (`StaggerFeet`,
- * `staggerAdmission`, `stagger`): the trunk's shift of the centre of mass,
- * the knee's hint and the share of a swing a foot rises in.
+ * `staggerAdmission`, `stagger`): the trunk's shift of the centre of mass, the
+ * knee's hint and the share of a swing a foot rises in.
  */
 export namespace staggerKnots {
   /**
-   * The centre of mass's shift per sine of the trunk's tilt about the hips,
-   * on the entry's feet: the posture tilted `REFERENCE` degrees in pitch and
-   * in roll (`AutoMovieMotionHumanLean.pivot`) and its centre of mass read
+   * The centre of mass's shift per sine of the trunk's tilt about the hips, on
+   * the entry's feet: the posture tilted `REFERENCE` degrees in pitch and in
+   * roll (`AutoMovieMotionHumanLean.pivot`) and its centre of mass read
    * (`HumanBalance.centre`).
    *
    * @param body The body.
    * @param entry The posture the push meets.
-   * @param source Optional same-body FK source borrowed from the surrounding synchronous entry observation.
-   * @param projector Optional genuine same-body ROM metadata borrowed by that same operation.
-   * @returns The horizontal shift per sine of the pitch and of the roll, metres.
+   * @param source Optional same-body FK source borrowed from the surrounding
+   *   synchronous entry observation.
+   * @param projector Optional genuine same-body ROM metadata borrowed by that
+   *   same operation.
+   * @returns The horizontal shift per sine of the pitch and of the roll,
+   *   metres.
    */
   export function bending(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -58,19 +61,24 @@ export namespace staggerKnots {
       projection,
     );
     const sine: number = Math.sin((staggerBounds.REFERENCE * Math.PI) / 180);
-    const shift: (more: { pitch: number; roll: number }) => IAutoMovieVector3 = (more: {
+    const shift: (more: {
+      pitch: number;
+      roll: number;
+    }) => IAutoMovieVector3 = (more: {
       pitch: number;
       roll: number;
     }): IAutoMovieVector3 => {
-      const tilted: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanLean.pivot(
-        body,
-        standing,
-        more,
-      );
+      const tilted: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanLean.pivot(body, standing, more);
       const centre: IAutoMovieVector3 = centreOf(
         {
           ...tilted,
-          root: resolveHumanPosture.lower(body, tilted, resolveHumanPosture.KNEE, resolution).root,
+          root: resolveHumanPosture.lower(
+            body,
+            tilted,
+            resolveHumanPosture.KNEE,
+            resolution,
+          ).root,
         },
         resolution,
         projection,
@@ -96,7 +104,8 @@ export namespace staggerKnots {
    * @param yaw The pelvis's heading, degrees.
    * @param side The leg.
    * @param heading The foot's heading, degrees.
-   * @param prepared Optional fixed-yaw rest-knee reader, or its world point already evaluated at this exact body/side/root/yaw.
+   * @param prepared Optional fixed-yaw rest-knee reader, or its world point
+   *   already evaluated at this exact body/side/root/yaw.
    * @returns World metres.
    */
   export function kneePole(
@@ -109,10 +118,12 @@ export namespace staggerKnots {
   ): IAutoMovieVector3 {
     return HumanFrame.point(
       {
-        origin: (typeof prepared === "function" ? prepared(root) : prepared) ?? HumanFrame.point(
-          { origin: root, yaw },
-          body.rest.get(`${side}LowerLeg`)!,
-        ),
+        origin:
+          (typeof prepared === "function" ? prepared(root) : prepared) ??
+          HumanFrame.point(
+            { origin: root, yaw },
+            body.rest.get(`${side}LowerLeg`)!,
+          ),
         yaw: heading,
       },
       { x: 0, y: 0, z: 1 },
@@ -120,14 +131,16 @@ export namespace staggerKnots {
   }
 
   /**
-   * The share of a swing a stepping foot takes to rise clear of the floor:
-   * the share of a walking swing its lift takes to set down from the
-   * floor's contact height (`walkFoot.prepareSwing`).
+   * The share of a swing a stepping foot takes to rise clear of the floor: the
+   * share of a walking swing its lift takes to set down from the floor's
+   * contact height (`walkFoot.prepareSwing`).
    *
    * @param body The body.
    * @returns The share.
    */
-  export function risingOf(body: IAutoMovieMotionHumanActionContext["body"]): number {
+  export function risingOf(
+    body: IAutoMovieMotionHumanActionContext["body"],
+  ): number {
     return (
       Math.asin(
         Math.sqrt(

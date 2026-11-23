@@ -13,8 +13,8 @@ import type {
  *
  * Dueren et al. (2021, Fig. 2) studied the criss-cross arm placement and used
  * 1, 5 and 10 second holds measured from hand contact. The `hold` parameter
- * sets the nominal touch dwell in seconds and defaults to one for a brief greeting.
- * https://doi.org/10.1016/j.actpsy.2021.103441
+ * sets the nominal touch dwell in seconds and defaults to one for a brief
+ * greeting. https://doi.org/10.1016/j.actpsy.2021.103441
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the required staging, four contacts, release, reach refusal, hold units and default, and study.
  */

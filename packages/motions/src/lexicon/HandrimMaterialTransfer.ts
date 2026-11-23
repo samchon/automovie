@@ -9,17 +9,17 @@ import type { HumanMountRider } from "./HumanMountRider";
 /** The material contact frame consumed by the rider's wrist fit. */
 type Grip = Parameters<typeof HumanMountRider.hold>[3];
 
-/**
- * A local transfer between a rim's material trajectory and a released hand.
- */
+/** A local transfer between a rim's material trajectory and a released hand. */
 export namespace HandrimMaterialTransfer {
   /**
    * Recover the signed angular rate from inward samples at a contact boundary.
    *
    * @param anchor The grip at the boundary, with its admitted tangent.
-   * @param displaced The inward material sample transformed into the anchor's chair frame.
+   * @param displaced The inward material sample transformed into the anchor's
+   *   chair frame.
    * @param seconds The displaced sample second minus the anchor's, in seconds.
-   * @returns The projected one-sided rate in radians per second, or zero when the clock cannot represent a finite difference.
+   * @returns The projected one-sided rate in radians per second, or zero when
+   *   the clock cannot represent a finite difference.
    */
   export function rate(anchor: Grip, displaced: Grip, seconds: number): number {
     const angle: number = Math.atan2(
@@ -37,7 +37,8 @@ export namespace HandrimMaterialTransfer {
    * @param radius The radius of the declared rim in metres.
    * @param rate The boundary angular rate in radians per second.
    * @param seconds The signed time from the boundary.
-   * @param span The positive duration over which the continuation fades, in seconds.
+   * @param span The positive duration over which the continuation fades, in
+   *   seconds.
    * @returns Contact goals with the carried radial and tangential directions.
    */
   export function advance(

@@ -54,58 +54,58 @@ import { operateState } from "./operateState";
  * button along its axis, turning a knob about its axis, pulling or pushing a
  * drawer along its slide, or swinging a hinged door by its handle.
  *
- * The goal is the hand on the thing's moving part, and the part's motion is
- * the mechanism's own: a button's face goes in along its axis, a knob turns
- * about its axis, a slider's handle travels along its axis, a leaf's handle
- * turns about its hinge line: a door's vertical line through the point it
- * names, or the prop's own hinge axis (a cock's cross pin,
- * `operateDrive.hinge`). The hand is shaped to the part (the
- * index fingertip on a button, a closed grip on a knob, a drawer handle or a
- * door handle) and laid on it by `AutoMovieMotionHumanTarget.hand`. A part
- * on an upright face is grasped with the hand along the face's normal: a
- * handle overhand, the palm on its top; a knob with that grasp rolled about
- * the axis, and the hand rolls with the knob as it turns, the forearm's
- * pronation and supination (Magermans et al. 2005, Clin Biomech 20:591, give
- * the ranges daily tasks use), the grip starting half the turn before the
- * forearm's neutral so the turn is centred in that range; a crank's knob
- * spins free on its pin, so the hand keeps its attitude and only orbits. A
- * lid's knob, its axis nearer the vertical than `UPRIGHT`, takes the palm
- * from above. Each part's place is a target, so it can be a prop's point;
- * the part's outward normal is its axis. A part beyond the
- * standing arm is leaned into (`AutoMovieMotionHumanLeanInto`): the trunk
- * tips about the hips by the least pitch that keeps the wrist within `REACH`
- * of the arm's length and straightens as the part comes nearer (a drawer
- * pulled out); a part still out of reach at the lean's limit is refused,
- * since it is walked up to first.
+ * The goal is the hand on the thing's moving part, and the part's motion is the
+ * mechanism's own: a button's face goes in along its axis, a knob turns about
+ * its axis, a slider's handle travels along its axis, a leaf's handle turns
+ * about its hinge line: a door's vertical line through the point it names, or
+ * the prop's own hinge axis (a cock's cross pin, `operateDrive.hinge`). The
+ * hand is shaped to the part (the index fingertip on a button, a closed grip on
+ * a knob, a drawer handle or a door handle) and laid on it by
+ * `AutoMovieMotionHumanTarget.hand`. A part on an upright face is grasped with
+ * the hand along the face's normal: a handle overhand, the palm on its top; a
+ * knob with that grasp rolled about the axis, and the hand rolls with the knob
+ * as it turns, the forearm's pronation and supination (Magermans et al. 2005,
+ * Clin Biomech 20:591, give the ranges daily tasks use), the grip starting half
+ * the turn before the forearm's neutral so the turn is centred in that range; a
+ * crank's knob spins free on its pin, so the hand keeps its attitude and only
+ * orbits. A lid's knob, its axis nearer the vertical than `UPRIGHT`, takes the
+ * palm from above. Each part's place is a target, so it can be a prop's point;
+ * the part's outward normal is its axis. A part beyond the standing arm is
+ * leaned into (`AutoMovieMotionHumanLeanInto`): the trunk tips about the hips
+ * by the least pitch that keeps the wrist within `REACH` of the arm's length
+ * and straightens as the part comes nearer (a drawer pulled out); a part still
+ * out of reach at the lean's limit is refused, since it is walked up to first.
  *
  * The action is one arm phrase (`AutoMovieMotionHumanArm.stroke`): the hand
- * reaches the part by `ready` in the aimed movement time to its width
- * (McIntosh et al. 2018), waits a brief moment for the grip, moves the part
- * from `strokeStart` to `strokeEnd` at the mechanism's pace (`PACE`,
- * provisional), holds it until `relax`, and returns to where it hung.
- * Events: the phrase's `ready` (contact or grip closed), `strokeStart`,
- * `stroke`, `strokeEnd` (bottom out, travel end, swing end) and `relax`
- * (release).
+ * reaches the part by `ready` in the aimed movement time to its width (McIntosh
+ * et al. 2018), waits a brief moment for the grip, moves the part from
+ * `strokeStart` to `strokeEnd` at the mechanism's pace (`PACE`, provisional),
+ * holds it until `relax`, and returns to where it hung. Events: the phrase's
+ * `ready` (contact or grip closed), `strokeStart`, `stroke`, `strokeEnd`
+ * (bottom out, travel end, swing end) and `relax` (release).
  *
- * On a prop that articulates (`IHumanProp.articulate`), the operated
- * contact names the articulation it is or rides, the amount is that
- * articulation's travel in its own unit and sign, the hand follows the
- * contact of the prop posed at the travel the stroke has reached, and the
- * plan drives the articulation by the same function (`operateDrive`,
- * `IHumanActionPlan.drives`), so the door stays open after the hand lets go
- * and the hand cannot drift off the handle. The `insert` mechanism moves a
- * held prop's working point along a socket's axis instead (`operateInsert`),
- * hand over hand when deeper than its grip reaches (`operateLongInsert`).
+ * On a prop that articulates (`IHumanProp.articulate`), the operated contact
+ * names the articulation it is or rides, the amount is that articulation's
+ * travel in its own unit and sign, the hand follows the contact of the prop
+ * posed at the travel the stroke has reached, and the plan drives the
+ * articulation by the same function (`operateDrive`,
+ * `IHumanActionPlan.drives`), so the door stays open after the hand lets go and
+ * the hand cannot drift off the handle. The `insert` mechanism moves a held
+ * prop's working point along a socket's axis instead (`operateInsert`), hand
+ * over hand when deeper than its grip reaches (`operateLongInsert`).
  *
- * Not yet: the A8 affordance kinds (`hinge`, `slider`, `knob`, `button`) in
- * the interface, which the core owns, so the mechanism is stated here; the
- * body stepping round a door and through it; power grips; pouring about a lip.
+ * Not yet: the A8 affordance kinds (`hinge`, `slider`, `knob`, `button`) in the
+ * interface, which the core owns, so the mechanism is stated here; the body
+ * stepping round a door and through it; power grips; pouring about a lip.
  */
 export namespace operate {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "operate";
 
-  /** The hand drives the part from strokeStart to strokeEnd. The caller selects the body part that supplies the balancing motion. */
+  /**
+   * The hand drives the part from strokeStart to strokeEnd. The caller selects
+   * the body part that supplies the balancing motion.
+   */
   export const balance: IAutoMovieMotionHumanBalance = {
     from: { event: "strokeStart" },
     to: { event: "strokeEnd" },
@@ -131,7 +131,10 @@ export namespace operate {
     ],
   };
 
-  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  /**
+   * May be performed over a carrier, such as seated or while another action
+   * carries the body: it claims only the parts it moves.
+   */
   export const overlay: boolean = true;
 
   /**
@@ -146,13 +149,23 @@ export namespace operate {
     swing: number;
   }> = { press: 0.25, turn: 180, slide: 0.4, swing: 0.6 };
 
-  /** The share of the arm's length the wrist is kept within, so the elbow never locks straight on a part (provisional). */
+  /**
+   * The share of the arm's length the wrist is kept within, so the elbow never
+   * locks straight on a part (provisional).
+   */
   export const REACH: number = 0.97;
 
-  /** The vertical share of a knob's axis from which it counts as a lid's, turned with the fingers ahead instead of up. */
+  /**
+   * The vertical share of a knob's axis from which it counts as a lid's, turned
+   * with the fingers ahead instead of up.
+   */
   export const UPRIGHT: number = Math.SQRT1_2;
 
-  /** The most a stoop to a part below the hips adds to the trunk's pitch, degrees: about the straight-legged hip flexion the hamstrings allow, as a normal straight-leg raise reaches roughly 80 degrees (provisional). */
+  /**
+   * The most a stoop to a part below the hips adds to the trunk's pitch,
+   * degrees: about the straight-legged hip flexion the hamstrings allow, as a
+   * normal straight-leg raise reaches roughly 80 degrees (provisional).
+   */
   export const STOOP: number = 80;
 
   /** The width of each part a hand aims at, metres (provisional). */

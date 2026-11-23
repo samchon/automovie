@@ -22,7 +22,10 @@ import { stuntFallPose } from "../reaction/stuntFallPose";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { ropeLine } from "./ropeLine";
 
-/** How far the landing may lie from the nearest reachable touchdown, metres (provisional: within a step). */
+/**
+ * How far the landing may lie from the nearest reachable touchdown, metres
+ * (provisional: within a step).
+ */
 const TOLERANCE: number = 0.3;
 
 /** Seconds to absorb the landing into the stand (provisional). */
@@ -35,20 +38,22 @@ const STEP_OFF: number = 0.3;
 const SAMPLES: number = 96;
 
 /**
- * Swing on an upright rope and let go onto a landing. The body hangs from
- * the rope's anchor as a pendulum of radius `R`, the anchor-to-hips length
- * at the take-off: `theta(t) = theta0 cos(omega t)`, `omega = sqrt(g / R)`
- * (the small-swing closed form). The hands hold the rope where it reached
- * them at the take-off. At release the hips leave on the tangent with the
- * pendulum's speed and follow the drag-free projectile; the release instant
- * is the one on the forward half swing whose touchdown, at standing hip
- * height over the landing, lies nearest the landing's centre. The body
- * then absorbs into the stand on the landing.
+ * Swing on an upright rope and let go onto a landing. The body hangs from the
+ * rope's anchor as a pendulum of radius `R`, the anchor-to-hips length at the
+ * take-off: `theta(t) = theta0 cos(omega t)`, `omega = sqrt(g / R)` (the
+ * small-swing closed form). The hands hold the rope where it reached them at
+ * the take-off. At release the hips leave on the tangent with the pendulum's
+ * speed and follow the drag-free projectile; the release instant is the one on
+ * the forward half swing whose touchdown, at standing hip height over the
+ * landing, lies nearest the landing's centre. The body then absorbs into the
+ * stand on the landing.
  *
- * @param context The action's context, standing at the take-off holding the rope's height.
+ * @param context The action's context, standing at the take-off holding the
+ *   rope's height.
  * @param p The swing.
  * @returns The swing, flight and landing.
- * @throws {HumanRefusal} If the rope cannot reach the take-off or no release lands within `TOLERANCE` of the landing.
+ * @throws {HumanRefusal} If the rope cannot reach the take-off or no release
+ *   lands within `TOLERANCE` of the landing.
  */
 export function ropeSwing(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,
@@ -242,9 +247,16 @@ export function ropeSwing(
     // The hands keep one place on the body through the whole hang, so the
     // arms are solved once, at the first hanging read, and carried as joint
     // angles after: a fresh goal at every read would re-run the arm fit.
-    const shaped: IAutoMovieMotionHumanPosture = shape(hips, toward, hangJoints);
+    const shaped: IAutoMovieMotionHumanPosture = shape(
+      hips,
+      toward,
+      hangJoints,
+    );
     if (hangArms !== undefined)
-      return blendIn(t, { ...shaped, joints: { ...shaped.joints, ...hangArms } });
+      return blendIn(t, {
+        ...shaped,
+        joints: { ...shaped.joints, ...hangArms },
+      });
     const hung: IAutoMovieMotionHumanPosture = {
       ...shaped,
       limbs: {
@@ -267,8 +279,11 @@ export function ropeSwing(
     const solved: IAutoMovieMotionHumanPosture["joints"] =
       GymnasticsFlight.frozen(body, hung).joints;
     hangArms = {};
-    for (const bone of Object.keys(solved) as (keyof IAutoMovieMotionHumanPosture["joints"])[])
-      if (/(UpperArm|LowerArm|Hand|Shoulder)$/.test(bone)) hangArms[bone] = solved[bone];
+    for (const bone of Object.keys(
+      solved,
+    ) as (keyof IAutoMovieMotionHumanPosture["joints"])[])
+      if (/(UpperArm|LowerArm|Hand|Shoulder)$/.test(bone))
+        hangArms[bone] = solved[bone];
     return blendIn(t, { ...shaped, joints: { ...shaped.joints, ...hangArms } });
   };
   // Off the take-off, the body swings onto the rope over `STEP_OFF`.

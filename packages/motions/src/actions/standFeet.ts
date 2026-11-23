@@ -23,9 +23,7 @@ import { stand } from "./stand";
  * socket. The same contact determines its final ankle and the course to it.
  */
 export namespace standFeet {
-  /**
-   * A planted foot's flattening course.
-   */
+  /** A planted foot's flattening course. */
   export interface ICourse {
     /** Final ankle points, world metres. */
     flat: Record<"left" | "right", IAutoMovieVector3>;
@@ -41,9 +39,7 @@ export namespace standFeet {
     ): IAutoMovieMotionHumanPosture;
   }
 
-  /**
-   * One synchronous course reading, shared by root placement and its feet.
-   */
+  /** One synchronous course reading, shared by root placement and its feet. */
   export interface ISample {
     /** Mean world-metre ankle displacement from the final flat targets. */
     offset: IAutoMovieVector3;
@@ -57,6 +53,7 @@ export namespace standFeet {
 
   /**
    * One foot's fixed-contact evaluations.
+   *
    * @evidence contracts/development/common.md#meaningful-documentation Each evaluator names its unit or frame.
    * @evidence contracts/development/design.md#principled-representation The same share places the ankle, articulates the toes and reads their contact offset.
    * @evidence contracts/development/design.md#minimal-and-owned-surface Only the per-foot evaluations the paired course reads.
@@ -150,8 +147,10 @@ export namespace standFeet {
         };
       const sockets: IAutoMovieMotionHumanFoot.ISocket[] = socketsBySide[side]!;
       const pivot: IAutoMovieMotionHumanFoot.ISocket = sockets.reduce(
-        (a: IAutoMovieMotionHumanFoot.ISocket, b: IAutoMovieMotionHumanFoot.ISocket): IAutoMovieMotionHumanFoot.ISocket => (
-          b.point.y < a.point.y ? b : a),
+        (
+          a: IAutoMovieMotionHumanFoot.ISocket,
+          b: IAutoMovieMotionHumanFoot.ISocket,
+        ): IAutoMovieMotionHumanFoot.ISocket => (b.point.y < a.point.y ? b : a),
       );
       const rotation: IAutoMovieQuaternion = entry.feet[side].rotation;
       // A planted foot keeps the heading it stands at: turned on the floor
@@ -169,16 +168,17 @@ export namespace standFeet {
       return {
         side,
         at: (share: number): IAutoMovieMotionHumanFoot.IPlacement => {
-          const placement: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
-            body,
-            side,
-            pivot.socket,
-            pivot.point,
-            from,
-            pitch * (1 - share),
-            toes(share),
-            roll * (1 - share),
-          );
+          const placement: IAutoMovieMotionHumanFoot.IPlacement =
+            HumanFoot.pivot(
+              body,
+              side,
+              pivot.socket,
+              pivot.point,
+              from,
+              pitch * (1 - share),
+              toes(share),
+              roll * (1 - share),
+            );
           return placement;
         },
         toes,
@@ -240,7 +240,9 @@ export namespace standFeet {
             posture.yaw === yaw
               ? legged(posture.root, feet)
               : stand.legs(body, posture.root, posture.yaw, feet);
-          const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+          const joints: IAutoMovieMotionHumanPosture["joints"] = {
+            ...posture.joints,
+          };
           for (let i: number = 0; i < plans.length; i++) {
             const p: IPlan = plans[i]!;
             const goal: IAutoMovieHumanLimbGoal = limbs[`${p.side}Leg`]!;

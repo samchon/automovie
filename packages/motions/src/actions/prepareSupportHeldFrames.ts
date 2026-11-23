@@ -34,7 +34,8 @@ import { prepareSupportContactForm } from "./prepareSupportContactForm";
  * @param place The resolved contact target lookup.
  * @param read The synchronous pose-resolution workspace.
  * @param project The body's posture projector.
- * @param socket The sole socket each floor foot holds through its window; the lower of its heel and ball at the key before when absent.
+ * @param socket The sole socket each floor foot holds through its window; the
+ *   lower of its heel and ball at the key before when absent.
  * @returns World key frames and the rotation pivot in the end-bone frame.
  */
 export function prepareSupportHeldFrames(
@@ -209,10 +210,14 @@ function angles(
 }
 
 /**
- * The retained contact selection and the solved frames used by support playback.
+ * The retained contact selection and the solved frames used by support
+ * playback.
  */
 export namespace prepareSupportHeldFrames {
-  /** The sole socket a floor foot holds through its window, by its contact; none for a contact that holds none. */
+  /**
+   * The sole socket a floor foot holds through its window, by its contact; none
+   * for a contact that holds none.
+   */
   export type Socket = (
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => "heel" | "ball" | undefined;
@@ -260,16 +265,27 @@ export namespace prepareSupportHeldFrames {
     /** The end joint's rotation at the key before, then after. */
     rotation: readonly [IAutoMovieQuaternion, IAutoMovieQuaternion];
 
-    /** The middle joint's position at the key before, then after, the bend's pole. */
+    /**
+     * The middle joint's position at the key before, then after, the bend's
+     * pole.
+     */
     bend: readonly [IAutoMovieVector3, IAutoMovieVector3];
 
-    /** The limb's own upper and lower bone angles at the key before, then after: the configuration the analytic fit keeps where the end and the pole leave one free (the upper bone's twist), so the fitted limb is each key's own at its ends. */
+    /**
+     * The limb's own upper and lower bone angles at the key before, then after:
+     * the configuration the analytic fit keeps where the end and the pole leave
+     * one free (the upper bone's twist), so the fitted limb is each key's own
+     * at its ends.
+     */
     reference: readonly [
       IAutoMovieHumanLimbReference,
       IAutoMovieHumanLimbReference,
     ];
 
-    /** The held anatomical point in the wrist or ankle frame and its world place at both keys. */
+    /**
+     * The held anatomical point in the wrist or ankle frame and its world place
+     * at both keys.
+     */
     pivot?: {
       /** The offset in the end bone's frame, metres. */
       local: IAutoMovieVector3;

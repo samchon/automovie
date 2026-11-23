@@ -21,9 +21,9 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { StrikingHeld } from "../striking/StrikingHeld";
@@ -34,40 +34,37 @@ import { StrikingRoll } from "../striking/StrikingRoll";
  * barbell, a dumbbell, a kettlebell taken by `pickUp`), carried through the
  * exercise's keys instead of being refused.
  *
- * The hand that holds keeps its grip: the plan declares the grip and
- * leaves the hold as it found it, so the prop rides that hand. A prop held
- * in one hand asks no more. A prop with a second handle (a bar) is laid
- * level: the holding hand swings about its shoulder to centre the bar and turns
- * so the line to the other handle runs to the performer's other side with
- * the knuckles continuing the forearm, and
- * the other hand is laid on that handle by the arm's solve, as a long gun's
- * support hand is.
+ * The hand that holds keeps its grip: the plan declares the grip and leaves the
+ * hold as it found it, so the prop rides that hand. A prop held in one hand
+ * asks no more. A prop with a second handle (a bar) is laid level: the holding
+ * hand swings about its shoulder to centre the bar and turns so the line to the
+ * other handle runs to the performer's other side with the knuckles continuing
+ * the forearm, and the other hand is laid on that handle by the arm's solve, as
+ * a long gun's support hand is.
  *
  * A lift whose kind says so (`WorkoutKind.midfoot`) carries the bar's middle
- * over the middle of the feet, so the bar of a deadlift or a press travels
- * in a vertical line over it. The rule is provisional: it is the coaching
- * rule of the Starting Strength method, whose own pages refused this
- * session's reading, and the one measurement read is narrower. Hancock,
- * Wyatt and Kilgore, "Variation in Barbell Position Relative to Shoulder
- * and Foot Anatomical Landmarks Alters Movement Efficiency", International
- * Journal of Exercise Science 5(3):183-195, 2012
- * (https://digitalcommons.wku.edu/ijes/vol5/iss3/1), abstract: six
- * weightlifters' deadlifts started with the bar over the navicular (the
- * mid-foot) moved it 37.5 +/- 13.7 mm horizontally backward, against
- * 66.7 +/- 12.9 mm when started over the metatarsophalangeal joint; a
- * vertical path is the limit that start approaches, and no source was read
- * for the press. The holding hand is swung about its shoulder at the arm's
- * own reach, forward or back and to either side, by what the key's arms
- * leave the bar's middle off that line, so the bar hangs centred between
- * the hands and each handle is as far out of its own shoulder; the mid-foot
- * is the middle between the heel and the toe of each foot the entry stands
- * on.
+ * over the middle of the feet, so the bar of a deadlift or a press travels in a
+ * vertical line over it. The rule is provisional: it is the coaching rule of
+ * the Starting Strength method, whose own pages refused this session's reading,
+ * and the one measurement read is narrower. Hancock, Wyatt and Kilgore,
+ * "Variation in Barbell Position Relative to Shoulder and Foot Anatomical
+ * Landmarks Alters Movement Efficiency", International Journal of Exercise
+ * Science 5(3):183-195, 2012 (https://digitalcommons.wku.edu/ijes/vol5/iss3/1),
+ * abstract: six weightlifters' deadlifts started with the bar over the
+ * navicular (the mid-foot) moved it 37.5 +/- 13.7 mm horizontally backward,
+ * against 66.7 +/- 12.9 mm when started over the metatarsophalangeal joint; a
+ * vertical path is the limit that start approaches, and no source was read for
+ * the press. The holding hand is swung about its shoulder at the arm's own
+ * reach, forward or back and to either side, by what the key's arms leave the
+ * bar's middle off that line, so the bar hangs centred between the hands and
+ * each handle is as far out of its own shoulder; the mid-foot is the middle
+ * between the heel and the toe of each foot the entry stands on.
  *
- * First pass: the load weighs nothing in the motion (no lean, no slower
- * tempo, no bar path round the knees); a bar is kept level across the body
- * whatever the key, so a one-sided or turned carry is not written; the
- * holding hand's turn about the bar is the straight wrist's, whatever the
- * lift (no hook or mixed grip).
+ * First pass: the load weighs nothing in the motion (no lean, no slower tempo,
+ * no bar path round the knees); a bar is kept level across the body whatever
+ * the key, so a one-sided or turned carry is not written; the holding hand's
+ * turn about the bar is the straight wrist's, whatever the lift (no hook or
+ * mixed grip).
  */
 export namespace WorkoutLoad {
   /**
@@ -75,11 +72,15 @@ export namespace WorkoutLoad {
    *
    * @param context The action's context.
    * @param load The load's parameters.
-   * @param midfoot Whether a bar in both hands travels over the middle of the feet.
-   * @param turnover Whether to preserve the keyed shoulder-to-bar direction through turnover and the overhead receive.
-   * @param ready The share where the second hand first reaches the load in the exercise.
+   * @param midfoot Whether a bar in both hands travels over the middle of the
+   *   feet.
+   * @param turnover Whether to preserve the keyed shoulder-to-bar direction
+   *   through turnover and the overhead receive.
+   * @param ready The share where the second hand first reaches the load in the
+   *   exercise.
    * @returns What the plan needs of it.
-   * @throws {HumanRefusal} When the hand does not hold the prop, either handle is unavailable, or the two handles coincide.
+   * @throws {HumanRefusal} When the hand does not hold the prop, either handle
+   *   is unavailable, or the two handles coincide.
    */
   export function of(
     context: Pick<

@@ -19,21 +19,21 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A trunk leaned forward to bring work within the arms: a hip hinge, the
- * whole body above the legs pitched about the hip joints' axis by the least
- * angle that puts every asked wrist within its arm from the turned
- * shoulder. A kneeler beating flames on a person lying before them, or a
- * potter leaning over the wheel, flexes at the hips about their joints with
- * the thighs, knees and shins (or the seat) kept as the support, so the
- * hinge keeps the hip joints in place and the legs on their goals.
+ * A trunk leaned forward to bring work within the arms: a hip hinge, the whole
+ * body above the legs pitched about the hip joints' axis by the least angle
+ * that puts every asked wrist within its arm from the turned shoulder. A
+ * kneeler beating flames on a person lying before them, or a potter leaning
+ * over the wheel, flexes at the hips about their joints with the thighs, knees
+ * and shins (or the seat) kept as the support, so the hinge keeps the hip
+ * joints in place and the legs on their goals.
  *
  * The angle is found in closed form: a shoulder turned by `θ` about the hip
  * axis lies `|s|² + |d|² - 2 (A cos θ + B sin θ + C)` squared from a wrist,
- * where `s` and `d` run from the axis to the shoulder and to the wrist, `C`
- * is the part along the axis and `A`, `B` are `d` read along the shoulder's
- * offset across the axis and along that offset turned a right angle
- * forward. Each wrist is reached on one interval of `θ`, and the hinge is
- * the least angle in all of them, at most the hip flexion the legs leave
+ * where `s` and `d` run from the axis to the shoulder and to the wrist, `C` is
+ * the part along the axis and `A`, `B` are `d` read along the shoulder's offset
+ * across the axis and along that offset turned a right angle forward. Each
+ * wrist is reached on one interval of `θ`, and the hinge is the least angle in
+ * all of them, at most the hip flexion the legs leave
  * (`HumanTrunk.HIP_FLEXION`, less the thighs' flexion `HumanTrunk.pelvisLimit`
  * reads and the pelvis's own pitch).
  */
@@ -44,7 +44,8 @@ export namespace HumanTrunkLean {
    * @param body The body.
    * @param posture The posture; its legs keep their goals.
    * @param degrees The forward pitch about the hip axis, degrees.
-   * @param hanging The arms that hang free under gravity, as they hang before the hinge (`hang`); none when absent.
+   * @param hanging The arms that hang free under gravity, as they hang before
+   *   the hinge (`hang`); none when absent.
    * @returns The hinged posture.
    */
   export function lean(
@@ -90,8 +91,8 @@ export namespace HumanTrunkLean {
 
   /**
    * How a free arm hangs before a hinge: its shoulder, elbow and wrist joints
-   * and its hand's attitude as the pose shows them, read once for the hinge
-   * to carry (`lean`).
+   * and its hand's attitude as the pose shows them, read once for the hinge to
+   * carry (`lean`).
    *
    * @param body The body.
    * @param pose The pose the arm hangs in, the act's entry.
@@ -126,9 +127,9 @@ export namespace HumanTrunkLean {
    * A base the hinge moves: without the windows in which the base declares
    * itself still (`still`, `legsStill`) whenever a hinge is asked. Inside a
    * legs-still window the display fits the legs once and keeps their joints
-   * relative to the pelvis, on the premise that the root and the trunk do
-   * not move; a hinge pitches the root, so a kept window would swing the
-   * planted knees and feet with the pelvis instead of holding them.
+   * relative to the pelvis, on the premise that the root and the trunk do not
+   * move; a hinge pitches the root, so a kept window would swing the planted
+   * knees and feet with the pelvis instead of holding them.
    *
    * @param base The law's base plan.
    * @param degrees The deepest hinge the law asks, degrees.
@@ -149,7 +150,8 @@ export namespace HumanTrunkLean {
    * @param context The action's context; its entry posture is hinged.
    * @param wrists The wrists asked, each with its arm and attitude.
    * @returns The hinge, degrees.
-   * @throws {HumanRefusal} When no hinge within the hip's remaining flexion reaches every wrist.
+   * @throws {HumanRefusal} When no hinge within the hip's remaining flexion
+   *   reaches every wrist.
    */
   export function least(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -210,7 +212,10 @@ export namespace HumanTrunkLean {
     return (low * 180) / Math.PI;
   }
 
-  /** The hip joints' axis of a posture: their midpoint and the unit direction from the right joint to the left. */
+  /**
+   * The hip joints' axis of a posture: their midpoint and the unit direction
+   * from the right joint to the left.
+   */
   function axis(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -230,7 +235,11 @@ export namespace HumanTrunkLean {
     };
   }
 
-  /** The hip flexion the legs leave the hinge, degrees: `HumanTrunk.pelvisLimit` over the leg goals' ankles, less the pelvis's own pitch; the whole margin of the hip's range when the posture holds no leg goals. */
+  /**
+   * The hip flexion the legs leave the hinge, degrees: `HumanTrunk.pelvisLimit`
+   * over the leg goals' ankles, less the pelvis's own pitch; the whole margin
+   * of the hip's range when the posture holds no leg goals.
+   */
   function room(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -275,9 +284,7 @@ export namespace HumanTrunkLean {
     ).get(bone)!.worldPosition;
   }
 
-  /**
-   * A free arm as it hangs before a hinge (`hang`), world.
-   */
+  /** A free arm as it hangs before a hinge (`hang`), world. */
   export interface IHanging {
     /** The arm. */
     side: AutoMovieHumanSide;
@@ -295,9 +302,7 @@ export namespace HumanTrunkLean {
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
-   * A wrist a law asks of an arm.
-   */
+  /** A wrist a law asks of an arm. */
   export interface IWrist {
     /** The arm. */
     side: AutoMovieHumanSide;

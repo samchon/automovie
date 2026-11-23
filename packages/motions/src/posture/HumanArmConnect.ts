@@ -2,36 +2,35 @@
  * A valid path between two configurations of a joint space, by RRT-Connect
  * (Kuffner and LaValle 2000, "RRT-Connect: an efficient approach to
  * single-query path planning", ICRA): two trees grown from the start and the
- * goal, each extended a step toward a sample and the other connected toward
- * the new vertex by repeated steps, the roles swapped every iteration. The
- * first sample is the goal itself, so where the straight segment is valid
- * the trees meet on it at once. The path is then shortcut, each vertex joined
- * to the farthest later one its straight segment reaches. Samples come from a
- * seeded generator, and the iterations are counted rather than timed, so a
- * query has one answer; the step and the edge's check spacing are OMPL's
- * defaults, a fifth and a hundredth of the space's extent.
+ * goal, each extended a step toward a sample and the other connected toward the
+ * new vertex by repeated steps, the roles swapped every iteration. The first
+ * sample is the goal itself, so where the straight segment is valid the trees
+ * meet on it at once. The path is then shortcut, each vertex joined to the
+ * farthest later one its straight segment reaches. Samples come from a seeded
+ * generator, and the iterations are counted rather than timed, so a query has
+ * one answer; the step and the edge's check spacing are OMPL's defaults, a
+ * fifth and a hundredth of the space's extent.
  *
- * A query whose validity changes along the path, as a body moves while an
- * arm reaches, indexes its configurations by a coordinate that rises from
- * the start to the goal (`IQuery.rising`), and each state is valid or not
- * where that coordinate puts it: the time-indexed RRT-Connect of EXOTica
- * (ipab-slmc/exotica, `time_indexed_rrt_connect`), whose start tree grows
- * only forward in time and whose goal tree only backward, by directional
- * distances that refuse the other way.
+ * A query whose validity changes along the path, as a body moves while an arm
+ * reaches, indexes its configurations by a coordinate that rises from the start
+ * to the goal (`IQuery.rising`), and each state is valid or not where that
+ * coordinate puts it: the time-indexed RRT-Connect of EXOTica
+ * (ipab-slmc/exotica, `time_indexed_rrt_connect`), whose start tree grows only
+ * forward in time and whose goal tree only backward, by directional distances
+ * that refuse the other way.
  *
- * A start the validity reading refuses (an arm shown a hair deeper in the
- * body than the planner's margin lets a state lie) is repaired as MoveIt's
- * start-state adapter repairs it (`FixStartStateCollision`): a valid state
- * is drawn near it, each coordinate perturbed by up to `JIGGLE` of the
- * space's extent, `ATTEMPTS` times at most, and the path leaves the start
- * for that state, the planner growing its tree from there; a start no draw
- * repairs has no path.
+ * A start the validity reading refuses (an arm shown a hair deeper in the body
+ * than the planner's margin lets a state lie) is repaired as MoveIt's
+ * start-state adapter repairs it (`FixStartStateCollision`): a valid state is
+ * drawn near it, each coordinate perturbed by up to `JIGGLE` of the space's
+ * extent, `ATTEMPTS` times at most, and the path leaves the start for that
+ * state, the planner growing its tree from there; a start no draw repairs has
+ * no path.
  *
- * Every step of a tree is `RANGE` of the extent long, so connecting a tree to
- * a vertex `d` away ends after at most `d / range` steps; a space whose
- * extent is zero or not finite steps no length (or none that is a number), a
- * connection would add the same vertex without end, and such a query is
- * refused.
+ * Every step of a tree is `RANGE` of the extent long, so connecting a tree to a
+ * vertex `d` away ends after at most `d / range` steps; a space whose extent is
+ * zero or not finite steps no length (or none that is a number), a connection
+ * would add the same vertex without end, and such a query is refused.
  */
 export namespace HumanArmConnect {
   /** A query. */
@@ -40,13 +39,19 @@ export namespace HumanArmConnect {
     start: readonly number[];
     /** The configuration it reaches. */
     goal: readonly number[];
-    /** A configuration drawn uniformly from the space, from the generator's numbers in [0, 1). */
+    /**
+     * A configuration drawn uniformly from the space, from the generator's
+     * numbers in [0, 1).
+     */
     sample: (random: () => number) => number[];
     /** Whether a configuration is valid. */
     valid: (q: readonly number[]) => boolean;
     /** The space's largest extent, coordinate units. */
     extent: number;
-    /** The index of the coordinate that rises from the start to the goal along every edge; none when absent. */
+    /**
+     * The index of the coordinate that rises from the start to the goal along
+     * every edge; none when absent.
+     */
     rising?: number;
   }
 
@@ -54,8 +59,11 @@ export namespace HumanArmConnect {
    * The path from the start to the goal.
    *
    * @param query The query.
-   * @returns The path's vertices from the start to the goal, or `null` when the goal is invalid, the start is invalid and no draw near it repairs it, or the trees did not meet.
-   * @throws {RangeError} For an extent that is not positive and finite, across which no step advances a tree.
+   * @returns The path's vertices from the start to the goal, or `null` when the
+   *   goal is invalid, the start is invalid and no draw near it repairs it, or
+   *   the trees did not meet.
+   * @throws {RangeError} For an extent that is not positive and finite, across
+   *   which no step advances a tree.
    */
   export function connect(input: IQuery): number[][] | null {
     if (!(Number.isFinite(input.extent) && input.extent > 0))
@@ -197,7 +205,10 @@ export namespace HumanArmConnect {
     return undefined;
   }
 
-  /** The path through the two trees' last vertices, which coincide: the start tree's from its root, then the goal tree's to its root. */
+  /**
+   * The path through the two trees' last vertices, which coincide: the start
+   * tree's from its root, then the goal tree's to its root.
+   */
   function joined(from: ITree, to: ITree): number[][] {
     const trace = (tree: ITree): number[][] => {
       const out: number[][] = [];
@@ -208,7 +219,10 @@ export namespace HumanArmConnect {
     return [...trace(from).reverse(), ...trace(to).slice(1)];
   }
 
-  /** The path with each vertex joined to the farthest later one its straight segment reaches. */
+  /**
+   * The path with each vertex joined to the farthest later one its straight
+   * segment reaches.
+   */
   function shortcut(
     path: number[][],
     clear: (a: readonly number[], b: readonly number[]) => boolean,
@@ -271,26 +285,44 @@ export namespace HumanArmConnect {
   }
 }
 
-/** What extending a tree toward a configuration did: reached it, moved a step toward it, or was stopped by an invalid edge. */
+/**
+ * What extending a tree toward a configuration did: reached it, moved a step
+ * toward it, or was stopped by an invalid edge.
+ */
 type Status = "reached" | "advanced" | "trapped";
 
-/** A tree: its vertices, each one's parent, -1 at the root, and whether it grows from the start. */
+/**
+ * A tree: its vertices, each one's parent, -1 at the root, and whether it grows
+ * from the start.
+ */
 interface ITree {
   nodes: number[][];
   parent: number[];
   forward: boolean;
 }
 
-/** A step of a tree toward a sample, a share of the space's extent: OMPL's default range. */
+/**
+ * A step of a tree toward a sample, a share of the space's extent: OMPL's
+ * default range.
+ */
 const RANGE: number = 0.2;
 
-/** The spacing of the validity checks along an edge, a share of the space's extent: OMPL's longest valid segment. */
+/**
+ * The spacing of the validity checks along an edge, a share of the space's
+ * extent: OMPL's longest valid segment.
+ */
 const RESOLUTION: number = 0.01;
 
-/** How far a repaired start's coordinates may move, a share of the space's extent: MoveIt's `FixStartStateCollision` default `jiggle_fraction`. */
+/**
+ * How far a repaired start's coordinates may move, a share of the space's
+ * extent: MoveIt's `FixStartStateCollision` default `jiggle_fraction`.
+ */
 const JIGGLE: number = 0.02;
 
-/** The draws a start's repair tries: MoveIt's `FixStartStateCollision` default `max_sampling_attempts`. */
+/**
+ * The draws a start's repair tries: MoveIt's `FixStartStateCollision` default
+ * `max_sampling_attempts`.
+ */
 const ATTEMPTS: number = 100;
 
 /** Iterations before the query is given up. */

@@ -22,41 +22,42 @@ import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHumanAction";
 
 /**
- * A law's arm goal, written afresh at every second of its plan, planned
- * instead as one admitted course of the arm over a span
+ * A law's arm goal, written afresh at every second of its plan, planned instead
+ * as one admitted course of the arm over a span
  * (`AutoMovieMotionHumanArm.carried` with the span).
  *
  * A plan whose posture writes a moving or turning arm goal at each second
  * leaves the limb fit to solve every second alone: where two arm solutions
- * nearly tie, one instant takes the other branch and the arm pops (a 93°
- * turn of the upper arm within 1/120 s in a floor pick-up), and nothing
- * admits the course against the body or the floor. Here the plan's own
- * goal is read at the span's instants and the arm is laid once: the reach
- * from `rest` to the hold, then the hold fitted instant by instant on the
- * branch and swivel the instant before chose, then the return, admitted
- * under the trajectory's clearance and speed bounds or optimised
- * (`AutoMovieMotionHumanArmCourse`, `HumanArmTrajectory`). Everything else
- * of the plan (the body, the other limbs, the digits, the events, contacts,
- * holds and refusals) is the plan's own; only its posture is replaced, and
- * the law's plan stays readable for judgements of the goal (`goals`). A
- * stroke whose hold is its delivery declares its own speed bound (`pace`),
- * which the course is admitted against in place of a reach's pace.
- * A goal on another performer is laid causally: the law gives the goal as
- * the performer perceived it when the plan starts (`perceived`), so the
- * course never reads the other performer ahead of that second, and may
- * follow the live goal on the hold by a bounded correction (`tracked`).
- * Two arms on one implement, or an arm and its support, are laid in one
- * course (`with`) as one trajectory problem, the hands on the implement
- * excused from each other by their declared `grasp`.
- * After the span the arm keeps the angles its course ended with, carried by
- * the body: a hand that holds what it lifted rides up with a body that
- * straightens, with no goal left to solve.
+ * nearly tie, one instant takes the other branch and the arm pops (a 93° turn
+ * of the upper arm within 1/120 s in a floor pick-up), and nothing admits the
+ * course against the body or the floor. Here the plan's own goal is read at the
+ * span's instants and the arm is laid once: the reach from `rest` to the hold,
+ * then the hold fitted instant by instant on the branch and swivel the instant
+ * before chose, then the return, admitted under the trajectory's clearance and
+ * speed bounds or optimised (`AutoMovieMotionHumanArmCourse`,
+ * `HumanArmTrajectory`). Everything else of the plan (the body, the other
+ * limbs, the digits, the events, contacts, holds and refusals) is the plan's
+ * own; only its posture is replaced, and the law's plan stays readable for
+ * judgements of the goal (`goals`). A stroke whose hold is its delivery
+ * declares its own speed bound (`pace`), which the course is admitted against
+ * in place of a reach's pace. A goal on another performer is laid causally: the
+ * law gives the goal as the performer perceived it when the plan starts
+ * (`perceived`), so the course never reads the other performer ahead of that
+ * second, and may follow the live goal on the hold by a bounded correction
+ * (`tracked`). Two arms on one implement, or an arm and its support, are laid
+ * in one course (`with`) as one trajectory problem, the hands on the implement
+ * excused from each other by their declared `grasp`. After the span the arm
+ * keeps the angles its course ended with, carried by the body: a hand that
+ * holds what it lifted rides up with a body that straightens, with no goal left
+ * to solve.
  *
- * @param props The plan, the arm, its rest, its span and the carry's
- *   optional members.
+ * @param props The plan, the arm, its rest, its span and the carry's optional
+ *   members.
  * @returns The plan with the arm written by its planned course.
- * @throws {HumanRefusal} When no arm course meets the trajectory's constraints (`AutoMovieMotionHumanArm.carried`), as the plan is composed.
- * @throws {Error} When the plan writes no goal for the arm at an instant the course reads.
+ * @throws {HumanRefusal} When no arm course meets the trajectory's constraints
+ *   (`AutoMovieMotionHumanArm.carried`), as the plan is composed.
+ * @throws {Error} When the plan writes no goal for the arm at an instant the
+ *   course reads.
  */
 export function courseArmGoal(
   props: courseArmGoal.IProps,
@@ -133,10 +134,7 @@ export function courseArmGoal(
       // An arm whose carry writes this second off its course reads its goal
       // (`AutoMovieMotionHumanArmCarry.carried`): the whole posture is read
       // once for both, as before.
-      else if (
-        seconds >= span.start - 1e-9 &&
-        seconds <= span.end + 1e-9
-      )
+      else if (seconds >= span.start - 1e-9 && seconds <= span.end + 1e-9)
         return undefined;
     }
     if (unread.length === 0) return undefined;
@@ -195,8 +193,9 @@ export function courseArmGoal(
         // feasible swivel nearest the previous solution), never another
         // elbow side for the same goal at the seam.
         if (props.after === "angles") delete limbs[limb];
-        let angles: IAutoMovieMotionHumanPosture["joints"] | undefined =
-          laid ? kept.get(limb) : returned.get(limb);
+        let angles: IAutoMovieMotionHumanPosture["joints"] | undefined = laid
+          ? kept.get(limb)
+          : returned.get(limb);
         if (angles === undefined) {
           // Until the composition is laid, another arm of the group whose
           // span runs on is planned on this base past this arm's end, before
@@ -331,11 +330,12 @@ export function courseArmGoal(
   return coursed;
 }
 
-/**
- * Companion types, records and readers of `courseArmGoal`.
- */
+/** Companion types, records and readers of `courseArmGoal`. */
 export namespace courseArmGoal {
-  /** Each coursed plan's law plan, whose posture still writes the arm's goal (`goals`). */
+  /**
+   * Each coursed plan's law plan, whose posture still writes the arm's goal
+   * (`goals`).
+   */
   export const SOURCES: WeakMap<
     IAutoMovieMotionHumanActionPlan,
     IAutoMovieMotionHumanActionPlan
@@ -343,9 +343,9 @@ export namespace courseArmGoal {
 
   /**
    * The plan whose posture writes the arm's goal: a coursed plan's law plan,
-   * any other plan itself. A law-side judgement of the goal (a strike's
-   * event on its target, a lift's height) reads this, since the coursed
-   * posture writes the arm's angles and no goal.
+   * any other plan itself. A law-side judgement of the goal (a strike's event
+   * on its target, a lift's height) reads this, since the coursed posture
+   * writes the arm's angles and no goal.
    *
    * @param plan A plan, coursed or not.
    * @returns The plan that writes the goal.
@@ -372,13 +372,16 @@ export namespace courseArmGoal {
     /** The arm's angles before the span, which the reach leaves. */
     rest: IAutoMovieMotionHumanArmAngles.IAngles;
 
-    /** The arm's own instants, for an arm of `with` whose span differs; the course's `span` when absent. Arms laid together whose spans differ stay one trajectory problem, each arm's site read on its own hold (`AutoMovieMotionHumanArmPlanned.planned`). */
+    /**
+     * The arm's own instants, for an arm of `with` whose span differs; the
+     * course's `span` when absent. Arms laid together whose spans differ stay
+     * one trajectory problem, each arm's site read on its own hold
+     * (`AutoMovieMotionHumanArmPlanned.planned`).
+     */
     span?: IAutoMovieMotionHumanArmPlanned.ISpan;
   }
 
-  /**
-   * A plan whose arm goals are to be planned as one course.
-   */
+  /** A plan whose arm goals are to be planned as one course. */
   export interface IProps
     extends
       Omit<IArm, "span">,
@@ -391,18 +394,25 @@ export namespace courseArmGoal {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
 
-    /** The law's plan, whose posture writes every coursed arm's goal at every second the course reads. */
+    /**
+     * The law's plan, whose posture writes every coursed arm's goal at every
+     * second the course reads.
+     */
     plan: IAutoMovieMotionHumanActionPlan;
 
-    /** The course's instants, seconds since the plan's start: the reach from `start` to `ready`, the hold on the plan's goal to `relax`, the return to `end`. */
+    /**
+     * The course's instants, seconds since the plan's start: the reach from
+     * `start` to `ready`, the hold on the plan's goal to `relax`, the return to
+     * `end`.
+     */
     span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
     /**
      * The other arm, laid in the same course as one trajectory problem: a
-     * support hand, or the second hand on one implement (a two-handed blade,
-     * a club, a bat, a putter), whose closing segments name each other in
-     * `grasp` so the hands on the implement are its contact, not a
-     * collision. None when absent.
+     * support hand, or the second hand on one implement (a two-handed blade, a
+     * club, a bat, a putter), whose closing segments name each other in `grasp`
+     * so the hands on the implement are its contact, not a collision. None when
+     * absent.
      */
     with?: readonly IArm[];
 
@@ -410,31 +420,29 @@ export namespace courseArmGoal {
      * The law's plan without the coursed arms' goals, for a goal that reads
      * another performer (a punch on a defender, a hand on a partner): the
      * course is laid on its posture, so laying never evaluates the live goal
-     * and the other performer is read only as each arm's `perceived` gives
-     * it, under the reaction delay. `plan` itself when absent.
+     * and the other performer is read only as each arm's `perceived` gives it,
+     * under the reaction delay. `plan` itself when absent.
      */
     base?: IAutoMovieMotionHumanActionPlan;
 
     /**
-     * What the arm does after its span: the plan's own goal again ("goal",
-     * the default), fitted on the body as it moves on, or the angles its
-     * course ended with ("angles"), carried by the body, for a hand that
-     * holds what it lifted while the body straightens under it.
+     * What the arm does after its span: the plan's own goal again ("goal", the
+     * default), fitted on the body as it moves on, or the angles its course
+     * ended with ("angles"), carried by the body, for a hand that holds what it
+     * lifted while the body straightens under it.
      */
     after?: After;
 
     /**
      * Whether each arm's `rest` is the arm the plan shows just before a span
-     * that starts after the action, for a plan that already writes the goal
-     * at the span's start (a rescuer's crawl arm at the arrival, where the
-     * plan writes the hold). Absent, such a course leaves the plan's own arm
-     * read at the span's start.
+     * that starts after the action, for a plan that already writes the goal at
+     * the span's start (a rescuer's crawl arm at the arrival, where the plan
+     * writes the hold). Absent, such a course leaves the plan's own arm read at
+     * the span's start.
      */
     shown?: boolean;
   }
-  /**
-   * The last posture of the plan read, and what it was read with.
-   */
+  /** The last posture of the plan read, and what it was read with. */
   export interface IRead {
     /** Seconds since the plan's start. */
     seconds: number;

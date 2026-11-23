@@ -18,9 +18,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * Placing a whole-body posture so its displayed hips fall on a wanted world
- * point: the hips' offset from the root is read once by resolving the
- * posture at the origin, and the root is the wanted point less that offset.
- * Falls use it to carry a lying or tumbling body along a computed hips path.
+ * point: the hips' offset from the root is read once by resolving the posture
+ * at the origin, and the root is the wanted point less that offset. Falls use
+ * it to carry a lying or tumbling body along a computed hips path.
  */
 export namespace stuntFallPose {
   /**
@@ -49,7 +49,8 @@ export namespace stuntFallPose {
    *
    * @param body The canonical motion body.
    * @param posture The posture, its root anywhere.
-   * @returns The lowest point of the body's colliders above the root, metres (negative below it): the body's surface, as the floor audit reads it.
+   * @returns The lowest point of the body's colliders above the root, metres
+   *   (negative below it): the body's surface, as the floor audit reads it.
    */
   export function lowest(
     body: IAutoMovieMotionHumanBody,
@@ -66,8 +67,8 @@ export namespace stuntFallPose {
   }
 
   /**
-   * Rest a posture on a surface point: its hips over the point and its
-   * lowest bone on the surface.
+   * Rest a posture on a surface point: its hips over the point and its lowest
+   * bone on the surface.
    *
    * @param posture The posture.
    * @param surface The surface point under the hips, world metres.
@@ -92,15 +93,15 @@ export namespace stuntFallPose {
   }
 
   /**
-   * Rest a posture, a blend of keys among them, on a surface point: its
-   * hips over the point and its own lowest collider surface on it, read from
-   * one resolve of the posture itself, so a blend of two resting keys does
-   * not dip into the surface between them.
+   * Rest a posture, a blend of keys among them, on a surface point: its hips
+   * over the point and its own lowest collider surface on it, read from one
+   * resolve of the posture itself, so a blend of two resting keys does not dip
+   * into the surface between them.
    *
    * On a sloped surface, named by its normal, the body rests on the plane
    * through the point: its collider surface reaching furthest against the
-   * normal touches the plane, so a body lying along a flight of stairs
-   * rests its back on the nosings and not its heels a leg further down.
+   * normal touches the plane, so a body lying along a flight of stairs rests
+   * its back on the nosings and not its heels a leg further down.
    *
    * @param body The canonical motion body.
    * @param posture The posture, its root anywhere.
@@ -166,9 +167,9 @@ export namespace stuntFallPose {
 
   /**
    * Stand a posture on planted feet: its root moved so its own feet, on
-   * average, come over the planted ones and its lowest collider surface
-   * rests on the ground, and each leg held to its planted ankle and foot
-   * rotation, so a body rising or sinking on its feet does not slide them.
+   * average, come over the planted ones and its lowest collider surface rests
+   * on the ground, and each leg held to its planted ankle and foot rotation, so
+   * a body rising or sinking on its feet does not slide them.
    *
    * @param body The canonical motion body.
    * @param posture The posture, its root anywhere, its legs free.
@@ -245,7 +246,9 @@ export namespace stuntFallPose {
   }
 
   /**
-   * Blend one posture toward another: joints, root, yaw by the shortest arc, pitch and roll; the limbs are the target's, an explicit rotation is left to the blended attitude and the fingers switch halfway.
+   * Blend one posture toward another: joints, root, yaw by the shortest arc,
+   * pitch and roll; the limbs are the target's, an explicit rotation is left to
+   * the blended attitude and the fingers switch halfway.
    *
    * @param from The posture at weight 0.
    * @param to The posture at weight 1.
@@ -313,7 +316,10 @@ export namespace stuntFallPose {
   }
 }
 
-/** The least projection of a resolved body's collider surfaces on a unit normal, metres: how far the body reaches against it. */
+/**
+ * The least projection of a resolved body's collider surfaces on a unit normal,
+ * metres: how far the body reaches against it.
+ */
 function supportAlong(
   body: IAutoMovieMotionHumanBody,
   bones: ReturnType<typeof poseBones>,
@@ -334,8 +340,7 @@ function supportAlong(
       // The shape's local axes projected on the normal.
       const axis: (local: IAutoMovieVector3) => number = (
         local: IAutoMovieVector3,
-      ): number =>
-        Vector3.dot(Quaternion.rotateVector(turn, local), normal);
+      ): number => Vector3.dot(Quaternion.rotateVector(turn, local), normal);
       const reach: number =
         shape.kind === "sphere"
           ? along - shape.radius
@@ -358,7 +363,10 @@ function supportAlong(
   return least;
 }
 
-/** The lowest point of a resolved body's colliders, world metres: the floor audit's reading of its surface. */
+/**
+ * The lowest point of a resolved body's colliders, world metres: the floor
+ * audit's reading of its surface.
+ */
 function surfaceLow(
   body: IAutoMovieMotionHumanBody,
   bones: ReturnType<typeof poseBones>,

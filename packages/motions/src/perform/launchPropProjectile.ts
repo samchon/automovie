@@ -9,15 +9,16 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Construct the flight state from the displayed prop origin at release.
- * An opt-in sphere flies by its centre. A time-constrained world aim is
- * inverted from the same gravity equation the engine samples.
+ * Construct the flight state from the displayed prop origin at release. An
+ * opt-in sphere flies by its centre. A time-constrained world aim is inverted
+ * from the same gravity equation the engine samples.
  *
  * @param launch The published release request.
  * @param origin The prop's displayed origin in world metres.
  * @param rotation The prop's displayed rotation.
  * @param drag The body's optional quadratic drag data.
- * @returns The admitted engine projectile with world initial position and velocity.
+ * @returns The admitted engine projectile with world initial position and
+ *   velocity.
  * @throws {HumanRefusal} For invalid sphere data or an invalid drag-free aim.
  */
 export function launchPropProjectile(

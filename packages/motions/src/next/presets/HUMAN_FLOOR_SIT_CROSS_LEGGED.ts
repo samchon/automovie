@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanFloor } from "@automovie/interface";
 
 /**
- * The sitCrossLegged preset of `lieDown`: Sitting down on the floor cross-legged and staying three seconds (provisional). Spread into `lieDown`'s parameters; the `sitCrossLegged` row reads it.
+ * The sitCrossLegged preset of `lieDown`: Sitting down on the floor
+ * cross-legged and staying three seconds (provisional). Spread into `lieDown`'s
+ * parameters; the `sitCrossLegged` row reads it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, how it is applied, which row reads it and what is provisional.
  * @evidence contracts/development/design.md#principled-representation The lieDown law's own members as one `ILieDownPreset`, so it fits any body as the law does.

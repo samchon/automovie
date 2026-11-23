@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
 /**
- * The values the `beckonHand` row of `HumanUpperRows` fixes on `armPhrase`, spread into its parameters. A beckon: the open hand held out ahead, palm up, draws in toward the chest and out again.
+ * The values the `beckonHand` row of `HumanUpperRows` fixes on `armPhrase`,
+ * spread into its parameters. A beckon: the open hand held out ahead, palm up,
+ * draws in toward the chest and out again.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IArmPhrasePhraseTargetMirrorOffsetSwingCountFacingPreset`, so it fits any body as the law does.

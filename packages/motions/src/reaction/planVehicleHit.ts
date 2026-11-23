@@ -27,42 +27,60 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { stuntFallPose } from "./stuntFallPose";
 import { vehicleFront } from "./vehicleFront";
 
-/** The impact speed from which a wrap turns into a roof vault, metres per second (provisional: 50 km/h; Ravani et al. 1981 report roof vaults at the higher impact speeds). */
+/**
+ * The impact speed from which a wrap turns into a roof vault, metres per second
+ * (provisional: 50 km/h; Ravani et al. 1981 report roof vaults at the higher
+ * impact speeds).
+ */
 const ROOF: number = 50 / 3.6;
 
-/** Friction holding a body on a bonnet, dimensionless (provisional: clothing on painted steel); a car braking harder throws the body off. */
+/**
+ * Friction holding a body on a bonnet, dimensionless (provisional: clothing on
+ * painted steel); a car braking harder throws the body off.
+ */
 const BONNET: number = 0.3;
 
-/** Friction of a body sliding to rest on the road, dimensionless: the upper end of the 0.5 to 0.66 range Searle's throw model takes (provisional). */
+/**
+ * Friction of a body sliding to rest on the road, dimensionless: the upper end
+ * of the 0.5 to 0.66 range Searle's throw model takes (provisional).
+ */
 const SLIDE: number = 0.66;
 
-/** The share of the car's speed a vaulting body keeps as it leaves over the wing or the roof (provisional). */
+/**
+ * The share of the car's speed a vaulting body keeps as it leaves over the wing
+ * or the roof (provisional).
+ */
 const VAULT: number = 0.5;
 
-/** The angle above the road a forward-projected body leaves at, degrees (provisional: a shallow launch inside the small angles Searle's throw model admits). */
+/**
+ * The angle above the road a forward-projected body leaves at, degrees
+ * (provisional: a shallow launch inside the small angles Searle's throw model
+ * admits).
+ */
 const PROJECTION: number = 10;
 
 /**
  * Plan a pedestrian struck by a moving car. The pedestrian stands until the
  * car's leading face reaches the legs on its own course
- * (`vehicleFront.contact`); the trajectory class follows Ravani, Brougham
- * and Mason (SAE 811024): a centre of mass no higher than the leading edge gives a
+ * (`vehicleFront.contact`); the trajectory class follows Ravani, Brougham and
+ * Mason (SAE 811024): a centre of mass no higher than the leading edge gives a
  * forward projection, the body launched at the car's speed `PROJECTION` above
- * the road; one above it
- * a wrap, the legs swept at the car's speed while the body turns about the
- * edge onto the bonnet at the rate the bumper gives it, the head travelling
- * the arc from its height to the bonnet at the car's speed; an off-centre contact, within a hip's width of
- * the car's side, a fender vault, and a wrap at or above `ROOF` a roof
- * vault. A wrapped body rides the bonnet in the car's frame until the car
- * brakes harder than `BONNET` holds it, then leaves at the car's speed; a
- * vaulting body leaves at once with `VAULT` of it, a roof vault rising to
- * clear the roof. It flies a projectile under gravity to the road, turning
- * onto its back with its head against its travel, slides to rest under
- * `SLIDE` (Searle's throw model) and lies.
+ * the road; one above it a wrap, the legs swept at the car's speed while the
+ * body turns about the edge onto the bonnet at the rate the bumper gives it,
+ * the head travelling the arc from its height to the bonnet at the car's speed;
+ * an off-centre contact, within a hip's width of the car's side, a fender
+ * vault, and a wrap at or above `ROOF` a roof vault. A wrapped body rides the
+ * bonnet in the car's frame until the car brakes harder than `BONNET` holds it,
+ * then leaves at the car's speed; a vaulting body leaves at once with `VAULT`
+ * of it, a roof vault rising to clear the roof. It flies a projectile under
+ * gravity to the road, turning onto its back with its head against its travel,
+ * slides to rest under `SLIDE` (Searle's throw model) and lies.
  *
  * @param context The action's context, standing in the car's course.
  * @returns The plan.
- * @throws {HumanRefusal} When the car has no colliders or course, its course never meets the legs within the horizon, or a wrapped body is never braked off the bonnet.
+ * @throws {HumanRefusal} When the car has no colliders or course, its course
+ *   never meets the legs within the horizon, or a wrapped body is never braked
+ *   off the bonnet.
  */
 export function planVehicleHit(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanVehicleHit.IParams>,

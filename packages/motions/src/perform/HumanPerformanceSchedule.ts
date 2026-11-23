@@ -35,14 +35,14 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
 
 /**
- * The composition resolved on the film clock: the engine's schedule
- * resolver given this performance's laws, the alignment of an action synced
- * to an instant, and the cut of an action at a proximity.
+ * The composition resolved on the film clock: the engine's schedule resolver
+ * given this performance's laws, the alignment of an action synced to an
+ * instant, and the cut of an action at a proximity.
  */
 export namespace HumanPerformanceSchedule {
   /**
-   * Place the composition with the engine's resolver, every action planned
-   * by its law. What the resolver cannot place (an anchor or an event the
+   * Place the composition with the engine's resolver, every action planned by
+   * its law. What the resolver cannot place (an anchor or an event the
    * composition names and does not have, an anchor used twice) reaches the
    * author as a located refusal with the names that exist.
    */
@@ -153,9 +153,9 @@ export namespace HumanPerformanceSchedule {
 
   /**
    * The second an action must start at for one of its instants to fall on a
-   * target second. The time to that instant depends on the state the action
-   * is entered from, which depends on when it starts, so it is planned at
-   * the start found so far until that settles; nothing is placed.
+   * target second. The time to that instant depends on the state the action is
+   * entered from, which depends on when it starts, so it is planned at the
+   * start found so far until that settles; nothing is placed.
    */
   export function align(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -300,9 +300,9 @@ export namespace HumanPerformanceSchedule {
   /**
    * The drawn latency a synced action waits after its instant
    * (`HumanChainCore.ISync.latency`), 0 for an action synced without one: the
-   * performer's own draw (`HumanResponse.latency`), keyed by the performer,
-   * the action's id, its occurrence and `latency`, and warned when the cue
-   * track holds the instant's preparatory word (`HumanCue.orders`).
+   * performer's own draw (`HumanResponse.latency`), keyed by the performer, the
+   * action's id, its occurrence and `latency`, and warned when the cue track
+   * holds the instant's preparatory word (`HumanCue.orders`).
    */
   export function latency(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -346,20 +346,19 @@ export namespace HumanPerformanceSchedule {
   }
 
   /**
-   * The bracket width at which a proximity cut's second is taken, seconds:
-   * the width the search it replaces reached, twenty halvings of a 24 Hz
-   * frame (`1 / 24 / 2 ** 20`, about 4e-8 s), so a cut is placed no more
-   * coarsely than before.
+   * The bracket width at which a proximity cut's second is taken, seconds: the
+   * width the search it replaces reached, twenty halvings of a 24 Hz frame (`1
+   * / 24 / 2 ** 20`, about 4e-8 s), so a cut is placed no more coarsely than
+   * before.
    */
   export const CUT: number = 1 / 24 / 2 ** 20;
 
   /**
    * The share of the latest segment's active span at which a proximity cut
-   * happens: the 24 Hz grid is scanned for the first frame within the
-   * distance, and the crossing is found between it and the frame before by
-   * the Illinois false-position search (`bracketedRoot`) to `CUT` seconds.
-   * Each reading demands only the effector's bone of the performer's
-   * displayed bones.
+   * happens: the 24 Hz grid is scanned for the first frame within the distance,
+   * and the crossing is found between it and the frame before by the Illinois
+   * false-position search (`bracketedRoot`) to `CUT` seconds. Each reading
+   * demands only the effector's bone of the performer's displayed bones.
    */
   export function proximity(
     self: IAutoMovieMotionHumanPerformanceState,

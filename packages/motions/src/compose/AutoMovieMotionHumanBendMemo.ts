@@ -7,30 +7,36 @@ import type {
 import { createHumanBody } from "../body/createHumanBody";
 
 /**
- * Completed elbow solves of one genuine body, by the exact scalar inputs
- * that decide them, so a goal asked again is answered without its sweep.
+ * Completed elbow solves of one genuine body, by the exact scalar inputs that
+ * decide them, so a goal asked again is answered without its sweep.
  *
- * `AutoMovieMotionHumanBend.solve` is a pure function of the body, the arm,
- * the trunk's root and heading, the wrist, the hand's rotation and the
- * fallback: the chain, the colliders and the ranges come from the body's
- * immutable rig and the trunk's root and heading alone
- * (`AutoMovieMotionHumanBendChain.of`), and the strain's neutral is the
- * body's own hanging arm. A law whose goal a planner reads again at the same
- * instant (a carried arm's course reads a plan's posture at every knot on
- * each of its passes) asks the same solve again; the memo returns a fresh
- * copy of the elbow that solve returned.
+ * `AutoMovieMotionHumanBend.solve` is a pure function of the body, the arm, the
+ * trunk's root and heading, the wrist, the hand's rotation and the fallback:
+ * the chain, the colliders and the ranges come from the body's immutable rig
+ * and the trunk's root and heading alone (`AutoMovieMotionHumanBendChain.of`),
+ * and the strain's neutral is the body's own hanging arm. A law whose goal a
+ * planner reads again at the same instant (a carried arm's course reads a
+ * plan's posture at every knot on each of its passes) asks the same solve
+ * again; the memo returns a fresh copy of the elbow that solve returned.
  */
 export namespace AutoMovieMotionHumanBendMemo {
-  /** The most solves kept per body; the least recently read is dropped first (provisional: a planner's knots of one course and its frames fit well within it). */
+  /**
+   * The most solves kept per body; the least recently read is dropped first
+   * (provisional: a planner's knots of one course and its frames fit well
+   * within it).
+   */
   export const CAPACITY: number = 2048;
 
   /**
    * The elbow of a solve, read from the body's table or computed and kept.
    *
-   * @param props The request, exactly as `AutoMovieMotionHumanBend.solve` takes it.
+   * @param props The request, exactly as `AutoMovieMotionHumanBend.solve` takes
+   *   it.
    * @param run The solve itself, run when the table has no such request.
-   * @returns A fresh copy of the elbow the solve returns for these inputs, world metres.
-   * @throws Whatever `run` throws; a refusal is never kept, so it is thrown again on every request.
+   * @returns A fresh copy of the elbow the solve returns for these inputs,
+   *   world metres.
+   * @throws Whatever `run` throws; a refusal is never kept, so it is thrown
+   *   again on every request.
    */
   export function solve(
     props: IAutoMovieMotionHumanBend.ISolve,
@@ -64,7 +70,10 @@ const TABLES: WeakMap<
   Map<string, IAutoMovieVector3>
 > = new WeakMap();
 
-/** The exact words of a request: the arm, the trunk, the wrist, the hand and the fallback. */
+/**
+ * The exact words of a request: the arm, the trunk, the wrist, the hand and the
+ * fallback.
+ */
 function words(props: IAutoMovieMotionHumanBend.ISolve): string {
   const posture: IAutoMovieMotionHumanBend.ISolve["posture"] = props.posture;
   const point: IAutoMovieVector3 = props.point;
@@ -92,11 +101,15 @@ function words(props: IAutoMovieMotionHumanBend.ISolve): string {
     );
   if (fallback === undefined) parts.push("-");
   else if (typeof fallback === "string") parts.push(fallback);
-  else parts.push(word(fallback.out), word(fallback.up), word(fallback.forward));
+  else
+    parts.push(word(fallback.out), word(fallback.up), word(fallback.forward));
   return parts.join(" ");
 }
 
-/** A number's word: its shortest round-trip text, which is unique per double, with negative zero kept apart from zero. */
+/**
+ * A number's word: its shortest round-trip text, which is unique per double,
+ * with negative zero kept apart from zero.
+ */
 function word(value: number): string {
   return Object.is(value, -0) ? "-0" : String(value);
 }

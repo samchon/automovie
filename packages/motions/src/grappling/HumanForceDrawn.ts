@@ -1,12 +1,11 @@
 /**
- * The original constant-pull inverted pendulum with fixed physical coefficients.
- * Position-only reads and complete state reads share the same cosh expression;
- * no sampled time, pose, force outcome or numerical history is retained.
+ * The original constant-pull inverted pendulum with fixed physical
+ * coefficients. Position-only reads and complete state reads share the same
+ * cosh expression; no sampled time, pose, force outcome or numerical history is
+ * retained.
  */
 export namespace HumanForceDrawn {
-  /**
-   * Physical inputs unchanged throughout one prepared pull.
-   */
+  /** Physical inputs unchanged throughout one prepared pull. */
   export interface IProps {
     /** Kilograms. */
     mass: number;
@@ -16,9 +15,7 @@ export namespace HumanForceDrawn {
     force: number;
   }
 
-  /**
-   * One actual pendulum observation.
-   */
+  /** One actual pendulum observation. */
   export interface IState {
     /** Displacement from rest along the pull, metres. */
     offset: number;
@@ -28,18 +25,15 @@ export namespace HumanForceDrawn {
     extrapolated: number;
   }
 
-  /**
-   * Fixed-coefficient readers, with no retained time observation.
-   */
+  /** Fixed-coefficient readers, with no retained time observation. */
   export interface IMotion {
     /**
-     * Displacement at seconds since the pull began; negative seconds use the zero clock.
+     * Displacement at seconds since the pull began; negative seconds use the
+     * zero clock.
      */
     offset(seconds: number): number;
 
-    /**
-     * Fresh complete state at seconds since the pull began.
-     */
+    /** Fresh complete state at seconds since the pull began. */
     sample(seconds: number): IState;
   }
 
@@ -53,7 +47,8 @@ export namespace HumanForceDrawn {
     const w: number = props.frequency;
     const a: number = props.force / (props.mass * w * w);
     return {
-      offset: (seconds: number): number => position(a, w * Math.max(0, seconds)),
+      offset: (seconds: number): number =>
+        position(a, w * Math.max(0, seconds)),
       sample: (seconds: number): IState => state(w, a, Math.max(0, seconds)),
     };
   }
@@ -64,10 +59,12 @@ export namespace HumanForceDrawn {
    * @param props Physical inputs and seconds since the pull began.
    * @returns Fresh offset, speed and extrapolated displacement.
    */
-  export function sample(props: IProps & {
-    /** Seconds since the pull began. */
-    seconds: number;
-  }): IState {
+  export function sample(
+    props: IProps & {
+      /** Seconds since the pull began. */
+      seconds: number;
+    },
+  ): IState {
     const t: number = Math.max(0, props.seconds);
     const w: number = props.frequency;
     const a: number = props.force / (props.mass * w * w);

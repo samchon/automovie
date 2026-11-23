@@ -4,13 +4,28 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Colour of the drift kind: a violet no case overlay uses and the inspection reserves for nothing. */
+/**
+ * Colour of the drift kind: a violet no case overlay uses and the inspection
+ * reserves for nothing.
+ */
 const DRIFT: number = 0x7b4fa8;
 
 /**
- * Turn a motion case's overlays into inspection marks: trails as polylines, targets as points, and drift samples as points flagged where their drift exceeds their limit.
+ * Turn a motion case's overlays into inspection marks: trails as polylines,
+ * targets as points, and drift samples as points flagged where their drift
+ * exceeds their limit.
  *
- * A case colours each overlay itself, and an inspection draws every mark of one kind in one colour and refuses two kinds in one colour, so a trail or target kind is its colour: `case/<rrggbb>`, labelled by the overlays drawn in it and the colour, such as `trail and target d04040`, short enough for a legend stamped on a still beside the colour's swatch. Drift samples are the kind `case/drift`, labelled `drift`, in violet `7b4fa8`; the samples within their limit form one mark and those beyond it a flagged one, which the inspection draws in its flag colour. Paths are `case/trail/<i>`, `case/target/<i>` and `case/drift/<i>/within` or `/beyond`, so the pattern `case` selects them all. Every mark is in world metres and unanchored. A trail of one point is drawn as a point, and an empty trail or drift set gives no mark.
+ * A case colours each overlay itself, and an inspection draws every mark of one
+ * kind in one colour and refuses two kinds in one colour, so a trail or target
+ * kind is its colour: `case/<rrggbb>`, labelled by the overlays drawn in it and
+ * the colour, such as `trail and target d04040`, short enough for a legend
+ * stamped on a still beside the colour's swatch. Drift samples are the kind
+ * `case/drift`, labelled `drift`, in violet `7b4fa8`; the samples within their
+ * limit form one mark and those beyond it a flagged one, which the inspection
+ * draws in its flag colour. Paths are `case/trail/<i>`, `case/target/<i>` and
+ * `case/drift/<i>/within` or `/beyond`, so the pattern `case` selects them all.
+ * Every mark is in world metres and unanchored. A trail of one point is drawn
+ * as a point, and an empty trail or drift set gives no mark.
  *
  * @param props The case's overlays.
  * @returns The trail marks, then the targets, then the drift.

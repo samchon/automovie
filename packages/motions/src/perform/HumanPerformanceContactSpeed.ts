@@ -6,27 +6,29 @@ import type {
 
 /**
  * The speed bounds a performance states to the engine's contact scan
- * (`IAutoMovieResolveContactEvents.IWeapon.speed`, `IBody.speed`), each on
- * one search's grid, so the scan reads no grid second a clear gap rules out
- * and finds the contact a scan of every second finds.
+ * (`IAutoMovieResolveContactEvents.IWeapon.speed`, `IBody.speed`), each on one
+ * search's grid, so the scan reads no grid second a clear gap rules out and
+ * finds the contact a scan of every second finds.
  *
- * A weapon's bound is read off its own path: the most any end of its axis
- * moves between two neighbouring grid seconds of its live window, over
- * their interval, which by the triangle inequality bounds every pair of grid
- * seconds and, the radii being fixed, every point of its sphere or capsule.
- * A person's bound is 0 where the display pipeline proves the shown pose
- * constant (`HumanSegmentStill.within`), and none elsewhere: a limb fit states no rate bound,
- * so a moving pose has no certified one.
+ * A weapon's bound is read off its own path: the most any end of its axis moves
+ * between two neighbouring grid seconds of its live window, over their
+ * interval, which by the triangle inequality bounds every pair of grid seconds
+ * and, the radii being fixed, every point of its sphere or capsule. A person's
+ * bound is 0 where the display pipeline proves the shown pose constant
+ * (`HumanSegmentStill.within`), and none elsewhere: a limb fit states no rate
+ * bound, so a moving pose has no certified one.
  */
 export namespace HumanPerformanceContactSpeed {
   /**
    * A weapon's bound on a search's grid, from its own path.
    *
-   * @param read The weapon's axis at a second: its centre or first end, and its capsule's other end.
+   * @param read The weapon's axis at a second: its centre or first end, and its
+   *   capsule's other end.
    * @param from The weapon's live start, seconds.
    * @param to The weapon's live end, seconds.
    * @param grid The search's grid.
-   * @returns The bound between two grid seconds of the live window; undefined at a second off the grid.
+   * @returns The bound between two grid seconds of the live window; undefined
+   *   at a second off the grid.
    */
   export function weapon(
     read: (
@@ -64,10 +66,15 @@ export namespace HumanPerformanceContactSpeed {
     // read kept for the next rate.
     let first: number | undefined;
     const rates: number[] = [];
-    let before: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] | undefined;
+    let before:
+      | readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined]
+      | undefined;
     const extend = (end: number): void => {
       for (let k: number = first! + rates.length; k < end; ++k) {
-        const after: readonly [IAutoMovieVector3, IAutoMovieVector3 | undefined] = read(second(k + 1));
+        const after: readonly [
+          IAutoMovieVector3,
+          IAutoMovieVector3 | undefined,
+        ] = read(second(k + 1));
         const moved: number = Math.max(
           Vector3.distance(before![0], after[0]),
           Vector3.distance(before![1] ?? before![0], after[1] ?? after[0]),
@@ -91,7 +98,8 @@ export namespace HumanPerformanceContactSpeed {
       while (end < last && second(end + 1) <= until) ++end;
       extend(end);
       let bound: number = 0;
-      for (let j: number = k - first; j < end - first; ++j) bound = Math.max(bound, rates[j]!);
+      for (let j: number = k - first; j < end - first; ++j)
+        bound = Math.max(bound, rates[j]!);
       return bound;
     };
   }

@@ -32,27 +32,28 @@ export namespace AutoMovieMotionHumanArmFollow {
   /**
    * The arm of a planned carry that follows its goal.
    *
-   * The correction is zero at `start`; on the reach the goal's motion counts by the share of the reach made. On the frame grid from there, each
-   * frame takes one damped least-squares step (`HumanArmDifferential.step`) on the contact's
-   * Jacobian at the corrected arm, toward the goal's motion since the plan
-   * (`moved`) less the contact's motion the correction has already made, so
-   * a goal that has not moved leaves the correction exactly zero and the arm
+   * The correction is zero at `start`; on the reach the goal's motion counts by
+   * the share of the reach made. On the frame grid from there, each frame takes
+   * one damped least-squares step (`HumanArmDifferential.step`) on the
+   * contact's Jacobian at the corrected arm, toward the goal's motion since the
+   * plan (`moved`) less the contact's motion the correction has already made,
+   * so a goal that has not moved leaves the correction exactly zero and the arm
    * exactly the plan. The step is shortened to keep the elbow, the wrist and
-   * the fingertip within the plan's own pace (its fastest probe's travel over
-   * a frame of the span, the law's own timed arm) beyond the plan's own
-   * travel that frame, and halved while it would take the arm
-   * deeper past the tangle audit's skin than it is. After `relax` the
-   * correction returns to zero within the same bound, so the return rejoins
-   * the plan. Between grid frames the correction is interpolated, so the arm
-   * is a function of time: the grid is filled from `start` once, in order,
-   * and kept.
+   * the fingertip within the plan's own pace (its fastest probe's travel over a
+   * frame of the span, the law's own timed arm) beyond the plan's own travel
+   * that frame, and halved while it would take the arm deeper past the tangle
+   * audit's skin than it is. After `relax` the correction returns to zero
+   * within the same bound, so the return rejoins the plan. Between grid frames
+   * the correction is interpolated, so the arm is a function of time: the grid
+   * is filled from `start` once, in order, and kept.
    *
    * @param body The body.
    * @param carry The arm.
    * @param span The span's instants.
    * @param plan The planned arm.
    * @param before The posture so far at any second.
-   * @returns The arm at a second, optionally borrowing same-body FK and genuine ROM metadata only while its missing grid steps are filled.
+   * @returns The arm at a second, optionally borrowing same-body FK and genuine
+   *   ROM metadata only while its missing grid steps are filled.
    */
   export function follower(
     body: IAutoMovieMotionHumanBody,
@@ -324,5 +325,8 @@ export namespace AutoMovieMotionHumanArmFollow {
   }
 }
 
-/** The correction's grid, seconds: the frame grid the planner's hold is sampled on (`AutoMovieMotionHumanArmCourse.STEP`). */
+/**
+ * The correction's grid, seconds: the frame grid the planner's hold is sampled
+ * on (`AutoMovieMotionHumanArmCourse.STEP`).
+ */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;

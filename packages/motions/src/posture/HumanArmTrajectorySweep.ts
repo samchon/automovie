@@ -15,13 +15,11 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * The arm's axis spheres swept between two waypoints of its trajectory
  * (`HumanArmTrajectoryModel`): each sphere's motion from one waypoint to the
  * next is a capsule, read against every shape near its first end (TrajOpt's
- * continuous-time check, Schulman et al. 2013, section V). One reading
- * serves the merit and the convex model of the same iterate.
+ * continuous-time check, Schulman et al. 2013, section V). One reading serves
+ * the merit and the convex model of the same iterate.
  */
 export namespace HumanArmTrajectorySweep {
-  /**
-   * One axis sphere's sweep against one shape over one interval.
-   */
+  /** One axis sphere's sweep against one shape over one interval. */
   export interface ISwept {
     /** The axis sphere, by index among the placed arm's probes. */
     probe: number;
@@ -29,26 +27,39 @@ export namespace HumanArmTrajectorySweep {
     /** The shape, by index in the frame of the interval's first waypoint. */
     shape: number;
 
-    /** The sphere's centre at the interval's second waypoint, carried into the shape's frame at the first (`HumanArmTrajectoryPairs.relative`), world metres. */
+    /**
+     * The sphere's centre at the interval's second waypoint, carried into the
+     * shape's frame at the first (`HumanArmTrajectoryPairs.relative`), world
+     * metres.
+     */
     to: IAutoMovieVector3;
 
-    /** The turn that carries a direction from the second waypoint's frame of the shape to the first's. */
+    /**
+     * The turn that carries a direction from the second waypoint's frame of the
+     * shape to the first's.
+     */
     turn: IAutoMovieQuaternion;
 
-    /** The capsule's signed distance to the shape less the sphere's radius, metres (negative inside). */
+    /**
+     * The capsule's signed distance to the shape less the sphere's radius,
+     * metres (negative inside).
+     */
     clear: number;
 
-    /** The least distance the sphere may keep to the shape over the interval, metres: the lesser of its allowances at the two waypoints. */
+    /**
+     * The least distance the sphere may keep to the shape over the interval,
+     * metres: the lesser of its allowances at the two waypoints.
+     */
     lower: number;
   }
 
   /**
-   * An arm's sweeps over one interval: every axis sphere against every
-   * shape whose bounding sphere lies within the pairs' reach of the sphere
-   * at the interval's first waypoint. A sphere that moves less than its own
-   * radius relative to a shape sweeps nothing against it and is left out, as
-   * is a sweep the shape's bounding sphere shows clear of its allowance by
-   * more than `T.CHECK`, which no reader uses.
+   * An arm's sweeps over one interval: every axis sphere against every shape
+   * whose bounding sphere lies within the pairs' reach of the sphere at the
+   * interval's first waypoint. A sphere that moves less than its own radius
+   * relative to a shape sweeps nothing against it and is left out, as is a
+   * sweep the shape's bounding sphere shows clear of its allowance by more than
+   * `T.CHECK`, which no reader uses.
    *
    * @param c The context.
    * @param a The arm.
@@ -110,14 +121,13 @@ export namespace HumanArmTrajectorySweep {
 }
 
 /**
- * Whether a swept sphere clears its allowance by more than the check
- * distance on its shape's declared bounding sphere alone: the shape lies in
- * that sphere, so each point's signed distance to the shape is at least its
- * distance to the sphere's centre less the sphere's radius, and the
- * segment's signed distance, the least over its points
- * (`physicalShapeSegmentDistance`), is at least the segment's distance to
- * the centre less that radius. That bound less the probe's radius is a true
- * lower bound on the sweep's clearance.
+ * Whether a swept sphere clears its allowance by more than the check distance
+ * on its shape's declared bounding sphere alone: the shape lies in that sphere,
+ * so each point's signed distance to the shape is at least its distance to the
+ * sphere's centre less the sphere's radius, and the segment's signed distance,
+ * the least over its points (`physicalShapeSegmentDistance`), is at least the
+ * segment's distance to the centre less that radius. That bound less the
+ * probe's radius is a true lower bound on the sweep's clearance.
  */
 function beyondCheck(
   shape: IAutoMovieMotionHumanArmGeometry.IShape,
@@ -131,7 +141,10 @@ function beyondCheck(
   return 1000 * (bound - lower) > T.CHECK;
 }
 
-/** A point's distance to a segment, metres: to the segment's point nearest it, in closed form. */
+/**
+ * A point's distance to a segment, metres: to the segment's point nearest it,
+ * in closed form.
+ */
 function segmentDistance(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,

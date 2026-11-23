@@ -9,13 +9,14 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 
 /**
- * Prepare a fixed body's seat socket under an unchanged rigid heading.
- * The first actual point acquires its rotated rest offset; every point
- * still yields the original fresh root that puts the socket there.
+ * Prepare a fixed body's seat socket under an unchanged rigid heading. The
+ * first actual point acquires its rotated rest offset; every point still yields
+ * the original fresh root that puts the socket there.
  *
  * @param body The unchanged body/rest/socket geometry of this action.
  * @param heading Unchanged yaw, pitch and roll in degrees for this reader.
- * @returns A current world-metre socket-point reader yielding its world rig root.
+ * @returns A current world-metre socket-point reader yielding its world rig
+ *   root.
  */
 export function prepareSeatedRoot(
   body: IAutoMovieMotionHumanBody,

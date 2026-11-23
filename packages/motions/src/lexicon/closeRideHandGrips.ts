@@ -14,9 +14,15 @@ import { HumanMountRider } from "./HumanMountRider";
 import type { HumanRideHands } from "./HumanRideHands";
 
 /**
- * Close each holding hand's fingers once on the support's own colliders where the hold begins (`HumanMountRider.closed`), for the ride's hands (`HumanRideHands`).
+ * Close each holding hand's fingers once on the support's own colliders where
+ * the hold begins (`HumanMountRider.closed`), for the ride's hands
+ * (`HumanRideHands`).
  *
- * A round articulated handle measured to the palm, and any rigid handle, is closed on with its grip read from its own model frame under the support's frame, so the hand meets the rest shapes it closes on even when the support was posed away from rest when the hold began, as a surcingle on a cantering horse is.
+ * A round articulated handle measured to the palm, and any rigid handle, is
+ * closed on with its grip read from its own model frame under the support's
+ * frame, so the hand meets the rest shapes it closes on even when the support
+ * was posed away from rest when the hold began, as a surcingle on a cantering
+ * horse is.
  *
  * @param body The body.
  * @param on The support's subject id, for the refusal.

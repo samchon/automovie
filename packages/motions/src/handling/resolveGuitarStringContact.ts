@@ -25,15 +25,16 @@ interface ISites {
 const COINCIDENCE: number = 1e-6;
 
 /**
- * Resolve the crossing of one pitched string with a fret and the place to
- * sound it over the body. The sounding segment runs from the fret toward the
- * string endpoint beyond the projected soundboard centre. Also measure the
- * transverse half-spacing used to clear the other strings in a single-note stroke.
+ * Resolve the crossing of one pitched string with a fret and the place to sound
+ * it over the body. The sounding segment runs from the fret toward the string
+ * endpoint beyond the projected soundboard centre. Also measure the transverse
+ * half-spacing used to clear the other strings in a single-note stroke.
  *
  * @param params The rigid bar ids of the fret and string.
  * @param affordances The staged guitar's model-space affordances.
  * @returns Contact geometry in the guitar frame, in metres.
- * @throws {HumanRefusal} When these bars or the sounding segment are incompatible.
+ * @throws {HumanRefusal} When these bars or the sounding segment are
+ *   incompatible.
  */
 export function resolveGuitarStringContact(
   params: Readonly<{ fret: string; string: string }>,

@@ -25,7 +25,8 @@ export namespace HumanSegmentCut {
    * @param start The entry second.
    * @param accepts The entered action's own table of what may be cut into it.
    * @returns The row, or undefined for a first action, a gap or a natural end.
-   * @throws {Error} When the previous action is cut outside every legal window, listing them.
+   * @throws {Error} When the previous action is cut outside every legal window,
+   *   listing them.
    */
   export function row(
     subject: string,

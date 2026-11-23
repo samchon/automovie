@@ -19,8 +19,8 @@ import { assembleHumanHandTarget } from "./assembleHumanHandTarget";
 import { placeHumanHandSurface } from "./placeHumanHandSurface";
 
 /**
- * Build the original surface-on-place hand target with one orientation and
- * one actual bend decision; the prepared companion shares fixed geometry.
+ * Build the original surface-on-place hand target with one orientation and one
+ * actual bend decision; the prepared companion shares fixed geometry.
  */
 export function HumanHandTarget(
   body: IAutoMovieMotionHumanBody,
@@ -56,22 +56,32 @@ export function HumanHandTarget(
   );
 }
 
-/**
- * Fixed hand-surface geometry for a plan's repeated changing-posture targets.
- */
+/** Fixed hand-surface geometry for a plan's repeated changing-posture targets. */
 export namespace HumanHandTarget {
   /**
    * Prepare fixed side/surface/shape/normal/options for one unchanged body.
-   * First use prepares geometry, while each requested point and posture
-   * still receives its actual preset or numerical bend decision.
+   * First use prepares geometry, while each requested point and posture still
+   * receives its actual preset or numerical bend decision.
    *
-   * States fixed versus varying dependencies, lazy first use and fresh rotation output.
-   * Surface offset and explicit-forward alignment are independent of the target point and trunk posture; their rotated offset translates rigidly, while an absent forward still reads each current heading and every default bend uses the current wrist/posture.
-   * One plan closure owns private fixed geometry and calls the same oriented/target owners as the cold path; HumanHand/Bend keep their original formulas.
-   * Captures original option values without modifying defaults, retains ALONG and actual Bend.solve/preset fallback, and never caches a bend, distance, target point or fit answer.
-   * Explicit-forward consumers align once and rotate their local wrist offset at most once; absent-forward consumers still align per current heading. Every numerical bend retains its original bounded cost, with no measured speedup claim.
-   * Fixed body surface/shape, normal and explicit forward prove geometric equivalence for this plan; options and offset/rotation snapshots are private, and changed body/geometry requires another preparation.
-   * The plan owns one body reference and constant-size private option/offset/rotation data until release; returned rotations are fresh copies and points are borrowed as before, without a query/result history or external handle.
+   * States fixed versus varying dependencies, lazy first use and fresh rotation
+   * output. Surface offset and explicit-forward alignment are independent of
+   * the target point and trunk posture; their rotated offset translates
+   * rigidly, while an absent forward still reads each current heading and every
+   * default bend uses the current wrist/posture. One plan closure owns private
+   * fixed geometry and calls the same oriented/target owners as the cold path;
+   * HumanHand/Bend keep their original formulas. Captures original option
+   * values without modifying defaults, retains ALONG and actual
+   * Bend.solve/preset fallback, and never caches a bend, distance, target point
+   * or fit answer. Explicit-forward consumers align once and rotate their local
+   * wrist offset at most once; absent-forward consumers still align per current
+   * heading. Every numerical bend retains its original bounded cost, with no
+   * measured speedup claim. Fixed body surface/shape, normal and explicit
+   * forward prove geometric equivalence for this plan; options and
+   * offset/rotation snapshots are private, and changed body/geometry requires
+   * another preparation. The plan owns one body reference and constant-size
+   * private option/offset/rotation data until release; returned rotations are
+   * fresh copies and points are borrowed as before, without a query/result
+   * history or external handle.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -117,16 +127,16 @@ export namespace HumanHandTarget {
   }
 
   /**
-   * Prepare only the existing hand orientation and lazy wrist placement.
-   * Body geometry, side, normal and options stay unchanged; a frame reads
-   * its current heading when forward is absent and returns fresh rotation
-   * data plus a placer of actual world-metre surface points. No bend is
-   * requested, so callers that supply their own actual elbow search do not
-   * compute a discarded default solve. Full prepare consumes this same
-   * geometry and retains its original bend/preset and lazy wrist admission.
-   * Fixed explicit-forward alignment/shift are calculated once at actual
-   * use; changing-heading frames align anew. Only constant geometry and
-   * body metadata are retained, with no pose/point/result/time history.
+   * Prepare only the existing hand orientation and lazy wrist placement. Body
+   * geometry, side, normal and options stay unchanged; a frame reads its
+   * current heading when forward is absent and returns fresh rotation data plus
+   * a placer of actual world-metre surface points. No bend is requested, so
+   * callers that supply their own actual elbow search do not compute a
+   * discarded default solve. Full prepare consumes this same geometry and
+   * retains its original bend/preset and lazy wrist admission. Fixed
+   * explicit-forward alignment/shift are calculated once at actual use;
+   * changing-heading frames align anew. Only constant geometry and body
+   * metadata are retained, with no pose/point/result/time history.
    */
   export function prepareFrame(
     body: IAutoMovieMotionHumanBody,
@@ -189,17 +199,17 @@ export namespace HumanHandTarget {
   }
 
   /**
-   * Prepare one fixed surface for changing world places and headings.
-   * The target reader retains the original actual preset/default Bend and
-   * lazy wrist admission; the wrist reader computes only actual alignment
-   * and rigid placement for a reach observation that never consumes Bend.
-   * Both share one lazily copied body-local surface and rest alignment;
-   * the frame reader exposes their actual rotation and lazy placement for
-   * catch ranks that correct a glove pocket before placing the wrist.
-   * Every query evaluates its current normal, explicit/default forward,
-   * world point and posture, without retaining a target or solved result.
-   * Returned wrist points/rotations are fresh, while target points remain
-   * borrowed as before; the owner releases fixed geometry with its plan.
+   * Prepare one fixed surface for changing world places and headings. The
+   * target reader retains the original actual preset/default Bend and lazy
+   * wrist admission; the wrist reader computes only actual alignment and rigid
+   * placement for a reach observation that never consumes Bend. Both share one
+   * lazily copied body-local surface and rest alignment; the frame reader
+   * exposes their actual rotation and lazy placement for catch ranks that
+   * correct a glove pocket before placing the wrist. Every query evaluates its
+   * current normal, explicit/default forward, world point and posture, without
+   * retaining a target or solved result. Returned wrist points/rotations are
+   * fresh, while target points remain borrowed as before; the owner releases
+   * fixed geometry with its plan.
    */
   export function prepareMoving(
     body: IAutoMovieMotionHumanBody,
@@ -296,12 +306,12 @@ export namespace HumanHandTarget {
   /**
    * Prepare fixed body/hand/surface/shape/options for changing world places.
    * Every query reads its actual point, normal, optional forward and current
-   * posture; one original alignment and actual bend/preset are evaluated.
-   * The same lazy wrist feeds default Bend and the final shared goal
-   * assembler, retaining preset-before-placement admission. No changing
-   * target or fitted answer is reused. Only fixed hand geometry/options
-   * survive across requests; mutable goal contact payloads are fresh and
-   * the per-query wrist reader never escapes in the returned goal.
+   * posture; one original alignment and actual bend/preset are evaluated. The
+   * same lazy wrist feeds default Bend and the final shared goal assembler,
+   * retaining preset-before-placement admission. No changing target or fitted
+   * answer is reused. Only fixed hand geometry/options survive across requests;
+   * mutable goal contact payloads are fresh and the per-query wrist reader
+   * never escapes in the returned goal.
    */
   export function prepareGoal(
     body: IAutoMovieMotionHumanBody,
@@ -349,17 +359,18 @@ export namespace HumanHandTarget {
           );
           return placed;
         };
-      const current: IAutoMovieMotionHumanArmTarget.ITarget = assembleHumanHandTarget(
-        body,
-        posture,
-        side,
-        place.point,
-        fixed,
-        surface,
-        shape,
-        rotation,
-        (): IAutoMovieVector3 => wrist().point,
-      );
+      const current: IAutoMovieMotionHumanArmTarget.ITarget =
+        assembleHumanHandTarget(
+          body,
+          posture,
+          side,
+          place.point,
+          fixed,
+          surface,
+          shape,
+          rotation,
+          (): IAutoMovieVector3 => wrist().point,
+        );
       return AutoMovieMotionHumanArmTarget.fromWrist(wrist(), current.bend, {
         ...offset().point,
       });
@@ -371,7 +382,10 @@ export namespace HumanHandTarget {
 type IPosture = Pick<IAutoMovieMotionHumanPosture, "root" | "yaw"> &
   Partial<Pick<IAutoMovieMotionHumanPosture, "pitch" | "roll">>;
 
-/** Preserve the original heading/up choice and lazy offset read before alignment. */
+/**
+ * Preserve the original heading/up choice and lazy offset read before
+ * alignment.
+ */
 function oriented(
   posture: IPosture,
   normal: IAutoMovieVector3,
@@ -396,7 +410,10 @@ function oriented(
     : align({ normal, forward });
 }
 
-/** Delay fixed-rest preparation until the first actual world's original alignment admission. */
+/**
+ * Delay fixed-rest preparation until the first actual world's original
+ * alignment admission.
+ */
 function fixedAlignment(
   offset: () => IAutoMovieMotionHumanHand.IFrame,
 ): ReturnType<typeof HumanHand.prepareAlignment> {
@@ -409,7 +426,10 @@ function fixedAlignment(
   };
 }
 
-/** Existing raw-row producer, retaining only genuine fixed local-surface geometry. */
+/**
+ * Existing raw-row producer, retaining only genuine fixed local-surface
+ * geometry.
+ */
 type ITargetEmitter = ReturnType<
   typeof AutoMovieMotionHumanArmTarget.prepareTarget
 >;
@@ -435,5 +455,8 @@ function targetEmitter(
   };
 }
 
-/** The original cosine beyond which the current heading counts as along the normal. */
+/**
+ * The original cosine beyond which the current heading counts as along the
+ * normal.
+ */
 const ALONG: number = 0.9;

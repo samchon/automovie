@@ -10,9 +10,9 @@ import { HumanStageProp } from "./HumanStageProp";
 /**
  * Append a visual prop beat and, when authored, a second performer's response.
  *
- * The partner's flinch starts at the prop beat's named `stroke` event, plus
- * any authored delay. Omit the response for a solo display or a passing
- * beat without a reaction. The timing adds no contact between performers.
+ * The partner's flinch starts at the prop beat's named `stroke` event, plus any
+ * authored delay. Omit the response for a solo display or a passing beat
+ * without a reaction. The timing adds no contact between performers.
  *
  * @param performer The performer carrying the digital prop.
  * @param beat The visual pose and prop mark.

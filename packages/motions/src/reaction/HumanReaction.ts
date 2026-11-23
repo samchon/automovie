@@ -10,15 +10,16 @@ import type {
  * them, so a startle synced to it begins that much after the shot.
  *
  * The delay is the distance over the speed of sound of the engine's one air
- * (`AutoMovieAir.SOUND`, the ICAO Standard Atmosphere at sea level). The
- * report is a cue instant, not a hit: it delivers no impulse, and the
- * reaction's own latency is the sync's to add (`latency: "reaction"`).
+ * (`AutoMovieAir.SOUND`, the ICAO Standard Atmosphere at sea level). The report
+ * is a cue instant, not a hit: it delivers no impulse, and the reaction's own
+ * latency is the sync's to add (`latency: "reaction"`).
  */
 export namespace HumanReaction {
   /**
    * The film second a shot's report reaches a listener.
    *
-   * @param shot Where and when the shot is fired, world metres and film seconds.
+   * @param shot Where and when the shot is fired, world metres and film
+   *   seconds.
    * @param listener Where the listener hears it, world metres.
    * @returns The film second the sound arrives.
    */

@@ -70,11 +70,11 @@ const PARTS: readonly Part[] = [
 ];
 
 /**
- * Plan a mounted performance on a moving carrier (`IAutoMovieMotionHumanMounted`):
- * seat figures in a carrier contact's frame, joined by transfers that keep a
- * support held through them, with each named support acquired, held and
- * released on the figures' clock and the whole carried by the carrier's
- * moving contact. Register `HumanMounted` to use it.
+ * Plan a mounted performance on a moving carrier
+ * (`IAutoMovieMotionHumanMounted`): seat figures in a carrier contact's frame,
+ * joined by transfers that keep a support held through them, with each named
+ * support acquired, held and released on the figures' clock and the whole
+ * carried by the carrier's moving contact. Register `HumanMounted` to use it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the law plans and how it is registered.
  * @evidence contracts/development/design.md#principled-representation One law over a closed seat vocabulary and named carrier contacts.
@@ -88,7 +88,8 @@ export const HumanMounted: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanM
       any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     },
     /**
-     * Admit the figures, solve each seat once in the carrier contact's frame, then sample the carried key postures and the hands' holds.
+     * Admit the figures, solve each seat once in the carrier contact's frame,
+     * then sample the carried key postures and the hands' holds.
      *
      * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals the plan raises: a non-seated entry, no figure or a final bench, a bad transfer or hold, a support the seat kind lacks or does not read, a hand that changes contact, and a transfer that holds no support through it.
      * @evidence contracts/development/implementation.md#principled-implementation Each figure's key posture is solved once by `HumanMountedSeats` in the carrier contact's frame at the start; a second blends the keys by the minimum-jerk transfer share, each limb end's turn slerped by the same share and a foot kept on its rest turned about its ball, swings a foot over the carrier where its straight way would pass through it, and is carried by the contact's moving frame (`HumanMountedFrame`); hands hold their contacts by `HumanMountRider.hold` with the ride's grip reader and closure.
@@ -103,7 +104,10 @@ export const HumanMounted: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanM
     },
   };
 
-/** Admit the figures, solve each seat once, then sample the carried key postures and holds. */
+/**
+ * Admit the figures, solve each seat once, then sample the carried key postures
+ * and holds.
+ */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const { on, frame, figures }: IAutoMovieMotionHumanMounted = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;

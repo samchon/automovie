@@ -13,33 +13,32 @@ import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotion
 /**
  * What lets the penetration audits (`AutoMovieMotionHumanAuditTangle` of one
  * body, `AutoMovieMotionHumanAuditPartner` of two) leave a pair of segments
- * unread at the grid instants a reading certifies, by conservative
- * advancement (`advanceAutoMovieGrid`): a pair's margin, how far its depth
- * can still grow before a reading of it could change the audit's record, and
- * each segment's travel, how far any point of it can move between two grid
- * instants.
+ * unread at the grid instants a reading certifies, by conservative advancement
+ * (`advanceAutoMovieGrid`): a pair's margin, how far its depth can still grow
+ * before a reading of it could change the audit's record, and each segment's
+ * travel, how far any point of it can move between two grid instants.
  *
- * A probe's depth in a segment, zero outside, is the distance to the
- * segment's surface from inside, so it grows no faster than the probe and
- * the segment's surface move toward each other. Its room
+ * A probe's depth in a segment, zero outside, is the distance to the segment's
+ * surface from inside, so it grows no faster than the probe and the segment's
+ * surface move toward each other. Its room
  * (`prepareAutoMovieMotionHumanAuditDepths`), the most over the segment's
  * shapes of a bounding sphere's radius less the probe's distance from its
- * centre, bounds the depth from above and moves no faster either. So a
- * probe read at depth `d` with room `r` lies, an instant later, no deeper
- * than the lesser of `d` and `r` plus the two segments' travel between the
- * instants; a pair whose every probe stays at or below the depth the audit
- * has already recorded for it adds nothing there, which is the margin. A
- * pair whose bounding spheres do not meet is not read at all, and its
- * spheres stay apart while the two segments travel less than the gap
- * between them (each sphere's centre lies within its segment's extent), so
- * that gap is its margin. The travel of a segment between two neighbouring grid instants is the
- * distance its origin moved plus its extent (`IPart.extent`) times the
- * chord of the angle it turned (a rigid motion moves a point `x` from the
- * origin by the origin's move plus `(R2 - R1) x`, whose length is at most
- * `2 sin(angle / 2) |x|`); summed over the steps between two instants it
- * bounds how far any of its points moved between them, by the triangle
- * inequality. The poses are the motion's own on its grid, read anyway by the
- * audit, so the bound is measured, never estimated.
+ * centre, bounds the depth from above and moves no faster either. So a probe
+ * read at depth `d` with room `r` lies, an instant later, no deeper than the
+ * lesser of `d` and `r` plus the two segments' travel between the instants; a
+ * pair whose every probe stays at or below the depth the audit has already
+ * recorded for it adds nothing there, which is the margin. A pair whose
+ * bounding spheres do not meet is not read at all, and its spheres stay apart
+ * while the two segments travel less than the gap between them (each sphere's
+ * centre lies within its segment's extent), so that gap is its margin. The
+ * travel of a segment between two neighbouring grid instants is the distance
+ * its origin moved plus its extent (`IPart.extent`) times the chord of the
+ * angle it turned (a rigid motion moves a point `x` from the origin by the
+ * origin's move plus `(R2 - R1) x`, whose length is at most `2 sin(angle / 2)
+ * |x|`); summed over the steps between two instants it bounds how far any of
+ * its points moved between them, by the triangle inequality. The poses are the
+ * motion's own on its grid, read anyway by the audit, so the bound is measured,
+ * never estimated.
  */
 export namespace AutoMovieMotionHumanAuditTangleMargin {
   /**
@@ -62,17 +61,20 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    * `read`: a pair whose index (`i * parts + j`, `i < j`) is not `due` is not
    * read, and every pair read is `heard`: with `apart`, the gap between its
    * bounding spheres, which is its margin, when they do not meet; otherwise
-   * with its base (the lesser of its two directions' `own` bases) and the
-   * depth it read, less any allowance, whether or not it passed into the
-   * other. The pair's record is the greatest such depth above the nanometre.
+   * with its base (the lesser of its two directions' `own` bases) and the depth
+   * it read, less any allowance, whether or not it passed into the other. The
+   * pair's record is the greatest such depth above the nanometre.
    *
    * @param m The body's model.
    * @param placed The body's placed segments.
    * @param skip Unordered pair keys not to read.
    * @param pressed Unordered pair keys read only beyond a depth, metres.
-   * @param key The unordered pair key (`AutoMovieMotionHumanAuditTangle.unordered`).
-   * @param read The certifying caller's gate and listener; every pair within reach is read when absent.
-   * @returns The pairs, `a` the segment whose probe lies deeper, with `seconds` zero.
+   * @param key The unordered pair key
+   *   (`AutoMovieMotionHumanAuditTangle.unordered`).
+   * @param read The certifying caller's gate and listener; every pair within
+   *   reach is read when absent.
+   * @returns The pairs, `a` the segment whose probe lies deeper, with `seconds`
+   *   zero.
    */
   export function within(
     m: M.IModel,
@@ -152,21 +154,23 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
   }
 
   /**
-   * Every segment of one placed body that passes into a segment of another,
-   * at its full depth: the reading of `AutoMovieMotionHumanAuditTangle.across`
-   * on segments already placed.
+   * Every segment of one placed body that passes into a segment of another, at
+   * its full depth: the reading of `AutoMovieMotionHumanAuditTangle.across` on
+   * segments already placed.
    *
    * A caller that certifies pairs across the instants of a motion
-   * (`AutoMovieMotionHumanAuditPartner`) passes `read`: a pair whose index
-   * (`i * other's parts + j`) is not `due` is not read, and every pair read is
+   * (`AutoMovieMotionHumanAuditPartner`) passes `read`: a pair whose index (`i
+   * * other's parts + j`) is not `due` is not read, and every pair read is
    * `heard` as `within` hears it, its base being `across`'s.
    *
    * @param m The model of the body whose probes are read.
    * @param mine Its placed segments.
    * @param o The model of the body they are read against.
    * @param theirs That body's placed segments.
-   * @param read The certifying caller's gate and listener; every pair within reach is read when absent.
-   * @returns The pairs, `a` of the first body in `b` of the other, with `seconds` zero.
+   * @param read The certifying caller's gate and listener; every pair within
+   *   reach is read when absent.
+   * @returns The pairs, `a` of the first body in `b` of the other, with
+   *   `seconds` zero.
    */
   export function entering(
     m: M.IModel,
@@ -230,15 +234,19 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
 
   /**
    * How deep segment `i`'s probes lie in segment `j` of the same body beyond
-   * their reference depths, and how far that can grow before it exceeds a
-   * depth already recorded.
+   * their reference depths, and how far that can grow before it exceeds a depth
+   * already recorded.
    *
    * @param m The body's model.
    * @param placed The body's placed segments.
    * @param i The segment whose probes are read.
    * @param j The segment they are read in.
-   * @param targets The caller's list of prepared segments for this reading of `placed` (`AutoMovieMotionHumanAuditTangleModel.beyond`).
-   * @returns `excess`, the model's `excess` of the pair, metres, zero when no probe lies deeper than its reference; `base`, metres, such that while the two segments travel less than `base + K` the excess stays at or below any `K` of zero or more.
+   * @param targets The caller's list of prepared segments for this reading of
+   *   `placed` (`AutoMovieMotionHumanAuditTangleModel.beyond`).
+   * @returns `excess`, the model's `excess` of the pair, metres, zero when no
+   *   probe lies deeper than its reference; `base`, metres, such that while the
+   *   two segments travel less than `base + K` the excess stays at or below any
+   *   `K` of zero or more.
    */
   export function own(
     m: M.IModel,
@@ -263,14 +271,16 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
   }
 
   /**
-   * How deep segment `i` of one body's probes lie in a segment of another
-   * body, which shares no reference with it, and how far that can grow
-   * before it exceeds a depth already recorded.
+   * How deep segment `i` of one body's probes lie in a segment of another body,
+   * which shares no reference with it, and how far that can grow before it
+   * exceeds a depth already recorded.
    *
    * @param probes Segment `i`'s probes, in its frame.
    * @param mine Segment `i` as placed.
    * @param read The other segment's prepared depth reader for this pose.
-   * @returns `depth`, metres, the deepest probe, zero outside; `base`, metres, such that while the two segments travel less than `base + K` the depth stays at or below any `K` of zero or more.
+   * @returns `depth`, metres, the deepest probe, zero outside; `base`, metres,
+   *   such that while the two segments travel less than `base + K` the depth
+   *   stays at or below any `K` of zero or more.
    */
   export function across(
     probes: readonly IAutoMovieVector3[],
@@ -293,8 +303,12 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    * grid instant to each later one, at most.
    *
    * @param m The body's model.
-   * @param frames The body's placed segments at each grid instant, in grid order.
-   * @returns Per instant, per segment, metres: the sum over the grid steps before it of the segment's travel over that step; zero at the first instant. Between instants `a < b` a segment's points moved no more than its value at `b` less its value at `a`.
+   * @param frames The body's placed segments at each grid instant, in grid
+   *   order.
+   * @returns Per instant, per segment, metres: the sum over the grid steps
+   *   before it of the segment's travel over that step; zero at the first
+   *   instant. Between instants `a < b` a segment's points moved no more than
+   *   its value at `b` less its value at `a`.
    */
   export function travel(
     m: M.IModel,

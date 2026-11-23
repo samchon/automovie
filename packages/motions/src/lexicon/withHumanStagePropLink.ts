@@ -7,10 +7,10 @@ import type {
 /**
  * Attach an authored swing and settle to a digital stage prop's link hinge.
  *
- * Keyframes give hinge travel in degrees at seconds relative to a film
- * instant. The connecting curve stays between neighbouring travels and
- * settles at each key. The performance places and retains the final state.
- * This track gives the connector and its terminal part the same articulation.
+ * Keyframes give hinge travel in degrees at seconds relative to a film instant.
+ * The connecting curve stays between neighbouring travels and settles at each
+ * key. The performance places and retains the final state. This track gives the
+ * connector and its terminal part the same articulation.
  *
  * @param prop A digital prop with a poseable `link` hinge.
  * @param start The film second or schedule cue the track starts at.
@@ -85,9 +85,7 @@ export function withHumanStagePropLink(
   return { ...prop, tracks: [...(prop.tracks ?? []), track] };
 }
 
-/**
- * One key on a scene-authored link track.
- */
+/** One key on a scene-authored link track. */
 export namespace withHumanStagePropLink {
   /** Hinge travel at a track-local instant. */
   export interface IKey {

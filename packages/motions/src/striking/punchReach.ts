@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A punch's reach on one goal of the fist, and one correction of the
- * tracker carried into it: the records the punch's contact solves and its
- * footwork, stroke and arm superpose (`punchContact`).
+ * A punch's reach on one goal of the fist, and one correction of the tracker
+ * carried into it: the records the punch's contact solves and its footwork,
+ * stroke and arm superpose (`punchContact`).
  */
 export namespace punchReach {
   /**
@@ -51,13 +51,16 @@ export namespace punchReach {
     /** The reach once it has arrived. */
     reach: IReach;
 
-    /** Whether it moves the arm's solution at all; a target that holds still corrects nothing. */
+    /**
+     * Whether it moves the arm's solution at all; a target that holds still
+     * corrects nothing.
+     */
     moved: boolean;
   }
 
   /**
-   * Whether two reaches put the arm in the same place: the same step, wrist
-   * and elbow, compared exactly.
+   * Whether two reaches put the arm in the same place: the same step, wrist and
+   * elbow, compared exactly.
    *
    * @param a One reach.
    * @param b The other.

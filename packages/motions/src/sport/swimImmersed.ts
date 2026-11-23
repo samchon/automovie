@@ -23,24 +23,24 @@ import { SwimStroke } from "./SwimStroke";
 
 /**
  * Register this immersed action with `HumanChain.extend` and
- * `HumanPerformance`'s `laws`. The passive case holds the existing supine
- * key. The opt-in breaststroke uses the existing prone keys and starts at
- * rest. Both start in the water at their first shape's buoyant trim.
+ * `HumanPerformance`'s `laws`. The passive case holds the existing supine key.
+ * The opt-in breaststroke uses the existing prone keys and starts at rest. Both
+ * start in the water at their first shape's buoyant trim.
  *
  * Nakashima, Satou and Miura (2007), section 2, uses posed segments for
  * buoyancy and drag. Here the shape is held and the water is still, so the
  * engine's quasi-steady segment model reduces to a constant quadratic drag
- * coefficient over the span. Integrating `dv/dt = -k v²` gives
- * `distance = log(1 + k v0 t) / k`. The breaststroke instead integrates
- * the heading component of drag at every moving segment. Its trim and
- * heading are prescribed. The sphere approximation gives quasi-steady
- * isotropic drag and omits added mass, free heave, rotation and water entry.
+ * coefficient over the span. Integrating `dv/dt = -k v²` gives `distance =
+ * log(1 + k v0 t) / k`. The breaststroke instead integrates the heading
+ * component of drag at every moving segment. Its trim and heading are
+ * prescribed. The sphere approximation gives quasi-steady isotropic drag and
+ * omits added mass, free heave, rotation and water entry.
  *
- * @see https://doi.org/10.1299/jfst.2.56
  * @evidence contracts/development/common.md#meaningful-documentation States the registration route, stroke choice, initial conditions, force models and scope.
  * @evidence contracts/development/design.md#principled-representation Speed zero and positive speed describe the passive shape; the optional keyed stroke starts at rest and derives heading displacement from drag.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Only this registered action reads its water and stroke choices. It reuses the existing keys and the shared water-force owner.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing stroke key, posture resolution and force owner. A body without enough displacement is refused.
+ * @see https://doi.org/10.1299/jfst.2.56
  */
 export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwimImmersed> =
   {

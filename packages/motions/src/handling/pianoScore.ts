@@ -50,15 +50,14 @@ const READY: number = 0.25;
 
 /**
  * Play named keys on a fixed upright piano from a seated base. The authored
- * score fixes each digit, hand, depression and release. The moving key and
- * its fingertip share the same travel fraction, so a note can be held
- * while the other hand plays. Co-timed keys on a hand form one voicing
- * on a shared wrist, with each fingertip fitted to its own key. The law
- * refuses a voicing that misses any fitted boundary by more than 5 mm, a
- * provisional contact margin for the polygon rig. Zhu et al. describe
- * a shared wrist and per-finger inverse kinematics (doi:10.1002/cav.1477).
- * Huang et al. distinguish note and chord timing in MOSA
- * (doi:10.1109/TASLP.2024.3407529).
+ * score fixes each digit, hand, depression and release. The moving key and its
+ * fingertip share the same travel fraction, so a note can be held while the
+ * other hand plays. Co-timed keys on a hand form one voicing on a shared wrist,
+ * with each fingertip fitted to its own key. The law refuses a voicing that
+ * misses any fitted boundary by more than 5 mm, a provisional contact margin
+ * for the polygon rig. Zhu et al. describe a shared wrist and per-finger
+ * inverse kinematics (doi:10.1002/cav.1477). Huang et al. distinguish note and
+ * chord timing in MOSA (doi:10.1109/TASLP.2024.3407529).
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the placement, score fields, admission and synchronized outcomes.
  * @evidence contracts/development/implementation.md#principled-implementation Reuses the keyed manipulation wrist fit and the button's model frame and range. The finger and button use the same minimum-jerk fraction of the measured dip.

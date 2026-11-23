@@ -18,14 +18,24 @@ import { poseBones } from "../posture/poseBones";
 /**
  * The hands a ride keeps holding what they brought into it (`HumanRide`).
  *
- * A hand that holds a prop and takes none of the ride's grips would otherwise be carried by the performance's held carry, which rides the hand on the chest (`HumanSegmentCarry`); the trunk leans toward the rein and answers the horse's strides, and a closed hand round a lance's grip goes down with it onto the thigh. The ride drives such a hand itself instead: it keeps the wrist, the turn and the elbow the entry displays as a goal the support carries, its fingers closed as they were, so the hand keeps the carriage it brought in while the trunk moves under it; and since a held hand may be driven only by an action that holds its prop, the ride grips the prop for its length and leaves it held.
+ * A hand that holds a prop and takes none of the ride's grips would otherwise
+ * be carried by the performance's held carry, which rides the hand on the chest
+ * (`HumanSegmentCarry`); the trunk leans toward the rein and answers the
+ * horse's strides, and a closed hand round a lance's grip goes down with it
+ * onto the thigh. The ride drives such a hand itself instead: it keeps the
+ * wrist, the turn and the elbow the entry displays as a goal the support
+ * carries, its fingers closed as they were, so the hand keeps the carriage it
+ * brought in while the trunk moves under it; and since a held hand may be
+ * driven only by an action that holds its prop, the ride grips the prop for its
+ * length and leaves it held.
  */
 export namespace HeldRideArms {
-  /**
-   * The seated posture with each held hand kept, and what keeps its prop held.
-   */
+  /** The seated posture with each held hand kept, and what keeps its prop held. */
   export interface IKept {
-    /** The seated posture to carry, each held hand's arm a goal where the entry displays it. */
+    /**
+     * The seated posture to carry, each held hand's arm a goal where the entry
+     * displays it.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
     /** A grip window on each held prop through the ride. */

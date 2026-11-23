@@ -5,9 +5,11 @@ import { HumanArmTrajectoryModel } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 
 /**
- * Read independently prepared arms as one trajectory on its original frame grid.
+ * Read independently prepared arms as one trajectory on its original frame
+ * grid.
  *
- * @param context The complete coupled context, including its pace and swept pairs.
+ * @param context The complete coupled context, including its pace and swept
+ *   pairs.
  * @param tracks Each candidate arm's clinical-angle reader, in context order.
  * @returns The coupled interpolant when it meets the full model, or undefined.
  */

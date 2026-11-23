@@ -7,15 +7,13 @@ import type {
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
 /**
- * The room a forearm reading reads of its colliders (`HumanArmOvershoot`):
- * the chest and its outward side, whether the other arm's colliders are
- * among the trunk's, and every shape with its frame and its role, built
- * once per list and side.
+ * The room a forearm reading reads of its colliders (`HumanArmOvershoot`): the
+ * chest and its outward side, whether the other arm's colliders are among the
+ * trunk's, and every shape with its frame and its role, built once per list and
+ * side.
  */
 export namespace HumanArmOvershootRoom {
-  /**
-   * One shape with the posed frame of its segment.
-   */
+  /** One shape with the posed frame of its segment. */
   export interface IShape {
     /** The segment's posed frame. */
     pose: IAutoMovieMotionHumanColliders.IPlaced["pose"];
@@ -23,38 +21,51 @@ export namespace HumanArmOvershootRoom {
     /** The shape. */
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number];
 
-    /** Whether the wrist has no goal on the shape, so its own depth excuses nothing. */
+    /**
+     * Whether the wrist has no goal on the shape, so its own depth excuses
+     * nothing.
+     */
     free: boolean;
 
-    /** Whether the goal lays the hand on the shape, so the wrist's shortfall from its room excuses that much. */
+    /**
+     * Whether the goal lays the hand on the shape, so the wrist's shortfall
+     * from its room excuses that much.
+     */
     rest: boolean;
 
     /** Its bounding sphere and hull frame (`HumanShapeFraming.of`). */
     framed: HumanShapeFraming.IFramed;
   }
 
-  /**
-   * What a reading reads of its colliders besides the elbow and the wrist.
-   */
+  /** What a reading reads of its colliders besides the elbow and the wrist. */
   export interface IRoom {
-    /** The chest's collider, whose median plane the elbow keeps its side of; none for a rig without one. */
+    /**
+     * The chest's collider, whose median plane the elbow keeps its side of;
+     * none for a rig without one.
+     */
     chest: IAutoMovieMotionHumanColliders.IPlaced | undefined;
 
-    /** The chest's outward axis on the arm's side, world; unused without a chest. */
+    /**
+     * The chest's outward axis on the arm's side, world; unused without a
+     * chest.
+     */
     out: IAutoMovieVector3;
 
     /** Whether the other arm's colliders are among the trunk's. */
     present: boolean;
 
-    /** The trunk's shapes, then the others', then the rests', each with its frame. */
+    /**
+     * The trunk's shapes, then the others', then the rests', each with its
+     * frame.
+     */
     shapes: IShape[];
   }
 
   /**
-   * The room of a reading's colliders, built once per trunk list, others'
-   * list, rests' list and side, and read by every candidate of a sweep, which
-   * passes the same lists: the chest, its outward axis, whether the other
-   * arm is present and every shape framed (`HumanShapeFraming.of`).
+   * The room of a reading's colliders, built once per trunk list, others' list,
+   * rests' list and side, and read by every candidate of a sweep, which passes
+   * the same lists: the chest, its outward axis, whether the other arm is
+   * present and every shape framed (`HumanShapeFraming.of`).
    *
    * @param shapes The trunk's colliders.
    * @param others Another body's colliders the wrist has no goal on.
@@ -174,7 +185,10 @@ export namespace HumanArmOvershootRoom {
   }
 }
 
-/** The rooms read, by the trunk's list, the others' list and the rests' list, then by side; an empty list is keyed by `EMPTY`. */
+/**
+ * The rooms read, by the trunk's list, the others' list and the rests' list,
+ * then by side; an empty list is keyed by `EMPTY`.
+ */
 const ROOMS: WeakMap<
   object,
   WeakMap<
@@ -186,5 +200,8 @@ const ROOMS: WeakMap<
   >
 > = new WeakMap();
 
-/** The key of an empty collider list: a reading given none makes a fresh empty list each time. */
+/**
+ * The key of an empty collider list: a reading given none makes a fresh empty
+ * list each time.
+ */
 const EMPTY: object = Object.freeze({});

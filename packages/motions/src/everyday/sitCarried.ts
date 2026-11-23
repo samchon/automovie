@@ -14,27 +14,28 @@ import type {
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 
 /**
- * A sit onto the seat of a prop that may move, carried by that prop: the
- * seat is read where its carrier stands when the sit begins, so the plan is
- * made in the carrier's frame at that instant, and every posture of it is
- * carried rigidly by the carrier's motion since (`carryHumanPosture`). A
- * seat that names its own contact on the carrier (`ISeat.point`) is also
- * followed as that contact moves within the carrier, a saddle rising and
- * falling on a walking horse's back: the root moves by the contact's stray
- * from where the carrier alone would have taken it, as a ride's does, so a
- * ride that begins while the horse walks takes over a rider on the seat. The
- * seat and every foot the sit plants bear on the carrier, so the audits
- * read them in its frame, unless the plan already declares which of its
- * windows bear on the carrier, as getting onto a saddle from the floor
- * does: its floor plants stay on the floor. A ride that follows takes its
- * origin where the carrier then stands, on the seat the sit tracked. A seat
- * in the world, or a carrier that does not move during the sit, leaves the
- * plan as it was.
+ * A sit onto the seat of a prop that may move, carried by that prop: the seat
+ * is read where its carrier stands when the sit begins, so the plan is made in
+ * the carrier's frame at that instant, and every posture of it is carried
+ * rigidly by the carrier's motion since (`carryHumanPosture`). A seat that
+ * names its own contact on the carrier (`ISeat.point`) is also followed as that
+ * contact moves within the carrier, a saddle rising and falling on a walking
+ * horse's back: the root moves by the contact's stray from where the carrier
+ * alone would have taken it, as a ride's does, so a ride that begins while the
+ * horse walks takes over a rider on the seat. The seat and every foot the sit
+ * plants bear on the carrier, so the audits read them in its frame, unless the
+ * plan already declares which of its windows bear on the carrier, as getting
+ * onto a saddle from the floor does: its floor plants stay on the floor. A ride
+ * that follows takes its origin where the carrier then stands, on the seat the
+ * sit tracked. A seat in the world, or a carrier that does not move during the
+ * sit, leaves the plan as it was.
  *
  * @param context The sit's context: its start and the props.
  * @param seat The seat, read where its carrier stands at the sit's start.
  * @param plan The sit's plan against that seat.
- * @param declared Whether the plan's windows already name the carrier where they bear on it; when absent or false, the seat and every foot window are put on it.
+ * @param declared Whether the plan's windows already name the carrier where
+ *   they bear on it; when absent or false, the seat and every foot window are
+ *   put on it.
  * @returns The plan carried by the seat's carrier.
  */
 export function sitCarried(

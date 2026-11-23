@@ -31,12 +31,12 @@ const SWING_CLEARANCE: number = 0.025;
 
 /**
  * Stage the right forefoot on an upright piano's damper pedal, depress and
- * release it on its own clock, and return to the original floor plant.
- * Hannah Creviston describes keeping the heel grounded and playing the
- * damper with the ball of the foot in Yamaha's piano pedaling guide
+ * release it on its own clock, and return to the original floor plant. Hannah
+ * Creviston describes keeping the heel grounded and playing the damper with the
+ * ball of the foot in Yamaha's piano pedaling guide
  * (https://hub.yamaha.com/music-educators/instruments/piano/piano-pedagogy-pedaling/).
- * MIDI Control Change 64 provides separate damper timing from note events.
- * See https://midi.org/midi-1-0-control-change-messages.
+ * MIDI Control Change 64 provides separate damper timing from note events. See
+ * https://midi.org/midi-1-0-control-change-messages.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seated path, target and references for an independent damper clock.
  * @evidence contracts/development/implementation.md#principled-implementation Intersects the body's heel-centred forefoot circle with the rigidly rotated pedal plane. One minimum-jerk angular signal drives the hinge and the target plane.

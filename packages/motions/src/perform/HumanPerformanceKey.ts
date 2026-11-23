@@ -6,36 +6,41 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A performance input's structural key: two inputs share a key exactly when
- * a performance resolved from either is the same, so a resolved performance
- * is kept and read again under it (`HumanPerformanceState.of`).
+ * A performance input's structural key: two inputs share a key exactly when a
+ * performance resolved from either is the same, so a resolved performance is
+ * kept and read again under it (`HumanPerformanceState.of`).
  *
- * Plain data (the seed, the composition, the parameters, the places, the
- * props' frames and points) is keyed by its content: each value by its type
- * and exact value, each array by its items in order and each plain object by
- * its own keys in sorted order, a key holding `undefined` apart from a key
- * absent. The authored-flight policy is captured once from its effective
- * property, including inherited and non-enumerable properties, and normalized
- * to its staged default. That same capture is returned to construction;
- * explicit physical mode has a distinct key. Everything else is keyed by its identity: a function (a law's
- * plan, a layer, a moving prop's course), an instance of a class, a map and
- * a performer's body, the prepared body a process keeps for its whole life,
- * whose content is the rig, the profile and the surfaces of that body.
+ * Plain data (the seed, the composition, the parameters, the places, the props'
+ * frames and points) is keyed by its content: each value by its type and exact
+ * value, each array by its items in order and each plain object by its own keys
+ * in sorted order, a key holding `undefined` apart from a key absent. The
+ * authored-flight policy is captured once from its effective property,
+ * including inherited and non-enumerable properties, and normalized to its
+ * staged default. That same capture is returned to construction; explicit
+ * physical mode has a distinct key. Everything else is keyed by its identity: a
+ * function (a law's plan, a layer, a moving prop's course), an instance of a
+ * class, a map and a performer's body, the prepared body a process keeps for
+ * its whole life, whose content is the rig, the profile and the surfaces of
+ * that body.
  */
 export namespace HumanPerformanceKey {
   /**
-   * The key of a performance input and its single effective flight-mode capture.
+   * The key of a performance input and its single effective flight-mode
+   * capture.
    *
    * @param input The input.
    * @returns The structural key and the same admitted mode for construction.
-   * @throws {HumanRefusal} When the effective flight mode is neither staged nor physical after the undefined default.
+   * @throws {HumanRefusal} When the effective flight mode is neither staged nor
+   *   physical after the undefined default.
    */
   export function of(input: IAutoMovieMotionHumanPerformance.IInput): {
     key: string;
     flight: NonNullable<IAutoMovieMotionHumanPerformance.IInput["flight"]>;
   } {
     const value: Omit<IAutoMovieMotionHumanPerformance.IInput, "performers"> & {
-      performers: (Omit<IAutoMovieMotionHumanPerformer, "body"> & { body: string })[];
+      performers: (Omit<IAutoMovieMotionHumanPerformer, "body"> & {
+        body: string;
+      })[];
     } = {
       ...input,
       performers: input.performers.map(
@@ -48,15 +53,26 @@ export namespace HumanPerformanceKey {
       ),
     };
     const selected: IAutoMovieMotionHumanPerformance.IInput["flight"] =
-      Object.prototype.hasOwnProperty.call(value, "flight") ? value.flight : input.flight;
-    const flight: NonNullable<IAutoMovieMotionHumanPerformance.IInput["flight"]> = selected === undefined ? "staged" : selected;
+      Object.prototype.hasOwnProperty.call(value, "flight")
+        ? value.flight
+        : input.flight;
+    const flight: NonNullable<
+      IAutoMovieMotionHumanPerformance.IInput["flight"]
+    > = selected === undefined ? "staged" : selected;
     if (flight !== "staged" && flight !== "physical")
       throw new HumanRefusal({
-        kind: "parameter", axis: "flight", value: flight,
+        kind: "parameter",
+        axis: "flight",
+        value: flight,
         reason: "the authored-flight mode must be staged or physical",
         fix: "choose staged for authored turns or physical for angular-momentum flight",
       });
-    Object.defineProperty(value, "flight", { value: flight, enumerable: true, writable: true, configurable: true });
+    Object.defineProperty(value, "flight", {
+      value: flight,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
     return { key: walk(value), flight };
   }
 

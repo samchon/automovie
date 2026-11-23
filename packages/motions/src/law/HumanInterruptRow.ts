@@ -1,8 +1,6 @@
 import type { IAutoMovieMotionHumanInterruptRow } from "@automovie/interface";
 
-/**
- * Companion data of {@link HumanInterruptRow}.
- */
+/** Companion data of {@link HumanInterruptRow}. */
 export namespace HumanInterruptRow {
   /** The transitions a cut runs, as data. */
   export const KINDS = [

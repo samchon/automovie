@@ -4,11 +4,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Keep an observational demand only when no later planted-goal refit will
- * read a digit result omitted by that demand.
+ * Keep an observational demand only when no later planted-goal refit will read
+ * a digit result omitted by that demand.
  *
  * @param limbs The current raw goals before later planted fitting.
- * @param requested The caller's exact observed bones; absence keeps complete evaluation.
+ * @param requested The caller's exact observed bones; absence keeps complete
+ *   evaluation.
  * @returns The same borrowed demand when no plant exists, otherwise none.
  */
 export function unplantedHumanObservation(

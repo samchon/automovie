@@ -1,7 +1,9 @@
 ﻿import type { IAutoMovieMotionHumanThrowCatch } from "@automovie/interface";
 
 /**
- * A high cricket release toward the authored pitch bounce: the cricket style, release 4 degrees below the horizontal after a 0.42 s windup. Spread into `throwObject`'s parameters with the target.
+ * A high cricket release toward the authored pitch bounce: the cricket style,
+ * release 4 degrees below the horizontal after a 0.42 s windup. Spread into
+ * `throwObject`'s parameters with the target.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which row reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IAutoMovieMotionHumanThrowCatch.IStylePreset`, so it fits any body as the law does.

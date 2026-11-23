@@ -14,27 +14,29 @@ import { HumanFoot } from "../posture/HumanFoot";
 import type { supportCourse } from "./supportCourse";
 
 /**
- * Prepare a writer that puts one foot, flat and facing the route's heading,
- * on the straight course between two toe-joint positions. Between two
- * fitted keys the joint-space blend can sweep a free foot through an edge
- * the keys clear, and can tilt a bearing foot off a level top; the writer
- * replaces the leg's goal with the foot on its course. With `bearing` the
- * goal plants the foot, and with equal ends it holds the foot in place.
- * Given the root at both ends, the course is expressed in the moving root's
- * frame, as an effector path is while the root travels: the foot's offset
- * from the root blends from its start to its end offset. Both ends being
- * reachable, every blend is, so the leg never over-reaches mid-course.
+ * Prepare a writer that puts one foot, flat and facing the route's heading, on
+ * the straight course between two toe-joint positions. Between two fitted keys
+ * the joint-space blend can sweep a free foot through an edge the keys clear,
+ * and can tilt a bearing foot off a level top; the writer replaces the leg's
+ * goal with the foot on its course. With `bearing` the goal plants the foot,
+ * and with equal ends it holds the foot in place. Given the root at both ends,
+ * the course is expressed in the moving root's frame, as an effector path is
+ * while the root travels: the foot's offset from the root blends from its start
+ * to its end offset. Both ends being reachable, every blend is, so the leg
+ * never over-reaches mid-course.
  *
  * @param body The canonical motion body.
  * @param side The foot.
  * @param yaw The route's heading, degrees.
  * @param from The toe joint's first position, world metres.
  * @param to The toe joint's last position, world metres.
- * @param bearing Whether the foot bears on its target rather than swings; a swing when absent.
- * @param rootFrom The root at the course's start, world metres; with 
-ootTo the course is carried by the moving root.
+ * @param bearing Whether the foot bears on its target rather than swings; a
+ *   swing when absent.
+ * @param rootFrom The root at the course's start, world metres; with ootTo the
+ *   course is carried by the moving root.
  * @param rootTo The root at the course's end, world metres.
- * @returns A writer of that leg and its toes at a share in [0, 1] of the course, leaving the other limbs alone.
+ * @returns A writer of that leg and its toes at a share in [0, 1] of the
+ *   course, leaving the other limbs alone.
  */
 export function prepareSupportFootCourse(
   body: IAutoMovieMotionHumanBody,

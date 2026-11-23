@@ -38,7 +38,10 @@ type Kind =
   | "handballThrow"
   | "highHandContest";
 
-/** Planted motion parameters. Depth scales by stature; lean is forward degrees. Durations are provisional seconds. */
+/**
+ * Planted motion parameters. Depth scales by stature; lean is forward degrees.
+ * Durations are provisional seconds.
+ */
 const PHRASES: Readonly<
   Record<
     Kind,
@@ -89,7 +92,10 @@ const PHRASES: Readonly<
   },
 };
 
-/** Resolve the one spherical ball the release moves. The collider's centre need not coincide with the prop origin. */
+/**
+ * Resolve the one spherical ball the release moves. The collider's centre need
+ * not coincide with the prop origin.
+ */
 function sphericalBall(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,
   subject: string,
@@ -153,18 +159,18 @@ function turn(yaw: number, local: IAutoMovieVector3): IAutoMovieVector3 {
 
 /**
  * Plan a planted basketball or handball phrase on the same clock as its
- * release. Basketball's return from the floor and the handball throw keep
- * the actual ball as a single performance prop. The contest waves and raises
- * the hands without an authored ball impulse. FIBA WABC Level 2 §1.1.1
- * identifies a high-hand finish for a closeout. Wagner et al. (2011),
- * J Sports Sci Med 10:73–80, distinguishes grounded and airborne handball
- * delivery. This first grounded version uses a planted base and a separate
- * arm cocking and delivery phase. Phase durations and limb targets are
- * provisional staging values.
+ * release. Basketball's return from the floor and the handball throw keep the
+ * actual ball as a single performance prop. The contest waves and raises the
+ * hands without an authored ball impulse. FIBA WABC Level 2 §1.1.1 identifies a
+ * high-hand finish for a closeout. Wagner et al. (2011), J Sports Sci Med
+ * 10:73–80, distinguishes grounded and airborne handball delivery. This first
+ * grounded version uses a planted base and a separate arm cocking and delivery
+ * phase. Phase durations and limb targets are provisional staging values.
  *
  * @param context The ball-sport action instance and its actor and prop readers.
  * @param kind The checked court phrase selected by ballSport.
- * @returns Planted motion with named beats and, for a release, a grip window and the one prop launch.
+ * @returns Planted motion with named beats and, for a release, a grip window
+ *   and the one prop launch.
  * @throws {HumanRefusal} For an unavailable spherical prop or required aim.
  */
 export function ballCourt(

@@ -23,29 +23,30 @@ import { FootSlip } from "./FootSlip";
 
 /**
  * Experiment E1 on the polygon man (`jump-e1-<body>` for the smallest, the
- * average and the tallest sweep bodies): the body walks at a
- * normal pace and is cut into a jump that lands 0.9 m ahead of where it is,
- * at 21 shares across one stride (from its second to its third left heel
- * strike, 0.05 of the stride apart). The middle cut is drawn every 0.1 s and
- * at its events; the verdicts hold over every cut, each measured from 0.3 s
- * before its cut to the end, the span the cut, the push, the flight and the
- * landing lie in (the walking before it is the walk captures'):
+ * average and the tallest sweep bodies): the body walks at a normal pace and is
+ * cut into a jump that lands 0.9 m ahead of where it is, at 21 shares across
+ * one stride (from its second to its third left heel strike, 0.05 of the stride
+ * apart). The middle cut is drawn every 0.1 s and at its events; the verdicts
+ * hold over every cut, each measured from 0.3 s before its cut to the end, the
+ * span the cut, the push, the flight and the landing lie in (the walking before
+ * it is the walk captures'):
  *
- * - every cut is legal, a stance foot being planted;
- * - the planted point of a foot, its lowest sole socket while within 1 cm of
- *   the floor, slides under 5 mm in both actions' plant windows
- *   ({@link FootSlip}, the rule the walk captures measure by);
- * - the velocity jump at the cut, the largest change of any bone's velocity
- *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of it,
- *   each velocity the symmetric difference at the cut -/+ 1/240 s, naming the
- *   displayed channel (root translation or clinical angle) that changes most;
- * - every displayed channel is continuous at the cut: within 0.5 degree, the
- *   root within 0.5 mm, from 1 microsecond before it to 1 after;
- * - the centre of mass in flight lies within 10 mm of the least-squares
- *   ballistic parabola with gravity fixed;
- * - after touchdown no heel, ball or toe sinks more than 10 mm under the floor;
- * - at take-off the reaching ankle is under the body, within 0.25 hip heights
- *   of the hips horizontally and at least 0.2 hip heights up.
+ * - Every cut is legal, a stance foot being planted;
+ * - The planted point of a foot, its lowest sole socket while within 1 cm of the
+ *   floor, slides under 5 mm in both actions' plant windows ({@link FootSlip},
+ *   the rule the walk captures measure by);
+ * - The velocity jump at the cut, the largest change of any bone's velocity
+ *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of
+ *   it, each velocity the symmetric difference at the cut -/+ 1/240 s, naming
+ *   the displayed channel (root translation or clinical angle) that changes
+ *   most;
+ * - Every displayed channel is continuous at the cut: within 0.5 degree, the root
+ *   within 0.5 mm, from 1 microsecond before it to 1 after;
+ * - The centre of mass in flight lies within 10 mm of the least-squares ballistic
+ *   parabola with gravity fixed;
+ * - After touchdown no heel, ball or toe sinks more than 10 mm under the floor;
+ * - At take-off the reaching ankle is under the body, within 0.25 hip heights of
+ *   the hips horizontally and at least 0.2 hip heights up.
  *
  * @returns The case.
  */

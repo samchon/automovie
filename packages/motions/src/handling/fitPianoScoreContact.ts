@@ -16,9 +16,9 @@ import { poseBones } from "../posture/poseBones";
 import type { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
 /**
- * Fit a voicing's digits from the arms already placed at a scored boundary.
- * An undepressed fit supplies the resting shape for transport. At each
- * checked chord boundary every digit must reach from the same fitted wrist.
+ * Fit a voicing's digits from the arms already placed at a scored boundary. An
+ * undepressed fit supplies the resting shape for transport. At each checked
+ * chord boundary every digit must reach from the same fitted wrist.
  *
  * @param body The seated performer's rig.
  * @param arms The pose with both arm goals fitted at the boundary.

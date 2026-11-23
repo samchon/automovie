@@ -11,27 +11,28 @@ import { HumanFrame } from "../posture/HumanFrame";
 /**
  * The direction a hand lies on a surface region when the arm chooses it
  * (`lay`), and the direction a hand that continues its forearm points at a
- * place (`reach`). Read by the touch stroke
- * (`AutoMovieMotionHumanTouch`), whose transport is a joint-space carry and
- * so needs no path of its own.
+ * place (`reach`). Read by the touch stroke (`AutoMovieMotionHumanTouch`),
+ * whose transport is a joint-space carry and so needs no path of its own.
  */
 export namespace AutoMovieMotionHumanTouchPath {
   /**
    * The direction an effector's along axis lies on a region when the arm
-   * chooses it: from the elbow to the place, across the region's normal.
-   * The hand then continues the forearm that reaches the place, so a palm
-   * on the performer's own belly lies across it and one on a thigh points
-   * down it. The elbow is read hanging under the shoulder, or, for an arm
-   * held level, out to the side at the shoulder's height, so a saluting
-   * hand continues a forearm that rises to the brow from there.
+   * chooses it: from the elbow to the place, across the region's normal. The
+   * hand then continues the forearm that reaches the place, so a palm on the
+   * performer's own belly lies across it and one on a thigh points down it. The
+   * elbow is read hanging under the shoulder, or, for an arm held level, out to
+   * the side at the shoulder's height, so a saluting hand continues a forearm
+   * that rises to the brow from there.
    *
    * @param body The body.
    * @param posture The posture so far.
    * @param side The hand.
    * @param point The region's point, world.
    * @param normal The region's unit normal.
-   * @param fallback The direction when the elbow's direction runs along the normal.
-   * @param elbow Where the elbow is read: hanging (`natural`) or `level` with the shoulder; hanging when absent.
+   * @param fallback The direction when the elbow's direction runs along the
+   *   normal.
+   * @param elbow Where the elbow is read: hanging (`natural`) or `level` with
+   *   the shoulder; hanging when absent.
    * @returns The unit direction.
    */
   export function lay(
@@ -57,17 +58,19 @@ export namespace AutoMovieMotionHumanTouchPath {
   }
 
   /**
-   * The direction a hand that continues its forearm onto a place points:
-   * from the elbow to the place, as a saluting hand runs straight from the
-   * forearm to the brow. Unlike `lay`, the direction is not laid across the
-   * region; the hand meets the place end on.
+   * The direction a hand that continues its forearm onto a place points: from
+   * the elbow to the place, as a saluting hand runs straight from the forearm
+   * to the brow. Unlike `lay`, the direction is not laid across the region; the
+   * hand meets the place end on.
    *
    * @param body The body.
    * @param posture The posture so far.
    * @param side The hand.
    * @param point The place, world.
-   * @param elbow Where the elbow is read: hanging (`natural`) or `level` with the shoulder; hanging when absent.
-   * @param from The elbow's place, world, when it has been solved; read from the body's measures when absent.
+   * @param elbow Where the elbow is read: hanging (`natural`) or `level` with
+   *   the shoulder; hanging when absent.
+   * @param from The elbow's place, world, when it has been solved; read from
+   *   the body's measures when absent.
    * @returns The unit direction; straight up when the place is on the elbow.
    */
   export function reach(
@@ -88,7 +91,10 @@ export namespace AutoMovieMotionHumanTouchPath {
   }
 }
 
-/** Where the elbow is read for a hand's lay: hanging under the shoulder, or out to the side at the shoulder's height for an arm held level. */
+/**
+ * Where the elbow is read for a hand's lay: hanging under the shoulder, or out
+ * to the side at the shoulder's height for an arm held level.
+ */
 function elbowOf(
   body: IAutoMovieMotionHumanBody,
   posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">,

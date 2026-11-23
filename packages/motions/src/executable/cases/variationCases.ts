@@ -28,40 +28,39 @@ import { VariationSeries } from "./VariationSeries";
 import { VariationStrikes } from "./VariationStrikes";
 
 /**
- * Capture cases of the seeded variation of symbolic slots on the polygon
- * men, one per body of `MotionBodies.SWEEP` (`variation-<body>`).
+ * Capture cases of the seeded variation of symbolic slots on the polygon men,
+ * one per body of `MotionBodies.SWEEP` (`variation-<body>`).
  *
- * Each case performs `VariationSeries.REPEATS` repeats in a row of `wave`,
- * of `stopPalm` and of a straight punch at the partner's abdomen, at
- * `variation` 1 with the manner's proficiency 0 and 1, and reads the
- * displayed poses. `RATIO` below is `VariationSeries.RATIO`; `ON` and `SPAN`
- * are `VariationStrikes`'s, which reads the strike and the defence:
+ * Each case performs `VariationSeries.REPEATS` repeats in a row of `wave`, of
+ * `stopPalm` and of a straight punch at the partner's abdomen, at `variation` 1
+ * with the manner's proficiency 0 and 1, and reads the displayed poses. `RATIO`
+ * below is `VariationSeries.RATIO`; `ON` and `SPAN` are `VariationStrikes`'s,
+ * which reads the strike and the defence:
  *
- * - place: at the stroke's middle every hand reads back as the names its law
+ * - Place: at the stroke's middle every hand reads back as the names its law
  *   states (`MotionPlaceVerdicts`);
- * - dispersion: the root mean square distance of those hands from their mean
- *   at proficiency 0 is at least `RATIO` times that at proficiency 1;
- * - timing: the spread of the stroke's start is at least `RATIO` times
- *   larger at proficiency 0, and the stroke's own length equals that of the
- *   same repeat without variation;
- * - reach: the two farthest of the repeats of the place `ahead` are at least
- *   `VISIBLE` arm lengths apart at proficiency 0 and 0 apart without
- *   variation. No shipped law reaches to `ahead` yet, so this reads the
- *   owner's place on the body;
- * - strike: every point aimed at lies on the partner's colliders within
- *   `ON`, is nearer to `abdomen` than to any other region at rest, the points
- *   span at least `SPAN` of the region's radius upward and sideways at
- *   proficiency 0, their dispersion ratio is at least `RATIO`, and the
- *   record's aim (its planned point less its landing offset) is the same
- *   point within `ON`;
- * - defence: a cover against one varied punch classes as declared.
+ * - Dispersion: the root mean square distance of those hands from their mean at
+ *   proficiency 0 is at least `RATIO` times that at proficiency 1;
+ * - Timing: the spread of the stroke's start is at least `RATIO` times larger at
+ *   proficiency 0, and the stroke's own length equals that of the same repeat
+ *   without variation;
+ * - Reach: the two farthest of the repeats of the place `ahead` are at least
+ *   `VISIBLE` arm lengths apart at proficiency 0 and 0 apart without variation.
+ *   No shipped law reaches to `ahead` yet, so this reads the owner's place on
+ *   the body;
+ * - Strike: every point aimed at lies on the partner's colliders within `ON`, is
+ *   nearer to `abdomen` than to any other region at rest, the points span at
+ *   least `SPAN` of the region's radius upward and sideways at proficiency 0,
+ *   their dispersion ratio is at least `RATIO`, and the record's aim (its
+ *   planned point less its landing offset) is the same point within `ON`;
+ * - Defence: a cover against one varied punch classes as declared.
  *
- * The partner is the average man, except that the tall man and the small
- * woman face each other. The case draws the proficiency 0 wave at its first
- * strokes and marks every repeat's hand, orange at proficiency 0 and blue
- * at 1.
+ * The partner is the average man, except that the tall man and the small woman
+ * face each other. The case draws the proficiency 0 wave at its first strokes
+ * and marks every repeat's hand, orange at proficiency 0 and blue at 1.
  *
- * @param only Keeps the cases whose name it accepts, the others not being built; every case when absent.
+ * @param only Keeps the cases whose name it accepts, the others not being
+ *   built; every case when absent.
  * @returns The cases, each built as it is read.
  */
 export function* variationCases(
@@ -74,8 +73,8 @@ export function* variationCases(
   }
 }
 /**
- * Companion constants of {@link variationCases}: the reach's verdict bound,
- * a provisional value of the variation's acceptance.
+ * Companion constants of {@link variationCases}: the reach's verdict bound, a
+ * provisional value of the variation's acceptance.
  */
 export namespace variationCases {
   /** The least distance between the two farthest reaches, arm lengths. */

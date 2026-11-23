@@ -29,7 +29,10 @@ import { heelMountedFoot } from "./heelMountedFoot";
  * feet must swing over the carrier on their way to the next figure.
  */
 export namespace HumanMountedPaths {
-  /** How far above the higher end of its way a foot that must swing over the carrier passes, thigh lengths (provisional). */
+  /**
+   * How far above the higher end of its way a foot that must swing over the
+   * carrier passes, thigh lengths (provisional).
+   */
   export const RISE: number = 0.25;
 
   /**
@@ -53,7 +56,9 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The point the hips swing about between two keys: the middle of the ankles when both feet stay planted where they are in both keys, as on their stirrups; none otherwise.
+   * The point the hips swing about between two keys: the middle of the ankles
+   * when both feet stay planted where they are in both keys, as on their
+   * stirrups; none otherwise.
    *
    * @param from The earlier key.
    * @param to The later key.
@@ -79,7 +84,9 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The hips a share of the way between two keys: straight, or about a pivot, the direction turned and the distance from the pivot blended, so the hips never come nearer to or further from the feet than at both ends.
+   * The hips a share of the way between two keys: straight, or about a pivot,
+   * the direction turned and the distance from the pivot blended, so the hips
+   * never come nearer to or further from the feet than at both ends.
    *
    * @param from The earlier hips.
    * @param to The later hips.
@@ -112,7 +119,8 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * A posture whose planted feet bearing on their balls are turned toes-down where the shank would lean past the ankle's range (`heelMountedFoot`).
+   * A posture whose planted feet bearing on their balls are turned toes-down
+   * where the shank would lean past the ankle's range (`heelMountedFoot`).
    *
    * @param body The body.
    * @param posture The posture, in any frame.
@@ -138,7 +146,8 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * A posture without arm goals: the arms posed by their joints, so a hand's hold blends from where those joints put it.
+   * A posture without arm goals: the arms posed by their joints, so a hand's
+   * hold blends from where those joints put it.
    *
    * @param posture The posture.
    * @returns The posture without its arm goals.
@@ -153,7 +162,8 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * Where a figure's held contacts are at a film second, in the carrier frame then: the points the hands must keep in reach.
+   * Where a figure's held contacts are at a film second, in the carrier frame
+   * then: the points the hands must keep in reach.
    *
    * @param support The carrier.
    * @param figure The figure.
@@ -183,7 +193,10 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * Whether a figure names its supports: a figure that names any is held by those alone, so a foot it does not name leaves its stirrup in the figure's transfer (its window closes where the transfer starts) and hangs; a figure that names none keeps the entry's feet as they were.
+   * Whether a figure names its supports: a figure that names any is held by
+   * those alone, so a foot it does not name leaves its stirrup in the figure's
+   * transfer (its window closes where the transfer starts) and hangs; a figure
+   * that names none keeps the entry's feet as they were.
    *
    * @param figure The figure.
    * @returns True when it names any support.
@@ -195,7 +208,9 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The entered seat for a figure: the entry as it was, or, where the figure names the stirrups it keeps, the entry with each planted foot it does not name hanging free (`hangMountedLeg`), a stirrup lost.
+   * The entered seat for a figure: the entry as it was, or, where the figure
+   * names the stirrups it keeps, the entry with each planted foot it does not
+   * name hanging free (`hangMountedLeg`), a stirrup lost.
    *
    * @param body The body.
    * @param entry The entered posture, in the carrier frame.
@@ -218,11 +233,15 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The contact window a figure's supporting part holds on the carrier: a grip for a hand, a plant for a sole (on its stirrup's own frame when one is named), a knee bearing on its region, the right thigh bearing over its bar.
+   * The contact window a figure's supporting part holds on the carrier: a grip
+   * for a hand, a plant for a sole (on its stirrup's own frame when one is
+   * named), a knee bearing on its region, the right thigh bearing over its
+   * bar.
    *
    * @param part The supporting part.
    * @param on The carrier's subject id.
-   * @param point The carrier's point the part rests on, when the figure names one.
+   * @param point The carrier's point the part rests on, when the figure names
+   *   one.
    * @returns The window over the whole performance, which the clock then cuts.
    */
   export function window(
@@ -271,7 +290,9 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * How far the carrier contact rises or falls from its stride-averaged path while the performance is out of the saddle, read in world height so the course's own travel does not count.
+   * How far the carrier contact rises or falls from its stride-averaged path
+   * while the performance is out of the saddle, read in world height so the
+   * course's own travel does not count.
    *
    * @param carrier The carrier frame reader.
    * @param start The performance's start, film seconds.
@@ -314,7 +335,10 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The ball a foot pivots about between two keys: the foot planted on its ball in both, the ball on the same place within the campaign's 5 mm contact bound (`HumanMount.ON`), as a foot kept in its stirrup while the seat turns; none otherwise.
+   * The ball a foot pivots about between two keys: the foot planted on its ball
+   * in both, the ball on the same place within the campaign's 5 mm contact
+   * bound (`HumanMount.ON`), as a foot kept in its stirrup while the seat
+   * turns; none otherwise.
    *
    * @param from The earlier key.
    * @param to The later key.
@@ -348,7 +372,11 @@ export namespace HumanMountedPaths {
   }
 
   /**
-   * The feet that swing over the carrier into each figure: a foot whose straight way to its next place would pass through the carrier's colliders passes instead through a point above the higher end, `RISE` thighs up, midway along; a foot kept on the same stirrup, or planted on its ball at the same place at both ends (`rested`), stays on it.
+   * The feet that swing over the carrier into each figure: a foot whose
+   * straight way to its next place would pass through the carrier's colliders
+   * passes instead through a point above the higher end, `RISE` thighs up,
+   * midway along; a foot kept on the same stirrup, or planted on its ball at
+   * the same place at both ends (`rested`), stays on it.
    *
    * @param seats The seats' context, for the body and the colliders.
    * @param entry The entered posture in the carrier frame.

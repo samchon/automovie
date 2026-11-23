@@ -40,13 +40,16 @@ type Lower = ReturnType<typeof lowerHumanPosture.prepare>;
 
 /**
  * A standing body lowered toward a low target by a strategy, and the trunk
- * pitch that brings the shoulder within reach: the posture transforms the
- * bend law solves its reach and balance on, split from the law so each file
- * holds one responsibility.
+ * pitch that brings the shoulder within reach: the posture transforms the bend
+ * law solves its reach and balance on, split from the law so each file holds
+ * one responsibility.
  */
 export namespace bendLower {
   /** Wrist placement on the actual lowered bones from this trial. */
-  export type WristAt = (posture: IAutoMovieMotionHumanPosture, read: ReturnType<typeof prepareHumanPoseResolution>) => IAutoMovieVector3;
+  export type WristAt = (
+    posture: IAutoMovieMotionHumanPosture,
+    read: ReturnType<typeof prepareHumanPoseResolution>,
+  ) => IAutoMovieVector3;
 
   /** A named bend strategy after resolving the automatic choice. */
   type Strategy = IAutoMovieMotionHumanBendLower.ISolved["strategy"];
@@ -59,35 +62,44 @@ export namespace bendLower {
    * degrees (the class is bounded, not measured at a value: 30 is provisional
    * within it).
    */
-  export const KNEE: Readonly<Record<Strategy, number>> =
-    {
-      stoop: 30,
-      semiSquat: 90,
-      squat: 135,
-    };
+  export const KNEE: Readonly<Record<Strategy, number>> = {
+    stoop: 30,
+    semiSquat: 90,
+    squat: 135,
+  };
 
-  /** The ankle's dorsiflexion in a crouch, degrees: the most measured while crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa, Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of 26 adults), within the range table's loaded maximum (`ANKLE_DORSIFLEXION.loaded`). */
+  /**
+   * The ankle's dorsiflexion in a crouch, degrees: the most measured while
+   * crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa,
+   * Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of
+   * 26 adults), within the range table's loaded maximum
+   * (`ANKLE_DORSIFLEXION.loaded`).
+   */
   export const ANKLE: number = 28;
 
   /**
    * Stoop's posterior hip key as a share of stature. Kim and Yoo (2018,
    * doi:10.1589/jpts.30.534) measured 7.6 cm at the greater trochanter in
-   * adults of 1.57 m mean stature and 17.4° mean thoracolumbar flexion.
-   * The rig's lumbopelvic rhythm converts that local flexion to trunk
-   * inclination. The ratio below scales the key on the existing sine course.
+   * adults of 1.57 m mean stature and 17.4° mean thoracolumbar flexion. The
+   * rig's lumbopelvic rhythm converts that local flexion to trunk inclination.
+   * The ratio below scales the key on the existing sine course.
    */
   const STOOP_BACK: number =
-    (0.076 / 1.57) /
-    Math.sin((17.4 * Math.PI) / (180 * (HumanTrunk.RHYTHM.lumbar + HumanTrunk.RHYTHM.thorax)));
+    0.076 /
+    1.57 /
+    Math.sin(
+      (17.4 * Math.PI) /
+        (180 * (HumanTrunk.RHYTHM.lumbar + HumanTrunk.RHYTHM.thorax)),
+    );
 
   /**
-   * The share of the standing hip height a strategy keeps, from the body's
-   * own leg: the knee flexed by the strategy's `KNEE`, split between the
-   * shank's forward tilt and the thigh's, half each so the hip stays over the
-   * ankle on a thigh and shank of nearly equal length (Winter, Biomechanics
-   * and Motor Control of Human Movement, fig. 4.1: 0.245 and 0.246 of
-   * stature), the shank's tilt no more than the crouching ankle's `ANKLE`
-   * and the heel lift `HEEL` allow.
+   * The share of the standing hip height a strategy keeps, from the body's own
+   * leg: the knee flexed by the strategy's `KNEE`, split between the shank's
+   * forward tilt and the thigh's, half each so the hip stays over the ankle on
+   * a thigh and shank of nearly equal length (Winter, Biomechanics and Motor
+   * Control of Human Movement, fig. 4.1: 0.245 and 0.246 of stature), the
+   * shank's tilt no more than the crouching ankle's `ANKLE` and the heel lift
+   * `HEEL` allow.
    *
    * @param body The body, for its ankle height, shank and thigh.
    * @param strategy The strategy.
@@ -102,7 +114,9 @@ export namespace bendLower {
     const shank: number = Math.min(knee / 2, ANKLE + HEEL[strategy]);
     const rad: number = Math.PI / 180;
     return (
-      (m.ankleHeight + m.shank * Math.cos(shank * rad) + m.thigh * Math.cos((knee - shank) * rad)) /
+      (m.ankleHeight +
+        m.shank * Math.cos(shank * rad) +
+        m.thigh * Math.cos((knee - shank) * rad)) /
       (m.ankleHeight + m.shank + m.thigh)
     );
   }
@@ -118,7 +132,9 @@ export namespace bendLower {
    * @param pitch Trunk inclination, degrees, shared by the lumbopelvic rhythm.
    * @param share How far down, 0 to 1.
    * @param back How far the hips move back, metres.
-   * @param resolution Optional exact FK source borrowed only by this call's actual raw-pelvis hip observation; this lowering operation performs no ROM projection.
+   * @param resolution Optional exact FK source borrowed only by this call's
+   *   actual raw-pelvis hip observation; this lowering operation performs no
+   *   ROM projection.
    * @returns The lowered posture.
    */
   export function lower(
@@ -131,16 +147,26 @@ export namespace bendLower {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     lateral: number = 0,
   ): IAutoMovieMotionHumanPosture {
-    return current(body, posture, strategy, pitch, share, back, resolution, lateral);
+    return current(
+      body,
+      posture,
+      strategy,
+      pitch,
+      share,
+      back,
+      resolution,
+      lateral,
+    );
   }
 
   /**
-   * Bind a fixed body's strategy at selection. Each descent or return
-   * sample still reads its standing pose, actual heel contact and hip FK.
+   * Bind a fixed body's strategy at selection. Each descent or return sample
+   * still reads its standing pose, actual heel contact and hip FK.
    *
    * @param body The unchanged body supporting the lowering.
    * @param strategy The selected lowering strategy.
-   * @returns A reader taking current standing posture, trunk degrees, movement share, posterior metres and optional FK and lateral degrees.
+   * @returns A reader taking current standing posture, trunk degrees, movement
+   *   share, posterior metres and optional FK and lateral degrees.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -154,33 +180,61 @@ export namespace bendLower {
     lateral?: number,
   ) => IAutoMovieMotionHumanPosture {
     const native: boolean = createHumanBody.owns(body);
-    const geometry: IStrategyGeometry | undefined = native ? {
-      drop: hipDrop(body, strategy),
-      retreat: retreat(body, strategy),
-      deepest: strategy === "stoop" ? stoopReach(body) : 0,
-    } : undefined;
-    const lowerPlanted: Lower | undefined = native ? lowerHumanPosture.prepare(body) : undefined;
+    const geometry: IStrategyGeometry | undefined = native
+      ? {
+          drop: hipDrop(body, strategy),
+          retreat: retreat(body, strategy),
+          deepest: strategy === "stoop" ? stoopReach(body) : 0,
+        }
+      : undefined;
+    const lowerPlanted: Lower | undefined = native
+      ? lowerHumanPosture.prepare(body)
+      : undefined;
     return (posture, pitch, share, back, resolution, lateral = 0) =>
-      current(body, posture, strategy, pitch, share, back, resolution, lateral, geometry, lowerPlanted);
+      current(
+        body,
+        posture,
+        strategy,
+        pitch,
+        share,
+        back,
+        resolution,
+        lateral,
+        geometry,
+        lowerPlanted,
+      );
   }
 
   /** Vertical movement at full depth, metres. */
-  function hipDrop(body: IAutoMovieMotionHumanBody, strategy: Strategy): number {
+  function hipDrop(
+    body: IAutoMovieMotionHumanBody,
+    strategy: Strategy,
+  ): number {
     return (1 - hipShare(body, strategy)) * body.measure.hipHeight;
   }
 
   /** Sagittal movement at full depth with the strategy's shank tilt, metres. */
-  function retreat(body: IAutoMovieMotionHumanBody, strategy: Strategy): number {
+  function retreat(
+    body: IAutoMovieMotionHumanBody,
+    strategy: Strategy,
+  ): number {
     const knee: number = KNEE[strategy];
-    const shank: number = Math.min(knee / 2, ANKLE + HEEL[strategy]) * Math.PI / 180;
-    return strategy === "stoop" ? 0 :
-      body.measure.thigh * Math.sin(knee * Math.PI / 180 - shank) - body.measure.shank * Math.sin(shank);
+    const shank: number =
+      (Math.min(knee / 2, ANKLE + HEEL[strategy]) * Math.PI) / 180;
+    return strategy === "stoop"
+      ? 0
+      : body.measure.thigh * Math.sin((knee * Math.PI) / 180 - shank) -
+          body.measure.shank * Math.sin(shank);
   }
 
   /** The squared hip-to-ankle distance of the deepest stoop, square metres. */
   function stoopReach(body: IAutoMovieMotionHumanBody): number {
     const { thigh, shank }: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    return thigh * thigh + shank * shank + 2 * thigh * shank * Math.cos((KNEE.stoop * Math.PI) / 180);
+    return (
+      thigh * thigh +
+      shank * shank +
+      2 * thigh * shank * Math.cos((KNEE.stoop * Math.PI) / 180)
+    );
   }
 
   /** Evaluate the current pivots and trunk against that second's actual stance. */
@@ -203,7 +257,10 @@ export namespace bendLower {
     // position over the planted ankle. Without the horizontal component
     // a squat asks its shank to tip farther forward than its ankle allows.
     const backAtDepth: number = fixed?.retreat ?? retreat(body, strategy);
-    const frame: IAutoMovieMotionHumanFrame = { origin: posture.root, yaw: posture.yaw };
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: posture.root,
+      yaw: posture.yaw,
+    };
     const goal: IAutoMovieVector3 = HumanFrame.point(frame, {
       x: hips.x,
       y: hips.y - drop,
@@ -261,13 +318,20 @@ export namespace bendLower {
       ...posture,
       pitch: posture.pitch + tilt.pitch,
     };
-    const joints: IAutoMovieMotionHumanPosture["joints"] = lateral === 0 ? tilt.joints : { ...tilt.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] =
+      lateral === 0 ? tilt.joints : { ...tilt.joints };
     if (lateral !== 0) {
       // The lumbar and thoracic sections share the frontal inclination as
       // in a unilateral carry. Preserve each section's flexion and twist.
       for (const bone of ["spine", "chest"] as const) {
-        const angles: NonNullable<typeof joints.spine> = joints[bone] ?? [0, 0, 0];
-        joints[bone] = [angles[0], angles[1] + lateral * share / 2, angles[2]];
+        const angles: NonNullable<typeof joints.spine> = joints[bone] ?? [
+          0, 0, 0,
+        ];
+        joints[bone] = [
+          angles[0],
+          angles[1] + (lateral * share) / 2,
+          angles[2],
+        ];
       }
     }
 
@@ -287,38 +351,71 @@ export namespace bendLower {
       // The horizontal retreat also changes hip-to-ankle length. Recover
       // the key's knee height from the actual planted ankle. The length
       // between these keys starts at the standing leg's displayed length.
-      const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution(resolution);
-      const standing: ReturnType<typeof hipJoints> = hipJoints(body, posture.root, resolveHumanPosture.heading(posture), posture.joints.hips, read());
-      const lowered: ReturnType<typeof hipJoints> = hipJoints(body, placed.root, resolveHumanPosture.heading(placed), placed.joints.hips, read());
+      const read: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution(resolution);
+      const standing: ReturnType<typeof hipJoints> = hipJoints(
+        body,
+        posture.root,
+        resolveHumanPosture.heading(posture),
+        posture.joints.hips,
+        read(),
+      );
+      const lowered: ReturnType<typeof hipJoints> = hipJoints(
+        body,
+        placed.root,
+        resolveHumanPosture.heading(placed),
+        placed.joints.hips,
+        read(),
+      );
       const deepest: number = fixed?.deepest ?? stoopReach(body);
-      const drop: number = Math.min(...(["left", "right"] as const).map((side: AutoMovieHumanSide): number => {
-        const ankle: IAutoMovieVector3 = limbs[`${side}Leg`]!.point;
-        const from: IAutoMovieVector3 = Vector3.subtract(standing[side], ankle);
-        const current: IAutoMovieVector3 = Vector3.subtract(lowered[side], ankle);
-        const initial: number = Vector3.dot(from, from);
-        const height: number = initial + (deepest - initial) * share - current.x * current.x - current.z * current.z;
-        return height < 0 ? -Infinity : current.y - Math.sqrt(height);
-      }));
-      if (Number.isFinite(drop)) placed = { ...placed, root: { ...placed.root, y: placed.root.y - drop } };
+      const drop: number = Math.min(
+        ...(["left", "right"] as const).map(
+          (side: AutoMovieHumanSide): number => {
+            const ankle: IAutoMovieVector3 = limbs[`${side}Leg`]!.point;
+            const from: IAutoMovieVector3 = Vector3.subtract(
+              standing[side],
+              ankle,
+            );
+            const current: IAutoMovieVector3 = Vector3.subtract(
+              lowered[side],
+              ankle,
+            );
+            const initial: number = Vector3.dot(from, from);
+            const height: number =
+              initial +
+              (deepest - initial) * share -
+              current.x * current.x -
+              current.z * current.z;
+            return height < 0 ? -Infinity : current.y - Math.sqrt(height);
+          },
+        ),
+      );
+      if (Number.isFinite(drop))
+        placed = {
+          ...placed,
+          root: { ...placed.root, y: placed.root.y - drop },
+        };
     }
     return lowerPlanted === undefined
       ? resolveHumanPosture.lower(body, placed, undefined, resolution)
       : lowerPlanted(placed, resolution);
   }
 
-  /** Heel lift by strategy at full depth, degrees (provisional: only the squat outruns the ankle's dorsiflexion). */
-  export const HEEL: Readonly<Record<Strategy, number>> =
-    {
-      stoop: 0,
-      semiSquat: 0,
-      squat: 30,
-    };
+  /**
+   * Heel lift by strategy at full depth, degrees (provisional: only the squat
+   * outruns the ankle's dorsiflexion).
+   */
+  export const HEEL: Readonly<Record<Strategy, number>> = {
+    stoop: 0,
+    semiSquat: 0,
+    squat: 30,
+  };
 
   /**
-   * The least trunk pitch that brings the shoulder within reach of the
-   * target under a strategy, over 0 to `DEEPEST` degrees of inclination: the
-   * first of every `SCAN` degrees that reaches, refined by bisection from the
-   * one before.
+   * The least trunk pitch that brings the shoulder within reach of the target
+   * under a strategy, over 0 to `DEEPEST` degrees of inclination: the first of
+   * every `SCAN` degrees that reaches, refined by bisection from the one
+   * before.
    *
    * @param body The body.
    * @param posture The standing posture.
@@ -326,9 +423,14 @@ export namespace bendLower {
    * @param side The hand.
    * @param strategy The strategy.
    * @param lean The balance shift per unit sine of the inclination, metres.
-   * @param reach How near the shoulder must come to the target, metres; `REACH` of the arm plus the palm's offset when absent, a palm laid on the target.
+   * @param reach How near the shoulder must come to the target, metres; `REACH`
+   *   of the arm plus the palm's offset when absent, a palm laid on the
+   *   target.
    * @returns Degrees.
-   * @throws {HumanRefusal} When even `DEEPEST` degrees leaves the target out of reach, with the lowest height the hand reaches above the target's floor point over the inclinations tried as the feasible range, or none when the point lies beyond the arm's reach across the floor at all of them.
+   * @throws {HumanRefusal} When even `DEEPEST` degrees leaves the target out of
+   *   reach, with the lowest height the hand reaches above the target's floor
+   *   point over the inclinations tried as the feasible range, or none when the
+   *   point lies beyond the arm's reach across the floor at all of them.
    */
   export function pitch(
     body: IAutoMovieMotionHumanBody,
@@ -345,9 +447,11 @@ export namespace bendLower {
     // The lowest height the hand reaches above the target's floor point over
     // the inclinations tried: below a shoulder within reach across the floor,
     // the reach's depth under it.
-    const read: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const name: AutoMovieHumanoidBone = `${side}UpperArm`;
-    const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> = HumanTrunk.prepareResolve(body, new Set([name]));
+    const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> =
+      HumanTrunk.prepareResolve(body, new Set([name]));
     const lowerAt: ReturnType<typeof prepare> = prepare(body, strategy);
     let lowest: number = Infinity;
     const gap: (deg: number) => number = (deg: number): number => {
@@ -359,11 +463,20 @@ export namespace bendLower {
         read,
         lateral,
       );
-      const shoulder: IAutoMovieVector3 = shoulderAt(lowered, read).get(name)!.worldPosition;
-      const point: IAutoMovieVector3 = wristAt === undefined ? target : wristAt(lowered, read);
-      const across: number = Math.hypot(point.x - shoulder.x, point.z - shoulder.z);
+      const shoulder: IAutoMovieVector3 = shoulderAt(lowered, read).get(
+        name,
+      )!.worldPosition;
+      const point: IAutoMovieVector3 =
+        wristAt === undefined ? target : wristAt(lowered, read);
+      const across: number = Math.hypot(
+        point.x - shoulder.x,
+        point.z - shoulder.z,
+      );
       if (across <= reach)
-        lowest = Math.min(lowest, shoulder.y - Math.sqrt(reach * reach - across * across));
+        lowest = Math.min(
+          lowest,
+          shoulder.y - Math.sqrt(reach * reach - across * across),
+        );
       return Vector3.distance(point, shoulder) - reach;
     };
     if (gap(0) <= 0) return 0;
@@ -402,9 +515,9 @@ export namespace bendLower {
    * rest pose as the tangle audit reads it: the trunk's segments above the
    * pelvis against the thighs, on the key at its full depth. A lowering whose
    * key is also its display (the pick-up's) refuses a fold past the audit's
-   * skin and lowers into a squat instead, the knees and hips lowering the
-   * trunk rather than the lumbar spine folding it on (Kingma et al. 2010,
-   * J Biomech 43:1440).
+   * skin and lowers into a squat instead, the knees and hips lowering the trunk
+   * rather than the lumbar spine folding it on (Kingma et al. 2010, J Biomech
+   * 43:1440).
    *
    * @param body The body.
    * @param upright The standing posture lowered.
@@ -442,7 +555,11 @@ export namespace bendLower {
     return deepest;
   }
 
-  /** The trunk's segments a lowering folds onto the thighs: those above the pelvis, which shares the hip joints with the thighs and so overlaps them by its build. */
+  /**
+   * The trunk's segments a lowering folds onto the thighs: those above the
+   * pelvis, which shares the hip joints with the thighs and so overlaps them by
+   * its build.
+   */
   const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
 
@@ -451,8 +568,8 @@ export namespace bendLower {
     new Set<AutoMovieHumanoidBone>(["leftUpperLeg", "rightUpperLeg"]);
 
   /**
-   * The frontal inclination that directs the upper trunk toward a target
-   * beside the body: the target's lateral displacement from the hips over the
+   * The frontal inclination that directs the upper trunk toward a target beside
+   * the body: the target's lateral displacement from the hips over the
    * pelvis-to-shoulder lever, as the lowering's `lateral` takes it.
    *
    * @param body The body.
@@ -476,13 +593,34 @@ export namespace bendLower {
     return (Math.atan2(hips.x - local.x, shoulder.y - hips.y) * 180) / Math.PI;
   }
 
-  /** The share of the arm (upper arm and forearm) a lowered or leaned body brings the shoulder within of its target, so the arm reaches near, not at, full extension: where people reaching as they like stop reaching with the arm alone and lean the trunk in, the preferred critical boundary, 0.89 of full-arm extension, the centre of the measured 0.83 to 0.95 (Petrovic 2012, Miami University dissertation, Experiment 1, Table 1 and Fig. 3, 10 seated adults: 0.92, 0.88 and 0.83 holding 300, 650 and 1000 g, SD 0.06 to 0.07; Mark et al. 1997, J Exp Psychol Hum Percept Perform 23:1365, and Stasik and Mark 2005: 0.95, as Petrovic reports them). The studies reach seated; no standing measure was found. `pitch` reads it, and a pick up's lift closes on it too. */
+  /**
+   * The share of the arm (upper arm and forearm) a lowered or leaned body
+   * brings the shoulder within of its target, so the arm reaches near, not at,
+   * full extension: where people reaching as they like stop reaching with the
+   * arm alone and lean the trunk in, the preferred critical boundary, 0.89 of
+   * full-arm extension, the centre of the measured 0.83 to 0.95 (Petrovic 2012,
+   * Miami University dissertation, Experiment 1, Table 1 and Fig. 3, 10 seated
+   * adults: 0.92, 0.88 and 0.83 holding 300, 650 and 1000 g, SD 0.06 to 0.07;
+   * Mark et al. 1997, J Exp Psychol Hum Percept Perform 23:1365, and Stasik and
+   * Mark 2005: 0.95, as Petrovic reports them). The studies reach seated; no
+   * standing measure was found. `pitch` reads it, and a pick up's lift closes
+   * on it too.
+   */
   export const REACH: number = 0.89;
 
-  /** The step of the inclination scan `pitch` closes the reach on, degrees (provisional: fine enough that the gap, which turns once over the range, cannot close and open again between two steps). */
+  /**
+   * The step of the inclination scan `pitch` closes the reach on, degrees
+   * (provisional: fine enough that the gap, which turns once over the range,
+   * cannot close and open again between two steps).
+   */
   export const SCAN: number = 5;
 
-  /** The deepest trunk inclination `pitch` searches, degrees: all the pelvis can tilt before the hip passes its flexion (`HumanTrunk.HIP_FLEXION`) plus the 40 degrees of lumbar flexion at full forward bending (Esola et al. 1996, Spine 21:71), the most a standing trunk inclines. */
+  /**
+   * The deepest trunk inclination `pitch` searches, degrees: all the pelvis can
+   * tilt before the hip passes its flexion (`HumanTrunk.HIP_FLEXION`) plus the
+   * 40 degrees of lumbar flexion at full forward bending (Esola et al. 1996,
+   * Spine 21:71), the most a standing trunk inclines.
+   */
   export const DEEPEST: number = HumanTrunk.HIP_FLEXION + 40;
 
   /** An actual instant and its action event clock for a static lower-key query. */
@@ -498,15 +636,15 @@ export namespace bendLower {
   }
 
   /**
-   * Find the least inclination whose moving shoulder reaches the wrist.
-   * A low-level query describes one key; a caller observing it as part of a
+   * Find the least inclination whose moving shoulder reaches the wrist. A
+   * low-level query describes one key; a caller observing it as part of a
    * longer action supplies the action's clock and local second. A free key
    * follows the measured stoop retreat or the squat's anchored leg geometry.
    *
    * @param balance Optional sagittal hip shift. Its weight scales only the
-   * missing support displacement at the selected posture.
-   * @param instant Action clock for the queried key. The standalone key's
-   * start and end coincide at zero when absent.
+   *   missing support displacement at the selected posture.
+   * @param instant Action clock for the queried key. The standalone key's start
+   *   and end coincide at zero when absent.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -520,27 +658,70 @@ export namespace bendLower {
     lateral: number = 0,
     instant?: IInstant,
   ): IAutoMovieMotionHumanBendLower.ISolved {
-    let lean: number = strategy === "stoop" ? STOOP_BACK * body.measure.stature : 0;
-    let deg: number = pitch(body, upright, target, side, strategy, lean, reach, wristAt, lateral);
+    let lean: number =
+      strategy === "stoop" ? STOOP_BACK * body.measure.stature : 0;
+    let deg: number = pitch(
+      body,
+      upright,
+      target,
+      side,
+      strategy,
+      lean,
+      reach,
+      wristAt,
+      lateral,
+    );
     if (balance === undefined) return { strategy, lean, pitch: deg };
     const window: HumanPhysics.Window = HumanPhysics.prepare(
-      { balance }, {}, instant?.start ?? 0, instant?.timing ?? { duration: 0, events: [] }, instant?.instant,
+      { balance },
+      {},
+      instant?.start ?? 0,
+      instant?.timing ?? { duration: 0, events: [] },
+      instant?.instant,
     );
     const weight: number = HumanPhysics.weightAt(window, instant?.seconds ?? 0);
     if (window === null || weight === 0) return { strategy, lean, pitch: deg };
     if (window.by !== "hips")
       throw new HumanRefusal({
-        kind: "parameter", axis: "balance.by", value: window.by,
-        reason: "a lowering key represents the hips' retreat along the standing heading",
+        kind: "parameter",
+        axis: "balance.by",
+        value: window.by,
+        reason:
+          "a lowering key represents the hips' retreat along the standing heading",
         fix: "give hips for balance.by",
       });
-    const sine: number = Math.sin(deg * Math.PI / 180);
-    const key: IAutoMovieMotionHumanPosture = lower(body, upright, strategy, deg, 1, lean * sine, undefined, lateral);
-    const support: IAutoMovieMotionHumanBalance.ISupport = HumanBalance.support(body, key);
-    const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(support, HumanFrame.forward(key.yaw));
+    const sine: number = Math.sin((deg * Math.PI) / 180);
+    const key: IAutoMovieMotionHumanPosture = lower(
+      body,
+      upright,
+      strategy,
+      deg,
+      1,
+      lean * sine,
+      undefined,
+      lateral,
+    );
+    const support: IAutoMovieMotionHumanBalance.ISupport = HumanBalance.support(
+      body,
+      key,
+    );
+    const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(
+      support,
+      HumanFrame.forward(key.yaw),
+    );
     if (sine !== 0 && shift !== null && shift !== 0) {
-      lean -= weight * shift / sine;
-      deg = pitch(body, upright, target, side, strategy, lean, reach, wristAt, lateral);
+      lean -= (weight * shift) / sine;
+      deg = pitch(
+        body,
+        upright,
+        target,
+        side,
+        strategy,
+        lean,
+        reach,
+        wristAt,
+        lateral,
+      );
     }
     return { strategy, lean, pitch: deg };
   }

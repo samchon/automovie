@@ -9,7 +9,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 
 /**
- * The matching nearby fits for an overlay leaf tag, or the final contacts without one, keyed by limb in resolution order; none without a nearby record.
+ * The matching nearby fits for an overlay leaf tag, or the final contacts
+ * without one, keyed by limb in resolution order; none without a nearby
+ * record.
  *
  * Moved unchanged from `HumanSegmentOverlay` to keep that file under the
  * repository's 500-line limit; its caller and behaviour are unchanged.

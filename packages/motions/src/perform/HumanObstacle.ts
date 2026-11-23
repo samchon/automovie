@@ -17,20 +17,22 @@ import { HumanObject } from "./HumanObject";
  * each a solid of the scene with the openings a person may pass through.
  *
  * An obstacle is a convex footprint on the floor with the heights its solid
- * spans, and its apertures: an opening is a line across the footprint with
- * a clear width and a clear height (a doorway, a gap in a fence, the space
- * under a beam). A law that moves a body across the floor asks `blocking`
- * whether a straight stretch of its path meets a solid, and where: a path
- * that meets none is free, one that crosses an obstacle through an opening
- * wide and tall enough for the body is free too, and any other is blocked,
- * with the reason a refusal reports (a wall in the way, an opening too
- * narrow, too little headroom).
+ * spans, and its apertures: an opening is a line across the footprint with a
+ * clear width and a clear height (a doorway, a gap in a fence, the space under
+ * a beam). A law that moves a body across the floor asks `blocking` whether a
+ * straight stretch of its path meets a solid, and where: a path that meets none
+ * is free, one that crosses an obstacle through an opening wide and tall enough
+ * for the body is free too, and any other is blocked, with the reason a refusal
+ * reports (a wall in the way, an opening too narrow, too little headroom).
  *
- * Nothing here plans a way round: a law refuses or steers, and the
- * production's own path gives the way.
+ * Nothing here plans a way round: a law refuses or steers, and the production's
+ * own path gives the way.
  */
 export namespace HumanObstacle {
-  /** Why a path is blocked, as data: a solid with no opening on the path, an opening narrower than the body, or one lower than it. */
+  /**
+   * Why a path is blocked, as data: a solid with no opening on the path, an
+   * opening narrower than the body, or one lower than it.
+   */
   export const CAUSES = [
     "solid",
     "narrow",
@@ -49,7 +51,8 @@ export namespace HumanObstacle {
    * @param height Its height, metres.
    * @param apertures Its openings.
    * @returns The obstacle.
-   * @throws {Error} When the two ends coincide, or the thickness or the height is not positive.
+   * @throws {Error} When the two ends coincide, or the thickness or the height
+   *   is not positive.
    */
   export function wall(
     subject: string,
@@ -88,7 +91,8 @@ export namespace HumanObstacle {
    *
    * @param model The object.
    * @param placement Where the scene puts it.
-   * @returns Its openings; an `aperture` that states no width or no height is left out, since nothing says how much it clears.
+   * @returns Its openings; an `aperture` that states no width or no height is
+   *   left out, since nothing says how much it clears.
    */
   export function apertures(
     model: IAutoMovieMotionHumanObject.IModel,
@@ -129,7 +133,11 @@ export namespace HumanObstacle {
     return out;
   }
 
-  /** How far the polygon that stands for a round collider's outline on the floor may lie outside it, metres (provisional: a millimetre, under any clearance a passage is judged by). */
+  /**
+   * How far the polygon that stands for a round collider's outline on the floor
+   * may lie outside it, metres (provisional: a millimetre, under any clearance
+   * a passage is judged by).
+   */
   export const ROUND: number = 0.001;
 
   /**
@@ -138,18 +146,19 @@ export namespace HumanObstacle {
    * The footprint is the convex hull, on the floor plan, of the object's
    * colliders where the placement puts them: a box's corners and a hull's
    * vertices exactly, and a sphere's or a capsule's round outline (a capsule
-   * projects to the hull of its two end spheres' discs) as the regular
-   * polygon whose edges touch the disc, with enough sides that its corners
-   * stand within `ROUND` of it, so the footprint never leaves out any of the
-   * solid. The bottom and the top are the colliders' least and greatest
-   * heights, and the openings are the object's `aperture` affordances
-   * (`apertures`).
+   * projects to the hull of its two end spheres' discs) as the regular polygon
+   * whose edges touch the disc, with enough sides that its corners stand within
+   * `ROUND` of it, so the footprint never leaves out any of the solid. The
+   * bottom and the top are the colliders' least and greatest heights, and the
+   * openings are the object's `aperture` affordances (`apertures`).
    *
    * @param subject Its subject id.
-   * @param model The object, whose colliders (`shapes`) say where its solid stands.
+   * @param model The object, whose colliders (`shapes`) say where its solid
+   *   stands.
    * @param placement Where the scene puts it.
    * @returns The obstacle.
-   * @throws {Error} When the object has no colliders, or its colliders cover no area of the floor plan.
+   * @throws {Error} When the object has no colliders, or its colliders cover no
+   *   area of the floor plan.
    */
   export function object(
     subject: string,
@@ -216,7 +225,10 @@ export namespace HumanObstacle {
     };
   }
 
-  /** Adds the corners of the regular polygon whose edges touch a ball's disc on the floor plan, with enough sides that they stand within `ROUND` of it. */
+  /**
+   * Adds the corners of the regular polygon whose edges touch a ball's disc on
+   * the floor plan, with enough sides that they stand within `ROUND` of it.
+   */
   const disc = (
     out: IAutoMovieVector3[],
     centre: IAutoMovieVector3,
@@ -237,7 +249,10 @@ export namespace HumanObstacle {
     }
   };
 
-  /** The convex hull of points on the floor plan, its corners in order with none on a straight run (Andrew's monotone chain); `y` is 0. */
+  /**
+   * The convex hull of points on the floor plan, its corners in order with none
+   * on a straight run (Andrew's monotone chain); `y` is 0.
+   */
   const hull = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] => {
     const sorted: IAutoMovieVector3[] = [...points].sort(
       (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
@@ -276,7 +291,8 @@ export namespace HumanObstacle {
    * @param from Where the stretch starts on the floor, world metres.
    * @param to Where it ends.
    * @param need What the body needs of a passage.
-   * @returns The nearest block along the stretch, or null when the stretch is free.
+   * @returns The nearest block along the stretch, or null when the stretch is
+   *   free.
    */
   export function blocking(
     obstacles: readonly IAutoMovieMotionHumanObstacle[],
@@ -316,7 +332,10 @@ export namespace HumanObstacle {
     return nearest;
   }
 
-  /** Why a path that enters an obstacle is blocked by it, or null when it goes through an opening that clears the body. */
+  /**
+   * Why a path that enters an obstacle is blocked by it, or null when it goes
+   * through an opening that clears the body.
+   */
   const judged = (
     obstacle: IAutoMovieMotionHumanObstacle,
     from: IAutoMovieVector3,
@@ -362,7 +381,10 @@ export namespace HumanObstacle {
     return solid;
   };
 
-  /** The share of a path at which it enters a convex footprint, or null when it misses it. */
+  /**
+   * The share of a path at which it enters a convex footprint, or null when it
+   * misses it.
+   */
   const enters = (
     footprint: readonly IAutoMovieVector3[],
     from: IAutoMovieVector3,

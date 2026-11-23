@@ -27,10 +27,10 @@ import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
 
 /**
- * The common hand course of two supports during an assisted rise. First
- * the helper takes the supported person's displayed palm where it lies.
- * Then both bring the clasp up through sitting as the helped person takes
- * weight on the feet. The ordinary support planner owns the transitions.
+ * The common hand course of two supports during an assisted rise. First the
+ * helper takes the supported person's displayed palm where it lies. Then both
+ * bring the clasp up through sitting as the helped person takes weight on the
+ * feet. The ordinary support planner owns the transitions.
  */
 export namespace supportAssist {
   /** Contacts and instants of a paired support. */
@@ -113,7 +113,10 @@ export namespace supportAssist {
     };
   }
 
-  /** Build a meeting from the lying palm and the two subsequent shoulder configurations. */
+  /**
+   * Build a meeting from the lying palm and the two subsequent shoulder
+   * configurations.
+   */
   function kind(side: AutoMovieHumanSide): IAutoMovieMotionMeetingKind {
     const seconds: number = step();
     return {
@@ -180,7 +183,10 @@ export namespace supportAssist {
     };
   }
 
-  /** A role's actual entry or its neutral stance when no full posture was supplied. */
+  /**
+   * A role's actual entry or its neutral stance when no full posture was
+   * supplied.
+   */
   function posture(
     role: IAutoMovieMotionMeetingRole,
   ): IAutoMovieMotionHumanPosture {
@@ -227,7 +233,10 @@ export namespace supportAssist {
     );
   }
 
-  /** One posed shoulder, its right-angle working reach and its full arm length in metres. */
+  /**
+   * One posed shoulder, its right-angle working reach and its full arm length
+   * in metres.
+   */
   function shoulder(
     role: IAutoMovieMotionMeetingRole,
     side: AutoMovieHumanSide,

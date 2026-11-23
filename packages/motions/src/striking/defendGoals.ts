@@ -18,30 +18,28 @@ import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
 
 /**
- * Where a defence brings its arms and its checking leg: goals on the
- * defender's own body, read from the posture the body holds at that instant
- * and from the line the defender saw the weapon come in on.
+ * Where a defence brings its arms and its checking leg: goals on the defender's
+ * own body, read from the posture the body holds at that instant and from the
+ * line the defender saw the weapon come in on.
  *
- * - `cover`: the glove on the incoming line just in front of the region,
- *   where the weapon will pass, not merely on the region's own normal, the
- *   elbow low.
- * - `parry`: the glove opposite the weapon's side on the line 0.6 forearm
- *   lengths ahead of the region, half a fist across it.
- * - `elbowBlock`: the glove two forearm radii off the jaw on the attacked
- *   side, the elbow over the struck region.
+ * - `cover`: the glove on the incoming line just in front of the region, where
+ *   the weapon will pass, not merely on the region's own normal, the elbow
+ *   low.
+ * - `parry`: the glove opposite the weapon's side on the line 0.6 forearm lengths
+ *   ahead of the region, half a fist across it.
+ * - `elbowBlock`: the glove two forearm radii off the jaw on the attacked side,
+ *   the elbow over the struck region.
  * - `highBlock`: the glove two forearm radii off the temple and 0.3 forearm
  *   lengths above it, the elbow out along the temple's normal.
- * - `check`: the knee up, back toward the kick and out, the shin hanging
- *   under it, the foot dorsiflexed.
+ * - `check`: the knee up, back toward the kick and out, the shin hanging under
+ *   it, the foot dorsiflexed.
  * - `slip`, `roll`, `sway`: no limb goal, the gloves keep their guard.
  *
  * The shares of segment lengths are provisional readings of the coaching
  * descriptions the defence law cites.
  */
 export namespace defendGoals {
-  /**
-   * What the defender saw of the strike at its read second.
-   */
+  /** What the defender saw of the strike at its read second. */
   export interface ISight {
     /** The unit world direction from the weapon to the struck region. */
     incoming: IAutoMovieVector3;
@@ -56,9 +54,7 @@ export namespace defendGoals {
     attackedSide: "left" | "right";
   }
 
-  /**
-   * The inputs of one instant's goals.
-   */
+  /** The inputs of one instant's goals. */
   export interface IProps {
     /** The defender's body. */
     body: IAutoMovieMotionHumanBody;
@@ -78,10 +74,16 @@ export namespace defendGoals {
     /** What the defender saw. */
     sight: ISight;
 
-    /** This exact body's posture's trunk bones, borrowed within the current synchronous evaluation when already resolved. */
+    /**
+     * This exact body's posture's trunk bones, borrowed within the current
+     * synchronous evaluation when already resolved.
+     */
     bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** This exact body's fixed region/tangent frame, when already prepared by the defence's geometry. */
+    /**
+     * This exact body's fixed region/tangent frame, when already prepared by
+     * the defence's geometry.
+     */
     frame?: ReturnType<typeof StrikingBody.frame>;
   }
 
@@ -91,7 +93,9 @@ export namespace defendGoals {
    * @param props The instant's inputs.
    * @returns The goals of the limbs the defence moves; the others keep theirs.
    */
-  export function at(props: IProps): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
+  export function at(
+    props: IProps,
+  ): Partial<IAutoMovieMotionHumanPosture["limbs"]> {
     if (props.kind === "slip" || props.kind === "roll" || props.kind === "sway")
       return {};
     const { body, sight } = props;
@@ -105,16 +109,33 @@ export namespace defendGoals {
     const regionPoint: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
       if (centre !== undefined) return centre;
       if (props.frame === undefined) {
-        const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(body, props.region, props.aimed);
-        centre = resolveAutoMovieHumanoidSurfaces.point(frame, bones.get(frame.bone)!);
-      } else centre = resolveAutoMovieHumanoidSurfaces.point(props.frame, bones.get(props.frame.bone)!);
+        const frame: IAutoMovieHumanoidSurfaces.IFrame = StrikingBody.frame(
+          body,
+          props.region,
+          props.aimed,
+        );
+        centre = resolveAutoMovieHumanoidSurfaces.point(
+          frame,
+          bones.get(frame.bone)!,
+        );
+      } else
+        centre = resolveAutoMovieHumanoidSurfaces.point(
+          props.frame,
+          bones.get(props.frame.bone)!,
+        );
       return centre;
     };
     let placed: ReturnType<typeof StrikingBody.region> | undefined;
-    const region: () => ReturnType<typeof StrikingBody.region> = (): ReturnType<typeof StrikingBody.region> =>
-      (placed ??= props.frame === undefined
-        ? StrikingBody.region(body, bones, props.region, props.aimed)
-        : resolveAutoMovieHumanoidSurfaces.place(props.frame, bones.get(props.frame.bone)!));
+    const region: () => ReturnType<typeof StrikingBody.region> = (): ReturnType<
+      typeof StrikingBody.region
+    > =>
+      (placed ??=
+        props.frame === undefined
+          ? StrikingBody.region(body, bones, props.region, props.aimed)
+          : resolveAutoMovieHumanoidSurfaces.place(
+              props.frame,
+              bones.get(props.frame.bone)!,
+            ));
     const glove = (
       side: "left" | "right",
       at: IAutoMovieVector3,

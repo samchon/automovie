@@ -13,12 +13,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 
 /**
- * Where and how a sit sits: the backs it settles into, the feet the seated
- * legs reach and the turn the performer stands at from the seat's heading,
- * the last two refused with the range that works.
+ * Where and how a sit sits: the backs it settles into, the feet the seated legs
+ * reach and the turn the performer stands at from the seat's heading, the last
+ * two refused with the range that works.
  */
 export namespace sitPlace {
-  /** Seated pitch and trunk angles of each back the sit settles into, degrees: `upright`, `lean` (back onto a backrest) and `slump` (provisional). */
+  /**
+   * Seated pitch and trunk angles of each back the sit settles into, degrees:
+   * `upright`, `lean` (back onto a backrest) and `slump` (provisional).
+   */
   export const BACKS: Readonly<
     Record<
       "upright" | "lean" | "slump",
@@ -36,13 +39,13 @@ export namespace sitPlace {
   };
 
   /**
-   * The distances from a hip joint at which a leg places its ankle, metres:
-   * the knee flexed to the range table's limit (`AutoMovieMotionHumanRange`)
-   * at the near end, and at the far end the knee kept at the least flexion
-   * of a planted leg (`resolveHumanPosture.KNEE`, Perry and Burnfield's
-   * knee at initial contact), each by the law of cosines on the thigh and
-   * the shank. Sitting, getting onto a high seat and getting off it place
-   * feet within this one band.
+   * The distances from a hip joint at which a leg places its ankle, metres: the
+   * knee flexed to the range table's limit (`AutoMovieMotionHumanRange`) at the
+   * near end, and at the far end the knee kept at the least flexion of a
+   * planted leg (`resolveHumanPosture.KNEE`, Perry and Burnfield's knee at
+   * initial contact), each by the law of cosines on the thigh and the shank.
+   * Sitting, getting onto a high seat and getting off it place feet within this
+   * one band.
    *
    * @param body The body.
    * @param side The leg.
@@ -69,15 +72,16 @@ export namespace sitPlace {
   }
 
   /**
-   * Refuse feet the legs cannot reach from the seated hips: each ankle must
-   * lie within the leg's reachable band from its hip joint (`band`).
+   * Refuse feet the legs cannot reach from the seated hips: each ankle must lie
+   * within the leg's reachable band from its hip joint (`band`).
    *
    * @param body The body.
    * @param seat The seat.
    * @param goal The socket's point on the seat.
    * @param feet The planted ankles.
    * @param pitch The seated pitch, degrees.
-   * @throws {HumanRefusal} When a foot is out of reach, with the reachable distances ahead of the front edge.
+   * @throws {HumanRefusal} When a foot is out of reach, with the reachable
+   *   distances ahead of the front edge.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,

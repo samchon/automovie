@@ -12,20 +12,26 @@ import type {
 import { HumanPerformanceRead } from "../perform/HumanPerformanceRead";
 import { HumanPropFlight } from "../perform/HumanPropFlight";
 
-/** Sampling interval of a gate scan, seconds: 240 Hz, ten times a 24 fps film frame. */
+/**
+ * Sampling interval of a gate scan, seconds: 240 Hz, ten times a 24 fps film
+ * frame.
+ */
 const STEP: number = 1 / 240;
 
-/** Bisection rounds closing a bracketed crossing: 2^-40 of one step, below 1e-14 s. */
+/**
+ * Bisection rounds closing a bracketed crossing: 2^-40 of one step, below 1e-14
+ * s.
+ */
 const ROUNDS: number = 40;
 
 /**
- * Read one ball's play from a placed performance and test it against the
- * gates a sport credits (a hoop, a goal mouth, a cup).
+ * Read one ball's play from a placed performance and test it against the gates
+ * a sport credits (a hoop, a goal mouth, a cup).
  *
- * `read` joins the ball's hand grips into possessions and merges them with its engine flights, so the same
- * prop's custody and travel are one film-ordered log. `crossing` scans the
- * displayed ball, the frame every consumer renders, for the first passage
- * through a gate toward its credited side.
+ * `read` joins the ball's hand grips into possessions and merges them with its
+ * engine flights, so the same prop's custody and travel are one film-ordered
+ * log. `crossing` scans the displayed ball, the frame every consumer renders,
+ * for the first passage through a gate toward its credited side.
  */
 export namespace HumanBallPlay {
   /**
@@ -123,20 +129,23 @@ export namespace HumanBallPlay {
    * The first film second in a window at which a point fixed in the ball's
    * frame passes through a gate toward its credited side.
    *
-   * The displayed frame is sampled every 1/240 s. A sign change of the
-   * signed distance to the gate plane brackets a crossing, which bisection
-   * closes; the crossing counts when it lies inside the gate. A ball that
-   * enters and leaves the plane within one interval is not seen, which at
-   * 240 Hz needs a reversal within about 4 ms.
+   * The displayed frame is sampled every 1/240 s. A sign change of the signed
+   * distance to the gate plane brackets a crossing, which bisection closes; the
+   * crossing counts when it lies inside the gate. A ball that enters and leaves
+   * the plane within one interval is not seen, which at 240 Hz needs a reversal
+   * within about 4 ms.
    *
    * @param performance The placed performance.
    * @param ball Scene subject id of the ball.
    * @param gate The gate.
    * @param from First film second of the window.
    * @param to Last film second of the window.
-   * @param offset The tested point in the ball's frame, metres: its centre for a sphere; the frame origin when absent.
-   * @returns The crossing, or undefined when the ball does not pass the gate in the window.
-   * @throws {RangeError} For a malformed window, a non-unit normal, or a rectangle whose up is not in its plane.
+   * @param offset The tested point in the ball's frame, metres: its centre for
+   *   a sphere; the frame origin when absent.
+   * @returns The crossing, or undefined when the ball does not pass the gate in
+   *   the window.
+   * @throws {RangeError} For a malformed window, a non-unit normal, or a
+   *   rectangle whose up is not in its plane.
    */
   export function crossing(
     performance: IAutoMovieMotionHumanPerformance,

@@ -25,10 +25,10 @@ import type { humanPolygonMan } from "../humanPolygonMan";
 import { HandOverlap } from "./HandOverlap";
 
 /**
- * Capture cases of the handover law on the polygon man: the small woman
- * hands a bottle to the tall man, and an average man to another, standing
- * at `handshake.gap`. Read through `handlingCases`, whose documentation
- * lists the key frames, overlays and verdicts of `handling-handover-*`.
+ * Capture cases of the handover law on the polygon man: the small woman hands a
+ * bottle to the tall man, and an average man to another, standing at
+ * `handshake.gap`. Read through `handlingCases`, whose documentation lists the
+ * key frames, overlays and verdicts of `handling-handover-*`.
  *
  * @returns The cases.
  */

@@ -17,7 +17,10 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 
-/** The observed entry, flight and planted recovery inputs for a floor handspring or vault. */
+/**
+ * The observed entry, flight and planted recovery inputs for a floor handspring
+ * or vault.
+ */
 interface IHandspringLanding {
   /** The performer. */
   body: IAutoMovieMotionHumanBody;
@@ -60,8 +63,10 @@ interface IHandspringLanding {
  * Prepare the planted recovery from a handspring's touchdown posture.
  *
  * @param input The displayed flight, entry feet and landing surface.
- * @returns The lowered posture at seconds since touchdown, with optional synchronous FK resolution.
- * @throws {HumanRefusal} When either foot is outside a supplied landing surface.
+ * @returns The lowered posture at seconds since touchdown, with optional
+ *   synchronous FK resolution.
+ * @throws {HumanRefusal} When either foot is outside a supplied landing
+ *   surface.
  */
 export function handspringLanding(
   input: IHandspringLanding,

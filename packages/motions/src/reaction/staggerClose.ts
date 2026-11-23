@@ -12,55 +12,67 @@ import { staggerNearest } from "./staggerNearest";
 import type { staggerRecover } from "./staggerRecover";
 
 /**
- * A caught stagger's close (`staggerRecover`): the other foot closes to
- * stand the body over where its extrapolated centre of mass will be when
- * the foot lands, and the centre of pressure then carries the extrapolated
- * centre of mass to rest over the feet, the divergent component tracked on
- * a minimum-jerk course (Englsberger, Ott and Albu-Schaffer 2015) and the
- * centre of mass following it.
+ * A caught stagger's close (`staggerRecover`): the other foot closes to stand
+ * the body over where its extrapolated centre of mass will be when the foot
+ * lands, and the centre of pressure then carries the extrapolated centre of
+ * mass to rest over the feet, the divergent component tracked on a minimum-jerk
+ * course (Englsberger, Ott and Albu-Schaffer 2015) and the centre of mass
+ * following it.
  */
 export namespace staggerClose {
   /**
    * Close and settle a caught order.
    *
-   * The closing foot is itself a capture step (Hof 2008: a foot placed at
-   * the extrapolated centre of mass at its contact holds it): over its swing
-   * the stepping foot alone bears the body, its centre of pressure held at
-   * the point of its outline nearest the extrapolated centre of mass, so the
-   * extrapolated centre of mass runs away from that point as `e^(omega t)`.
-   * The foot closes where that course puts it at the landing: at least the
-   * entry's stance width from the stepping foot, wider where the
-   * extrapolated centre of mass will lie further out on its side, and as far
-   * ahead or behind as puts the middle of the two ankles where the body stood
-   * over them at the entry, under that point. The swing's time is its
-   * direction's measured step time, read once for the closing the caught
-   * point gives and once for the closing that prediction gives; the
-   * pendulum then bears the stepping foot for the latter's time, and the
-   * close is kept only where the extrapolated centre of mass then lies
-   * inside the two feet's base and comes to rest inside the settling's span.
-   * The closing foot is loaded as every landed foot is, over the measured
-   * weight shift, so the centre of pressure runs on from the swing's into
-   * the settling's without a jump.
+   * The closing foot is itself a capture step (Hof 2008: a foot placed at the
+   * extrapolated centre of mass at its contact holds it): over its swing the
+   * stepping foot alone bears the body, its centre of pressure held at the
+   * point of its outline nearest the extrapolated centre of mass, so the
+   * extrapolated centre of mass runs away from that point as `e^(omega t)`. The
+   * foot closes where that course puts it at the landing: at least the entry's
+   * stance width from the stepping foot, wider where the extrapolated centre of
+   * mass will lie further out on its side, and as far ahead or behind as puts
+   * the middle of the two ankles where the body stood over them at the entry,
+   * under that point. The swing's time is its direction's measured step time,
+   * read once for the closing the caught point gives and once for the closing
+   * that prediction gives; the pendulum then bears the stepping foot for the
+   * latter's time, and the close is kept only where the extrapolated centre of
+   * mass then lies inside the two feet's base and comes to rest inside the
+   * settling's span. The closing foot is loaded as every landed foot is, over
+   * the measured weight shift, so the centre of pressure runs on from the
+   * swing's into the settling's without a jump.
    *
-   * @param pendulum The pendulum the catching steps left, advanced through the close.
+   * @param pendulum The pendulum the catching steps left, advanced through the
+   *   close.
    * @param stepped The foot that stepped last.
-   * @param righting How long the centre of pressure takes to carry the extrapolated centre of mass to rest, seconds.
-   * @returns The recovery, or null when the closing landing leaves the extrapolated centre of mass outside the base or the settling does not bring it to rest.
+   * @param righting How long the centre of pressure takes to carry the
+   *   extrapolated centre of mass to rest, seconds.
+   * @returns The recovery, or null when the closing landing leaves the
+   *   extrapolated centre of mass outside the base or the settling does not
+   *   bring it to rest.
    */
   export function of(
     pendulum: StaggerPendulum,
     stepped: "left" | "right",
     righting: number,
   ): staggerRecover.IRecovery | null {
-    const { STEP, STEP_TIME, TRANSFER, SETTLED, TRACKING }: typeof staggerBounds =
-      staggerBounds;
+    const {
+      STEP,
+      STEP_TIME,
+      TRANSFER,
+      SETTLED,
+      TRACKING,
+    }: typeof staggerBounds = staggerBounds;
     const flat: typeof StaggerPendulum.flat = StaggerPendulum.flat;
     const { centre, across, forward, entered, w }: StaggerPendulum = pendulum;
     const feet: StaggerPendulum["feet"] = pendulum.feet;
     const steps: StaggerPendulum["steps"] = pendulum.steps;
     const anchor: "left" | "right" = stepped;
     const closer: "left" | "right" = anchor === "left" ? "right" : "left";
-    const middle: (of: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>) => IAutoMovieVector3 = (of: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>): IAutoMovieVector3 =>
+    const middle: (
+      of: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    ) => IAutoMovieVector3 = (
+      of: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>,
+    ): IAutoMovieVector3 =>
       flat(Vector3.scale(Vector3.add(of.left.ankle, of.right.ankle), 0.5));
     const stance: number = Vector3.dot(
       Vector3.subtract(entered[closer].ankle, entered[anchor].ankle),
@@ -74,7 +86,11 @@ export namespace staggerClose {
     // the middle of the ankles under it as the entry stood over its own,
     // never narrower than the entry's stance.
     const placed: IAutoMovieVector3 = feet[anchor].ankle;
-    const closingFor: (xi: IAutoMovieVector3) => IAutoMovieMotionHumanFoot.IPlacement = (xi: IAutoMovieVector3): IAutoMovieMotionHumanFoot.IPlacement => {
+    const closingFor: (
+      xi: IAutoMovieVector3,
+    ) => IAutoMovieMotionHumanFoot.IPlacement = (
+      xi: IAutoMovieVector3,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
       const under: IAutoMovieVector3 = Vector3.subtract(
         Vector3.add(centre, xi),
         Vector3.subtract(flat(centre), middle(entered)),
@@ -82,7 +98,8 @@ export namespace staggerClose {
       const toward: IAutoMovieVector3 = Vector3.subtract(under, flat(placed));
       const side: number = stance >= 0 ? 1 : -1;
       const wide: number =
-        side * Math.max(Math.abs(stance), 2 * side * Vector3.dot(toward, across));
+        side *
+        Math.max(Math.abs(stance), 2 * side * Vector3.dot(toward, across));
       return {
         ankle: {
           ...Vector3.add(
@@ -94,7 +111,9 @@ export namespace staggerClose {
         rotation: entered[closer].rotation,
       };
     };
-    const swingFor: (closing: IAutoMovieMotionHumanFoot.IPlacement) => number = (closing: IAutoMovieMotionHumanFoot.IPlacement): number =>
+    const swingFor: (
+      closing: IAutoMovieMotionHumanFoot.IPlacement,
+    ) => number = (closing: IAutoMovieMotionHumanFoot.IPlacement): number =>
       pendulum.bound(
         flat(Vector3.subtract(closing.ankle, feet[closer].ankle)),
         STEP_TIME,
@@ -105,8 +124,13 @@ export namespace staggerClose {
     // p grows as e^(omega t).
     const xi0: IAutoMovieVector3 = pendulum.xi();
     const held: IAutoMovieVector3 = pendulum.pressure();
-    const predicted: (seconds: number) => IAutoMovieVector3 = (seconds: number): IAutoMovieVector3 =>
-      Vector3.add(held, Vector3.scale(Vector3.subtract(xi0, held), Math.exp(w * seconds)));
+    const predicted: (seconds: number) => IAutoMovieVector3 = (
+      seconds: number,
+    ): IAutoMovieVector3 =>
+      Vector3.add(
+        held,
+        Vector3.scale(Vector3.subtract(xi0, held), Math.exp(w * seconds)),
+      );
     const closing: IAutoMovieMotionHumanFoot.IPlacement = closingFor(
       predicted(swingFor(closingFor(xi0))),
     );
@@ -147,7 +171,8 @@ export namespace staggerClose {
     const begin: IAutoMovieVector3 = pendulum.xi();
     const last: number = pendulum.t;
     const base: IAutoMovieVector3[] = pendulum.bearing(["left", "right"]);
-    const nearest: ReturnType<typeof staggerNearest.prepare> = staggerNearest.prepare(base);
+    const nearest: ReturnType<typeof staggerNearest.prepare> =
+      staggerNearest.prepare(base);
     const settle: IAutoMovieVector3[] = [pendulum.s];
     const drifting: IAutoMovieVector3[] = [begin];
     const pressing: IAutoMovieVector3[] = [];
@@ -176,7 +201,10 @@ export namespace staggerClose {
       const p: IAutoMovieVector3 = nearest(
         Vector3.add(
           aimed,
-          Vector3.scale(jump, 1 - minimumJerk.share(Math.min(1, ((i - 1) * STEP) / loading))),
+          Vector3.scale(
+            jump,
+            1 - minimumJerk.share(Math.min(1, ((i - 1) * STEP) / loading)),
+          ),
         ),
       );
       pressing.push(p);
@@ -214,7 +242,10 @@ export namespace staggerClose {
       centre,
       course: (seconds: number): IAutoMovieVector3 => {
         if (seconds >= last) {
-          const at: number = Math.min(settle.length - 1, (seconds - last) / STEP);
+          const at: number = Math.min(
+            settle.length - 1,
+            (seconds - last) / STEP,
+          );
           const i: number = Math.floor(at);
           return Vector3.lerp(
             settle[i]!,
@@ -230,7 +261,10 @@ export namespace staggerClose {
             Vector3.add(
               centre,
               pressing[
-                Math.min(pressing.length - 1, Math.floor((seconds - last) / STEP))
+                Math.min(
+                  pressing.length - 1,
+                  Math.floor((seconds - last) / STEP),
+                )
               ]!,
             ),
           );

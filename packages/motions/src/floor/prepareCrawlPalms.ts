@@ -12,21 +12,26 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /**
- * Prepare the crawl's two flat-palm frames. Each current palm is placed
- * once, and that actual wrist supplies both the original default elbow
- * search and the canonical contact-goal assembly; the goal names the
- * searched elbow place (`elbow: "placed"`), so the arm's fit takes it
- * rather than searching again.
+ * Prepare the crawl's two flat-palm frames. Each current palm is placed once,
+ * and that actual wrist supplies both the original default elbow search and the
+ * canonical contact-goal assembly; the goal names the searched elbow place
+ * (`elbow: "placed"`), so the arm's fit takes it rather than searching again.
  *
  * @param body The unchanged body and hand surfaces for this crawl plan.
- * @param forward Fixed world heading used by both flat palms; callbacks must not mutate it.
+ * @param forward Fixed world heading used by both flat palms; callbacks must
+ *   not mutate it.
  * @param flat The crawl frame owner's immutable side-only flat digit shapes.
- * @returns A current-posture/palm-point writer preserving left-then-right order for actual native callbacks that keep current root/trunk/forward unchanged within the call, borrowing optional parent FK only during that call. Generic callbacks use crawlFrame.laid.
+ * @returns A current-posture/palm-point writer preserving left-then-right order
+ *   for actual native callbacks that keep current root/trunk/forward unchanged
+ *   within the call, borrowing optional parent FK only during that call.
+ *   Generic callbacks use crawlFrame.laid.
  */
 export function prepareCrawlPalms(
   body: IAutoMovieMotionHumanBody,
   forward: IAutoMovieVector3,
-  flat: Readonly<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>>,
+  flat: Readonly<
+    Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
+  >,
 ): (
   posture: IAutoMovieMotionHumanPosture,
   palm: (side: "left" | "right") => IAutoMovieVector3,
@@ -79,7 +84,9 @@ export function prepareCrawlPalms(
           // The bend is the elbow's place this search chose, so the fit
           // starts there and does not search the circle again.
           [`${side}Arm`]: {
-            ...AutoMovieMotionHumanArmTarget.fromWrist(wrist, bend, { ...contact }),
+            ...AutoMovieMotionHumanArmTarget.fromWrist(wrist, bend, {
+              ...contact,
+            }),
             elbow: "placed",
           },
         },

@@ -14,11 +14,15 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
  * parent/rest composition always runs for the current coordinates.
  *
  * @param setup The unchanged arm rig metadata.
- * @param at The current parent frame and optional completed same-frame shoulder point.
+ * @param at The current parent frame and optional completed same-frame shoulder
+ *   point.
  * @param c The nine arm coordinates.
- * @param readShoulder The existing shoulder chart calculation or its scoped exact-input reader.
- * @param readRotation The existing local-joint projection/composition or its scoped exact-input reader.
- * @param readScalars Optional same-derivative local reader receiving coordinates without temporary input tuples.
+ * @param readShoulder The existing shoulder chart calculation or its scoped
+ *   exact-input reader.
+ * @param readRotation The existing local-joint projection/composition or its
+ *   scoped exact-input reader.
+ * @param readScalars Optional same-derivative local reader receiving
+ *   coordinates without temporary input tuples.
  * @returns Fresh world joint positions and segment rotations, without probes.
  */
 export function resolveHumanArmChain(

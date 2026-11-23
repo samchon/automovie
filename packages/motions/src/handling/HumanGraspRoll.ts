@@ -6,18 +6,17 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A grasp on a handle rolled about the handle's line so its wrist lies
- * nearest a point, the shoulder of the arm that takes it: the free roll a
- * power grip on a cylinder leaves (grasp synthesis treats a cylindrical
- * handle's grasps as one family about its axis, Miller et al. 2003), chosen
- * where the arm's reachable workspace, a sphere about the shoulder, is
- * nearest.
+ * A grasp on a handle rolled about the handle's line so its wrist lies nearest
+ * a point, the shoulder of the arm that takes it: the free roll a power grip on
+ * a cylinder leaves (grasp synthesis treats a cylindrical handle's grasps as
+ * one family about its axis, Miller et al. 2003), chosen where the arm's
+ * reachable workspace, a sphere about the shoulder, is nearest.
  *
  * Rolling the hand rigidly about the line through the grip point keeps the
- * wrist's offset along the line and turns its offset across it. The wrist
- * comes nearest the shoulder when that across offset points the way the
- * shoulder lies across the line, so the roll is the signed angle between the
- * two across directions, in closed form.
+ * wrist's offset along the line and turns its offset across it. The wrist comes
+ * nearest the shoulder when that across offset points the way the shoulder lies
+ * across the line, so the roll is the signed angle between the two across
+ * directions, in closed form.
  *
  * @param grasp The wrist and hand attitude of one grasp on the handle, world.
  * @param point The grip point on the handle's line, world metres.

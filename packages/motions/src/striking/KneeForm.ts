@@ -1,7 +1,7 @@
 /**
- * The knee strike's form: the angles and shares its solve and its
- * course are built from. Every value is a provisional reading of coaching
- * photographs unless its comment names a source.
+ * The knee strike's form: the angles and shares its solve and its course are
+ * built from. Every value is a provisional reading of coaching photographs
+ * unless its comment names a source.
  */
 export namespace KneeForm {
   /**
@@ -11,24 +11,30 @@ export namespace KneeForm {
   export const FLEXION: number = 135;
 
   /**
-   * Ankle plantarflexion while driven, degrees: the toes pointed down along
-   * the shank, a tenth inside `DEFAULT_HUMANOID_ROM`'s 50.
+   * Ankle plantarflexion while driven, degrees: the toes pointed down along the
+   * shank, a tenth inside `DEFAULT_HUMANOID_ROM`'s 50.
    */
   export const PLANTAR: number = 45;
 
   /** Back lean at contact, degrees (provisional). */
   export const LEAN: number = 10;
 
-  /** The hip's flexion range used, degrees: `DEFAULT_HUMANOID_ROM`'s 120 kept a tenth inside. */
+  /**
+   * The hip's flexion range used, degrees: `DEFAULT_HUMANOID_ROM`'s 120 kept a
+   * tenth inside.
+   */
   export const HIP_FLEXION: number = 108;
 
-  /** The lowest thigh elevation below the horizontal, degrees: a knee to the thigh (provisional). */
+  /**
+   * The lowest thigh elevation below the horizontal, degrees: a knee to the
+   * thigh (provisional).
+   */
   export const LOWEST: number = 45;
 
   /**
    * The pelvis's longest travel along the line, as a share of the stance
-   * length: a rear knee squares the hips until the rear hip is level with
-   * the lead (support) foot, half a stance; a lead knee drives the lead hip a
+   * length: a rear knee squares the hips until the rear hip is level with the
+   * lead (support) foot, half a stance; a lead knee drives the lead hip a
    * quarter. Provisional readings of the clinch knee's hip drive.
    */
   export const TRAVEL: Readonly<Record<"lead" | "rear", number>> = {
@@ -38,10 +44,9 @@ export namespace KneeForm {
 
   /**
    * The share of the way out the thigh's lift takes from the launch, and the
-   * share the pelvis's drive takes up to the contact: the knee is lifted,
-   * then the hips are driven in, the two overlapping in the middle. The way
-   * back mirrors it, the hips withdrawn before the leg is lowered.
-   * Provisional.
+   * share the pelvis's drive takes up to the contact: the knee is lifted, then
+   * the hips are driven in, the two overlapping in the middle. The way back
+   * mirrors it, the hips withdrawn before the leg is lowered. Provisional.
    */
   export const LIFT_SHARE: number = 0.6;
 
@@ -49,11 +54,14 @@ export namespace KneeForm {
   export const HEEL_RAISE: number = 15;
 
   /**
-   * How far each clinching hand sits to its own side of the other's nape, as
-   * a share of the other's shoulder half width (provisional).
+   * How far each clinching hand sits to its own side of the other's nape, as a
+   * share of the other's shoulder half width (provisional).
    */
   export const CLINCH_SHARE: number = 0.5;
 
-  /** How far past the nape the clinching hands hold, metres (provisional: the hands cupped behind the neck). */
+  /**
+   * How far past the nape the clinching hands hold, metres (provisional: the
+   * hands cupped behind the neck).
+   */
   export const CLINCH_DEPTH: number = 0.03;
 }

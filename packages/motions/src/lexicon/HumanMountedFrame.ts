@@ -22,12 +22,12 @@ import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The moving frame a mounted performance is planned in: one of the
- * carrier's own contacts, read where the carrier has it at each film second,
- * with its axes turned back to the carrier model's own (`+Z` the carrier's
- * front, `+Y` its up, `+X` its left). A contact on a horse's trunk rides the
- * trunk's pitch and bob as well as the horse's course, so a posture carried
- * by this frame stays on the saddle or the pad the contact belongs to.
+ * The moving frame a mounted performance is planned in: one of the carrier's
+ * own contacts, read where the carrier has it at each film second, with its
+ * axes turned back to the carrier model's own (`+Z` the carrier's front, `+Y`
+ * its up, `+X` its left). A contact on a horse's trunk rides the trunk's pitch
+ * and bob as well as the horse's course, so a posture carried by this frame
+ * stays on the saddle or the pad the contact belongs to.
  */
 export namespace HumanMountedFrame {
   /** A carrier frame at a film second. */
@@ -85,7 +85,9 @@ export namespace HumanMountedFrame {
   }
 
   /**
-   * A carrier contact's world point at a film second: the carrier's own moving reading, or the contact's model point under the carrier's frame where it publishes none.
+   * A carrier contact's world point at a film second: the carrier's own moving
+   * reading, or the contact's model point under the carrier's frame where it
+   * publishes none.
    *
    * @param support The carrier.
    * @param id The contact's id, which the carrier declares.
@@ -107,7 +109,9 @@ export namespace HumanMountedFrame {
   }
 
   /**
-   * The hands the entry already holds on the first figure's contacts: each whose arm goal lies in the world within a hand's length of the contact it is to hold, as a ride's held reins do.
+   * The hands the entry already holds on the first figure's contacts: each
+   * whose arm goal lies in the world within a hand's length of the contact it
+   * is to hold, as a ride's held reins do.
    *
    * @param body The body.
    * @param entry The entered posture, in the world.
@@ -145,16 +149,23 @@ export namespace HumanMountedFrame {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
 
-  /** Seconds either side a carrier's surge is read over when it declares no stride (provisional). */
+  /**
+   * Seconds either side a carrier's surge is read over when it declares no
+   * stride (provisional).
+   */
   export const SURGE: number = 0.5;
 
   /**
-   * The carrier's forward acceleration at a second, metres per second squared: its course's surge, as when a horse bolts or pulls up, without its strides' own fore-and-aft pulses.
+   * The carrier's forward acceleration at a second, metres per second squared:
+   * its course's surge, as when a horse bolts or pulls up, without its strides'
+   * own fore-and-aft pulses.
    *
    * @param carrier The frame reader.
    * @param film Film seconds.
-   * @param stride The carrier's stride period, seconds; `SURGE` either side when absent.
-   * @returns The acceleration along the carrier's level forward, positive when it speeds up.
+   * @param stride The carrier's stride period, seconds; `SURGE` either side
+   *   when absent.
+   * @returns The acceleration along the carrier's level forward, positive when
+   *   it speeds up.
    */
   export function surge(
     carrier: Reader,
@@ -236,12 +247,18 @@ export namespace HumanMountedFrame {
   }
 
   /**
-   * Lay a carried plan's arms in the carrier's own frame: the plan's world postures are brought into the carrier contact's frame, where a held hold barely moves, the arms are laid there by `lay` (a planned arm course), and the laid postures are carried back into the world at each second. A course laid in the world would chase a hold the carrier sweeps away between its instants.
+   * Lay a carried plan's arms in the carrier's own frame: the plan's world
+   * postures are brought into the carrier contact's frame, where a held hold
+   * barely moves, the arms are laid there by `lay` (a planned arm course), and
+   * the laid postures are carried back into the world at each second. A course
+   * laid in the world would chase a hold the carrier sweeps away between its
+   * instants.
    *
    * @param plan The plan, its postures in the world.
    * @param carrier The carrier contact's frame reader.
    * @param start The plan's start, film seconds.
-   * @param lay Lays the arms on a plan whose postures are in the carrier's frame.
+   * @param lay Lays the arms on a plan whose postures are in the carrier's
+   *   frame.
    * @returns The plan with its arms laid in the carrier's frame.
    */
   export function coursed(
@@ -283,11 +300,17 @@ export namespace HumanMountedFrame {
     };
   }
 
-  /** How far out from a held limb's surface the palm lies, metres: a hand's thickness (provisional). */
+  /**
+   * How far out from a held limb's surface the palm lies, metres: a hand's
+   * thickness (provisional).
+   */
   export const SKIN: number = 0.03;
 
   /**
-   * Where a hand holds a partner's bone: on the partner's body surface, out from the partner's hips through the bone, level, by the thigh's radius and the palm's thickness; the bone's joint itself where it stands over the hips.
+   * Where a hand holds a partner's bone: on the partner's body surface, out
+   * from the partner's hips through the bone, level, by the thigh's radius and
+   * the palm's thickness; the bone's joint itself where it stands over the
+   * hips.
    *
    * @param partner The partner as the performance reads it.
    * @param bone The bone held.

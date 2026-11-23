@@ -32,9 +32,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * performer, or the support, turns first.
  */
 export namespace HumanSupportAim {
-  /**
-   * The correction at a second: the wanted line against the carried one.
-   */
+  /** The correction at a second: the wanted line against the carried one. */
   export interface ICorrection {
     /**
      * The turn about the vertical, degrees, positive toward the performer's

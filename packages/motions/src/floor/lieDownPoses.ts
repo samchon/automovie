@@ -23,11 +23,13 @@ interface IShape {
 }
 
 /** The intermediate and terminal keys in a floor route. */
-type Key = "sit" | "kneel" | "quadruped" | IAutoMovieMotionHumanLieDown.Position;
+type Key =
+  | "sit"
+  | "kneel"
+  | "quadruped"
+  | IAutoMovieMotionHumanLieDown.Position;
 
-/**
- * The standing-to-floor law's authored posture keys, in clinical degrees.
- */
+/** The standing-to-floor law's authored posture keys, in clinical degrees. */
 export namespace lieDownPoses {
   /** Relative hip adduction of parallel legs in side lying, degrees. */
   export const STACKED: number = 0;
@@ -91,8 +93,16 @@ export namespace lieDownPoses {
     ),
   };
 
-  /** A floor posture with its trunk bent to the side at the spine and the chest, degrees of abduction: about the forward axis, so a negative bend tips the trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis stays down while the shoulder comes over the hand leant on. */
-  function bent(posture: IAutoMovieMotionHumanLieDown.IPose, side: readonly [number, number]): IAutoMovieMotionHumanLieDown.IPose {
+  /**
+   * A floor posture with its trunk bent to the side at the spine and the chest,
+   * degrees of abduction: about the forward axis, so a negative bend tips the
+   * trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis
+   * stays down while the shoulder comes over the hand leant on.
+   */
+  function bent(
+    posture: IAutoMovieMotionHumanLieDown.IPose,
+    side: readonly [number, number],
+  ): IAutoMovieMotionHumanLieDown.IPose {
     const spine: readonly [number, number, number] = posture.joints.spine ?? [
       0, 0, 0,
     ];
@@ -111,8 +121,8 @@ export namespace lieDownPoses {
 
   /**
    * A floor posture from its whole-body tilt and symmetric limb angles. Lying
-   * on a side, no limb spreads away from the trunk into the floor: the arms
-   * and both flexed legs remain parallel at the separation of the hips.
+   * on a side, no limb spreads away from the trunk into the floor: the arms and
+   * both flexed legs remain parallel at the separation of the hips.
    */
   function pose(
     pitch: number,

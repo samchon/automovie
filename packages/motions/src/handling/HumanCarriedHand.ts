@@ -22,14 +22,14 @@ const DIGITS: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 
 /**
  * A one-handed handling plan performed over a carrier: the hand's work of a
- * standing plan (a put down, a holstering, a sheathing) carried onto the
- * body the carrier keeps. The standing plan is planned as it is, on the
- * entry's body; over the carrier the action keeps the carrier's posture,
- * claims only the working arm and hand, drops the feet's plants, and writes
- * the standing plan's arm goal and fingers over it, the goal carried into
- * the frame of the bone the target rides on this body (a holster on the
- * hips) at the entry, so the hand follows the target as the body moves; a
- * target in the world keeps the world goal.
+ * standing plan (a put down, a holstering, a sheathing) carried onto the body
+ * the carrier keeps. The standing plan is planned as it is, on the entry's
+ * body; over the carrier the action keeps the carrier's posture, claims only
+ * the working arm and hand, drops the feet's plants, and writes the standing
+ * plan's arm goal and fingers over it, the goal carried into the frame of the
+ * bone the target rides on this body (a holster on the hips) at the entry, so
+ * the hand follows the target as the body moves; a target in the world keeps
+ * the world goal.
  */
 export namespace HumanCarriedHand {
   /**
@@ -38,7 +38,8 @@ export namespace HumanCarriedHand {
    * @param plan The standing plan.
    * @param context The action's context, its carrier present.
    * @param side The working hand.
-   * @param frame The bone the target rides on this body; none for a target in the world.
+   * @param frame The bone the target rides on this body; none for a target in
+   *   the world.
    * @returns The plan over the carrier.
    */
   export function over(
@@ -133,8 +134,8 @@ export namespace HumanCarriedHand {
   }
 
   /**
-   * The bone of this performer a target prop rides: worn on it, or mounted
-   * on a prop worn on it; none for a prop in the world.
+   * The bone of this performer a target prop rides: worn on it, or mounted on a
+   * prop worn on it; none for a prop in the world.
    *
    * @param context The action's context.
    * @param subject The target prop.

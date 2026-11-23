@@ -12,8 +12,8 @@ import { AquaticPosture } from "./AquaticPosture";
 /**
  * A pool edge as the exits read it: the lip, where the deck meets the wall
  * face, and the edge's own directions, out over the water and along the wall.
- * The named support must declare an `edge` contact; the edge prop's frame
- * puts the water toward its `+Z` (`createPoolEdge`).
+ * The named support must declare an `edge` contact; the edge prop's frame puts
+ * the water toward its `+Z` (`createPoolEdge`).
  */
 export namespace AquaticEdge {
   /** A pool edge in the world. */
@@ -70,7 +70,10 @@ export namespace AquaticEdge {
     };
   }
 
-  /** A world point `out` metres out from the lip over the water (negative: back on the deck), `side` along it and `up` above it. */
+  /**
+   * A world point `out` metres out from the lip over the water (negative: back
+   * on the deck), `side` along it and `up` above it.
+   */
   export function at(
     edge: IEdge,
     out: number,

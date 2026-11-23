@@ -1,7 +1,8 @@
 ﻿import type { IAutoMovieMotionHumanSwing } from "@automovie/interface";
 
 /**
- * A baseball swing: both hands, level from the bat hand's side. Spread into the cut's parameters; the row adds the implement's measured speed.
+ * A baseball swing: both hands, level from the bat hand's side. Spread into the
+ * cut's parameters; the row adds the implement's measured speed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the preset fixes, how it is applied and which row reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `IAutoMovieMotionHumanSwing.IGripPreset`, so it fits any body as the law does.

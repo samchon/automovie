@@ -11,16 +11,21 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
-/** Tolerance on the mouth's unit up axis for a level scoring plane, unitless rounding. */
+/**
+ * Tolerance on the mouth's unit up axis for a level scoring plane, unitless
+ * rounding.
+ */
 const LEVEL: number = 1e-8;
 
 /**
  * Score the direct, airborne portion of a water polo shot. The same resolved
  * flight that displays the ball supplies its radius, centre, and the first
- * contact or takeover that can end a scoring opportunity. The fixed mouth's
- * +Z faces the field and its +Y begins at the waterline.
+ * contact or takeover that can end a scoring opportunity. The fixed mouth's +Z
+ * faces the field and its +Y begins at the waterline.
  *
- * @param params The `film` displaying both the ball and the fixed goal, the `ball`'s subject id through catch, carry and shot, and the fixed placed `goal` with the physical "mouth" aperture.
+ * @param params The `film` displaying both the ball and the fixed goal, the
+ *   `ball`'s subject id through catch, carry and shot, and the fixed placed
+ *   `goal` with the physical "mouth" aperture.
  * @returns Each credited goal, in film order.
  */
 export function scoreWaterPoloGoal(

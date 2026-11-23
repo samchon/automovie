@@ -15,15 +15,16 @@ import type { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A touch reaches from its existing base when it can. A grounded performer
- * with an external target can take one step when the planted reach refuses.
- * The arm keeps the very same target and the step uses the pick-up's reach
- * adjustment, on the reach and return portions of the touch's clock.
+ * A touch reaches from its existing base when it can. A grounded performer with
+ * an external target can take one step when the planted reach refuses. The arm
+ * keeps the very same target and the step uses the pick-up's reach adjustment,
+ * on the reach and return portions of the touch's clock.
  *
  * @param props The touch's standing reach and wrist goal.
  * @param mayStep Whether both feet bear the touch and the target is external.
  * @returns The stance and the corresponding base builder.
- * @throws {HumanRefusal} A planted-reach refusal when no allowed step closes it.
+ * @throws {HumanRefusal} A planted-reach refusal when no allowed step closes
+ *   it.
  */
 export function touchStance(
   props: IAutoMovieMotionHumanTouchStance.IProps,
@@ -53,17 +54,20 @@ export function touchStance(
     const feet: IAutoMovieMotionHumanRise.Stance | undefined = props.feet;
 
     if (feet === undefined) throw error;
-    const placements: NonNullable<IAutoMovieMotionHumanTouchStance.IProps["placements"]> =
-      (posture: IAutoMovieMotionHumanPosture): IAutoMovieMotionHumanRise.Stance => ({
-        left: {
-          ankle: posture.limbs.leftLeg?.point ?? feet.left.ankle,
-          rotation: posture.limbs.leftLeg?.rotation ?? feet.left.rotation,
-        },
-        right: {
-          ankle: posture.limbs.rightLeg?.point ?? feet.right.ankle,
-          rotation: posture.limbs.rightLeg?.rotation ?? feet.right.rotation,
-        },
-      });
+    const placements: NonNullable<
+      IAutoMovieMotionHumanTouchStance.IProps["placements"]
+    > = (
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanRise.Stance => ({
+      left: {
+        ankle: posture.limbs.leftLeg?.point ?? feet.left.ankle,
+        rotation: posture.limbs.leftLeg?.rotation ?? feet.left.rotation,
+      },
+      right: {
+        ankle: posture.limbs.rightLeg?.point ?? feet.right.ankle,
+        rotation: posture.limbs.rightLeg?.rotation ?? feet.right.rotation,
+      },
+    });
     const candidate = (
       posture: IAutoMovieMotionHumanPosture,
       heels?: IAutoMovieMotionHumanTouchStance.IProps["heels"],
@@ -76,12 +80,15 @@ export function touchStance(
         ...(heels === undefined ? {} : { heels }),
       });
     const accept = (posture: IAutoMovieMotionHumanPosture): boolean => {
-
       try {
         candidate(posture);
         return true;
       } catch (failure) {
-        if (failure instanceof HumanRefusal && failure.kind === "reach" && failure.axis === "target")
+        if (
+          failure instanceof HumanRefusal &&
+          failure.kind === "reach" &&
+          failure.axis === "target"
+        )
           return false;
         throw failure;
       }
@@ -103,16 +110,20 @@ export function touchStance(
     );
     if (stride === null || stride.step === undefined) throw error;
     const landed: number = stride.step.on;
-    const stance: IAutoMovieMotionHumanTouchStance.IStance = candidate(stride.posture,
+    const stance: IAutoMovieMotionHumanTouchStance.IStance = candidate(
+      stride.posture,
       (clock: IAutoMovieMotionClock, seconds: number): number => {
         // A foot rolls onto the forefoot after it lands, and returns flat
         // before the reverse swing leaves the ground.
         const ready: number = clock.at("ready");
         const relax: number = clock.at("relax");
-        const up: number = clock.at("start") + (ready - clock.at("start")) * landed;
+        const up: number =
+          clock.at("start") + (ready - clock.at("start")) * landed;
         const flat: number = relax + (clock.at("end") - relax) * (1 - landed);
-        return minimumJerk.share((seconds - up) / (ready - up)) -
-          minimumJerk.share((seconds - relax) / (flat - relax));
+        return (
+          minimumJerk.share((seconds - up) / (ready - up)) -
+          minimumJerk.share((seconds - relax) / (flat - relax))
+        );
       },
     );
     return {

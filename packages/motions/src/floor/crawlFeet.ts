@@ -17,13 +17,11 @@ import { HumanFrame } from "../posture/HumanFrame";
 /**
  * The feet of a crawl on the knees: each tucked on its toes behind its knee
  * (`kneelKeys.tucked`), the crawl placed so the tucked feet are where the
- * standing feet roll onto their toes, and the roll that takes a standing
- * foot there without its toes sliding.
+ * standing feet roll onto their toes, and the roll that takes a standing foot
+ * there without its toes sliding.
  */
 export namespace crawlFeet {
-  /**
-   * A foot tucked behind its knee, carried with the knee.
-   */
+  /** A foot tucked behind its knee, carried with the knee. */
   export interface ITuck {
     /** The foot, solved at the knee's nominal place. */
     foot: kneelKeys.IFoot;
@@ -33,11 +31,11 @@ export namespace crawlFeet {
   }
 
   /**
-   * A standing foot rolled onto its toes: the heel rises about the toes'
-   * joint, the toes staying flat on the floor, until the toes reach their
-   * extension range, and from there the foot turns on the tips of its toes,
-   * the toes held at that range. The foot's turn to its tucked heading is
-   * taken about the toes' tip throughout, so the toes never slide.
+   * A standing foot rolled onto its toes: the heel rises about the toes' joint,
+   * the toes staying flat on the floor, until the toes reach their extension
+   * range, and from there the foot turns on the tips of its toes, the toes held
+   * at that range. The foot's turn to its tucked heading is taken about the
+   * toes' tip throughout, so the toes never slide.
    *
    * @param body The body.
    * @param side The foot.
@@ -45,7 +43,8 @@ export namespace crawlFeet {
    * @param heading The heading the foot turns to as it rolls, degrees about +Y.
    * @param lift The heel's lift at the end of the roll, degrees.
    * @param share How far through the roll, in [0, 1].
-   * @returns The foot's placement, its toes' extension in degrees and its toes' joint, world metres.
+   * @returns The foot's placement, its toes' extension in degrees and its toes'
+   *   joint, world metres.
    */
   export function rolled(
     body: IAutoMovieMotionHumanBody,
@@ -54,13 +53,17 @@ export namespace crawlFeet {
     heading: number,
     lift: number,
     share: number,
-  ): { placement: IAutoMovieMotionHumanFoot.IPlacement; toes: number; mtp: IAutoMovieVector3; } {
+  ): {
+    placement: IAutoMovieMotionHumanFoot.IPlacement;
+    toes: number;
+    mtp: IAutoMovieVector3;
+  } {
     return prepareRoll(body, side, standing, heading, lift)(share);
   }
 
   /**
-   * Prepare a fixed standing foot's roll for independent progress queries.
-   * The heading, toe range and standing toes' tip are invariant.
+   * Prepare a fixed standing foot's roll for independent progress queries. The
+   * heading, toe range and standing toes' tip are invariant.
    */
   export function prepareRoll(
     body: IAutoMovieMotionHumanBody,
@@ -126,18 +129,18 @@ export namespace crawlFeet {
   }
 
   /**
-   * The feet a crawl kneels on, and the floor frame that keeps them where
-   * the standing feet were: each foot tucked behind its knee
-   * (`kneelKeys.tucked`), the frame moved along the heading and each tucked
-   * foot across it until its toes' joint is where the standing foot rolls
-   * onto its toes (`rolled`), so the feet do not slide as the body gets
-   * down.
+   * The feet a crawl kneels on, and the floor frame that keeps them where the
+   * standing feet were: each foot tucked behind its knee (`kneelKeys.tucked`),
+   * the frame moved along the heading and each tucked foot across it until its
+   * toes' joint is where the standing foot rolls onto its toes (`rolled`), so
+   * the feet do not slide as the body gets down.
    *
    * @param body The body.
    * @param standing The standing posture, its feet on their goals.
    * @param measured The floor frame under the standing root.
    * @param knees Each knee joint's nominal place, metres in that frame.
-   * @param ahead How far before its nominal place each knee lands, metres along the heading.
+   * @param ahead How far before its nominal place each knee lands, metres along
+   *   the heading.
    * @returns The frame and the tucked feet.
    */
   export function planted(
@@ -146,7 +149,10 @@ export namespace crawlFeet {
     measured: IAutoMovieMotionHumanFrame,
     knees: Record<"left" | "right", IAutoMovieVector3>,
     ahead: number,
-  ): { frame: IAutoMovieMotionHumanFrame; tucks: Record<"left" | "right", ITuck>; } {
+  ): {
+    frame: IAutoMovieMotionHumanFrame;
+    tucks: Record<"left" | "right", ITuck>;
+  } {
     const forward: IAutoMovieVector3 = HumanFrame.forward(measured.yaw);
     const sides = ["left", "right"] as const;
     const feet = sides.map((side: "left" | "right") => {

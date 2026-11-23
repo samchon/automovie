@@ -33,14 +33,17 @@ type Params = wardrobeModes.Params;
 /**
  * Put coarse stage wearables onto or take them off a real performer.
  *
- * A previously held open-front jacket is carried into position while the
- * other hand passes into its named sleeve. It transfers from the grasping
- * hand to the chest. The remaining sleeve can be threaded, and either sleeve
- * can be cleared, with the pose on that same jacket. The zip moves with the hand on its actual slider. Its travel is retained by the native prop drive. The seated footwear modes reuse
- * a chair and an opposite foot plant while transferring the shell onto or out of the raised foot.
+ * A previously held open-front jacket is carried into position while the other
+ * hand passes into its named sleeve. It transfers from the grasping hand to the
+ * chest. The remaining sleeve can be threaded, and either sleeve can be
+ * cleared, with the pose on that same jacket. The zip moves with the hand on
+ * its actual slider. Its travel is retained by the native prop drive. The
+ * seated footwear modes reuse a chair and an opposite foot plant while
+ * transferring the shell onto or out of the raised foot.
  *
  * Clegg et al. describe independent alignment and sleeve passage phases in
- * Animating Human Dressing (2015), https://sites.cc.gatech.edu/gvu/people/faculty/greg.turk/paper_pages/2015_animating_human_dressing/index.html.
+ * Animating Human Dressing (2015),
+ * https://sites.cc.gatech.edu/gvu/people/faculty/greg.turk/paper_pages/2015_animating_human_dressing/index.html.
  * The jacket here uses explicit short openings and imposes staged rigid poses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Explains entry ownership, what can be reversed, closure composition and coarse model scope.
@@ -386,7 +389,10 @@ interface ISleeve {
   passage: number;
 }
 
-/** Fit a real path down the named sleeve axis, leaving positive radial clearance. */
+/**
+ * Fit a real path down the named sleeve axis, leaving positive radial
+ * clearance.
+ */
 function sleeve(
   context: IAutoMovieMotionHumanActionContext<Params>,
   reader: IAutoMovieMotionHumanPropReader,

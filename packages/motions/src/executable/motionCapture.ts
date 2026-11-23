@@ -29,7 +29,10 @@ const ROOT: string = path.join(__dirname, "..", "..");
 const MODULE: string = "src/executable/subjects.ts";
 
 /**
- * The harness's default views by its own names, as view texts of the shared grammar: orthographic, fitted to everything a case draws over all its instants, so lengths read true to scale and every cell of a view shares one camera.
+ * The harness's default views by its own names, as view texts of the shared
+ * grammar: orthographic, fitted to everything a case draws over all its
+ * instants, so lengths read true to scale and every cell of a view shares one
+ * camera.
  */
 const VIEWS: Readonly<Record<string, string>> = {
   front: "front@ortho",
@@ -38,15 +41,34 @@ const VIEWS: Readonly<Record<string, string>> = {
   threeQuarter: "three-quarter@ortho",
 };
 
-/** Pixels on each side of every still: square, so the four views share one cell shape. */
+/**
+ * Pixels on each side of every still: square, so the four views share one cell
+ * shape.
+ */
 const RASTER: { width: number; height: number } = { width: 720, height: 720 };
 
 /**
  * Draw motion cases through the shared capture host and report their verdicts.
  *
- * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>…]` builds each named case of `MOTION_CAPTURE_CASES` (`--list` prints them) and captures it with `automovie capture`'s host: the page built from `subjects` draws the case's instants (`at`) through its views into `packages/motions/media/capture/<case>/`, as stills, contact sheets and `record.json`. The record's section holds the case's instants with their labels, its performers, its verdicts and its metrics. The process exits non-zero when any verdict fails or any cell is not drawn.
+ * `pnpm --dir packages/motions node:capture -- --case <name>[,<name>…]` builds
+ * each named case of `MOTION_CAPTURE_CASES` (`--list` prints them) and captures
+ * it with `automovie capture`'s host: the page built from `subjects` draws the
+ * case's instants (`at`) through its views into
+ * `packages/motions/media/capture/<case>/`, as stills, contact sheets and
+ * `record.json`. The record's section holds the case's instants with their
+ * labels, its performers, its verdicts and its metrics. The process exits
+ * non-zero when any verdict fails or any cell is not drawn.
  *
- * Options of the harness: `--only <regex>` keeps the cases whose name matches, a factory that reads the filter building no other; `--views a,b` picks among `front`, `side`, `top` and `threeQuarter`, or gives view texts of the shared grammar; `--verdicts` prints the verdicts without drawing; `--video` also renders each case's whole clock through the same page into `media/video/<case>/film.mp4` with FFmpeg from `FFMPEG_PATH` or `ffmpeg-static`; `--backend gpu` draws on the GPU instead of SwiftShader. Every other option is a key of the capture request grammar, such as `--marks`, `--label`, `--passes`, `--round` or `--compare`; `subject` and `at` are the case's. Without `--marks`, every mark of the case is drawn.
+ * Options of the harness: `--only <regex>` keeps the cases whose name matches,
+ * a factory that reads the filter building no other; `--views a,b` picks among
+ * `front`, `side`, `top` and `threeQuarter`, or gives view texts of the shared
+ * grammar; `--verdicts` prints the verdicts without drawing; `--video` also
+ * renders each case's whole clock through the same page into
+ * `media/video/<case>/film.mp4` with FFmpeg from `FFMPEG_PATH` or
+ * `ffmpeg-static`; `--backend gpu` draws on the GPU instead of SwiftShader.
+ * Every other option is a key of the capture request grammar, such as
+ * `--marks`, `--label`, `--passes`, `--round` or `--compare`; `subject` and
+ * `at` are the case's. Without `--marks`, every mark of the case is drawn.
  */
 export async function motionCapture(): Promise<void> {
   const options: Map<string, string> = readAutoMovieCaptureArguments(

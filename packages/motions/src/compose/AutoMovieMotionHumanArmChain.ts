@@ -23,27 +23,28 @@ export namespace AutoMovieMotionHumanArmChain {
    * The posture at a second with its arm goals solved along the course and
    * written as joints.
    *
-   * A goal fitted alone at each second takes the best of the arm's swivels
-   * for that second, and where two swivels trade places the arm jumps
-   * between two seconds a frame apart (a bending free arm's elbow moved
-   * 0.2 m between the descent's shares 0.7475 and 0.7474). The course is
-   * therefore fitted on the planner's frame grid from the action's start,
-   * each instant continuing the swivel, the branch and the arms the instant
-   * before chose (`IAutoMovieSwivelNear`), the per-frame coherence a game's
-   * IK keeps. A continued fit holds its hand on the goal and moves the
-   * swivel at most one articulation step from its seed (`hingedSwivelNear`),
-   * so the elbow follows its hint smoothly and never across a ridge of the
-   * room. The course is plan data: each instant is fitted once, as a second
-   * at or past it is first read, and a second reads its arms off the two
-   * instants about it, blended joint by joint (`blendHumanJoint`), with no
-   * fit of its own; so a second's arms do not depend on the order the
-   * seconds are read in.
+   * A goal fitted alone at each second takes the best of the arm's swivels for
+   * that second, and where two swivels trade places the arm jumps between two
+   * seconds a frame apart (a bending free arm's elbow moved 0.2 m between the
+   * descent's shares 0.7475 and 0.7474). The course is therefore fitted on the
+   * planner's frame grid from the action's start, each instant continuing the
+   * swivel, the branch and the arms the instant before chose
+   * (`IAutoMovieSwivelNear`), the per-frame coherence a game's IK keeps. A
+   * continued fit holds its hand on the goal and moves the swivel at most one
+   * articulation step from its seed (`hingedSwivelNear`), so the elbow follows
+   * its hint smoothly and never across a ridge of the room. The course is plan
+   * data: each instant is fitted once, as a second at or past it is first read,
+   * and a second reads its arms off the two instants about it, blended joint by
+   * joint (`blendHumanJoint`), with no fit of its own; so a second's arms do
+   * not depend on the order the seconds are read in.
    *
    * @param body The body.
    * @param duration The action's duration, seconds.
    * @param posture The law's posture at a second, its arms as goals.
    * @param sides The arms to fit along the course.
-   * @returns The posture at a second, those arms written as joints with their goals removed; given the law's posture at that second already read, that posture is the one written.
+   * @returns The posture at a second, those arms written as joints with their
+   *   goals removed; given the law's posture at that second already read, that
+   *   posture is the one written.
    */
   export function continued(
     body: IAutoMovieMotionHumanBody,
@@ -63,7 +64,8 @@ export namespace AutoMovieMotionHumanArmChain {
     times.push(duration);
     const course: IInstant[] = [];
     // One reader for the course's fits: the course is one operation on one body.
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
 
     // An instant's goals fitted continuing the seeds given: the arms the fit
     // chose and their seeds; a fit that names no seed leaves the one it
@@ -171,7 +173,10 @@ export namespace AutoMovieMotionHumanArmChain {
     };
   }
 
-  /** A grid instant of the course: each goaled arm's fitted angles and the seeds that continue them. */
+  /**
+   * A grid instant of the course: each goaled arm's fitted angles and the seeds
+   * that continue them.
+   */
   interface IInstant {
     arms: Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>

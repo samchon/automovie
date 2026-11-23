@@ -37,15 +37,18 @@ import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 
 /**
- * A held tool used as the grasp it was taken up by presents it: the act
- * that works with it keeps the hand's rotation the grasp was chosen to hold
- * at the place of use (`HumanGraspUse.presented`), so it asks the wrist only
- * what the grip was taken for, and a second hand that steadies the tool (a
- * camera's other end) is laid on the tool's other handle where the first
- * hand carries it.
+ * A held tool used as the grasp it was taken up by presents it: the act that
+ * works with it keeps the hand's rotation the grasp was chosen to hold at the
+ * place of use (`HumanGraspUse.presented`), so it asks the wrist only what the
+ * grip was taken for, and a second hand that steadies the tool (a camera's
+ * other end) is laid on the tool's other handle where the first hand carries
+ * it.
  */
 export namespace HumanHeldUse {
-  /** The digits whose phalanges and tips a held tool's hand keeps out of the body. */
+  /**
+   * The digits whose phalanges and tips a held tool's hand keeps out of the
+   * body.
+   */
   export const DIGITS: readonly IAutoMovieMotionHumanGrip.Digit[] = [
     "Thumb",
     "Index",
@@ -55,18 +58,24 @@ export namespace HumanHeldUse {
   ];
 
   /**
-   * The key of an act that keeps the grasp a held tool was taken up by, or
-   * null when it keeps none: the act's statement checked, then `key`.
+   * The key of an act that keeps the grasp a held tool was taken up by, or null
+   * when it keeps none: the act's statement checked, then `key`.
    *
    * @param context The action's context.
    * @param side The holding hand.
    * @param kept What the act states of the held tool.
-   * @param region The region of the performer's own the act works at; null when it works elsewhere (a partner, a sheet).
+   * @param region The region of the performer's own the act works at; null when
+   *   it works elsewhere (a partner, a sheet).
    * @returns The key, or null without a grasp.
-   * @throws {HumanRefusal} A `parameter` refusal on `other` when it comes without a grasp, and on `grasp` when it comes without a prop, a point or a region of the performer's own.
+   * @throws {HumanRefusal} A `parameter` refusal on `other` when it comes
+   *   without a grasp, and on `grasp` when it comes without a prop, a point or
+   *   a region of the performer's own.
    */
   export function kept(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "start"
+    >,
     side: AutoMovieHumanSide,
     kept: IAutoMovieMotionHumanHeldUse.IKept,
     region: AutoMovieHumanoidRegion | null,
@@ -100,9 +109,9 @@ export namespace HumanHeldUse {
   /**
    * The pose a held tool is used in at a region of the performer's own: the
    * use's presented key (`HumanGraspUse.presented`) with the region as the
-   * use's place, from the hand as the entry holds it, turned about the
-   * line as the grasp was judged (`HumanGraspUse.presented`'s chooser), the
-   * closed hand kept out of the body.
+   * use's place, from the hand as the entry holds it, turned about the line as
+   * the grasp was judged (`HumanGraspUse.presented`'s chooser), the closed hand
+   * kept out of the body.
    *
    * @param context The action's context.
    * @param side The holding hand.
@@ -111,10 +120,14 @@ export namespace HumanHeldUse {
    * @param grasp The grasp it was taken up by.
    * @param region The region of the performer's own the point is brought to.
    * @returns The key: the wrist, its rotation and the elbow's hint.
-   * @throws {HumanRefusal} As `HumanGraspUse.presented` does for a point the prop lacks.
+   * @throws {HumanRefusal} As `HumanGraspUse.presented` does for a point the
+   *   prop lacks.
    */
   export function key(
-    context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "prop" | "start">,
+    context: Pick<
+      IAutoMovieMotionHumanActionContext,
+      "body" | "entry" | "prop" | "start"
+    >,
     side: AutoMovieHumanSide,
     prop: string,
     point: string,
@@ -134,7 +147,9 @@ export namespace HumanHeldUse {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand?.worldRotation ?? Quaternion.identity(),
     );
-    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    const local: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
+      point: IAutoMovieVector3,
+    ): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, hand?.worldPosition ?? point),
@@ -177,11 +192,14 @@ export namespace HumanHeldUse {
       if (!holding.test(bone)) apart.set(bone, frame);
     const geometry: ReturnType<typeof HumanColliders.reading> =
       HumanColliders.reading(body, apart);
-    const clear: (wrist: IAutoMovieMotionHumanHand.IWrist) => number = (wrist: IAutoMovieMotionHumanHand.IWrist): number => {
+    const clear: (wrist: IAutoMovieMotionHumanHand.IWrist) => number = (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+    ): number => {
       let least: number = Infinity;
       for (const digit of digits) {
         const point: IAutoMovieVector3 = Vector3.add(
-          wrist.point, Quaternion.rotateVector(wrist.rotation, digit.point),
+          wrist.point,
+          Quaternion.rotateVector(wrist.rotation, digit.point),
         );
         least = Math.min(
           least,
@@ -206,25 +224,29 @@ export namespace HumanHeldUse {
   }
 
   /**
-   * The other hand on a held tool's other handle: its reach, hold and
-   * return planned as one trajectory over the span the act's own weight
-   * states (`AutoMovieMotionHumanArm.stated`), from its entry angles to the
-   * grasp of that handle where the holding hand's goal puts the tool at
-   * each second, so it meets the tool as the tool arrives and leaves it as
-   * it goes. The
-   * turn about the handle is chosen once, the one the arm reaches best with
-   * the tool at its use (`HumanGrasp.reachable`), and the arm is held to
-   * that solution.
+   * The other hand on a held tool's other handle: its reach, hold and return
+   * planned as one trajectory over the span the act's own weight states
+   * (`AutoMovieMotionHumanArm.stated`), from its entry angles to the grasp of
+   * that handle where the holding hand's goal puts the tool at each second, so
+   * it meets the tool as the tool arrives and leaves it as it goes. The turn
+   * about the handle is chosen once, the one the arm reaches best with the tool
+   * at its use (`HumanGrasp.reachable`), and the arm is held to that solution.
    *
-   * @param props The act's context and clock, the holding hand and its goal, the tool, the other handle, the tool's pose at its use and the weight.
-   * @returns The other arm and its fingers, the arm carrying the grip's window from `ready` to `relax`.
-   * @throws {HumanRefusal} When the holding hand does not hold the prop, or the prop lacks the handle or colliders.
+   * @param props The act's context and clock, the holding hand and its goal,
+   *   the tool, the other handle, the tool's pose at its use and the weight.
+   * @returns The other arm and its fingers, the arm carrying the grip's window
+   *   from `ready` to `relax`.
+   * @throws {HumanRefusal} When the holding hand does not hold the prop, or the
+   *   prop lacks the handle or colliders.
    */
-  export function second(props: IAutoMovieMotionHumanHeldUse.ISecondProps ): IAutoMovieMotionHumanPrimitive[] {
+  export function second(
+    props: IAutoMovieMotionHumanHeldUse.ISecondProps,
+  ): IAutoMovieMotionHumanPrimitive[] {
     const { context, clock } = props;
     const body: IAutoMovieMotionHumanBody = context.body;
     const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
-    const place: ReturnType<typeof HumanGraspHand.prepare> = HumanGraspHand.prepare(body, other);
+    const place: ReturnType<typeof HumanGraspHand.prepare> =
+      HumanGraspHand.prepare(body, other);
     const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
       context,
       props.side,
@@ -238,8 +260,15 @@ export namespace HumanHeldUse {
     ).point;
 
     // The other handle where a wrist of the holding hand puts the tool.
-    const prepared: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(record, props.handle);
-    const target: (wrist: IAutoMovieMotionHumanHand.IWrist) => HumanGrasp.IFrame = (wrist: IAutoMovieMotionHumanHand.IWrist): HumanGrasp.IFrame =>
+    const prepared: ReturnType<typeof HumanGraspTarget> = HumanGraspTarget(
+      record,
+      props.handle,
+    );
+    const target: (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+    ) => HumanGrasp.IFrame = (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+    ): HumanGrasp.IFrame =>
       prepared.frame({
         position: Vector3.add(
           wrist.point,
@@ -268,8 +297,12 @@ export namespace HumanHeldUse {
     );
     const hint: IAutoMovieVector3 = HumanFrame.local(
       { origin: entry.root, yaw: entry.yaw },
-      poseBones(body, chosen.pose, undefined,
-        new Set<AutoMovieHumanoidBone>([`${other}LowerArm`])).get(`${other}LowerArm`)!.worldPosition,
+      poseBones(
+        body,
+        chosen.pose,
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${other}LowerArm`]),
+      ).get(`${other}LowerArm`)!.worldPosition,
     );
     // The other hand's reach, hold and return, as its weight states them.
     const span: IAutoMovieMotionHumanArmPlanned.ISpan | undefined =

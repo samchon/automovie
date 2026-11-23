@@ -235,9 +235,7 @@ export function prepareSitWorkingFeet(
   }
 }
 
-/**
- * The fixed work seat's foot preparation and its timing composition.
- */
+/** The fixed work seat's foot preparation and its timing composition. */
 export namespace prepareSitWorkingFeet {
   /**
    * Prepend the working feet's steps while preserving the descent's relative

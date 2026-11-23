@@ -17,17 +17,17 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanHand } from "../posture/HumanHand";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
-import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspDemand } from "./HumanGraspDemand";
+import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { pickUpPosture } from "./pickUpPosture";
 
 /**
  * The grasp a pick up chooses from a stance (`pickUp`): the grip's turn and
- * tilt the arm reaches best, judged by the fit over the grasp, the lifted
- * pose and any use's pose. Without a use, the grip is taken as the
- * archetype declares it: untilted, and turned only within its declared
- * symmetry (`TURNS`).
+ * tilt the arm reaches best, judged by the fit over the grasp, the lifted pose
+ * and any use's pose. Without a use, the grip is taken as the archetype
+ * declares it: untilted, and turned only within its declared symmetry
+ * (`TURNS`).
  */
 export namespace pickUpSearch {
   /** The digit tips a grip keeps above the floor. */
@@ -39,7 +39,11 @@ export namespace pickUpSearch {
     "littleTip",
   ];
 
-  /** The turns about the wrapped axis a grip is taken at without a use, degrees, by its declared symmetry: any side of a round grip, in steps of 15, the two sides of a half-symmetric one, and only the declared side of the rest. */
+  /**
+   * The turns about the wrapped axis a grip is taken at without a use, degrees,
+   * by its declared symmetry: any side of a round grip, in steps of 15, the two
+   * sides of a half-symmetric one, and only the declared side of the rest.
+   */
   export const TURNS: Readonly<
     Record<NonNullable<IAutoMovieAffordance["symmetry"]>, readonly number[]>
   > = {
@@ -51,9 +55,7 @@ export namespace pickUpSearch {
     none: [0],
   };
 
-  /**
-   * A grasp chosen from its actual stance and hanging elbow hint.
-   */
+  /** A grasp chosen from its actual stance and hanging elbow hint. */
   export interface ISearched {
     /** The grasp the arm reaches best. */
     chosen: IAutoMovieMotionHumanGrasp.IReach;
@@ -66,15 +68,18 @@ export namespace pickUpSearch {
   }
 
   /**
-   * The grasp the arm reaches best from a stance's posture, the lifted pose and any use's pose its keys (`HumanGrasp.reachable`).
+   * The grasp the arm reaches best from a stance's posture, the lifted pose and
+   * any use's pose its keys (`HumanGrasp.reachable`).
    *
    * @param context The pick up's context.
    * @param side The reaching hand.
    * @param lift How far the prop is lifted, metres.
    * @param authored The grip as the prop declares it.
    * @param stance The body the arm reaches from.
-   * @param carried World displacement accumulated before lifting a moving prop, metres.
-   * @param closure The prop's world frame at moving grasp closure, or omitted for ordinary pickup.
+   * @param carried World displacement accumulated before lifting a moving prop,
+   *   metres.
+   * @param closure The prop's world frame at moving grasp closure, or omitted
+   *   for ordinary pickup.
    * @returns The chosen grasp, the elbow hint and the stance.
    */
   export function of(
@@ -100,22 +105,30 @@ export namespace pickUpSearch {
     // Without a use, the hand takes the grip as the archetype declares it:
     // never tilted, and turned about the wrapped axis only as far as the
     // grip is the same turned (`IAutoMovieAffordance.symmetry`).
-    const goal: (turn: number, tilt: number) => IAutoMovieMotionHumanHand.IWrist = (turn: number, tilt: number): IAutoMovieMotionHumanHand.IWrist =>
+    const goal: (
+      turn: number,
+      tilt: number,
+    ) => IAutoMovieMotionHumanHand.IWrist = (
+      turn: number,
+      tilt: number,
+    ): IAutoMovieMotionHumanHand.IWrist =>
       HumanGrasp.hand(body, side, HumanGrasp.around(authored, turn), tilt);
-    const declared: readonly number[] = TURNS[
-      context
-        .prop(context.params.prop)
-        .prop.affordances?.find(
-          (a: IAutoMovieAffordance): boolean =>
-            a.id === context.params.handle,
-        )?.symmetry ?? "none"
-    ];
+    const declared: readonly number[] =
+      TURNS[
+        context
+          .prop(context.params.prop)
+          .prop.affordances?.find(
+            (a: IAutoMovieAffordance): boolean =>
+              a.id === context.params.handle,
+          )?.symmetry ?? "none"
+      ];
 
     // The keys a grip must hold besides the grasp: the lifted pose, any
     // use's pose, and every pose the performer's next action on the prop
     // demands of it (`HumanGraspDemand`), asked from the body the pick up
     // ends in, its stance straightened back up.
-    const demands: IAutoMovieMotionHumanActionContext["demands"] = context.demands;
+    const demands: IAutoMovieMotionHumanActionContext["demands"] =
+      context.demands;
     const after: IAutoMovieMotionHumanPosture = stance.at(0);
 
     // What a grip must hold: every judged key within its own bound (the
@@ -150,7 +163,10 @@ export namespace pickUpSearch {
     // The keys of a candidate, built only as the search reaches them: the
     // lifted pose, any use's pose, then the next action's demands, whose
     // grip is read for this candidate alone.
-    const stroke: (wrist: IAutoMovieMotionHumanHand.IWrist, shown: IAutoMovieMotionHumanHand.IWrist) => Generator<IAutoMovieMotionHumanGrasp.IKey> = function* (
+    const stroke: (
+      wrist: IAutoMovieMotionHumanHand.IWrist,
+      shown: IAutoMovieMotionHumanHand.IWrist,
+    ) => Generator<IAutoMovieMotionHumanGrasp.IKey> = function* (
       wrist: IAutoMovieMotionHumanHand.IWrist,
       shown: IAutoMovieMotionHumanHand.IWrist,
     ): Generator<IAutoMovieMotionHumanGrasp.IKey> {
@@ -204,8 +220,15 @@ export namespace pickUpSearch {
     // only while all its tilts were within reach fell back to every turn when
     // none kept all seven, and a glass across the body was refused a grip
     // 9 mm beyond the arm while others lay within it.
-    const reachable: ReturnType<typeof HumanGraspSearch> = HumanGraspSearch(body, held, side, bend, true);
-    const reaches: ReturnType<typeof pickUpPosture.reaches> = pickUpPosture.reaches(context, side, held);
+    const reachable: ReturnType<typeof HumanGraspSearch> = HumanGraspSearch(
+      body,
+      held,
+      side,
+      bend,
+      true,
+    );
+    const reaches: ReturnType<typeof pickUpPosture.reaches> =
+      pickUpPosture.reaches(context, side, held);
     // A grip whose fingertips, open as the hand arrives, would pass under the
     // floor the feet stand on is no grip of a prop resting there: a grasp
     // planner rejects the grasps that collide with the object's support
@@ -236,7 +259,10 @@ export namespace pickUpSearch {
             wrist.point.y + Quaternion.rotateVector(wrist.rotation, tip).y >=
             floor,
         ));
-    const search: (tilts: readonly number[], turns: readonly number[]) => IAutoMovieMotionHumanGrasp.IReach = (
+    const search: (
+      tilts: readonly number[],
+      turns: readonly number[],
+    ) => IAutoMovieMotionHumanGrasp.IReach = (
       tilts: readonly number[],
       turns: readonly number[],
     ): IAutoMovieMotionHumanGrasp.IReach =>
@@ -258,7 +284,10 @@ export namespace pickUpSearch {
       context.params.use !== undefined
         ? search(HumanGraspUse.OBLIQUE, HumanGraspUse.AROUND)
         : ((): IAutoMovieMotionHumanGrasp.IReach => {
-            const first: IAutoMovieMotionHumanGrasp.IReach = search([0], declared);
+            const first: IAutoMovieMotionHumanGrasp.IReach = search(
+              [0],
+              declared,
+            );
             return required === undefined ||
               required.measure(first.keys, first.judged, first.bounds) <=
                 required.bound

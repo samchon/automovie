@@ -11,14 +11,14 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A low obstacle as a stepping-over act reads it: the middle of its near
- * side on the floor, its height and its depth.
+ * A low obstacle as a stepping-over act reads it: the middle of its near side
+ * on the floor, its height and its depth.
  *
  * The near side is the obstacle's `edge` contact, a kerb's top front edge
  * (`createKerb`), or without one its `top`, a hurdle's top bar edge
- * (`createHurdle`): a ledge along its `+X` with `+Y` up, its height the
- * edge's above the prop's base. Its depth is the `top` face's depth behind a
- * kerb's edge, or a hurdle's `bar` thickness, that bar's aperture.
+ * (`createHurdle`): a ledge along its `+X` with `+Y` up, its height the edge's
+ * above the prop's base. Its depth is the `top` face's depth behind a kerb's
+ * edge, or a hurdle's `bar` thickness, that bar's aperture.
  */
 export namespace HumanObstacle {
   /** An obstacle where it stands. */
@@ -38,9 +38,11 @@ export namespace HumanObstacle {
    *
    * @param context The action's context.
    * @param subject The obstacle's prop subject.
-   * @param from Where the performer stands, world metres; from behind the edge's face the near side is the top's far edge.
+   * @param from Where the performer stands, world metres; from behind the
+   *   edge's face the near side is the top's far edge.
    * @returns The near side, the height and the depth.
-   * @throws {HumanRefusal} When the prop declares no edge or top, no depth, or a non-positive height or depth.
+   * @throws {HumanRefusal} When the prop declares no edge or top, no depth, or
+   *   a non-positive height or depth.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,

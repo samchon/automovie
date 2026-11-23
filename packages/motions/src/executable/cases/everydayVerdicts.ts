@@ -25,14 +25,15 @@ import { FootSlip } from "./FootSlip";
 export namespace everydayVerdicts {
   /**
    * The largest slip of a planted foot within any plant window, metres, and
-   * where it happens, by the rule of {@link FootSlip} on the 24 Hz grid. A
-   * plant may stand on something raised (a step), so no floor height is
-   * asked of the contact here.
+   * where it happens, by the rule of {@link FootSlip} on the 24 Hz grid. A plant
+   * may stand on something raised (a step), so no floor height is asked of the
+   * contact here.
    *
    * @param performance The performance.
    * @param subject The person.
    * @param body The person's body.
-   * @returns Metres, with the action, the foot and the film second of the worst slip.
+   * @returns Metres, with the action, the foot and the film second of the worst
+   *   slip.
    */
   export function slip(
     performance: IAutoMovieMotionHumanPerformance,
@@ -61,15 +62,16 @@ export namespace everydayVerdicts {
   }
 
   /**
-   * The farthest a foot planted on the ground is from the floor within any
-   * of its plant windows, metres, and where it happens: the height of the
-   * sole point {@link FootSlip} reads as the contact, above or below zero, on
-   * the 24 Hz grid. A plant on something raised is not read.
+   * The farthest a foot planted on the ground is from the floor within any of
+   * its plant windows, metres, and where it happens: the height of the sole
+   * point {@link FootSlip} reads as the contact, above or below zero, on the 24
+   * Hz grid. A plant on something raised is not read.
    *
    * @param performance The performance.
    * @param subject The person.
    * @param body The person's body.
-   * @returns Metres, with the action, the foot and the film second of the worst height.
+   * @returns Metres, with the action, the foot and the film second of the worst
+   *   height.
    */
   export function grounded(
     performance: IAutoMovieMotionHumanPerformance,
@@ -96,8 +98,8 @@ export namespace everydayVerdicts {
   }
 
   /**
-   * The farthest a bone's joint travels in one frame of the 24 Hz grid
-   * between two film seconds, metres: a speed limit read on displayed poses.
+   * The farthest a bone's joint travels in one frame of the 24 Hz grid between
+   * two film seconds, metres: a speed limit read on displayed poses.
    *
    * @param performance The performance.
    * @param subject The person.
@@ -125,7 +127,8 @@ export namespace everydayVerdicts {
   }
 
   /**
-   * The largest range-of-motion overshoot of any joint over the performance, degrees.
+   * The largest range-of-motion overshoot of any joint over the performance,
+   * degrees.
    *
    * @param performance The performance.
    * @param subject The person.

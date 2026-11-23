@@ -41,25 +41,25 @@ import { HumanBall } from "./HumanBall";
  * The goal is the foot on the ball: at `stroke` (contact) the kicking foot's
  * toes' joint, the middle of the instep, meets the back of the ball at its
  * centre's height along the kick's direction, the centre and the radius the
- * ball's own (`HumanBall`), the foot plantarflexed `POINT`
- * degrees so the instep faces the ball (Lees and Nolan 1998, J Sports Sci
- * 16:211; Nunome et al. 2002, Med Sci Sports Exerc 34:2028, compare the
- * instep and side-foot kicks). The backswing draws the foot back and up
- * behind the ball (`CHAMBER`, in shank lengths, provisional), the swing
- * (`AutoMovieMotionHumanLegPhrase.swing`) passes the contact at speed and runs on
- * through the follow-through along the leg's arc about the hip, at the swing's
- * own angular rate, so the leg keeps its length and the knee its bend instead
- * of locking straight on a placement past reach; with no hold, the knee flexes
- * as the foot returns to its stance. The opposite arm swings out for balance. The support foot stays
- * planted where it stood, so the ball must lie within the kicking leg's
- * reach of its hip; a farther ball is refused with the reach. Phase lengths
- * are provisional, scaled by the manner's tempo. Events: the phrase's
- * `ready` (`backswing`), `strokeStart`, `stroke` (`contact`), `strokeEnd`
- * (`followThrough`), `relax`.
+ * ball's own (`HumanBall`), the foot plantarflexed `POINT` degrees so the
+ * instep faces the ball (Lees and Nolan 1998, J Sports Sci 16:211; Nunome et
+ * al. 2002, Med Sci Sports Exerc 34:2028, compare the instep and side-foot
+ * kicks). The backswing draws the foot back and up behind the ball (`CHAMBER`,
+ * in shank lengths, provisional), the swing
+ * (`AutoMovieMotionHumanLegPhrase.swing`) passes the contact at speed and runs
+ * on through the follow-through along the leg's arc about the hip, at the
+ * swing's own angular rate, so the leg keeps its length and the knee its bend
+ * instead of locking straight on a placement past reach; with no hold, the knee
+ * flexes as the foot returns to its stance. The opposite arm swings out for
+ * balance. The support foot stays planted where it stood, so the ball must lie
+ * within the kicking leg's reach of its hip; a farther ball is refused with the
+ * reach. Phase lengths are provisional, scaled by the manner's tempo. Events:
+ * the phrase's `ready` (`backswing`), `strokeStart`, `stroke` (`contact`),
+ * `strokeEnd` (`followThrough`), `relax`.
  *
  * With `speed`, the foot meets the prop at the stroke's film instant and
- * publishes the authored outgoing velocity for that same prop. Both uses
- * retain the planted support foot.
+ * publishes the authored outgoing velocity for that same prop. Both uses retain
+ * the planted support foot.
  */
 export namespace kickBall {
   /** The action's name. */
@@ -88,7 +88,10 @@ export namespace kickBall {
   /** The foot's plantarflexion at contact, degrees (provisional). */
   export const POINT: number = 50;
 
-  /** The backswing's ankle place behind and above the contact, in shank lengths (provisional). */
+  /**
+   * The backswing's ankle place behind and above the contact, in shank lengths
+   * (provisional).
+   */
   export const CHAMBER: Readonly<{ back: number; up: number }> = {
     back: 0.7,
     up: 0.6,
@@ -126,7 +129,8 @@ export namespace kickBall {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When the prop declares no sized grip, or the ball lies beyond the kicking leg's reach.
+   * @throws {HumanRefusal} When the prop declares no sized grip, or the ball
+   *   lies beyond the kicking leg's reach.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKickBall.IParams>,

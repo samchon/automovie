@@ -11,15 +11,18 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * The bend pole of an arm laid on a goal: its elbow pushed out along the
- * olecranon. A nearly straight arm's elbow lies on the line from the
- * shoulder to the hand, so as a bend hint it names no side and the arm's
- * solve may take either branch from one sample to the next, flipping the
- * arm about that line. The olecranon is the way the elbow goes as the arm
- * bends: opposite to where an elbow flexion carries the hand, read by
- * flexing the posture's elbow `FLEX` degrees.
+ * olecranon. A nearly straight arm's elbow lies on the line from the shoulder
+ * to the hand, so as a bend hint it names no side and the arm's solve may take
+ * either branch from one sample to the next, flipping the arm about that line.
+ * The olecranon is the way the elbow goes as the arm bends: opposite to where
+ * an elbow flexion carries the hand, read by flexing the posture's elbow `FLEX`
+ * degrees.
  */
 export namespace AutoMovieMotionHumanElbowPole {
-  /** How far the pole stands out along the olecranon, a share of the forearm (provisional). */
+  /**
+   * How far the pole stands out along the olecranon, a share of the forearm
+   * (provisional).
+   */
   export const POLE: number = 0.5;
 
   /** The elbow flexion read for the olecranon's direction, degrees. */
@@ -34,7 +37,8 @@ export namespace AutoMovieMotionHumanElbowPole {
    * @param hand The hand bone.
    * @param at The hand's world point in the posture.
    * @param elbow The elbow's world point in the posture.
-   * @returns The pole, world metres; the elbow itself where the flexion moves no hand.
+   * @returns The pole, world metres; the elbow itself where the flexion moves
+   *   no hand.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,

@@ -26,25 +26,28 @@ import { staggerSwingBow } from "./staggerSwingBow";
  * risen first by the least toe clearance of walking and bowed around the
  * standing foot where it would pass into it.
  *
- * Every reading is a prepared curve evaluated at the second plus the walk's
- * own settling of the pelvis over its feet: the trunk leans and the root
- * carries the centre of mass's travel less the lean's shift of it
- * (`staggerLean`), lowered to the height its planted legs allow
- * (`walkReach.ground`, a scalar root of each leg's closed-form reach claim,
- * its heel rising about the ball where the ankle runs out of room); a
- * swinging foot follows its prepared walking-foot curve (`walkFoot.prepareSwing`)
- * between its two settled ends, its bow fixed in closed form for its step
- * (`staggerSwingBow`), and is held inside its leg's ranges under that pelvis
- * (`walkReach.prepareSwing`). The legs' admission (`staggerAdmission`)
- * already read this same pelvis at every step's mid-swing and landing.
+ * Every reading is a prepared curve evaluated at the second plus the walk's own
+ * settling of the pelvis over its feet: the trunk leans and the root carries
+ * the centre of mass's travel less the lean's shift of it (`staggerLean`),
+ * lowered to the height its planted legs allow (`walkReach.ground`, a scalar
+ * root of each leg's closed-form reach claim, its heel rising about the ball
+ * where the ankle runs out of room); a swinging foot follows its prepared
+ * walking-foot curve (`walkFoot.prepareSwing`) between its two settled ends,
+ * its bow fixed in closed form for its step (`staggerSwingBow`), and is held
+ * inside its leg's ranges under that pelvis (`walkReach.prepareSwing`). The
+ * legs' admission (`staggerAdmission`) already read this same pelvis at every
+ * step's mid-swing and landing.
  *
  * The instance prepares body-only swing reach once. Declared step endpoints,
- * swing readers and bows are lazy and bounded by the fixed recovery's steps;
- * no arbitrary-time result is retained.
+ * swing readers and bows are lazy and bounded by the fixed recovery's steps; no
+ * arbitrary-time result is retained.
  */
 export class StaggerFeet {
   /** The feet as the entry stands them. */
-  private readonly entered: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
+  private readonly entered: Record<
+    "left" | "right",
+    IAutoMovieMotionHumanFoot.IPlacement
+  >;
 
   /** The share of a swing a foot rises in (`staggerKnots.risingOf`). */
   private readonly rising: number;
@@ -56,11 +59,14 @@ export class StaggerFeet {
   private readonly bows: Map<staggerRecover.IStep, number> = new Map();
 
   /** One fixed swing reader and nonzero-travel direction per recovery step. */
-  private readonly swings: Map<staggerRecover.IStep, {
-    from: walkFoot.IEnd;
-    normal: IAutoMovieVector3 | undefined;
-    at: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
-  }> = new Map();
+  private readonly swings: Map<
+    staggerRecover.IStep,
+    {
+      from: walkFoot.IEnd;
+      normal: IAutoMovieVector3 | undefined;
+      at: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
+    }
+  > = new Map();
 
   /** The entry's posture. */
   private readonly posture: IAutoMovieMotionHumanPosture;
@@ -72,28 +78,35 @@ export class StaggerFeet {
   private readonly recovery: staggerRecover.IRecovery;
 
   /** Each side's body-only swing range and floor-clearance prerequisites. */
-  private readonly swingReaches: Record<"left" | "right", ReturnType<typeof walkReach.prepareSwing>>;
+  private readonly swingReaches: Record<
+    "left" | "right",
+    ReturnType<typeof walkReach.prepareSwing>
+  >;
 
   /** The trunk's lean and the root carrying it, at a second (`staggerLean`). */
   private readonly lean: ReturnType<typeof staggerLean>;
 
-  /** The plan's level shift of the root at a second (`shifted`); none until the plan gives one. */
+  /**
+   * The plan's level shift of the root at a second (`shifted`); none until the
+   * plan gives one.
+   */
   private shift: ((seconds: number) => IAutoMovieVector3) | undefined;
 
   /**
-   * Take the plan's level shift of the root, under which every step's ends
-   * are settled from here on, and forget the ends, swings and bows settled
-   * under the one before.
+   * Take the plan's level shift of the root, under which every step's ends are
+   * settled from here on, and forget the ends, swings and bows settled under
+   * the one before.
    *
    * A swing runs between its foot's stance at the step's start and at its
-   * landing, and those two stances are the ones the pose shows at those
-   * seconds only when they are settled under the same pelvis. The pose
-   * settles the pelvis on the shifted root; the ends were settled on the
-   * unshifted one, so a foot touched down on a stance some millimetres from
-   * the swing's last pose: measured, a body pushed forward showed its
-   * stepping leg's knee jump 12.8 mm at the landing, 0.52 s.
+   * landing, and those two stances are the ones the pose shows at those seconds
+   * only when they are settled under the same pelvis. The pose settles the
+   * pelvis on the shifted root; the ends were settled on the unshifted one, so
+   * a foot touched down on a stance some millimetres from the swing's last
+   * pose: measured, a body pushed forward showed its stepping leg's knee jump
+   * 12.8 mm at the landing, 0.52 s.
    *
-   * @param shift The shift at a second since the push, world metres, level; the same reader the plan's leg row passes to `solve`.
+   * @param shift The shift at a second since the push, world metres, level; the
+   *   same reader the plan's leg row passes to `solve`.
    */
   public shifted(shift: (seconds: number) => IAutoMovieVector3): void {
     this.shift = shift;
@@ -103,9 +116,9 @@ export class StaggerFeet {
   }
 
   /**
-   * Keep one plan's body, entry posture and recovery, and prepare each
-   * side's body-only swing reach; endpoint, swing and bow work remains lazy
-   * and bounded by the plan's declared steps.
+   * Keep one plan's body, entry posture and recovery, and prepare each side's
+   * body-only swing reach; endpoint, swing and bow work remains lazy and
+   * bounded by the plan's declared steps.
    *
    * @param body The body.
    * @param entry The context's entry.
@@ -130,21 +143,26 @@ export class StaggerFeet {
   }
 
   /**
-   * The pelvis and stances at a second: the root carrying the centre of
-   * mass's travel less the trunk lean's shift of it, moved by the plan's
-   * balance shift, settled over the feet as the walk settles its pelvis on
-   * the hip joints the trunk's tilt about the hips carries (`walkReachHeld.tilt`):
-   * the pelvis as the plan shows it. Settled on the upright hips of the
-   * unshifted root and then shifted and tilted, a leg standing at its knee's
-   * least bend was asked for a hip some millimetres further than it reaches,
-   * and its foot left the floor.
+   * The pelvis and stances at a second: the root carrying the centre of mass's
+   * travel less the trunk lean's shift of it, moved by the plan's balance
+   * shift, settled over the feet as the walk settles its pelvis on the hip
+   * joints the trunk's tilt about the hips carries (`walkReachHeld.tilt`): the
+   * pelvis as the plan shows it. Settled on the upright hips of the unshifted
+   * root and then shifted and tilted, a leg standing at its knee's least bend
+   * was asked for a hip some millimetres further than it reaches, and its foot
+   * left the floor.
    *
    * @param seconds Seconds since the push.
    * @param feet The scheduled feet at that second.
-   * @param resolution Optional exact FK source borrowed by the same synchronous settlement.
-   * @param at The lean's reading at the second (`staggerLean`): the upright root before lowering, the trunk's tilt and the reaction's share, over which the lowering comes in from the entry's height; read when absent.
-   * @param shift The plan's level shift of the root at the second, world metres; none when absent.
-   * @returns The settled pelvis (its root shifted, its rotation the tilted one), feet and contacts.
+   * @param resolution Optional exact FK source borrowed by the same synchronous
+   *   settlement.
+   * @param at The lean's reading at the second (`staggerLean`): the upright
+   *   root before lowering, the trunk's tilt and the reaction's share, over
+   *   which the lowering comes in from the entry's height; read when absent.
+   * @param shift The plan's level shift of the root at the second, world
+   *   metres; none when absent.
+   * @returns The settled pelvis (its root shifted, its rotation the tilted
+   *   one), feet and contacts.
    */
   public settle(
     seconds: number,
@@ -157,7 +175,9 @@ export class StaggerFeet {
     const body: IAutoMovieMotionHumanActionContext["body"] = this.body;
     return walkReach.ground(
       body,
-      shift === undefined ? at.root : { x: at.root.x + shift.x, y: at.root.y, z: at.root.z + shift.z },
+      shift === undefined
+        ? at.root
+        : { x: at.root.x + shift.x, y: at.root.y, z: at.root.z + shift.z },
       entry.yaw,
       entry.joints.hips ?? [0, 0, 0],
       feet,
@@ -168,19 +188,22 @@ export class StaggerFeet {
         root: IAutoMovieVector3,
         yaw: number,
         joints: Readonly<Record<"left" | "right", IAutoMovieVector3>>,
-      ): ReturnType<typeof walkReachHeld.tilt> => walkReachHeld.tilt(body, root, yaw, joints, at.trunk),
+      ): ReturnType<typeof walkReachHeld.tilt> =>
+        walkReachHeld.tilt(body, root, yaw, joints, at.trunk),
       // Each planted ankle bends as far as the weight it bears lets it
       // (`staggerDorsal`).
       staggerDorsal(body, this.recovery.pressure(seconds), feet),
     );
   }
 
-  /** The standing feet, each at the placement its latest landed step supplied.
-   */
+  /** The standing feet, each at the placement its latest landed step supplied. */
   public standing(
     seconds: number,
   ): Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> {
-    const out: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = {
+    const out: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanWalkFoot.IScheduled
+    > = {
       left: { placement: this.entered.left, toes: 0 },
       right: { placement: this.entered.right, toes: 0 },
     };
@@ -190,13 +213,14 @@ export class StaggerFeet {
     return out;
   }
 
-  /** The standing schedule with each active walking-foot swing written over it.
-   */
+  /** The standing schedule with each active walking-foot swing written over it. */
   public scheduled(
     seconds: number,
   ): Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> {
-    const out: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> =
-      this.standing(seconds);
+    const out: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanWalkFoot.IScheduled
+    > = this.standing(seconds);
     for (const step of this.recovery.steps) {
       if (seconds <= step.start || seconds >= step.land) continue;
       out[step.side] = this.swungAt(step, seconds, this.bowOf(step));
@@ -205,24 +229,32 @@ export class StaggerFeet {
   }
 
   /**
-   * The feet, the pelvis and the reached feet at a second: a swinging foot
-   * held inside its leg's ranges under the settled pelvis and off the floor
+   * The feet, the pelvis and the reached feet at a second: a swinging foot held
+   * inside its leg's ranges under the settled pelvis and off the floor
    * (`walkReach.swing`).
    *
    * @param seconds Seconds since the push.
-   * @param resolution Optional parent FK source borrowed only by this synchronous settlement.
-   * @param shift The plan's level shift of the root at the second, world metres; none when absent.
+   * @param resolution Optional parent FK source borrowed only by this
+   *   synchronous settlement.
+   * @param shift The plan's level shift of the root at the second, world
+   *   metres; none when absent.
    * @returns The scheduled, settled and reached feet.
    */
-  public solve(seconds: number, resolution?: Parameters<typeof walkReach.ground>[7], shift?: IAutoMovieVector3): {
+  public solve(
+    seconds: number,
+    resolution?: Parameters<typeof walkReach.ground>[7],
+    shift?: IAutoMovieVector3,
+  ): {
     feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled>;
     settled: walkReach.IGround;
     reached: Record<"left" | "right", walkFoot.IEnd>;
     trunk: { pitch: number; roll: number };
     ease: number;
   } {
-    const feet: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> =
-      this.scheduled(seconds);
+    const feet: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanWalkFoot.IScheduled
+    > = this.scheduled(seconds);
     const at: ReturnType<StaggerFeet["lean"]> = this.lean(seconds);
     const trunk: { pitch: number; roll: number } = at.trunk;
 
@@ -230,17 +262,27 @@ export class StaggerFeet {
     // it flies: at the place it left until mid-swing and at its landing
     // after, the claim's weight being none at mid-swing (`walkReach.weight`),
     // so the lowering is continuous at lift-off and touch-down alike.
-    const claims: Record<"left" | "right", IAutoMovieMotionHumanWalkFoot.IScheduled> = { ...feet };
+    const claims: Record<
+      "left" | "right",
+      IAutoMovieMotionHumanWalkFoot.IScheduled
+    > = { ...feet };
     for (const step of this.recovery.steps)
       if (seconds > step.start && seconds < step.land) {
-        const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] = feet[step.side].swing;
+        const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] =
+          feet[step.side].swing;
         claims[step.side] = {
           placement: (swing?.u ?? 0) < 0.5 ? step.from : step.to,
           toes: 0,
           ...(swing === undefined ? {} : { swing }),
         };
       }
-    const settled: walkReach.IGround = this.settle(seconds, claims, resolution, at, shift);
+    const settled: walkReach.IGround = this.settle(
+      seconds,
+      claims,
+      resolution,
+      at,
+      shift,
+    );
     const reached: Record<"left" | "right", walkFoot.IEnd> = {
       ...settled.feet,
     };
@@ -276,8 +318,8 @@ export class StaggerFeet {
   }
 
   /**
-   * The first matching open swing's linear share at action-local seconds,
-   * zero outside every swing.
+   * The first matching open swing's linear share at action-local seconds, zero
+   * outside every swing.
    */
   private swinging(side: "left" | "right", seconds: number): number {
     for (const step of this.recovery.steps)
@@ -288,9 +330,9 @@ export class StaggerFeet {
 
   /**
    * A step's raised-start walking swing at action-local seconds and signed
-   * lateral bow metres: the foot rises by CLEARANCE over the rising share,
-   * then follows the prepared swing plus the 16*share^2*(1-share)^2 lateral
-   * bump, resting at both endpoints, so it is continuous at lift-off and at
+   * lateral bow metres: the foot rises by CLEARANCE over the rising share, then
+   * follows the prepared swing plus the 16_share^2_(1-share)^2 lateral bump,
+   * resting at both endpoints, so it is continuous at lift-off and at
    * touch-down.
    */
   private swungAt(
@@ -334,24 +376,31 @@ export class StaggerFeet {
     };
   }
 
-  /** The unit a step's bow displaces its ankle along: its travel turned a quarter turn, or the entry's heading for a step in place. */
+  /**
+   * The unit a step's bow displaces its ankle along: its travel turned a
+   * quarter turn, or the entry's heading for a step in place.
+   */
   private normalOf(step: staggerRecover.IStep): IAutoMovieVector3 {
-    return this.swingOf(step).normal ?? HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: this.posture.yaw },
-      { x: 0, y: 0, z: 1 },
+    return (
+      this.swingOf(step).normal ??
+      HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: this.posture.yaw },
+        { x: 0, y: 0, z: 1 },
+      )
     );
   }
 
   /**
-   * Prepare one immutable step's settled endpoints, raised-start walking
-   * swing curve and nonzero-travel normal.
+   * Prepare one immutable step's settled endpoints, raised-start walking swing
+   * curve and nonzero-travel normal.
    */
   private swingOf(step: staggerRecover.IStep): {
     from: walkFoot.IEnd;
     normal: IAutoMovieVector3 | undefined;
     at: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
   } {
-    const known: ReturnType<StaggerFeet["swingOf"]> | undefined = this.swings.get(step);
+    const known: ReturnType<StaggerFeet["swingOf"]> | undefined =
+      this.swings.get(step);
     if (known !== undefined) return known;
     const from: walkFoot.IEnd = this.end(step.side, step.start);
     const to: walkFoot.IEnd = this.end(step.side, step.land);
@@ -367,9 +416,10 @@ export class StaggerFeet {
     const size: number = Vector3.length(travel);
     const out: ReturnType<StaggerFeet["swingOf"]> = {
       from,
-      normal: size > 1e-9
-        ? { x: -travel.z / size, y: 0, z: travel.x / size }
-        : undefined,
+      normal:
+        size > 1e-9
+          ? { x: -travel.z / size, y: 0, z: travel.x / size }
+          : undefined,
       at: walkFoot.prepareSwing(this.body, step.side, {
         from: raised,
         velocity: { x: 0, y: 0, z: 0 },
@@ -382,7 +432,10 @@ export class StaggerFeet {
     return out;
   }
 
-  /** One step's closed-form bow around the foot standing through its swing (`staggerSwingBow`), kept for the step. */
+  /**
+   * One step's closed-form bow around the foot standing through its swing
+   * (`staggerSwingBow`), kept for the step.
+   */
   private bowOf(step: staggerRecover.IStep): number {
     const known: number | undefined = this.bows.get(step);
     if (known !== undefined) return known;
@@ -392,7 +445,11 @@ export class StaggerFeet {
       step,
       this.standing(step.start)[stance].placement,
       this.normalOf(step),
-      (seconds: number, lateral: number): IAutoMovieMotionHumanWalkFoot.IScheduled => this.swungAt(step, seconds, lateral),
+      (
+        seconds: number,
+        lateral: number,
+      ): IAutoMovieMotionHumanWalkFoot.IScheduled =>
+        this.swungAt(step, seconds, lateral),
     );
     this.bows.set(step, bow);
     return bow;

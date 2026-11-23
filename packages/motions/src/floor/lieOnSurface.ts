@@ -282,14 +282,12 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
           : [seated, lateral];
       const phases: IAutoMovieMotionClockPhase[] = [
         { name: rise ? "sitUp" : "lowering", seconds: PHASE },
-        ...keys
-          .slice(1, -1)
-          .map(
-            (k: IKey): IAutoMovieMotionClockPhase => ({
-              name: k.event,
-              seconds: PHASE,
-            }),
-          ),
+        ...keys.slice(1, -1).map(
+          (k: IKey): IAutoMovieMotionClockPhase => ({
+            name: k.event,
+            seconds: PHASE,
+          }),
+        ),
         { name: keys.at(-1)!.event, seconds: 0 },
         { name: "settled", seconds: hold },
       ];

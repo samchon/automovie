@@ -9,12 +9,11 @@ import type {
 
 /**
  * The world box a simulated window's bodies can reach: every segment origin
- * their sampled poses cover, from the floor up, widened on every side but
- * the floor by a stature, the most a fallen body lies from where it stood,
- * and by the farthest its centre can coast over the window. That coasting
- * speed is the change the impulses give the lightest body, `sum |J| / m`,
- * plus the fastest its root moves in the samples; friction and the floor
- * only slow it.
+ * their sampled poses cover, from the floor up, widened on every side but the
+ * floor by a stature, the most a fallen body lies from where it stood, and by
+ * the farthest its centre can coast over the window. That coasting speed is the
+ * change the impulses give the lightest body, `sum |J| / m`, plus the fastest
+ * its root moves in the samples; friction and the floor only slow it.
  *
  * @param targets Each simulated performer's sampled segment poses, by step.
  * @param bodies The simulated performers' bodies, by subject.

@@ -39,7 +39,8 @@ import { kissPose } from "./kissPose";
  * @param NEAR The law's contact tolerance, metres.
  * @param RAISE The permitted heel rise, degrees.
  * @param ROLL The permitted coronal hip lean, degrees.
- * @returns A pose admitted on the original contact and skin limits, or undefined.
+ * @returns A pose admitted on the original contact and skin limits, or
+ *   undefined.
  */
 export function kissPresentedHand(
   body: IAutoMovieMotionHumanBody,

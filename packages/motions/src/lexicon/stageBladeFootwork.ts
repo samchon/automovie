@@ -58,12 +58,12 @@ interface IProfile {
 
 /**
  * The AJKF descriptions of sliding footwork inform ground clearance in the
- * kendo profile. Foil studies distinguish foot travel and whole-body carry
- * by measure. The foil profile is the general fencing step; the epee step is
- * shorter and more measured, as a weapon whose whole body is target keeps
- * its distance, and the sabre step longer and quicker, as the fastest of the
- * three weapons. All numbers here are provisional film timings and scales,
- * including the deliberate cast timing for the armoured profile.
+ * kendo profile. Foil studies distinguish foot travel and whole-body carry by
+ * measure. The foil profile is the general fencing step; the epee step is
+ * shorter and more measured, as a weapon whose whole body is target keeps its
+ * distance, and the sabre step longer and quicker, as the fastest of the three
+ * weapons. All numbers here are provisional film timings and scales, including
+ * the deliberate cast timing for the armoured profile.
  *
  * @see https://www.kendo.or.jp/knowledge/books/kendogijutsu_01/
  * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC13050851/
@@ -140,12 +140,11 @@ const REFERENCE_HIP: number = 0.93;
 const MAX_TRAVEL: number = 0.23;
 
 /**
- * Shift a performer's stance between two floor marks on a blade set. A
- * fenced stage uses lifted steps, the kendo profile moves the travelling
- * foot along the floor, and an armoured cast can use a deliberate cadence.
- * These are screen-blocking profiles. A prop cue belongs to the editor's
- * clock independently of footholds. Props remain attached by the normal
- * grip owner.
+ * Shift a performer's stance between two floor marks on a blade set. A fenced
+ * stage uses lifted steps, the kendo profile moves the travelling foot along
+ * the floor, and an armoured cast can use a deliberate cadence. These are
+ * screen-blocking profiles. A prop cue belongs to the editor's clock
+ * independently of footholds. Props remain attached by the normal grip owner.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the action's profiles, frame, independent events and inherited grip.
  * @evidence contracts/development/design.md#principled-representation One action clock owns both foot phases. The support and posture owners retain canonical ground coordinates and independently described planted windows.
@@ -162,8 +161,8 @@ export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
   };
 
 /**
- * Resolve the parameters once and transport the carried upper posture over
- * the same floor frame as the two foot paths.
+ * Resolve the parameters once and transport the carried upper posture over the
+ * same floor frame as the two foot paths.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageBladeFootwork.IParams>,

@@ -22,15 +22,15 @@ const ALIGNMENT: number = 1e-6;
 
 /**
  * An opt-in law for one coast inside a stationary spacecraft. NASA-STD-3001
- * Volume 2 sections 8.5.2 and 8.5.5 describe handholds as starting and
- * stopping aids in microgravity (https://www.nasa.gov/reference/8-0-architecture-vol-2/).
- * The law stages one hand delivering the departure impulse and the same
- * hand absorbing the stop. An author supplies the two contact durations
- * and the grip's midpoint clearance, with the body already staged by the
- * first rail and a clear corridor between the two.
- * The kinematic staging assumes zero apparent gravity and a stationary,
- * upright entry. Full-body clearance, contact forces and transitions into
- * or out of the clip require separate staging.
+ * Volume 2 sections 8.5.2 and 8.5.5 describe handholds as starting and stopping
+ * aids in microgravity
+ * (https://www.nasa.gov/reference/8-0-architecture-vol-2/). The law stages one
+ * hand delivering the departure impulse and the same hand absorbing the stop.
+ * An author supplies the two contact durations and the grip's midpoint
+ * clearance, with the body already staged by the first rail and a clear
+ * corridor between the two. The kinematic staging assumes zero apparent gravity
+ * and a stationary, upright entry. Full-body clearance, contact forces and
+ * transitions into or out of the clip require separate staging.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the contact premise, source, scene constraints and author controls.
  * @evidence contracts/development/design.md#principled-representation An opt-in action law uses existing prop windows, posture goals and action events to represent one push, coast and catch.
@@ -44,7 +44,10 @@ export const spacecraftGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     plan,
   };
 
-/** Resolve the handrails once, then evaluate an analytic root path and one grip goal. */
+/**
+ * Resolve the handrails once, then evaluate an analytic root path and one grip
+ * goal.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSpacecraftGlide>,
 ): IAutoMovieMotionHumanActionPlan {

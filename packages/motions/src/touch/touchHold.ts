@@ -34,23 +34,22 @@ import { touchLimb } from "./touchLimb";
 import { touchRegion } from "./touchRegion";
 
 /**
- * How a touch reads the person it touches: as perceived on the way to them,
- * and as they are while the hand is on them.
+ * How a touch reads the person it touches: as perceived on the way to them, and
+ * as they are while the hand is on them.
  *
- * Before the hand arrives (`ready`) and after it leaves (`relax`), the
- * partner is a tracked person, read where the performer saw them a reaction
- * time earlier (`HumanPerception.REACTION`). Between, the hand lies on the
- * partner's body and rides it, as the hand of a clinch, a carry or a
- * handshake does, so the partner's region and colliders are read where the
- * partner was a held limb's feedback delay before (`HumanPerception.HELD`):
- * the hand follows the partner by touch, not by sight, and two people each
- * with a hand on the other would otherwise each read the posture the other
- * is still solving. Read as perceived, the palm of a shove trailed the chest
- * it pushed by up to 0.2 m as the receiver staggered away; felt, it trails by
- * the chest's travel over the feedback delay. The arrival itself (`ready`
- * and `relax`, the instants a touch plans its clearing course against) is
- * still read as perceived, so a course planned on the way never reads the
- * partner at a contact still to come.
+ * Before the hand arrives (`ready`) and after it leaves (`relax`), the partner
+ * is a tracked person, read where the performer saw them a reaction time
+ * earlier (`HumanPerception.REACTION`). Between, the hand lies on the partner's
+ * body and rides it, as the hand of a clinch, a carry or a handshake does, so
+ * the partner's region and colliders are read where the partner was a held
+ * limb's feedback delay before (`HumanPerception.HELD`): the hand follows the
+ * partner by touch, not by sight, and two people each with a hand on the other
+ * would otherwise each read the posture the other is still solving. Read as
+ * perceived, the palm of a shove trailed the chest it pushed by up to 0.2 m as
+ * the receiver staggered away; felt, it trails by the chest's travel over the
+ * feedback delay. The arrival itself (`ready` and `relax`, the instants a touch
+ * plans its clearing course against) is still read as perceived, so a course
+ * planned on the way never reads the partner at a contact still to come.
  */
 export namespace touchHold {
   /**
@@ -71,7 +70,9 @@ export namespace touchHold {
    * The context whose aim reads a person as they are, for the hold.
    *
    * @param context The action's context.
-   * @returns The same context with a person's region placed on their bones a held limb's feedback delay before the second; every other target aimed as before.
+   * @returns The same context with a person's region placed on their bones a
+   *   held limb's feedback delay before the second; every other target aimed as
+   *   before.
    */
   export function felt<
     Context extends Pick<
@@ -131,15 +132,17 @@ export namespace touchHold {
 
   /**
    * The partner's colliders a touch keeps its arm clear of, and the ones it
-   * lays the hand on: the segments of the bone that carries the touched
-   * region and of the bones jointed to it (`HumanPosture.IGoal.rests`), whose
-   * surfaces a hand laid on the region meets, apart from the rest
+   * lays the hand on: the segments of the bone that carries the touched region
+   * and of the bones jointed to it (`HumanPosture.IGoal.rests`), whose surfaces
+   * a hand laid on the region meets, apart from the rest
    * (`HumanPosture.IGoal.clear`).
    *
    * @param context The action's context.
    * @param target The partner and the region the hand is laid on.
    * @param clock The touch's clock.
-   * @returns The colliders at a second since the action's start, `clear` and `rests`: where the partner was a feedback delay before during the hold, where the performer saw them a reaction time earlier otherwise.
+   * @returns The colliders at a second since the action's start, `clear` and
+   *   `rests`: where the partner was a feedback delay before during the hold,
+   *   where the performer saw them a reaction time earlier otherwise.
    */
   export function others(
     context: Pick<
@@ -197,17 +200,18 @@ export namespace touchHold {
   }
 
   /**
-   * The region and the colliders of a touch of a person as its plan
-   * perceives them: where the performer saw the person when the touch
-   * starts, a reaction time behind its `start`, whatever second the plan
-   * reads them at, so no plan reads the person ahead of the second it is
-   * made at (`AutoMovieMotionHumanArm.ICarry.perceived`).
+   * The region and the colliders of a touch of a person as its plan perceives
+   * them: where the performer saw the person when the touch starts, a reaction
+   * time behind its `start`, whatever second the plan reads them at, so no plan
+   * reads the person ahead of the second it is made at
+   * (`AutoMovieMotionHumanArm.ICarry.perceived`).
    *
    * @param context The action's context.
    * @param target The person and the region the hand is laid on.
    * @param clock The touch's clock.
    * @param perceived The region as the touch reads it on the way.
-   * @returns The region and the colliders at the touch's start, at any posture and second.
+   * @returns The region and the colliders at the touch's start, at any posture
+   *   and second.
    */
   export function perceived(
     context: Pick<
@@ -248,19 +252,21 @@ export namespace touchHold {
 
   /**
    * How a touch lays its hand on its region: its along axis on the arm's own
-   * direction across the region (`AutoMovieMotionHumanTouchPath.lay`), or
-   * the forefinger end on (`reach`), and the tangent its travel runs on: the
-   * row's, else `up`. A hand on the performer's own region whose travel up
-   * and down sinks it into another part of the body travels across instead
-   * when that sinks it less, as a person rubs a nape side to side: rubbed up
-   * and down its 48 mm, the hand went 39.6 mm into the upper back at the
-   * foot of the stroke, and rubbed across the nape not at all.
+   * direction across the region (`AutoMovieMotionHumanTouchPath.lay`), or the
+   * forefinger end on (`reach`), and the tangent its travel runs on: the row's,
+   * else `up`. A hand on the performer's own region whose travel up and down
+   * sinks it into another part of the body travels across instead when that
+   * sinks it less, as a person rubs a nape side to side: rubbed up and down its
+   * 48 mm, the hand went 39.6 mm into the upper back at the foot of the stroke,
+   * and rubbed across the nape not at all.
    *
-   * @param context The touch's context: the body, the entry and the row's kind, manner, tangent, touching surface and elbow.
+   * @param context The touch's context: the body, the entry and the row's kind,
+   *   manner, tangent, touching surface and elbow.
    * @param bones The entry's resolved bones.
    * @param effector The touching surface.
    * @param placed The touch's region reader (`touchRegion.reader`).
-   * @returns Each hand's lay and travel's tangent, given the hand and its target.
+   * @returns Each hand's lay and travel's tangent, given the hand and its
+   *   target.
    */
   export function lay(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -315,7 +321,10 @@ export namespace touchHold {
     };
   }
 
-  /** What a touch lays its effector's along axis on: the arm, the reach or a partner's limb. */
+  /**
+   * What a touch lays its effector's along axis on: the arm, the reach or a
+   * partner's limb.
+   */
   export type Lying = "arm" | "reach" | "limb";
 
   /** Each hand's lay, given the hand and its target (`lay`). */
@@ -326,7 +335,10 @@ export namespace touchHold {
 
   /** How a touch lays its hand (`lay`). */
   export interface ILaid {
-    /** What the effector's along axis lies on (`AutoMovieMotionHumanTouch.ITouch.lay`). */
+    /**
+     * What the effector's along axis lies on
+     * (`AutoMovieMotionHumanTouch.ITouch.lay`).
+     */
     lay: Lying;
 
     /** With `limb`, the touched limb's long axis, world. */
@@ -337,7 +349,10 @@ export namespace touchHold {
   }
 }
 
-/** The tangent a hand on the performer's own region travels on (`touchHold.lay`). */
+/**
+ * The tangent a hand on the performer's own region travels on
+ * (`touchHold.lay`).
+ */
 function rubbed(
   body: IAutoMovieMotionHumanBody,
   parts: readonly IAutoMovieMotionHumanColliders.IPlaced[],

@@ -36,19 +36,23 @@ const LOAD: number = 0.12;
 /** The longest reach onto and off the rail, seconds (provisional). */
 const TRANSIT: number = 0.4;
 
-/** The reach's largest share of the climb's duration, so the grip bears over at least three fifths of it (provisional). */
+/**
+ * The reach's largest share of the climb's duration, so the grip bears over at
+ * least three fifths of it (provisional).
+ */
 const TRANSIT_SHARE: number = 0.2;
 
 /**
- * Carry a stance hand along a fixed rail on the stair's existing clock.
- * The hand closes on the named finite bar, slides along its axis while
- * bearing and releases before the final landing stance.
+ * Carry a stance hand along a fixed rail on the stair's existing clock. The
+ * hand closes on the named finite bar, slides along its axis while bearing and
+ * releases before the final landing stance.
  *
  * @param context The actor, its actual stair prop and chosen rail.
  * @param stairs The unchanged tread and pelvis plan.
  * @param rail The rail affordance and hand that takes it.
  * @returns The stair plan with a posed, verified rail support window.
- * @throws {HumanRefusal} If the rail is absent, moves or cannot be reached during the braced part of the flight.
+ * @throws {HumanRefusal} If the rail is absent, moves or cannot be reached
+ *   during the braced part of the flight.
  */
 export function climbStairsRail(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbStairs.IParams>,

@@ -28,17 +28,32 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 
-/** Tasks whose hand closes on what it holds; the others lay the hand on a surface. */
+/**
+ * Tasks whose hand closes on what it holds; the others lay the hand on a
+ * surface.
+ */
 const GRIPPED: ReadonlySet<IAutoMovieMotionHumanTendHorse.Task> =
   new Set<IAutoMovieMotionHumanTendHorse.Task>(["lead", "hoof"]);
 
-/** The displayed hand's largest distance from its contact while fully held, metres: the rider attachment contract's 10 mm budget. */
+/**
+ * The displayed hand's largest distance from its contact while fully held,
+ * metres: the rider attachment contract's 10 mm budget.
+ */
 const CONTACT: number = 0.01;
 
 /**
- * A handler's hand on a horse's actual moving contact while the handler stands: brushing, headgear, lead, saddle and a held hoof.
+ * A handler's hand on a horse's actual moving contact while the handler stands:
+ * brushing, headgear, lead, saddle and a held hoof.
  *
- * The action is an arm overlay: the carrier under it, a stand, a crouch or a walk, owns the handler's feet and trunk. One hand acquires the named contact over `transition` on a minimum-jerk share, holds it, and releases it over `transition`; the contact is read from the horse prop at each film second, so it follows the horse's own responses, such as a hoof the horse lifts. A brushing hand strokes back and forth along the contact's line, one stroke out and back over the hold. While fully held the displayed hand must lie within 10 mm of the contact's surface, or the action refuses: an unreachable care or tack placement is refused, never clamped.
+ * The action is an arm overlay: the carrier under it, a stand, a crouch or a
+ * walk, owns the handler's feet and trunk. One hand acquires the named contact
+ * over `transition` on a minimum-jerk share, holds it, and releases it over
+ * `transition`; the contact is read from the horse prop at each film second, so
+ * it follows the horse's own responses, such as a hoof the horse lifts. A
+ * brushing hand strokes back and forth along the contact's line, one stroke out
+ * and back over the hold. While fully held the displayed hand must lie within
+ * 10 mm of the contact's surface, or the action refuses: an unreachable care or
+ * tack placement is refused, never clamped.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the carrier, the acquire, hold and release, the moving contact, the stroke and the refusal.
  * @evidence contracts/development/design.md#principled-representation One arm-and-hand overlay over its carrier, declaring its touch or grip window.
@@ -51,7 +66,8 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     overlay: true,
     interrupts: {},
     /**
-     * Fit and verify the displayed hand against one of the horse's actual moving contacts.
+     * Fit and verify the displayed hand against one of the horse's actual
+     * moving contacts.
      *
      * @evidence contracts/development/common.md#meaningful-documentation Defines the carrier-owned stance, the held material point, the stroke, the authored phase and the typed refusals.
      * @evidence contracts/development/implementation.md#principled-implementation Read the contact's world frame at each second, add the stroke along its line, acquire and release by minimum jerk and fit the arm with the ride's hand fit; while fully held, measure the realized hand against the contact's surface.
@@ -64,7 +80,14 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     plan(
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTendHorse>,
     ): IAutoMovieMotionHumanActionPlan {
-      const { on, side, point, task, duration: seconds, transition } = context.params;
+      const {
+        on,
+        side,
+        point,
+        task,
+        duration: seconds,
+        transition,
+      } = context.params;
       const stroke: number = context.params.stroke ?? 0;
       if (
         ![seconds, transition, stroke].every(Number.isFinite) ||
@@ -361,7 +384,10 @@ export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     },
   };
 
-/** A held tool's working face in the holding hand's wrist frame, and how far beyond the palm it lies. */
+/**
+ * A held tool's working face in the holding hand's wrist frame, and how far
+ * beyond the palm it lies.
+ */
 interface IHeldTool {
   /** The face's centre in the wrist frame, metres. */
   face: IAutoMovieVector3;
@@ -371,7 +397,9 @@ interface IHeldTool {
 }
 
 /**
- * Read where a held tool's working face sits in the holding hand, from the displayed hand and tool where the action begins, as a put-down reads its held offset.
+ * Read where a held tool's working face sits in the holding hand, from the
+ * displayed hand and tool where the action begins, as a put-down reads its held
+ * offset.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the frames read and what is returned.
  * @evidence contracts/development/implementation.md#principled-implementation The tool's face is carried into the wrist frame by the inverse of the displayed wrist; its depth is its offset from the measured palm along the palm's normal.

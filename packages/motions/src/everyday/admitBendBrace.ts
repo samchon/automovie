@@ -15,18 +15,18 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * Admit a bend's bracing palm on its thigh at the deepest second. A
- * point-only wrist fit may turn its palm away when the wrist's preferred
- * rotation is beyond range. A thigh can bear the body only on the palm and
- * between the ends of the femur, a half hand from each end clear of the
- * built tangle allowance.
+ * Admit a bend's bracing palm on its thigh at the deepest second. A point-only
+ * wrist fit may turn its palm away when the wrist's preferred rotation is
+ * beyond range. A thigh can bear the body only on the palm and between the ends
+ * of the femur, a half hand from each end clear of the built tangle allowance.
  *
  * @param body The bending body.
  * @param course The composed lowering.
  * @param down The descent's duration, seconds: the deepest second.
  * @param free The bracing hand's side.
  * @returns The posture at the deepest second, which the hold keeps.
- * @throws {HumanRefusal} When the palm faces away from the thigh or lies beyond either end of the femur.
+ * @throws {HumanRefusal} When the palm faces away from the thigh or lies beyond
+ *   either end of the femur.
  */
 export function admitBendBrace(
   body: IAutoMovieMotionHumanBody,

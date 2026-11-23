@@ -73,5 +73,8 @@ export function HumanArmSweepGradient(
   );
 }
 
-/** Forward rounding bound for the two rigid transforms, plane dot and subtraction (fewer than 64 serial rounded operations). */
+/**
+ * Forward rounding bound for the two rigid transforms, plane dot and
+ * subtraction (fewer than 64 serial rounded operations).
+ */
 const ROUNDING: number = (64 * Number.EPSILON) / (1 - 64 * Number.EPSILON);

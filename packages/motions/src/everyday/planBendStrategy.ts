@@ -47,10 +47,11 @@ import { prepareBendGoal } from "./prepareBendGoal";
 import { prepareBendSquat } from "./prepareBendSquat";
 
 /**
- * Fit one complete lowering of a bend: both arm courses and the held surface, for the requested strategy.
+ * Fit one complete lowering of a bend: both arm courses and the held surface,
+ * for the requested strategy.
  *
- * Moved unchanged from `bend` to keep that file under the
- * repository's 500-line limit; its caller and behaviour are unchanged.
+ * Moved unchanged from `bend` to keep that file under the repository's 500-line
+ * limit; its caller and behaviour are unchanged.
  */
 export function planBendStrategy(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBend.IParams>,

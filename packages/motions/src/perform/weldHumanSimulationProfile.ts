@@ -19,22 +19,23 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A performer's physical profile as a simulated window solves it: each
- * hand and every segment below it welded into one rigid body.
+ * A performer's physical profile as a simulated window solves it: each hand and
+ * every segment below it welded into one rigid body.
  *
  * A ragdoll does not simulate the fingers as their own small bodies: their
- * phalanges weigh grams on joints a hand's own motion whips past their
- * limits, so standard practice welds them to the hand, or drives them
- * kinematically from it (Unity's and Unreal's ragdoll setups put one body
- * on the hand; Unreal's Physics Asset tool skips bones below a minimum
- * size). Here each finger's colliders and mass are moved into its hand's
- * frame at the pose the window starts in, and the combined mass, centre and
- * inertia are the parallel-axis sum (`combinePhysicalMassProperties`). The
- * displayed fingers then keep the performance's own curl over the solved
- * hand (`readHumanSimulatedPose`), the kinematic drive.
+ * phalanges weigh grams on joints a hand's own motion whips past their limits,
+ * so standard practice welds them to the hand, or drives them kinematically
+ * from it (Unity's and Unreal's ragdoll setups put one body on the hand;
+ * Unreal's Physics Asset tool skips bones below a minimum size). Here each
+ * finger's colliders and mass are moved into its hand's frame at the pose the
+ * window starts in, and the combined mass, centre and inertia are the
+ * parallel-axis sum (`combinePhysicalMassProperties`). The displayed fingers
+ * then keep the performance's own curl over the solved hand
+ * (`readHumanSimulatedPose`), the kinematic drive.
  *
  * @param profile The performer's profile.
- * @param displayed The displayed world segment frames at the window's start, every segment.
+ * @param displayed The displayed world segment frames at the window's start,
+ *   every segment.
  * @returns A fresh profile with the hands welded; the same total mass.
  */
 export function weldHumanSimulationProfile(
@@ -196,8 +197,8 @@ export function weldHumanSimulationProfile(
 export namespace weldHumanSimulationProfile {
   /**
    * Each welded hand's finger joints in a pose: the joints of the body's
-   * segments the solved profile folds into a hand, by that hand. A window
-   * holds the displayed fingers at these, the shape the hand was welded in.
+   * segments the solved profile folds into a hand, by that hand. A window holds
+   * the displayed fingers at these, the shape the hand was welded in.
    *
    * @param body The performer's body.
    * @param profile The welded profile.

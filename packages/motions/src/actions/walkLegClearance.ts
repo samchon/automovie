@@ -12,25 +12,30 @@ import { walkLegBinding } from "./walkLegBinding";
 import { walkLegCapsules } from "./walkLegCapsules";
 
 /**
- * How far two legs of one body pass into each other, read as the tangle
- * audit reads them: each leg posed as the posture shows it (its hip, knee
- * and ankle and its thigh's and shank's rotations, `HumanLegChain`, and its
- * foot's rotation), and the deepest probe of either leg's thigh, shank, foot
- * or toes in a segment of the other beyond the probe's own reference depth
- * there (`AutoMovieMotionHumanAuditTangleModel.excess`). A planner that
- * keeps it within the audit's give (`AutoMovieMotionHumanAuditTangleModel.BUILT`)
- * keeps two legs that cross, as a sideways recovery's do, clear of each
- * other where the audit would find them run through each other.
+ * How far two legs of one body pass into each other, read as the tangle audit
+ * reads them: each leg posed as the posture shows it (its hip, knee and ankle
+ * and its thigh's and shank's rotations, `HumanLegChain`, and its foot's
+ * rotation), and the deepest probe of either leg's thigh, shank, foot or toes
+ * in a segment of the other beyond the probe's own reference depth there
+ * (`AutoMovieMotionHumanAuditTangleModel.excess`). A planner that keeps it
+ * within the audit's give (`AutoMovieMotionHumanAuditTangleModel.BUILT`) keeps
+ * two legs that cross, as a sideways recovery's do, clear of each other where
+ * the audit would find them run through each other.
  */
 export namespace walkLegClearance {
-  /** How far two legs may pass into each other beyond their reference depths, metres: the skin's give, the tangle audit's own limit (`AutoMovieMotionHumanAuditTangleModel.BUILT`). */
+  /**
+   * How far two legs may pass into each other beyond their reference depths,
+   * metres: the skin's give, the tangle audit's own limit
+   * (`AutoMovieMotionHumanAuditTangleModel.BUILT`).
+   */
   export const BOUND: number = AutoMovieMotionHumanAuditTangleModel.BUILT;
 
   /**
-   * Prepare one body's leg-collider geometry for a search that reads its
-   * legs' clearance many times (`walkLegCapsules.prepare`).
+   * Prepare one body's leg-collider geometry for a search that reads its legs'
+   * clearance many times (`walkLegCapsules.prepare`).
    *
-   * @param body The body, whose rest joints and profile stay fixed while the preparation is used.
+   * @param body The body, whose rest joints and profile stay fixed while the
+   *   preparation is used.
    * @returns The preparation `excess` reads.
    */
   export function prepare(

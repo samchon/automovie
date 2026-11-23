@@ -9,15 +9,20 @@ import {
 } from "@automovie/human";
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
 
-/** Authored f2 example in the Human parameter units; an omitted measure takes its survey default.
+/**
+ * Authored f2 example in the Human parameter units; an omitted measure takes
+ * its survey default.
  *
- * `appearance` transcribes the reference's requested appearance, `test/.shots/f2/appearance.json`,
- * field for field: `skin.{oiliness, wrinkles, seed}`, `hair.{style, color, length, curl, hairline}`,
- * `browPair.<side>.color`, `lashPair.<side>.{color, length}` and `underwear.{bottom, top, color}` keep
- * the same names, units (millimetres, dimensionless 0 to 1, uint32 seed) and closed-choice values;
- * the reference stores the choices as their serialized strings, which are these enum members' values.
- * The request has no freckle or acne entry, so those optional fields stay absent, and it states no
- * pigmentation or iris colour, so `pigmentation` stays absent rather than invented.
+ * `appearance` transcribes the reference's requested appearance,
+ * `test/.shots/f2/appearance.json`, field for field: `skin.{oiliness, wrinkles,
+ * seed}`, `hair.{style, color, length, curl, hairline}`,
+ * `browPair.<side>.color`, `lashPair.<side>.{color, length}` and
+ * `underwear.{bottom, top, color}` keep the same names, units (millimetres,
+ * dimensionless 0 to 1, uint32 seed) and closed-choice values; the reference
+ * stores the choices as their serialized strings, which are these enum members'
+ * values. The request has no freckle or acne entry, so those optional fields
+ * stay absent, and it states no pigmentation or iris colour, so `pigmentation`
+ * stays absent rather than invented.
  */
 export const f2: IAutoMovieHumanParameters = {
   body: {

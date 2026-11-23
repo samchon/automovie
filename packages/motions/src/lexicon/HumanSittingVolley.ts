@@ -34,7 +34,10 @@ const PLANT: number = 0.25;
 const RELEASE: number = 0.55;
 const RECEIVE: number = 0.8;
 
-/** Maximum free scoot, in thigh lengths, and maximum trunk inclination, in degrees. */
+/**
+ * Maximum free scoot, in thigh lengths, and maximum trunk inclination, in
+ * degrees.
+ */
 const SHIFT: number = 0.5;
 const LEAN: number = 50;
 
@@ -47,22 +50,25 @@ const PRESS_OUT: number = 0.1;
 /** World-space wrist fit tolerance in metres. */
 const FIT: number = 0.01;
 
-/** Ground and seated rest frame used to carry the low-body and recovered arm goals. */
+/**
+ * Ground and seated rest frame used to carry the low-body and recovered arm
+ * goals.
+ */
 const ORIGIN: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
 /**
- * Shift a court-supported seat by pressing on one stationary palm, then
- * release the palm and bring both forearms to a receive platform.
- * The torso support remains on the court during play, as in World
- * ParaVolley Rule 9.4.1, without using the optional defensive lift.
- * See https://worldparavolley.org/wp-content/uploads/2025/03/2025-2028-WPV-Official-Sitting-Volleyball-Rules-English-v1-2025-03-18.pdf
+ * Shift a court-supported seat by pressing on one stationary palm, then release
+ * the palm and bring both forearms to a receive platform. The torso support
+ * remains on the court during play, as in World ParaVolley Rule 9.4.1, without
+ * using the optional defensive lift. See
+ * https://worldparavolley.org/wp-content/uploads/2025/03/2025-2028-WPV-Official-Sitting-Volleyball-Rules-English-v1-2025-03-18.pdf
  * and the measured seated displacement and balance protocol at
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC5747199/ .
- * Phase shares, incline and single-shift bounds are provisional staging
- * choices. The receiving location is independent of any ball outcome.
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC5747199/ . Phase shares, incline and
+ * single-shift bounds are provisional staging choices. The receiving location
+ * is independent of any ball outcome.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, supporting palm, maintained pelvis support and receiving platform.
  * @evidence contracts/development/design.md#principled-representation Three events separate ground acquisition and displacement from the two-arm goal and recovery.
@@ -80,7 +86,12 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSittingVolley.ISittingVolley>,
     ): IAutoMovieMotionHumanActionPlan => {
       const { body, entry, params }: typeof context = context;
-      const { hand, lateral, duration: seconds, target }: typeof params = params;
+      const {
+        hand,
+        lateral,
+        duration: seconds,
+        target,
+      }: typeof params = params;
       HumanBound.above("duration", seconds, 0, "s");
       HumanBound.within(
         "lateral",
@@ -217,7 +228,10 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
         y: 0,
       };
 
-      /** Keep the seat socket on its original floor height while the trunk inclines. */
+      /**
+       * Keep the seat socket on its original floor height while the trunk
+       * inclines.
+       */
       const posture = (at: number): IAutoMovieMotionHumanPosture => {
         const share: number = Math.min(1, Math.max(0, at / seconds));
         if (share === 0) return low;

@@ -27,11 +27,11 @@ import { HumanWorn } from "./HumanWorn";
  * (`dress`): the turn whose wear socket the fitted arm brings nearest the
  * receiving region.
  *
- * @param props The body, the entry posture, the carrying hand, the wearable
- *   and the region it goes onto, the inverse of the wearable's rotation in
- *   the hand and its grip-local offset, the hand's grip socket and the
- *   wearable's wear point in the hand's frame, and the spacing of the turns
- *   tried first, degrees (`dress.TURN`).
+ * @param props The body, the entry posture, the carrying hand, the wearable and
+ *   the region it goes onto, the inverse of the wearable's rotation in the hand
+ *   and its grip-local offset, the hand's grip socket and the wearable's wear
+ *   point in the hand's frame, and the spacing of the turns tried first,
+ *   degrees (`dress.TURN`).
  * @returns The chosen turn, degrees.
  */
 export function dressTurn(props: {
@@ -44,7 +44,10 @@ export function dressTurn(props: {
   offset: IAutoMovieVector3;
   socket: IAutoMovieVector3;
   wear: IAutoMovieVector3;
-  /** The spacing of the turns tried first and the refinement's first step, degrees; positive. */
+  /**
+   * The spacing of the turns tried first and the refinement's first step,
+   * degrees; positive.
+   */
   step: number;
 }): number {
   // The body, the posture, the wearable and the region are fixed, so the
@@ -57,30 +60,68 @@ export function dressTurn(props: {
   );
   const region: IAutoMovieVector3 = site.point();
   const fitted: Map<number, number> = new Map();
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
   let readHand: ReturnType<typeof poseBones.prepare> | undefined;
   let gripAt: ReturnType<typeof HumanHand.preparePoint> | undefined;
   const missed: (degrees: number) => number = (degrees: number): number => {
     const known: number | undefined = fitted.get(degrees);
     if (known !== undefined) return known;
     const at: ReturnType<typeof dressTurn.carried> = dressTurn.carried(
-      site.frame(degrees), props.inverse, props.offset,
+      site.frame(degrees),
+      props.inverse,
+      props.offset,
     );
-    const wrist: IAutoMovieMotionHumanHand.IWrist = placeHumanHandSurface(props.socket, at.grip, at.rotation);
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...props.posture.limbs };
-    limbs[`${props.side}Arm`] = {
-      point: wrist.point, rotation: wrist.rotation, contact: props.socket,
-      bend: AutoMovieMotionHumanBend.solve({ body: props.body, posture: props.posture, side: props.side,
-        point: wrist.point, rotation: wrist.rotation, fallback: "hang" }),
+    const wrist: IAutoMovieMotionHumanHand.IWrist = placeHumanHandSurface(
+      props.socket,
+      at.grip,
+      at.rotation,
+    );
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+      ...props.posture.limbs,
     };
-    const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = resolveHumanPosture.seeded(props.body,
-      { ...props.posture, limbs }, undefined, undefined, resolution);
-    readHand ??= poseBones.prepare(props.body, new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]));
-    const bones: ReturnType<typeof poseBones> = readHand(resolved.pose, resolution());
+    limbs[`${props.side}Arm`] = {
+      point: wrist.point,
+      rotation: wrist.rotation,
+      contact: props.socket,
+      bend: AutoMovieMotionHumanBend.solve({
+        body: props.body,
+        posture: props.posture,
+        side: props.side,
+        point: wrist.point,
+        rotation: wrist.rotation,
+        fallback: "hang",
+      }),
+    };
+    const resolved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
+      resolveHumanPosture.seeded(
+        props.body,
+        { ...props.posture, limbs },
+        undefined,
+        undefined,
+        resolution,
+      );
+    readHand ??= poseBones.prepare(
+      props.body,
+      new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]),
+    );
+    const bones: ReturnType<typeof poseBones> = readHand(
+      resolved.pose,
+      resolution(),
+    );
     gripAt ??= HumanHand.preparePoint(props.body, props.side, "grip");
-    const miss: number = Vector3.length(Vector3.subtract(Vector3.add(
-      gripAt(bones), Quaternion.rotateVector(bones.get(`${props.side}Hand`)!.worldRotation, props.wear),
-    ), region));
+    const miss: number = Vector3.length(
+      Vector3.subtract(
+        Vector3.add(
+          gripAt(bones),
+          Quaternion.rotateVector(
+            bones.get(`${props.side}Hand`)!.worldRotation,
+            props.wear,
+          ),
+        ),
+        region,
+      ),
+    );
     fitted.set(degrees, miss);
     return miss;
   };
@@ -101,25 +142,36 @@ export function dressTurn(props: {
 }
 
 /**
- * The rigid hold of a wearable undone: where the carrying hand's grip
- * socket must be, and how the hand is turned, for the wearable to take a
- * given world frame. Shared by the turn search and `dress`'s carrying
- * stroke, so both place the hand by one rule.
+ * The rigid hold of a wearable undone: where the carrying hand's grip socket
+ * must be, and how the hand is turned, for the wearable to take a given world
+ * frame. Shared by the turn search and `dress`'s carrying stroke, so both place
+ * the hand by one rule.
  */
 export namespace dressTurn {
   /**
-   * The hand's frame for a wearable's world frame: the rotation is the
-   * worn rotation times the inverse held rotation, and the grip lies the
-   * held offset, turned by that rotation, behind the worn origin.
+   * The hand's frame for a wearable's world frame: the rotation is the worn
+   * rotation times the inverse held rotation, and the grip lies the held
+   * offset, turned by that rotation, behind the worn origin.
    *
    * @param worn The wearable's world frame.
    * @param inverse The inverse of the wearable's rotation in the hand.
    * @param offset The wearable's origin in the hand's grip frame, metres.
    * @returns The grip socket's world point and the hand's world rotation.
    */
-  export function carried(worn: IAutoMovieRigidTransform, inverse: IAutoMovieQuaternion,
-    offset: IAutoMovieVector3): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(Quaternion.multiply(worn.rotation, inverse));
-    return { grip: Vector3.subtract(worn.position, Quaternion.rotateVector(rotation, offset)), rotation };
+  export function carried(
+    worn: IAutoMovieRigidTransform,
+    inverse: IAutoMovieQuaternion,
+    offset: IAutoMovieVector3,
+  ): { grip: IAutoMovieVector3; rotation: IAutoMovieQuaternion } {
+    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(worn.rotation, inverse),
+    );
+    return {
+      grip: Vector3.subtract(
+        worn.position,
+        Quaternion.rotateVector(rotation, offset),
+      ),
+      rotation,
+    };
   }
 }

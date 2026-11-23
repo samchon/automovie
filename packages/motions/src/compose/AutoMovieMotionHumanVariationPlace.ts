@@ -15,31 +15,32 @@ import { AutoMovieMotionHumanVariation } from "./AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
 
 /**
- * The seeded offset of a place of the air: where a hand arrives within what
- * its named place allows.
+ * The seeded offset of a place of the air: where a hand arrives within what its
+ * named place allows.
  *
- * `AutoMovieMotionHumanVariation` states what a slot, a spread and a source
- * are and owns `SPREADS` and `ACROSS`; `AutoMovieMotionHumanVariationDraw`
- * owns `TRUNCATE` and the cell rule. A place is the one slot whose offset has three components and whose
- * bound differs by axis, so it reads how the hand arrives and bounds each
- * axis by that axis's names.
+ * `AutoMovieMotionHumanVariation` states what a slot, a spread and a source are
+ * and owns `SPREADS` and `ACROSS`; `AutoMovieMotionHumanVariationDraw` owns
+ * `TRUNCATE` and the cell rule. A place is the one slot whose offset has three
+ * components and whose bound differs by axis, so it reads how the hand arrives
+ * and bounds each axis by that axis's names.
  */
 export namespace AutoMovieMotionHumanVariationPlace {
   /**
    * A place of the air with its offset.
    *
-   * The offset is in arm lengths, along and across the arrival and read in
-   * the nudge frame. Its spread on each axis is `sqrt(intent^2 + (a k D / (T
+   * The offset is in arm lengths, along and across the arrival and read in the
+   * nudge frame. Its spread on each axis is `sqrt(intent^2 + (a k D / (T
    * arm))^2)`: `intent` is `SPREADS.place`, the second term is
    * `HumanSkill.scatter` of the travel, and `a` is 1 along the arrival and
    * `ACROSS` across it. On each axis the bound is the smaller of
    * `AutoMovieMotionHumanTargetGrid.NUDGE` and the cell rule over that axis's
-   * names, and each axis has its own factor, so an axis whose names stand
-   * close together flattens the ellipse across it and takes nothing from the
-   * other two. An axis with no room, such as the height of a place on the
-   * floor, drops out of the offset.
+   * names, and each axis has its own factor, so an axis whose names stand close
+   * together flattens the ellipse across it and takes nothing from the other
+   * two. An axis with no room, such as the height of a place on the floor,
+   * drops out of the offset.
    *
-   * @param source The action's variation; absent, the record itself is returned.
+   * @param source The action's variation; absent, the record itself is
+   *   returned.
    * @param key The slot key.
    * @param body The body whose measure the shares are of.
    * @param side The acting hand, which the lateral names mirror by.

@@ -24,24 +24,35 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** Depth a segment that does not bear on a fixture may enter it, metres (provisional: under the audits' built skin give, `AutoMovieMotionHumanAuditSkin.BUILT`). */
+/**
+ * Depth a segment that does not bear on a fixture may enter it, metres
+ * (provisional: under the audits' built skin give,
+ * `AutoMovieMotionHumanAuditSkin.BUILT`).
+ */
 const ROOM: number = 0.007;
 
-/** Depth a hand or foot bearing on the fixture may enter it, metres (provisional: a loaded sole or palm pressed into its support). */
+/**
+ * Depth a hand or foot bearing on the fixture may enter it, metres
+ * (provisional: a loaded sole or palm pressed into its support).
+ */
 const CONTACT: number = 0.02;
 
 /**
- * Require the fully posed actor to clear named stationary shapes throughout
- * a crossing. The plan is sampled at the motion signature's times and at
- * its end, each sample resolved and planted as the performance displays
- * it, and every body collider tested against every fixture shape. A
- * segment may enter a shape by `ROOM`, a hand or foot inside a window that
- * bears on that fixture by `CONTACT`.
+ * Require the fully posed actor to clear named stationary shapes throughout a
+ * crossing. The plan is sampled at the motion signature's times and at its end,
+ * each sample resolved and planted as the performance displays it, and every
+ * body collider tested against every fixture shape. A segment may enter a shape
+ * by `ROOM`, a hand or foot inside a window that bears on that fixture by
+ * `CONTACT`.
  *
  * @param context The body and the prop readers, read at the action's start.
- * @param plan The complete crossing, with its airborne rotation already set for a flight.
- * @param subjects The fixtures: the barrier, or the departure and landing decks.
- * @throws {HumanRefusal} For a fixture without stationary shapes, or with the deepest entry beyond its allowance, naming the bone, fixture, depth and time.
+ * @param plan The complete crossing, with its airborne rotation already set for
+ *   a flight.
+ * @param subjects The fixtures: the barrier, or the departure and landing
+ *   decks.
+ * @throws {HumanRefusal} For a fixture without stationary shapes, or with the
+ *   deepest entry beyond its allowance, naming the bone, fixture, depth and
+ *   time.
  */
 export function crossingClearance(
   context: IAutoMovieMotionHumanActionContext,

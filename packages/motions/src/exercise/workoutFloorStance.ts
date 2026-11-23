@@ -8,20 +8,21 @@ import type {
 import { floorEntry } from "../floor/floorEntry";
 
 /**
- * How a hands-down floor exercise is entered (`workout`): from standing,
- * from a lowered base (kneeling or crouched), or straight from a held floor
- * stance (a plank or push-up whose hands and feet already bear on the
- * ground), when the next exercise keeps that stance's palms and pins.
+ * How a hands-down floor exercise is entered (`workout`): from standing, from a
+ * lowered base (kneeling or crouched), or straight from a held floor stance (a
+ * plank or push-up whose hands and feet already bear on the ground), when the
+ * next exercise keeps that stance's palms and pins.
  */
 export namespace workoutFloorStance {
-  /**
-   * A floor entry.
-   */
+  /** A floor entry. */
   export interface IEntry {
     /** Whether the exercise keeps the held floor stance it is entered in. */
     held: boolean;
 
-    /** The displayed posture a lowered or held entry starts from; null from standing. */
+    /**
+     * The displayed posture a lowered or held entry starts from; null from
+     * standing.
+     */
     entered: IAutoMovieMotionHumanPosture | null;
   }
 

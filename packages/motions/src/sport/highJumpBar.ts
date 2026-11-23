@@ -16,9 +16,7 @@ import type { AthleticsRunUp } from "./AthleticsRunUp";
  * sets: the side of the bar the take-off foot must be on.
  */
 export namespace highJumpBar {
-  /**
-   * The crossbar in the world.
-   */
+  /** The crossbar in the world. */
   export interface IBar {
     /** The bar's centre, world metres. */
     point: IAutoMovieVector3;
@@ -31,7 +29,8 @@ export namespace highJumpBar {
   }
 
   /**
-   * Read the named crossbar's centre, axis and span where the prop stands at the action's start.
+   * Read the named crossbar's centre, axis and span where the prop stands at
+   * the action's start.
    *
    * @param context The prop reader and the action's film second.
    * @param subject The high jump's prop subject.
@@ -80,7 +79,8 @@ export namespace highJumpBar {
    *
    * @param bar The crossbar.
    * @param approach The run-up the jump is cut from.
-   * @throws {HumanRefusal} When the planted take-off foot is the one nearer the bar.
+   * @throws {HumanRefusal} When the planted take-off foot is the one nearer the
+   *   bar.
    */
   export function admit(bar: IBar, approach: AthleticsRunUp.IApproach): void {
     // The bar's vertical plane, its horizontal normal turned toward the

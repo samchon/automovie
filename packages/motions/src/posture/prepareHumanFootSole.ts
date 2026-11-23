@@ -64,7 +64,10 @@ export function prepareHumanFootSole(
   return read;
 }
 
-/** Intrinsic ankle-local geometry only, at most one reader for each side of a weak body. */
+/**
+ * Intrinsic ankle-local geometry only, at most one reader for each side of a
+ * weak body.
+ */
 const CACHE: WeakMap<
   IAutoMovieMotionHumanBody,
   Partial<

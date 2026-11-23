@@ -8,16 +8,16 @@ import type {
 import { HumanSkill } from "../skill/HumanSkill";
 
 /**
- * A group member's attributes: the named qualities a group's distribution
- * gives each member a number of, and the keyed draws that give them.
+ * A group member's attributes: the named qualities a group's distribution gives
+ * each member a number of, and the keyed draws that give them.
  *
- * An attribute is a value in [0, 1]: `discipline` (drill and steadiness, 1
- * the best drilled), `fatigue` (0 fresh, 1 spent) and `morale` (0 broken, 1
- * steady). A group states each as a distribution (`IDistribution`); each
- * member draws its own value from a stream keyed by the chain seed, the
- * ensemble's id, the member's index and the name drawn, so adding a member
- * or an attribute leaves every other draw bit-identical (the keyed streams
- * of `HumanSkill.stream`, Salmon et al. 2011). What an attribute moves is
+ * An attribute is a value in [0, 1]: `discipline` (drill and steadiness, 1 the
+ * best drilled), `fatigue` (0 fresh, 1 spent) and `morale` (0 broken, 1
+ * steady). A group states each as a distribution (`IDistribution`); each member
+ * draws its own value from a stream keyed by the chain seed, the ensemble's id,
+ * the member's index and the name drawn, so adding a member or an attribute
+ * leaves every other draw bit-identical (the keyed streams of
+ * `HumanSkill.stream`, Salmon et al. 2011). What an attribute moves is
  * `HUMAN_ATTRIBUTE_EFFECTS`'s; an attribute never decides an outcome.
  */
 export namespace HumanAttribute {
@@ -29,13 +29,14 @@ export namespace HumanAttribute {
   ];
 
   /**
-   * The stream of one member's quantity: keyed by the chain seed, the
-   * ensemble, the member's index and the quantity's name.
+   * The stream of one member's quantity: keyed by the chain seed, the ensemble,
+   * the member's index and the quantity's name.
    *
    * @param seed The chain seed.
    * @param ensemble The ensemble's id.
    * @param index The member's index.
-   * @param name The quantity drawn: an attribute, `proficiency`, `body`, `role`, or a name a caller keys its own draw by.
+   * @param name The quantity drawn: an attribute, `proficiency`, `body`,
+   *   `role`, or a name a caller keys its own draw by.
    * @returns The stream.
    */
   export function stream(
@@ -50,8 +51,8 @@ export namespace HumanAttribute {
   }
 
   /**
-   * One member's value of a quantity drawn from a distribution, clipped to
-   * [0, 1].
+   * One member's value of a quantity drawn from a distribution, clipped to [0,
+   * 1].
    *
    * @param seed The chain seed.
    * @param ensemble The ensemble's id.
@@ -59,7 +60,8 @@ export namespace HumanAttribute {
    * @param name The quantity drawn.
    * @param distribution The group's distribution.
    * @returns The value, in [0, 1].
-   * @throws {Error} When the mean lies outside [0, 1] or the spread is negative.
+   * @throws {Error} When the mean lies outside [0, 1] or the spread is
+   *   negative.
    */
   export function draw(
     seed: string,

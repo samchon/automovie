@@ -11,15 +11,14 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * An arrested fall on a wire (`IAutoMovieMotionHumanWireFlight.IArrest`).
- * From where it hangs raised, the body falls free for `drop` under standard
- * gravity, so it reaches `v = sqrt(2 g drop)`; the wire then takes it and
- * decelerates it uniformly to rest at the authored height, needing
- * `a = v² / (2 d)` over the remaining distance `d`; it hangs there for
- * `HOLD`, then the wire lowers it to the floor on a minimum-jerk profile,
- * landing at rest. The body keeps the posture it entered with. A fall whose
- * deceleration would exceed the
- * authored bound, or which has no room left above the stop, is refused.
+ * An arrested fall on a wire (`IAutoMovieMotionHumanWireFlight.IArrest`). From
+ * where it hangs raised, the body falls free for `drop` under standard gravity,
+ * so it reaches `v = sqrt(2 g drop)`; the wire then takes it and decelerates it
+ * uniformly to rest at the authored height, needing `a = v² / (2 d)` over the
+ * remaining distance `d`; it hangs there for `HOLD`, then the wire lowers it to
+ * the floor on a minimum-jerk profile, landing at rest. The body keeps the
+ * posture it entered with. A fall whose deceleration would exceed the authored
+ * bound, or which has no room left above the stop, is refused.
  */
 export namespace wireArrest {
   /** The action's name. */
@@ -36,7 +35,8 @@ export namespace wireArrest {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On `drop`, `stop` or `seconds` out of range, and on `deceleration` when the stop needs more than the bound.
+   * @throws {HumanRefusal} On `drop`, `stop` or `seconds` out of range, and on
+   *   `deceleration` when the stop needs more than the bound.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IArrest>,

@@ -31,7 +31,8 @@ type AutoMovieSupportPreferenceRead = (
  *
  * @param body The stance's fixed performer.
  * @param base The action's joint-space entry.
- * @returns A planning-local reader placing each stance's fixed shape above its current contact targets and root.
+ * @returns A planning-local reader placing each stance's fixed shape above its
+ *   current contact targets and root.
  */
 export function prepareSupportPreference(
   body: IAutoMovieMotionHumanBody,

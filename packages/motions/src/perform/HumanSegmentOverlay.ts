@@ -33,58 +33,64 @@ import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
 /**
- * A carrier's pose with its overlays written over it: which overlays run at
- * a second, and how each one's channels are faded in and out against the
- * body without it.
+ * A carrier's pose with its overlays written over it: which overlays run at a
+ * second, and how each one's channels are faded in and out against the body
+ * without it.
  */
 export namespace HumanSegmentOverlay {
-  /**
-   * A faded pose and the limb contacts its declared windows still hold.
-   */
+  /** A faded pose and the limb contacts its declared windows still hold. */
   export interface IOverlaid extends HumanSegmentPose.ISeeded {
     /** World goals have received the root turn; attached goals retain `on`. */
     contacts: IAutoMovieMotionHumanPosture["limbs"];
   }
 
   /**
-   * A carrier's posture resolved with every overlay active at a second
-   * written over it: each overlay's claimed channels come from its own plan,
-   * which was composed on this carrier, and an overlay coming in or going
-   * out is blended joint by joint against the body without it over `HumanSegment.FADE`,
-   * so neither end steps.
+   * A carrier's posture resolved with every overlay active at a second written
+   * over it: each overlay's claimed channels come from its own plan, which was
+   * composed on this carrier, and an overlay coming in or going out is blended
+   * joint by joint against the body without it over `HumanSegment.FADE`, so
+   * neither end steps.
    *
-   * A hand that carries a held prop rides the chest wherever no overlay of
-   * the pose being built drives it, so the body without an overlay, which an
+   * A hand that carries a held prop rides the chest wherever no overlay of the
+   * pose being built drives it, so the body without an overlay, which an
    * overlay fades from and back to, still carries what the hand holds.
    *
-   * Each limb fit made here is named by the overlays written over the leaf
-   * it is fitted in and whether it is the leaf's own fit or a carried
-   * hand's (`HumanSegmentPose.IFits`), and continues the fit `near` holds
-   * under that name.
+   * Each limb fit made here is named by the overlays written over the leaf it
+   * is fitted in and whether it is the leaf's own fit or a carried hand's
+   * (`HumanSegmentPose.IFits`), and continues the fit `near` holds under that
+   * name.
    *
-   * A contact is resolved after fading, using its complete original goal
-   * where present. A planned joint path supplies its displayed end frame
-   * and middle joint instead while its overlay fades; at full weight the
-   * path is displayed on its own joints and is not fitted again.
-   * Contacting fingers keep their planned shape until the window closes. The goals travel to the final transition
-   * resolver too, so a later offset or clamp cannot move the contact.
-   * Every branch reads one overlay's raw posture and fade weight at the
-   * same local second, so each is evaluated once per call. Branches still
-   * resolve their own under-postures and named limb fits independently.
-   * Leaf, carry and contact fits keep their own poses and seeds while exact
-   * FK dependency arithmetic may be shared within this evaluation.
-   * Multi-joint fades prepare the unchanged rig's blend metadata lazily;
-   * every joint still performs its own interpolation on its actual ends.
+   * A contact is resolved after fading, using its complete original goal where
+   * present. A planned joint path supplies its displayed end frame and middle
+   * joint instead while its overlay fades; at full weight the path is displayed
+   * on its own joints and is not fitted again. Contacting fingers keep their
+   * planned shape until the window closes. The goals travel to the final
+   * transition resolver too, so a later offset or clamp cannot move the
+   * contact. Every branch reads one overlay's raw posture and fade weight at
+   * the same local second, so each is evaluated once per call. Branches still
+   * resolve their own under-postures and named limb fits independently. Leaf,
+   * carry and contact fits keep their own poses and seeds while exact FK
+   * dependency arithmetic may be shared within this evaluation. Multi-joint
+   * fades prepare the unchanged rig's blend metadata lazily; every joint still
+   * performs its own interpolation on its actual ends.
    *
    * @param person The person.
    * @param posture The carrier's posture at the second, layers applied.
    * @param seconds Film seconds.
    * @param carried The holds the carrier carries at the second.
    * @param near The fits of a nearby second to continue, if any.
-   * @param source Optional same-body synchronous parent FK source; never retained by a result.
-   * @param requested Optional bone observation, forwarded only with no holds/near/current contact window and no base or leaf plant, so no later IK consumes omitted digit geometry.
-   * @param prepared Optional same-body evaluation preparation, lending genuine direct ROM metadata to leaves and complete source evaluation to first held-frame capture.
-   * @param carrier The action the overlays ride, whose last leaf seeds start the leaf's swept fits' bounded searches and which keeps this leaf's (`IAutoMovieMotionHumanSegment.incumbents`); absent, the fits search without them.
+   * @param source Optional same-body synchronous parent FK source; never
+   *   retained by a result.
+   * @param requested Optional bone observation, forwarded only with no
+   *   holds/near/current contact window and no base or leaf plant, so no later
+   *   IK consumes omitted digit geometry.
+   * @param prepared Optional same-body evaluation preparation, lending genuine
+   *   direct ROM metadata to leaves and complete source evaluation to first
+   *   held-frame capture.
+   * @param carrier The action the overlays ride, whose last leaf seeds start
+   *   the leaf's swept fits' bounded searches and which keeps this leaf's
+   *   (`IAutoMovieMotionHumanSegment.incumbents`); absent, the fits search
+   *   without them.
    * @returns The pose, the seeds of its fits and its open contact goals.
    */
   export function overlaid(
@@ -453,10 +459,10 @@ export namespace HumanSegmentOverlay {
   }
 
   /**
-   * Read a state with the overlays that end at a second handing their
-   * channels on there: an overlay chain's next act is placed at the instant
-   * the act before it ends, and reads its entry from that act's end, not
-   * from the carrier the act would release to were nothing to follow it.
+   * Read a state with the overlays that end at a second handing their channels
+   * on there: an overlay chain's next act is placed at the instant the act
+   * before it ends, and reads its entry from that act's end, not from the
+   * carrier the act would release to were nothing to follow it.
    *
    * @param seconds The film second the next act enters at.
    * @param run The read.
@@ -473,7 +479,10 @@ export namespace HumanSegmentOverlay {
   }
 }
 
-/** The second an overlay chain's next act enters at, while its entry is read (`HumanSegmentOverlay.handing`). */
+/**
+ * The second an overlay chain's next act enters at, while its entry is read
+ * (`HumanSegmentOverlay.handing`).
+ */
 let entering: number | undefined;
 
 /** Seconds two instants of one handoff may differ by. */
@@ -484,13 +493,16 @@ function shares(
   a: IAutoMovieMotionHumanSegment.IOverlay,
   b: IAutoMovieMotionHumanSegment.IOverlay,
 ): boolean {
-  return a.channels.some(
-    (channel: (typeof a.channels)[number]): boolean =>
-      b.channels.includes(channel),
+  return a.channels.some((channel: (typeof a.channels)[number]): boolean =>
+    b.channels.includes(channel),
   );
 }
 
-/** Whether an overlay hands its channels on at its end: to one that enters then, or to the act whose entry is being read there (`HumanSegmentOverlay.handing`). */
+/**
+ * Whether an overlay hands its channels on at its end: to one that enters then,
+ * or to the act whose entry is being read there
+ * (`HumanSegmentOverlay.handing`).
+ */
 function handsOn(
   person: IAutoMovieMotionHumanSegment.IPerson,
   overlay: IAutoMovieMotionHumanSegment.IOverlay,
@@ -505,7 +517,10 @@ function handsOn(
   );
 }
 
-/** How far an overlay still holds its channels at a second, released to the carrier over the fade before its end unless it hands them on. */
+/**
+ * How far an overlay still holds its channels at a second, released to the
+ * carrier over the fade before its end unless it hands them on.
+ */
 function released(
   person: IAutoMovieMotionHumanSegment.IPerson,
   overlay: IAutoMovieMotionHumanSegment.IOverlay,

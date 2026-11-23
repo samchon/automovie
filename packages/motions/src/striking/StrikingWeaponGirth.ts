@@ -3,16 +3,16 @@ import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 import { KickForm } from "./KickForm";
 
 /**
- * The girths of a striking limb's capsules: the radii a shown leg's and a
- * shown arm's tapered capsules carry at their joints, and a capsule's radius
- * at a share of its axis.
+ * The girths of a striking limb's capsules: the radii a shown leg's and a shown
+ * arm's tapered capsules carry at their joints, and a capsule's radius at a
+ * share of its axis.
  */
 export namespace StrikingWeaponGirth {
   /**
-   * A shown leg's girths at its joints, metres, as its tapered capsules'
-   * radii: the thigh narrows from its own radius at the hip to the shank's
-   * at the knee, where the shown thigh meets the shank, and the shank from
-   * there to the foot capsule's radius at the ankle (half the foot's depth,
+   * A shown leg's girths at its joints, metres, as its tapered capsules' radii:
+   * the thigh narrows from its own radius at the hip to the shank's at the
+   * knee, where the shown thigh meets the shank, and the shank from there to
+   * the foot capsule's radius at the ankle (half the foot's depth,
    * `KickForm.FOOT_RADIUS_SHARE`), which the foot keeps to the ball.
    *
    * @param body The leg's body.
@@ -28,10 +28,10 @@ export namespace StrikingWeaponGirth {
 
   /**
    * A shown arm's girths at its joints, metres, as its capsules' radii: the
-   * upper arm narrows from its own radius at the shoulder to the forearm's
-   * at the elbow, where the shown upper arm meets the forearm; the forearm
-   * and the fist keep the forearm's radius, which places the fist's axis end
-   * one radius behind the knuckles (`StrikingWeapon.posed`).
+   * upper arm narrows from its own radius at the shoulder to the forearm's at
+   * the elbow, where the shown upper arm meets the forearm; the forearm and the
+   * fist keep the forearm's radius, which places the fist's axis end one radius
+   * behind the knuckles (`StrikingWeapon.posed`).
    *
    * @param body The arm's body.
    * @returns The upper arm's, the forearm's and the fist's radii.

@@ -156,7 +156,10 @@ export function HumanArcheryCue(
   };
 }
 
-/** Provisional screen-continuity allowance between the two displayed contact points, in metres. */
+/**
+ * Provisional screen-continuity allowance between the two displayed contact
+ * points, in metres.
+ */
 const SEATING_TOLERANCE: number = 0.002;
 
 /** Place an authored local mark on a displayed prop frame. */

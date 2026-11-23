@@ -37,7 +37,10 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /** The axis a handle is wrapped about: its affordance frame's local +X. */
 const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/** Seconds over which a riding hand reaches its grip on the support (provisional staging). */
+/**
+ * Seconds over which a riding hand reaches its grip on the support (provisional
+ * staging).
+ */
 const REACH: number = 0.4;
 
 /** One riding hand and where it holds the support as the ride starts. */
@@ -55,20 +58,19 @@ const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
 };
 
 /**
- * Carry a two-foot stance on the actual board's film-clock trajectory.
- * Either foot can lead because the law reads the placed posture. Surf transit
+ * Carry a two-foot stance on the actual board's film-clock trajectory. Either
+ * foot can lead because the law reads the placed posture. Surf transit
  * measurements distinguish hand contact, foot acquisition and settled stance.
  * The board ride enters after acquisition, on an already placed stance.
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC7961430/
- * A named hand grips a point of the same support, such as an escalator
- * handrail that moves with the steps: it reaches the point where it is at
- * the start over `REACH` seconds, and the support carries the grip with
- * the feet.
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC7961430/ A named hand grips a point
+ * of the same support, such as an escalator handrail that moves with the steps:
+ * it reaches the point where it is at the start over `REACH` seconds, and the
+ * support carries the grip with the feet.
  *
  * @param context The placed feet, the board id and the ride duration.
  * @returns The transferred deck-local plants and carried posture.
  * @throws {HumanRefusal} When either foot is unsupported by the selected board,
- * a hand names a point the support lacks, or the duration is invalid.
+ *   a hand names a point the support lacks, or the duration is invalid.
  */
 export function HumanSurfaceBoard(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.IBoardRideParams>,
@@ -253,11 +255,14 @@ export function HumanSurfaceBoard(
 
 /**
  * Author a continuous move on a skateboard or surfboard selected from the
- * stage. The board's animator owns its trajectory. Its actual
- * affordances and authored phase boundaries determine the rider's plants.
+ * stage. The board's animator owns its trajectory. Its actual affordances and
+ * authored phase boundaries determine the rider's plants.
  */
 export namespace HumanSurfaceBoard {
-  /** Establish one ground push, turn feet on the deck, and land from an authored ollie. */
+  /**
+   * Establish one ground push, turn feet on the deck, and land from an authored
+   * ollie.
+   */
   export const skateboardPhrase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISkateboardPhraseParams> =
     {
       name: "skateboardPhrase",
@@ -266,7 +271,10 @@ export namespace HumanSurfaceBoard {
       plan: prepareSkateboardPhrase,
     };
 
-  /** Advance onto the board from water, paddle, and transfer from palms to a surfing stance. */
+  /**
+   * Advance onto the board from water, paddle, and transfer from palms to a
+   * surfing stance.
+   */
   export const surfboardPhrase: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISurfboardPhraseParams> =
     {
       name: "surfboardPhrase",
@@ -283,7 +291,10 @@ export namespace HumanSurfaceBoard {
   export const SURFBOARD: typeof prepareSurfboardPhrase.SHARES =
     prepareSurfboardPhrase.SHARES;
 
-  /** The board frame and rectangular deck envelope admitted for one staged phrase. */
+  /**
+   * The board frame and rectangular deck envelope admitted for one staged
+   * phrase.
+   */
   export interface IDeck {
     /** Sample the board's own world frame on this action's clock. */
     at(seconds: number): IAutoMovieRigidTransform;

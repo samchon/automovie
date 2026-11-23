@@ -15,11 +15,13 @@ import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanColliders } from "../posture/HumanColliders";
 
 /**
- * Prepare the displayed hand and measure its penetration into the moving head and neck in both directions.
+ * Prepare the displayed hand and measure its penetration into the moving head
+ * and neck in both directions.
  *
  * @param context The original held presentation and kisser's measured body.
  * @param side The already presented hand.
- * @returns Directed positive skin depths in metres for that actual hand and each posed head and neck.
+ * @returns Directed positive skin depths in metres for that actual hand and
+ *   each posed head and neck.
  */
 export function kissHandClearance(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKiss.IParams>,

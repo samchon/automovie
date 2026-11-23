@@ -13,11 +13,12 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
- * Hull frames and shared wrist and ankle support for paddle and sail.
- */
+/** Hull frames and shared wrist and ankle support for paddle and sail. */
 export namespace AquaticCrew {
-  /** A hull frame reader from the action's film clock, with poised local contact anchors. */
+  /**
+   * A hull frame reader from the action's film clock, with poised local contact
+   * anchors.
+   */
   export interface IHull {
     /** Supporting prop id. */
     id: string;
@@ -43,7 +44,10 @@ export namespace AquaticCrew {
   /** The limb goal key of one leg. */
   export type Leg = `${Side}Leg`;
 
-  /** Obtain entered anchors, with native handle validation for laws that pose the whole rig. */
+  /**
+   * Obtain entered anchors, with native handle validation for laws that pose
+   * the whole rig.
+   */
   export function bind(
     context: AquaticPosture.Context,
     native: boolean = false,
@@ -119,8 +123,8 @@ export namespace AquaticCrew {
   }
 
   /**
-   * Convert staged hull-local motion to the displayed pose and fit the
-   * active wrists and ankles; a foot keeps its entered orientation in the hull.
+   * Convert staged hull-local motion to the displayed pose and fit the active
+   * wrists and ankles; a foot keeps its entered orientation in the hull.
    */
   export function apply(
     context: AquaticPosture.Context,

@@ -9,10 +9,10 @@ import type {
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * Aim the hip-to-mouth vector at the horizontal projection of the skin.
- * A roll about local forward sets the sideways component. Pitch about
- * local left then sets the forward component without changing the first.
- * The upright roots of both sine equations keep the body above the hips.
+ * Aim the hip-to-mouth vector at the horizontal projection of the skin. A roll
+ * about local forward sets the sideways component. Pitch about local left then
+ * sets the forward component without changing the first. The upright roots of
+ * both sine equations keep the body above the hips.
  *
  * @param entry The initial trunk angles.
  * @param hip The pivot, world metres.
@@ -42,10 +42,15 @@ export function kissProjection(
   const lateral: number = Math.hypot(held.x, held.y);
   if (lateral === 0 || Math.abs(goal.x) > lateral) return null;
   const roll: number = Math.atan2(held.x, held.y) - Math.asin(goal.x / lateral);
-  const up: number = Math.sqrt(Math.max(0, lateral * lateral - goal.x * goal.x));
+  const up: number = Math.sqrt(
+    Math.max(0, lateral * lateral - goal.x * goal.x),
+  );
   const sagittal: number = Math.hypot(up, held.z);
   if (sagittal === 0 || Math.abs(goal.z) > sagittal) return null;
   const pitch: number = Math.asin(goal.z / sagittal) - Math.atan2(held.z, up);
   const degrees: number = 180 / Math.PI;
-  return { roll: roll * degrees - entry.roll, pitch: pitch * degrees - entry.pitch };
+  return {
+    roll: roll * degrees - entry.roll,
+    pitch: pitch * degrees - entry.pitch,
+  };
 }

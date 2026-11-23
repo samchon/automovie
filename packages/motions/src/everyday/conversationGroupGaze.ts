@@ -8,16 +8,18 @@ import { HumanConversation } from "./HumanConversation";
  *
  * At each turn start the listeners look toward the speaker and the speaker
  * looks toward the authored addressee. Auer (2018, doi:10.1075/ais.10.09aue)
- * observed speakers selecting addressees with gaze in three-party
- * interaction. Holler and Kendrick (2015, doi:10.3389/fpsyg.2015.00098)
- * observed unaddressed listeners shifting to the incoming speaker in
- * questions and replies. Here each change starts on the authored boundary.
- * Consecutive spans with one speaker can redirect their address.
+ * observed speakers selecting addressees with gaze in three-party interaction.
+ * Holler and Kendrick (2015, doi:10.3389/fpsyg.2015.00098) observed unaddressed
+ * listeners shifting to the incoming speaker in questions and replies. Here
+ * each change starts on the authored boundary. Consecutive spans with one
+ * speaker can redirect their address.
  *
- * @param params The participant, the distinct nonempty subject ids including silent listeners, the ordered non-overlapping speaking spans in film seconds, the participant's seeded stream and the eye height in metres.
- * @returns Requests for HumanGaze.layer. The last request of each span releases at its end.
+ * @param params The participant, the distinct nonempty subject ids including
+ *   silent listeners, the ordered non-overlapping speaking spans in film
+ *   seconds, the participant's seeded stream and the eye height in metres.
+ * @returns Requests for HumanGaze.layer. The last request of each span releases
+ *   at its end.
  * @throws When a subject, span, or eye height falls outside the stated bounds.
- *
  * @evidence contracts/development/design.md#principled-representation Pure function of the spans and the stream, over the Gaze family's layer request.
  * @evidence contracts/development/design.md#minimal-and-owned-surface One reader, `AutoMovieMotionHumanConversation.groupGaze`; the cadence is `HumanConversation`'s.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Reuses the family's request type; no consumer is special-cased.

@@ -15,13 +15,15 @@ import { rangeSteppingFoot } from "./rangeSteppingFoot";
 const ARMS: readonly ("left" | "right")[] = ["left", "right"];
 
 /**
- * Fit the reaching foot during push-off and clear the arms against the bent legs.
+ * Fit the reaching foot during push-off and clear the arms against the bent
+ * legs.
  *
  * @param body The jumping body's limb lengths and collision geometry.
  * @param posture The ground phase's actual lowered posture and world goals.
  * @param phase The reaching side during push-off, or the two-foot landing.
  * @param read The operation's FK reader, shared with lowering and fitting.
- * @returns Corrected ground-phase demands for both endpoint construction and playback.
+ * @returns Corrected ground-phase demands for both endpoint construction and
+ *   playback.
  */
 export function jumpGroundPosture(
   body: IAutoMovieMotionHumanBody,

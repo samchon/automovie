@@ -16,9 +16,7 @@ type ContextField = "subject" | "params";
  * belongs to. The contact identity keeps separate placements and targets.
  */
 export namespace supportWindows {
-  /**
-   * Describe how and where a stance contact bears.
-   */
+  /** Describe how and where a stance contact bears. */
   export function bearing(
     context: Pick<
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
@@ -65,9 +63,7 @@ export namespace supportWindows {
     };
   }
 
-  /**
-   * A solved instant of the support sequence.
-   */
+  /** A solved instant of the support sequence. */
   export interface IKey {
     /** Seconds since the sequence began. */
     seconds: number;
@@ -76,7 +72,8 @@ export namespace supportWindows {
   }
 
   /**
-   * A reader told of each window as it opens, with the authored contact that opened it.
+   * A reader told of each window as it opens, with the authored contact that
+   * opened it.
    */
   export type Observe = (
     window: IAutoMovieMotionHumanContactWindow,
@@ -89,8 +86,10 @@ export namespace supportWindows {
    * @param context The sequence's subject and shared on target.
    * @param keys The solved instants.
    * @param duration The sequence's seconds.
-   * @param observe Optional reader of a window and the exact authored target that opens it.
-   * @param socket The sole socket each floor foot holds through its window, declared on it (`IAutoMovieMotionHumanContactWindow.socket`).
+   * @param observe Optional reader of a window and the exact authored target
+   *   that opens it.
+   * @param socket The sole socket each floor foot holds through its window,
+   *   declared on it (`IAutoMovieMotionHumanContactWindow.socket`).
    * @returns Contact windows.
    */
   export function of(

@@ -35,7 +35,10 @@ export namespace AquaticPool {
     halfSpan: number;
   }
 
-  /** Pool race with an authored short course, resolved wall contacts and a reused stroke cycle on either course. */
+  /**
+   * Pool race with an authored short course, resolved wall contacts and a
+   * reused stroke cycle on either course.
+   */
   export function race(
     context: AquaticPosture.Context,
     water: number,
@@ -347,7 +350,10 @@ export namespace AquaticPool {
     };
   }
 
-  /** Centre a displayed marker pair at the target and keep both within the physical wall span. */
+  /**
+   * Centre a displayed marker pair at the target and keep both within the
+   * physical wall span.
+   */
   function pin(
     context: AquaticPosture.Context,
     bones: readonly [AutoMovieHumanoidBone, AutoMovieHumanoidBone],

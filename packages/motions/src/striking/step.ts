@@ -21,31 +21,33 @@ import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
- * Fighting-stance footwork: steps that keep the stance, the foot on the side
- * of travel moving first and the other following to restore the stance
- * without crossing (IBA coaching manual pp. 36 to 39: forward, the lead foot
- * then the rear; back, the rear then the lead; sideways, the near foot then
- * the far).
+ * Fighting-stance footwork: steps that keep the stance, the foot on the side of
+ * travel moving first and the other following to restore the stance without
+ * crossing (IBA coaching manual pp. 36 to 39: forward, the lead foot then the
+ * rear; back, the rear then the lead; sideways, the near foot then the far).
  *
  * Each step moves the whole stance by its length along the direction in the
  * body's line frame: the first foot swings in the first half of the step, the
- * second follows in the second, each on a minimum-jerk path lifted clear of
- * the floor, while the root carries the body on its own minimum-jerk profile
- * and the guard rides on the trunk. The step length defaults to half a
- * stance length (the kickboxing research's step share) and the step period
- * scales with the leg by dynamic similarity (`PERIOD`, Alexander 1984): 0.35 s
- * on a 0.93 m hip, about three steps a second, inside the 2 to 3.5 steps a
- * second of the ring-movement reading (provisional).
+ * second follows in the second, each on a minimum-jerk path lifted clear of the
+ * floor, while the root carries the body on its own minimum-jerk profile and
+ * the guard rides on the trunk. The step length defaults to half a stance
+ * length (the kickboxing research's step share) and the step period scales with
+ * the leg by dynamic similarity (`PERIOD`, Alexander 1984): 0.35 s on a 0.93 m
+ * hip, about three steps a second, inside the 2 to 3.5 steps a second of the
+ * ring-movement reading (provisional).
  *
  * An interrupted step hands its bearing foot and airborne placements to the
- * next one. The inherited swing lands before the bearing foot lifts, using
- * the next step's own clock.
+ * next one. The inherited swing lands before the bearing foot lifts, using the
+ * next step's own clock.
  */
 export namespace step {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "step";
 
-  /** Cancel table: footwork chains into strikes, defences and more footwork at any time. */
+  /**
+   * Cancel table: footwork chains into strikes, defences and more footwork at
+   * any time.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
     guard: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
@@ -58,10 +60,10 @@ export namespace step {
    * One step's period in pendulum units, `T / sqrt(l / g)` with `l` the hip
    * height: bodies of different size step alike at equal Froude number
    * (Alexander 1984), so a step's time is a share of the leg's own pendulum
-   * time, never a fixed second. The value reads the provisional 0.35 s
-   * (about three steps a second, inside the 2 to 3.5 of the ring-movement
-   * reading) on the 0.93 m hip the gait laws' speeds are measured at
-   * (`walk.FROUDE`, Bohannon 1997).
+   * time, never a fixed second. The value reads the provisional 0.35 s (about
+   * three steps a second, inside the 2 to 3.5 of the ring-movement reading) on
+   * the 0.93 m hip the gait laws' speeds are measured at (`walk.FROUDE`,
+   * Bohannon 1997).
    */
   export const PERIOD: number =
     0.35 / Math.sqrt(0.93 / AutoMovieGravity.STANDARD);
@@ -81,7 +83,10 @@ export namespace step {
     );
   }
 
-  /** Share of a stance length one step covers (IBA: the following foot restores the stance without crossing). */
+  /**
+   * Share of a stance length one step covers (IBA: the following foot restores
+   * the stance without crossing).
+   */
   export const STEP_SHARE: number = 0.5;
 
   /**
@@ -89,7 +94,8 @@ export namespace step {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When count, travel or turn exceeds its documented range.
+   * @throws {HumanRefusal} When count, travel or turn exceeds its documented
+   *   range.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,

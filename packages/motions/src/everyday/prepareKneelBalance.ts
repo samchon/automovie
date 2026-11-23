@@ -14,7 +14,12 @@ import type { kneelKeys } from "./kneelKeys";
 
 /** A root offset in metres along the kneeling step. */
 type Course = (seconds: number) => number;
-type Solver = (from: number, to: number, start: number, through: number) => Course;
+type Solver = (
+  from: number,
+  to: number,
+  start: number,
+  through: number,
+) => Course;
 
 /** The two neighbouring key numbers and the progress between them. */
 interface IKeyPair {
@@ -33,14 +38,18 @@ interface IInputs {
   feet: kneelKeys.IKey["feet"];
   yaw: number;
   at: (seconds: number) => IPhaseReading;
-  write: (posture: IAutoMovieMotionHumanPosture, seconds: number, along: number,
-    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieMotionHumanPosture;
+  write: (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+    along: number,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ) => IAutoMovieMotionHumanPosture;
 }
 
 /**
  * Resolve the fixed heading's initial centre and the middle of the planted
- * soles. Each moving phase follows its original target from its original
- * start through the last observable cubic interval.
+ * soles. Each moving phase follows its original target from its original start
+ * through the last observable cubic interval.
  */
 export function prepareKneelBalance(props: IInputs): Solver {
   const { body, standing, forward, feet, yaw, at, write }: IInputs = props;
@@ -61,8 +70,7 @@ export function prepareKneelBalance(props: IInputs): Solver {
 
   const centre: (posture: IAutoMovieMotionHumanPosture) => number = (
     posture: IAutoMovieMotionHumanPosture,
-  ): number =>
-    Vector3.dot(HumanBalance.centre(body, posture), forward);
+  ): number => Vector3.dot(HumanBalance.centre(body, posture), forward);
   const stood: number = centre(standing);
   const middle: number =
     (["left", "right"] as const)
@@ -93,18 +101,25 @@ export function prepareKneelBalance(props: IInputs): Solver {
     start: number,
     through: number,
   ): Course =>
-    AutoMovieMotionHumanCourse.solve({
-      body,
-      yaw,
-      posture: (
-        seconds: number,
-        along: number,
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      ): IAutoMovieMotionHumanPosture => write(standing, seconds, along, resolution),
-      target: (seconds: number): number => stood + (middle - stood) * share(seconds),
-      from,
-      to,
-      start,
-    }, through);
+    AutoMovieMotionHumanCourse.solve(
+      {
+        body,
+        yaw,
+        posture: (
+          seconds: number,
+          along: number,
+          resolution?: Parameters<
+            IAutoMovieMotionHumanActionPlan["posture"]
+          >[2],
+        ): IAutoMovieMotionHumanPosture =>
+          write(standing, seconds, along, resolution),
+        target: (seconds: number): number =>
+          stood + (middle - stood) * share(seconds),
+        from,
+        to,
+        start,
+      },
+      through,
+    );
   return course;
 }

@@ -7,7 +7,10 @@ import type {
 /** The world up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Seconds of one stroke of each kind: provisional until a measured swing, dig or rake is read. */
+/**
+ * Seconds of one stroke of each kind: provisional until a measured swing, dig
+ * or rake is read.
+ */
 const PERIODS: Readonly<Record<IAutoMovieMotionHumanLongTool.Stroke, number>> =
   {
     chop: 1.6,
@@ -17,30 +20,38 @@ const PERIODS: Readonly<Record<IAutoMovieMotionHumanLongTool.Stroke, number>> =
     rake: 1.6,
   };
 
-/** The share of a swung stroke spent bringing the face down, from the top to the contact: provisional, a fast downswing after a slower raise. */
+/**
+ * The share of a swung stroke spent bringing the face down, from the top to the
+ * contact: provisional, a fast downswing after a slower raise.
+ */
 const DOWN: number = 0.35;
 
-/** A dug blade's depth below the ground, metres: provisional, a spade's blade driven to about half its height. */
+/**
+ * A dug blade's depth below the ground, metres: provisional, a spade's blade
+ * driven to about half its height.
+ */
 const DEPTH: number = 0.15;
 
-/** A rake's pull either side of its work point, and how high its tines lift on the return, metres: provisional. */
+/**
+ * A rake's pull either side of its work point, and how high its tines lift on
+ * the return, metres: provisional.
+ */
 const PULL: number = 0.25;
 const LIFT: number = 0.1;
 
 /**
- * The path of a long tool through one stroke, as a function of the
- * stroke's share: the trailing grip, the tool's line from that grip toward
- * its face, the face's facing, the lead hand's slide along the line from the
- * trailing grip, and how far the stroke reaches toward the work (for the
- * trunk's bow). A swung stroke (`chop`, `side`, `swing`) turns the line in
- * the one plane holding its top and its contact, about that plane's normal,
- * the face facing the way the head travels, so it arrives at the work from
- * the stroke's direction; the lead hand slides down to the trailing hand on
- * the downswing (Freivalds 1986 for a shovel's and an axe's two-hand
- * holds). A dig drives the blade below the ground, levers it, lifts it and
- * swings it toward where the load goes; a rake pulls the tines along the
- * ground toward the performer and lifts them back. Keys between are eased
- * with minimum jerk.
+ * The path of a long tool through one stroke, as a function of the stroke's
+ * share: the trailing grip, the tool's line from that grip toward its face, the
+ * face's facing, the lead hand's slide along the line from the trailing grip,
+ * and how far the stroke reaches toward the work (for the trunk's bow). A swung
+ * stroke (`chop`, `side`, `swing`) turns the line in the one plane holding its
+ * top and its contact, about that plane's normal, the face facing the way the
+ * head travels, so it arrives at the work from the stroke's direction; the lead
+ * hand slides down to the trailing hand on the downswing (Freivalds 1986 for a
+ * shovel's and an axe's two-hand holds). A dig drives the blade below the
+ * ground, levers it, lifts it and swings it toward where the load goes; a rake
+ * pulls the tines along the ground toward the performer and lifts them back.
+ * Keys between are eased with minimum jerk.
  */
 export namespace LongToolStroke {
   /** What a stroke is built from. */
@@ -120,11 +131,17 @@ export namespace LongToolStroke {
     /** The upper chest, world metres. */
     chest: IAutoMovieVector3;
 
-    /** The tool at a share of the stroke, from 0 to 1; 0 and 1 are the same pose. */
+    /**
+     * The tool at a share of the stroke, from 0 to 1; 0 and 1 are the same
+     * pose.
+     */
     pose(share: number): IPose;
   }
 
-  /** One key of a keyed stroke: the face, the line, the slide and the reach at a share. */
+  /**
+   * One key of a keyed stroke: the face, the line, the slide and the reach at a
+   * share.
+   */
   interface IKey {
     /** Its share. */
     share: number;
@@ -190,7 +207,10 @@ export namespace LongToolStroke {
     throw new Error(`no long-tool stroke ${String(unknown)}`);
   }
 
-  /** A swung stroke: the line turned in one plane from the top to the contact and back. */
+  /**
+   * A swung stroke: the line turned in one plane from the top to the contact
+   * and back.
+   */
   function swing(
     props: IProps,
   ): Omit<IStroke, "period" | "leadward" | "chest"> {
@@ -336,7 +356,10 @@ export namespace LongToolStroke {
     ];
   }
 
-  /** A rake's keys: the tines lowered ahead, pulled along the ground, lifted, carried back. */
+  /**
+   * A rake's keys: the tines lowered ahead, pulled along the ground, lifted,
+   * carried back.
+   */
   function rake(props: IProps): IKey[] {
     const { at, forward: f } = props;
     const line: IAutoMovieVector3 = Vector3.normalize(
@@ -361,7 +384,10 @@ export namespace LongToolStroke {
     return Vector3.subtract(key.face, Vector3.scale(key.line, length));
   }
 
-  /** A keyed stroke's pose: eased between its keys, the face facing `ref` square to the line. */
+  /**
+   * A keyed stroke's pose: eased between its keys, the face facing `ref` square
+   * to the line.
+   */
   function keyed(
     keys: readonly IKey[],
     length: number,

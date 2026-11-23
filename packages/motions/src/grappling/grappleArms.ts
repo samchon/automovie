@@ -32,30 +32,30 @@ import { clinch } from "./clinch";
 
 /**
  * The initiator's hands of a staged grapple laid on the partner as one arm
- * course (`courseArmGoal`): the reach from the entry's arm angles to the
- * grip, the grip held on the partner's named moving surface, and the
- * return, planned as one trajectory clear of the partner's other segments,
- * both hands together. Both performers play one authored scene on one clock
- * (`HumanCoupled.grappling`), so the initiator's plan reads the partner
- * where the scene puts the partner at each second, a reaction time behind it
- * on the reach and a feedback delay behind it on the hold: an interception
- * is aimed at where the target will be, by an internal model of its motion
- * (Zago, McIntyre, Senot and Lacquaniti 2009, Exp Brain Res 192:571), and
- * a rehearsed scene's partner is known in advance, as
- * the sumo tachiai's mutual start is. A reach planned on the partner frozen
- * as it was when the reach started kept the hold on a charging or driven
- * partner's old place, a belt grip at the tachiai 0.29 m beyond the place
- * the partner had charged to, which no bounded follower can close; the
- * plan reads the scene's partner (`perceived`), so no follower corrects
- * it. The hand lies on the segments of the gripped region's bone
- * and its neighbours (`touchHold.others`). The fingers take the grip's shape
- * on the same envelope. A course per sample was what let an arm flip its
- * branch from one instant to the next (the staged takes' 180-degree upper
- * arm turns).
+ * course (`courseArmGoal`): the reach from the entry's arm angles to the grip,
+ * the grip held on the partner's named moving surface, and the return, planned
+ * as one trajectory clear of the partner's other segments, both hands together.
+ * Both performers play one authored scene on one clock
+ * (`HumanCoupled.grappling`), so the initiator's plan reads the partner where
+ * the scene puts the partner at each second, a reaction time behind it on the
+ * reach and a feedback delay behind it on the hold: an interception is aimed at
+ * where the target will be, by an internal model of its motion (Zago, McIntyre,
+ * Senot and Lacquaniti 2009, Exp Brain Res 192:571), and a rehearsed scene's
+ * partner is known in advance, as the sumo tachiai's mutual start is. A reach
+ * planned on the partner frozen as it was when the reach started kept the hold
+ * on a charging or driven partner's old place, a belt grip at the tachiai 0.29
+ * m beyond the place the partner had charged to, which no bounded follower can
+ * close; the plan reads the scene's partner (`perceived`), so no follower
+ * corrects it. The hand lies on the segments of the gripped region's bone and
+ * its neighbours (`touchHold.others`). The fingers take the grip's shape on the
+ * same envelope. A course per sample was what let an arm flip its branch from
+ * one instant to the next (the staged takes' 180-degree upper arm turns).
  *
- * @param props The scene's context, its floor plan, the gripped regions and the grip's clock.
+ * @param props The scene's context, its floor plan, the gripped regions and the
+ *   grip's clock.
  * @returns The floor plan with the hands laid on the partner.
- * @throws {HumanRefusal} When a gripping wrist would stand beyond the arm's reach on the hold, or no course meets the trajectory's constraints.
+ * @throws {HumanRefusal} When a gripping wrist would stand beyond the arm's
+ *   reach on the hold, or no course meets the trajectory's constraints.
  */
 export function grappleArms(
   props: grappleArms.IProps,
@@ -318,23 +318,19 @@ export function grappleArms(
   return plan;
 }
 
-/**
- * Companion types and constants of {@link grappleArms}.
- */
+/** Companion types and constants of {@link grappleArms}. */
 export namespace grappleArms {
   /**
-   * The return's end the planner's own answer asks for: when a course
-   * refuses its duration with the least seconds the action needs at its
-   * pace, the return (from `release` to `rest`) stretched by that ratio,
-   * kept within the action; none for any other refusal, or one the
-   * stretch cannot meet.
+   * The return's end the planner's own answer asks for: when a course refuses
+   * its duration with the least seconds the action needs at its pace, the
+   * return (from `release` to `rest`) stretched by that ratio, kept within the
+   * action; none for any other refusal, or one the stretch cannot meet.
    *
    * @param error What the course threw.
    * @param duration The action's seconds.
    * @param release The release, seconds since the start.
    * @param rest The authored rest, seconds since the start.
    * @returns The stretched rest, seconds since the start, or none.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States which refusal is read, the stretch and when none is given.
    * @evidence contracts/development/implementation.md#principled-implementation The planner states the uniform time stretch its path needs; the free phase takes that stretch.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the refusal, one ratio.
@@ -363,7 +359,10 @@ export namespace grappleArms {
       release + ((rest - release) * feasible.minimum) / duration;
     return end <= duration ? end : undefined;
   }
-  /** How far the shoulder throw's sleeve hand stands off the sleeve at the middle of its release, in hand lengths (provisional). */
+  /**
+   * How far the shoulder throw's sleeve hand stands off the sleeve at the
+   * middle of its release, in hand lengths (provisional).
+   */
   export const SEPARATION: number = 0.55;
 
   /** The scene's arms. */
@@ -379,10 +378,16 @@ export namespace grappleArms {
       Partial<Record<AutoMovieHumanSide, AutoMovieHumanoidRegion>>
     >;
 
-    /** The grip's clock: `reach`, `take`, `release` and `rest`, seconds since the start. */
+    /**
+     * The grip's clock: `reach`, `take`, `release` and `rest`, seconds since
+     * the start.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The hand that separates along the sleeve on the release; none when absent. */
+    /**
+     * The hand that separates along the sleeve on the release; none when
+     * absent.
+     */
     sleeve?: AutoMovieHumanSide;
   }
 }

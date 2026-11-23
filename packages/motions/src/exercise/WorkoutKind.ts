@@ -27,8 +27,8 @@ export namespace WorkoutKind {
 
   /**
    * A step that is held: a stretch's or a pose's end, entered over `seconds`
-   * (`reach` to `reachEnd`) and stayed in for `hold` seconds unless the
-   * author names a hold.
+   * (`reach` to `reachEnd`) and stayed in for `hold` seconds unless the author
+   * names a hold.
    *
    * @param key The posture.
    * @param seconds Seconds taken to reach it.

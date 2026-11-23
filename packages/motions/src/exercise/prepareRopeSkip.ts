@@ -33,18 +33,20 @@ const DEFAULT_HANDLE_DIAMETER: number = (7 / 8) * 0.0254;
 /**
  * Drive a visible rope on the clock of a placed two-foot skip.
  *
- * The central cable runs transversely and revolves over the neutral body
- * height and below the foot station. The two side legs complete a four-point
- * cable of the specified length. Its orbit starts overhead and reaches
- * the bottom at the action's airborne underpass. If needed, the rope waits
- * at the overhead position so its entire passage fits within the flight.
- * Each handle follows the displayed grasp's wrapped axis, with its local
- * +Z end on the thumb side. The cable can flex where it joins that end.
- * A film host poses its two barrels and supplies the unindexed cord to the
- * existing soft-prop draw binding. This is a derived staging curve.
+ * The central cable runs transversely and revolves over the neutral body height
+ * and below the foot station. The two side legs complete a four-point cable of
+ * the specified length. Its orbit starts overhead and reaches the bottom at the
+ * action's airborne underpass. If needed, the rope waits at the overhead
+ * position so its entire passage fits within the flight. Each handle follows
+ * the displayed grasp's wrapped axis, with its local +Z end on the thumb side.
+ * The cable can flex where it joins that end. A film host poses its two barrels
+ * and supplies the unindexed cord to the existing soft-prop draw binding. This
+ * is a derived staging curve.
  *
- * @returns A seekable film-time sampler, undefined outside the surviving action.
- * @throws {HumanRefusal} For invalid dimensions, an incompatible action, or a rope that cannot span the sampled pose above the floor.
+ * @returns A seekable film-time sampler, undefined outside the surviving
+ *   action.
+ * @throws {HumanRefusal} For invalid dimensions, an incompatible action, or a
+ *   rope that cannot span the sampled pose above the floor.
  */
 export function prepareRopeSkip(
   input: IAutoMovieMotionHumanRopeSkipPresentation,

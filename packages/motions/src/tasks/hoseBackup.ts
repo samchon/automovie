@@ -36,23 +36,27 @@ const FRAME: number = 24;
 /** Both hands. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** The only entry bones the backup reads: the shoulders that choose the far hand and roll each grip. */
+/**
+ * The only entry bones the backup reads: the shoulders that choose the far hand
+ * and roll each grip.
+ */
 const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> =
   new Set<AutoMovieHumanoidBone>(["leftUpperArm", "rightUpperArm"]);
 
 /**
- * The backup member of a hose team (`hoseLine`'s `backup` role): both hands
- * on the line's grip without carrying it, each a power grip rolled about
- * the line toward its shoulder (`HumanGraspRoll`), sharing the grip's
- * length, the hand reaching across the body ahead,
- * following the grip where the operator's hold puts the line.
+ * The backup member of a hose team (`hoseLine`'s `backup` role): both hands on
+ * the line's grip without carrying it, each a power grip rolled about the line
+ * toward its shoulder (`HumanGraspRoll`), sharing the grip's length, the hand
+ * reaching across the body ahead, following the grip where the operator's hold
+ * puts the line.
  *
  * @param context The action's context.
  * @param p The hose-line parameters.
  * @param clock The action's clock.
  * @param base The leaning base plan.
  * @returns The backup's plan.
- * @throws {HumanRefusal} When the line declares no such grip, or a hand cannot reach it.
+ * @throws {HumanRefusal} When the line declares no such grip, or a hand cannot
+ *   reach it.
  */
 export function hoseBackup(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,

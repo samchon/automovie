@@ -28,15 +28,14 @@ import { collapse } from "./collapse";
  * https://www.saskatoon.ca/sites/default/files/STEPSTOSAFETY__1-pager_FIRES.pdf):
  * stop, drop gently, cover the face with the hands, and roll back and forth.
  *
- * The drop is the protective forward collapse (`collapse`) into the prone
- * lie, the hands brought over the face as the body goes down. The rolls
- * then turn the lying body about its long axis, a half turn onto one side
- * and back, alternating sides, each on a half sine. The body is a lying
- * cross-section half as deep as the chest and as wide as the shoulders: its
- * long axis rides at the height that cross-section rests at when turned, and
- * travels sideways by the arc it rolls, so the body rolls on the floor
- * rather than about a fixed line. The hands stay on the face, carried by
- * the head, throughout.
+ * The drop is the protective forward collapse (`collapse`) into the prone lie,
+ * the hands brought over the face as the body goes down. The rolls then turn
+ * the lying body about its long axis, a half turn onto one side and back,
+ * alternating sides, each on a half sine. The body is a lying cross-section
+ * half as deep as the chest and as wide as the shoulders: its long axis rides
+ * at the height that cross-section rests at when turned, and travels sideways
+ * by the arc it rolls, so the body rolls on the floor rather than about a fixed
+ * line. The hands stay on the face, carried by the head, throughout.
  */
 export namespace stopDropRoll {
   /** The action's name. */
@@ -145,7 +144,10 @@ export namespace stopDropRoll {
         // left behind would swing the body about a line it no longer lies
         // on, down through the floor).
         rotation: {
-          about: Vector3.add({ x: lying.root.x, y: deep, z: lying.root.z }, moved),
+          about: Vector3.add(
+            { x: lying.root.x, y: deep, z: lying.root.z },
+            moved,
+          ),
           turn: Quaternion.fromAxisAngle(along, degrees),
         },
       };
@@ -249,7 +251,12 @@ export namespace stopDropRoll {
   }
 }
 
-/** A hand over the face, in the head's frame: the wrist below the cheek and the elbow tucked in front of the chest, below the chin, so a roll onto the side lies on the arm's flank rather than its point; the hand's attitude left to the fit. */
+/**
+ * A hand over the face, in the head's frame: the wrist below the cheek and the
+ * elbow tucked in front of the chest, below the chin, so a roll onto the side
+ * lies on the arm's flank rather than its point; the hand's attitude left to
+ * the fit.
+ */
 function face(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,

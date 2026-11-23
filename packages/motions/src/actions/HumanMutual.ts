@@ -8,9 +8,7 @@ import type {
   IAutoMovieMotionHumanThrowObjectParams,
 } from "@automovie/interface";
 
-/**
- * The vocabulary's mutual actions, for `HumanChain.mutual`.
- */
+/** The vocabulary's mutual actions, for `HumanChain.mutual`. */
 export namespace HumanMutual {
   /** Two people shake hands; both perform `handshake`. */
   export const handshake: IAutoMovieMotionHumanMutual<
@@ -46,7 +44,10 @@ export namespace HumanMutual {
     }),
   };
 
-  /** One person hands an object to another: the giver performs `handOver`, the receiver `receive`. */
+  /**
+   * One person hands an object to another: the giver performs `handOver`, the
+   * receiver `receive`.
+   */
   export const handOver: IAutoMovieMotionHumanMutual<
     Omit<IAutoMovieMotionHumanHandoverAction.IParams, "to">,
     "giver" | "receiver"
@@ -118,11 +119,11 @@ export namespace HumanMutual {
   };
 
   /**
-   * One person throws a ball to another, who catches it: the thrower
-   * performs `throwObject` at the catcher's right palm with the ball it
-   * holds, and the catcher `catchObject` of that throw, read through the
-   * joined anchor (`${anchor}.thrower`), so the catch plans from the throw's
-   * own flight. The join needs an anchor for that reason.
+   * One person throws a ball to another, who catches it: the thrower performs
+   * `throwObject` at the catcher's right palm with the ball it holds, and the
+   * catcher `catchObject` of that throw, read through the joined anchor
+   * (`${anchor}.thrower`), so the catch plans from the throw's own flight. The
+   * join needs an anchor for that reason.
    */
   export const pass: IAutoMovieMotionHumanMutual<
     Omit<IAutoMovieMotionHumanCatchObject.IParams, "partner"> &

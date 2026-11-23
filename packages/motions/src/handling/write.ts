@@ -35,7 +35,10 @@ import { HumanHand } from "../posture/HumanHand";
 import { heldDigits } from "./heldDigits";
 import { writeWith } from "./writeWith";
 
-/** A world vertex of the path and its distance along that path from the first vertex, metres. */
+/**
+ * A world vertex of the path and its distance along that path from the first
+ * vertex, metres.
+ */
 interface IVertex {
   /** Point of the path in the world. */
   point: IAutoMovieVector3;
@@ -47,16 +50,16 @@ interface IVertex {
 /**
  * Move the working point of a held tool along an authored planar stroke.
  *
- * Register the law and perform `registered("write", params)` after taking
- * the tool in the orientation used to write. The surface belongs to a fixed
- * rigid prop. A prop that supplies a frame reader declares its rigidity with
- * `hasArticulations: false`. The arm approaches and leaves the
- * stroke with the entry wrist attitude as its goal. The target gives each
- * edge time proportional to its length and zero speed at each vertex, using
- * Flash and Hogan's planar minimum-jerk law (1985,
+ * Register the law and perform `registered("write", params)` after taking the
+ * tool in the orientation used to write. The surface belongs to a fixed rigid
+ * prop. A prop that supplies a frame reader declares its rigidity with
+ * `hasArticulations: false`. The arm approaches and leaves the stroke with the
+ * entry wrist attitude as its goal. The target gives each edge time
+ * proportional to its length and zero speed at each vertex, using Flash and
+ * Hogan's planar minimum-jerk law (1985,
  * doi:10.1523/JNEUROSCI.05-07-01688.1985). The arm plans against that target.
- * This stages the motion of the working point. Mark making and pressure
- * depend on the scene's medium.
+ * This stages the motion of the working point. Mark making and pressure depend
+ * on the scene's medium.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States registration, both fixed frames, the stroke phases, edge timing, corner rule and scope.
  * @evidence contracts/development/design.md#principled-representation A law over a held tool, a fixed planar frame and an authored time-parametrized polyline. The wrist positions follow from the held tip's measured offset.
@@ -78,7 +81,10 @@ export const write: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWrite> =
     plan: planWrite,
   };
 
-/** Plan once against the surface and the existing grip, then sample the arm trajectory. */
+/**
+ * Plan once against the surface and the existing grip, then sample the arm
+ * trajectory.
+ */
 function planWrite(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWrite>,
 ): IAutoMovieMotionHumanActionPlan {

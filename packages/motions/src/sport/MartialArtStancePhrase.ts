@@ -52,7 +52,10 @@ interface IForm {
   /** Initial share of the stance span, then forward and backward changes. */
   weight: readonly [ready: number, forward: number, back: number];
 
-  /** Opening pelvis heading offset and further turn toward the second mark, in degrees. */
+  /**
+   * Opening pelvis heading offset and further turn toward the second mark, in
+   * degrees.
+   */
   turn: readonly [ready: number, back: number];
 
   /** The style's upper body path or held guard. */
@@ -66,8 +69,8 @@ interface IForm {
 }
 
 /**
- * The arm carriage of a form: karate's switching chamber and strike line,
- * tai chi's open palms, or a held high or low fighting guard.
+ * The arm carriage of a form: karate's switching chamber and strike line, tai
+ * chi's open palms, or a held high or low fighting guard.
  */
 type Carriage = "karate" | "taiChi" | GuardCarriage;
 
@@ -100,11 +103,11 @@ interface IGuard {
 
 /**
  * Held guard sites, provisional readings of the coached guards that
- * `StrikingStance` cites. The Muay Thai guard holds both fists at ear
- * height just outside the jaw with the arms "projected out further" and
- * nearly vertical forearms. The taekwondo sparring guard carries the lead
- * fist low before the solar plexus and the rear fist at the lower chest,
- * which leaves the head open to the reach of kicks the stance is built for.
+ * `StrikingStance` cites. The Muay Thai guard holds both fists at ear height
+ * just outside the jaw with the arms "projected out further" and nearly
+ * vertical forearms. The taekwondo sparring guard carries the lead fist low
+ * before the solar plexus and the rear fist at the lower chest, which leaves
+ * the head open to the reach of kicks the stance is built for.
  */
 const GUARDS: Record<GuardCarriage, IGuard> = {
   highGuard: {
@@ -191,27 +194,27 @@ const FORM: Record<Kind, IForm> = {
 };
 
 /**
- * A lead step into two linked planted weight shifts and a return to entry.
- * The karate form links a front and back stance with a chambered fist and
- * a switching arm path. Tai chi links a forward shift and a rollback
- * with open palms and comparatively quiet torso carriage. The Shotokan
- * stepping study and the tai chi push case study distinguish the movement
- * families. The taekwondo reset turns a bladed, upright stance under a low
- * sparring guard; the Muay Thai reset keeps a square, lower stance under a
- * high guard. The capoeira ginga steps the lead foot back behind the middle
- * of the stance, the third corner of its triangle, and returns; the sumo
- * shiko lifts the foot high to the side and stamps it down wide; the wing
- * chun stance takes a short step under the centreline guard. A guard rises with the lead step, holds through both
- * transfers and lowers on the return. All blocking values are provisional
+ * A lead step into two linked planted weight shifts and a return to entry. The
+ * karate form links a front and back stance with a chambered fist and a
+ * switching arm path. Tai chi links a forward shift and a rollback with open
+ * palms and comparatively quiet torso carriage. The Shotokan stepping study and
+ * the tai chi push case study distinguish the movement families. The taekwondo
+ * reset turns a bladed, upright stance under a low sparring guard; the Muay
+ * Thai reset keeps a square, lower stance under a high guard. The capoeira
+ * ginga steps the lead foot back behind the middle of the stance, the third
+ * corner of its triangle, and returns; the sumo shiko lifts the foot high to
+ * the side and stamps it down wide; the wing chun stance takes a short step
+ * under the centreline guard. A guard rises with the lead step, holds through
+ * both transfers and lowers on the return. All blocking values are provisional
  * choices for the take.
- * @see https://pubmed.ncbi.nlm.nih.gov/34269821/
- * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC1724683/
  *
  * @param context The martial-art law's actual entering pose and body.
  * @param kind Which form phrase to author.
  * @param hold Seconds to hold the second stance before the return.
  * @param manner Timing and extent modifiers from the action's shared manner.
  * @returns The support and arm phrase on a single timeline.
+ * @see https://pubmed.ncbi.nlm.nih.gov/34269821/
+ * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC1724683/
  */
 export function MartialArtStancePhrase(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,

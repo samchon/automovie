@@ -3,7 +3,10 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-/** How many seconds' postures one writer keeps before it starts afresh: a few seconds read at the audit's grid many times over. */
+/**
+ * How many seconds' postures one writer keeps before it starts afresh: a few
+ * seconds read at the audit's grid many times over.
+ */
 const KEPT: number = 4096;
 
 /**
@@ -11,11 +14,11 @@ const KEPT: number = 4096;
  *
  * The push-off and the landing clear the arms against the bent legs
  * (`jumpGroundPosture`), a search over the arm's swing. A take that lays an
- * overlay over the jump rebuilds and audits it, reading the jump's posture
- * at the same seconds again and again; the posture at a second is the same
- * every time (the jump's plan is fixed once planned), so it is kept the
- * first time and handed back after. The kept postures are dropped when
- * `KEPT` seconds have been read.
+ * overlay over the jump rebuilds and audits it, reading the jump's posture at
+ * the same seconds again and again; the posture at a second is the same every
+ * time (the jump's plan is fixed once planned), so it is kept the first time
+ * and handed back after. The kept postures are dropped when `KEPT` seconds have
+ * been read.
  *
  * @param write The ground writer.
  * @returns The writer, each second's posture computed once.

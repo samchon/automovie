@@ -25,7 +25,11 @@ type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClasp>;
 const REACH: number = 0.3;
 
 /**
- * Hold on with the hands (`IAutoMovieMotionHumanClasp`): the entry posture carried by its own carrier's contact, or standing where it is, while each named hand reaches its hold over `REACH` and follows it: a partner's displayed bone or another prop's moving contact. Register `HumanClasp` to use it.
+ * Hold on with the hands (`IAutoMovieMotionHumanClasp`): the entry posture
+ * carried by its own carrier's contact, or standing where it is, while each
+ * named hand reaches its hold over `REACH` and follows it: a partner's
+ * displayed bone or another prop's moving contact. Register `HumanClasp` to use
+ * it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is carried, what is held and how it is registered.
  * @evidence contracts/development/design.md#principled-representation One law over named holds.

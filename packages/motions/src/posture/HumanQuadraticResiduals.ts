@@ -4,15 +4,18 @@ import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
 /**
  * The original scaled and unscaled OSQP residuals and normalization values.
- * Prepared zeros may be omitted only while their product operands are
- * finite; exceptional row products restore the actual original sequence.
+ * Prepared zeros may be omitted only while their product operands are finite;
+ * exceptional row products restore the actual original sequence.
  *
- * @param s Admitted scaled matrices, current intervals, positive scales and unchanged borrowed or copied original layouts.
+ * @param s Admitted scaled matrices, current intervals, positive scales and
+ *   unchanged borrowed or copied original layouts.
  * @param x Current scaled variables, distinct from workspace buffers.
  * @param z Current scaled row values.
  * @param y Current scaled multipliers.
  * @param work Disposable products and borrowed diagnostics for this solve.
- * @param known Immediate polishing products and optional producer-proved x finiteness for these unchanged x/y/A, including exceptional original zero terms when needed.
+ * @param known Immediate polishing products and optional producer-proved x
+ *   finiteness for these unchanged x/y/A, including exceptional original zero
+ *   terms when needed.
  * @returns Borrowed diagnostics, overwritten by the next check.
  */
 export function HumanQuadraticResiduals(
@@ -32,7 +35,8 @@ export function HumanQuadraticResiduals(
   out.scaledPrimalScale = 0;
   out.scaledDual = 0;
   out.scaledDualScale = s.qNorm;
-  const aty: Float64Array = known === undefined ? work.transpose : known.transpose;
+  const aty: Float64Array =
+    known === undefined ? work.transpose : known.transpose;
   const finiteX: boolean = known !== undefined || x.every(Number.isFinite);
   if (known === undefined) aty.fill(0);
   for (let r: number = 0; r < s.m; ++r) {
@@ -56,7 +60,8 @@ export function HumanQuadraticResiduals(
           }
         }
       } else {
-        const row: ReturnType<typeof HumanQuadraticEntries> = HumanQuadraticEntries(s, r);
+        const row: ReturnType<typeof HumanQuadraticEntries> =
+          HumanQuadraticEntries(s, r);
         for (let a: number = 0; a < row.index.length; ++a) {
           const index: number = row.index[a]!;
           const coefficient: number = row.coef[a]!;
@@ -75,7 +80,12 @@ export function HumanQuadraticResiduals(
     out.primalScale = Math.max(out.primalScale, magnitude / e, split / e);
   }
   const px: Float64Array = work.curvature;
-  Work.curvature(s, x, px, known === undefined ? finiteX : known.productFiniteX);
+  Work.curvature(
+    s,
+    x,
+    px,
+    known === undefined ? finiteX : known.productFiniteX,
+  );
   for (let i: number = 0; i < s.n; ++i) {
     const unscale: number = s.unscale[i]!;
     const r: number = px[i]! + s.q[i]! + aty[i]!;
@@ -85,7 +95,11 @@ export function HumanQuadraticResiduals(
     out.scaledDual = Math.max(out.scaledDual, error);
     out.scaledDualScale = Math.max(out.scaledDualScale, curvature, transpose);
     out.dual = Math.max(out.dual, error * unscale);
-    out.dualScale = Math.max(out.dualScale, curvature * unscale, transpose * unscale);
+    out.dualScale = Math.max(
+      out.dualScale,
+      curvature * unscale,
+      transpose * unscale,
+    );
   }
   return out;
 }

@@ -19,26 +19,26 @@ import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
  * The part an operation moves on a prop that articulates, and the drive the
- * operation publishes for it: the hand and the part follow one function of
- * the stroke's progress, the prop posed at the articulation's travel there.
+ * operation publishes for it: the hand and the part follow one function of the
+ * stroke's progress, the prop posed at the articulation's travel there.
  *
- * The operated contact is the prop's articulation itself (a trigger, a
- * button, a knob) or a contact that rides one of the mechanism's kinds,
- * however far up its chain (a door's lever on its latch on its hinge, a
- * drawer's pull on its slider, `IAutoMovieAffordance.rides`). The
- * stroke moves that articulation from where the performance has it at the
- * operation's start by the mechanism's amount, converting a prior writer's
- * coordinate of that degree through the engine's articulation map, in the articulation's own
- * unit and sign: degrees for a hinge's swing or a knob's turn, metres for a
- * slider's or a button's travel. The hand's goal at a progress is the
- * contact of the prop posed at that travel, so the hand cannot drift from
- * the part; the drive writes the same travel at the same progress.
+ * The operated contact is the prop's articulation itself (a trigger, a button,
+ * a knob) or a contact that rides one of the mechanism's kinds, however far up
+ * its chain (a door's lever on its latch on its hinge, a drawer's pull on its
+ * slider, `IAutoMovieAffordance.rides`). The stroke moves that articulation
+ * from where the performance has it at the operation's start by the mechanism's
+ * amount, converting a prior writer's coordinate of that degree through the
+ * engine's articulation map, in the articulation's own unit and sign: degrees
+ * for a hinge's swing or a knob's turn, metres for a slider's or a button's
+ * travel. The hand's goal at a progress is the contact of the prop posed at
+ * that travel, so the hand cannot drift from the part; the drive writes the
+ * same travel at the same progress.
  */
 export namespace operateDrive {
   /**
-   * The articulation kinds each mechanism moves: a hinge's leaf, a knob's
-   * turn (a crank and a wheel turn alike), a slider's travel, a button's
-   * press (a trigger's pull and a pedal's press alike).
+   * The articulation kinds each mechanism moves: a hinge's leaf, a knob's turn
+   * (a crank and a wheel turn alike), a slider's travel, a button's press (a
+   * trigger's pull and a pedal's press alike).
    */
   export const KINDS: Readonly<
     Record<
@@ -53,9 +53,9 @@ export namespace operateDrive {
   };
 
   /**
-   * A mechanism's signed amount in its articulation's unit: a button's
-   * press and a slider's travel in metres (a button's 0.005 when absent, as
-   * `operate` presses it), a knob's turn and a hinge's swing in degrees.
+   * A mechanism's signed amount in its articulation's unit: a button's press
+   * and a slider's travel in metres (a button's 0.005 when absent, as `operate`
+   * presses it), a knob's turn and a hinge's swing in degrees.
    *
    * @param mechanism The mechanism, not an insertion.
    * @returns The amount.
@@ -76,14 +76,16 @@ export namespace operateDrive {
   }
 
   /**
-   * The operated part, when the target is a contact of a prop that
-   * articulates and rides or is an articulation.
+   * The operated part, when the target is a contact of a prop that articulates
+   * and rides or is an articulation.
    *
    * @param context The operation's context.
    * @param at The operated contact.
    * @param amount The mechanism's signed amount in the articulation's unit.
-   * @param kind The mechanism's kind, whose articulation kinds (`KINDS`) are looked for up the chain the contact rides.
-   * @returns The part, or undefined for a rigid prop or a target that is not, and rides no, articulation of the mechanism's kinds.
+   * @param kind The mechanism's kind, whose articulation kinds (`KINDS`) are
+   *   looked for up the chain the contact rides.
+   * @returns The part, or undefined for a rigid prop or a target that is not,
+   *   and rides no, articulation of the mechanism's kinds.
    */
   export function part(
     context: IAutoMovieMotionHumanActionContext,
@@ -223,15 +225,16 @@ export namespace operateDrive {
   }
 
   /**
-   * A hinged leaf's line: the vertical through the point the mechanism
-   * names (a door's), or else the operated prop's own hinge articulation
-   * (`IPart.line`), however it lies: a gun cock's cross pin.
+   * A hinged leaf's line: the vertical through the point the mechanism names (a
+   * door's), or else the operated prop's own hinge articulation (`IPart.line`),
+   * however it lies: a gun cock's cross pin.
    *
    * @param context The operation's context.
    * @param mechanism The hinge mechanism.
    * @param part The operated part, when the prop articulates.
    * @returns The line.
-   * @throws {HumanRefusal} When the mechanism names no point and the handle rides no hinge articulation.
+   * @throws {HumanRefusal} When the mechanism names no point and the handle
+   *   rides no hinge articulation.
    */
   export function hinge(
     context: IAutoMovieMotionHumanActionContext,
@@ -252,8 +255,8 @@ export namespace operateDrive {
   }
 
   /**
-   * A point's distance from a hinge line, metres: the handle's radius about
-   * it, the horizontal distance for a vertical line given by a point.
+   * A point's distance from a hinge line, metres: the handle's radius about it,
+   * the horizontal distance for a vertical line given by a point.
    *
    * @param line The line.
    * @param point The point.
@@ -271,9 +274,9 @@ export namespace operateDrive {
   }
 
   /**
-   * The foot of a point on a hinge line: the line's point level with it
-   * for the vertical line of a line given without an axis (a door's, the
-   * point's own height kept exactly), its projection on the line otherwise.
+   * The foot of a point on a hinge line: the line's point level with it for the
+   * vertical line of a line given without an axis (a door's, the point's own
+   * height kept exactly), its projection on the line otherwise.
    *
    * @param line The line.
    * @param point The point.
@@ -294,9 +297,9 @@ export namespace operateDrive {
   }
 
   /**
-   * The drive an operation publishes for its part: the travel at the
-   * stroke's minimum-jerk progress from `strokeStart` to `strokeEnd`, the
-   * progress the hand's path is read at.
+   * The drive an operation publishes for its part: the travel at the stroke's
+   * minimum-jerk progress from `strokeStart` to `strokeEnd`, the progress the
+   * hand's path is read at.
    *
    * @param part The part.
    * @param clock The operation's clock.

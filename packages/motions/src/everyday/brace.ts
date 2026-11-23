@@ -44,37 +44,36 @@ import { gestureHands } from "./gestureHands";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
 
 /**
- * Bracing for an expected impact, push or a falling body: the stance
- * widens and staggers along the line of the coming force, the body lowers
- * and leans into it, and the hands come up in front, all set before the
- * force arrives.
+ * Bracing for an expected impact, push or a falling body: the stance widens and
+ * staggers along the line of the coming force, the body lowers and leans into
+ * it, and the hands come up in front, all set before the force arrives.
  *
  * People preparing for a predictable perturbation adjust their posture in
  * advance, anticipatory postural adjustments (Massion 1992, Prog Neurobiol
- * 38:35): they enlarge the base of support along the expected force, lower
- * the centre of mass and lean against the force, keeping the feet in place
- * once set (Horak and Nashner 1986, J Neurophysiol 55:1369; Maki and
- * McIlroy 1997, Phys Ther 77:488, on changing the base of support). The
- * goals: the foot on the side away from the force steps back along the
- * force's line by `STAGGER` leg lengths and out until the feet stand a
- * shoulder width apart (a staggered, wider base); the pelvis drops until
- * the knees flex `KNEE` degrees over the middle of the new base. A requested
- * hip or lumbar correction uses the actual bearing sole or soles. The trunk inclines 10 degrees toward the
- * force; and both palms come up ahead of the chest's front surface (its
- * sternum region) along the force, facing it for an `impact` or a `push`,
- * turned up and lower to receive a `catchBody`. The arms rise from the
- * entry's and hold the palms there as one trajectory planned clear of the
- * body (`AutoMovieMotionHumanArmPlanned`, through `gestureHands.planned`),
- * so no forearm passes through the trunk on the way. Step size, drop and lean
- * have no measured source (Massion describes the adjustments, not these
- * magnitudes). The stepping foot swings over 0.4 s, a walking swing (Perry
- * and Burnfield; Pachi and Ji 2005), with a 3 cm lift, and the set is
- * reached at `set`, 0.5 s after the start, the end of the 400 to 500 ms in
- * which early postural adjustments precede a predictable impact (Krishnan,
- * Latash and Aruin 2012), and held for the rest of the action.
+ * 38:35): they enlarge the base of support along the expected force, lower the
+ * centre of mass and lean against the force, keeping the feet in place once set
+ * (Horak and Nashner 1986, J Neurophysiol 55:1369; Maki and McIlroy 1997, Phys
+ * Ther 77:488, on changing the base of support). The goals: the foot on the
+ * side away from the force steps back along the force's line by `STAGGER` leg
+ * lengths and out until the feet stand a shoulder width apart (a staggered,
+ * wider base); the pelvis drops until the knees flex `KNEE` degrees over the
+ * middle of the new base. A requested hip or lumbar correction uses the actual
+ * bearing sole or soles. The trunk inclines 10 degrees toward the force; and
+ * both palms come up ahead of the chest's front surface (its sternum region)
+ * along the force, facing it for an `impact` or a `push`, turned up and lower
+ * to receive a `catchBody`. The arms rise from the entry's and hold the palms
+ * there as one trajectory planned clear of the body
+ * (`AutoMovieMotionHumanArmPlanned`, through `gestureHands.planned`), so no
+ * forearm passes through the trunk on the way. Step size, drop and lean have no
+ * measured source (Massion describes the adjustments, not these magnitudes).
+ * The stepping foot swings over 0.4 s, a walking swing (Perry and Burnfield;
+ * Pachi and Ji 2005), with a 3 cm lift, and the set is reached at `set`, 0.5 s
+ * after the start, the end of the 400 to 500 ms in which early postural
+ * adjustments precede a predictable impact (Krishnan, Latash and Aruin 2012),
+ * and held for the rest of the action.
  *
- * The force comes from `toward` (a person, prop or point the force comes
- * from) or from straight ahead when absent.
+ * The force comes from `toward` (a person, prop or point the force comes from)
+ * or from straight ahead when absent.
  */
 export namespace brace {
   /** The action's name. */
@@ -92,49 +91,89 @@ export namespace brace {
     ],
   };
 
-  /** Knee flexion of the set posture, degrees (provisional: a slightly bent ready stance, read from no measured source). */
+  /**
+   * Knee flexion of the set posture, degrees (provisional: a slightly bent
+   * ready stance, read from no measured source).
+   */
   export const KNEE: number = 25;
 
-  /** How far the rear foot steps back along the force's line, leg lengths (provisional). */
+  /**
+   * How far the rear foot steps back along the force's line, leg lengths
+   * (provisional).
+   */
   export const STAGGER: number = 0.3;
 
-  /** Lead time to the set posture, seconds: the early postural adjustments to a predictable impact begin 400 to 500 ms before it (Krishnan, Latash and Aruin 2012, Clin Neurophysiol 123:1016), so the set is reached at the end of that window. */
+  /**
+   * Lead time to the set posture, seconds: the early postural adjustments to a
+   * predictable impact begin 400 to 500 ms before it (Krishnan, Latash and
+   * Aruin 2012, Clin Neurophysiol 123:1016), so the set is reached at the end
+   * of that window.
+   */
   export const SET: number = 0.5;
 
-  /** How long the stepping foot swings, seconds: 40 % of a stride, the swing's share of the gait cycle (Perry and Burnfield 2010, Gait Analysis, ch. 1), at the 1.8 to 2.0 steps a second of pedestrians (Pachi and Ji 2005, Struct Eng 83(3):36), 0.40 to 0.44 s. */
+  /**
+   * How long the stepping foot swings, seconds: 40 % of a stride, the swing's
+   * share of the gait cycle (Perry and Burnfield 2010, Gait Analysis, ch. 1),
+   * at the 1.8 to 2.0 steps a second of pedestrians (Pachi and Ji 2005, Struct
+   * Eng 83(3):36), 0.40 to 0.44 s.
+   */
   export const SWING: number = 0.4;
 
-  /** The least the set posture is held after it is reached, seconds (provisional: long enough to read as held, read from no measured source). */
+  /**
+   * The least the set posture is held after it is reached, seconds
+   * (provisional: long enough to read as held, read from no measured source).
+   */
   export const HELD: number = 0.2;
 
   /** The brace's length when the caller names none, seconds (provisional). */
   export const SECONDS: number = 1.5;
 
-  /** When the stepping foot leaves and lands, seconds from the start: a `SWING` long step that lands as the set is reached. */
+  /**
+   * When the stepping foot leaves and lands, seconds from the start: a `SWING`
+   * long step that lands as the set is reached.
+   */
   export const STEP: readonly [number, number] = [SET - SWING, SET];
 
-  /** The stepping foot's lift at mid-swing, metres (provisional: a shuffle's clearance, read from no measured source). */
+  /**
+   * The stepping foot's lift at mid-swing, metres (provisional: a shuffle's
+   * clearance, read from no measured source).
+   */
   export const LIFT: number = 0.03;
 
-  /** The trunk's inclination into a force from straight ahead, degrees (provisional). */
+  /**
+   * The trunk's inclination into a force from straight ahead, degrees
+   * (provisional).
+   */
   export const LEAN: number = 10;
 
-  /** How far ahead of the sternum the palms come up, a share of the arm (upper arm and forearm) (provisional: the elbows bent, not reaching). */
+  /**
+   * How far ahead of the sternum the palms come up, a share of the arm (upper
+   * arm and forearm) (provisional: the elbows bent, not reaching).
+   */
   export const AHEAD: number = 0.55;
 
-  /** How far out from the sternum each palm stands, a share of the half shoulder width (provisional: just inside the shoulders). */
+  /**
+   * How far out from the sternum each palm stands, a share of the half shoulder
+   * width (provisional: just inside the shoulders).
+   */
   export const SPREAD: number = 0.9;
 
-  /** How far below the sternum the palms come to receive a falling body, a share of stature (provisional). */
+  /**
+   * How far below the sternum the palms come to receive a falling body, a share
+   * of stature (provisional).
+   */
   export const RECEIVE: number = 0.1;
 
-  /** The elbows' outward hint, a share of the upper arm (provisional: read from no measured source). */
+  /**
+   * The elbows' outward hint, a share of the upper arm (provisional: read from
+   * no measured source).
+   */
   export const ELBOW_OUT: number = 0.2;
 
   /**
-   * Plan a brace: the rear foot's step, the lowered and centred set root,
-   * and postures that reach the set at `SET` seconds with the palms up toward
-   * the force, then hold it.
+   * Plan a brace: the rear foot's step, the lowered and centred set root, and
+   * postures that reach the set at `SET` seconds with the palms up toward the
+   * force, then hold it.
    *
    * @param context The action's context.
    * @returns The plan; a duration shorter than `SET + HELD` is raised to it.

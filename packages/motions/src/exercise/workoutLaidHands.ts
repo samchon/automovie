@@ -20,15 +20,12 @@ import { StrikingBody } from "../striking/StrikingBody";
 import { ExerciseKey } from "./ExerciseKey";
 
 /**
- * A workout's hands laid on the floor: each palm flat under where the
- * first pinned posture (or, for a held floor stance, the entry) has the
- * hand, held there by the placed arm while the exercise is present
- * (`workout`).
+ * A workout's hands laid on the floor: each palm flat under where the first
+ * pinned posture (or, for a held floor stance, the entry) has the hand, held
+ * there by the placed arm while the exercise is present (`workout`).
  */
 export namespace workoutLaidHands {
-  /**
-   * What the laid hands are built from.
-   */
+  /** What the laid hands are built from. */
   export interface IProps {
     /** The action's context. */
     context: IAutoMovieMotionHumanActionContext;

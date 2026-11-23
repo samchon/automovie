@@ -46,9 +46,9 @@ interface IDigitGoal {
  *
  * YKK's usage guidance calls for a straight pull along the zipper chain and
  * bringing opposing elements together for a bag closure
- * (https://lyncs.ykkfastening.com/shop/pages/about_products_09.aspx).
- * The flat modeled brace anchors the casing. The model's coupled lips, the
- * working fingertips and the retained travel follow one authored stroke.
+ * (https://lyncs.ykkfastening.com/shop/pages/about_products_09.aspx). The flat
+ * modeled brace anchors the casing. The model's coupled lips, the working
+ * fingertips and the retained travel follow one authored stroke.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the contacts, mechanism, source and settled effect.
  * @evidence contracts/development/design.md#principled-representation Uses one bounded slider and three digit goals on two arms, with lip coupling owned by the model.
@@ -264,7 +264,10 @@ function plan(
   };
 }
 
-/** Align the fitted opposition axis with the tab, aiming along the current shoulder reach. */
+/**
+ * Align the fitted opposition axis with the tab, aiming along the current
+ * shoulder reach.
+ */
 function pinchRotation(
   side: AutoMovieHumanSide,
   normal: IAutoMovieVector3,

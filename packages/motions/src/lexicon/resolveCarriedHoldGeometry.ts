@@ -31,16 +31,17 @@ type MaybeGrip = IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null;
 type BearerFrame = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];
 
 /**
- * Where each hand of a bearer holds, in that bearer's anchor frame: the
- * borne region it holds on the coupling's key pose, left then right; null
- * for a hand that does not hold.
+ * Where each hand of a bearer holds, in that bearer's anchor frame: the borne
+ * region it holds on the coupling's key pose, left then right; null for a hand
+ * that does not hold.
  *
  * @param borne The borne body.
  * @param coupling The coupling.
  * @param row The carry's row.
  * @param role The bearer whose hands and anchor are read.
  * @param key The carry posture builder, called only for a bearer with a hold.
- * @returns The two holds, each the held region's point and outward normal in that bearer's anchor frame, and the anchor bone.
+ * @returns The two holds, each the held region's point and outward normal in
+ *   that bearer's anchor frame, and the anchor bone.
  */
 export function resolveCarriedHoldGeometry(
   borne: IAutoMovieMotionHumanBody,
@@ -72,8 +73,7 @@ export function resolveCarriedHoldGeometry(
   const wanted: Set<AutoMovieHumanoidBone> = new Set(
     HumanColliders.bones(borne),
   );
-  if (left !== undefined)
-    wanted.add(borne.surfaces.regions[left.region].bone);
+  if (left !== undefined) wanted.add(borne.surfaces.regions[left.region].bone);
   if (right !== undefined)
     wanted.add(borne.surfaces.regions[right.region].bone);
   const mine: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =

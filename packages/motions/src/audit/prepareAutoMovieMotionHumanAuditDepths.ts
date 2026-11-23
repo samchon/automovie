@@ -16,19 +16,23 @@ import type {
 import { HumanColliders } from "../posture/HumanColliders";
 
 /**
- * Prepare one placed collider segment as the segment other segments' probes
- * are read in (`AutoMovieMotionHumanAuditTangleModel.depths`).
+ * Prepare one placed collider segment as the segment other segments' probes are
+ * read in (`AutoMovieMotionHumanAuditTangleModel.depths`).
  *
- * A reading may be handed an array to receive each probe's room: the most, over `b`'s shapes, of the
- * shape's bounding-sphere radius less the probe's distance from its centre.
- * A shape lies inside its bounding sphere, so a point's depth in it is no
- * more than its depth in the sphere, and the room bounds the probe's depth
- * from above where it is positive; it is a distance difference, so it moves
- * no faster than the probe and the segment move apart, which is what a
- * conservative-advancement certificate needs.
+ * A reading may be handed an array to receive each probe's room: the most, over
+ * `b`'s shapes, of the shape's bounding-sphere radius less the probe's distance
+ * from its centre. A shape lies inside its bounding sphere, so a point's depth
+ * in it is no more than its depth in the sphere, and the room bounds the
+ * probe's depth from above where it is positive; it is a distance difference,
+ * so it moves no faster than the probe and the segment move apart, which is
+ * what a conservative-advancement certificate needs.
  *
- * @param b The placed segment the probes are read in. Its pose and its shapes' transforms stay unchanged while the reader is used: the reader belongs to one reading of one pose.
- * @returns A reader of how deep each probe of another placed segment lies in `b`: the probes in that segment's frame, the segment and the optional room array, giving metres per probe, zero outside.
+ * @param b The placed segment the probes are read in. Its pose and its shapes'
+ *   transforms stay unchanged while the reader is used: the reader belongs to
+ *   one reading of one pose.
+ * @returns A reader of how deep each probe of another placed segment lies in
+ *   `b`: the probes in that segment's frame, the segment and the optional room
+ *   array, giving metres per probe, zero outside.
  */
 export function prepareAutoMovieMotionHumanAuditDepths(
   b: IAutoMovieMotionHumanColliders.IPlaced,
@@ -42,9 +46,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
   // Each shape's bounding sphere in the segment's frame: a probe outside it
   // is outside the shape, which then adds no depth.
   const balls: IProbeBall[] = b.shapes.map(
-    (
-      shape: IAutoMoviePhysicalShape,
-    ): IProbeBall => {
+    (shape: IAutoMoviePhysicalShape): IProbeBall => {
       const ball: IAutoMovieMotionHumanColliders.IBall =
         HumanColliders.bound(shape);
       const squared: number = ball.radius * ball.radius;
@@ -54,8 +56,12 @@ export function prepareAutoMovieMotionHumanAuditDepths(
           Quaternion.rotateVector(shape.transform.rotation, ball.centre),
         ),
         radius: ball.radius,
-        outsideSquared: squared >= 2 ** -1000 && squared <= 2 ** 1000 &&
-          Math.sqrt(squared) >= ball.radius ? squared : Infinity,
+        outsideSquared:
+          squared >= 2 ** -1000 &&
+          squared <= 2 ** 1000 &&
+          Math.sqrt(squared) >= ball.radius
+            ? squared
+            : Infinity,
       };
     },
   );
@@ -107,11 +113,11 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         // underflows nor overflows, its own scaled form elsewhere.
         const ordinary: boolean = squared >= 2 ** -1000 && squared <= 2 ** 1000;
         // Monotonicity of sqrt proves the original outside comparison.
-        if (room === undefined && ordinary && squared >= ball.outsideSquared) continue;
-        const apart: number =
-          ordinary
-            ? Math.sqrt(squared)
-            : Vector3.distance({ x: lx, y: ly, z: lz }, ball.centre);
+        if (room === undefined && ordinary && squared >= ball.outsideSquared)
+          continue;
+        const apart: number = ordinary
+          ? Math.sqrt(squared)
+          : Vector3.distance({ x: lx, y: ly, z: lz }, ball.centre);
         if (room !== undefined) roomy = Math.max(roomy, ball.radius - apart);
         if (apart >= ball.radius) continue;
         if (shape.kind !== "hull") {

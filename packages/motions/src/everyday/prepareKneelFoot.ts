@@ -9,22 +9,22 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { kneelKeys } from "./kneelKeys";
 
 /**
- * Prepare one foot's course between fixed kneeling keys. A stationary toe
- * joint remains the pivot while pitch changes; a moving one follows the
- * foot's straight way between its two prepared rigid placements, raised by a
- * lift timed on the phase's linear share: the way and the turn run on the
- * minimum-jerk progress, whose speed vanishes at both ends as the square of
- * the time left, while the lift 4 c l (1 - l) vanishes only linearly in it,
- * so the sole leaves and meets the floor moving straight up and down, at no
- * horizontal speed, as a foot set down onto its toes does instead of
- * skating onto them.
+ * Prepare one foot's course between fixed kneeling keys. A stationary toe joint
+ * remains the pivot while pitch changes; a moving one follows the foot's
+ * straight way between its two prepared rigid placements, raised by a lift
+ * timed on the phase's linear share: the way and the turn run on the
+ * minimum-jerk progress, whose speed vanishes at both ends as the square of the
+ * time left, while the lift 4 c l (1 - l) vanishes only linearly in it, so the
+ * sole leaves and meets the floor moving straight up and down, at no horizontal
+ * speed, as a foot set down onto its toes does instead of skating onto them.
  *
  * @param body The fixed body of this plan.
  * @param side The foot.
  * @param from Its entry key, immutable during the course.
  * @param to Its exit key, immutable during the course.
  * @param clearance The moving foot's vertical clearance in metres.
- * @returns The placement, bearing state and toe flexion in degrees at a progress share and the phase's linear share.
+ * @returns The placement, bearing state and toe flexion in degrees at a
+ *   progress share and the phase's linear share.
  */
 export function prepareKneelFoot(
   body: IAutoMovieMotionHumanBody,
@@ -32,13 +32,19 @@ export function prepareKneelFoot(
   from: kneelKeys.IFoot,
   to: kneelKeys.IFoot,
   clearance: number,
-): (share: number, linear: number) => {
+): (
+  share: number,
+  linear: number,
+) => {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;
   toes: number;
 } {
   const moves: boolean = !kneelKeys.still(from, to);
-  const place: (share: number, linear: number) => IAutoMovieMotionHumanFoot.IPlacement = ((): ((
+  const place: (
+    share: number,
+    linear: number,
+  ) => IAutoMovieMotionHumanFoot.IPlacement = ((): ((
     share: number,
     linear: number,
   ) => IAutoMovieMotionHumanFoot.IPlacement) => {
@@ -64,13 +70,20 @@ export function prepareKneelFoot(
       to.heading,
       to.pitch,
     );
-    const way: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> = AutoMovieMotionHumanLeg.prepareArc(start, end, 0);
-    return (share: number, linear: number): IAutoMovieMotionHumanFoot.IPlacement => {
+    const way: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc> =
+      AutoMovieMotionHumanLeg.prepareArc(start, end, 0);
+    return (
+      share: number,
+      linear: number,
+    ): IAutoMovieMotionHumanFoot.IPlacement => {
       const placed: IAutoMovieMotionHumanFoot.IPlacement = way(share);
       const l: number = Math.min(1, Math.max(0, linear));
       return {
         ...placed,
-        ankle: { ...placed.ankle, y: placed.ankle.y + 4 * clearance * l * (1 - l) },
+        ankle: {
+          ...placed.ankle,
+          y: placed.ankle.y + 4 * clearance * l * (1 - l),
+        },
       };
     };
   })();
@@ -83,7 +96,11 @@ export function prepareKneelFoot(
   return (
     share: number,
     linear: number,
-  ): { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean; toes: number } => {
+  ): {
+    placement: IAutoMovieMotionHumanFoot.IPlacement;
+    planted: boolean;
+    toes: number;
+  } => {
     const timed: boolean = strike < 1 || lift > 0;
     const l: number = timed
       ? Math.min(1, Math.max(0, (linear - lift) / (strike - lift)))
@@ -103,7 +120,11 @@ export function prepareKneelFoot(
  * ends and starts within its phase.
  */
 export namespace prepareKneelFoot {
-  /** The share of a phase's linear time by which a foot landing heel up has struck its toes, the rest left for the knee to come down over them (provisional). */
+  /**
+   * The share of a phase's linear time by which a foot landing heel up has
+   * struck its toes, the rest left for the knee to come down over them
+   * (provisional).
+   */
   export const STRIKE: number = 0.8;
 
   /**
@@ -127,7 +148,10 @@ export namespace prepareKneelFoot {
    * @param to The foot's exit key.
    * @returns The share.
    */
-  export function departure(from: kneelKeys.IFoot, to: kneelKeys.IFoot): number {
+  export function departure(
+    from: kneelKeys.IFoot,
+    to: kneelKeys.IFoot,
+  ): number {
     return !kneelKeys.still(from, to) && from.pitch < 0 ? 1 - STRIKE : 0;
   }
 }

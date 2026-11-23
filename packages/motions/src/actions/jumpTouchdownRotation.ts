@@ -93,7 +93,10 @@ export namespace jumpTouchdownRotation {
     /** Whether the ground phase already adopts the terminal yaw. */
     turnedLanding: boolean;
 
-    /** Physical shooting residual limit in radians, derived from the displacement budget. */
+    /**
+     * Physical shooting residual limit in radians, derived from the
+     * displacement budget.
+     */
     angularTolerance: number;
 
     /** Verify the actual rigid rotation received from the flight pass. */

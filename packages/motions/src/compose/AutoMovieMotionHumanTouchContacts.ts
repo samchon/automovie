@@ -9,11 +9,11 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A touch's contact windows from `ready` to `relax`: the hand's grip on
- * what it bears on, and the touching arm's segments that lie on a person's
- * segment while the hand is on its region, as a self-hug's forearms lie on
- * each other and on the chest: what a touch row declares as rests, each
- * arm's rests, and the windows.
+ * A touch's contact windows from `ready` to `relax`: the hand's grip on what it
+ * bears on, and the touching arm's segments that lie on a person's segment
+ * while the hand is on its region, as a self-hug's forearms lie on each other
+ * and on the chest: what a touch row declares as rests, each arm's rests, and
+ * the windows.
  */
 export namespace AutoMovieMotionHumanTouchContacts {
   /**
@@ -24,7 +24,8 @@ export namespace AutoMovieMotionHumanTouchContacts {
    * @param both Whether the touch moves both hands.
    * @param subject The performer, whose body the arms rest on.
    * @returns A hand's rests.
-   * @throws {HumanRefusal} When a rest names the other hand's arm on a touch of one hand.
+   * @throws {HumanRefusal} When a rest names the other hand's arm on a touch of
+   *   one hand.
    */
   export function sided(
     declared:
@@ -80,8 +81,8 @@ export namespace AutoMovieMotionHumanTouchContacts {
 
   /**
    * A touch's windows from `ready` to `relax`: the hand's `grip` on what it
-   * bears on, and a `lie` of each of the arm's resting segments on the
-   * person's segment.
+   * bears on, and a `lie` of each of the arm's resting segments on the person's
+   * segment.
    *
    * @param clock The touch's clock.
    * @param side The arm.

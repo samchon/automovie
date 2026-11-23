@@ -16,9 +16,7 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
-/**
- * Build a one-wide, world-space soft body from a model's declared span.
- */
+/** Build a one-wide, world-space soft body from a model's declared span. */
 export function HumanObjectCord(
   model: IAutoMovieMotionHumanObject.ISpanModel,
   id: string,
@@ -159,9 +157,7 @@ export function HumanObjectCord(
   };
 }
 
-/**
- * The span cord's seed construction, shared by authoring and placement.
- */
+/** The span cord's seed construction, shared by authoring and placement. */
 export namespace HumanObjectCord {
   /**
    * Sample a two-leg rest polyline at the supplied world-space endpoints.

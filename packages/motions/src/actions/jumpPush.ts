@@ -28,29 +28,43 @@ import { jumpPushEnd } from "./jumpPushEnd";
 import { stand } from "./stand";
 import { walkLeg } from "./walkLeg";
 
-/** The slowest descent of a reaching-foot sole point that counts as falling, metres per second: slower, the foot is turning about that point (provisional). */
+/**
+ * The slowest descent of a reaching-foot sole point that counts as falling,
+ * metres per second: slower, the foot is turning about that point
+ * (provisional).
+ */
 const PIVOTING: number = 0.01;
 
-/** The shortest carry, seconds, whose carried-rate term is evaluated: a microsecond carry adds nothing a frame shows, and the term divides by its duration. */
+/**
+ * The shortest carry, seconds, whose carried-rate term is evaluated: a
+ * microsecond carry adds nothing a frame shows, and the term divides by its
+ * duration.
+ */
 const CARRY: number = 1e-6;
 
 /** The finite-difference step of the heel rule's slope, seconds. */
 const STEP: number = 1e-3;
 
-/** The least forward gap that reads as one foot ahead of the other, metres: a nanometre, the walk's root-solve width (`walkReach`), under which the gap is a rounding of side by side. */
+/**
+ * The least forward gap that reads as one foot ahead of the other, metres: a
+ * nanometre, the walk's root-solve width (`walkReach`), under which the gap is
+ * a rounding of side by side.
+ */
 const PASS_GAP: number = 1e-9;
 
 /**
- * A jump's push-off, from the entry exactly: the pelvis and the heading
- * from the entry's own angles and rates to the jump's, the take-off foot
- * laid flat about its heel if it was on its heel rocker and then risen about
- * its toes' joint by the rule a walking stance rises by, and the reaching
- * leg withdrawn under the body carrying the velocity, spin and acceleration
- * it was entered with, each rate for no longer than its room affords
- * (`jump` states the law).
+ * A jump's push-off, from the entry exactly: the pelvis and the heading from
+ * the entry's own angles and rates to the jump's, the take-off foot laid flat
+ * about its heel if it was on its heel rocker and then risen about its toes'
+ * joint by the rule a walking stance rises by, and the reaching leg withdrawn
+ * under the body carrying the velocity, spin and acceleration it was entered
+ * with, each rate for no longer than its room affords (`jump` states the law).
  */
 export namespace jumpPush {
-  /** The heel rise the push asks of the take-off foot about its ball, degrees (provisional); the ankle's reach rule may steepen it. */
+  /**
+   * The heel rise the push asks of the take-off foot about its ball, degrees
+   * (provisional); the ankle's reach rule may steepen it.
+   */
   export const HEEL: number = 40;
 
   /**
@@ -67,8 +81,10 @@ export namespace jumpPush {
    *
    * @param hip The push's unlowered take-off hip joint, world metres.
    * @param ankle The take-off ankle at the asked pitch, world metres.
-   * @param short The lowering one leg asks of the root at the least knee bend (`lowerHumanPosture.prepareShort`).
-   * @returns The hip the leg stands from, world metres, or undefined for an ankle horizontally beyond the leg's reach, which no lowering helps.
+   * @param short The lowering one leg asks of the root at the least knee bend
+   *   (`lowerHumanPosture.prepareShort`).
+   * @returns The hip the leg stands from, world metres, or undefined for an
+   *   ankle horizontally beyond the leg's reach, which no lowering helps.
    */
   export function standing(
     hip: IAutoMovieVector3,
@@ -80,9 +96,7 @@ export namespace jumpPush {
     return drop > 0 ? { ...hip, y: hip.y - drop } : hip;
   }
 
-  /**
-   * What the push-off is built from.
-   */
+  /** What the push-off is built from. */
   export interface IProps {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -123,14 +137,10 @@ export namespace jumpPush {
     /** Where the reaching ankle is drawn to in the body's frame, metres. */
     tuck: IAutoMovieVector3;
 
-    /**
-     * The raw push Hermite root at local seconds, held at its endpoints.
-     */
+    /** The raw push Hermite root at local seconds, held at its endpoints. */
     rootAt: (t: number) => IAutoMovieVector3;
 
-    /**
-     * The knee's bend point for a root, a side and a heading.
-     */
+    /** The knee's bend point for a root, a side and a heading. */
     knee: (
       root: IAutoMovieVector3,
       side: "left" | "right",
@@ -138,36 +148,26 @@ export namespace jumpPush {
     ) => IAutoMovieVector3;
   }
 
-  /**
-   * The push-off's paths.
-   */
+  /** The push-off's paths. */
   export interface IPush {
-    /**
-     * Read one unlowered phase sample at local push seconds.
-     */
+    /** Read one unlowered phase sample at local push seconds. */
     sample: (t: number) => IPhase;
 
-    /**
-     * An upper arm's entry flexion rate, degrees per second.
-     */
+    /** An upper arm's entry flexion rate, degrees per second. */
     swinging: (side: "left" | "right") => number;
 
-    /**
-     * The upper-arm flexion at one current push sample, clinical degrees.
-     */
+    /** The upper-arm flexion at one current push sample, clinical degrees. */
     arm: (phase: IPhase, side: "left" | "right") => number;
 
     /**
      * How far an elbow stands from the jump's own elbow rule at one push
-     * sample, clinical degrees: the run's bent elbow is carried out like
-     * its shoulder, fading from its entered gap and gap rate to none at the
+     * sample, clinical degrees: the run's bent elbow is carried out like its
+     * shoulder, fading from its entered gap and gap rate to none at the
      * take-off, so the elbow is not straightened ahead of the arm swing.
      */
     elbow: (phase: IPhase, side: "left" | "right") => number;
 
-    /**
-     * Write the pelvis, both legs and toes at a local push second.
-     */
+    /** Write the pelvis, both legs and toes at a local push second. */
     write: (
       phase: IPhase,
       joints: Partial<
@@ -178,9 +178,7 @@ export namespace jumpPush {
     ) => void;
   }
 
-  /**
-   * One raw push instant shared by its arm, pelvis, rocker and posture writers.
-   */
+  /** One raw push instant shared by its arm, pelvis, rocker and posture writers. */
   export interface IPhase {
     /** Local elapsed push seconds. */
     seconds: number;
@@ -331,8 +329,7 @@ export namespace jumpPush {
       // The jump's elbow rule is the relaxed elbow plus a third of the
       // shoulder's flexion (`jumpJoints.SHOULDER_PER_ELBOW`); the entered
       // elbow's gap from it, and that gap's rate, are what the push fades.
-      const ruled: number =
-        stand.ELBOW + from / jumpJoints.SHOULDER_PER_ELBOW;
+      const ruled: number = stand.ELBOW + from / jumpJoints.SHOULDER_PER_ELBOW;
       const elbow: number | undefined =
         entry.posture.joints[`${side}LowerArm`]?.[0];
       return {
@@ -368,9 +365,7 @@ export namespace jumpPush {
       side: "left" | "right",
     ): number => {
       const track: IArmTrack = arms[side];
-      return (
-        track.bend * (1 - phase.progress) + track.bending * phase.carry
-      );
+      return track.bend * (1 - phase.progress) + track.bending * phase.carry;
     };
 
     // A foot entered on its heel rocker is laid flat before its heel rises,
@@ -601,20 +596,33 @@ export namespace jumpPush {
   }
 }
 
-/** The original entered shoulder angle, its authored target difference and carried flexion rate, with the entered elbow's gap from the jump's elbow rule. */
+/**
+ * The original entered shoulder angle, its authored target difference and
+ * carried flexion rate, with the entered elbow's gap from the jump's elbow
+ * rule.
+ */
 interface IArmTrack {
   /** Entered shoulder flexion, clinical degrees. */
   from: number;
 
-  /** Sixty degrees minus the entered flexion, preserving the original subtraction. */
+  /**
+   * Sixty degrees minus the entered flexion, preserving the original
+   * subtraction.
+   */
   delta: number;
 
   /** Entered flexion rate, degrees per second; zero when absent. */
   rate: number;
 
-  /** The entered elbow flexion less the jump's elbow rule at the entered shoulder, clinical degrees; zero when the entry has no elbow. */
+  /**
+   * The entered elbow flexion less the jump's elbow rule at the entered
+   * shoulder, clinical degrees; zero when the entry has no elbow.
+   */
   bend: number;
 
-  /** That gap's entered rate, degrees per second: the elbow's rate less the rule's share of the shoulder's; zero when the entry has no elbow. */
+  /**
+   * That gap's entered rate, degrees per second: the elbow's rate less the
+   * rule's share of the shoulder's; zero when the entry has no elbow.
+   */
   bending: number;
 }

@@ -16,15 +16,15 @@ import { HumanBound } from "../law/HumanBound";
 /**
  * Tilt toward one shoulder, hold, then return over the entry posture or a
  * carrier that yields its head. Hadar, Steiner and Clifford Rose observed
- * single-direction movements during conversational listening. The 20 degree
- * cap and the default 0.9 second phrase divided into thirds are provisional.
- * The 0.6 second minimum leaves 0.2 seconds for the carrier's fade at each end.
+ * single-direction movements during conversational listening. The 20 degree cap
+ * and the default 0.9 second phrase divided into thirds are provisional. The
+ * 0.6 second minimum leaves 0.2 seconds for the carrier's fade at each end.
  *
- * @see https://doi.org/10.1007/BF00986881
  * @evidence contracts/development/common.md#meaningful-documentation States the movement, its base and the status of the angle and timing choices.
  * @evidence contracts/development/design.md#principled-representation One head-only overlay-capable law describes the single lateral excursion with a clock and joint primitive.
  * @evidence contracts/development/design.md#minimal-and-owned-surface The law exposes the standard registration contract and receives only the angle and optional duration.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The existing head primitive owns the cervical split. The base preserves the entry or carrier posture and its support responsibilities.
+ * @see https://doi.org/10.1007/BF00986881
  */
 export const headTilt: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadTilt> =
   {
@@ -41,9 +41,10 @@ export const headTilt: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadT
      * Plan one lateral roll with its peak at `stroke` and return from `relax`.
      *
      * @param context The authored roll, duration and posture underneath.
-     * @returns The head-only plan and its timing events, with the base's support windows.
-     * @throws {HumanRefusal} If `degrees` is outside [-20, 20] or `seconds` is nonfinite or below 0.6.
-     *
+     * @returns The head-only plan and its timing events, with the base's
+     *   support windows.
+     * @throws {HumanRefusal} If `degrees` is outside [-20, 20] or `seconds` is
+     *   nonfinite or below 0.6.
      * @evidence contracts/development/common.md#meaningful-documentation States the decisive instant, return onset, input, output and refusals.
      * @evidence contracts/development/implementation.md#principled-implementation Shares the requested roll over both cervical joints and uses the minimum-jerk clock envelope to add it smoothly to the base and release it.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Checks both authored quantities, builds one clock and composes one head primitive over the existing base.

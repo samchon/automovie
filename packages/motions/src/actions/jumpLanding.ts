@@ -9,17 +9,15 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { stand } from "./stand";
 
 /**
- * Where a jump comes down, at the height of what it lands on (the floor's
- * 0, a box's top, a step's): both feet flat on footprints at the
- * destination, at the body's rest separation and turned out by the stance
- * angle, and the root's three places of the landing: stood upright as the
- * standing law places a root over those feet, touched down 0.03 hip heights
- * below that and 0.1 back of the feet, and absorbed 0.12 below it.
+ * Where a jump comes down, at the height of what it lands on (the floor's 0, a
+ * box's top, a step's): both feet flat on footprints at the destination, at the
+ * body's rest separation and turned out by the stance angle, and the root's
+ * three places of the landing: stood upright as the standing law places a root
+ * over those feet, touched down 0.03 hip heights below that and 0.1 back of the
+ * feet, and absorbed 0.12 below it.
  */
 export namespace jumpLanding {
-  /**
-   * The landing's places.
-   */
+  /** The landing's places. */
   export interface ILanding {
     /** Each foot flat on its footprint, world metres. */
     feet: Record<"left" | "right", IAutoMovieMotionHumanFoot.IPlacement>;
@@ -111,14 +109,26 @@ export namespace jumpLanding {
   }
 }
 
-/** How far below the standing root the root touches down, hip heights (provisional). */
+/**
+ * How far below the standing root the root touches down, hip heights
+ * (provisional).
+ */
 const TOUCH_DROP: number = 0.03;
 
-/** How far behind the footprints' middle the root touches down, hip heights (provisional). */
+/**
+ * How far behind the footprints' middle the root touches down, hip heights
+ * (provisional).
+ */
 const TOUCH_BACK: number = 0.1;
 
-/** How far below the standing root the absorption bottoms out, hip heights (provisional). */
+/**
+ * How far below the standing root the absorption bottoms out, hip heights
+ * (provisional).
+ */
 const ABSORB_DROP: number = 0.12;
 
-/** Share of upright lean reached at the ordinary landing's absorption bottom (provisional). */
+/**
+ * Share of upright lean reached at the ordinary landing's absorption bottom
+ * (provisional).
+ */
 const ABSORB_LEAN: number = 0.3;

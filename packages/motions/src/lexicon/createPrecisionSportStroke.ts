@@ -54,10 +54,16 @@ function implement(params: Stroke): string {
   });
 }
 
-/** The cue's least lean over the bed while the bridge hand bears on it, degrees; provisional. */
+/**
+ * The cue's least lean over the bed while the bridge hand bears on it, degrees;
+ * provisional.
+ */
 const BRIDGE_INCLINE: number = 27;
 
-/** Positive, finite authored timing and speed, with admission kept at the stroke. */
+/**
+ * Positive, finite authored timing and speed, with admission kept at the
+ * stroke.
+ */
 function positive(axis: string, value: number): number {
   if (Number.isFinite(value) && value > 0) return value;
   throw new HumanRefusal({
@@ -70,9 +76,10 @@ function positive(axis: string, value: number): number {
 }
 
 /**
- * Build one row of the held stroke planner. All rows use a resolved ball surface, with a witnessed
- * hand-to-implement-to-ball chain at the authored event. The line and arc paths share the holding
- * and fitting machinery of StrikingBlade.
+ * Build one row of the held stroke planner. All rows use a resolved ball
+ * surface, with a witnessed hand-to-implement-to-ball chain at the authored
+ * event. The line and arc paths share the holding and fitting machinery of
+ * StrikingBlade.
  */
 export function createPrecisionSportStroke<P extends Stroke>(
   name: string,

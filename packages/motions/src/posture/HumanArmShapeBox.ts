@@ -4,15 +4,15 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The signed distance to the box enclosing the hull in its local frame.
- * Inside the box, the bound is the negative distance to the nearest face.
- * A non-hull yields negative infinity so the exact shape query stays eligible.
+ * The signed distance to the box enclosing the hull in its local frame. Inside
+ * the box, the bound is the negative distance to the nearest face. A non-hull
+ * yields negative infinity so the exact shape query stays eligible.
  *
  * The point is carried into the shape's frame through the segment's pose and
  * the shape's own transform, as the exact distance carries it
- * (`physicalShapeSegmentDistance`), and the box is the hull points' least
- * and greatest coordinates on each of the frame's axes, a constant of the
- * hull's points.
+ * (`physicalShapeSegmentDistance`), and the box is the hull points' least and
+ * greatest coordinates on each of the frame's axes, a constant of the hull's
+ * points.
  *
  * @param shape The placed shape.
  * @param p The point, world metres.
@@ -70,7 +70,10 @@ export function HumanArmShapeBox(
   return Math.sqrt(x * x + y * y + z * z) - ROUNDING;
 }
 
-/** A vector turned by the inverse of a unit rotation: the rotation's conjugate applied. */
+/**
+ * A vector turned by the inverse of a unit rotation: the rotation's conjugate
+ * applied.
+ */
 function unturn(
   q: { x: number; y: number; z: number; w: number },
   vx: number,
@@ -94,5 +97,9 @@ function unturn(
 const BOXES: WeakMap<readonly IAutoMovieVector3[], Float64Array> =
   new WeakMap();
 
-/** Metres taken off the box's distance: far more than the rounding of two rotations and three differences of points a few metres from the origin (about 1e-15 m). */
+/**
+ * Metres taken off the box's distance: far more than the rounding of two
+ * rotations and three differences of points a few metres from the origin (about
+ * 1e-15 m).
+ */
 const ROUNDING: number = 1e-12;

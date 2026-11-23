@@ -19,24 +19,26 @@ import type { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 
 /**
  * What a precision stroke strikes with, read from the implement as the hand
- * holds it: the tool in the hand's frame, its face, and the second hand's
- * place on its handle. The stroke reads it from its entry
+ * holds it: the tool in the hand's frame, its face, and the second hand's place
+ * on its handle. The stroke reads it from its entry
  * (`createPrecisionSportStroke`) and the address from the stance it tries
  * (`PrecisionStrokeForms.address`), so both meet the ball with one tool.
  *
- * A held implement strikes with its named working point and face; a bare
- * hand strikes with its grip socket and the palm's normal, read in the hand
- * bone's frame at the entry pose. Except for a cue, which strikes along its
- * own axis, the tool's axis is squared to the face and the face is its edge.
- * Two hands close on a swung implement's handle, the second grip socket two
- * fists' widths from the first along the axis toward the butt; a cue, a
- * one-handed stroke and a bare hand have none.
+ * A held implement strikes with its named working point and face; a bare hand
+ * strikes with its grip socket and the palm's normal, read in the hand bone's
+ * frame at the entry pose. Except for a cue, which strikes along its own axis,
+ * the tool's axis is squared to the face and the face is its edge. Two hands
+ * close on a swung implement's handle, the second grip socket two fists' widths
+ * from the first along the axis toward the butt; a cue, a one-handed stroke and
+ * a bare hand have none.
  *
  * @param body The body.
  * @param side The striking hand.
  * @param form The row's form.
- * @param held The implement in the striking hand's grip frame; none for a bare hand.
- * @param entry The pose the stroke starts from, whose hand frame a bare palm is read in.
+ * @param held The implement in the striking hand's grip frame; none for a bare
+ *   hand.
+ * @param entry The pose the stroke starts from, whose hand frame a bare palm is
+ *   read in.
  * @returns The tool, its face in the hand's frame and the second hand's place.
  * @throws {HumanRefusal} When the implement lacks the row's working point.
  */
@@ -105,9 +107,7 @@ function palm(
 
 /** Companion types of `precisionStrokeTool`. */
 export namespace precisionStrokeTool {
-  /**
-   * A precision stroke's tool.
-   */
+  /** A precision stroke's tool. */
   export interface IStrokeTool {
     /** The tool in the striking hand's grip frame, its axis squared to the face. */
     tool: IAutoMovieMotionHumanStrikingHeld.ITool;

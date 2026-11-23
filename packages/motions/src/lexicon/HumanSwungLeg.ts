@@ -46,14 +46,10 @@ import { HumanMountPush } from "./HumanMountPush";
  * so the foot still lifts off and lands as the law sets it.
  */
 export namespace HumanSwungLeg {
-  /**
-   * One leg's joints by bone, clinical degrees `[flexion, abduction, twist]`.
-   */
+  /** One leg's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
   export type Joints = IAutoMovieMotionHumanPosture["joints"];
 
-  /**
-   * A leg's swing on its action's clock: the seconds it leaves and lands.
-   */
+  /** A leg's swing on its action's clock: the seconds it leaves and lands. */
   export type Swing = readonly [number, number];
 
   /**
@@ -130,9 +126,7 @@ export namespace HumanSwungLeg {
     };
   }
 
-  /**
-   * A swung leg's keys over a swing whose world course leaves the range.
-   */
+  /** A swung leg's keys over a swing whose world course leaves the range. */
   export interface IKeys {
     /** The second the window opens, action seconds. */
     start: number;
@@ -267,10 +261,12 @@ export namespace HumanSwungLeg {
 
   /**
    * The leg's joints a share of the way through its window: each angle on the
-   * quadratic through the three keys, `from + (to - from) s + 4 s (1 - s) (apex
+   * quadratic through the three keys, `from + (to - from) s + 4 s (1 - s)
+   * (apex
+   *
    * - (from + to) / 2)`, held within its range of motion, and a foot that bears
-   * nothing held within the unloaded ankle's dorsal range
-   * (`HumanMountPush.DORSAL`) unless an end key itself bends it further.
+   *   nothing held within the unloaded ankle's dorsal range
+   *   (`HumanMountPush.DORSAL`) unless an end key itself bends it further.
    *
    * @param body The body, whose joint ranges are read.
    * @param keys The keys.

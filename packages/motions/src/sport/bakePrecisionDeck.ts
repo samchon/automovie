@@ -18,17 +18,20 @@ const RATE: number = 120;
 type ContactSample = NonNullable<IAutoMovieContactReceipt["samples"]>[number];
 
 /**
- * Bake a released ball on its playing surface and its effect on loose
- * targets: a bowling ball on the lane and its pins, a cue ball on the table
- * and its object balls, a putt on the green.
+ * Bake a released ball on its playing surface and its effect on loose targets:
+ * a bowling ball on the lane and its pins, a cue ball on the table and its
+ * object balls, a putt on the green.
  *
  * Read the ball and target frames from the shared native cache with its film
- * clock offset. A delivery that touches no target has no target impact.
- * Contact order and target motion follow the supplied profiles and materials.
+ * clock offset. A delivery that touches no target has no target impact. Contact
+ * order and target motion follow the supplied profiles and materials.
  *
- * @param input The world release state, fixed surface, placed targets and simulation extent.
- * @returns A fixed-step replay of the actual ball and target transforms and the first target contact, if any.
- * @throws {RangeError} For invalid duration, release time or a non-rigid input. Engine admission owns profiles, coordinates and solver bounds.
+ * @param input The world release state, fixed surface, placed targets and
+ *   simulation extent.
+ * @returns A fixed-step replay of the actual ball and target transforms and the
+ *   first target contact, if any.
+ * @throws {RangeError} For invalid duration, release time or a non-rigid input.
+ *   Engine admission owns profiles, coordinates and solver bounds.
  */
 export async function bakePrecisionDeck(
   input: IAutoMovieMotionHumanPrecisionDeck,

@@ -14,17 +14,20 @@ import { grappleSumo } from "./grappleSumo";
 
 /**
  * Floor support keys and hand regions for preplanned grappling performances.
- * The phase shares, turns and body angles are provisional staging values.
- * The IJF atlas identifies the judo silhouettes, and UWW's rules distinguish
- * the freestyle and Greco-Roman contact vocabularies. The phase separation
- * follows Imamura et al. (2006, PMID 24357984) and Yamashita et al. (2020,
- * PMC7739678). The studies do not supply these choreography values.
+ * The phase shares, turns and body angles are provisional staging values. The
+ * IJF atlas identifies the judo silhouettes, and UWW's rules distinguish the
+ * freestyle and Greco-Roman contact vocabularies. The phase separation follows
+ * Imamura et al. (2006, PMID 24357984) and Yamashita et al. (2020, PMC7739678).
+ * The studies do not supply these choreography values.
  */
 export namespace grappleStances {
   /** Whether the receiver finishes on the back, or the actors separate standing. */
   type Finish = "back" | "hold" | "reset";
 
-  /** Visible character of one actor's entry, by pelvis and trunk angles in degrees. */
+  /**
+   * Visible character of one actor's entry, by pelvis and trunk angles in
+   * degrees.
+   */
   interface IEntry {
     /** Pelvis turn toward the actor's lead side. */
     turn: number;
@@ -54,7 +57,10 @@ export namespace grappleStances {
     grip: "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";
   }
 
-  /** Illustrative poses separate moving silhouettes within the same rules family. */
+  /**
+   * Illustrative poses separate moving silhouettes within the same rules
+   * family.
+   */
   const rows: Readonly<
     Record<Exclude<IAutoMovieMotionHumanGrapple.Kind, grappleSumo.Kind>, IRow>
   > = {
@@ -199,18 +205,14 @@ export namespace grappleStances {
     };
   }
 
-  /**
-   * Read the default duration for a scene, in seconds.
-   */
+  /** Read the default duration for a scene, in seconds. */
   export function seconds(kind: IAutoMovieMotionHumanGrapple.Kind): number {
     return grappleSumo.is(kind)
       ? grappleSumo.seconds(kind)
       : rows[kind].seconds;
   }
 
-  /**
-   * Resolve visible reach sites relative to the partner.
-   */
+  /** Resolve visible reach sites relative to the partner. */
   export function regions(
     kind: IAutoMovieMotionHumanGrapple.Kind,
     side: AutoMovieHumanSide,
@@ -247,8 +249,10 @@ export namespace grappleStances {
    * @param p The scene.
    * @param duration The scene's seconds.
    * @param body The performer's body.
-   * @param partner The partner's body, which a sumo tachiai's contact gap reads.
-   * @param pitch A sumo tachiai's trunk pitch, degrees, as the support fit takes it (`grappleSumo.keys`); the charge pose's own when absent.
+   * @param partner The partner's body, which a sumo tachiai's contact gap
+   *   reads.
+   * @param pitch A sumo tachiai's trunk pitch, degrees, as the support fit
+   *   takes it (`grappleSumo.keys`); the charge pose's own when absent.
    * @returns The timed support keys.
    */
   export function keys(

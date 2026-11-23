@@ -13,15 +13,13 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
 /**
- * Assign a spherical prop's receiving hands to its staged capture during
- * their fitted approach. The other surfaces still compete for first contact.
- * The completed capture must reach the same ball frame with each designated
- * hand on the ball's surface.
+ * Assign a spherical prop's receiving hands to its staged capture during their
+ * fitted approach. The other surfaces still compete for first contact. The
+ * completed capture must reach the same ball frame with each designated hand on
+ * the ball's surface.
  */
 export namespace HumanPropCatchHands {
-  /**
-   * The physically modeled gripping parts of one anchored capture.
-   */
+  /** The physically modeled gripping parts of one anchored capture. */
   export interface IApproach {
     /** Catching performer. */
     subject: string;
@@ -37,7 +35,8 @@ export namespace HumanPropCatchHands {
   }
 
   /**
-   * Select the owning capture's gripping parts at the exact superseding instant.
+   * Select the owning capture's gripping parts at the exact superseding
+   * instant.
    */
   export function forLaunch(
     launch: IAutoMovieMotionPropLaunch,
@@ -55,9 +54,7 @@ export namespace HumanPropCatchHands {
     });
   }
 
-  /**
-   * Remove reserved hands and fingers from the current fresh sweep reading.
-   */
+  /** Remove reserved hands and fingers from the current fresh sweep reading. */
   export function omit(
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     approach: readonly IApproach[],
@@ -76,9 +73,7 @@ export namespace HumanPropCatchHands {
     return bones;
   }
 
-  /**
-   * Admit a reserved hold only if the actual fitted hand reaches the sphere.
-   */
+  /** Admit a reserved hold only if the actual fitted hand reaches the sphere. */
   export function closes(
     self: IAutoMovieMotionHumanPerformanceState,
     grip: IAutoMovieMotionHumanPerformanceState.IGrip,

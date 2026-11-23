@@ -13,20 +13,21 @@ import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariati
  * The seeded offsets of a movement's form: how far a joint goes, where the
  * elbow sits and how a hand's path bows.
  *
- * `AutoMovieMotionHumanVariation` states what a slot, a spread and a source
- * are and owns `SPREADS` and `BOUNDS`; `AutoMovieMotionHumanVariationDraw`
- * owns `TRUNCATE`, the cell rule and the scalar offset. Each function here varies one number or one elbow place and leaves
- * the place a hand arrives on as it is.
+ * `AutoMovieMotionHumanVariation` states what a slot, a spread and a source are
+ * and owns `SPREADS` and `BOUNDS`; `AutoMovieMotionHumanVariationDraw` owns
+ * `TRUNCATE`, the cell rule and the scalar offset. Each function here varies
+ * one number or one elbow place and leaves the place a hand arrives on as it
+ * is.
  */
 export namespace AutoMovieMotionHumanVariationForm {
   /**
    * An amount with its offset.
    *
    * The amount is a share of a joint's range, as a level resolves to. The
-   * offset is a factor on the share with spread `SPREADS.amount`. Its bound
-   * is the smallest of the cell rule over `AutoMovieMotionHumanRange.LEVELS`,
-   * half the share (the scale rung's [0.5, 1.5]) and what is left of the
-   * whole range.
+   * offset is a factor on the share with spread `SPREADS.amount`. Its bound is
+   * the smallest of the cell rule over `AutoMovieMotionHumanRange.LEVELS`, half
+   * the share (the scale rung's [0.5, 1.5]) and what is left of the whole
+   * range.
    *
    * @param source The action's variation; absent, the share itself is returned.
    * @param key The slot key.
@@ -64,11 +65,12 @@ export namespace AutoMovieMotionHumanVariationForm {
    *
    * The offset is a turn in degrees about the line from the shoulder to the
    * wrist, from the place of least strain, with spread `SPREADS.swivel`. Its
-   * bound is the smaller of `TRUNCATE` spreads and the arc of allowed places
-   * on either side of the solved one, found in steps of `STEP` degrees. The
+   * bound is the smaller of `TRUNCATE` spreads and the arc of allowed places on
+   * either side of the solved one, found in steps of `STEP` degrees. The
    * wrist's place does not change.
    *
-   * @param source The action's variation; absent, the elbow place itself is returned.
+   * @param source The action's variation; absent, the elbow place itself is
+   *   returned.
    * @param key The slot key.
    * @param props The request `AutoMovieMotionHumanBend.solve` answered.
    * @param elbow The solved elbow place, world metres.
@@ -147,8 +149,7 @@ export namespace AutoMovieMotionHumanVariationForm {
    * A path's curvature with its offset.
    *
    * The offset is a share of the path's length added to the manner's
-   * `curvature`, with spread `SPREADS.curvature` and bound
-   * `BOUNDS.curvature`.
+   * `curvature`, with spread `SPREADS.curvature` and bound `BOUNDS.curvature`.
    *
    * @param source The action's variation; absent, the share itself is returned.
    * @param key The slot key.

@@ -50,19 +50,20 @@ interface IArm {
 }
 
 /**
- * Keep the left index and middle fingertips on two stopped strings while
- * the right index sweeps them on one continuous path over the soundboard.
- * A downstroke goes from the lower pitch to the higher pitch, as taught
- * by [Fender](https://www.fender.com/articles/techniques/how-to-strum-beginner-guitar-tips).
- * The [RITMO fourMs archive](https://www.uio.no/ritmo/english/research/labs/fourms/research/Datasets/)
+ * Keep the left index and middle fingertips on two stopped strings while the
+ * right index sweeps them on one continuous path over the soundboard. A
+ * downstroke goes from the lower pitch to the higher pitch, as taught by
+ * [Fender](https://www.fender.com/articles/techniques/how-to-strum-beginner-guitar-tips).
+ * The [RITMO fourMs
+ * archive](https://www.uio.no/ritmo/english/research/labs/fourms/research/Datasets/)
  * includes a synchronized jazz guitar pilot recording. The fixed voicing,
  * authored times and narrow travel of this draft are staging choices.
  *
- * Both hands must be free and the guitar must have a fixed frame. The two
- * arm wrist paths are refused outside their geometric reach bands. The
- * fretting span must also fit within the two digit chains and their knuckle
- * spacing. The first pitched contact is decisive. Each crossing event
- * names the actual string in either direction.
+ * Both hands must be free and the guitar must have a fixed frame. The two arm
+ * wrist paths are refused outside their geometric reach bands. The fretting
+ * span must also fit within the two digit chains and their knuckle spacing. The
+ * first pitched contact is decisive. Each crossing event names the actual
+ * string in either direction.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the contacts, decisive instant, source, scope and admission rule.
  * @evidence contracts/development/design.md#principled-representation A single sweep traverses two actual guitar strings while two articulated fretting digits hold their own contacts.
@@ -75,9 +76,11 @@ export const guitarChord: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGu
 /**
  * Convert the authored phase clock into two static stops and a moving stroke.
  *
- * @param context The performer, displayed entry, action clock and staged guitar.
+ * @param context The performer, displayed entry, action clock and staged
+ *   guitar.
  * @returns The carried base, named crossings and three digit goals.
- * @throws {HumanRefusal} For invalid clocks, instruments, occupied hands or unreachable wrist paths.
+ * @throws {HumanRefusal} For invalid clocks, instruments, occupied hands or
+ *   unreachable wrist paths.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {
@@ -335,7 +338,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 }
 
-/** Fit the wrist offsets and arm reach once, using the extrema of each straight path segment. */
+/**
+ * Fit the wrist offsets and arm reach once, using the extrema of each straight
+ * path segment.
+ */
 function arm(
   context: Context,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

@@ -20,9 +20,9 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The other arm brought up so a hand can touch a region on it: the touch
- * law's presentation of a forearm, a wrist or a hand to be scratched, patted
- * or looked at.
+ * The other arm brought up so a hand can touch a region on it: the touch law's
+ * presentation of a forearm, a wrist or a hand to be scratched, patted or
+ * looked at.
  */
 export namespace touchPresented {
   /**
@@ -47,14 +47,18 @@ export namespace touchPresented {
       to: clock.duration,
       rest: AutoMovieMotionHumanArm.angles(entry, shown.side),
       goal: (): IAutoMovieHumanLimbGoal => shown.goal,
-      weight: (seconds: number): number => clock.envelope(["start", "ready"], ["relax", "end"], seconds),
-      span: { start: clock.at("start"), ready: clock.at("ready"), relax: clock.at("relax"), end: clock.at("end") },
+      weight: (seconds: number): number =>
+        clock.envelope(["start", "ready"], ["relax", "end"], seconds),
+      span: {
+        start: clock.at("start"),
+        ready: clock.at("ready"),
+        relax: clock.at("relax"),
+        end: clock.at("end"),
+      },
     });
   }
 
-  /**
-   * An arm brought up to be touched.
-   */
+  /** An arm brought up to be touched. */
   export interface IPresented {
     /** The arm. */
     side: AutoMovieHumanSide;
@@ -94,7 +98,10 @@ export namespace touchPresented {
     )
       return null;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const frame: IAutoMovieMotionHumanFrame = { origin: entry.root, yaw: entry.yaw };
+    const frame: IAutoMovieMotionHumanFrame = {
+      origin: entry.root,
+      yaw: entry.yaw,
+    };
     const hips: IAutoMovieVector3 = body.rest.get("hips")!;
     const shoulder: IAutoMovieVector3 = body.rest.get(`${other}UpperArm`)!;
     const at: IAutoMovieVector3 = HumanFrame.point(frame, {
@@ -108,15 +115,16 @@ export namespace touchPresented {
       HumanFrame.turn(entry.yaw),
       { x: side === "left" ? 1 : -1, y: 0, z: 0 },
     );
-    const goal: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanTouchEffector.goal(
-      body,
-      other,
-      { surface: "palm", shape: "flat" },
-      at,
-      { x: 0, y: 1, z: 0 },
-      across,
-      AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
-    );
+    const goal: IAutoMovieHumanLimbGoal =
+      AutoMovieMotionHumanTouchEffector.goal(
+        body,
+        other,
+        { surface: "palm", shape: "flat" },
+        at,
+        { x: 0, y: 1, z: 0 },
+        across,
+        AutoMovieMotionHumanBend.arm(body, entry, other, "hang"),
+      );
     return {
       side: other,
       goal,

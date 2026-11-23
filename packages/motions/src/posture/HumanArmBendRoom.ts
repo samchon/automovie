@@ -13,9 +13,7 @@ import { HumanShapeFraming } from "./HumanShapeFraming";
 /** Values used by the clearance comparison, before later candidate queries. */
 type AutoMovieClearanceWord = number | boolean | object;
 
-/**
- * Capture the room's numerical inputs at their original first use.
- */
+/** Capture the room's numerical inputs at their original first use. */
 export class HumanArmBendRoom {
   /** One actual engine scalar trial; no signed-distance result is retained. */
   public readonly trial: ReturnType<
@@ -26,9 +24,7 @@ export class HumanArmBendRoom {
   #room: HumanArmOvershootRoom.IRoom | undefined;
   #words: AutoMovieClearanceWord[] | undefined;
 
-  /**
-   * Capture the original first room evaluation, after the radius read.
-   */
+  /** Capture the original first room evaluation, after the radius read. */
   public read(room: HumanArmOvershootRoom.IRoom, radius: number): void {
     if (this.#room !== undefined) return;
     this.#room = room;
@@ -100,7 +96,10 @@ export class HumanArmBendRoom {
     );
   }
 
-  /** Advance current private broad-phase hints to those of the same completed trial. */
+  /**
+   * Advance current private broad-phase hints to those of the same completed
+   * trial.
+   */
   public finish(leads: readonly number[]): void {
     const shapes: HumanArmOvershootRoom.IShape[] = this.#room!.shapes;
     for (let index: number = 0; index < shapes.length; ++index)

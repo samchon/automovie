@@ -31,27 +31,36 @@ import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
-/** The most passes a held frame is stepped back along the line to bring the wrist within the arm's length; each re-chooses the frame's roll (provisional). */
+/**
+ * The most passes a held frame is stepped back along the line to bring the
+ * wrist within the arm's length; each re-chooses the frame's roll
+ * (provisional).
+ */
 const PASSES: number = 3;
 
 /**
- * The pose a presentation strokes to (`HumanWeaponPresent.present`) and
- * the posture it is judged on: the stance no grip changes (the entry, a
- * long gun's bladed trunk, the eye on the sight line, the target and its
- * line) and the hand frame the carriage asks of the weapon as a setup holds
- * it. The plan strokes to it, and a grip a pick up weighs for the
- * presentation (`present.demands`) is judged at it, so the grip chosen is
- * the one the plan holds.
+ * The pose a presentation strokes to (`HumanWeaponPresent.present`) and the
+ * posture it is judged on: the stance no grip changes (the entry, a long gun's
+ * bladed trunk, the eye on the sight line, the target and its line) and the
+ * hand frame the carriage asks of the weapon as a setup holds it. The plan
+ * strokes to it, and a grip a pick up weighs for the presentation
+ * (`present.demands`) is judged at it, so the grip chosen is the one the plan
+ * holds.
  */
 export namespace HumanWeaponPose {
-  /**
-   * A presentation's stance and pose.
-   */
+  /** A presentation's stance and pose. */
   export interface IPosed {
-    /** The trunk's whole turn, degrees, positive toward the performer's left: a long gun's blade toward the firing side on foot, with a seated performer's turn toward the target. */
+    /**
+     * The trunk's whole turn, degrees, positive toward the performer's left: a
+     * long gun's blade toward the firing side on foot, with a seated
+     * performer's turn toward the target.
+     */
     turn: number;
 
-    /** The entry posture with the trunk turned and the supporting hand on its planned handle. */
+    /**
+     * The entry posture with the trunk turned and the supporting hand on its
+     * planned handle.
+     */
     bladed: IAutoMovieMotionHumanPosture;
 
     /** The sight line's start, world metres. */
@@ -69,7 +78,10 @@ export namespace HumanWeaponPose {
     /** The firing hand's grip frame the carriage asks. */
     pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
 
-    /** Tool geometry in the hand frame, using both prop ends for a one-hand shoulder carriage. */
+    /**
+     * Tool geometry in the hand frame, using both prop ends for a one-hand
+     * shoulder carriage.
+     */
     tool: IAutoMovieMotionHumanStrikingHeld.ITool;
 
     /** Distance in metres from the tip to the point the stroke keeps. */
@@ -83,9 +95,12 @@ export namespace HumanWeaponPose {
    * @param entry The posture the presentation begins from.
    * @param start The film second it begins, the instant its target is read at.
    * @param s The setup.
-   * @param seated Whether the performer sits a mount, whose trunk then turns toward the target (`HumanMountedPresentation`).
+   * @param seated Whether the performer sits a mount, whose trunk then turns
+   *   toward the target (`HumanMountedPresentation`).
    * @returns The stance and the pose.
-   * @throws {HumanRefusal} On `target` when the target lies more than `TURN` degrees off the heading, or past a seated performer's trunk turn and `TURN`, or an extended arm's line of aim passes beyond its reach.
+   * @throws {HumanRefusal} On `target` when the target lies more than `TURN`
+   *   degrees off the heading, or past a seated performer's trunk turn and
+   *   `TURN`, or an extended arm's line of aim passes beyond its reach.
    */
   export function of(
     context: Pick<
@@ -103,16 +118,21 @@ export namespace HumanWeaponPose {
     // The shoulder pose, its reach check, and the displayed fit must all
     // use the same physical end of the prop as their pivot. The tool's
     // original axis and length describe its tip from the active grip.
-    const piece: IAutoMovieVector3 | undefined = carriage === "shoulder" && s.butt !== undefined
-      ? Vector3.subtract(s.tool.tip, s.butt)
-      : undefined;
-    const shoulderTool: IAutoMovieMotionHumanStrikingHeld.ITool = piece === undefined
-      ? s.tool
-      : { ...s.tool, axis: Vector3.normalize(piece), length: Vector3.length(piece) };
+    const piece: IAutoMovieVector3 | undefined =
+      carriage === "shoulder" && s.butt !== undefined
+        ? Vector3.subtract(s.tool.tip, s.butt)
+        : undefined;
+    const shoulderTool: IAutoMovieMotionHumanStrikingHeld.ITool =
+      piece === undefined
+        ? s.tool
+        : {
+            ...s.tool,
+            axis: Vector3.normalize(piece),
+            length: Vector3.length(piece),
+          };
     // A two-hand plan's support offsets use the original tool axes.
-    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = s.support === null
-      ? shoulderTool
-      : s.tool;
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool =
+      s.support === null ? shoulderTool : s.tool;
     const back: number = carriage === "aim" ? 0 : tool.length;
     // A long gun is shouldered with the support shoulder forward: the
     // trunk turns toward the firing side, and the eye, the shoulders and
@@ -155,7 +175,12 @@ export namespace HumanWeaponPose {
         ) *
           180) /
         Math.PI;
-      return HumanMountedPresentation.turn(bearing, turn, s.tool.side, "target");
+      return HumanMountedPresentation.turn(
+        bearing,
+        turn,
+        s.tool.side,
+        "target",
+      );
     })();
     const bladed: IAutoMovieMotionHumanPosture = StrikingBlade.turned(
       entry,
@@ -215,7 +240,10 @@ export namespace HumanWeaponPose {
     );
     const off: number =
       (Math.acos(
-        Math.max(-1, Math.min(1, Vector3.dot(line, ahead(entry.yaw + mounted)))),
+        Math.max(
+          -1,
+          Math.min(1, Vector3.dot(line, ahead(entry.yaw + mounted))),
+        ),
       ) *
         180) /
       Math.PI;
@@ -359,18 +387,30 @@ export namespace HumanWeaponPose {
           // muzzle line runs from the holding side's hip to before its
           // shoulder, the butt on the hip.
           const left: boolean = s.tool.side === "left";
-          const hipName: AutoMovieHumanoidRegion = left ? "hipLeft" : "hipRight";
-          const shoulderName: AutoMovieHumanoidRegion = left ? "shoulderLeft" : "shoulderRight";
+          const hipName: AutoMovieHumanoidRegion = left
+            ? "hipLeft"
+            : "hipRight";
+          const shoulderName: AutoMovieHumanoidRegion = left
+            ? "shoulderLeft"
+            : "shoulderRight";
           // The upper leg carries the hip skin landmark. Read its actual
           // planted fit instead of the authored angles used for trunk FK.
           const names: ReadonlySet<AutoMovieHumanoidBone> = new Set([
             context.body.surfaces.regions[hipName].bone,
             context.body.surfaces.regions[shoulderName].bone,
           ]);
-          const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+          const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+            prepareHumanPoseResolution();
           const shown: ReturnType<typeof poseBones> = poseBones(
             context.body,
-            resolveHumanPosture.seeded(context.body, bladed, undefined, undefined, resolution, names).pose,
+            resolveHumanPosture.seeded(
+              context.body,
+              bladed,
+              undefined,
+              undefined,
+              resolution,
+              names,
+            ).pose,
             resolution(),
             names,
           );
@@ -498,11 +538,10 @@ export namespace HumanWeaponPose {
   }
 
   /**
-   * The signed step along a line from a point to where the line meets a
-   * sphere about a centre on its far side: the larger root of
-   * `|d + s u|^2 = r^2` for the point's offset `d` from the centre and the
-   * unit direction `u`; undefined when the line misses the sphere (a
-   * negative discriminant).
+   * The signed step along a line from a point to where the line meets a sphere
+   * about a centre on its far side: the larger root of `|d + s u|^2 = r^2` for
+   * the point's offset `d` from the centre and the unit direction `u`;
+   * undefined when the line misses the sphere (a negative discriminant).
    */
   function reach(
     d: IAutoMovieVector3,

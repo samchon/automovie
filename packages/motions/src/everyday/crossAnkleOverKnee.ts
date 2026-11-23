@@ -22,29 +22,33 @@ const TRAVEL: number = 0.85;
 /** Fitted ankle tolerance, metres, for accepting the staged contact. */
 const FIT_GAP: number = 0.01;
 
-/** Make a full-length contact window from the support already under the performer. */
+/**
+ * Make a full-length contact window from the support already under the
+ * performer.
+ */
 const continueContact = (
   contact: IAutoMovieMotionHumanEntryState.ISupport,
 ): IAutoMovieMotionHumanContactWindow => ({ ...contact, from: 0, to: 1 });
 
 /**
  * Cross one ankle over the other knee while seated, hold, and put the foot
- * back. Register under `crossAnkleOverKnee` and perform after a completed
- * chair `sit`. The same seat, carrying leg and other active supports
- * continue through the action.
+ * back. Register under `crossAnkleOverKnee` and perform after a completed chair
+ * `sit`. The same seat, carrying leg and other active supports continue through
+ * the action.
  *
- * Jeong et al. (2008), Leg Crossing-Induced Asymmetrical Trunk Muscle
- * Activity During Seated Computer Work, distinguish ankle-on-knee from
- * upper-leg crossing (https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART001291962).
- * Yu and An (2015), https://pmc.ncbi.nlm.nih.gov/articles/PMC4483391/,
- * studied the latter. Turley et al. (2013),
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC3589629/, identify coupled hip
- * range limits during activities such as chair leg crossing. Ganokroj et al.
- * (2021), https://doi.org/10.1186/s12891-021-04487-z, distinguish the chair
- * figure-four by its hip flexion, abduction and external rotation. The moving
- * hip needs a calibrated thigh-axis rotation order. The planner fits the
- * seated leg's actual bearing surface and checks the sweep outside and above
- * the carrying leg before settling the ankle. The return retraces that fit.
+ * Jeong et al. (2008), Leg Crossing-Induced Asymmetrical Trunk Muscle Activity
+ * During Seated Computer Work, distinguish ankle-on-knee from upper-leg
+ * crossing
+ * (https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART001291962).
+ * Yu and An (2015), https://pmc.ncbi.nlm.nih.gov/articles/PMC4483391/, studied
+ * the latter. Turley et al. (2013),
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC3589629/, identify coupled hip range
+ * limits during activities such as chair leg crossing. Ganokroj et al. (2021),
+ * https://doi.org/10.1186/s12891-021-04487-z, distinguish the chair figure-four
+ * by its hip flexion, abduction and external rotation. The moving hip needs a
+ * calibrated thigh-axis rotation order. The planner fits the seated leg's
+ * actual bearing surface and checks the sweep outside and above the carrying
+ * leg before settling the ankle. The return retraces that fit.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the entry, staged contact, source, provisional timing and return.
  * @evidence contracts/development/design.md#principled-representation A reversible ankle placement on a seated base with authored hold and explicit support windows.

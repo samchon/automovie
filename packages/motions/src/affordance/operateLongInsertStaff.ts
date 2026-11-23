@@ -9,15 +9,16 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { operateLongInsertCourse } from "./operateLongInsertCourse";
 
 /**
- * A long insertion's staff: its grippable run, metres behind its working
- * point, from the longest handle or bar it declares (a sponge and rammer's
- * `shaft`), read along the staff's line from the working point, and that
- * grip's width across.
+ * A long insertion's staff: its grippable run, metres behind its working point,
+ * from the longest handle or bar it declares (a sponge and rammer's `shaft`),
+ * read along the staff's line from the working point, and that grip's width
+ * across.
  *
  * @param context The operation's context.
  * @param mechanism The insertion.
  * @returns The run and its width.
- * @throws {HumanRefusal} When the staff declares no working point or no handle or bar with a length.
+ * @throws {HumanRefusal} When the staff declares no working point or no handle
+ *   or bar with a length.
  */
 export function operateLongInsertStaff(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -57,9 +58,7 @@ export function operateLongInsertStaff(
   };
 }
 
-/**
- * The record of {@link operateLongInsertStaff}.
- */
+/** The record of {@link operateLongInsertStaff}. */
 export namespace operateLongInsertStaff {
   /** The staff's grippable run behind its working point, with its width across. */
   export interface IRun extends operateLongInsertCourse.IRange {

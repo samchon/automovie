@@ -2,8 +2,8 @@ import type { IAutoMovieMotionHumanFirefighting } from "@automovie/interface";
 
 /**
  * Advance a two-member hose team and work the line: the operator carries the
- * line by its nozzle grip, the backup grips without carrying it, each walks
- * the advance, then works the line in their role (`hoseLine`).
+ * line by its nozzle grip, the backup grips without carrying it, each walks the
+ * advance, then works the line in their role (`hoseLine`).
  *
  * @param nozzle The operator's chain and standing place.
  * @param backup The backup member's chain and standing place.

@@ -255,7 +255,10 @@ export namespace AquaticPaddle {
     });
   }
 
-  /** Keep the entered hip height on the rail and bound its rear travel by both braced legs. */
+  /**
+   * Keep the entered hip height on the rail and bound its rear travel by both
+   * braced legs.
+   */
   function scullRail(
     context: AquaticPosture.Context,
     hull: AquaticCrew.IHull,

@@ -5,13 +5,13 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A bone's record in a body's rig, by name: the first record of that name,
- * the one a scan of `body.skeleton.bones` finds.
+ * A bone's record in a body's rig, by name: the first record of that name, the
+ * one a scan of `body.skeleton.bones` finds.
  *
- * A body's rig is a value read when the body is made, so the body indexes
- * its bones by name once (`IAutoMovieMotionHumanBody.bones`), in place of a
- * scan of the bone list at every lookup. The record returned is the rig's
- * own object, so a caller reads its current constraint, axes and rest.
+ * A body's rig is a value read when the body is made, so the body indexes its
+ * bones by name once (`IAutoMovieMotionHumanBody.bones`), in place of a scan of
+ * the bone list at every lookup. The record returned is the rig's own object,
+ * so a caller reads its current constraint, axes and rest.
  *
  * @param body The body.
  * @param bone The bone's name.

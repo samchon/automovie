@@ -7,15 +7,13 @@ import type {
 import type { workoutSpans } from "./workoutSpans";
 
 /**
- * A workout's support windows: each support its kind bears, over the work
- * or over the spans whose two postures name it, on the other side's part
- * in a repetition done on that side, adjacent spans joined, and both feet
- * planted from the settle of a rise back to a recovered stance (`workout`).
+ * A workout's support windows: each support its kind bears, over the work or
+ * over the spans whose two postures name it, on the other side's part in a
+ * repetition done on that side, adjacent spans joined, and both feet planted
+ * from the settle of a rise back to a recovered stance (`workout`).
  */
 export namespace workoutContacts {
-  /**
-   * What the windows are built from.
-   */
+  /** What the windows are built from. */
   export interface IProps {
     /** The exercise. */
     kind: IAutoMovieMotionHumanWorkoutKind;

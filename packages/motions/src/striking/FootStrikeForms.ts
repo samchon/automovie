@@ -13,7 +13,10 @@ export namespace FootStrikeForms {
   /** A foot strike's contact point on the foot. */
   export type Contact = "heel" | "sole";
 
-  /** How one technique meets its target: the contact, the foot's attitude and the travel. */
+  /**
+   * How one technique meets its target: the contact, the foot's attitude and
+   * the travel.
+   */
   export interface IForm {
     /** The point of the foot that lands. */
     contact: Contact;

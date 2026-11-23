@@ -9,12 +9,13 @@ import { ropeSwing } from "./ropeSwing";
 import { ropeTraverse } from "./ropeTraverse";
 
 /**
- * Plan a rope crossing by its kind: a climb or a descent of an upright rope,
- * a traverse of a level one, or a swing to a landing.
+ * Plan a rope crossing by its kind: a climb or a descent of an upright rope, a
+ * traverse of a level one, or a swing to a landing.
  *
  * @param context The action's context.
  * @returns The crossing's plan.
- * @throws {HumanRefusal} From the selected crossing when the rope cannot carry it.
+ * @throws {HumanRefusal} From the selected crossing when the rope cannot carry
+ *   it.
  */
 export function planRope(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,

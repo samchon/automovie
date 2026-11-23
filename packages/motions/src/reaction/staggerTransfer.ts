@@ -3,14 +3,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * Hof's pendulum over a weight shift in closed form: the centre of pressure
- * runs from `p` to `q` on a minimum-jerk course over `span` seconds (`p(t)
- * = p + (q - p) s(t / span)`, `s` the quintic `10 u^3 - 15 u^4 + 6 u^5`,
- * Flash and Hogan 1985), and the centre of mass follows `x'' = omega^2 (x -
- * p(t))`. A quintic's sixth derivative is zero, so `x_p = p + p'' / omega^2
- * + p'''' / omega^4` solves the equation exactly, and `x = x_p + A cosh(omega
- * t) + B sinh(omega t)` meets the span's initial travel and velocity.
+ * runs from `p` to `q` on a minimum-jerk course over `span` seconds (`p(t) = p
+ * + (q - p) s(t / span)`, `s` the quintic `10 u^3 - 15 u^4 + 6 u^5`, Flash and
+ * Hogan 1985), and the centre of mass follows `x'' = omega^2 (x - p(t))`. A
+ * quintic's sixth derivative is zero, so `x_p = p + p'' / omega^2
  *
- * @param from The span's centre of pressure at its start, travel `s0` and velocity `v0`, entry-relative world metres and metres per second.
+ * - P'''' / omega^4`solves the equation exactly, and`x = x_p + A cosh(omega t) +
+ *   B sinh(omega t)` meets the span's initial travel and velocity.
+ *
+ * @param from The span's centre of pressure at its start, travel `s0` and
+ *   velocity `v0`, entry-relative world metres and metres per second.
  * @param to The centre of pressure at the span's end.
  * @param span The span's seconds.
  * @param w The pendulum's frequency, radians per second.
@@ -43,7 +45,11 @@ export function staggerTransfer(
   // The particular solution and its rate: p + p''/w^2 + p''''/w^4.
   const w2: number = w * w;
   const w4: number = w2 * w2;
-  const particular: (t: number) => { x: IAutoMovieVector3; dx: IAutoMovieVector3; p: IAutoMovieVector3 } = (
+  const particular: (t: number) => {
+    x: IAutoMovieVector3;
+    dx: IAutoMovieVector3;
+    p: IAutoMovieVector3;
+  } = (
     t: number,
   ): { x: IAutoMovieVector3; dx: IAutoMovieVector3; p: IAutoMovieVector3 } => {
     const s: number[] = shares(t);
@@ -56,14 +62,23 @@ export function staggerTransfer(
   };
   const start: ReturnType<typeof particular> = particular(0);
   const A: IAutoMovieVector3 = Vector3.subtract(from.s, start.x);
-  const B: IAutoMovieVector3 = Vector3.scale(Vector3.subtract(from.v, start.dx), 1 / w);
+  const B: IAutoMovieVector3 = Vector3.scale(
+    Vector3.subtract(from.v, start.dx),
+    1 / w,
+  );
   const t: number = Math.min(T, Math.max(0, u));
   const at: ReturnType<typeof particular> = particular(t);
   const ch: number = Math.cosh(w * t);
   const sh: number = Math.sinh(w * t);
   return {
     p: at.p,
-    s: Vector3.add(at.x, Vector3.add(Vector3.scale(A, ch), Vector3.scale(B, sh))),
-    v: Vector3.add(at.dx, Vector3.scale(Vector3.add(Vector3.scale(A, sh), Vector3.scale(B, ch)), w)),
+    s: Vector3.add(
+      at.x,
+      Vector3.add(Vector3.scale(A, ch), Vector3.scale(B, sh)),
+    ),
+    v: Vector3.add(
+      at.dx,
+      Vector3.scale(Vector3.add(Vector3.scale(A, sh), Vector3.scale(B, ch)), w),
+    ),
   };
 }

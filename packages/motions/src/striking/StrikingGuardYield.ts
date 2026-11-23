@@ -26,29 +26,29 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
 /**
- * How far a guard facing a person steps back so that the two fighters'
- * guards, both held, stand clear of each other: no joint of either body
- * inside the other's colliders (the partner verdict's reading,
- * `HumanColliders.distance`), whatever the two bodies' sizes.
+ * How far a guard facing a person steps back so that the two fighters' guards,
+ * both held, stand clear of each other: no joint of either body inside the
+ * other's colliders (the partner verdict's reading, `HumanColliders.distance`),
+ * whatever the two bodies' sizes.
  *
- * Each fighter reads the other as it perceived them when its guard began,
- * where the guard's line reads them (`StrikingTarget.LOOK` and a reaction
- * time, `HumanPerception.REACTION`), so two guards reading each other never
- * read each other's guard while it is planned. From that reading it anticipates the other's guard held at
- * `set`: the stance the guard law lays for that body about its feet, its
- * lead the foot ahead, facing this fighter (`held`). The two guards held
- * where they stand would pass into each other by some step along the floor's
- * line between them; each fighter takes half of it, the reciprocal share of
- * optimal reciprocal collision avoidance (van den Berg, Guy, Lin and Manocha
- * 2011), so the two halves clear them together. The step is the least at
- * which they clear, bisected (`bracketedBisection`) from a bracket doubled
- * until it clears.
+ * Each fighter reads the other as it perceived them when its guard began, where
+ * the guard's line reads them (`StrikingTarget.LOOK` and a reaction time,
+ * `HumanPerception.REACTION`), so two guards reading each other never read each
+ * other's guard while it is planned. From that reading it anticipates the
+ * other's guard held at `set`: the stance the guard law lays for that body
+ * about its feet, its lead the foot ahead, facing this fighter (`held`). The
+ * two guards held where they stand would pass into each other by some step
+ * along the floor's line between them; each fighter takes half of it, the
+ * reciprocal share of optimal reciprocal collision avoidance (van den Berg,
+ * Guy, Lin and Manocha 2011), so the two halves clear them together. The step
+ * is the least at which they clear, bisected (`bracketedBisection`) from a
+ * bracket doubled until it clears.
  */
 export namespace StrikingGuardYield {
   /**
-   * The step back of a guard from the person it faces, half of what keeps
-   * the two guards held clear, or null when they already clear or the guard
-   * faces no person.
+   * The step back of a guard from the person it faces, half of what keeps the
+   * two guards held clear, or null when they already clear or the guard faces
+   * no person.
    *
    * @param context The guard's context.
    * @param own The fighter's own guard held at `set`, as its stance lays it.
@@ -177,16 +177,16 @@ export namespace StrikingGuardYield {
   }
 
   /**
-   * A body's guard held at `set` about a stance centre on the floor: the
-   * feet on their stance places, the root sunk over them, turned to the
-   * stance heading with the face kept on the line, the chin tucked and the
-   * gloves up, over the angles the body entered with, as the guard law holds
-   * it.
+   * A body's guard held at `set` about a stance centre on the floor: the feet
+   * on their stance places, the root sunk over them, turned to the stance
+   * heading with the face kept on the line, the chin tucked and the gloves up,
+   * over the angles the body entered with, as the guard law holds it.
    *
    * @param body The body.
    * @param stance The lead and the line.
    * @param centre The stance centre, world metres on the floor.
-   * @param entry The clinical angles the body enters the guard with; none, the rest pose, when absent.
+   * @param entry The clinical angles the body enters the guard with; none, the
+   *   rest pose, when absent.
    * @returns The posture.
    */
   export function held(
@@ -244,17 +244,23 @@ export namespace StrikingGuardYield {
     };
   }
 
-  /** How far one foot stands ahead of the other along the heading before it leads, metres (`StrikingTarget.lead`'s). */
+  /**
+   * How far one foot stands ahead of the other along the heading before it
+   * leads, metres (`StrikingTarget.lead`'s).
+   */
   export const LEAD: number = 0.02;
 
-  /** The width the step is bisected to, metres: a tenth of the millimetre the partner verdict reports a depth in. */
+  /**
+   * The width the step is bisected to, metres: a tenth of the millimetre the
+   * partner verdict reports a depth in.
+   */
   export const TOLERANCE: number = 1e-4;
 
   /**
-   * The angles a person holds at a second as their placed actions write
-   * them, the posture their guard keeps under its own; none, the rest pose,
-   * where the reader has no placed path or their actions there are not
-   * placed yet (a participant refusal of the reader).
+   * The angles a person holds at a second as their placed actions write them,
+   * the posture their guard keeps under its own; none, the rest pose, where the
+   * reader has no placed path or their actions there are not placed yet (a
+   * participant refusal of the reader).
    */
   function entered(
     other: IAutoMovieMotionHumanPerformerReader,

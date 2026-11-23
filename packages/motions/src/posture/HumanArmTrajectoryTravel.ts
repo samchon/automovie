@@ -6,21 +6,21 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A probe's travel between two waypoints of an arm's trajectory, read
- * against the arm's own base: the shoulder's parent, which a carried body
- * (a rider, a passenger, a walker's trunk) moves with its carrier. A path's
- * speed bound and its length are the arm's own motion, so a car cruising at
- * 6 m/s charges nothing to the arm riding in it; read in the world, every
- * arm in a moving carrier breaks the bound whatever it does, and slowing the
- * action never slows the carrier (Hollerbach's time scaling holds only for
- * motion relative to the base). The clearance reads a probe against a
- * moving shape the same way (`HumanArmTrajectoryPairs.relative`).
+ * A probe's travel between two waypoints of an arm's trajectory, read against
+ * the arm's own base: the shoulder's parent, which a carried body (a rider, a
+ * passenger, a walker's trunk) moves with its carrier. A path's speed bound and
+ * its length are the arm's own motion, so a car cruising at 6 m/s charges
+ * nothing to the arm riding in it; read in the world, every arm in a moving
+ * carrier breaks the bound whatever it does, and slowing the action never slows
+ * the carrier (Hollerbach's time scaling holds only for motion relative to the
+ * base). The clearance reads a probe against a moving shape the same way
+ * (`HumanArmTrajectoryPairs.relative`).
  */
 export namespace HumanArmTrajectoryTravel {
   /**
-   * A probe's step from one waypoint to the next, against the arm's base:
-   * its place in the later base frame less its place in the earlier one,
-   * turned into the later waypoint's world orientation.
+   * A probe's step from one waypoint to the next, against the arm's base: its
+   * place in the later base frame less its place in the earlier one, turned
+   * into the later waypoint's world orientation.
    *
    * @param from The earlier waypoint's frame.
    * @param to The later waypoint's frame.
@@ -50,8 +50,8 @@ export namespace HumanArmTrajectoryTravel {
 
   /**
    * The turn that carries a direction read in the later waypoint's base
-   * orientation onto the earlier waypoint's, for the earlier point's share
-   * of a step's gradient: the earlier base's rotation after the later one's
+   * orientation onto the earlier waypoint's, for the earlier point's share of a
+   * step's gradient: the earlier base's rotation after the later one's
    * inverse.
    *
    * @param from The earlier waypoint's frame.

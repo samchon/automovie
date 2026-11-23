@@ -29,9 +29,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * (`sprintStartSet`, which prepares every input).
  */
 export namespace sprintStartSetFit {
-  /**
-   * What the fit is asked.
-   */
+  /** What the fit is asked. */
   export interface IProps {
     /** The body. */
     body: IAutoMovieMotionHumanBody;
@@ -190,9 +188,7 @@ export namespace sprintStartSetFit {
     return solved;
   }
 
-  /**
-   * One palm's frame where the bridge leaves it, raised off the track.
-   */
+  /** One palm's frame where the bridge leaves it, raised off the track. */
   export interface IPalm {
     /** The palm's centre, world metres. */
     point: IAutoMovieVector3;
@@ -204,9 +200,7 @@ export namespace sprintStartSetFit {
     forward: IAutoMovieVector3;
   }
 
-  /**
-   * The fitted set as the athletics law reads it.
-   */
+  /** The fitted set as the athletics law reads it. */
   export interface ISet {
     /** The hips joint, world metres. */
     hips: IAutoMovieVector3;

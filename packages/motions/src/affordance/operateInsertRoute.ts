@@ -15,19 +15,21 @@ import { operateInsert } from "./operateInsert";
 import { operateLongInsert } from "./operateLongInsert";
 
 /**
- * Route an operation: an insertion's depth resolved from its socket when
- * not given (`IAutoMovieAffordance.depth`), and planned by
- * `operateLongInsert` when the holding hand grips the tool on its working
- * line (within its half breadth, as a staff is held) and the insertion goes
- * deeper than that grip lies behind the working point, less the half
- * breadth the hand keeps off the mouth, since the hand would otherwise have
- * to enter the bore. A grip off the line (a pistol's) never meets the bore.
- * Any other operation passes through unchanged.
+ * Route an operation: an insertion's depth resolved from its socket when not
+ * given (`IAutoMovieAffordance.depth`), and planned by `operateLongInsert` when
+ * the holding hand grips the tool on its working line (within its half breadth,
+ * as a staff is held) and the insertion goes deeper than that grip lies behind
+ * the working point, less the half breadth the hand keeps off the mouth, since
+ * the hand would otherwise have to enter the bore. A grip off the line (a
+ * pistol's) never meets the bore. Any other operation passes through
+ * unchanged.
  *
  * @param context The operation's context.
  * @param constants The operation's reach share, stroke pace and aimed width.
- * @returns The long plan when it applies, and the context with the depth resolved.
- * @throws {HumanRefusal} When an insertion names no depth and its socket declares none.
+ * @returns The long plan when it applies, and the context with the depth
+ *   resolved.
+ * @throws {HumanRefusal} When an insertion names no depth and its socket
+ *   declares none.
  */
 export function operateInsertRoute(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
@@ -93,9 +95,7 @@ export function operateInsertRoute(
   };
 }
 
-/**
- * The records of {@link operateInsertRoute}.
- */
+/** The records of {@link operateInsertRoute}. */
 export namespace operateInsertRoute {
   /** The operation's own constants a long insertion reads. */
   export interface IConstants {

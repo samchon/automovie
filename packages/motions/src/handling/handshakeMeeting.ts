@@ -26,13 +26,13 @@ import { handshakeOffer } from "./handshakeOffer";
 
 /**
  * The meeting of a handshake (`AutoMovieMotionMeeting`): one record for both
- * partners, the single owner of where the two palms meet, of the line the
- * first partner's fingers point along, and of each partner's seat. The
- * point is `handshakeOffer.point` between the two acting shoulders; a seated
- * pair whose arms alone cannot meet leans its trunks forward over the seat
- * by the least common share of each one's room that lets them
- * (`HumanSeatedReach.goal`, Chan and Dubey 1995), and a pair even the full
- * lean cannot bring together is refused with the offer's own refusal.
+ * partners, the single owner of where the two palms meet, of the line the first
+ * partner's fingers point along, and of each partner's seat. The point is
+ * `handshakeOffer.point` between the two acting shoulders; a seated pair whose
+ * arms alone cannot meet leans its trunks forward over the seat by the least
+ * common share of each one's room that lets them (`HumanSeatedReach.goal`, Chan
+ * and Dubey 1995), and a pair even the full lean cannot bring together is
+ * refused with the offer's own refusal.
  */
 export namespace handshakeMeeting {
   /** The role both partners take. */
@@ -41,8 +41,10 @@ export namespace handshakeMeeting {
   /**
    * The meeting kind of a handshake.
    *
-   * @param props The shaking hand, the pump's amplitude, the shake's seconds and the acting arm of a partner for the mutual goal.
-   * @returns The kind: contacts `meet` (the palms' point) and `along` (that point plus the first ordered partner's finger direction, a unit vector).
+   * @param props The shaking hand, the pump's amplitude, the shake's seconds
+   *   and the acting arm of a partner for the mutual goal.
+   * @returns The kind: contacts `meet` (the palms' point) and `along` (that
+   *   point plus the first ordered partner's finger direction, a unit vector).
    */
   export function kind(props: {
     side: AutoMovieHumanSide;
@@ -95,14 +97,17 @@ export namespace handshakeMeeting {
   }
 
   /**
-   * What one partner reads of the meeting: the point with its own finger
-   * line, and how far its trunk leans to reach the point.
+   * What one partner reads of the meeting: the point with its own finger line,
+   * and how far its trunk leans to reach the point.
    */
   export interface IRead {
     /** The point and this partner's finger line, world. */
     meeting: handshakeOffer.IMeeting;
 
-    /** The trunk's forward lean, a share of its seated joints' rooms (`HumanSeatedReach.need`); none standing. */
+    /**
+     * The trunk's forward lean, a share of its seated joints' rooms
+     * (`HumanSeatedReach.need`); none standing.
+     */
     lean: { share: number; joints: IAutoMovieMotionHumanSeatedReach.IJoint[] };
   }
 
@@ -138,11 +143,23 @@ export namespace handshakeMeeting {
       point,
     );
     const seated: boolean = context.entry.supports.some(
-      (support: IAutoMovieMotionHumanEntryState.ISupport): boolean => support.kind === "seat");
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-      `${side}UpperArm`, ...(seated
-        ? ["hips", "chest", "neck", "leftUpperLeg", "leftLowerLeg", ...HumanSeatedReach.SPINE] as const : []),
-    ]);
+      (support: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        support.kind === "seat",
+    );
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([
+        `${side}UpperArm`,
+        ...(seated
+          ? ([
+              "hips",
+              "chest",
+              "neck",
+              "leftUpperLeg",
+              "leftLowerLeg",
+              ...HumanSeatedReach.SPINE,
+            ] as const)
+          : []),
+      ]);
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
@@ -177,12 +194,13 @@ export namespace handshakeMeeting {
   }
 
   /**
-   * A handshake's base with the trunk leaned over the seat: in over the
-   * reach, held through the pump, out over the return.
+   * A handshake's base with the trunk leaned over the seat: in over the reach,
+   * held through the pump, out over the return.
    *
    * @param body The body.
    * @param base The standing base.
-   * @param lean The share of the seated joints' rooms at the clasp, and those joints.
+   * @param lean The share of the seated joints' rooms at the clasp, and those
+   *   joints.
    * @param phases The reach's, the shake's and the return's seconds.
    * @returns The base, unchanged when the lean is none.
    */
@@ -196,9 +214,12 @@ export namespace handshakeMeeting {
     const { reach, shake, back } = phases;
     return {
       ...base,
-      posture: (seconds: number, _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
+      posture: (
+        seconds: number,
+        _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3]): IAutoMovieMotionHumanPosture => {
+        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
+      ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(reach + shake + back, Math.max(0, seconds));
         const w: number =
           t < reach

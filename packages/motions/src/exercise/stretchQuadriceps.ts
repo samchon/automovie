@@ -7,16 +7,16 @@ import type {
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 
 /**
- * Where the lifted ankle is held in the standing quadriceps stretch: the
- * least fold of the leg that brings the ankle within the same-side arm's
- * length of its shoulder.
+ * Where the lifted ankle is held in the standing quadriceps stretch: the least
+ * fold of the leg that brings the ankle within the same-side arm's length of
+ * its shoulder.
  *
  * The knee folds from `least` degrees with the thigh hanging straight down;
- * when the knee's whole range still leaves the ankle beyond the arm, the
- * thigh swings back at the hip, up to the hip's extension range. A body whose
- * arm is short for its leg folds further, as a person does who cannot reach
- * the foot. When no fold within the ranges reaches, the deepest one is
- * returned and the hand closes as near as the arm allows.
+ * when the knee's whole range still leaves the ankle beyond the arm, the thigh
+ * swings back at the hip, up to the hip's extension range. A body whose arm is
+ * short for its leg folds further, as a person does who cannot reach the foot.
+ * When no fold within the ranges reaches, the deepest one is returned and the
+ * hand closes as near as the arm allows.
  *
  * @param props The body, the lifted leg's side and hip joint, the same-side
  *   shoulder joint, the unit heading and the least knee flexion in degrees;

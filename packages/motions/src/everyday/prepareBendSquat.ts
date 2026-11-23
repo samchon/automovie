@@ -31,7 +31,10 @@ import { braceOnThighPoint } from "./braceOnThighPoint";
 import { seatedPairDepth } from "./seatedPairDepth";
 
 type Strategy = Exclude<keyof typeof bendLower.KNEE, "stoop">;
-/** A fixed wrist or one on a carried surface. A trial offers its same-pose displayed bones. */
+/**
+ * A fixed wrist or one on a carried surface. A trial offers its same-pose
+ * displayed bones.
+ */
 type Wrist =
   | IAutoMovieVector3
   | ((
@@ -54,7 +57,10 @@ type Angles = [
   twist: number,
 ];
 
-/** Current residuals and the canonical leg fit eligible to serve its derivatives. */
+/**
+ * Current residuals and the canonical leg fit eligible to serve its
+ * derivatives.
+ */
 interface ITrial {
   rows: number[];
   legs: IAutoMovieMotionHumanPosture;
@@ -66,11 +72,11 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 const RAD: number = Math.PI / 180;
 
 /**
- * Recover a supported, unilateral squat when the nominal sagittal course
- * folds the lumbar skin into a thigh. Two links locate the hips above the
- * actual ankle centres while both hindfoot goals keep their material pivots.
- * The event solve varies the loaded ankle, knee, pelvis and trunk on their
- * clinical intervals. Playback reads the one resulting contact key.
+ * Recover a supported, unilateral squat when the nominal sagittal course folds
+ * the lumbar skin into a thigh. Two links locate the hips above the actual
+ * ankle centres while both hindfoot goals keep their material pivots. The event
+ * solve varies the loaded ankle, knee, pelvis and trunk on their clinical
+ * intervals. Playback reads the one resulting contact key.
  */
 export function prepareBendSquat(
   body: IAutoMovieMotionHumanBody,
@@ -175,7 +181,10 @@ export function prepareBendSquat(
   const upper = HumanFrame.local({ ...legFrame, origin: startKnee }, startHip);
   const startShank: number = Math.atan2(lower.z, lower.y);
   const startThigh: number = Math.atan2(-upper.z, upper.y);
-  /** The root and both planted knee planes depend only on the first four coordinates. */
+  /**
+   * The root and both planted knee planes depend only on the first four
+   * coordinates.
+   */
   const lowerBody = (q: readonly number[]): IAutoMovieMotionHumanPosture => {
     const shank: number = (q[1]! + bendLower.HEEL[strategy]) * RAD,
       thigh: number = q[0]! * RAD - shank;

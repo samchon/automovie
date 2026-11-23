@@ -21,7 +21,10 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** Fit explicitly staged feet to the moving support and verify the displayed soles. */
+/**
+ * Fit explicitly staged feet to the moving support and verify the displayed
+ * soles.
+ */
 export namespace placeRideFeet {
   /** A named foot bearing uses the same target for pose writing and admission. */
   export interface IRideFoot {
@@ -50,7 +53,10 @@ export namespace placeRideFeet {
     began: IAutoMovieVector3;
   }
 
-  /** A ride's feet: those that keep a part-relative entry, and those fitted to a named support. */
+  /**
+   * A ride's feet: those that keep a part-relative entry, and those fitted to a
+   * named support.
+   */
   export interface ISupports {
     /** Feet already resting on a moving part. */
     pedals: IRidePedal[];
@@ -59,7 +65,10 @@ export namespace placeRideFeet {
     placed: IRideFoot[];
   }
 
-  /** Separate explicitly acquired supports from the existing part-relative pedal reads. */
+  /**
+   * Separate explicitly acquired supports from the existing part-relative pedal
+   * reads.
+   */
   export function supports(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
     support: IAutoMovieMotionHumanPropReader,
@@ -153,7 +162,10 @@ export namespace placeRideFeet {
     };
   }
 
-  /** Move the displayed ball from its carried pose to the surface, level with its forward slope. */
+  /**
+   * Move the displayed ball from its carried pose to the surface, level with
+   * its forward slope.
+   */
   export function acquire(
     foot: IRideFoot,
     pose: IAutoMovieMotionHumanPosture,
@@ -198,7 +210,10 @@ export namespace placeRideFeet {
     };
   }
 
-  /** Refuse an exact-support request when the displayed sole cannot meet its named surface. */
+  /**
+   * Refuse an exact-support request when the displayed sole cannot meet its
+   * named surface.
+   */
   export function admit(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
     feet: readonly IRideFoot[],

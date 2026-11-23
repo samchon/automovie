@@ -1,7 +1,9 @@
 import type { IAutoMovieMotionHumanFloor } from "@automovie/interface";
 
 /**
- * The lieStill preset of `lieDown`: Lying down and staying three seconds (provisional), as to sleep or to play dead. Spread into `lieDown`'s parameters; the `lieStill` row reads it.
+ * The lieStill preset of `lieDown`: Lying down and staying three seconds
+ * (provisional), as to sleep or to play dead. Spread into `lieDown`'s
+ * parameters; the `lieStill` row reads it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, how it is applied, which row reads it and what is provisional.
  * @evidence contracts/development/design.md#principled-representation The lieDown law's own members as one `ILieDownPreset`, so it fits any body as the law does.

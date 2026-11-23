@@ -44,19 +44,21 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * A registered, stationary-base pour. Bring the held source above a fixed
  * recipient, tip about its rim lip, transfer, right it and retreat. Register
  * `pour` in `HumanPerformance` and call `registered(pour.name, params)`.
- * `flowStart` and `flowEnd` delimit the authored transfer cue. EPIC-KITCHENS-100
- * provides observational action context (Damen et al., 2021,
+ * `flowStart` and `flowEnd` delimit the authored transfer cue.
+ * EPIC-KITCHENS-100 provides observational action context (Damen et al., 2021,
  * https://arxiv.org/abs/2006.13256). Angles and phase lengths here are staged
  * inputs. The liquid query gives the volume cue for one action instance.
  */
 export namespace pour {
   /**
    * Registered action name.
+   *
    * @evidence contracts/development/common.md#meaningful-documentation Names the lookup key used by the chain.
    */
   export const name: string = "pour";
   /**
    * The whole transfer plays together, without an offered cut.
+   *
    * @evidence contracts/development/common.md#meaningful-documentation No authored interruption window is offered during the pour.
    */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
@@ -66,7 +68,8 @@ export namespace pour {
    *
    * @param context Entry with both feet planted and the named source in hand.
    * @returns The action plan with its original grip retained.
-   * @throws {HumanRefusal} For invalid timing, geometry, volumes, support or grip, and for a pose that misses the sampled mouth or tilt bound.
+   * @throws {HumanRefusal} For invalid timing, geometry, volumes, support or
+   *   grip, and for a pose that misses the sampled mouth or tilt bound.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPour.IParams>,
@@ -296,13 +299,14 @@ export namespace pour {
   }
 
   /**
-   * Sample the authored liquid balance. Use the pour instance's plan so
-   * the interval follows its clock after any performance tempo scaling.
+   * Sample the authored liquid balance. Use the pour instance's plan so the
+   * interval follows its clock after any performance tempo scaling.
    *
    * @param params The authored amounts used to plan the pour.
    * @param plan The pour instance's duration and events.
    * @param seconds Finite seconds from the plan's start, clamped outside flow.
-   * @returns Volumes remaining in both vessels and cumulative overflow, in millilitres.
+   * @returns Volumes remaining in both vessels and cumulative overflow, in
+   *   millilitres.
    * @throws {HumanRefusal} For invalid volumes, time or flow events.
    */
   export function liquid(
@@ -421,7 +425,10 @@ function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
       fix: "supply the initial fills and capacity in millilitres and discharge at most the available source volume",
     });
 }
-/** Read the stationary recipient's upright circular opening from its centre and rim. */
+/**
+ * Read the stationary recipient's upright circular opening from its centre and
+ * rim.
+ */
 function openingOf(
   source: string,
   receiver: IAutoMovieMotionHumanPropReader,

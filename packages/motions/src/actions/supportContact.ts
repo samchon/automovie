@@ -19,14 +19,14 @@ import { prepareSupportContactForm } from "./prepareSupportContactForm";
 import { supportContactOnFloor } from "./supportContactOnFloor";
 
 /**
- * A support planner's contact (`support`) as the whole-body fit takes it
- * and as the course between keys pivots about it: the bone and point that
- * bear, the place held, the normal laid flat and the bones that bear on the
- * floor.
+ * A support planner's contact (`support`) as the whole-body fit takes it and as
+ * the course between keys pivots about it: the bone and point that bear, the
+ * place held, the normal laid flat and the bones that bear on the floor.
  */
 export namespace supportContact {
   /**
-   * A contact as the fit takes it: its target and the part that bears on the floor.
+   * A contact as the fit takes it: its target and the part that bears on the
+   * floor.
    */
   export interface IForm {
     /** The fit's target. */
@@ -36,26 +36,33 @@ export namespace supportContact {
     bearing?: RegExp;
   }
 
-  /** Body-fixed contact geometry shared within one operation; prepareSupportContactForm owns its lifetime and mapping. */
+  /**
+   * Body-fixed contact geometry shared within one operation;
+   * prepareSupportContactForm owns its lifetime and mapping.
+   */
   export const prepareForm: typeof prepareSupportContactForm =
     prepareSupportContactForm;
 
-  /** The form's existing floor-height predicate, without constructing unused target geometry. */
+  /**
+   * The form's existing floor-height predicate, without constructing unused
+   * target geometry.
+   */
   export const onFloorTarget: typeof supportContactOnFloor =
     supportContactOnFloor;
 
   /**
-   * The target of a part stepping from one contact to another, at the top
-   * of its swing: over the middle of the step, lifted by a stepping limb's
-   * rise (`crawl.LIFT`) above the higher end, its surface facing as it will
-   * bear. Where only one end has a place the swing rises over it; where
-   * neither has, the part swings free.
+   * The target of a part stepping from one contact to another, at the top of
+   * its swing: over the middle of the step, lifted by a stepping limb's rise
+   * (`crawl.LIFT`) above the higher end, its surface facing as it will bear.
+   * Where only one end has a place the swing rises over it; where neither has,
+   * the part swings free.
    *
    * @param form The plan's contact forms (`prepareForm`) for its body.
    * @param to The contact it steps to.
    * @param from Where it leaves, world metres; no place when null.
    * @param onto Where it sets down, world metres; no place when null.
-   * @param via A caller-owned world waypoint that clears the obstacle, when given.
+   * @param via A caller-owned world waypoint that clears the obstacle, when
+   *   given.
    * @param rise How high the swing clears the higher end, metres.
    * @returns The fit's target, or null for a step with no place.
    */
@@ -80,9 +87,9 @@ export namespace supportContact {
   }
 
   /**
-   * The contact window's part a support part bears through: a knee through
-   * its shin, the lower leg's window; the trunk's window named by the back
-   * for every lying position, the front's too, as the lying law names it
+   * The contact window's part a support part bears through: a knee through its
+   * shin, the lower leg's window; the trunk's window named by the back for
+   * every lying position, the front's too, as the lying law names it
    * (`lieDown`); any other part its own.
    *
    * @param part The support part.
@@ -97,9 +104,9 @@ export namespace supportContact {
   }
 
   /**
-   * The limb a part belongs to, which steps as one: a foot and its knee are
-   * one leg, a hand its arm; a part of the trunk is its own, since the
-   * trunk rolls from one to another and never steps.
+   * The limb a part belongs to, which steps as one: a foot and its knee are one
+   * leg, a hand its arm; a part of the trunk is its own, since the trunk rolls
+   * from one to another and never steps.
    *
    * @param part The support part.
    * @returns The limb's name.
@@ -127,9 +134,9 @@ export namespace supportContact {
   }
 
   /**
-   * A contact's identity: its part, how it touches, its target, its inset
-   * and the stance it was set down in (`placements`), empty for a contact
-   * not yet placed.
+   * A contact's identity: its part, how it touches, its target, its inset and
+   * the stance it was set down in (`placements`), empty for a contact not yet
+   * placed.
    *
    * @param c The contact.
    * @returns The identity string.
@@ -141,9 +148,7 @@ export namespace supportContact {
     return `${c.part}|${c.kind}|${JSON.stringify(c.target)}|${c.inset ?? 0}|${placed}`;
   }
 
-  /**
-   * A contact with the index of the stance it was last set down in.
-   */
+  /** A contact with the index of the stance it was last set down in. */
   export interface IPlaced extends IAutoMovieMotionHumanSupport.IContact {
     /** The stance it was set down in. */
     placed: number;
@@ -193,11 +198,11 @@ export namespace supportContact {
   }
 
   /**
-   * Where a contact on the action's surface (`on`) lies: on its own side of
-   * the surface's point (a hand out by the shoulder's half width, a foot or
-   * a knee by the hip's, the trunk at its middle) and in from the edge
-   * along the heading by its inset (`HumanSupport.IContact.inset`), a share
-   * of the forearm and hand's length.
+   * Where a contact on the action's surface (`on`) lies: on its own side of the
+   * surface's point (a hand out by the shoulder's half width, a foot or a knee
+   * by the hip's, the trunk at its middle) and in from the edge along the
+   * heading by its inset (`HumanSupport.IContact.inset`), a share of the
+   * forearm and hand's length.
    *
    * @param body The body.
    * @param c The contact.
@@ -229,8 +234,8 @@ export namespace supportContact {
   }
 
   /**
-   * Where support parts bear in one posture, dropped to the floor: the
-   * places contacts without one keep, in the parts' order.
+   * Where support parts bear in one posture, dropped to the floor: the places
+   * contacts without one keep, in the parts' order.
    */
   export function onFloors(
     body: IAutoMovieMotionHumanBody,
@@ -267,8 +272,10 @@ export namespace supportContact {
    * actual current posture; no achieved point or pose is prepared here.
    *
    * @param body The unchanged body/surfaces/rig.
-   * @param contacts Fixed ordered contact/target pairs, including null floor places.
-   * @returns A fresh-point reader borrowing optional exact FK and genuine ROM metadata only for its current synchronous call.
+   * @param contacts Fixed ordered contact/target pairs, including null floor
+   *   places.
+   * @returns A fresh-point reader borrowing optional exact FK and genuine ROM
+   *   metadata only for its current synchronous call.
    */
   export function preparePoints(
     body: IAutoMovieMotionHumanBody,
@@ -341,7 +348,10 @@ export namespace supportContact {
     at: IAutoMovieVector3 | null;
   }
 
-  /** Observe one candidate's part-origin frames without a goal or offset substitution. */
+  /**
+   * Observe one candidate's part-origin frames without a goal or offset
+   * substitution.
+   */
   function pinnedMany(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,

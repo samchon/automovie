@@ -12,21 +12,25 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * The two handles a sled push (`pushSled`) takes, read on the pushed prop
- * where it stands at the push's start.
+ * The two handles a sled push (`pushSled`) takes, read on the pushed prop where
+ * it stands at the push's start.
  */
 export namespace pushSledHandles {
-  /**
-   * A handle where it stands at the grip.
-   */
+  /** A handle where it stands at the grip. */
   export interface IHandle {
-    /** Its frame: the point, the palm's way in (`normal`) and the wrapped axis (`forward`). */
+    /**
+     * Its frame: the point, the palm's way in (`normal`) and the wrapped axis
+     * (`forward`).
+     */
     frame: IAutoMovieMotionHumanHand.IFrame;
 
     /** How its grasp repeats about the wrapped axis. */
     symmetry: IAutoMovieAffordance["symmetry"];
 
-    /** Its grip band's length along the wrapped axis, metres; 0 when it declares no band. */
+    /**
+     * Its grip band's length along the wrapped axis, metres; 0 when it declares
+     * no band.
+     */
     length: number;
   }
 
@@ -38,7 +42,8 @@ export namespace pushSledHandles {
    * @param left The left hand's handle id.
    * @param right The right hand's handle id.
    * @returns Each hand's handle.
-   * @throws {HumanRefusal} An `affordance` refusal on `handle` when the prop has no handle of that name, listing its affordances.
+   * @throws {HumanRefusal} An `affordance` refusal on `handle` when the prop
+   *   has no handle of that name, listing its affordances.
    */
   export function of(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">,

@@ -61,9 +61,7 @@ export namespace HumanPerformanceHold {
     return read(self, subject, seconds, own);
   }
 
-  /**
-   * The active mounted carrier, provided no newer flight has taken custody.
-   */
+  /** The active mounted carrier, provided no newer flight has taken custody. */
   export function mount(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,

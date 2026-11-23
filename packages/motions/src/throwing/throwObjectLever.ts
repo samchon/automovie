@@ -41,9 +41,7 @@ import { throwObjectLaunch } from "./throwObjectLaunch";
  * stand-off decides how the point arrives ({@link spin}).
  */
 export namespace throwObjectLever {
-  /**
-   * The lever at the release.
-   */
+  /** The lever at the release. */
   export interface ILever {
     /**
      * Where the thrown prop leaves: the implement's working point at the

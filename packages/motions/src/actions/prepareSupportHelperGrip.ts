@@ -28,8 +28,8 @@ type OptionalFollow = Follow | undefined;
 
 /**
  * Keep a helper's palm on the rising person's displayed palm throughout a
- * closed grip. The rising person's planted course is evaluated first, so
- * their limb never asks the helper for the same instant in return.
+ * closed grip. The rising person's planted course is evaluated first, so their
+ * limb never asks the helper for the same instant in return.
  */
 export function prepareSupportHelperGrip(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,

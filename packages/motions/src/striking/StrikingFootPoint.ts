@@ -9,15 +9,16 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
- * A stepping foot pointed in the air: its toes turned down by `POINT`
- * degrees at the step's middle, so the ankle eases out of a stance's
- * dorsiflexion while the foot bears nothing, and the ankle raised by what
- * pointing lowers the toes, so the toes' clearance is the step's own.
+ * A stepping foot pointed in the air: its toes turned down by `POINT` degrees
+ * at the step's middle, so the ankle eases out of a stance's dorsiflexion while
+ * the foot bears nothing, and the ankle raised by what pointing lowers the
+ * toes, so the toes' clearance is the step's own.
  *
  * @param body The body.
  * @param side The foot.
  * @param placement The foot's placement on its step.
- * @param bump How far into its pointing the step is, 0 at its ends and 1 at its middle.
+ * @param bump How far into its pointing the step is, 0 at its ends and 1 at its
+ *   middle.
  * @returns The pointed placement.
  */
 export function StrikingFootPoint(
@@ -50,9 +51,7 @@ export function StrikingFootPoint(
   };
 }
 
-/**
- * Constants of {@link StrikingFootPoint}.
- */
+/** Constants of {@link StrikingFootPoint}. */
 export namespace StrikingFootPoint {
   /** A stepping foot's toes-down pitch at mid-step, degrees (provisional). */
   export const POINT: number = 25;

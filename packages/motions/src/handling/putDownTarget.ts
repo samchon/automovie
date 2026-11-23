@@ -20,9 +20,9 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
 
 /**
- * The rigid frame a prop is set on: a bone of the performer or another
- * prop's socket. The placement and the grasp chosen for it read this same
- * frame, with both sockets posed by their articulations at the entry.
+ * The rigid frame a prop is set on: a bone of the performer or another prop's
+ * socket. The placement and the grasp chosen for it read this same frame, with
+ * both sockets posed by their articulations at the entry.
  */
 export namespace putDownTarget {
   /**
@@ -33,7 +33,8 @@ export namespace putDownTarget {
    * @param side The hand carrying the source.
    * @param offset The source prop frame kept in the wrist bone.
    * @param seconds Seconds from placement entry to transfer.
-   * @throws {HumanRefusal} If the fitted source exceeds the position or attitude bound.
+   * @throws {HumanRefusal} If the fitted source exceeds the position or
+   *   attitude bound.
    */
   export function checkContact(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
@@ -100,16 +101,18 @@ export namespace putDownTarget {
   }
 
   /**
-   * Admit horizontal translation of a directly placed rigid receiver.
-   * The displayed socket is checked at intervals of at most 1/120 s, including
-   * when it rides an authored track through initial prop mounts. Fixed
-   * sockets keep their original placement path.
+   * Admit horizontal translation of a directly placed rigid receiver. The
+   * displayed socket is checked at intervals of at most 1/120 s, including when
+   * it rides an authored track through initial prop mounts. Fixed sockets keep
+   * their original placement path.
    *
    * @param context The placement and its film-clock prop readers.
    * @param duration Full placement duration, in seconds.
    * @param aperture The optional registered insertion path.
-   * @returns The displacement from entry as a function of local seconds, or undefined for fixed destinations.
-   * @throws {HumanRefusal} When motion leaves the admitted path or the displayed socket lacks a rigid authored carrier.
+   * @returns The displacement from entry as a function of local seconds, or
+   *   undefined for fixed destinations.
+   * @throws {HumanRefusal} When motion leaves the admitted path or the
+   *   displayed socket lacks a rigid authored carrier.
    */
   export function translation(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
@@ -239,11 +242,12 @@ export namespace putDownTarget {
 
   /**
    * The prop's frame in the frame of the socket it is set on (`onto`): the
-   * inverse of its own `via` socket, so that socket lands on the receiving
-   * one, as `of` places it; the identity without a `via`.
+   * inverse of its own `via` socket, so that socket lands on the receiving one,
+   * as `of` places it; the identity without a `via`.
    *
    * @param context The authored destination, props and entry second.
-   * @returns The prop's frame in the receiving socket's frame, metres and a unit quaternion.
+   * @returns The prop's frame in the receiving socket's frame, metres and a
+   *   unit quaternion.
    * @throws {HumanRefusal} On onto when the prop's `via` socket is absent.
    */
   export function seated(
@@ -279,7 +283,9 @@ export namespace putDownTarget {
    * The prop's fixed placing frame, or undefined for a free world placement.
    *
    * @param context The authored destination, body, props and entry second.
-   * @param pose The body at that entry, including a prospective grasp's stance, or its synchronous supplier evaluated only for a bone-mounted destination.
+   * @param pose The body at that entry, including a prospective grasp's stance,
+   *   or its synchronous supplier evaluated only for a bone-mounted
+   *   destination.
    * @returns The placing frame, world metres and a unit quaternion.
    * @throws {HumanRefusal} On onto when either named socket is absent.
    */
@@ -370,7 +376,10 @@ export namespace putDownTarget {
   }
 
   /**
-   * Read the socket in world metres at a film second. A receiver that publishes its contacts' displayed frames (a horse's head, a carrier on a moving body) is read there, so the socket follows what moves within the prop; otherwise the prop's rigid frame carries its declared socket.
+   * Read the socket in world metres at a film second. A receiver that publishes
+   * its contacts' displayed frames (a horse's head, a carrier on a moving body)
+   * is read there, so the socket follows what moves within the prop; otherwise
+   * the prop's rigid frame carries its declared socket.
    */
   function worldSocket(
     reader: IAutoMovieMotionHumanPropReader,

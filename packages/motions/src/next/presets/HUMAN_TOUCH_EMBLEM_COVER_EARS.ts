@@ -1,7 +1,8 @@
 import type { IAutoMovieMotionHumanTouch } from "@automovie/interface";
 
 /**
- * The values the `coverEars` row of `HumanEmblem` fixes on `touch`, spread into its parameters. Both hands over the ears.
+ * The values the `coverEars` row of `HumanEmblem` fixes on `touch`, spread into
+ * its parameters. Both hands over the ears.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the values the preset fixes, the law it is spread into and the row that reads it.
  * @evidence contracts/development/design.md#principled-representation The law's own parameters as one `ITouchTargetOtherEffectorKindHandPreset`, so it fits any body as the law does.

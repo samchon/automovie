@@ -1,4 +1,8 @@
-import { Vector3, rootsAutoMovieCubicBernstein64, tetrahedralizeAutoMovieDelaunay } from "@automovie/engine";
+import {
+  Vector3,
+  rootsAutoMovieCubicBernstein64,
+  tetrahedralizeAutoMovieDelaunay,
+} from "@automovie/engine";
 import type {
   IAutoMovieTetrahedralizeDelaunay,
   IAutoMovieVector3,
@@ -7,16 +11,14 @@ import type {
 /**
  * The sides an interaction mesh records (`HumanInteractionMesh`): each
  * tetrahedron not flat on the key pose keeps its orientation, so no point
- * passes through the face across from it, which is how one body would pass
- * into another. The determinant is scaled by the reference's largest
- * face area, giving an altitude in metres. Close to zero, the barrier of
- * Li et al. 2020 §4.2 repels compression. Their §4.4 line filter finds an
- * admissible step before the first possible element collapse.
+ * passes through the face across from it, which is how one body would pass into
+ * another. The determinant is scaled by the reference's largest face area,
+ * giving an altitude in metres. Close to zero, the barrier of Li et al. 2020
+ * §4.2 repels compression. Their §4.4 line filter finds an admissible step
+ * before the first possible element collapse.
  */
 export namespace HumanInteractionMeshSide {
-  /**
-   * A tetrahedron that records a side.
-   */
+  /** A tetrahedron that records a side. */
   export interface ISide {
     /** The corners, in the mesh's positive orientation. */
     corners: readonly [number, number, number, number];
@@ -54,9 +56,18 @@ export namespace HumanInteractionMeshSide {
       )
       .map((corners: ISide["corners"]): ISide => {
         const [a, b, c, d] = corners;
-        const e1: IAutoMovieVector3 = Vector3.subtract(reference[b]!, reference[a]!);
-        const e2: IAutoMovieVector3 = Vector3.subtract(reference[c]!, reference[a]!);
-        const e3: IAutoMovieVector3 = Vector3.subtract(reference[d]!, reference[a]!);
+        const e1: IAutoMovieVector3 = Vector3.subtract(
+          reference[b]!,
+          reference[a]!,
+        );
+        const e2: IAutoMovieVector3 = Vector3.subtract(
+          reference[c]!,
+          reference[a]!,
+        );
+        const e3: IAutoMovieVector3 = Vector3.subtract(
+          reference[d]!,
+          reference[a]!,
+        );
         const bc: IAutoMovieVector3 = Vector3.cross(e1, e2);
         const bd: IAutoMovieVector3 = Vector3.cross(e1, e3);
         const cd: IAutoMovieVector3 = Vector3.cross(e2, e3);
@@ -83,11 +94,13 @@ export namespace HumanInteractionMeshSide {
   export function value(x: Float64Array, side: ISide): number {
     const [a, b, c, d] = side.corners;
     const p: IAutoMovieVector3 = at(x, a);
-    return triple(
-      Vector3.subtract(at(x, b), p),
-      Vector3.subtract(at(x, c), p),
-      Vector3.subtract(at(x, d), p),
-    ) / side.area;
+    return (
+      triple(
+        Vector3.subtract(at(x, b), p),
+        Vector3.subtract(at(x, c), p),
+        Vector3.subtract(at(x, d), p),
+      ) / side.area
+    );
   }
 
   /** The indexed gradient of one signed altitude. */
@@ -140,7 +153,11 @@ export namespace HumanInteractionMeshSide {
    * @param sides The recorded elements.
    * @returns One, or the first conservative compression event on the step.
    */
-  export function limit(x: Float64Array, step: Float64Array, sides: readonly ISide[]): number {
+  export function limit(
+    x: Float64Array,
+    step: Float64Array,
+    sides: readonly ISide[],
+  ): number {
     let fraction: number = 1;
     for (const side of sides) {
       const [a, b, c, d] = side.corners;
@@ -149,15 +166,26 @@ export namespace HumanInteractionMeshSide {
       const e1: IAutoMovieVector3 = Vector3.subtract(at(x, b), origin);
       const e2: IAutoMovieVector3 = Vector3.subtract(at(x, c), origin);
       const e3: IAutoMovieVector3 = Vector3.subtract(at(x, d), origin);
-      const f1: IAutoMovieVector3 = Vector3.add(e1, Vector3.scale(Vector3.subtract(at(step, b), move), fraction));
-      const f2: IAutoMovieVector3 = Vector3.add(e2, Vector3.scale(Vector3.subtract(at(step, c), move), fraction));
-      const f3: IAutoMovieVector3 = Vector3.add(e3, Vector3.scale(Vector3.subtract(at(step, d), move), fraction));
+      const f1: IAutoMovieVector3 = Vector3.add(
+        e1,
+        Vector3.scale(Vector3.subtract(at(step, b), move), fraction),
+      );
+      const f2: IAutoMovieVector3 = Vector3.add(
+        e2,
+        Vector3.scale(Vector3.subtract(at(step, c), move), fraction),
+      );
+      const f3: IAutoMovieVector3 = Vector3.add(
+        e3,
+        Vector3.scale(Vector3.subtract(at(step, d), move), fraction),
+      );
       const initial: number = triple(e1, e2, e3);
       const floor: number = (1 - COMPRESSION) * initial;
       const coefficients: number[] = [
         initial - floor,
-        (triple(f1, e2, e3) + triple(e1, f2, e3) + triple(e1, e2, f3)) / 3 - floor,
-        (triple(e1, f2, f3) + triple(f1, e2, f3) + triple(f1, f2, e3)) / 3 - floor,
+        (triple(f1, e2, e3) + triple(e1, f2, e3) + triple(e1, e2, f3)) / 3 -
+          floor,
+        (triple(e1, f2, f3) + triple(f1, e2, f3) + triple(f1, f2, e3)) / 3 -
+          floor,
         triple(f1, f2, f3) - floor,
       ];
       if (coefficients.every((v: number): boolean => v > 0)) continue;
@@ -171,11 +199,18 @@ export namespace HumanInteractionMeshSide {
     return fraction;
   }
 
-  /** Fraction of an element's current volume it may lose in one feasible step (Li et al. 2020 technical supplement §4). */
+  /**
+   * Fraction of an element's current volume it may lose in one feasible step
+   * (Li et al. 2020 technical supplement §4).
+   */
   const COMPRESSION: number = 0.8;
 
   /** The oriented determinant of three tetrahedron edge vectors. */
-  function triple(a: IAutoMovieVector3, b: IAutoMovieVector3, c: IAutoMovieVector3): number {
+  function triple(
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+    c: IAutoMovieVector3,
+  ): number {
     return Vector3.dot(a, Vector3.cross(b, c));
   }
 

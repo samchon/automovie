@@ -9,8 +9,8 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 
 /**
  * Share rig preparation and exact FK prerequisites across one person's
- * synchronous displayed evaluation, including its transition-rate samples.
- * The body and its rig stay unchanged until that evaluation returns or throws.
+ * synchronous displayed evaluation, including its transition-rate samples. The
+ * body and its rig stay unchanged until that evaluation returns or throws.
  *
  * @param body The unchanged performer body of every borrowing stage.
  * @returns Metadata and a lazy FK reader; no pose history or fit is retained.
@@ -22,9 +22,12 @@ export function prepareHumanSegmentPose(
 }
 
 /** One independent FK workspace paired only with an owner-issued ROM mapper. */
-function fresh(body: IAutoMovieMotionHumanBody, clamp: ReturnType<typeof prepareHumanPostureProjection>):
-  prepareHumanSegmentPose.IPrepared {
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+function fresh(
+  body: IAutoMovieMotionHumanBody,
+  clamp: ReturnType<typeof prepareHumanPostureProjection>,
+): prepareHumanSegmentPose.IPrepared {
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
   return {
     body,
     clamp,
@@ -32,9 +35,7 @@ function fresh(body: IAutoMovieMotionHumanBody, clamp: ReturnType<typeof prepare
   };
 }
 
-/**
- * Operation-owned preparation borrowed by displayed-pose stages.
- */
+/** Operation-owned preparation borrowed by displayed-pose stages. */
 export namespace prepareHumanSegmentPose {
   /**
    * Issue independent evaluations within one synchronous unchanged-body scan.
@@ -54,9 +55,9 @@ export namespace prepareHumanSegmentPose {
   /**
    * One synchronous evaluation's rig metadata and lazily demanded FK.
    *
-   * The seeded evaluator checks the unchanged body's identity and lends
-   * only its clamp and FK getter. Actual pose/joint scalars stay numerical
-   * inputs at every use; no time, target or solved answer is stored here.
+   * The seeded evaluator checks the unchanged body's identity and lends only
+   * its clamp and FK getter. Actual pose/joint scalars stay numerical inputs at
+   * every use; no time, target or solved answer is stored here.
    */
   export interface IPrepared {
     /** Same body identity required by every borrower. */
@@ -65,7 +66,10 @@ export namespace prepareHumanSegmentPose {
     /** Project each actual pose through the unchanged rig's ordinary ROM. */
     clamp(pose: IAutoMoviePose): IAutoMoviePose;
 
-    /** First demand acquires the exact reader; release this getter with the evaluation. */
+    /**
+     * First demand acquires the exact reader; release this getter with the
+     * evaluation.
+     */
     resolution(): ReturnType<typeof preparePoseResolution>;
   }
 }

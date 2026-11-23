@@ -5,20 +5,20 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The order to fit a posture's limbs in: legs then arms, so an arm is
- * chosen beside thighs that already stand where the posture puts them
- * (`HumanArmClearance`), each limb after
- * any limb whose bones its goal is attached to (`on`), so an attachment
- * reads that limb's solved frame (a palm under the other elbow follows the
- * other arm). A limb's bones are its chain, its hand or foot, and the
- * fingers or toes beyond them. Two limbs attached to each other (crossed
- * arms, each palm on the other arm) cannot be ordered and are refused; a
- * law that wants them solves the pair itself and attaches to a shared bone
- * such as the chest.
+ * The order to fit a posture's limbs in: legs then arms, so an arm is chosen
+ * beside thighs that already stand where the posture puts them
+ * (`HumanArmClearance`), each limb after any limb whose bones its goal is
+ * attached to (`on`), so an attachment reads that limb's solved frame (a palm
+ * under the other elbow follows the other arm). A limb's bones are its chain,
+ * its hand or foot, and the fingers or toes beyond them. Two limbs attached to
+ * each other (crossed arms, each palm on the other arm) cannot be ordered and
+ * are refused; a law that wants them solves the pair itself and attaches to a
+ * shared bone such as the chest.
  *
  * @param limbs The posture's limb goals.
  * @returns Every limb, in fitting order.
- * @throws {Error} When two limbs' goals are attached to each other, naming both.
+ * @throws {Error} When two limbs' goals are attached to each other, naming
+ *   both.
  */
 export function orderHumanLimbs(
   limbs: IAutoMovieMotionHumanPosture["limbs"],

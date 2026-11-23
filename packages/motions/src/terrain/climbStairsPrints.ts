@@ -13,14 +13,12 @@ import { HumanFoot } from "../posture/HumanFoot";
 import type { HumanFrame } from "../posture/HumanFrame";
 
 /**
- * The footprints of a stair climb: each foot's settled flat sole on its
- * tread at the standing lateral place, its leg placement and its sole
- * points about the ankle. `climbStairs` owns the flight and the timing.
+ * The footprints of a stair climb: each foot's settled flat sole on its tread
+ * at the standing lateral place, its leg placement and its sole points about
+ * the ankle. `climbStairs` owns the flight and the timing.
  */
 export namespace climbStairsPrints {
-  /**
-   * A footprint: the foot's placement and the tread it is on, 0 for the floor.
-   */
+  /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
   export interface IPrint {
     /** The ankle and foot rotation, world metres. */
     placement: IAutoMovieMotionHumanFoot.IPlacement;
@@ -29,9 +27,7 @@ export namespace climbStairsPrints {
     level: number;
   }
 
-  /**
-   * The prepared footprints and the sole geometry they share.
-   */
+  /** The prepared footprints and the sole geometry they share. */
   export interface IPrints {
     /** Each foot's prepared leg placement. */
     goals: Record<
@@ -39,15 +35,18 @@ export namespace climbStairsPrints {
       ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
     >;
 
-    /** Each foot's heel, ball and toe about its ankle: along the flight and in height, metres. */
+    /**
+     * Each foot's heel, ball and toe about its ankle: along the flight and in
+     * height, metres.
+     */
     soles: Record<AutoMovieHumanSide, IAutoMovieMotionHumanClearance.IPoint[]>;
 
     /** The footprint of a foot on a tread, memoized. */
     print(side: AutoMovieHumanSide, level: number): IPrint;
 
     /**
-     * The least ankle height, metres, at a position along the flight that
-     * keeps every sole point of the foot on or above the given surface profile.
+     * The least ankle height, metres, at a position along the flight that keeps
+     * every sole point of the foot on or above the given surface profile.
      */
     required(
       side: AutoMovieHumanSide,
@@ -55,9 +54,7 @@ export namespace climbStairsPrints {
     ): (z: number) => number;
   }
 
-  /**
-   * One step of the schedule: the foot and the tread it goes to.
-   */
+  /** One step of the schedule: the foot and the tread it goes to. */
   export interface IStep {
     /** The stepping foot. */
     side: AutoMovieHumanSide;
@@ -68,7 +65,8 @@ export namespace climbStairsPrints {
 
   /**
    * The step schedule: one foot per tread alternating from the lead, then the
-   * trailing foot joins it on the last; or both feet on each tread, lead first.
+   * trailing foot joins it on the last; or both feet on each tread, lead
+   * first.
    *
    * @param pattern The stepping pattern.
    * @param count The treads.

@@ -24,12 +24,18 @@ export function prepareWorkoutBlends(
 ): ReturnType<typeof ExerciseKey.prepareBlend>[] {
   const pairs: Map<
     IAutoMovieMotionHumanExerciseKey.IKey,
-    Map<IAutoMovieMotionHumanExerciseKey.IKey, ReturnType<typeof ExerciseKey.prepareBlend>>
+    Map<
+      IAutoMovieMotionHumanExerciseKey.IKey,
+      ReturnType<typeof ExerciseKey.prepareBlend>
+    >
   > = new Map();
   return spans.map(
     (span: IPair): ReturnType<typeof ExerciseKey.prepareBlend> => {
       let destinations:
-        | Map<IAutoMovieMotionHumanExerciseKey.IKey, ReturnType<typeof ExerciseKey.prepareBlend>>
+        | Map<
+            IAutoMovieMotionHumanExerciseKey.IKey,
+            ReturnType<typeof ExerciseKey.prepareBlend>
+          >
         | undefined = pairs.get(span.a);
       if (destinations === undefined) {
         destinations = new Map();

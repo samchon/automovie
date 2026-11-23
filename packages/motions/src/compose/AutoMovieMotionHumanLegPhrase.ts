@@ -14,15 +14,15 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 
 /**
- * Leg phrases: one foot leaving and rejoining its stance on one clock, a
- * lift, a tap, a swing and a pivot, each built on the leg's own movement
+ * Leg phrases: one foot leaving and rejoining its stance on one clock, a lift,
+ * a tap, a swing and a pivot, each built on the leg's own movement
  * (`AutoMovieMotionHumanLeg.place`) and its swing path
  * (`AutoMovieMotionHumanLeg.arc`).
  */
 export namespace AutoMovieMotionHumanLegPhrase {
   /**
-   * A placement scaled about another by the phrase's extent; unchanged when
-   * the phrase states a contact, since a manner never moves a goal on a solid
+   * A placement scaled about another by the phrase's extent; unchanged when the
+   * phrase states a contact, since a manner never moves a goal on a solid
    * place.
    */
   const extended = (
@@ -71,7 +71,8 @@ export namespace AutoMovieMotionHumanLegPhrase {
    *
    * @param from The placement at share 0.
    * @param to The placement at share 1.
-   * @param share How far along; not clamped for the ankle, clamped to [0, 1] for the rotation.
+   * @param share How far along; not clamped for the ankle, clamped to [0, 1]
+   *   for the rotation.
    * @returns The placement.
    */
   export function between(
@@ -93,13 +94,14 @@ export namespace AutoMovieMotionHumanLegPhrase {
   }
 
   /**
-   * Prepare repeated interpolation of one unchanged pair of placements.
-   * The ankle still extrapolates outside the unit interval, while the
-   * quaternion receives the original explicit [0, 1] clamp.
+   * Prepare repeated interpolation of one unchanged pair of placements. The
+   * ankle still extrapolates outside the unit interval, while the quaternion
+   * receives the original explicit [0, 1] clamp.
    *
    * @param from The unchanged departure placement, borrowed for this reader.
    * @param to The unchanged arrival placement, borrowed for this reader.
-   * @returns A reader producing a fresh ankle, rotation and placement at every actual share.
+   * @returns A reader producing a fresh ankle, rotation and placement at every
+   *   actual share.
    */
   export function prepareBetween(
     from: IAutoMovieMotionHumanFoot.IPlacement,
@@ -118,29 +120,29 @@ export namespace AutoMovieMotionHumanLegPhrase {
   }
 
   /**
-   * The lowest sole point's least height over the floor in mid-swing,
-   * metres: the minimum toe clearance of normal gait, 12.9 mm (Winter 1992,
-   * Can J Sport Sci 17(1):1-6).
+   * The lowest sole point's least height over the floor in mid-swing, metres:
+   * the minimum toe clearance of normal gait, 12.9 mm (Winter 1992, Can J Sport
+   * Sci 17(1):1-6).
    */
   const TOE_CLEARANCE: number = 0.0129;
 
   /**
-   * The share of the stance blend, by the clock's minimum-jerk envelope,
-   * under which a foot moves only vertically: the last third of its transit,
-   * terminal swing in Perry and Burnfield's phases (Gait Analysis, 2nd ed.),
-   * in which the foot is already over its landing place and comes down onto
-   * it. On leaving, the same third lifts it before it travels.
+   * The share of the stance blend, by the clock's minimum-jerk envelope, under
+   * which a foot moves only vertically: the last third of its transit, terminal
+   * swing in Perry and Burnfield's phases (Gait Analysis, 2nd ed.), in which
+   * the foot is already over its landing place and comes down onto it. On
+   * leaving, the same third lifts it before it travels.
    */
   const TERMINAL: number = minimumJerk.share(1 / 3);
 
   /**
-   * A foot in transit between its stance and a moving placement at a share
-   * of the stance blend: it lifts off before it travels and is over its
-   * landing place before it sets down (`TERMINAL`), its sole clears the floor
-   * its stance stands on by the minimum toe clearance in between, and no
-   * point of its sole ever lies under that floor. At share 0 it stands on its
-   * stance; at share 1 it is the moving placement itself, so a target on the
-   * floor or on a ball is reached exactly.
+   * A foot in transit between its stance and a moving placement at a share of
+   * the stance blend: it lifts off before it travels and is over its landing
+   * place before it sets down (`TERMINAL`), its sole clears the floor its
+   * stance stands on by the minimum toe clearance in between, and no point of
+   * its sole ever lies under that floor. At share 0 it stands on its stance; at
+   * share 1 it is the moving placement itself, so a target on the floor or on a
+   * ball is reached exactly.
    */
   const cleared = (
     props: Pick<
@@ -187,8 +189,8 @@ export namespace AutoMovieMotionHumanLegPhrase {
       seconds <= 0 || seconds >= clock.duration;
 
   /**
-   * A lift: the foot leaves its stance, is held raised and is set back (a
-   * knee raised, a foot drawn up, a leg crossed). It travels from `start` to
+   * A lift: the foot leaves its stance, is held raised and is set back (a knee
+   * raised, a foot drawn up, a leg crossed). It travels from `start` to
    * `stroke`, stays until `relax` and stands again at `end`.
    *
    * @param props The phrase and the raised placement.
@@ -219,12 +221,14 @@ export namespace AutoMovieMotionHumanLegPhrase {
   }
 
   /**
-   * A tap: the foot swings to a place on an arc, rests on it and swings back
-   * (a toe tapped ahead, a foot set on a step and taken off). It lands at
+   * A tap: the foot swings to a place on an arc, rests on it and swings back (a
+   * toe tapped ahead, a foot set on a step and taken off). It lands at
    * `stroke`, stays until `relax` and stands on its stance again at `end`.
    *
-   * @param props The phrase, the place and the ankle's greatest rise on the way, metres.
-   * @returns The primitive, with a contact window from `stroke` to `relax` when the phrase states a contact; the foot is planted on the place only then.
+   * @param props The phrase, the place and the ankle's greatest rise on the
+   *   way, metres.
+   * @returns The primitive, with a contact window from `stroke` to `relax` when
+   *   the phrase states a contact; the foot is planted on the place only then.
    */
   export function tap(
     props: IAutoMovieMotionHumanLegPhrase.ITapProps,
@@ -270,11 +274,13 @@ export namespace AutoMovieMotionHumanLegPhrase {
    * A swing: the foot is drawn to a chamber by `ready`, extends from
    * `strokeStart` and passes its target at `stroke` at speed. With a follow
    * phase it travels on past the target and slows to rest at `strokeEnd` (a
-   * kick in the air); with none it is arrested at the target (a kick met by
-   * a body). It stays until `relax` and stands on its stance again at `end`.
+   * kick in the air); with none it is arrested at the target (a kick met by a
+   * body). It stays until `relax` and stands on its stance again at `end`.
    *
-   * @param props The phrase, the chamber, the target and the weapons the swing carries.
-   * @returns The primitive, with a contact window from `stroke` to `relax` when the phrase states a contact; the foot is planted only at the two ends.
+   * @param props The phrase, the chamber, the target and the weapons the swing
+   *   carries.
+   * @returns The primitive, with a contact window from `stroke` to `relax` when
+   *   the phrase states a contact; the foot is planted only at the two ends.
    */
   export function swing(
     props: IAutoMovieMotionHumanLegPhrase.ISwingProps,
@@ -323,11 +329,14 @@ export namespace AutoMovieMotionHumanLegPhrase {
   /**
    * A pivot: the foot turns about a sole point that stays on the floor and
    * turns back (the rear foot of a punch on its ball, the support foot of a
-   * round kick, a heel turned out). The turn and the pitch grow from `start`
-   * to `stroke`, stay until `relax` and are gone at `end`.
+   * round kick, a heel turned out). The turn and the pitch grow from `start` to
+   * `stroke`, stay until `relax` and are gone at `end`.
    *
-   * @param props The phrase, the sole point that stays, the heading's turn at its fullest in degrees about +Y and the pitch at its fullest in degrees, positive toes up.
-   * @returns The primitive, planted throughout, with a pivot window on the ground over the whole clock.
+   * @param props The phrase, the sole point that stays, the heading's turn at
+   *   its fullest in degrees about +Y and the pitch at its fullest in degrees,
+   *   positive toes up.
+   * @returns The primitive, planted throughout, with a pivot window on the
+   *   ground over the whole clock.
    */
   export function pivot(
     props: IAutoMovieMotionHumanLegPhrase.IPivotProps,

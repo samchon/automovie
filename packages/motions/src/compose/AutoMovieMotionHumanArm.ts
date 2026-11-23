@@ -9,25 +9,23 @@ import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
  * Arm primitives: a hand surface carried to a target, kept on it and taken
  * back.
  *
- * A target is a frame evaluated at each second on the posture the action has
- * so far (a region of the performer's own trunk, a partner's hand, a prop, a
- * point of the world), so the same row fits every body and follows whatever
- * the target rides on. The hand is an effector goal solved by the arm's
- * inverse kinematics: the goal carries the surface as its contact, so where
- * the arm cannot turn the hand as asked the resolver re-aims the wrist until
- * the surface stays on its point and the rotation gives way
+ * A target is a frame evaluated at each second on the posture the action has so
+ * far (a region of the performer's own trunk, a partner's hand, a prop, a point
+ * of the world), so the same row fits every body and follows whatever the
+ * target rides on. The hand is an effector goal solved by the arm's inverse
+ * kinematics: the goal carries the surface as its contact, so where the arm
+ * cannot turn the hand as asked the resolver re-aims the wrist until the
+ * surface stays on its point and the rotation gives way
  * (`HumanPosture.IGoal.contact`).
  *
- * Between its origin and its target the surface moves on a straight path,
- * or one that bows to the arm's own side when the movement states a
- * curvature, and the hand turns by spherical interpolation, both by one
- * weight, and the
- * fingers go from the relaxed cascade to the target's shape by the same
- * weight (Jeannerod 1984: the hand is shaped during its transport). The
- * origin is held in the performer's own floor frame, so it follows the body.
+ * Between its origin and its target the surface moves on a straight path, or
+ * one that bows to the arm's own side when the movement states a curvature, and
+ * the hand turns by spherical interpolation, both by one weight, and the
+ * fingers go from the relaxed cascade to the target's shape by the same weight
+ * (Jeannerod 1984: the hand is shaped during its transport). The origin is held
+ * in the performer's own floor frame, so it follows the body.
  */
 export namespace AutoMovieMotionHumanArm {
-
   /** {@link AutoMovieMotionHumanArmTarget.origin}. */
   export const origin: typeof AutoMovieMotionHumanArmTarget.origin =
     AutoMovieMotionHumanArmTarget.origin;
@@ -40,7 +38,10 @@ export namespace AutoMovieMotionHumanArm {
   export const goal: typeof AutoMovieMotionHumanArmTarget.goal =
     AutoMovieMotionHumanArmTarget.goal;
 
-  /** Fixed-geometry goal producer owned by AutoMovieMotionHumanArmTarget.prepareGoal. */
+  /**
+   * Fixed-geometry goal producer owned by
+   * AutoMovieMotionHumanArmTarget.prepareGoal.
+   */
   export const prepareGoal: typeof AutoMovieMotionHumanArmTarget.prepareGoal =
     AutoMovieMotionHumanArmTarget.prepareGoal;
 

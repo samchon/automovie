@@ -10,15 +10,13 @@ import type {
 import { ExerciseKey } from "../exercise/ExerciseKey";
 
 /**
- * The keyed postures of a field throw (`fieldThrow`): the wind the body
- * turns in, the release and standing. Angles are provisional, read from the
- * events' descriptions (the shot held at the neck, the discus and the
- * hammer swung at the arms' length, the javelin drawn back).
+ * The keyed postures of a field throw (`fieldThrow`): the wind the body turns
+ * in, the release and standing. Angles are provisional, read from the events'
+ * descriptions (the shot held at the neck, the discus and the hammer swung at
+ * the arms' length, the javelin drawn back).
  */
 export namespace fieldThrowKeys {
-  /**
-   * A throw's three keys.
-   */
+  /** A throw's three keys. */
   export interface IKeys {
     /** The posture the body turns in, the implement wound back. */
     wind: IAutoMovieMotionHumanExerciseKey.IKey;
@@ -104,7 +102,8 @@ export namespace fieldThrowKeys {
    * @param a The key at progress 0.
    * @param b The key at progress 1.
    * @param u The progress, in [0, 1].
-   * @returns The blended key: each angle and the tilt and lift linearly, a joint one key leaves out taken as zero.
+   * @returns The blended key: each angle and the tilt and lift linearly, a
+   *   joint one key leaves out taken as zero.
    */
   export function blend(
     a: IAutoMovieMotionHumanExerciseKey.IKey,

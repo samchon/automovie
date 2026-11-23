@@ -20,33 +20,35 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanFormation } from "./HumanFormation";
 
 /**
- * Background members handed to the instanced population layer: their
- * places as one formation design, and their motion as a cycle of a
- * performed template member's own displayed poses, so a background soldier
- * marches the march the foreground marches.
+ * Background members handed to the instanced population layer: their places as
+ * one formation design, and their motion as a cycle of a performed template
+ * member's own displayed poses, so a background soldier marches the march the
+ * foreground marches.
  *
- * A population is a detail the author declares (`IHumanEnsemble.detail`),
- * never a camera's choice. A population uses steady motion because a
- * population member cannot be synced, cut or reached, so `cycle` refuses a
- * template whose window is not inside one stepping action. `standing`
- * holds the pose of one settled stand at every phase. The design lays
- * the formation's blocks for the engine's own `formationSlotPosition`, whose
- * placement with the facing turned about is the formation's
- * (`HumanFormation`), so a population member stands on the slot it would
- * have had as a performer; the performed members are its hero overrides.
+ * A population is a detail the author declares (`IHumanEnsemble.detail`), never
+ * a camera's choice. A population uses steady motion because a population
+ * member cannot be synced, cut or reached, so `cycle` refuses a template whose
+ * window is not inside one stepping action. `standing` holds the pose of one
+ * settled stand at every phase. The design lays the formation's blocks for the
+ * engine's own `formationSlotPosition`, whose placement with the facing turned
+ * about is the formation's (`HumanFormation`), so a population member stands on
+ * the slot it would have had as a performer; the performed members are its hero
+ * overrides.
  */
 export namespace HumanPopulation {
   /**
-   * An ensemble's formation as one formation design: its blocks as the
-   * design's blocks (`IAutoMovieFormationBlock`), its frame at a film second
-   * as the design's anchor and facing turned about (the engine lays a
-   * layout's depth ahead, the formation behind), and every member that is
-   * performed as a hero override, so the population layer draws the others.
+   * An ensemble's formation as one formation design: its blocks as the design's
+   * blocks (`IAutoMovieFormationBlock`), its frame at a film second as the
+   * design's anchor and facing turned about (the engine lays a layout's depth
+   * ahead, the formation behind), and every member that is performed as a hero
+   * override, so the population layer draws the others.
    *
    * @param ensemble The ensemble, standing in a formation.
-   * @param props The design's id and model group, and the film second its frame is read at.
+   * @param props The design's id and model group, and the film second its frame
+   *   is read at.
    * @returns The design.
-   * @throws {HumanRefusal} When the ensemble has no formation or no population member.
+   * @throws {HumanRefusal} When the ensemble has no formation or no population
+   *   member.
    */
   export function design(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -115,7 +117,8 @@ export namespace HumanPopulation {
    * @param from The film second the cycle is sought from.
    * @param samples How many phases; positive.
    * @returns The cycle.
-   * @throws {HumanRefusal} When no stepping action of the template holds a whole stride from `from`.
+   * @throws {HumanRefusal} When no stepping action of the template holds a
+   *   whole stride from `from`.
    */
   export function cycle(
     performance: IAutoMovieMotionHumanPerformance,
@@ -223,19 +226,21 @@ export namespace HumanPopulation {
   }
 
   /**
-   * Hold the displayed pose at the chosen stand's `settled` event. Every
-   * phase uses that pose with zero stride, expressed at the slot origin
-   * facing +Z with the root height measured above the stand's floor. The
-   * segment's placed duration gives the period of the pose take. The take
-   * may use a settled event at the end when the performance still displays
-   * that stand at the event.
+   * Hold the displayed pose at the chosen stand's `settled` event. Every phase
+   * uses that pose with zero stride, expressed at the slot origin facing +Z
+   * with the root height measured above the stand's floor. The segment's placed
+   * duration gives the period of the pose take. The take may use a settled
+   * event at the end when the performance still displays that stand at the
+   * event.
    *
    * @param performance The performance containing the template stand.
    * @param template The template's subject id.
    * @param from Film second used to select the template's active stand.
-   * @param samples Positive integral phase count below 2^32, matching other takes baked with this one.
+   * @param samples Positive integral phase count below 2^32, matching other
+   *   takes baked with this one.
    * @returns A held `stand` take.
-   * @throws {HumanRefusal} When the selected action has no settled stand on ground within its placed span or the sample count is invalid.
+   * @throws {HumanRefusal} When the selected action has no settled stand on
+   *   ground within its placed span or the sample count is invalid.
    */
   export function standing(
     performance: IAutoMovieMotionHumanPerformance,

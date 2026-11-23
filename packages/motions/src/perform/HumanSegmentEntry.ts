@@ -21,10 +21,10 @@ import { HumanSegmentPose } from "./HumanSegmentPose";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
 /**
- * The state a person enters an action from: the displayed pose and its
- * rates at the entry second, the feet, the supports, the base and the holds,
- * read from the action being left (`HumanSegmentPose`). The next action's
- * posture keeps native breathing separate from the displayed state.
+ * The state a person enters an action from: the displayed pose and its rates at
+ * the entry second, the feet, the supports, the base and the holds, read from
+ * the action being left (`HumanSegmentPose`). The next action's posture keeps
+ * native breathing separate from the displayed state.
  */
 export namespace HumanSegmentEntry {
   /**
@@ -33,7 +33,8 @@ export namespace HumanSegmentEntry {
    * @param person The person.
    * @param previous Their previous action, if any.
    * @param seconds The entry second.
-   * @param blend The inertialization the cut into the action decays over, seconds; absent for an action entered over another.
+   * @param blend The inertialization the cut into the action decays over,
+   *   seconds; absent for an action entered over another.
    * @returns The displayed state and the posture the next action carries.
    */
   export function entry(
@@ -263,9 +264,9 @@ export namespace HumanSegmentEntry {
   }
 
   /**
-   * What the body rests on as an action is left at a second: the supports
-   * its plan declares open there, a grip and a strike aside; both feet on
-   * the ground before any action.
+   * What the body rests on as an action is left at a second: the supports its
+   * plan declares open there, a grip and a strike aside; both feet on the
+   * ground before any action.
    *
    * @param previous The action left, if any.
    * @param seconds The film second.
@@ -368,8 +369,9 @@ export namespace HumanSegmentEntry {
 
   /**
    * The state a body leaves an action in at a second, its rates read on the
-   * action's fits continued from the second's own (`HumanSegmentPose.continued`)
-   * to the tolerance an inertialization over `blend` asks.
+   * action's fits continued from the second's own
+   * (`HumanSegmentPose.continued`) to the tolerance an inertialization over
+   * `blend` asks.
    *
    * @param person The person.
    * @param previous The action left.

@@ -16,30 +16,32 @@ import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingA
 import { AutoMovieMotionHumanSwivelBound } from "./AutoMovieMotionHumanSwivelBound";
 
 /**
- * The drinking range as a bound on an elbow's swivel: the places on the
- * circle a wrist's place leaves the elbow whose shoulder lies in the range
- * healthy drinkers use (`AutoMovieMotionHumanDrinkingArm`), in closed form,
- * which the drinking search hints each candidate arm within.
+ * The drinking range as a bound on an elbow's swivel: the places on the circle
+ * a wrist's place leaves the elbow whose shoulder lies in the range healthy
+ * drinkers use (`AutoMovieMotionHumanDrinkingArm`), in closed form, which the
+ * drinking search hints each candidate arm within.
  */
 export namespace AutoMovieMotionHumanDrinkingSwivel {
   /**
-   * An elbow hint moved into the drinking range: on the circle a wrist's
-   * place leaves the elbow (the swivel of Tolani, Goswami and Badler 2000),
-   * the place nearest the hint's swivel whose shoulder `AutoMovieMotionHumanDrinkingArm.measured` reads at
-   * most `AutoMovieMotionHumanDrinkingArm.FLEXION` and `ABDUCTION`, or the hint itself when its swivel lies
-   * in the range. Each bound is exact: the elbow on the circle is
-   * `C + ρ(u cos ψ + v sin ψ)`, its projection on a plane of the source's
-   * measure is linear in it, and an unsigned angle of at most `B` < 90
+   * An elbow hint moved into the drinking range: on the circle a wrist's place
+   * leaves the elbow (the swivel of Tolani, Goswami and Badler 2000), the place
+   * nearest the hint's swivel whose shoulder
+   * `AutoMovieMotionHumanDrinkingArm.measured` reads at most
+   * `AutoMovieMotionHumanDrinkingArm.FLEXION` and `ABDUCTION`, or the hint
+   * itself when its swivel lies in the range. Each bound is exact: the elbow on
+   * the circle is `C + ρ(u cos ψ + v sin ψ)`, its projection on a plane of the
+   * source's measure is linear in it, and an unsigned angle of at most `B` < 90
    * degrees from the projected hip is the meet of two half-planes (the hip
    * turned `B` either way, each side toward the hip), so each bound is one
-   * sinusoid of the swivel kept non-negative, whose refused arc is between
-   * its roots (`swivelArcs`). The hint keeps its swivel when no place on the
-   * circle lies in the range, or the wrist leaves no circle.
+   * sinusoid of the swivel kept non-negative, whose refused arc is between its
+   * roots (`swivelArcs`). The hint keeps its swivel when no place on the circle
+   * lies in the range, or the wrist leaves no circle.
    *
    * @param body The body.
    * @param posture The posture the arm is solved on.
    * @param side The arm.
-   * @returns From the wrist's place and a hint, world metres, the hint in the range, world metres.
+   * @returns From the wrist's place and a hint, world metres, the hint in the
+   *   range, world metres.
    */
   export function bounded(
     body: IAutoMovieMotionHumanBody,
@@ -57,12 +59,17 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
    */
   export interface IRanged {
     /**
-     * From the wrist's place and a hint, world metres, the hint in the range (`bounded`).
+     * From the wrist's place and a hint, world metres, the hint in the range
+     * (`bounded`).
      */
-    hint: (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3;
+    hint: (
+      point: IAutoMovieVector3,
+      hint: IAutoMovieVector3,
+    ) => IAutoMovieVector3;
 
     /**
-     * Whether the wrist's place, world metres, leaves a reaching elbow in the range.
+     * Whether the wrist's place, world metres, leaves a reaching elbow in the
+     * range.
      */
     admits: (point: IAutoMovieVector3) => boolean;
   }
@@ -81,14 +88,25 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
     posture: IAutoMovieMotionHumanPosture,
     side: AutoMovieHumanSide,
   ): IRanged {
-    const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>([
-      `${side}UpperArm`, `${side}LowerArm`, `${side}Hand`, `${side}UpperLeg`,
-    ]);
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> = prepareHumanPoseResolution();
+    const requested: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([
+        `${side}UpperArm`,
+        `${side}LowerArm`,
+        `${side}Hand`,
+        `${side}UpperLeg`,
+      ]);
+    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       body,
-      resolveHumanPosture.seeded(body, { ...posture, limbs: {} }, undefined, undefined,
-        resolution, requested).pose,
+      resolveHumanPosture.seeded(
+        body,
+        { ...posture, limbs: {} },
+        undefined,
+        undefined,
+        resolution,
+        requested,
+      ).pose,
       resolution(),
       requested,
     );
@@ -166,9 +184,13 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
 }
 
 /** Keep the numerical bound reader outside the canonical/FK preparation scope. */
-function hints(arm: IAutoMovieMotionHumanSwivelBound.IArm,
-  bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[]):
-  (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
-  return (point: IAutoMovieVector3, hint: IAutoMovieVector3): IAutoMovieVector3 =>
+function hints(
+  arm: IAutoMovieMotionHumanSwivelBound.IArm,
+  bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[],
+): (point: IAutoMovieVector3, hint: IAutoMovieVector3) => IAutoMovieVector3 {
+  return (
+    point: IAutoMovieVector3,
+    hint: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
     AutoMovieMotionHumanSwivelBound.bounded(arm, point, hint, bounds);
 }

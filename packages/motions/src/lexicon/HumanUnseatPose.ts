@@ -20,16 +20,26 @@ import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { heelMountedFoot } from "./heelMountedFoot";
 
 /**
- * The shapes of a rider leaving a saddle (`HumanUnseat`): the slump over the neck, the flight's blend from the carried seat into the lie or the stand, a hand reaching the floor or the mane, the flank clearance a sideways fall must keep, and the drag behind a stirrup. Every angle and time is a provisional stage reading.
+ * The shapes of a rider leaving a saddle (`HumanUnseat`): the slump over the
+ * neck, the flight's blend from the carried seat into the lie or the stand, a
+ * hand reaching the floor or the mane, the flank clearance a sideways fall must
+ * keep, and the drag behind a stirrup. Every angle and time is a provisional
+ * stage reading.
  */
 export namespace HumanUnseatPose {
   /** Seconds a rider takes to slump over the neck (provisional). */
   export const SLUMP: number = 0.8;
 
-  /** Seconds before the landing the falling side's hand meets the floor (provisional). */
+  /**
+   * Seconds before the landing the falling side's hand meets the floor
+   * (provisional).
+   */
   export const TOUCH: number = 0.08;
 
-  /** Seconds the dragged body takes from the saddle to its lie behind the stirrup (provisional). */
+  /**
+   * Seconds the dragged body takes from the saddle to its lie behind the
+   * stirrup (provisional).
+   */
   export const DRAW: number = 0.4;
 
   /** A standing shape: upright with the joints at rest. */
@@ -68,7 +78,8 @@ export namespace HumanUnseatPose {
   }
 
   /**
-   * The flying posture: the carried seat blended into a lie or a stand by a share, turned to its facing and placed at the root.
+   * The flying posture: the carried seat blended into a lie or a stand by a
+   * share, turned to its facing and placed at the root.
    *
    * @param body The body.
    * @param from The posture at the release.
@@ -76,7 +87,8 @@ export namespace HumanUnseatPose {
    * @param facing The final heading, degrees.
    * @param root The root now.
    * @param share 0 at the release to 1 at the landing.
-   * @returns The posture, its limb goals carried with the root's motion since the release and unplanted: the saddle's holds are let go without a jump.
+   * @returns The posture, its limb goals carried with the root's motion since
+   *   the release and unplanted: the saddle's holds are let go without a jump.
    */
   export function flying(
     body: IAutoMovieMotionHumanBody,
@@ -170,8 +182,8 @@ export namespace HumanUnseatPose {
   }
 
   /**
-   * Where a hand holding nothing hangs: beside the hip, a quarter metre out
-   * and a tenth below the root, turned by the posture's heading.
+   * Where a hand holding nothing hangs: beside the hip, a quarter metre out and
+   * a tenth below the root, turned by the posture's heading.
    *
    * @param posture The posture.
    * @param side The hand.
@@ -192,7 +204,8 @@ export namespace HumanUnseatPose {
   }
 
   /**
-   * A hand reaching for a point by a share: its arm goal moves from where the hand hangs to the point.
+   * A hand reaching for a point by a share: its arm goal moves from where the
+   * hand hangs to the point.
    *
    * @param posture The posture.
    * @param side The hand.
@@ -231,7 +244,8 @@ export namespace HumanUnseatPose {
     };
   }
   /**
-   * Where the falling side's hand meets the floor: out from the falling side's shoulder by half the upper arm, below it on the floor.
+   * Where the falling side's hand meets the floor: out from the falling side's
+   * shoulder by half the upper arm, below it on the floor.
    *
    * @param posture The posture.
    * @param side The falling side.
@@ -266,7 +280,9 @@ export namespace HumanUnseatPose {
   }
 
   /**
-   * Refuse a sideways fall whose root would cross the carrier's flank below the seat: inside the half width the rider's feet straddle, lower than the seat.
+   * Refuse a sideways fall whose root would cross the carrier's flank below the
+   * seat: inside the half width the rider's feet straddle, lower than the
+   * seat.
    *
    * @param body The body.
    * @param entry The seated entry posture.
@@ -351,7 +367,8 @@ export namespace HumanUnseatPose {
   }
 
   /**
-   * The first of a span's samples at which a hand's target comes within the arm's reach of its shoulder.
+   * The first of a span's samples at which a hand's target comes within the
+   * arm's reach of its shoulder.
    *
    * @param body The body.
    * @param side The hand.

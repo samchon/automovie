@@ -22,9 +22,9 @@ import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentStill } from "./HumanSegmentStill";
 
 /**
- * What the placed performance does to itself: the holds a grip starts and
- * an action takes over or ends, and the contacts between people resolved
- * into the stops and reactions of those they land on.
+ * What the placed performance does to itself: the holds a grip starts and an
+ * action takes over or ends, and the contacts between people resolved into the
+ * stops and reactions of those they land on.
  */
 export namespace HumanPerformanceContacts {
   /** A closed hold remembers the action that took it over for cut rollback. */
@@ -34,17 +34,16 @@ export namespace HumanPerformanceContacts {
   > = new WeakMap();
 
   /**
-   * The contact scan's step, seconds: a 120th, so a strike of at most a few metres a second moves a few centimetres between samples.
-
+   * The contact scan's step, seconds: a 120th, so a strike of at most a few
+   * metres a second moves a few centimetres between samples.
    */
   export const STEP: number = 1 / 120;
 
   /**
-   * Settle what a newly planned action does to the props its performer
-   * holds, whether it carries the body or rides a carrier: a grip window on
-   * a held prop takes that hand over from the hold, any other use of a
-   * holding hand is refused, and the props the action leaves held become
-   * holds of its own.
+   * Settle what a newly planned action does to the props its performer holds,
+   * whether it carries the body or rides a carrier: a grip window on a held
+   * prop takes that hand over from the hold, any other use of a holding hand is
+   * refused, and the props the action leaves held become holds of its own.
    */
   export function hold(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -150,20 +149,19 @@ export namespace HumanPerformanceContacts {
    * Resolve every weapon's first contact at once, in time order, each later
    * weapon seeing the earlier stops as they will be shown: a plan that takes
    * its stops is handed each one as it is committed and settled, so its own
-   * dwell and recoil are what later weapons meet; a plan that does not is
-   * shown with that limb frozen at the stop. Weapons are live only inside
-   * their window clipped to their action's span, which they declare, so
-   * each is scanned over that window alone; bodies are the other
-   * people's colliders, and the person a stop met is the nearest of them.
-   * A contact is mutual: when the limb a weapon meets is striking too, its
-   * capsule nearest the striker stops at the same second. The capsules on one
-   * limb of one action are one part (the engine's weapon `group`): the first
-   * of them to meet a body stops the limb, and the others give no stop or
-   * hit of their own, as a striking law keeps only its chain's first contact.
-   * Each weapon states its bound on a search's grid from its own path and
-   * each person 0 where its shown pose provably holds still
-   * (`HumanPerformanceContactSpeed`, `HumanSegmentStill`), so the scan reads no grid second a
-   * clear gap rules out.
+   * dwell and recoil are what later weapons meet; a plan that does not is shown
+   * with that limb frozen at the stop. Weapons are live only inside their
+   * window clipped to their action's span, which they declare, so each is
+   * scanned over that window alone; bodies are the other people's colliders,
+   * and the person a stop met is the nearest of them. A contact is mutual: when
+   * the limb a weapon meets is striking too, its capsule nearest the striker
+   * stops at the same second. The capsules on one limb of one action are one
+   * part (the engine's weapon `group`): the first of them to meet a body stops
+   * the limb, and the others give no stop or hit of their own, as a striking
+   * law keeps only its chain's first contact. Each weapon states its bound on a
+   * search's grid from its own path and each person 0 where its shown pose
+   * provably holds still (`HumanPerformanceContactSpeed`, `HumanSegmentStill`),
+   * so the scan reads no grid second a clear gap rules out.
    */
   export function contacts(self: IAutoMovieMotionHumanPerformanceState): void {
     const weapons: IAutoMovieResolveContactEvents.IWeapon[] = [];

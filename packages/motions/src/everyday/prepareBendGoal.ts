@@ -30,9 +30,7 @@ type Goal = (
   placed?: Bones,
 ) => IAutoMovieHumanLimbGoal;
 
-/**
- * Prepare a flat palm's contact frame and any carried target surface.
- */
+/** Prepare a flat palm's contact frame and any carried target surface. */
 export function prepareBendGoal(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -68,7 +66,15 @@ export function prepareBendGoal(
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(source);
         const resolved: ReturnType<typeof resolveHumanPosture.seeded> =
-          resolveHumanPosture.seeded(body, posture, undefined, {}, read, regionBones, projection);
+          resolveHumanPosture.seeded(
+            body,
+            posture,
+            undefined,
+            {},
+            read,
+            regionBones,
+            projection,
+          );
         bones = readRegion(resolved.pose, read());
       }
       const skin: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =

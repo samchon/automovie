@@ -11,27 +11,29 @@ import type {
  * flexion that takes, and the declared rule when the target is out of reach.
  *
  * Only goals are computed here: the end joint's point and the middle joint's
- * position become an `HumanPosture` limb goal (`point` and a `bend` hint
- * beside the middle joint), and the engine's `fitChainToTarget` solves the
- * joint angles within the range of motion, as Unreal's two-bone IK with a pole
- * target and Final IK's limb solver take an effector goal and a bend goal. The
+ * position become an `HumanPosture` limb goal (`point` and a `bend` hint beside
+ * the middle joint), and the engine's `fitChainToTarget` solves the joint
+ * angles within the range of motion, as Unreal's two-bone IK with a pole target
+ * and Final IK's limb solver take an effector goal and a bend goal. The
  * placement is the triangle of the two segment lengths and the root-to-point
  * distance (law of cosines), in the plane through the root and the point that
  * contains the preferred bend direction.
  *
- * Reachability is decided against a flexion band at contact (a straight
- * punch lands nearly extended, a hook near a right angle, a kick's knee not
- * locked): within the band the point is met exactly; beyond the band's
- * longest reach the limb extends along the line toward the target at that
- * reach and stops short, the declared miss-at-maximum-reach rule, and the
- * shortfall is reported; inside the shortest reach either the contact slides
- * along the distal segment toward the middle joint (a jammed kick lands with
- * the upper shin or the knee) or, where the surface is rigid with the end
- * joint (a fist), the middle joint flexes past the band up to
- * {@link JAM_FLEXION}.
+ * Reachability is decided against a flexion band at contact (a straight punch
+ * lands nearly extended, a hook near a right angle, a kick's knee not locked):
+ * within the band the point is met exactly; beyond the band's longest reach the
+ * limb extends along the line toward the target at that reach and stops short,
+ * the declared miss-at-maximum-reach rule, and the shortfall is reported;
+ * inside the shortest reach either the contact slides along the distal segment
+ * toward the middle joint (a jammed kick lands with the upper shin or the knee)
+ * or, where the surface is rigid with the end joint (a fist), the middle joint
+ * flexes past the band up to {@link JAM_FLEXION}.
  */
 export namespace StrikingReach {
-  /** The most a middle joint flexes when a rigid-ended limb is jammed, degrees: below the elbow's and knee's 145 to 150 degree range. */
+  /**
+   * The most a middle joint flexes when a rigid-ended limb is jammed, degrees:
+   * below the elbow's and knee's 145 to 150 degree range.
+   */
   export const JAM_FLEXION: number = 140;
 
   /**
@@ -52,7 +54,8 @@ export namespace StrikingReach {
    *
    * @param input The limb and the target.
    * @returns The goals and the reach status.
-   * @throws {Error} When the target coincides with the root, or the bend direction is parallel to the reach.
+   * @throws {Error} When the target coincides with the root, or the bend
+   *   direction is parallel to the reach.
    */
   export function chain(
     input: IAutoMovieMotionHumanStrikingReach.IChain,
@@ -167,15 +170,16 @@ export namespace StrikingReach {
   }
 
   /**
-   * How far the body must close along the line for a limb to reach: the
-   * excess of the root-to-target distance over the limb's comfortable reach
-   * (its band's reach at `share` of the way from the shortest to the longest),
+   * How far the body must close along the line for a limb to reach: the excess
+   * of the root-to-target distance over the limb's comfortable reach (its
+   * band's reach at `share` of the way from the shortest to the longest),
    * limited to the entry the stance allows.
    *
    * @param distance Root-to-target distance, metres.
    * @param comfortable The reach the strike prefers to land at, metres.
    * @param limit The longest entry, metres.
-   * @returns The advance along the line, metres in `[-limit, limit]`; negative backs away from a target too close.
+   * @returns The advance along the line, metres in `[-limit, limit]`; negative
+   *   backs away from a target too close.
    */
   export function advance(
     distance: number,

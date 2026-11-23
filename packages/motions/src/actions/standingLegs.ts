@@ -9,8 +9,8 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
 /**
- * Write the standing law's planted leg goals, either directly for one query
- * or with its fixed-yaw foot metadata supplied by prepareStandingLegs.
+ * Write the standing law's planted leg goals, either directly for one query or
+ * with its fixed-yaw foot metadata supplied by prepareStandingLegs.
  *
  * @param body The unchanged body.
  * @param root Current rig origin, world metres.

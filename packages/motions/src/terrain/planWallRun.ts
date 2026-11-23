@@ -7,13 +7,13 @@ import {
 import type {
   AutoMovieHumanSide,
   IAutoMovieAffordance,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanLieDown,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSupport,
   IAutoMovieMotionHumanWallRun,
@@ -23,30 +23,47 @@ import type {
 } from "@automovie/interface";
 
 import { support } from "../actions/support";
-import { getUp } from "../floor/getUp";
 import { coverWall } from "../cover/coverWall";
+import { getUp } from "../floor/getUp";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 
-/** How far from the wall's face the take-off foot plants, hip heights (provisional: a step in, under half a leg). */
+/**
+ * How far from the wall's face the take-off foot plants, hip heights
+ * (provisional: a step in, under half a leg).
+ */
 const STEP_IN: number = 0.45;
 
-/** The first wall step's toe height, hip heights (provisional: a running step planted about knee high). */
+/**
+ * The first wall step's toe height, hip heights (provisional: a running step
+ * planted about knee high).
+ */
 const FIRST: number = 0.55;
 
 /** The second wall step's toe height, hip heights (provisional). */
 const SECOND: number = 1.05;
 
-/** The toe joint's distance off the face, metres (provisional: the sole's thickness ahead of the joint). */
+/**
+ * The toe joint's distance off the face, metres (provisional: the sole's
+ * thickness ahead of the joint).
+ */
 const SOLE: number = 0.03;
 
-/** The toes' depth below the hands that grip the top in a hang on the face, statures (provisional: the body near straight along the wall, its arms bent). */
+/**
+ * The toes' depth below the hands that grip the top in a hang on the face,
+ * statures (provisional: the body near straight along the wall, its arms
+ * bent).
+ */
 const HANG: number = 0.95;
 
-/** Stepping in and onto the wall: the arms carried forward and out from the hips, clear of the thigh the stepping leg raises and of each other (provisional angles, degrees). */
+/**
+ * Stepping in and onto the wall: the arms carried forward and out from the
+ * hips, clear of the thigh the stepping leg raises and of each other
+ * (provisional angles, degrees).
+ */
 const STEPPING: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
@@ -58,7 +75,11 @@ const STEPPING: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** Hanging from the top: the arms up and out over the head, the elbows a little bent and clear of it, the fists closed on the edge and the legs hanging (provisional angles, degrees). */
+/**
+ * Hanging from the top: the arms up and out over the head, the elbows a little
+ * bent and clear of it, the fists closed on the edge and the legs hanging
+ * (provisional angles, degrees).
+ */
 const HANGING: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 0,
   roll: 0,
@@ -76,7 +97,10 @@ const HANGING: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** The cat hang: hanging from the top with both feet drawn up onto the face (provisional angles, degrees). */
+/**
+ * The cat hang: hanging from the top with both feet drawn up onto the face
+ * (provisional angles, degrees).
+ */
 const CAT: IAutoMovieMotionHumanLieDown.IPose = {
   ...HANGING,
   joints: {
@@ -88,30 +112,37 @@ const CAT: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** Static friction of a shoe sole on a wall, dimensionless (provisional: rubber on concrete). */
+/**
+ * Static friction of a shoe sole on a wall, dimensionless (provisional: rubber
+ * on concrete).
+ */
 const FRICTION: number = 0.8;
 
 /** Seconds per support change (provisional: a running wall step). */
 const BEAT: number = 0.35;
 
-/** Seconds the opening stance holds both feet where they stand (provisional: the edge rescue's own opening stance). */
+/**
+ * Seconds the opening stance holds both feet where they stand (provisional: the
+ * edge rescue's own opening stance).
+ */
 const SET: number = 0.3;
 
 /**
- * Use a wall's face as a brief foot support: a wall step plants one foot on
- * the face beside the other on the floor; a wall run plants it, pushes off
- * it to catch the wall's top edge with both hands, hangs, and walks both
- * feet onto the face, a cat hang. The shared support law fits the stances on points of the named
- * face and top; standing, the body keeps the upright stood pose. Every foot window on the face is then checked against its
- * friction cone while the foot carries the body alone, before the hands
- * take the top: the line from the planted toe to the hips must lean off the
- * face's normal by no more than `atan(FRICTION)` (a static stand-in for the
- * contact force's direction). A top beyond the hands' reach from the first
- * step is refused with the shortfall.
+ * Use a wall's face as a brief foot support: a wall step plants one foot on the
+ * face beside the other on the floor; a wall run plants it, pushes off it to
+ * catch the wall's top edge with both hands, hangs, and walks both feet onto
+ * the face, a cat hang. The shared support law fits the stances on points of
+ * the named face and top; standing, the body keeps the upright stood pose.
+ * Every foot window on the face is then checked against its friction cone while
+ * the foot carries the body alone, before the hands take the top: the line from
+ * the planted toe to the hips must lean off the face's normal by no more than
+ * `atan(FRICTION)` (a static stand-in for the contact force's direction). A top
+ * beyond the hands' reach from the first step is refused with the shortfall.
  *
  * @param context The action's context, standing before the wall and facing it.
  * @returns The wall step or run.
- * @throws {HumanRefusal} For a missing top, an unreachable top or a wall contact outside its friction cone.
+ * @throws {HumanRefusal} For a missing top, an unreachable top or a wall
+ *   contact outside its friction cone.
  */
 export function planWallRun(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWallRun.IParams>,
@@ -190,9 +221,19 @@ export function planWallRun(
   };
   const stances: IAutoMovieMotionHumanSupport.IStance[] = [
     // Both feet where they stand, so the step in is a swing, not a slide.
-    { contacts: [foot(lead), foot(trail)], seconds: SET, event: "set", prefer: getUp.POSES.stood },
+    {
+      contacts: [foot(lead), foot(trail)],
+      seconds: SET,
+      event: "set",
+      prefer: getUp.POSES.stood,
+    },
     // The take-off foot steps in to the wall, where the wall step reaches.
-    { contacts: [foot(lead), takeOff], seconds: BEAT, event: "approach", prefer: STEPPING },
+    {
+      contacts: [foot(lead), takeOff],
+      seconds: BEAT,
+      event: "approach",
+      prefer: STEPPING,
+    },
     {
       contacts: [foot(lead, FIRST * measure.hipHeight), takeOff],
       seconds: BEAT,
@@ -345,10 +386,10 @@ export function planWallRun(
 
 /**
  * A wall run's catch flown: between the wall step's key and the hang's the
- * support plan's posture is replaced by a projectile of the root under
- * standard gravity that leaves the one key and arrives at the other in the
- * stances' time, the joints taken from both keys' solved angles, the arms
- * reaching for the top over the flight's first half.
+ * support plan's posture is replaced by a projectile of the root under standard
+ * gravity that leaves the one key and arrives at the other in the stances'
+ * time, the joints taken from both keys' solved angles, the arms reaching for
+ * the top over the flight's first half.
  *
  * @param body The body.
  * @param plan The support plan with its `wallStep` and `catch` events.
@@ -387,7 +428,9 @@ function flown(
   const off: number = t0 / plan.duration;
   const on: number = t1 / plan.duration;
   const contacts: IAutoMovieMotionHumanContactWindow[] = plan.contacts.map(
-    (window: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow =>
+    (
+      window: IAutoMovieMotionHumanContactWindow,
+    ): IAutoMovieMotionHumanContactWindow =>
       window.from < on && window.to > off
         ? window.from <= off
           ? { ...window, to: off }

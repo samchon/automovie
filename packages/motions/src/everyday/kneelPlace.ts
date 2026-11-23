@@ -9,12 +9,13 @@ import { HumanRefusal } from "../law/HumanRefusal";
 /**
  * Where the kneeling hip joint comes to rest over the knee: behind the front
  * ankle by what the thigh's length leaves after the height difference, the
- * reverse lunge, or straight over a named floor point the knee comes down
- * on, the kneeling leg stepping there while the front foot stays planted.
+ * reverse lunge, or straight over a named floor point the knee comes down on,
+ * the kneeling leg stepping there while the front foot stays planted.
  *
  * @param input The hip, the front foot and the optional knee point.
  * @returns The kneeling hip joint, world metres.
- * @throws {HumanRefusal} When the front foot would be out of the front leg's reach from a hip over the named point.
+ * @throws {HumanRefusal} When the front foot would be out of the front leg's
+ *   reach from a hip over the named point.
  */
 export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   const {
@@ -53,9 +54,7 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   return placed;
 }
 
-/**
- * Inputs of {@link kneelPlace}.
- */
+/** Inputs of {@link kneelPlace}. */
 export namespace kneelPlace {
   /** What the placement reads. */
   export interface IInput {
@@ -80,7 +79,10 @@ export namespace kneelPlace {
     /** The front hip joint less the kneeling one, world metres. */
     across: IAutoMovieVector3;
 
-    /** The floor point the knee comes down on, world metres; the reverse lunge's when absent. */
+    /**
+     * The floor point the knee comes down on, world metres; the reverse lunge's
+     * when absent.
+     */
     at?: IAutoMovieVector3;
   }
 }

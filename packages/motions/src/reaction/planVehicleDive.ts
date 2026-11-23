@@ -1,6 +1,7 @@
 import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -9,7 +10,6 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanVehicleHit,
-  IAutoMovieMotionEvent,
   IAutoMoviePhysicalShapeBounds,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -24,17 +24,17 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { vehicleFront } from "./vehicleFront";
 
 /**
- * Plan a near-miss dive clear of a moving car: the pedestrian stands while
- * the car comes on its course, then dives to the side (`dive`), timed so
- * that every collider of the body has left the car's width when the car's
- * leading face reaches where the legs stood (`vehicleFront.contact`), and
- * stays out of it to the dive's end. The side defaults to the one whose
- * lateral points away from the car's centre line, the nearer edge of its
- * path.
+ * Plan a near-miss dive clear of a moving car: the pedestrian stands while the
+ * car comes on its course, then dives to the side (`dive`), timed so that every
+ * collider of the body has left the car's width when the car's leading face
+ * reaches where the legs stood (`vehicleFront.contact`), and stays out of it to
+ * the dive's end. The side defaults to the one whose lateral points away from
+ * the car's centre line, the nearer edge of its path.
  *
  * @param context The action's context, standing in the car's course.
  * @returns The plan.
- * @throws {HumanRefusal} When the car never arrives within the horizon, the dive never clears its width, or it arrives before the dive could clear it.
+ * @throws {HumanRefusal} When the car never arrives within the horizon, the
+ *   dive never clears its width, or it arrives before the dive could clear it.
  */
 export function planVehicleDive(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanVehicleHit.IDive>,
@@ -78,7 +78,10 @@ export function planVehicleDive(
   const side: AutoMovieHumanSide =
     p.side ?? (Vector3.dot(left, outward) >= 0 ? "left" : "right");
   const params: IAutoMovieMotionHumanDive.IParams = { kind: "dive", side };
-  const leap: IAutoMovieMotionHumanActionPlan = dive.plan({ ...context, params });
+  const leap: IAutoMovieMotionHumanActionPlan = dive.plan({
+    ...context,
+    params,
+  });
 
   // The body is clear while every collider lies outside the car's width,
   // on the side it dives to, in the car's frame at the arrival.
@@ -107,7 +110,11 @@ export function planVehicleDive(
     return true;
   };
   let clearing: number | undefined;
-  for (let k: number = Math.ceil(leap.duration / vehicleFront.STEP); k >= 0; k--) {
+  for (
+    let k: number = Math.ceil(leap.duration / vehicleFront.STEP);
+    k >= 0;
+    k--
+  ) {
     const t: number = Math.min(leap.duration, k * vehicleFront.STEP);
     if (!clear(t)) break;
     clearing = t;
@@ -132,7 +139,9 @@ export function planVehicleDive(
   const shift: (share: number) => number = (share: number): number =>
     (delay + share * leap.duration) / duration;
   const contacts: IAutoMovieMotionHumanContactWindow[] = leap.contacts.map(
-    (window: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => ({
+    (
+      window: IAutoMovieMotionHumanContactWindow,
+    ): IAutoMovieMotionHumanContactWindow => ({
       ...window,
       from: window.from === 0 ? 0 : shift(window.from),
       to: shift(window.to),

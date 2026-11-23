@@ -18,67 +18,65 @@ import { HumanBound } from "../law/HumanBound";
 import { affectHeldHands } from "./affectHeldHands";
 
 /**
- * Affect displays as an additive layer: laughing, sighing, yawning,
- * coughing, sneezing, shivering, sobbing, weeping and gasping, each a short pattern of trunk, shoulder,
- * head and jaw angles over any action, starting and ending at zero.
+ * Affect displays as an additive layer: laughing, sighing, yawning, coughing,
+ * sneezing, shivering, sobbing, weeping and gasping, each a short pattern of
+ * trunk, shoulder, head and jaw angles over any action, starting and ending at
+ * zero.
  *
- * These are joint-angle patterns because no body point is brought anywhere:
- * the display is the trunk's and head's own convulsion or stretch, the way
- * an additive animation layer carries breathing or a laugh over locomotion.
- * Planted and gripping limb goals are untouched, and the arms are solved
- * after the trunk, so contacts and held objects stay where they are. Each
- * display is the sum of its pulses under an envelope that rises and falls
- * on minimum-jerk ramps, so it is zero with zero velocity at its start and
- * end.
+ * These are joint-angle patterns because no body point is brought anywhere: the
+ * display is the trunk's and head's own convulsion or stretch, the way an
+ * additive animation layer carries breathing or a laugh over locomotion.
+ * Planted and gripping limb goals are untouched, and the arms are solved after
+ * the trunk, so contacts and held objects stay where they are. Each display is
+ * the sum of its pulses under an envelope that rises and falls on minimum-jerk
+ * ramps, so it is zero with zero velocity at its start and end.
  *
- * - `laugh`: a train of laugh notes about 210 ms apart (Provine 1996,
- *   American Scientist 84:38), each rising over 35 % of the interval and
- *   falling over the rest, a 3 degree chest and 1.5 degree lumbar flexion and
- *   a 3 degree shoulder lift pulse, over a 5 degree head extension; a laugh
- *   of `seconds` repeats notes while it lasts, rising over its first tenth
- *   and fading over its last third.
+ * - `laugh`: a train of laugh notes about 210 ms apart (Provine 1996, American
+ *   Scientist 84:38), each rising over 35 % of the interval and falling over
+ *   the rest, a 3 degree chest and 1.5 degree lumbar flexion and a 3 degree
+ *   shoulder lift pulse, over a 5 degree head extension; a laugh of `seconds`
+ *   repeats notes while it lasts, rising over its first tenth and fading over
+ *   its last third.
  * - `sigh`: a deep inhalation over 40 % of the sigh raising the shoulders 6
  *   degrees and extending the chest 4, then an exhalation that lets the
  *   shoulders fall 2 degrees below rest and the head drop 4, closing back to
  *   rest over the last 15 %.
  * - `yawn`: the jaw opens 25 degrees and the head extends 15 with the chest
- *   extending 5, peaking at 40 % of the yawn (a yawn lasts about six
- *   seconds, Provine 1986, Ethology 72:109; profile provisional).
- * - `cough`: three sharp trunk flexions, the first of 10 degrees at the
- *   chest, 4 at the lumbar spine and 8 at the head and the next two smaller
- *   by the air each expels (53.2, 28.5 and 18.8 %, Harris and Lawson 1968),
- *   from 0.1 s and 0.5 s apart, each rising
- *   in 0.12 s and recovering over 0.38 s, the whole ramped in over its
- *   first 2 % and out over its last 5 % (provisional).
- * - `sneeze`: an inhalation that extends the head 10 degrees and the chest 3
- *   over 70 % of the sneeze and released over the next 5 %, with a sudden
- *   flexion of the head 25 and the chest 10 in 0.1 s, recovering by the
- *   end; a sneeze shorter than the
- *   burst over its last 30 % is refused.
- * - `shiver`: the shoulders hunch 8 degrees and come forward 4, the chest
- *   flexes 3, while the shoulders tremble 1.5 degrees at 4 Hz, a visible
- *   shivering burst rate below the 12 Hz Nyquist limit of a 24 Hz film
- *   (shivering muscle tremor itself is faster, near 10 Hz, and would alias),
- *   ramped in and out over 15 % of the shiver.
- * - `sob`: the chest flexes 6 degrees, the lumbar spine 4 and the head 10,
- *   ramped in over 8 % and out over 20 %, under a train of inspirations each
- *   lifting the shoulders 6 degrees and extending the chest 4, rising in 0.1
- *   s and recovering over 0.25 s. They come 0.5 s apart at intensity 1,
- *   closer as the intensity rises to 2 and farther as it falls to 0.5, each
- *   interval varying by a seeded ±30 %. The convulsive inspirations of
- *   sobbing are Gross, Fredrickson and Levenson's (1994, Psychophysiology
- *   31:460); the amplitudes and timings are provisional.
- * - `weep`: the head lowers 12 degrees and the chest flexes 4, with a 2
- *   degree shoulder heave every 2.5 s and a sniff about every 3.5 s, seeded
- *   ±30 %, that lifts the head 3 degrees and the shoulders 2 (provisional).
- * - `gasp`: the head extends 12 degrees, the chest 6 and the shoulders rise
- *   8, peaking 0.25 s in and returning to rest by the end (provisional).
+ *   extending 5, peaking at 40 % of the yawn (a yawn lasts about six seconds,
+ *   Provine 1986, Ethology 72:109; profile provisional).
+ * - `cough`: three sharp trunk flexions, the first of 10 degrees at the chest, 4
+ *   at the lumbar spine and 8 at the head and the next two smaller by the air
+ *   each expels (53.2, 28.5 and 18.8 %, Harris and Lawson 1968), from 0.1 s and
+ *   0.5 s apart, each rising in 0.12 s and recovering over 0.38 s, the whole
+ *   ramped in over its first 2 % and out over its last 5 % (provisional).
+ * - `sneeze`: an inhalation that extends the head 10 degrees and the chest 3 over
+ *   70 % of the sneeze and released over the next 5 %, with a sudden flexion of
+ *   the head 25 and the chest 10 in 0.1 s, recovering by the end; a sneeze
+ *   shorter than the burst over its last 30 % is refused.
+ * - `shiver`: the shoulders hunch 8 degrees and come forward 4, the chest flexes
+ *   3, while the shoulders tremble 1.5 degrees at 4 Hz, a visible shivering
+ *   burst rate below the 12 Hz Nyquist limit of a 24 Hz film (shivering muscle
+ *   tremor itself is faster, near 10 Hz, and would alias), ramped in and out
+ *   over 15 % of the shiver.
+ * - `sob`: the chest flexes 6 degrees, the lumbar spine 4 and the head 10, ramped
+ *   in over 8 % and out over 20 %, under a train of inspirations each lifting
+ *   the shoulders 6 degrees and extending the chest 4, rising in 0.1 s and
+ *   recovering over 0.25 s. They come 0.5 s apart at intensity 1, closer as the
+ *   intensity rises to 2 and farther as it falls to 0.5, each interval varying
+ *   by a seeded ±30 %. The convulsive inspirations of sobbing are Gross,
+ *   Fredrickson and Levenson's (1994, Psychophysiology 31:460); the amplitudes
+ *   and timings are provisional.
+ * - `weep`: the head lowers 12 degrees and the chest flexes 4, with a 2 degree
+ *   shoulder heave every 2.5 s and a sniff about every 3.5 s, seeded ±30 %,
+ *   that lifts the head 3 degrees and the shoulders 2 (provisional).
+ * - `gasp`: the head extends 12 degrees, the chest 6 and the shoulders rise 8,
+ *   peaking 0.25 s in and returning to rest by the end (provisional).
  *
- * The seeded timing of a sob or weep is keyed by the display's `seed`, or
- * its kind and start, so the same display repeats in every read and order.
+ * The seeded timing of a sob or weep is keyed by the display's `seed`, or its
+ * kind and start, so the same display repeats in every read and order.
  *
- * Amplitudes and timings are provisional, read from no measured source,
- * except where cited; an intensity scales every amplitude.
+ * Amplitudes and timings are provisional, read from no measured source, except
+ * where cited; an intensity scales every amplitude.
  */
 export namespace HumanAffect {
   /** Each display's own length, seconds. */
@@ -106,9 +104,11 @@ export namespace HumanAffect {
    * @param t Seconds since its start.
    * @param seconds Its length, seconds.
    * @param intensity Amplitude scale.
-   * @param seed The key of a sob's or weep's seeded timing; the kind when absent.
+   * @param seed The key of a sob's or weep's seeded timing; the kind when
+   *   absent.
    * @returns Clinical degrees to add; empty outside the display.
-   * @throws {HumanRefusal} When the length is not positive, a sneeze's leaves no room for its burst, or a gasp's for its inspiration.
+   * @throws {HumanRefusal} When the length is not positive, a sneeze's leaves
+   *   no room for its burst, or a gasp's for its inspiration.
    */
   export function angles(
     kind: IAutoMovieMotionHumanAffect.Kind,
@@ -122,7 +122,10 @@ export namespace HumanAffect {
     return pattern(kind, t, seconds, intensity, seed);
   }
 
-  /** Refuse a length a display cannot fit: any not positive, and a sneeze too short for its burst to rise within its last `1 - SNEEZE_BUILD`. */
+  /**
+   * Refuse a length a display cannot fit: any not positive, and a sneeze too
+   * short for its burst to rise within its last `1 - SNEEZE_BUILD`.
+   */
   function admit(
     kind: IAutoMovieMotionHumanAffect.Kind,
     seconds: number,
@@ -346,7 +349,10 @@ export namespace HumanAffect {
   }
 }
 
-/** An envelope rising on a minimum-jerk ramp over the first `rise` of a display and falling over its last `fall`, shares of its length. */
+/**
+ * An envelope rising on a minimum-jerk ramp over the first `rise` of a display
+ * and falling over its last `fall`, shares of its length.
+ */
 function ramp(u: number, rise: number, fall: number): number {
   return Math.min(
     minimumJerk.share(u / rise),
@@ -354,7 +360,10 @@ function ramp(u: number, rise: number, fall: number): number {
   );
 }
 
-/** One pulse at `x` seconds after its start: zero before it, a minimum-jerk rise over `up` seconds and a fall over `down`. */
+/**
+ * One pulse at `x` seconds after its start: zero before it, a minimum-jerk rise
+ * over `up` seconds and a fall over `down`.
+ */
 function pulse(x: number, up: number, down: number): number {
   return x <= 0
     ? 0
@@ -404,7 +413,11 @@ const EXHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
 /** The angles of a bone the record holds none for. */
 const ZERO: readonly [number, number, number] = [0, 0, 0];
 
-/** Each of a bout's three coughs relative to the first: the first three coughs of a bout expel 53.2, 28.5 and 18.8 % of the air (Harris and Lawson 1968, as relayed), so each flexes the trunk by its expulsion's share of the first's. */
+/**
+ * Each of a bout's three coughs relative to the first: the first three coughs
+ * of a bout expel 53.2, 28.5 and 18.8 % of the air (Harris and Lawson 1968, as
+ * relayed), so each flexes the trunk by its expulsion's share of the first's.
+ */
 const COUGHS: readonly number[] = [1, 28.5 / 53.2, 18.8 / 53.2];
 
 /** The seeded draw stream of one display's irregular timing. */
@@ -414,9 +427,9 @@ function stream(seed: string): IAutoMovieRandom {
 
 /**
  * A train of pulses at seeded irregular times: the first at a third of the
- * nominal interval and each next after the nominal interval scaled by a draw
- * in 1 ± jitter. The value is the largest active pulse, so overlapping
- * pulses stay continuous, as the cough's do. Linear in the pulses before `t`.
+ * nominal interval and each next after the nominal interval scaled by a draw in
+ * 1 ± jitter. The value is the largest active pulse, so overlapping pulses stay
+ * continuous, as the cough's do. Linear in the pulses before `t`.
  */
 function train(
   random: IAutoMovieRandom,
@@ -435,10 +448,16 @@ function train(
   return value;
 }
 
-/** A sob's nominal interval between inspirations at intensity 1, seconds (provisional). */
+/**
+ * A sob's nominal interval between inspirations at intensity 1, seconds
+ * (provisional).
+ */
 const SOB_INTERVAL: number = 0.5;
 
-/** The intensity range that scales a sob's density, so its shortest interval, 0.175 s, stays under the 12 Hz Nyquist limit of 24 Hz film. */
+/**
+ * The intensity range that scales a sob's density, so its shortest interval,
+ * 0.175 s, stays under the 12 Hz Nyquist limit of 24 Hz film.
+ */
 const SOB_DENSITY: readonly [number, number] = [0.5, 2];
 
 /** How far each sob interval varies from the nominal, a share (provisional). */

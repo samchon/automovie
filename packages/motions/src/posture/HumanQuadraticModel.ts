@@ -12,21 +12,27 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  */
 export namespace HumanQuadraticModel {
   /**
-   * A fixed P/q/A snapshot with a synchronous changing-bounds solve. Rebuild
-   * it to change matrix values, dimensions, row order or coefficient order.
+   * A fixed P/q/A snapshot with a synchronous changing-bounds solve. Rebuild it
+   * to change matrix values, dimensions, row order or coefficient order.
    */
   export interface IModel {
     /**
      * Solve this numeric snapshot with current ordered row intervals.
      *
-     * @param bounds One current interval, optional weight and key per original row; coefficient members on structural subtypes are not read.
-     * @param warm Optional compatible caller-owned unscaled iterates, left unchanged.
+     * @param bounds One current interval, optional weight and key per original
+     *   row; coefficient members on structural subtypes are not read.
+     * @param warm Optional compatible caller-owned unscaled iterates, left
+     *   unchanged.
      * @param duals Optional keyed multipliers when warm is absent.
      * @returns Fresh caller-owned unscaled iterates and current diagnostics.
-     * @throws {RangeError} For malformed intervals, incompatible warm data or nonfinite computation.
+     * @throws {RangeError} For malformed intervals, incompatible warm data or
+     *   nonfinite computation.
      */
     solve(
-      bounds: readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key">[],
+      bounds: readonly Pick<
+        IAutoMovieMotionHumanQuadraticProgram.IRow,
+        "l" | "u" | "weight" | "key"
+      >[],
       warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
       duals?: ReadonlyMap<string, number>,
     ): IAutoMovieMotionHumanQuadraticProgram.IState;
@@ -38,18 +44,34 @@ export namespace HumanQuadraticModel {
    * are copied too so exceptional IEEE products remain source-independent.
    *
    * @param problem Finite convex banded data with admitted ordered row storage.
-   * @param tolerance The public quadratic solver's unchanged relative residual tolerance.
+   * @param tolerance The public quadratic solver's unchanged relative residual
+   *   tolerance.
    * @returns One caller-owned fixed model; releasing it releases its scratch.
    * @throws {RangeError} For malformed original data or noninvertible scaling.
    */
-  export function of(problem: IAutoMovieMotionHumanQuadraticProgram.IProblem, tolerance: number): IModel {
+  export function of(
+    problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
+    tolerance: number,
+  ): IModel {
     const s: B.IScaled = Preparation.scaled(problem);
 
     // CSR already copies every entry of a zero-free row. Only omitted
     // entries require an original-layout snapshot for exceptional products.
-    const raw: (Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef"> | undefined)[] = new Array(s.m);
-    const rows: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key">[] = problem.rows.map(
-      (row: IAutoMovieMotionHumanQuadraticProgram.IRow, r: number): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key"> => {
+    const raw: (
+      | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "index" | "coef">
+      | undefined
+    )[] = new Array(s.m);
+    const rows: Pick<
+      IAutoMovieMotionHumanQuadraticProgram.IRow,
+      "l" | "u" | "weight" | "key"
+    >[] = problem.rows.map(
+      (
+        row: IAutoMovieMotionHumanQuadraticProgram.IRow,
+        r: number,
+      ): Pick<
+        IAutoMovieMotionHumanQuadraticProgram.IRow,
+        "l" | "u" | "weight" | "key"
+      > => {
         if (row.coef.length !== s.start[r + 1]! - s.start[r]!)
           raw[r] = { index: [...row.index], coef: [...row.coef] };
         return { l: row.l, u: row.u, weight: row.weight, key: row.key };
@@ -72,18 +94,28 @@ export namespace HumanQuadraticModel {
     };
     return {
       solve: (
-        bounds: readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key">[],
+        bounds: readonly Pick<
+          IAutoMovieMotionHumanQuadraticProgram.IRow,
+          "l" | "u" | "weight" | "key"
+        >[],
         warm?: IAutoMovieMotionHumanQuadraticProgram.IState,
         duals?: ReadonlyMap<string, number>,
       ): IAutoMovieMotionHumanQuadraticProgram.IState => {
         if (bounds.length !== s.m)
           throw new RangeError("Malformed quadratic row count");
         for (let r: number = 0; r < s.m; ++r) {
-          const next: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key"> | undefined =
-            bounds[r];
+          const next:
+            | Pick<
+                IAutoMovieMotionHumanQuadraticProgram.IRow,
+                "l" | "u" | "weight" | "key"
+              >
+            | undefined = bounds[r];
           if (next === undefined)
             throw new RangeError(`Malformed quadratic row ${r}`);
-          const row: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u" | "weight" | "key"> = rows[r]!;
+          const row: Pick<
+            IAutoMovieMotionHumanQuadraticProgram.IRow,
+            "l" | "u" | "weight" | "key"
+          > = rows[r]!;
           row.key = next.key;
           const l: number = next.l;
           const u: number = next.u;

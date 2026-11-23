@@ -17,20 +17,20 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
  * A hand attitude a law asks up to a freedom it declares, read as the
  * equivalent the arm can take at its place, or refused.
  *
- * A law rarely needs one exact hand attitude: a card laid face up rests
- * alike at any heading about the vertical, a utensil's point aims along one
- * axis whatever its roll about it. Asked as one attitude, the hand is sent
- * to an attitude its forearm's twist and its wrist may not reach at the
- * arm's place; the fit then meets it at the nearest end of the twist's
- * range, and as the place moves that nearest end changes and the forearm
- * turns half a turn between two frames. Here each candidate turn of the
- * requested attitude about the free axis is fitted on the arm at its place,
- * within the joints' ranges (the rig's own fit), and the turn whose fitted
- * hand meets its asked attitude is taken, the one nearest the requested turn
- * (or a previous attitude) among those that meet it: the feasible value
- * nearest the desired one (Tolani, Goswami and Badler 2000, Graphical Models
- * 62:353, section 3.2.4). Where no turn is met within the range tolerance,
- * the attitude is refused with the least miss, never clamped in silence.
+ * A law rarely needs one exact hand attitude: a card laid face up rests alike
+ * at any heading about the vertical, a utensil's point aims along one axis
+ * whatever its roll about it. Asked as one attitude, the hand is sent to an
+ * attitude its forearm's twist and its wrist may not reach at the arm's place;
+ * the fit then meets it at the nearest end of the twist's range, and as the
+ * place moves that nearest end changes and the forearm turns half a turn
+ * between two frames. Here each candidate turn of the requested attitude about
+ * the free axis is fitted on the arm at its place, within the joints' ranges
+ * (the rig's own fit), and the turn whose fitted hand meets its asked attitude
+ * is taken, the one nearest the requested turn (or a previous attitude) among
+ * those that meet it: the feasible value nearest the desired one (Tolani,
+ * Goswami and Badler 2000, Graphical Models 62:353, section 3.2.4). Where no
+ * turn is met within the range tolerance, the attitude is refused with the
+ * least miss, never clamped in silence.
  */
 export namespace AutoMovieMotionHumanArmReach {
   /**
@@ -57,17 +57,18 @@ export namespace AutoMovieMotionHumanArmReach {
     axis: IAutoMovieVector3;
 
     /**
-     * The wrist's place for a candidate attitude, world metres (a held prop's offset turns with the hand).
+     * The wrist's place for a candidate attitude, world metres (a held prop's
+     * offset turns with the hand).
      */
-    wrist:(rotation: IAutoMovieQuaternion) => IAutoMovieVector3;
+    wrist: (rotation: IAutoMovieQuaternion) => IAutoMovieVector3;
 
     /** What the refusal names as the action's axis. */
     name: string;
   }
 
   /**
-   * The attitude taken: the requested one turned about the free axis, and
-   * the turn in degrees.
+   * The attitude taken: the requested one turned about the free axis, and the
+   * turn in degrees.
    */
   export interface IResult {
     /** The attitude, world. */
@@ -77,18 +78,27 @@ export namespace AutoMovieMotionHumanArmReach {
     turn: number;
   }
 
-  /** The candidate turns' spacing, degrees: a scan fine enough that a met arc of the twist's 180 degree range holds several candidates. */
+  /**
+   * The candidate turns' spacing, degrees: a scan fine enough that a met arc of
+   * the twist's 180 degree range holds several candidates.
+   */
   export const STEP: number = 15;
 
-  /** Golden-section steps refining the turn within a step of the least miss: each shrinks the bracket by the golden ratio, so 16 steps leave 15 x 0.618^16, under 0.01 degrees. */
+  /**
+   * Golden-section steps refining the turn within a step of the least miss:
+   * each shrinks the bracket by the golden ratio, so 16 steps leave 15 x
+   * 0.618^16, under 0.01 degrees.
+   */
   export const REFINE: number = 16;
 
   /**
    * The reachable equivalent of a requested attitude, or a refusal.
    *
    * @param request What the law asks.
-   * @returns The attitude the arm meets at its place nearest the requested turn.
-   * @throws {HumanRefusal} When no turn about the free axis is met within the range tolerance (`ROM_TOLERANCE`).
+   * @returns The attitude the arm meets at its place nearest the requested
+   *   turn.
+   * @throws {HumanRefusal} When no turn about the free axis is met within the
+   *   range tolerance (`ROM_TOLERANCE`).
    */
   export function attitude(request: IRequest): IResult {
     const hand: AutoMovieHumanoidBone = `${request.side}Hand`;

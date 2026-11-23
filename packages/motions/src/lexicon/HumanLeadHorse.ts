@@ -53,7 +53,13 @@ export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     plan(
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLeadHorse>,
     ): IAutoMovieMotionHumanActionPlan {
-      const { on, hand: side, point = "lead", duration: seconds, transition } = context.params;
+      const {
+        on,
+        hand: side,
+        point = "lead",
+        duration: seconds,
+        transition,
+      } = context.params;
       if (
         ![seconds, transition].every(Number.isFinite) ||
         !(transition > 0 && 2 * transition < seconds)

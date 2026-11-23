@@ -7,11 +7,11 @@ import type {
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 
 /**
- * The channels of a plan a reading of its own limb goals asks for at a
- * second: every channel but those whose writer follows a partner live over
- * a window holding the second (`IAutoMovieMotionHumanActionPlan.follows`),
- * whose follower plans them there and whose reading would read that
- * partner; the whole posture wherever nothing follows anyone.
+ * The channels of a plan a reading of its own limb goals asks for at a second:
+ * every channel but those whose writer follows a partner live over a window
+ * holding the second (`IAutoMovieMotionHumanActionPlan.follows`), whose
+ * follower plans them there and whose reading would read that partner; the
+ * whole posture wherever nothing follows anyone.
  *
  * @param plan The plan.
  * @param seconds Seconds since the plan's start.

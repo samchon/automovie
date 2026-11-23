@@ -32,19 +32,21 @@ const COINCIDENCE: number = 1e-6;
 
 /**
  * A left index stops one string while the right index crosses it on a
- * stationary guitar. The left stops at the chosen fret bar's crossing with
- * the string. The right crosses that same string at the soundboard centre's
+ * stationary guitar. The left stops at the chosen fret bar's crossing with the
+ * string. The right crosses that same string at the soundboard centre's
  * projection, on the bridge side of the stop. The right fingertip crosses
  * during one continuous sweep and lifts clear as the left continues holding.
  *
- * ElKoura and Singh (2003), [Handrix](https://www.dgp.toronto.edu/~gelkoura/handrix/paper.html),
- * motivate the fretting-hand contact. Pérez-Carrillo (2019),
- * [Finger-String Interaction Analysis in Guitar Playing With Optical Motion Capture](https://doi.org/10.3389/fcomp.2019.00008),
- * observes approach, transverse contact and clearance in the right hand.
- * The sweep and clearances here are staging choices from the string spacing
- * and hand size. The action depicts contacts on rigid bars for a staged shot.
- * The author places and supports the guitar and sets the three contact times.
- * Both hands must be free and within reach of the guitar.
+ * ElKoura and Singh (2003),
+ * [Handrix](https://www.dgp.toronto.edu/~gelkoura/handrix/paper.html), motivate
+ * the fretting-hand contact. Pérez-Carrillo (2019), [Finger-String Interaction
+ * Analysis in Guitar Playing With Optical Motion
+ * Capture](https://doi.org/10.3389/fcomp.2019.00008), observes approach,
+ * transverse contact and clearance in the right hand. The sweep and clearances
+ * here are staging choices from the string spacing and hand size. The action
+ * depicts contacts on rigid bars for a staged shot. The author places and
+ * supports the guitar and sets the three contact times. Both hands must be free
+ * and within reach of the guitar.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sources, the authoring requirements and how both targets and the sweep are located.
  * @evidence contracts/development/design.md#principled-representation One stationary base and two fingertip trajectories from one instrument and one authored clock.
@@ -63,8 +65,8 @@ export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGui
  *
  * @param context The action's start, performer and authored note.
  * @returns The held base and two time-addressable fingertip motions.
- * @throws {HumanRefusal} For invalid times, an incompatible guitar or occupied hands, or a wrist beyond the arm's geometric reach.
- *
+ * @throws {HumanRefusal} For invalid times, an incompatible guitar or occupied
+ *   hands, or a wrist beyond the arm's geometric reach.
  * @evidence contracts/development/implementation.md#principled-implementation Derives both goals in the prop frame, preserves the entry support and uses minimum jerk to bring each index into the engagement.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit clock and prop, derive geometry and arm placements, then evaluate each fingertip by its phase.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid bar geometry, occupied hands and a wrist outside the geometric reach band are refused before the plan is returned.
@@ -214,7 +216,10 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 }
 
-/** Build one arm and index goal from its displayed wrist and the soundboard's normal. */
+/**
+ * Build one arm and index goal from its displayed wrist and the soundboard's
+ * normal.
+ */
 function handPath(
   context: Context,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

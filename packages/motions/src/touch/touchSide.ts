@@ -24,21 +24,21 @@ import { touchRegion } from "./touchRegion";
 /**
  * Which hand a touch uses when its author names none.
  *
- * Both hands are candidates. A touch with a held prop takes the hand that
- * holds it at the entry (`IHumanEntryState.holds`), the only hand that can
- * lay the prop's point on the region. Otherwise each hand is laid on its
- * region on the entry posture as the plan lays it (`touchHold.lay`,
- * `AutoMovieMotionHumanTouchLaid.rest`), and the hand whose arm holds that
- * goal with an allowed elbow place and the least joint strain
- * (`AutoMovieMotionHumanBend.strain`, the measure the arm's elbow search
- * ranks by) is taken: a goal no elbow place allows, or beyond the arm, reads
- * as infinite strain, so feasibility decides first. With `other`, the two
- * hands' pairings are compared by their summed strain. A region on one of
- * the performer's own arms is never touched by that arm's own hand. Two
- * strains within the strain's own resolution (`resolution`, `ROM_TOLERANCE`
- * carried through the strain's terms) are one, and keep the right hand, the
- * law's default before this choice; a mirrored body's two strains differ
- * only by rounding.
+ * Both hands are candidates. A touch with a held prop takes the hand that holds
+ * it at the entry (`IHumanEntryState.holds`), the only hand that can lay the
+ * prop's point on the region. Otherwise each hand is laid on its region on the
+ * entry posture as the plan lays it (`touchHold.lay`,
+ * `AutoMovieMotionHumanTouchLaid.rest`), and the hand whose arm holds that goal
+ * with an allowed elbow place and the least joint strain
+ * (`AutoMovieMotionHumanBend.strain`, the measure the arm's elbow search ranks
+ * by) is taken: a goal no elbow place allows, or beyond the arm, reads as
+ * infinite strain, so feasibility decides first. With `other`, the two hands'
+ * pairings are compared by their summed strain. A region on one of the
+ * performer's own arms is never touched by that arm's own hand. Two strains
+ * within the strain's own resolution (`resolution`, `ROM_TOLERANCE` carried
+ * through the strain's terms) are one, and keep the right hand, the law's
+ * default before this choice; a mirrored body's two strains differ only by
+ * rounding.
  */
 export namespace touchSide {
   /**
@@ -46,7 +46,8 @@ export namespace touchSide {
    *
    * @param context The action's context.
    * @param effector The part of the hand that touches.
-   * @returns The hand that takes `target`; `params.side` when the author names it.
+   * @returns The hand that takes `target`; `params.side` when the author names
+   *   it.
    */
   export function of(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -136,21 +137,20 @@ export namespace touchSide {
   /**
    * How far a strain can move while every angle it reads moves within
    * `ROM_TOLERANCE`, the resolution to which the elbow search and the fits
-   * resolve a joint's angle, so two strains closer than the sum of theirs
-   * are one strain. Each of the strain's `n` terms is `(d / H)^2`, `d` an
-   * angle's distance from the hanging arm's and `H` its axis's half range
-   * (`AutoMovieMotionHumanBend.solve`): a change `e` in `d` moves a term by
-   * at most `2 |d| e / H^2 + e^2 / H^2`, and the whole strain `S`, by
-   * Cauchy-Schwarz over the terms with the least half range `h`, by at most
-   * `2 sqrt(n S) e / h + n (e / h)^2`. The terms are the shoulder's three
-   * axes, the forearm's twist and the wrist's flexion, their ranges read from
-   * the rig (`getConstraint`) as the elbow search reads them.
+   * resolve a joint's angle, so two strains closer than the sum of theirs are
+   * one strain. Each of the strain's `n` terms is `(d / H)^2`, `d` an angle's
+   * distance from the hanging arm's and `H` its axis's half range
+   * (`AutoMovieMotionHumanBend.solve`): a change `e` in `d` moves a term by at
+   * most `2 |d| e / H^2 + e^2 / H^2`, and the whole strain `S`, by
+   * Cauchy-Schwarz over the terms with the least half range `h`, by at most `2
+   * sqrt(n S) e / h + n (e / h)^2`. The terms are the shoulder's three axes,
+   * the forearm's twist and the wrist's flexion, their ranges read from the rig
+   * (`getConstraint`) as the elbow search reads them.
    *
    * @param body The body.
    * @param side The arm.
    * @param strain The strain, unitless.
    * @returns The bound, unitless; `Infinity` for an infinite strain.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the bound, its derivation and the terms and ranges it reads.
    * @evidence contracts/development/implementation.md#principled-implementation First-order error propagation of the angle resolution through the strain's squared terms, bounded over the terms by Cauchy-Schwarz with the least half range.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure The five half ranges, then one closed form.

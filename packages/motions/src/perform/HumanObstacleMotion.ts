@@ -10,19 +10,19 @@ import type {
 import { HumanObstacle } from "./HumanObstacle";
 
 /**
- * Obstacles that move: a carriage, a horse, a running man, each a footprint
- * in its own frame carried by its motion (`HumanObstacle.IObstacle.motion`).
+ * Obstacles that move: a carriage, a horse, a running man, each a footprint in
+ * its own frame carried by its motion (`HumanObstacle.IObstacle.motion`).
  *
  * `footprint` and `at` place one at a film second, so a path judged by
- * `HumanObstacle.blocking` against obstacles placed at that second meets
- * them where they are then; the crowd's steering reads their motion
- * directly. `prop` makes a prop that moves by itself (a ridden horse, a
- * drawn carriage) such an obstacle.
+ * `HumanObstacle.blocking` against obstacles placed at that second meets them
+ * where they are then; the crowd's steering reads their motion directly. `prop`
+ * makes a prop that moves by itself (a ridden horse, a drawn carriage) such an
+ * obstacle.
  */
 export namespace HumanObstacleMotion {
   /**
-   * An obstacle's footprint in the world at a film second: as given for a
-   * still one, placed by its motion for a moving one.
+   * An obstacle's footprint in the world at a film second: as given for a still
+   * one, placed by its motion for a moving one.
    *
    * @param obstacle The obstacle.
    * @param seconds Film seconds.
@@ -72,14 +72,15 @@ export namespace HumanObstacleMotion {
   }
 
   /**
-   * A prop that moves by itself (`IHumanProp.motion`) as a moving obstacle:
-   * its footprint is the floor-plan hull of its colliders in its own frame,
-   * as `HumanObstacle.object` outlines an object, its heights theirs, and
-   * its motion the prop's position with the heading its rotation gives +Z.
+   * A prop that moves by itself (`IHumanProp.motion`) as a moving obstacle: its
+   * footprint is the floor-plan hull of its colliders in its own frame, as
+   * `HumanObstacle.object` outlines an object, its heights theirs, and its
+   * motion the prop's position with the heading its rotation gives +Z.
    *
    * @param prop The prop, with colliders and a motion.
    * @returns The obstacle.
-   * @throws {Error} When the prop has no motion or no colliders, or they cover no area of the floor plan.
+   * @throws {Error} When the prop has no motion or no colliders, or they cover
+   *   no area of the floor plan.
    */
   export function prop(
     prop: IAutoMovieMotionHumanProp,

@@ -13,8 +13,8 @@ import { HumanPrehension } from "./HumanPrehension";
 import { prepareHumanShapeBlend } from "./prepareHumanShapeBlend";
 
 /**
- * The open hand a reach carries toward a grasp: the pre-shape whose
- * thumb-index aperture is the peak aperture for the grasped width
+ * The open hand a reach carries toward a grasp: the pre-shape whose thumb-index
+ * aperture is the peak aperture for the grasped width
  * (`HumanPrehension.aperture`).
  *
  * The open hand is found on the thumb-index aperture of the body's own digit
@@ -42,7 +42,10 @@ export namespace HumanPreshape {
     width: number,
   ): IAutoMovieMotionHumanPreshape.IOpenResult {
     const want: number = HumanPrehension.aperture(width);
-    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(side, "flat");
+    const flat: IAutoMovieMotionHumanPosture["joints"] = HumanHand.shape(
+      side,
+      "flat",
+    );
     const aperture: ReturnType<typeof HumanGrip.prepareAperture> =
       HumanGrip.prepareAperture(body, side);
 
@@ -50,7 +53,9 @@ export namespace HumanPreshape {
     // opening share of a shape monotone in it; `ITERATIONS` halvings leave
     // the share within 2^-30 of the crossing. A shape that stays narrower
     // at its full opening is returned there.
-    const solve: (shape: (x: number) => IAutoMovieMotionHumanPosture["joints"]) => IAutoMovieMotionHumanPreshape.IOpenResult = (
+    const solve: (
+      shape: (x: number) => IAutoMovieMotionHumanPosture["joints"],
+    ) => IAutoMovieMotionHumanPreshape.IOpenResult = (
       shape: (x: number) => IAutoMovieMotionHumanPosture["joints"],
     ): IAutoMovieMotionHumanPreshape.IOpenResult => {
       const full: IAutoMovieMotionHumanPosture["joints"] = shape(1);
@@ -66,7 +71,8 @@ export namespace HumanPreshape {
       const joints: IAutoMovieMotionHumanPosture["joints"] = shape(top);
       return { joints, aperture: aperture(joints) };
     };
-    if (aperture(flat) >= want) return solve(prepareHumanShapeBlend(closed, flat));
+    if (aperture(flat) >= want)
+      return solve(prepareHumanShapeBlend(closed, flat));
 
     // Wider than the flat hand: abduct the thumb's carpometacarpal joint, in
     // whichever sense widens the span, up to the end of the body's range in
@@ -78,21 +84,25 @@ export namespace HumanPreshape {
         { bone: thumb, flexion: 0, abduction: sense * 180, twist: 0 },
         body.skeleton,
       ).abduction ?? 0;
-    const abducted: (sense: number) => (x: number) => IAutoMovieMotionHumanPosture["joints"] =
-      (sense: number): ((x: number) => IAutoMovieMotionHumanPosture["joints"]) => {
-        const end: number = limit(sense);
-        return (x: number): IAutoMovieMotionHumanPosture["joints"] => ({
-          ...flat,
-          [thumb]: [0, end * x, 0] as const,
-        });
-      };
+    const abducted: (
+      sense: number,
+    ) => (x: number) => IAutoMovieMotionHumanPosture["joints"] = (
+      sense: number,
+    ): ((x: number) => IAutoMovieMotionHumanPosture["joints"]) => {
+      const end: number = limit(sense);
+      return (x: number): IAutoMovieMotionHumanPosture["joints"] => ({
+        ...flat,
+        [thumb]: [0, end * x, 0] as const,
+      });
+    };
     const sense: number =
-      aperture(abducted(1)(0.5)) >= aperture(abducted(-1)(0.5))
-        ? 1
-        : -1;
+      aperture(abducted(1)(0.5)) >= aperture(abducted(-1)(0.5)) ? 1 : -1;
     return solve(abducted(sense));
   }
 }
 
-/** The halvings of the opening share's bisection: 2^-30 of the share, far below a joint's resolution. */
+/**
+ * The halvings of the opening share's bisection: 2^-30 of the share, far below
+ * a joint's resolution.
+ */
 const ITERATIONS: number = 30;

@@ -13,19 +13,19 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A displayed pose's segment frames as the solver can hold them: every
- * joint's relative rotation projected into the profile's own joint limits,
- * and every segment placed from its parent through the joint's anchors.
+ * A displayed pose's segment frames as the solver can hold them: every joint's
+ * relative rotation projected into the profile's own joint limits, and every
+ * segment placed from its parent through the joint's anchors.
  *
- * The rig's range of motion and the profile's joint limits are two
- * descriptions of one body, and a displayed pose that satisfies the first
- * can pass the second by a fraction of a milliradian (a thumb's), or carry
- * an anchor offset where the rig articulates a bone the profile does not
- * carry. The solver returns a subtree to its targets exactly and refuses a
- * target outside its joints (`assertPhysicalReturnPath`), so the window
- * hands it targets inside them: the root's frame as displayed, each child
- * at its displayed relative rotation projected by the engine's own
- * projection (`projectPhysicalJointRotation`), parent first.
+ * The rig's range of motion and the profile's joint limits are two descriptions
+ * of one body, and a displayed pose that satisfies the first can pass the
+ * second by a fraction of a milliradian (a thumb's), or carry an anchor offset
+ * where the rig articulates a bone the profile does not carry. The solver
+ * returns a subtree to its targets exactly and refuses a target outside its
+ * joints (`assertPhysicalReturnPath`), so the window hands it targets inside
+ * them: the root's frame as displayed, each child at its displayed relative
+ * rotation projected by the engine's own projection
+ * (`projectPhysicalJointRotation`), parent first.
  *
  * @param profile The performer's physical profile.
  * @param displayed The displayed world segment frames, every segment.

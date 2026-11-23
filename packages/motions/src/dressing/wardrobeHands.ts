@@ -29,9 +29,7 @@ const STILL: IAutoMovieRigidTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-/**
- * World hand placements shared by wearable prop actions.
- */
+/** World hand placements shared by wearable prop actions. */
 export namespace wardrobeHands {
   /** What every wardrobe mode names: the staged wearable prop. */
   export interface IPropParams {
@@ -94,7 +92,10 @@ export namespace wardrobeHands {
     };
   }
 
-  /** Local affordance lookup with one actionable refusal for absent or incompatible sockets. */
+  /**
+   * Local affordance lookup with one actionable refusal for absent or
+   * incompatible sockets.
+   */
   export function site(
     prop: IAutoMovieMotionHumanPropReader["prop"],
     id: string,
@@ -163,8 +164,8 @@ export namespace wardrobeHands {
   /**
    * Assign a grip target to one arm while preserving every other part of the
    * posture. A channel demand that leaves the arm out (`courseArmGoal`'s, while
-   * the arm is on its planned course) takes the posture as it is, with no
-   * elbow search for a goal no reader takes.
+   * the arm is on its planned course) takes the posture as it is, with no elbow
+   * search for a goal no reader takes.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
@@ -233,7 +234,10 @@ export namespace wardrobeHands {
     };
   }
 
-  /** Construct a declared grip that takes custody at closure, or steadies the receiver. */
+  /**
+   * Construct a declared grip that takes custody at closure, or steadies the
+   * receiver.
+   */
   export function contact(
     prop: string,
     side: AutoMovieHumanSide,
@@ -250,7 +254,10 @@ export namespace wardrobeHands {
     };
   }
 
-  /** Reject incomplete authorship or a geometric fit that the wearer cannot take. */
+  /**
+   * Reject incomplete authorship or a geometric fit that the wearer cannot
+   * take.
+   */
   export function refusal(
     axis: string,
     value: unknown,
@@ -304,7 +311,10 @@ export namespace wardrobeHands {
     );
   }
 
-  /** Drive the slider with a hand after the jacket has transferred onto the chest. */
+  /**
+   * Drive the slider with a hand after the jacket has transferred onto the
+   * chest.
+   */
   export function zipper(
     context: IAutoMovieMotionHumanActionContext<IPropParams>,
     side: AutoMovieHumanSide,

@@ -18,19 +18,23 @@ type Params = IAutoMovieMotionHumanPlayground.IRoundaboutPushParams;
 type Plan = IAutoMovieMotionHumanActionPlan;
 type Posture = IAutoMovieMotionHumanPosture;
 
-/** Seconds over which the hand reaches the bar at the walk's start (provisional staging). */
+/**
+ * Seconds over which the hand reaches the bar at the walk's start (provisional
+ * staging).
+ */
 const REACH: number = 0.4;
 
 /**
  * Run alongside a roundabout pushing one grab bar: the walk on the ground
  * (`walk`) with the named hand closing on the bar as the walk starts and
- * holding it where the turning disc carries it, read from the scene at
- * each second; the arm reaches and holds it on one planned course
+ * holding it where the turning disc carries it, read from the scene at each
+ * second; the arm reaches and holds it on one planned course
  * (`courseArmGoal`).
  *
  * @param context The standing entry, the walk's path, the disc and the bar.
  * @returns The walk with the hand on the moving bar.
- * @throws {HumanRefusal} When the disc lacks the bar, or the walk refuses its path.
+ * @throws {HumanRefusal} When the disc lacks the bar, or the walk refuses its
+ *   path.
  */
 export function HumanRoundaboutPush(
   context: IAutoMovieMotionHumanActionContext<Params>,

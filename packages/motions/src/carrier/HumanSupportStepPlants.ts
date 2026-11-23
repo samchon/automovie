@@ -15,21 +15,25 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The footprints of a support step (`HumanSupportStep`): which support each
- * of the walk's plants bears on, read from the supports' declared surfaces
- * where the foot lands, and how far a footprint is slid to keep off an
- * edge or lifted onto a moving surface it arrives on.
+ * The footprints of a support step (`HumanSupportStep`): which support each of
+ * the walk's plants bears on, read from the supports' declared surfaces where
+ * the foot lands, and how far a footprint is slid to keep off an edge or lifted
+ * onto a moving surface it arrives on.
  */
 export namespace HumanSupportStepPlants {
-  /** How far above or below a surface a footprint may lie and still bear on it, metres: a tread's or a comb plate's own thickness (provisional). */
+  /**
+   * How far above or below a surface a footprint may lie and still bear on it,
+   * metres: a tread's or a comb plate's own thickness (provisional).
+   */
   export const BEARING: number = 0.1;
 
-  /** The cosine between a footprint's length and an edge's normal past which the footprint crosses the edge more head-on than side-on: 45 degrees. */
+  /**
+   * The cosine between a footprint's length and an edge's normal past which the
+   * footprint crosses the edge more head-on than side-on: 45 degrees.
+   */
   export const HEAD_ON: number = Math.SQRT1_2;
 
-  /**
-   * One plant of a foot on the planned walk and the support it bears on.
-   */
+  /** One plant of a foot on the planned walk and the support it bears on. */
   export interface IPlant {
     /** The planned window. */
     window: IAutoMovieMotionHumanContactWindow;
@@ -40,16 +44,17 @@ export namespace HumanSupportStepPlants {
     /** Its touchdown, seconds of the step. */
     down: number;
 
-    /** How far it is slid along a surface to keep off an edge, and lifted onto a moving surface it arrives on, world metres. */
+    /**
+     * How far it is slid along a surface to keep off an edge, and lifted onto a
+     * moving surface it arrives on, world metres.
+     */
     shift: IAutoMovieVector3;
 
     /** The height of the fixed landing it bears on, world metres. */
     floor: number;
   }
 
-  /**
-   * One declared surface of a support in the world.
-   */
+  /** One declared surface of a support in the world. */
   export interface ISurface {
     /** Its centre. */
     origin: IAutoMovieVector3;
@@ -64,7 +69,10 @@ export namespace HumanSupportStepPlants {
     depth: number;
   }
 
-  /** A point moved by a support's motion between two seconds of the step; the ground keeps it. */
+  /**
+   * A point moved by a support's motion between two seconds of the step; the
+   * ground keeps it.
+   */
   export type Moved = (
     prop: string | undefined,
     begin: number,
@@ -72,9 +80,7 @@ export namespace HumanSupportStepPlants {
     point: IAutoMovieVector3,
   ) => IAutoMovieVector3;
 
-  /**
-   * What the assignment reads of the step.
-   */
+  /** What the assignment reads of the step. */
   export interface IStep {
     /** The step's context. */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISupportStepParams>;
@@ -85,7 +91,10 @@ export namespace HumanSupportStepPlants {
     /** The height the walk is planned at, world metres. */
     level: number;
 
-    /** How far the entry's soles sit from the declared surface they stand on, metres. */
+    /**
+     * How far the entry's soles sit from the declared surface they stand on,
+     * metres.
+     */
     settled: number;
   }
 
@@ -154,18 +163,19 @@ export namespace HumanSupportStepPlants {
   }
 
   /**
-   * Each foot's plants in time order and the support each bears on: the
-   * entry's on the support left, each new one on the support whose surface
-   * holds the middle of the foot where it lands. A new footprint is slid
-   * along the surface, the least it takes, to lie wholly on the moving
-   * support that bears it, or wholly off the one beside it, so no foot
-   * straddles an edge; one crossing the edge head-on slides along its own
-   * length, so it keeps its lane beside the other foot.
+   * Each foot's plants in time order and the support each bears on: the entry's
+   * on the support left, each new one on the support whose surface holds the
+   * middle of the foot where it lands. A new footprint is slid along the
+   * surface, the least it takes, to lie wholly on the moving support that bears
+   * it, or wholly off the one beside it, so no foot straddles an edge; one
+   * crossing the edge head-on slides along its own length, so it keeps its lane
+   * beside the other foot.
    *
    * @param step The step.
    * @param walked The walk planned on the support left.
    * @param land The last touchdown, seconds of the step.
-   * @param leave The first touchdown on the support arrived on, seconds of the step.
+   * @param leave The first touchdown on the support arrived on, seconds of the
+   *   step.
    * @returns Each foot's plants.
    */
   export function assign(

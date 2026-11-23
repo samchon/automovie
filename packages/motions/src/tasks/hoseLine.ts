@@ -33,9 +33,9 @@ import { hoseBackup } from "./hoseBackup";
 import { rotationBetween } from "./rotationBetween";
 
 /**
- * The nozzle reaction of a 150 gpm fog stream at 100 psi, newtons: the
- * IFSTA fog-nozzle formula NR = 0.0505 Q sqrt(P) gives 75.75 lbf, 337 N.
- * The flow and pressure are a common hand line's, provisional for a scene.
+ * The nozzle reaction of a 150 gpm fog stream at 100 psi, newtons: the IFSTA
+ * fog-nozzle formula NR = 0.0505 Q sqrt(P) gives 75.75 lbf, 337 N. The flow and
+ * pressure are a common hand line's, provisional for a scene.
  */
 const REACTION: number = 0.0505 * 150 * Math.sqrt(100) * 4.448;
 
@@ -60,20 +60,20 @@ const SET: number = 0.6;
  *
  * The nozzle operator holds the line by its `nozzle` grip (taken up before);
  * the free hand swings the nozzle's `bail` open and keeps it there
- * (`workHeldPush`), while the holding wrist turns the stream's `tip` onto
- * the target and sweeps it side to side, as `extinguish` sweeps its horn.
- * The backup member, behind, grips the line at their `grip` with both
- * hands without carrying it, each a power grip from above sharing the
- * grip's length, the hand reaching across the body ahead: the hands follow
- * that grip where the operator's hold puts the line at each second. The line bends at the
- * operator's hold (its `flex`) against the sweep, so the run behind the
- * nozzle stays put and the backup's grip barely moves. Both members lean into the
- * reaction: the stream pushes the line back with `REACTION` newtons, which
- * the team shares, so each member's trunk tips forward by
- * `atan(REACTION / 2 / (m g))` over the feet, the lean that brings the
- * body's weight to balance its share. `advance` is walked by the team
- * before (`AutoMovieMotionHumanFirefighting.hoseTeam`); here the members stand. Events:
- * `strokeStart` as the stream opens, `strokeEnd` as it shuts.
+ * (`workHeldPush`), while the holding wrist turns the stream's `tip` onto the
+ * target and sweeps it side to side, as `extinguish` sweeps its horn. The
+ * backup member, behind, grips the line at their `grip` with both hands without
+ * carrying it, each a power grip from above sharing the grip's length, the hand
+ * reaching across the body ahead: the hands follow that grip where the
+ * operator's hold puts the line at each second. The line bends at the
+ * operator's hold (its `flex`) against the sweep, so the run behind the nozzle
+ * stays put and the backup's grip barely moves. Both members lean into the
+ * reaction: the stream pushes the line back with `REACTION` newtons, which the
+ * team shares, so each member's trunk tips forward by `atan(REACTION / 2 / (m
+ * g))` over the feet, the lean that brings the body's weight to balance its
+ * share. `advance` is walked by the team before
+ * (`AutoMovieMotionHumanFirefighting.hoseTeam`); here the members stand.
+ * Events: `strokeStart` as the stream opens, `strokeEnd` as it shuts.
  *
  * Refusals: an operator without a target or not holding the line, a line
  * without the named grip, bail or tip, and a grip beyond the arm.
@@ -136,7 +136,10 @@ function plan(
     : hoseBackup(context, p, clock, base);
 }
 
-/** The operator: the bail open by the free hand, the stream swept by the holding wrist. */
+/**
+ * The operator: the bail open by the free hand, the stream swept by the holding
+ * wrist.
+ */
 function nozzle(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,
   p: IAutoMovieMotionHumanFirefight.IHoseLine,

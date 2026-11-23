@@ -14,14 +14,21 @@ import type { HumanRideHands } from "./HumanRideHands";
  * 325:289), and in a hand ride the hands push along the reins and back.
  */
 export namespace HumanMountedStride {
-  /** Carrier readings averaged over a stride: eight, a reading every eighth of the stride, which cancels every harmonic of the stride below the eighth. */
+  /**
+   * Carrier readings averaged over a stride: eight, a reading every eighth of
+   * the stride, which cancels every harmonic of the stride below the eighth.
+   */
   export const SAMPLES: number = 8;
 
-  /** How far a hand ride pushes the hands along the reins from their hold, forearm lengths each way (provisional). */
+  /**
+   * How far a hand ride pushes the hands along the reins from their hold,
+   * forearm lengths each way (provisional).
+   */
   export const PUSH: number = 0.25;
 
   /**
-   * A point given in the carrier frame, carried by the carrier's frame averaged over one stride centred on a film second.
+   * A point given in the carrier frame, carried by the carrier's frame averaged
+   * over one stride centred on a film second.
    *
    * @param carrier The carrier frame reader.
    * @param film Film seconds.
@@ -49,7 +56,8 @@ export namespace HumanMountedStride {
   }
 
   /**
-   * A held grip moved along its own axis by a distance: toward what it leads for a positive one, the hand taking a rein shorter.
+   * A held grip moved along its own axis by a distance: toward what it leads
+   * for a positive one, the hand taking a rein shorter.
    *
    * @param grip The grip where the carrier has it.
    * @param metres How far along the axis.
@@ -67,7 +75,8 @@ export namespace HumanMountedStride {
   }
 
   /**
-   * A held grip moved along its own axis, toward what it leads and back, once a stride: a jockey's hand ride along the reins.
+   * A held grip moved along its own axis, toward what it leads and back, once a
+   * stride: a jockey's hand ride along the reins.
    *
    * @param grip The grip where the carrier has it.
    * @param phase Seconds into the stride clock.

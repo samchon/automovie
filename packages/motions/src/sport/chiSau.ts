@@ -30,7 +30,10 @@ interface IRoll {
   /** Each of this performer's sides' contact centre, world metres. */
   centre: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
 
-  /** The roll's in-line axis, shared by both partners: from the first subject toward the second. */
+  /**
+   * The roll's in-line axis, shared by both partners: from the first subject
+   * toward the second.
+   */
   line: IAutoMovieVector3;
 
   /** This performer's forward, toward the partner. */
@@ -39,7 +42,10 @@ interface IRoll {
   /** This performer's left. */
   left: IAutoMovieVector3;
 
-  /** The roll phase offset of each of this performer's sides, radians, shared by the side's two forearms. */
+  /**
+   * The roll phase offset of each of this performer's sides, radians, shared by
+   * the side's two forearms.
+   */
   phase: Readonly<Record<AutoMovieHumanSide, number>>;
 }
 
@@ -47,18 +53,18 @@ interface IRoll {
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
 /**
- * Wing chun's rolling chi sau (`IAutoMovieMotionHumanChiSau`): both wrists
- * held on the two contacts between the partners, each partner's left wrist
- * over the partner's right, the contacts rolling a small vertical circle in
- * the line half a cycle apart, so the wrists stay one wrist's thickness
- * apart through every roll.
+ * Wing chun's rolling chi sau (`IAutoMovieMotionHumanChiSau`): both wrists held
+ * on the two contacts between the partners, each partner's left wrist over the
+ * partner's right, the contacts rolling a small vertical circle in the line
+ * half a cycle apart, so the wrists stay one wrist's thickness apart through
+ * every roll.
  *
- * Both partners derive the same contacts from the two placed marks: the
- * middle between their roots at the mean of their lower chest heights, a
- * shoulder's width apart across the line. Everyone's left forearm lies on
- * top, so on each side one forearm is over the other. The arms blend in
- * from the entry's goals over `BLEND` seconds and end the roll on its own
- * goals, open-handed; the feet stay planted.
+ * Both partners derive the same contacts from the two placed marks: the middle
+ * between their roots at the mean of their lower chest heights, a shoulder's
+ * width apart across the line. Everyone's left forearm lies on top, so on each
+ * side one forearm is over the other. The arms blend in from the entry's goals
+ * over `BLEND` seconds and end the roll on its own goals, open-handed; the feet
+ * stay planted.
  */
 export namespace chiSau {
   /** Action key. */
@@ -73,7 +79,10 @@ export namespace chiSau {
   /** The roll circle's radius as a share of stature (provisional). */
   export const RADIUS: number = 0.035;
 
-  /** The contacts' half spacing across the line as a share of stature (provisional). */
+  /**
+   * The contacts' half spacing across the line as a share of stature
+   * (provisional).
+   */
   export const HALF: number = 0.07;
 
   /** A wrist's radius as a share of stature, from the joint to its surface. */

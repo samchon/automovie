@@ -11,15 +11,13 @@ import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
  * A climbable tree read from its affordances in world metres: the bole as a
- * vertical bar and each lower branch as a level bar with its astride seat.
- * A branch's load limit falls off with the distance from its root as a
- * cantilever's does: the published load at the bar's frame, half the
- * branch out, scaled by that half length over the distance.
+ * vertical bar and each lower branch as a level bar with its astride seat. A
+ * branch's load limit falls off with the distance from its root as a
+ * cantilever's does: the published load at the bar's frame, half the branch
+ * out, scaled by that half length over the distance.
  */
 export namespace treeLimbs {
-  /**
-   * The bole.
-   */
+  /** The bole. */
   export interface IBole {
     /** The axis at the ground, world metres. */
     foot: IAutoMovieVector3;
@@ -28,9 +26,7 @@ export namespace treeLimbs {
     radius: number;
   }
 
-  /**
-   * One lower branch.
-   */
+  /** One lower branch. */
   export interface IBranch {
     /** Its index from the lowest. */
     index: number;
@@ -47,16 +43,17 @@ export namespace treeLimbs {
     /** Radius, metres. */
     radius: number;
 
-    /** The load it bears half its length out, newtons; unbounded when the tree states none. */
+    /**
+     * The load it bears half its length out, newtons; unbounded when the tree
+     * states none.
+     */
     load: number;
 
     /** The astride seat on its top, world metres. */
     seat: IAutoMovieVector3;
   }
 
-  /**
-   * A tree.
-   */
+  /** A tree. */
   export interface ITree {
     /** The prop's subject. */
     subject: string;
@@ -149,7 +146,8 @@ export namespace treeLimbs {
   }
 
   /**
-   * A branch's axis point a distance out from the trunk face, lifted by a share of its radius.
+   * A branch's axis point a distance out from the trunk face, lifted by a share
+   * of its radius.
    *
    * @param branch The branch.
    * @param out Metres from the trunk face.
@@ -171,7 +169,8 @@ export namespace treeLimbs {
   }
 
   /**
-   * A point on the bole's surface at a height, toward a horizontal direction, slid sideways.
+   * A point on the bole's surface at a height, toward a horizontal direction,
+   * slid sideways.
    *
    * @param tree The tree.
    * @param height Metres above the bole's foot.

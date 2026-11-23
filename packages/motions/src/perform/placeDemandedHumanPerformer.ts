@@ -7,41 +7,44 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Place a person a waiting part of an open parallel group holds before a
- * read of them at a second their placed actions do not cover.
+ * Place a person a waiting part of an open parallel group holds before a read
+ * of them at a second their placed actions do not cover.
  *
- * Up to the start of that part (`IAutoMovieScheduleContext.horizon`) the
- * person is known, holding the pose their placed actions end on, so nothing
- * is placed; a read past it has the resolver's demand place that part
- * (`IAutoMovieScheduleContext.demand`), repeatedly until the second is
- * covered or no waiting part holds the person, a topological order over the
- * reads, so a production need not declare the read person's chain before
- * the reader's. A person of the reader's own group whose part still waits
- * (`meeting`) is placed on demand the same way, so a strike reads the
- * partner's guard as the partner holds it, and what follows the strike is
- * planned from the strike as it is finally shown, the partner then read
- * live. Where that part is itself waiting on this read (a defence
- * anchored on the strike that reads the defender, or two roles of a mutual
- * action that start together), the demand places the part's leading actions
- * that do not wait on it (the pick-up before the disarm that answers the
- * take), and past them, the demand's cycle, the partner is read no
- * later than the end of their placed actions, the caller holding their last
- * placed pose: the fixed point of a cycle of reads within one exchange,
- * where each actor commits to what the other had done when its own action
- * was placed. Lazy evaluation of the reads, placed in demand order, needs no
- * pass that places anything again (a topological order over the reads, with
- * the freeze only on a detected cycle).
- * Across groups two parts that read each other are a cycle and are refused;
- * a person no waiting part holds is left to the caller's own refusal.
+ * Up to the start of that part (`IAutoMovieScheduleContext.horizon`) the person
+ * is known, holding the pose their placed actions end on, so nothing is placed;
+ * a read past it has the resolver's demand place that part
+ * (`IAutoMovieScheduleContext.demand`), repeatedly until the second is covered
+ * or no waiting part holds the person, a topological order over the reads, so a
+ * production need not declare the read person's chain before the reader's. A
+ * person of the reader's own group whose part still waits (`meeting`) is placed
+ * on demand the same way, so a strike reads the partner's guard as the partner
+ * holds it, and what follows the strike is planned from the strike as it is
+ * finally shown, the partner then read live. Where that part is itself waiting
+ * on this read (a defence anchored on the strike that reads the defender, or
+ * two roles of a mutual action that start together), the demand places the
+ * part's leading actions that do not wait on it (the pick-up before the disarm
+ * that answers the take), and past them, the demand's cycle, the partner is
+ * read no later than the end of their placed actions, the caller holding their
+ * last placed pose: the fixed point of a cycle of reads within one exchange,
+ * where each actor commits to what the other had done when its own action was
+ * placed. Lazy evaluation of the reads, placed in demand order, needs no pass
+ * that places anything again (a topological order over the reads, with the
+ * freeze only on a detected cycle). Across groups two parts that read each
+ * other are a cycle and are refused; a person no waiting part holds is left to
+ * the caller's own refusal.
  *
- * @param self The performance state, its schedule readers set while an action is timed.
+ * @param self The performance state, its schedule readers set while an action
+ *   is timed.
  * @param person The person read.
  * @param subject The person's subject.
  * @param seconds The film second read.
  * @param axis The refusal's axis, or a reader of it.
- * @param meeting Whether the person belongs to the reader's own parallel group with their part still waiting; such a person's cycle is held, not refused.
- * @returns Whether the read holds the person's last placed pose at the second; false for a partner whose cycle the caller holds.
- * @throws {HumanRefusal} When parts of different groups holding the two people read each other.
+ * @param meeting Whether the person belongs to the reader's own parallel group
+ *   with their part still waiting; such a person's cycle is held, not refused.
+ * @returns Whether the read holds the person's last placed pose at the second;
+ *   false for a partner whose cycle the caller holds.
+ * @throws {HumanRefusal} When parts of different groups holding the two people
+ *   read each other.
  */
 export function placeDemandedHumanPerformer(
   self: IAutoMovieMotionHumanPerformanceState,

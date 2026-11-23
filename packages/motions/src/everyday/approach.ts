@@ -26,55 +26,52 @@ import { HumanProxemics } from "./HumanProxemics";
 import { HumanTrunk } from "./HumanTrunk";
 
 /**
- * Walking up to a person, a prop or a point and stopping at an
- * interpersonal distance, facing it.
+ * Walking up to a person, a prop or a point and stopping at an interpersonal
+ * distance, facing it.
  *
- * The goal is the stop, not the steps: the front of the performer's chest
- * (the sternum region) must end `gap` short of the target, horizontally,
- * along the line from where the performer stands to the target
- * ({@link HumanProxemics}). The law turns that goal into the floor point the
- * feet's midpoint must reach, `gap` plus the chest's lead over the feet back
- * from the target, and lets the walk law place whole steps to it, so the stop
- * is exact without sliding (the walk's footprints are inverse-kinematics
- * goals) and the body faces the target because it walked straight at it.
+ * The goal is the stop, not the steps: the front of the performer's chest (the
+ * sternum region) must end `gap` short of the target, horizontally, along the
+ * line from where the performer stands to the target ({@link HumanProxemics}).
+ * The law turns that goal into the floor point the feet's midpoint must reach,
+ * `gap` plus the chest's lead over the feet back from the target, and lets the
+ * walk law place whole steps to it, so the stop is exact without sliding (the
+ * walk's footprints are inverse-kinematics goals) and the body faces the target
+ * because it walked straight at it.
  *
- * The target is read once, at the start: a person's region (the `sternum`
- * for Hall's chest-to-chest gaps, `upperBack` to stop behind someone), a
- * prop's point or a free point. For `handing` the gap comes from both
- * people's own measures, so a short and a tall partner meet at a gap both
- * can reach; a prop or point target uses the performer's measure alone. A
- * target already nearer than the
- * requested gap is refused with both distances, since an approach never
- * backs away.
+ * The target is read once, at the start: a person's region (the `sternum` for
+ * Hall's chest-to-chest gaps, `upperBack` to stop behind someone), a prop's
+ * point or a free point. For `handing` the gap comes from both people's own
+ * measures, so a short and a tall partner meet at a gap both can reach; a prop
+ * or point target uses the performer's measure alone. A target already nearer
+ * than the requested gap is refused with both distances, since an approach
+ * never backs away.
  *
- * A `side` stops on a named side of a person target instead, in that
- * person's own frame (their sternum's outward normal is their front), at the
- * same gap, and the walk's final heading turns the body to face them on the
- * last steps. The person approached on a side is walked round like one
- * named in `avoid`, so a stop behind them is not reached through them.
- * People named in `avoid` are walked round: where the straight
- * leg would pass one nearer than the walker's lateral clearance (0.5 m,
- * `CLEARANCE`; walkers keep an elliptical personal space wider ahead than to
- * the side while circumventing a person, Gerin-Lajoie, Richards and McFadyen
- * 2005, Motor Control 9:242) plus half the walker's chest breadth, a
- * waypoint abeam that person takes the walk round on the side that deviates
- * least. Walkers moving past each other are not avoided here; reciprocal
- * avoidance belongs to the engine. An Effort sets the walk's step length,
- * arm swing and elbow width ({@link HumanEffort}); bound flow's elbows held
- * in cannot be shown, since the walk only widens them.
+ * A `side` stops on a named side of a person target instead, in that person's
+ * own frame (their sternum's outward normal is their front), at the same gap,
+ * and the walk's final heading turns the body to face them on the last steps.
+ * The person approached on a side is walked round like one named in `avoid`, so
+ * a stop behind them is not reached through them. People named in `avoid` are
+ * walked round: where the straight leg would pass one nearer than the walker's
+ * lateral clearance (0.5 m, `CLEARANCE`; walkers keep an elliptical personal
+ * space wider ahead than to the side while circumventing a person,
+ * Gerin-Lajoie, Richards and McFadyen 2005, Motor Control 9:242) plus half the
+ * walker's chest breadth, a waypoint abeam that person takes the walk round on
+ * the side that deviates least. Walkers moving past each other are not avoided
+ * here; reciprocal avoidance belongs to the engine. An Effort sets the walk's
+ * step length, arm swing and elbow width ({@link HumanEffort}); bound flow's
+ * elbows held in cannot be shown, since the walk only widens them.
  *
- * With `track`, a person who moves is followed: their placed root is read
- * ahead over `HORIZON` seconds for where and when they come to rest, the
- * stop is taken against the target carried and turned with their root to
- * that place, and the walk waits in its first posture so that it arrives
- * `LAG` after they stop, which keeps the follower behind a leader on the
- * leader's own line. Where their way bends by more than `BEND` the walk
- * goes by the places they passed, and with `track: "pace"` it matches
- * their speed instead of waiting (`walkStation`; Rio, Rhea and Warren
- * 2014).
+ * With `track`, a person who moves is followed: their placed root is read ahead
+ * over `HORIZON` seconds for where and when they come to rest, the stop is
+ * taken against the target carried and turned with their root to that place,
+ * and the walk waits in its first posture so that it arrives `LAG` after they
+ * stop, which keeps the follower behind a leader on the leader's own line.
+ * Where their way bends by more than `BEND` the walk goes by the places they
+ * passed, and with `track: "pace"` it matches their speed instead of waiting
+ * (`walkStation`; Rio, Rhea and Warren 2014).
  *
- * Events are the walk's (each foot's toe-offs and heel strikes,
- * `lastFootfall`, `arrive`), and `depart` where the walk waited.
+ * Events are the walk's (each foot's toe-offs and heel strikes, `lastFootfall`,
+ * `arrive`), and `depart` where the walk waited.
  */
 export namespace approach {
   /** The action's name. */
@@ -87,17 +84,25 @@ export namespace approach {
   /** What it yields to an overlay: the walk's own. */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
 
-  /** Lateral clearance a walker keeps from a person it passes, metres: the lateral half axis of the elliptical personal space walkers keep while circumventing a person, 0.48 m on average (Gerin-Lajoie, Richards and McFadyen 2005, Motor Control 9:242; 2006, Gait Posture 24:364), to which the plan adds half the walker's chest breadth. */
+  /**
+   * Lateral clearance a walker keeps from a person it passes, metres: the
+   * lateral half axis of the elliptical personal space walkers keep while
+   * circumventing a person, 0.48 m on average (Gerin-Lajoie, Richards and
+   * McFadyen 2005, Motor Control 9:242; 2006, Gait Posture 24:364), to which
+   * the plan adds half the walker's chest breadth.
+   */
   export const CLEARANCE: number = 0.5;
 
   /**
-   * Plan an approach: the stop point from the gap, waypoints round the
-   * people to avoid, and the walk law's plan to that stop, corrected once by
-   * where the arriving sternum actually lands.
+   * Plan an approach: the stop point from the gap, waypoints round the people
+   * to avoid, and the walk law's plan to that stop, corrected once by where the
+   * arriving sternum actually lands.
    *
    * @param context The action's context.
    * @returns The walk's plan to the stop point.
-   * @throws {HumanRefusal} When the target is already nearer than the gap, a side or tracking is asked of a target that is not a person, or a tracked person is composed after this performer.
+   * @throws {HumanRefusal} When the target is already nearer than the gap, a
+   *   side or tracking is asked of a target that is not a person, or a tracked
+   *   person is composed after this performer.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanApproach.IParams>,
@@ -214,30 +219,68 @@ export namespace approach {
     return wait < 1e-6 ? walked : walkDelayed(walked, wait);
   }
 
-  /** How far ahead a tracked person's placed root is read for where they come to rest, seconds. A numerical policy bounding the scan at `HORIZON / REST_STEP` reads: a minute, longer than any one shot a follower is planned in, so a leader still moving after it is followed to where they are then. */
+  /**
+   * How far ahead a tracked person's placed root is read for where they come to
+   * rest, seconds. A numerical policy bounding the scan at `HORIZON /
+   * REST_STEP` reads: a minute, longer than any one shot a follower is planned
+   * in, so a leader still moving after it is followed to where they are then.
+   */
   export const HORIZON: number = 60;
 
-  /** Seconds between two reads of a tracked person's placed root: one walking step, 0.50 to 0.56 s at the 1.8 to 2.0 steps a second of 800 pedestrians (Pachi and Ji 2005, Struct Eng 83(3):36), so a stop is found within the step it is made on. */
+  /**
+   * Seconds between two reads of a tracked person's placed root: one walking
+   * step, 0.50 to 0.56 s at the 1.8 to 2.0 steps a second of 800 pedestrians
+   * (Pachi and Ji 2005, Struct Eng 83(3):36), so a stop is found within the
+   * step it is made on.
+   */
   export const REST_STEP: number = 0.5;
 
-  /** How far a tracked person's root may move between two reads and still count as at rest, metres. A numerical policy: the millimetre the balance margins are reported in (`HumanBalance.TOLERANCE` resolves to half of it), far below the shortest step and far above a placed root's round-off. */
+  /**
+   * How far a tracked person's root may move between two reads and still count
+   * as at rest, metres. A numerical policy: the millimetre the balance margins
+   * are reported in (`HumanBalance.TOLERANCE` resolves to half of it), far
+   * below the shortest step and far above a placed root's round-off.
+   */
   export const REST_MOVE: number = 1e-3;
 
-  /** How far a tracked person's heading may turn between two reads and still count as at rest, degrees. A numerical policy: a tenth of a degree carries a shoulder, about 0.2 m from the root, by 0.35 mm, under `REST_MOVE`, so a turn is read at least as finely as a move. */
+  /**
+   * How far a tracked person's heading may turn between two reads and still
+   * count as at rest, degrees. A numerical policy: a tenth of a degree carries
+   * a shoulder, about 0.2 m from the root, by 0.35 mm, under `REST_MOVE`, so a
+   * turn is read at least as finely as a move.
+   */
   export const REST_TURN: number = 0.1;
 
-  /** How far a tracked person's way must leave the straight line for the follower to take it by their places, and how near either end such a place is dropped, metres: the lateral clearance walkers keep from a person (`CLEARANCE`, Gerin-Lajoie et al. 2005), under which taking the leader's turn would not change the follower's path by more than its own personal space. */
+  /**
+   * How far a tracked person's way must leave the straight line for the
+   * follower to take it by their places, and how near either end such a place
+   * is dropped, metres: the lateral clearance walkers keep from a person
+   * (`CLEARANCE`, Gerin-Lajoie et al. 2005), under which taking the leader's
+   * turn would not change the follower's path by more than its own personal
+   * space.
+   */
   export const BEND: number = CLEARANCE;
 
-  /** How long after a tracked person has stopped a walk that waited for them arrives, seconds: a follower's visual-motor delay, the mean optimal delay between a leader's and a follower's acceleration (420 ms; Rio, Rhea and Warren 2014, J Vis 14(2):4). */
+  /**
+   * How long after a tracked person has stopped a walk that waited for them
+   * arrives, seconds: a follower's visual-motor delay, the mean optimal delay
+   * between a leader's and a follower's acceleration (420 ms; Rio, Rhea and
+   * Warren 2014, J Vis 14(2):4).
+   */
   export const LAG: number = 0.42;
 
-  /** The turn from one heading to another, degrees in [-180, 180), so a heading crossing ±180 is not read as a whole turn. */
+  /**
+   * The turn from one heading to another, degrees in [-180, 180), so a heading
+   * crossing ±180 is not read as a whole turn.
+   */
   function turnBetween(from: number, to: number): number {
     return ((((to - from) % 360) + 540) % 360) - 180;
   }
 
-  /** Plan the walk to the stop place of a target given where it is: the stop, the waypoints, the walk and its one arrival correction. */
+  /**
+   * Plan the walk to the stop place of a target given where it is: the stop,
+   * the waypoints, the walk and its one arrival correction.
+   */
   function to(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanApproach.IParams>,
     aimed: IAutoMovieMotionHumanApproach.IAim,
@@ -399,17 +442,16 @@ export namespace approach {
   }
 
   /**
-   * A waypoint that takes a straight leg round a point it would pass too
-   * near: abeam the point at the passing distance, on the side of the leg the
-   * point already lies away from, or none when the leg passes clear or the
-   * point lies beyond either end.
+   * A waypoint that takes a straight leg round a point it would pass too near:
+   * abeam the point at the passing distance, on the side of the leg the point
+   * already lies away from, or none when the leg passes clear or the point lies
+   * beyond either end.
    *
    * @param from The leg's start, floor metres.
    * @param to The leg's end.
    * @param point The point to pass.
    * @param pass The least passing distance, metres.
    * @returns The waypoint on the floor, or undefined.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the waypoint's placement, the side chosen and the three cases that return none, with the floor frame and metres.
    * @evidence contracts/development/implementation.md#principled-implementation Projects the point onto the leg's horizontal direction (along) and its normal (across) and places the waypoint at the passing distance on the far side; a degenerate leg shorter than 1e-9 m returns none.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure function of the leg, the point and the distance; the plan chains legs by calling it per avoided person.
@@ -443,9 +485,9 @@ export namespace approach {
   }
 
   /**
-   * How far the front of the chest stands ahead of the ankles' midpoint in
-   * the standing posture, metres: the sternum region's forward offset with
-   * the body's upright alignment and lean.
+   * How far the front of the chest stands ahead of the ankles' midpoint in the
+   * standing posture, metres: the sternum region's forward offset with the
+   * body's upright alignment and lean.
    *
    * @param body The body.
    * @returns Metres.

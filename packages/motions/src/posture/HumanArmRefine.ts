@@ -4,30 +4,30 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 
 /**
- * A trajectory's interpolant between its waypoints, and where the waypoints
- * are too far apart for the path their sites must follow.
+ * A trajectory's interpolant between its waypoints, and where the waypoints are
+ * too far apart for the path their sites must follow.
  *
- * The arms are played back, and read between waypoints, on one cubic
- * Hermite through the waypoints (`hermite`). On the hold, the site's path
- * interpolated through the waypoints' sites by that same Hermite must stay
- * within `TOLERANCE` of the act's own site at every instant of the frame
- * grid, so no stroke is cut short between samples: the waypoints' sites are
- * all the optimiser knows of the act between them. An interval whose site
- * strays is split at the grid instant in its middle (`split`), and an
- * interval that holds no grid instant is never split, so the waypoints are
- * never finer than the frame grid.
- * What the arms themselves must meet between waypoints, their clearance,
- * their speed and their contact, is read on the played trajectory by
+ * The arms are played back, and read between waypoints, on one cubic Hermite
+ * through the waypoints (`hermite`). On the hold, the site's path interpolated
+ * through the waypoints' sites by that same Hermite must stay within
+ * `TOLERANCE` of the act's own site at every instant of the frame grid, so no
+ * stroke is cut short between samples: the waypoints' sites are all the
+ * optimiser knows of the act between them. An interval whose site strays is
+ * split at the grid instant in its middle (`split`), and an interval that holds
+ * no grid instant is never split, so the waypoints are never finer than the
+ * frame grid. What the arms themselves must meet between waypoints, their
+ * clearance, their speed and their contact, is read on the played trajectory by
  * `HumanArmTrajectoryAdmission`.
  */
 export namespace HumanArmRefine {
   /**
    * The intervals whose waypoints do not bound their site's path: each `k`
-   * whose interval from waypoint `k` to `k + 1` holds an instant of the
-   * frame grid at which its interpolated site leaves the act's own.
+   * whose interval from waypoint `k` to `k + 1` holds an instant of the frame
+   * grid at which its interpolated site leaves the act's own.
    *
    * @param c The waypoints' context.
-   * @param fine The context at the frame grid's instants over the same span, the first and the last the waypoints'.
+   * @param fine The context at the frame grid's instants over the same span,
+   *   the first and the last the waypoints'.
    * @returns The intervals to split, ascending.
    */
   export function unbounded(c: M.IContext, fine: M.IContext): number[] {
@@ -49,13 +49,14 @@ export namespace HumanArmRefine {
 
   /**
    * The waypoints, as instants of the frame grid, with each given interval
-   * split at the grid instant in its middle. Waypoints that are grid
-   * instants stay grid instants however often they are split, so where
-   * every grid instant of a stretch is a waypoint, what the waypoints are
-   * bounded by is what the grid reads.
+   * split at the grid instant in its middle. Waypoints that are grid instants
+   * stay grid instants however often they are split, so where every grid
+   * instant of a stretch is a waypoint, what the waypoints are bounded by is
+   * what the grid reads.
    *
    * @param knots The waypoints' indices in the frame grid, ascending.
-   * @param split The intervals, by their first waypoint; an interval that holds no grid instant is left as it is.
+   * @param split The intervals, by their first waypoint; an interval that holds
+   *   no grid instant is left as it is.
    * @returns The indices, ascending.
    */
   export function split(
@@ -101,12 +102,12 @@ export namespace HumanArmRefine {
   }
 
   /**
-   * Bind a solved course's unchanged waypoint seconds and coordinate rows.
-   * The exact original central differences and interval lengths are computed
-   * once. A sample receives fresh coordinates and the preceding knot index,
-   * which also identifies the shoulder chart used by playback. Endpoint rows
-   * stay held outside the span. Read-only inputs remain unchanged until the
-   * prepared reader is released.
+   * Bind a solved course's unchanged waypoint seconds and coordinate rows. The
+   * exact original central differences and interval lengths are computed once.
+   * A sample receives fresh coordinates and the preceding knot index, which
+   * also identifies the shoulder chart used by playback. Endpoint rows stay
+   * held outside the span. Read-only inputs remain unchanged until the prepared
+   * reader is released.
    */
   export function prepareHermite(
     times: readonly number[],
@@ -204,7 +205,10 @@ interface ISitePath {
   rows: number[][];
 }
 
-/** Whether a hold interval's interpolated site leaves the act's own site by more than `TOLERANCE` at an inner instant. */
+/**
+ * Whether a hold interval's interpolated site leaves the act's own site by more
+ * than `TOLERANCE` at an inner instant.
+ */
 function strayed(
   c: M.IContext,
   fine: M.IContext,
@@ -261,5 +265,9 @@ function strayed(
   );
 }
 
-/** How far an interpolated site may leave the act's own between waypoints, metres: the millimetre the solve lets a hand miss its site at a waypoint (`HumanArmTrajectoryModel.TOLERANCE`). */
+/**
+ * How far an interpolated site may leave the act's own between waypoints,
+ * metres: the millimetre the solve lets a hand miss its site at a waypoint
+ * (`HumanArmTrajectoryModel.TOLERANCE`).
+ */
 const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;

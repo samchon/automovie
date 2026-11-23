@@ -20,20 +20,20 @@ import { StrikingBody } from "./StrikingBody";
  * - `palmHeel` lands the open palm (`palm` socket, the palm's centre a few
  *   centimetres above its heel) along the line, the fingers up and the palm
  *   toward the target, which extends the wrist.
- * - `backfist` swings the back of the fist (the `handBack` region) out across
- *   the line, the fingers forward and the back of the hand toward its travel.
- * - `verticalFist` lands the knuckles along the line with the fist upright,
- *   the palm in, wing chun's centreline punch.
- * - `hammerfist` brings the fist's little-finger edge down, the fist upright
- *   with the palm in; the edge is read halfway from the wrist to the little
- *   finger's knuckle on the rest skeleton, inside the hand by its soft
- *   tissue.
+ * - `backfist` swings the back of the fist (the `handBack` region) out across the
+ *   line, the fingers forward and the back of the hand toward its travel.
+ * - `verticalFist` lands the knuckles along the line with the fist upright, the
+ *   palm in, wing chun's centreline punch.
+ * - `hammerfist` brings the fist's little-finger edge down, the fist upright with
+ *   the palm in; the edge is read halfway from the wrist to the little finger's
+ *   knuckle on the rest skeleton, inside the hand by its soft tissue.
  *
  * @param body The body.
  * @param side The striking hand.
  * @param technique The technique.
  * @param line The horizontal unit line to the target.
- * @param outward The horizontal unit direction away from the body on the striking hand's side.
+ * @param outward The horizontal unit direction away from the body on the
+ *   striking hand's side.
  * @param straight The unit direction from the shoulder to the target.
  * @returns The surface at contact.
  */
@@ -136,11 +136,12 @@ export function punchSurface(
   }
 }
 
-/**
- * Companion types of {@link punchSurface}.
- */
+/** Companion types of {@link punchSurface}. */
 export namespace punchSurface {
-  /** How far a palm heel's fingers lean back toward the striker per unit up, the wrist extended (provisional). */
+  /**
+   * How far a palm heel's fingers lean back toward the striker per unit up, the
+   * wrist extended (provisional).
+   */
   export const PALM_TILT: number = 0.6;
 
   /** A technique's striking surface at contact. */

@@ -13,43 +13,52 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The deepest address hinge, degrees. Golf address trunk flexion is about
- * 30 to 45 degrees (Hume, Keogh and Reid 2005, Sports Med 35:429); the
- * provisional cap leaves room for shorter implements and lower balls.
+ * The deepest address hinge, degrees. Golf address trunk flexion is about 30 to
+ * 45 degrees (Hume, Keogh and Reid 2005, Sports Med 35:429); the provisional
+ * cap leaves room for shorter implements and lower balls.
  */
 const LIMIT: number = 60;
 
-/** Share of the upper arm and forearm a fitted grip may sit from its shoulder, keeping the elbow off its lock; provisional. */
+/**
+ * Share of the upper arm and forearm a fitted grip may sit from its shoulder,
+ * keeping the elbow off its lock; provisional.
+ */
 const ARM: number = 0.95;
 
-/** Share of the thigh and shank a planted leg may span from hip to ankle, keeping the knee off its lock; provisional. */
+/**
+ * Share of the thigh and shank a planted leg may span from hip to ankle,
+ * keeping the knee off its lock; provisional.
+ */
 const LEG: number = 0.98;
 
 /**
- * Address a ball below the standing hand's reach: hinge the trunk forward
- * at the hips, move the pelvis back so the shoulders stay over their
- * standing place and on by the centre of mass's remaining travel, read once
- * at the full hinge, so the centre of mass stays where it stood over the
- * base, and lower the pelvis as far as the planted legs need.
+ * Address a ball below the standing hand's reach: hinge the trunk forward at
+ * the hips, move the pelvis back so the shoulders stay over their standing
+ * place and on by the centre of mass's remaining travel, read once at the full
+ * hinge, so the centre of mass stays where it stood over the base, and lower
+ * the pelvis as far as the planted legs need.
  *
- * The hinge is the smallest one, not below `least`, that brings the
- * striking shoulder within reach of the grip's impact point, and the other
- * shoulder within reach of a bridge point when there is one. With the
- * shoulders held over the base the shoulder only descends as the hinge
- * grows, so the shoulder-to-grip distance falls monotonically and a
- * bisection finds the boundary. A grip already in reach needs no hinge; one
- * out of reach at the limit takes the limit and leaves the stroke's contact
- * check to refuse.
+ * The hinge is the smallest one, not below `least`, that brings the striking
+ * shoulder within reach of the grip's impact point, and the other shoulder
+ * within reach of a bridge point when there is one. With the shoulders held
+ * over the base the shoulder only descends as the hinge grows, so the
+ * shoulder-to-grip distance falls monotonically and a bisection finds the
+ * boundary. A grip already in reach needs no hinge; one out of reach at the
+ * limit takes the limit and leaves the stroke's contact check to refuse.
  *
  * @param body The performer.
  * @param entry The posture the stroke starts from.
  * @param feet The planted feet the stroke keeps.
  * @param side The striking hand.
  * @param grip The grip's world point at impact, metres.
- * @param bridge The other hand's bridge point on a supporting surface, world metres, which must also come into reach; absent for an unbridged stroke.
- * @param least The smallest hinge in degrees, such as a cue's lean over the bed; 0 for none.
- * @param pelvisLimit The pelvis's share limit passed to the trunk incline; Infinity lets the pelvis tilt.
- * @returns The address applied to a posture at a share from 0 to 1 of its full depth.
+ * @param bridge The other hand's bridge point on a supporting surface, world
+ *   metres, which must also come into reach; absent for an unbridged stroke.
+ * @param least The smallest hinge in degrees, such as a cue's lean over the
+ *   bed; 0 for none.
+ * @param pelvisLimit The pelvis's share limit passed to the trunk incline;
+ *   Infinity lets the pelvis tilt.
+ * @returns The address applied to a posture at a share from 0 to 1 of its full
+ *   depth.
  */
 export function addressPrecisionStroke(
   body: IAutoMovieMotionHumanBody,

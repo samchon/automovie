@@ -29,8 +29,10 @@ import { walkReach } from "./walkReach";
  * @param arms The authored and manner-scaled arm swing multiplier.
  * @param elbows The authored added shoulder abduction, degrees.
  * @param steps The take's fixed step clock and phase readers.
- * @param solve The take's same-second pelvis/foot solve, sharing the phase and amount this reader already evaluated at that exact second.
- * @returns A clamped action-second reader; omitted leg/channel demand writes the complete posture.
+ * @param solve The take's same-second pelvis/foot solve, sharing the phase and
+ *   amount this reader already evaluated at that exact second.
+ * @returns A clamped action-second reader; omitted leg/channel demand writes
+ *   the complete posture.
  */
 export function walkPosture(
   body: IAutoMovieMotionHumanBody,
@@ -38,12 +40,25 @@ export function walkPosture(
   arms: number,
   elbows: number,
   steps: IAutoMovieMotionHumanWalkSteps.IPlan,
-  solve: (seconds: number, legs: readonly ("left" | "right")[], phase: number, amount: number, resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => walkPosture.ISettled,
-): (seconds: number, legs?: readonly ("left" | "right")[], channels?: readonly AutoMovieMotionHumanChannel[], resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2]) => IAutoMovieMotionHumanPosture {
+  solve: (
+    seconds: number,
+    legs: readonly ("left" | "right")[],
+    phase: number,
+    amount: number,
+    resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+  ) => walkPosture.ISettled,
+): (
+  seconds: number,
+  legs?: readonly ("left" | "right")[],
+  channels?: readonly AutoMovieMotionHumanChannel[],
+  resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
+) => IAutoMovieMotionHumanPosture {
   let upright: IAutoMovieMotionHumanStandUpright.IAlignment | undefined;
   let relaxed: IAutoMovieMotionHumanPosture["joints"] | undefined;
   let abduction: number | undefined;
-  const shapes: Partial<Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>> = {};
+  const shapes: Partial<
+    Record<"left" | "right", IAutoMovieMotionHumanPosture["joints"]>
+  > = {};
   const rest: Record<"left" | "right", IAutoMovieVector3> = {
     left: body.rest.get("leftLowerLeg")!,
     right: body.rest.get("rightLowerLeg")!,
@@ -58,16 +73,26 @@ export function walkPosture(
     const phase: number = steps.phase(t);
     const amount: number = steps.amount(t);
     const swing: number = Math.sin(2 * Math.PI * phase) * amount;
-    const { feet, hips, settled, reached }: walkPosture.ISettled = solve(t, legs, phase, amount, resolution);
+    const { feet, hips, settled, reached }: walkPosture.ISettled = solve(
+      t,
+      legs,
+      phase,
+      amount,
+      resolution,
+    );
     const root: IAutoMovieVector3 = settled.root;
     const yaw: number = settled.yaw;
 
     // The inclination grows and fades with the gait, leaving and joining
     // upright standing while its pelvis share turns about the fixed hips.
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      (upright ??= standUpright.of(body)).joints, gait.lean * amount,
+      (upright ??= standUpright.of(body)).joints,
+      gait.lean * amount,
     );
-    const swinging: boolean = channels === undefined || channels.includes("leftArm") || channels.includes("rightArm");
+    const swinging: boolean =
+      channels === undefined ||
+      channels.includes("leftArm") ||
+      channels.includes("rightArm");
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
       ...(swinging ? (relaxed ??= stand.relaxed(body)) : {}),
       ...inclined.joints,
@@ -83,7 +108,7 @@ export function walkPosture(
       // up to that angle about its hip. The tilt, the authored abduction and
       // the gait's elbow come in and go with the gait, so a walk leaves and
       // joins the relaxed standing arms.
-      const rest: number = abduction ??= stand.abduction(body);
+      const rest: number = (abduction ??= stand.abduction(body));
       const bent: number = (relaxed ??= stand.relaxed(body)).leftLowerArm![0];
       const held: number = rest + (walkPosture.PELVIS + elbows) * amount;
       const elbow: number = bent + (gait.arms.elbow - bent) * amount;
@@ -94,7 +119,10 @@ export function walkPosture(
     } else {
       for (const side of walkReach.SIDES)
         if (channels?.includes(`${side}Hand`))
-          Object.assign(joints, shapes[side] ??= HumanHand.shape(side, "relaxed"));
+          Object.assign(
+            joints,
+            (shapes[side] ??= HumanHand.shape(side, "relaxed")),
+          );
     }
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
     for (const side of legs) {
@@ -144,9 +172,18 @@ export namespace walkPosture {
     reached: Record<"left" | "right", walkFoot.IEnd>;
   }
 
-  /** The pelvis's turn and tilt with the stride, degrees either way (Perry and Burnfield, normal gait kinematics: about 4° each). */
+  /**
+   * The pelvis's turn and tilt with the stride, degrees either way (Perry and
+   * Burnfield, normal gait kinematics: about 4° each).
+   */
   export const PELVIS: number = 4;
 
-  /** The chest's counter-rotation against the stride at full gait, degrees: the pelvis's own turn, mirrored. The thorax turns against the pelvis at ordinary walking speeds (relative phase about -140° at 1.5 m/s, Lamoth et al. 2002, Spine 27:E92); its equal amplitude, keeping the shoulders square to the way, is the provisional part, no thorax amplitude having been read. */
+  /**
+   * The chest's counter-rotation against the stride at full gait, degrees: the
+   * pelvis's own turn, mirrored. The thorax turns against the pelvis at
+   * ordinary walking speeds (relative phase about -140° at 1.5 m/s, Lamoth et
+   * al. 2002, Spine 27:E92); its equal amplitude, keeping the shoulders square
+   * to the way, is the provisional part, no thorax amplitude having been read.
+   */
   export const CHEST: number = PELVIS;
 }

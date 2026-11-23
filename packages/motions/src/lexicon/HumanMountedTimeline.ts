@@ -11,11 +11,11 @@ import type {
  * taken its contact at a second, and the contact windows each support holds
  * over the figures that name it.
  *
- * A support named by consecutive figures is held through the transfers
- * between them. One a figure newly names is acquired when its transfer
- * arrives; one the next figure drops is released when that transfer begins.
- * The seat bears through every seated figure, and the entry's seat and
- * planted feet are held from the start into a first figure that keeps them.
+ * A support named by consecutive figures is held through the transfers between
+ * them. One a figure newly names is acquired when its transfer arrives; one the
+ * next figure drops is released when that transfer begins. The seat bears
+ * through every seated figure, and the entry's seat and planted feet are held
+ * from the start into a first figure that keeps them.
  */
 export class HumanMountedTimeline {
   /** Each figure's transfer start, local seconds. */
@@ -31,8 +31,8 @@ export class HumanMountedTimeline {
    * Lay the clock out.
    *
    * @param figures The admitted figures.
-   * @param gripped The hands the entry already holds on the first figure's contacts.
-   *
+   * @param gripped The hands the entry already holds on the first figure's
+   *   contacts.
    * @evidence contracts/development/common.md#meaningful-documentation States what is laid out.
    * @evidence contracts/development/implementation.md#principled-implementation A running sum of each figure's transfer and hold.
    * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure One loop.
@@ -60,7 +60,8 @@ export class HumanMountedTimeline {
   }
 
   /**
-   * The figure a second falls in and how far its transfer has gone, 0 to 1 eased by minimum jerk; 1 through its hold.
+   * The figure a second falls in and how far its transfer has gone, 0 to 1
+   * eased by minimum jerk; 1 through its hold.
    *
    * @param at Local seconds.
    * @returns The figure's index and the eased share.
@@ -79,7 +80,11 @@ export class HumanMountedTimeline {
   }
 
   /**
-   * How far a hand has taken the contact it holds at a second, 0 free to 1 holding: held through a transfer between two figures that both name it, or from the entry when it already holds the first figure's contact, taken over a transfer into a figure that newly names it, and let go over a transfer into one that drops it.
+   * How far a hand has taken the contact it holds at a second, 0 free to 1
+   * holding: held through a transfer between two figures that both name it, or
+   * from the entry when it already holds the first figure's contact, taken over
+   * a transfer into a figure that newly names it, and let go over a transfer
+   * into one that drops it.
    *
    * @param side The hand.
    * @param at Local seconds.
@@ -99,7 +104,8 @@ export class HumanMountedTimeline {
   /**
    * The contact windows of every support, as shares of the duration.
    *
-   * @param members Each figure's supports, keyed by an identity that tells two contacts of one part apart, with the window each holds.
+   * @param members Each figure's supports, keyed by an identity that tells two
+   *   contacts of one part apart, with the window each holds.
    * @param entry The supports the entry holds, keyed the same way.
    * @returns The windows.
    */

@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A ladder grip of the access route: the published contact window and the
- * point on the rung or rail the hand holds through it.
+ * A ladder grip of the access route: the published contact window and the point
+ * on the rung or rail the hand holds through it.
  */
 export interface ILadderAccessGrip {
   /** The gripping hand. */

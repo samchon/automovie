@@ -29,42 +29,61 @@ import { poseBones } from "../posture/poseBones";
 import { environmentRailCatch } from "./environmentRailCatch";
 import { perturb } from "./perturb";
 
-/** How far the displayed toe may be from the obstruction at the cue, metres (provisional: a toe visibly touching it). */
+/**
+ * How far the displayed toe may be from the obstruction at the cue, metres
+ * (provisional: a toe visibly touching it).
+ */
 const CONTACT: number = 0.025;
 
-/** The least forward toe speed that can trip, metres per second (provisional: a swing, not a foot at rest). */
+/**
+ * The least forward toe speed that can trip, metres per second (provisional: a
+ * swing, not a foot at rest).
+ */
 const SWING: number = 0.02;
 
-/** The least sliding speed of a slipping sole that sets the slide's direction, metres per second; slower slides go along the heading (provisional). */
+/**
+ * The least sliding speed of a slipping sole that sets the slide's direction,
+ * metres per second; slower slides go along the heading (provisional).
+ */
 const SLIDE: number = 0.02;
 
-/** The share of the swinging foot's forward speed the trip hands the body as a velocity change (provisional). */
+/**
+ * The share of the swinging foot's forward speed the trip hands the body as a
+ * velocity change (provisional).
+ */
 const TRIP_SHARE: number = 0.28;
 
-/** The share of the excess horizontal load a slip hands the body as a velocity change, seconds (provisional). */
+/**
+ * The share of the excess horizontal load a slip hands the body as a velocity
+ * change, seconds (provisional).
+ */
 const SLIP_SHARE: number = 0.18;
 
-/** The longest interval over which the lost foot is released, seconds (provisional). */
+/**
+ * The longest interval over which the lost foot is released, seconds
+ * (provisional).
+ */
 const RELEASE: number = 0.14;
 
 /** How far a slipping sole glides before release, foot lengths (provisional). */
 const GLIDE: number = 0.09;
 
 /**
- * Cut a walk at a staged trip or slip and resolve the lost support. The
- * cue is measured on the displayed entry before anything is published: a
- * trip needs the swinging foot's toe at the named obstruction and moving
- * forward, a slip a bearing foot whose required friction (`HumanLoad`),
- * read relative to its support's motion, exceeds the staged coefficient.
- * The lost foot is released and the response is the perturbation law
- * (`perturb`) under a body-scaled impulse along the trip or slide, or a
- * braced catch on a named rail (`environmentRailCatch`). The plan starts at
- * the cut with the events `<kind>:<source>` and `supportLost`, the lost
- * foot's contact ends by `RELEASE`, and a slipping sole glides over it.
+ * Cut a walk at a staged trip or slip and resolve the lost support. The cue is
+ * measured on the displayed entry before anything is published: a trip needs
+ * the swinging foot's toe at the named obstruction and moving forward, a slip a
+ * bearing foot whose required friction (`HumanLoad`), read relative to its
+ * support's motion, exceeds the staged coefficient. The lost foot is released
+ * and the response is the perturbation law (`perturb`) under a body-scaled
+ * impulse along the trip or slide, or a braced catch on a named rail
+ * (`environmentRailCatch`). The plan starts at the cut with the events
+ * `<kind>:<source>` and `supportLost`, the lost foot's contact ends by
+ * `RELEASE`, and a slipping sole glides over it.
  *
  * @param context The walk's cut and the named cause.
  * @returns The response on the same film clock, starting at the support loss.
- * @throws {HumanRefusal} When the entry is not a walk, the cue is not met at this cut, or the outcome is incompatible.
+ * @throws {HumanRefusal} When the entry is not a walk, the cue is not met at
+ *   this cut, or the outcome is incompatible.
  */
 export function planEnvironmentRecovery(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEnvironmentRecovery.IParams>,
@@ -183,7 +202,10 @@ export function planEnvironmentRecovery(
   };
 }
 
-/** A measured cue: its source, the velocity change it hands the body and its direction. */
+/**
+ * A measured cue: its source, the velocity change it hands the body and its
+ * direction.
+ */
 interface ICue {
   /** The named source: the obstruction, the support prop or `floor`. */
   source: string;

@@ -9,10 +9,10 @@ import type {
  * phrase, and how fast the next action blends in.
  *
  * A cancel table's row is a window, a kind, an entry share and a blend. Most
- * rows are one of four windows (any time, or from one of the phrase's
- * instants to the end) and one of three blends, entered at the next action's
- * start by inertialization. This owner names both, so a table reads as
- * `guard: ["fromStroke", "smooth"]`.
+ * rows are one of four windows (any time, or from one of the phrase's instants
+ * to the end) and one of three blends, entered at the next action's start by
+ * inertialization. This owner names both, so a table reads as `guard:
+ * ["fromStroke", "smooth"]`.
  */
 export namespace AutoMovieMotionHumanInterrupt {
   /** The windows of {@link IAutoMovieMotionHumanInterrupt.Window}, as data. */
@@ -35,10 +35,10 @@ export namespace AutoMovieMotionHumanInterrupt {
    * The seconds of each blend (the values the reaction and everyday laws
    * shipped with; provisional, no measured blend time of a human transition
    * located): `reflex` 0.08, a blow that overrides what the body was doing;
-   * `quick` 0.1, a defence; `smooth` 0.15, a voluntary change of one
-   * gesture; `deliberate` 0.3, a change of the whole body's action (sitting
-   * down, standing up, setting off, putting a task down), which every
-   * everyday and locomotion cancel row reads here.
+   * `quick` 0.1, a defence; `smooth` 0.15, a voluntary change of one gesture;
+   * `deliberate` 0.3, a change of the whole body's action (sitting down,
+   * standing up, setting off, putting a task down), which every everyday and
+   * locomotion cancel row reads here.
    */
   export const BLENDS: Readonly<
     Record<IAutoMovieMotionHumanInterrupt.Blend, number>

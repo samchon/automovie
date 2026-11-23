@@ -19,19 +19,22 @@ import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 
 /**
- * How a law that gets the body down onto the floor (a crawl, an inchworm,
- * a lie down) starts from the base it is entered on.
+ * How a law that gets the body down onto the floor (a crawl, an inchworm, a lie
+ * down) starts from the base it is entered on.
  *
- * Each such law has its own way down from standing. Entered off its feet,
- * on the knees or crouched over the hands (where a crawl ends), the body is
- * already low, so the law's first floor posture is reached by a blend from
- * the posture the entry displays, the hips carried straight between the two,
- * instead of from a standing body put back at the entry's root. A base with
- * no way down planned from it (lying, seated, hanging, leaning) is refused,
- * so a composition never jumps from one base to another.
+ * Each such law has its own way down from standing. Entered off its feet, on
+ * the knees or crouched over the hands (where a crawl ends), the body is
+ * already low, so the law's first floor posture is reached by a blend from the
+ * posture the entry displays, the hips carried straight between the two,
+ * instead of from a standing body put back at the entry's root. A base with no
+ * way down planned from it (lying, seated, hanging, leaning) is refused, so a
+ * composition never jumps from one base to another.
  */
 export namespace floorEntry {
-  /** The bases a floor law starts from: standing by its own way down, kneeling and crouched by a blend from the displayed entry. */
+  /**
+   * The bases a floor law starts from: standing by its own way down, kneeling
+   * and crouched by a blend from the displayed entry.
+   */
   export const BASES: readonly IAutoMovieMotionHumanBase.Kind[] = [
     "standing",
     "kneeling",
@@ -39,13 +42,14 @@ export namespace floorEntry {
   ];
 
   /**
-   * Whether a floor law is entered standing, refusing a base it has no way
-   * down from.
+   * Whether a floor law is entered standing, refusing a base it has no way down
+   * from.
    *
    * @param context The action's context.
    * @param action The law's name, for the refusal.
    * @returns `true` standing, `false` kneeling or crouched.
-   * @throws {HumanRefusal} `base` on `base` for any other base, naming it and the accepted ones.
+   * @throws {HumanRefusal} `base` on `base` for any other base, naming it and
+   *   the accepted ones.
    */
   export function standing(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -64,14 +68,18 @@ export namespace floorEntry {
     });
   }
 
-  /**
-   * Where a floor law starts.
-   */
+  /** Where a floor law starts. */
   export interface IStart {
-    /** The standing posture the law measures from: the stance it stands in, or one over the entry when it does not stand. */
+    /**
+     * The standing posture the law measures from: the stance it stands in, or
+     * one over the entry when it does not stand.
+     */
     standing: IAutoMovieMotionHumanPosture;
 
-    /** The displayed entry the way down blends from; null when the body enters standing, since the law's own way down starts there. */
+    /**
+     * The displayed entry the way down blends from; null when the body enters
+     * standing, since the law's own way down starts there.
+     */
     entered: IAutoMovieMotionHumanPosture | null;
   }
 
@@ -85,7 +93,8 @@ export namespace floorEntry {
    * @param over What the stance off the feet stands over.
    * @param stood The stance a standing entry stands in.
    * @returns The start.
-   * @throws {HumanRefusal} `base` for a base the law has no way down from (`standing`).
+   * @throws {HumanRefusal} `base` for a base the law has no way down from
+   *   (`standing`).
    */
   export function start(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
@@ -99,10 +108,10 @@ export namespace floorEntry {
   }
 
   /**
-   * A floor law's posture with its way down taken from the entry: the law's
-   * own posture once its way down is done or when it was entered standing,
-   * and before that the blend from the displayed entry to the law's posture
-   * at the end of its way down, which is read once.
+   * A floor law's posture with its way down taken from the entry: the law's own
+   * posture once its way down is done or when it was entered standing, and
+   * before that the blend from the displayed entry to the law's posture at the
+   * end of its way down, which is read once.
    *
    * @param body The body.
    * @param entered The displayed entry; null when the law was entered standing.
@@ -149,8 +158,8 @@ export namespace floorEntry {
    * An upright stance at the entry, the reference a floor law measures its
    * geometry from when the body is not standing: over the floor under the
    * entry's hips, or under the middle of its ankles, heading the entry's way.
-   * It is only the law's measure and is never shown, since the law blends
-   * from the displayed entry (`stand.posture` at a floor point read off it).
+   * It is only the law's measure and is never shown, since the law blends from
+   * the displayed entry (`stand.posture` at a floor point read off it).
    */
   function referenceFrom(
     context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry">,
@@ -176,8 +185,8 @@ export namespace floorEntry {
 
   /**
    * The posture the entry displays, written by its joint angles alone: its
-   * root, its heading read off the root's rotation and every joint's
-   * clinical angles, so it resolves to the displayed pose itself.
+   * root, its heading read off the root's rotation and every joint's clinical
+   * angles, so it resolves to the displayed pose itself.
    *
    * @param context The action's context.
    * @returns The posture, with no limb goal.
@@ -196,7 +205,10 @@ export namespace floorEntry {
     return { ...displayedFrame(context), joints, limbs: {} };
   }
 
-  /** Read the original displayed root/heading without copying unrelated joints for a reference-only observation. */
+  /**
+   * Read the original displayed root/heading without copying unrelated joints
+   * for a reference-only observation.
+   */
   function displayedFrame(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
   ): Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll"> {
@@ -217,15 +229,15 @@ export namespace floorEntry {
 
   /**
    * Prepare a transition between two fixed postures written by joint angles
-   * alone: every joint's angles, the heading the short way round and the
-   * tips go by the weight, and the hips joint travels on the straight line
-   * between its two places, the root following from it. Carrying the root
-   * instead would swing the hips through the air between two tilted bodies,
-   * whose roots lie far from their hips. Where the blended angles would put
-   * a limb deeper under the floor than the two ends have it, the body is
-   * raised by the difference (`knockdown.prepareRest`). The endpoints stay
-   * unchanged for the transition's lifetime; their hip points and floor
-   * clearances are measured on the first interior query and kept with it.
+   * alone: every joint's angles, the heading the short way round and the tips
+   * go by the weight, and the hips joint travels on the straight line between
+   * its two places, the root following from it. Carrying the root instead would
+   * swing the hips through the air between two tilted bodies, whose roots lie
+   * far from their hips. Where the blended angles would put a limb deeper under
+   * the floor than the two ends have it, the body is raised by the difference
+   * (`knockdown.prepareRest`). The endpoints stay unchanged for the
+   * transition's lifetime; their hip points and floor clearances are measured
+   * on the first interior query and kept with it.
    */
   export function between(
     body: IAutoMovieMotionHumanBody,
@@ -236,7 +248,9 @@ export namespace floorEntry {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ) => IAutoMovieMotionHumanPosture {
-    const interpolate: (weight: number) => IAutoMovieMotionHumanPosture["joints"] = prepareHumanShapeBlend(
+    const interpolate: (
+      weight: number,
+    ) => IAutoMovieMotionHumanPosture["joints"] = prepareHumanShapeBlend(
       from.joints,
       to.joints,
     );
@@ -272,8 +286,12 @@ export namespace floorEntry {
         sunkTo: sunk(to),
       };
       const lerp = (a: number, b: number): number => a + (b - a) * weight;
-      const joints: IAutoMovieMotionHumanPosture["joints"] = interpolate(weight);
-      const heading: Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll"> = {
+      const joints: IAutoMovieMotionHumanPosture["joints"] =
+        interpolate(weight);
+      const heading: Pick<
+        IAutoMovieMotionHumanPosture,
+        "yaw" | "pitch" | "roll"
+      > = {
         yaw: from.yaw + turn * weight,
         pitch: lerp(from.pitch, to.pitch),
         roll: lerp(from.roll, to.roll),
@@ -304,10 +322,16 @@ export namespace floorEntry {
     };
   }
 
-  /** Where a posture's hips joint is: its root plus the hips' rest place turned by its heading. */
+  /**
+   * Where a posture's hips joint is: its root plus the hips' rest place turned
+   * by its heading.
+   */
   function hips(
     body: IAutoMovieMotionHumanBody,
-    posture: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw" | "pitch" | "roll">,
+    posture: Pick<
+      IAutoMovieMotionHumanPosture,
+      "root" | "yaw" | "pitch" | "roll"
+    >,
   ): IAutoMovieVector3 {
     return Vector3.add(
       posture.root,

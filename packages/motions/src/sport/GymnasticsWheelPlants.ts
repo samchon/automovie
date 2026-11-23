@@ -25,40 +25,44 @@ import { solveGymnasticsLaidArm } from "./solveGymnasticsLaidArm";
 
 /**
  * The bearing limbs of a wheel (`GymnasticsWheel`): a rigid turn carries the
- * hands and feet with the shape, so a joint that bears would turn about
- * itself and its sole or palm would lift, skate or pass into the floor. While
- * a spoke bears, its limb is solved to a laid place fixed where it came
- * down: a foot flat on its ankle's point at its own heading, a palm flat on
- * the floor under its wrist with the fingers straight. The hands are set in
- * the T-shape gymnasts are coached to and that loads the wrists and elbows
- * least (Farana, Irwin, Jandacka, Uchytil and Mullineaux 2014, Sports
- * Biomechanics 13(2):123-134; Farana et al. 2018, European Journal of Sport
- * Science 18(10):1375-1381): the first hand's fingers point along the travel,
- * the second's turned a quarter, toward the way the body faced, so neither
- * forearm stands at the end of its turn.
+ * hands and feet with the shape, so a joint that bears would turn about itself
+ * and its sole or palm would lift, skate or pass into the floor. While a spoke
+ * bears, its limb is solved to a laid place fixed where it came down: a foot
+ * flat on its ankle's point at its own heading, a palm flat on the floor under
+ * its wrist with the fingers straight. The hands are set in the T-shape
+ * gymnasts are coached to and that loads the wrists and elbows least (Farana,
+ * Irwin, Jandacka, Uchytil and Mullineaux 2014, Sports Biomechanics
+ * 13(2):123-134; Farana et al. 2018, European Journal of Sport Science
+ * 18(10):1375-1381): the first hand's fingers point along the travel, the
+ * second's turned a quarter, toward the way the body faced, so neither forearm
+ * stands at the end of its turn.
  *
- * Over `LEAD` of the action at each end the limb moves from the carried pose
- * to the laid one and back, blended in joint space as a skeletal control's
- * weight blends its solved chain with the input pose (each joint on its
- * rotation, `blendHumanJoint`): the solve of the laid place is the end at
- * full weight and the carried joints the end at none, so a contact taken or
- * left mid-turn neither jumps nor makes the solver choose a turn of the arm
- * the carried pose does not have. A laid arm's elbow keeps the carried one's
- * side, a straight arm's pushed out along its olecranon
- * (`AutoMovieMotionHumanElbowPole`), so the solve has a side to bend to.
+ * Over `LEAD` of the action at each end the limb moves from the carried pose to
+ * the laid one and back, blended in joint space as a skeletal control's weight
+ * blends its solved chain with the input pose (each joint on its rotation,
+ * `blendHumanJoint`): the solve of the laid place is the end at full weight and
+ * the carried joints the end at none, so a contact taken or left mid-turn
+ * neither jumps nor makes the solver choose a turn of the arm the carried pose
+ * does not have. A laid arm's elbow keeps the carried one's side, a straight
+ * arm's pushed out along its olecranon (`AutoMovieMotionHumanElbowPole`), so
+ * the solve has a side to bend to.
  */
 export namespace GymnasticsWheelPlants {
-  /** The share of the action over which a limb takes its laid place before its contact and leaves it after, provisional. */
+  /**
+   * The share of the action over which a limb takes its laid place before its
+   * contact and leaves it after, provisional.
+   */
   export const LEAD: number = 0.06;
 
-  /**
-   * The directions the laid fingers point along the floor, unit vectors.
-   */
+  /** The directions the laid fingers point along the floor, unit vectors. */
   export interface IFingers {
     /** The first hand down: along the travel. */
     first: IAutoMovieVector3;
 
-    /** The second hand down: a quarter turn from the first, toward the way the body faced. */
+    /**
+     * The second hand down: a quarter turn from the first, toward the way the
+     * body faced.
+     */
     second: IAutoMovieVector3;
   }
 
@@ -77,14 +81,20 @@ export namespace GymnasticsWheelPlants {
     from: number;
     to: number;
 
-    /** Whether it begins with the action or ends with it, so takes no blend there. */
+    /**
+     * Whether it begins with the action or ends with it, so takes no blend
+     * there.
+     */
     opens: boolean;
     closes: boolean;
 
     /** The laid fingers' direction, for a hand. */
     fingers: IAutoMovieVector3;
 
-    /** The forefoot edge a foot's window declares held, in the foot's rest frame; none when it bears flat. */
+    /**
+     * The forefoot edge a foot's window declares held, in the foot's rest
+     * frame; none when it bears flat.
+     */
     edge?: IAutoMovieVector3;
 
     /** The laid limb goal, given the posture it is written into. */
@@ -100,10 +110,16 @@ export namespace GymnasticsWheelPlants {
     weight: number;
   }
 
-  /** How many keys a lead holds: a window's laid limb is solved at keys this far apart and read between them. */
+  /**
+   * How many keys a lead holds: a window's laid limb is solved at keys this far
+   * apart and read between them.
+   */
   export const KEYS: number = 16;
 
-  /** One window's laid limb solved at one key second, from the carried posture there. */
+  /**
+   * One window's laid limb solved at one key second, from the carried posture
+   * there.
+   */
   interface IKeyed {
     /** The carried end joint's place and turn. */
     end: IAutoMovieResolvedBone;
@@ -125,7 +141,8 @@ export namespace GymnasticsWheelPlants {
    * @param contacts The wheel's bearing windows, shares of the duration.
    * @param duration The action's seconds.
    * @param carried The wheel's rigid posture at an action second.
-   * @param fingers The laid fingers' directions on the floor, by the hands' order of contact.
+   * @param fingers The laid fingers' directions on the floor, by the hands'
+   *   order of contact.
    * @returns A writer of the laid limbs into a carried posture at a second.
    */
   export function of(
@@ -156,76 +173,78 @@ export namespace GymnasticsWheelPlants {
         c.part === "leftHand" || c.part === "rightHand",
     );
     const laid: ILaid[] = contacts.flatMap(
-        (c: IAutoMovieMotionHumanContactWindow, index: number): ILaid[] => {
-          if (
-            c.part !== "leftFoot" &&
-            c.part !== "rightFoot" &&
-            c.part !== "leftHand" &&
-            c.part !== "rightHand"
-          )
-            return [];
-          const bone: AutoMovieHumanoidBone = c.part;
-          const side: AutoMovieHumanSide = c.part.startsWith("left")
-            ? "left"
-            : "right";
-          const hand: boolean = c.part.endsWith("Hand");
-          const from: number = c.from * duration;
-          const down: IAutoMovieResolvedBone = end(carried(from), bone);
-          const along: IAutoMovieVector3 =
-            index === firstHand ? fingers.first : fingers.second;
-          const window: Omit<ILaid, "goal"> = {
-            bone,
-            side,
-            hand,
-            from,
-            to: c.to * duration,
-            opens: c.from <= 0,
-            closes: c.to >= 1,
-            fingers: along,
-            ...(typeof c.socket === "object" ? { edge: c.socket } : {}),
+      (c: IAutoMovieMotionHumanContactWindow, index: number): ILaid[] => {
+        if (
+          c.part !== "leftFoot" &&
+          c.part !== "rightFoot" &&
+          c.part !== "leftHand" &&
+          c.part !== "rightHand"
+        )
+          return [];
+        const bone: AutoMovieHumanoidBone = c.part;
+        const side: AutoMovieHumanSide = c.part.startsWith("left")
+          ? "left"
+          : "right";
+        const hand: boolean = c.part.endsWith("Hand");
+        const from: number = c.from * duration;
+        const down: IAutoMovieResolvedBone = end(carried(from), bone);
+        const along: IAutoMovieVector3 =
+          index === firstHand ? fingers.first : fingers.second;
+        const window: Omit<ILaid, "goal"> = {
+          bone,
+          side,
+          hand,
+          from,
+          to: c.to * duration,
+          opens: c.from <= 0,
+          closes: c.to >= 1,
+          fingers: along,
+          ...(typeof c.socket === "object" ? { edge: c.socket } : {}),
+        };
+        if (hand) {
+          const target: ReturnType<typeof HumanHandTarget.prepareGoal> =
+            HumanHandTarget.prepareGoal(body, side, {
+              surface: "palm",
+              shape: "flat",
+            });
+          const point: IAutoMovieVector3 = {
+            x: down.worldPosition.x,
+            y: 0,
+            z: down.worldPosition.z,
           };
-          if (hand) {
-            const target: ReturnType<typeof HumanHandTarget.prepareGoal> =
-              HumanHandTarget.prepareGoal(body, side, {
-                surface: "palm",
-                shape: "flat",
-              });
-            const point: IAutoMovieVector3 = {
-              x: down.worldPosition.x,
-              y: 0,
-              z: down.worldPosition.z,
-            };
-            return [
-              {
-                ...window,
-                goal: (
-                  posture: IAutoMovieMotionHumanPosture,
-                ): IAutoMovieHumanLimbGoal =>
-                  target(posture, { point, normal: { x: 0, y: 1, z: 0 } }, along),
-              },
-            ];
-          }
-          // The foot bears on its ball and rolls onto its edge
-          // (`layGymnasticsWheelFoot`).
           return [
             {
               ...window,
-              goal: layGymnasticsWheelFoot(
-                body,
-                side,
-                down,
-                carried(from).yaw,
-                typeof c.socket === "object" ? c.socket : undefined,
-              ),
+              goal: (
+                posture: IAutoMovieMotionHumanPosture,
+              ): IAutoMovieHumanLimbGoal =>
+                target(posture, { point, normal: { x: 0, y: 1, z: 0 } }, along),
             },
           ];
-        },
-      );
-    const flat: Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]> =
-      {
-        left: HumanHandShape.of("left", "flat"),
-        right: HumanHandShape.of("right", "flat"),
-      };
+        }
+        // The foot bears on its ball and rolls onto its edge
+        // (`layGymnasticsWheelFoot`).
+        return [
+          {
+            ...window,
+            goal: layGymnasticsWheelFoot(
+              body,
+              side,
+              down,
+              carried(from).yaw,
+              typeof c.socket === "object" ? c.socket : undefined,
+            ),
+          },
+        ];
+      },
+    );
+    const flat: Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanPosture["joints"]
+    > = {
+      left: HumanHandShape.of("left", "flat"),
+      right: HumanHandShape.of("right", "flat"),
+    };
     const lead: number = Math.max(1e-9, LEAD * duration);
 
     // A window's weight: 1 while it bears, eased in over the lead before it
@@ -347,10 +366,17 @@ export namespace GymnasticsWheelPlants {
         return {
           end: carriedEnd,
           toes: 0,
-          joints: solveGymnasticsLaidArm(body, posture, shown, key, risen.goal, {
-            ...flat[l.side],
-            ...risen.joints,
-          }),
+          joints: solveGymnasticsLaidArm(
+            body,
+            posture,
+            shown,
+            key,
+            risen.goal,
+            {
+              ...flat[l.side],
+              ...risen.joints,
+            },
+          ),
         };
       }
     };
@@ -447,8 +473,8 @@ export namespace GymnasticsWheelPlants {
         // carried angle toward it, so no later fit of a goal chooses another
         // turn of the arm.
         for (const bone of new Set([...a.joints.keys(), ...b.joints.keys()])) {
-          const carriedAngle: readonly [number, number, number] =
-            posture.joints[bone] ?? [0, 0, 0];
+          const carriedAngle: readonly [number, number, number] = posture
+            .joints[bone] ?? [0, 0, 0];
           const to: readonly [number, number, number] = blendHumanJoint(
             body,
             bone,
@@ -465,4 +491,3 @@ export namespace GymnasticsWheelPlants {
     };
   }
 }
-

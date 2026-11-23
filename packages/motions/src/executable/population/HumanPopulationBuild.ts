@@ -46,9 +46,9 @@ export namespace HumanPopulationBuild {
 
   /**
    * Write the body measures: the sex, the measured fields from their surveyed
-   * measure, the rest from their anchors, and the fat percentage the end's
-   * body mass index implies by Deurenberg et al.'s relation (1991: percent fat
-   * = 1.2 BMI + 0.23 age - 10.8 male - 5.4) at ANSUR 1988's mean age of the sex.
+   * measure, the rest from their anchors, and the fat percentage the end's body
+   * mass index implies by Deurenberg et al.'s relation (1991: percent fat = 1.2
+   * BMI + 0.23 age - 10.8 male - 5.4) at ANSUR 1988's mean age of the sex.
    *
    * @param anatomy The record to write.
    * @param sex The surveyed sex.

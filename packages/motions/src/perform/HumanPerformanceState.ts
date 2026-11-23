@@ -56,14 +56,14 @@ import { validateInitialPropMounts } from "./validateInitialPropMounts";
 
 /**
  * Everything a performance resolves and its readers share: the people with
- * their placed actions, the props, the laws, the cue tracks and the
- * schedule, built once by the constructor.
+ * their placed actions, the props, the laws, the cue tracks and the schedule,
+ * built once by the constructor.
  *
  * `HumanPerformance` is the public surface over it. The state's members are
  * public so the `HumanPerformance*` namespaces, which hold the performance's
  * work by responsibility (placing, contacts, layers, the schedule, aiming and
- * reading), can share them; nothing outside the performance reads it, and
- * the package does not export it.
+ * reading), can share them; nothing outside the performance reads it, and the
+ * package does not export it.
  */
 export class HumanPerformanceState {
   /** The resolved schedule. */
@@ -75,34 +75,53 @@ export class HumanPerformanceState {
   /** The people, as the performance was given them. */
   public readonly performers: readonly IAutoMovieMotionHumanPerformer[];
 
-  /** The people with their placed actions, holds, layers and pose caches, by subject. */
+  /**
+   * The people with their placed actions, holds, layers and pose caches, by
+   * subject.
+   */
   public readonly people: Map<string, IAutoMovieMotionHumanSegment.IPerson>;
 
   /** The props, by subject. */
   public readonly props: Map<string, IAutoMovieMotionHumanProp>;
 
-  /** The placed actions that carry an anchor, by the anchor, with their performer. */
+  /**
+   * The placed actions that carry an anchor, by the anchor, with their
+   * performer.
+   */
   public readonly anchors: Map<
     string,
     IAutoMovieMotionHumanSegment & { subject: string }
   >;
 
-  /** The spans in which each prop is held or worn, by the prop: who holds it in which hand or wears it on which bone, from when to when and at which offset from the hand or the bone; found once the performance is placed. */
+  /**
+   * The spans in which each prop is held or worn, by the prop: who holds it in
+   * which hand or wears it on which bone, from when to when and at which offset
+   * from the hand or the bone; found once the performance is placed.
+   */
   public readonly gripCache: Map<
     string,
     IAutoMovieMotionHumanPerformanceState.IGrip[]
   > = new Map();
 
-  /** The meetings of the mutual actions, by their kind, start and performers: the performer who computed each and the meeting every role reads. */
+  /**
+   * The meetings of the mutual actions, by their kind, start and performers:
+   * the performer who computed each and the meeting every role reads.
+   */
   public readonly meetings: Map<
     string,
     { subject: string; meeting: IAutoMovieMotionMeeting }
   > = new Map();
 
-  /** Every law the performance runs, by name: the vocabulary's and the ones it was given. */
+  /**
+   * Every law the performance runs, by name: the vocabulary's and the ones it
+   * was given.
+   */
   public readonly laws: Map<string, IAutoMovieMotionHumanActionLaw<never>>;
 
-  /** The schedule entries that are overlays, by walk-order index: they ride a carrier and never follow or precede one. */
+  /**
+   * The schedule entries that are overlays, by walk-order index: they ride a
+   * carrier and never follow or precede one.
+   */
   public readonly riding: Set<number> = new Set();
 
   /** What stands in the performers' way. */
@@ -111,7 +130,10 @@ export class HumanPerformanceState {
   /** The forces on the performers (`HumanPerformance.IInput.forces`). */
   public readonly forces: readonly IAutoMovieMotionHumanForce[];
 
-  /** Resolved authored-turn policy; explicitly supplied momentum remains physical in either mode. */
+  /**
+   * Resolved authored-turn policy; explicitly supplied momentum remains
+   * physical in either mode.
+   */
   public readonly flight: NonNullable<
     IAutoMovieMotionHumanPerformance.IInput["flight"]
   >;
@@ -121,89 +143,147 @@ export class HumanPerformanceState {
     Record<string, readonly IAutoMovieScheduleCue[]>
   >;
 
-  /** Where an action aligned into its performer's previous one ended that one, by the previous one's schedule entry. */
+  /**
+   * Where an action aligned into its performer's previous one ended that one,
+   * by the previous one's schedule entry.
+   */
   public readonly clipped: Map<number, number> = new Map();
 
-  /** The instants of every anchored layer, by its anchor: those known before the schedule from the start, the others once it is placed. */
+  /**
+   * The instants of every anchored layer, by its anchor: those known before the
+   * schedule from the start, the others once it is placed.
+   */
   public readonly layered: Map<string, readonly IAutoMovieScheduleCue[]> =
     new Map();
 
-  /** The actions that carry the body the composition gives each person, overlays aside, in walk order: a person's placed ones are its first as many as they have placed, and the rest are still to come. */
+  /**
+   * The actions that carry the body the composition gives each person, overlays
+   * aside, in walk order: a person's placed ones are its first as many as they
+   * have placed, and the rest are still to come.
+   */
   public readonly intended: Map<string, IAutoMovieIntent[]> = new Map();
 
   /** The scene's blasts (`HumanPerformance.IInput.blasts`). */
   public readonly blasts: readonly IAutoMovieMotionHumanBlast.IBlast[];
 
-  /** The resolved first contacts of every person's striking weapons, in time order, kept for the hit record (`HumanPerformanceHits`). */
+  /**
+   * The resolved first contacts of every person's striking weapons, in time
+   * order, kept for the hit record (`HumanPerformanceHits`).
+   */
   public readonly strikes: IAutoMovieMotionHumanPerformanceState.IStrike[] = [];
 
-  /** Whether the schedule is still being resolved: until every action is placed, a pose may read people not placed yet, so nothing is kept. */
+  /**
+   * Whether the schedule is still being resolved: until every action is placed,
+   * a pose may read people not placed yet, so nothing is kept.
+   */
   public resolving: boolean = true;
 
-  /** The resolver's demand placement while an action is timed (`IAutoMovieMotionHumanPerformanceState.demand`). */
+  /**
+   * The resolver's demand placement while an action is timed
+   * (`IAutoMovieMotionHumanPerformanceState.demand`).
+   */
   public demand: IAutoMovieScheduleContext["demand"] = undefined;
 
-  /** The start up to which a subject holds their last placed pose while an action is timed (`IAutoMovieMotionHumanPerformanceState.horizon`). */
+  /**
+   * The start up to which a subject holds their last placed pose while an
+   * action is timed (`IAutoMovieMotionHumanPerformanceState.horizon`).
+   */
   public horizon: IAutoMovieScheduleContext["horizon"] = undefined;
 
-  /** The start of a parallel group a read subject shares with the action timed (`IAutoMovieMotionHumanPerformanceState.meeting`). */
+  /**
+   * The start of a parallel group a read subject shares with the action timed
+   * (`IAutoMovieMotionHumanPerformanceState.meeting`).
+   */
   public meeting: IAutoMovieScheduleContext["meeting"] = undefined;
 
-  /** The placement of an anchor's waiting part while an action is timed (`IAutoMovieMotionHumanPerformanceState.demandAnchor`). */
+  /**
+   * The placement of an anchor's waiting part while an action is timed
+   * (`IAutoMovieMotionHumanPerformanceState.demandAnchor`).
+   */
   public demandAnchor: IAutoMovieScheduleContext["demandAnchor"] = undefined;
 
-  /** How many actions and overlays have been placed so far: two instants with the same count have the same placed state. */
+  /**
+   * How many actions and overlays have been placed so far: two instants with
+   * the same count have the same placed state.
+   */
   public placements: number = 0;
 
-  /** The plan the last alignment trial made (`HumanPerformancePlace.place` with `trial`), kept until the next placement reads or drops it; none otherwise. */
+  /**
+   * The plan the last alignment trial made (`HumanPerformancePlace.place` with
+   * `trial`), kept until the next placement reads or drops it; none otherwise.
+   */
   public trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
 
-  /** The arm seeds continued by later trials of the same intent in this schedule. */
+  /**
+   * The arm seeds continued by later trials of the same intent in this
+   * schedule.
+   */
   public readonly handovers: IAutoMovieMotionHumanPerformanceState["handovers"] =
     new Map<
       IAutoMovieIntent,
       IAutoMovieMotionHumanActionContext.IHandover["last"]
     >();
 
-  /** Each performer's solved soft parts, by subject, kept once the performance is placed (`HumanPerformanceSoft.of`). */
+  /**
+   * Each performer's solved soft parts, by subject, kept once the performance
+   * is placed (`HumanPerformanceSoft.of`).
+   */
   public readonly soft: Map<
     string,
     IAutoMovieMotionHumanPerformanceSoft.ISolved
   > = new Map();
 
-  /** Each prop's articulation writers in film order, by the prop, kept once the performance is placed (`HumanPerformanceObject.writers`). */
+  /**
+   * Each prop's articulation writers in film order, by the prop, kept once the
+   * performance is placed (`HumanPerformanceObject.writers`).
+   */
   public readonly writers: Map<
     string,
     readonly IAutoMovieMotionHumanPerformanceState.IWriter[]
   > = new Map();
 
-  /** Each prop's last posed reading with its film second, by the prop, kept once the performance is placed (`HumanPerformanceObject.posed`). */
+  /**
+   * Each prop's last posed reading with its film second, by the prop, kept once
+   * the performance is placed (`HumanPerformanceObject.posed`).
+   */
   public readonly posed: Map<
     string,
     { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed }
   > = new Map();
 
-  /** Each launched prop's flights, by the prop, kept once the performance is placed (`HumanPropFlight.flights`). */
+  /**
+   * Each launched prop's flights, by the prop, kept once the performance is
+   * placed (`HumanPropFlight.flights`).
+   */
   public readonly flights: Map<
     string,
     readonly IAutoMovieMotionHumanPropFlight.IFlight[]
   > = new Map();
 
-  /** The flights of each prop being found, so a launch reading its prop sees the flights before it. */
+  /**
+   * The flights of each prop being found, so a launch reading its prop sees the
+   * flights before it.
+   */
   public readonly flying: Map<
     string,
     IAutoMovieMotionHumanPropFlight.IFlight[]
   > = new Map();
 
-  /** Every hit of the placed performance in time order (`HumanPerformanceHits.hits`), kept on its first read once placed. */
+  /**
+   * Every hit of the placed performance in time order
+   * (`HumanPerformanceHits.hits`), kept on its first read once placed.
+   */
   public hits: readonly IAutoMovieInteractionEvent[] | undefined;
 
   /**
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
-   * @param flight The same admitted effective policy captured for this input's structural key, without rereading input.flight.
-   * @param observation Optional native numeric observer forwarded only during this physical planning operation; it is never stored in the resulting state.
+   * @param flight The same admitted effective policy captured for this input's
+   *   structural key, without rereading input.flight.
+   * @param observation Optional native numeric observer forwarded only during
+   *   this physical planning operation; it is never stored in the resulting
+   *   state.
    */
   public constructor(
     input: IAutoMovieMotionHumanPerformance.IInput,
@@ -476,32 +556,32 @@ export class HumanPerformanceState {
     HumanBendRead.resolved.add(this);
   }
 }
-/**
- * Companion types of {@link HumanPerformanceState}.
- */
+/** Companion types of {@link HumanPerformanceState}. */
 export namespace HumanPerformanceState {
   /**
-   * How many resolved performances a process keeps, the most recently read:
-   * a memory bound no act reads, sized to the most distinct inputs a consumer
+   * How many resolved performances a process keeps, the most recently read: a
+   * memory bound no act reads, sized to the most distinct inputs a consumer
    * reads between two reads of one input, plus that one. Measured at 1: over
    * nine row families of the touch and hand-to-face laws read in the test
    * program's order (68 reads of 12 inputs, every reread at most one other
-   * input after its last read), and on the website, where the playground
-   * asks a take's verdicts of the worker that built it right after the take
-   * and a scene page's repeated takes are its own cache's.
+   * input after its last read), and on the website, where the playground asks a
+   * take's verdicts of the worker that built it right after the take and a
+   * scene page's repeated takes are its own cache's.
    */
   export const KEEP: number = 2;
 
   /**
-   * The resolved performance of an input: the one resolved before from an
-   * equal input (`HumanPerformanceKey`) when the process keeps it, the input
-   * resolved afresh otherwise. A resolution is a pure function of its input,
-   * so an equal input reads the same plans, schedule and contacts; what its
-   * readers add later is caches of the same pure functions. A refusal is not
-   * kept, so it is thrown afresh each time.
+   * The resolved performance of an input: the one resolved before from an equal
+   * input (`HumanPerformanceKey`) when the process keeps it, the input resolved
+   * afresh otherwise. A resolution is a pure function of its input, so an equal
+   * input reads the same plans, schedule and contacts; what its readers add
+   * later is caches of the same pure functions. A refusal is not kept, so it is
+   * thrown afresh each time.
    *
    * @param input The chain seed, the performers, the props and the composition.
-   * @param observation An explicit native diagnostic request performs cold planning rather than observing a reused complete answer; absent, the existing memo policy is unchanged.
+   * @param observation An explicit native diagnostic request performs cold
+   *   planning rather than observing a reused complete answer; absent, the
+   *   existing memo policy is unchanged.
    * @returns The resolved performance.
    * @throws {HumanRefusal} When the input does not resolve.
    */

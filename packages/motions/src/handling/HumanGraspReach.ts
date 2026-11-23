@@ -13,17 +13,17 @@ import { HumanFrame } from "../posture/HumanFrame";
 import type { HumanGrasp } from "./HumanGrasp";
 
 /**
- * Where another person's arm is predicted from and how a grip turns about
- * its handle: the standing posture a person settles into, and a target
- * turned about its wrapped axis. `HumanGrasp` passes these through by name.
+ * Where another person's arm is predicted from and how a grip turns about its
+ * handle: the standing posture a person settles into, and a target turned about
+ * its wrapped axis. `HumanGrasp` passes these through by name.
  */
 export namespace HumanGraspReach {
   /**
-   * The standing posture a person settles into from where they stand: the
-   * stand law's posture centred over the person's displayed feet, facing the
-   * way the pelvis faces. A law predicting another person's arm (a
-   * handshake's partner, a handover's receiver) reads it, so the prediction
-   * starts from the same root the partner's own stand law will hold.
+   * The standing posture a person settles into from where they stand: the stand
+   * law's posture centred over the person's displayed feet, facing the way the
+   * pelvis faces. A law predicting another person's arm (a handshake's partner,
+   * a handover's receiver) reads it, so the prediction starts from the same
+   * root the partner's own stand law will hold.
    *
    * @param body The person's body.
    * @param bones The person's displayed world bones.
@@ -65,10 +65,11 @@ export namespace HumanGraspReach {
     turn: number,
   ): IAutoMovieMotionHumanGrasp.ITarget;
   /** The same wrapped-axis rotation for the hand-only target view. */
-  export function around(target: HumanGrasp.IFrame, turn: number): HumanGrasp.IFrame;
-  /**
-   * Preserve all supplied target fields while turning only its approach.
-   */
+  export function around(
+    target: HumanGrasp.IFrame,
+    turn: number,
+  ): HumanGrasp.IFrame;
+  /** Preserve all supplied target fields while turning only its approach. */
   export function around(
     target: HumanGrasp.IFrame,
     turn: number,

@@ -9,12 +9,13 @@ import type {
 import { HumanDigitFit } from "../posture/HumanDigitFit";
 
 /**
- * Upper bound in metres on the left index and middle fingertip separation.
- * The posed proximal joints give the knuckle spacing and each digit's
- * remaining joint lengths give its greatest possible extension.
+ * Upper bound in metres on the left index and middle fingertip separation. The
+ * posed proximal joints give the knuckle spacing and each digit's remaining
+ * joint lengths give its greatest possible extension.
  *
  * @param body The performer whose fingertip surfaces complete the chains.
- * @param bones The resolved entry bones from which invariant distances are read.
+ * @param bones The resolved entry bones from which invariant distances are
+ *   read.
  * @returns The triangle-inequality bound for the two articulated tips.
  */
 export function guitarFrettingSpan(

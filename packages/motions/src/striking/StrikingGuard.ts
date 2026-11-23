@@ -17,17 +17,19 @@ import { StrikingStance } from "./StrikingStance";
 
 /**
  * Place the fighting guard's two glove goals on the current trunk: both at
- * their ear's height the same short distance ahead of their jaw, the rear
- * glove outside its ear and the lead glove before its own shoulder
- * (`StrikingStance` gives the sources).
+ * their ear's height the same short distance ahead of their jaw, the rear glove
+ * outside its ear and the lead glove before its own shoulder (`StrikingStance`
+ * gives the sources).
  *
  * @param body The unchanged canonical body.
  * @param posture The current base carrying the guard.
  * @param stance The leading side.
  * @param drop Each glove's downward displacement, metres.
  * @param posed Optional trunk frames already read from this exact body/posture.
- * @param resolution Optional exact FK reader borrowed only by this synchronous evaluation.
- * @param style The authored sporting guard. When absent, use the original open guard.
+ * @param resolution Optional exact FK reader borrowed only by this synchronous
+ *   evaluation.
+ * @param style The authored sporting guard. When absent, use the original open
+ *   guard.
  * @param leadBlend From the named lead (zero) to the other lead (one).
  * @returns The two actual world-metre glove goals.
  */
@@ -147,7 +149,10 @@ export function StrikingGuard(
   return out;
 }
 
-/** The existing horizontal-normal convention, with +Z when horizontal length is at most 1e-9. */
+/**
+ * The existing horizontal-normal convention, with +Z when horizontal length is
+ * at most 1e-9.
+ */
 function horizontal(v: IAutoMovieVector3): IAutoMovieVector3 {
   const h: IAutoMovieVector3 = { x: v.x, y: 0, z: v.z };
   return Vector3.length(h) > 1e-9 ? Vector3.normalize(h) : { x: 0, y: 0, z: 1 };

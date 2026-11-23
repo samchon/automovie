@@ -9,18 +9,18 @@ import { readHumanBone } from "../body/readHumanBone";
 
 /**
  * A trunk turned toward one side by a share of its own range, with the head
- * righted against it: the spine and the chest each bend to that side and
- * twist toward it by the same share of their own range toward that side,
- * and the neck and the head take back what those two turned, half each,
- * within their own ranges, so the head stays upright and facing as it was
- * (the head-righting reflex keeps the head vertical as the trunk tilts).
+ * righted against it: the spine and the chest each bend to that side and twist
+ * toward it by the same share of their own range toward that side, and the neck
+ * and the head take back what those two turned, half each, within their own
+ * ranges, so the head stays upright and facing as it was (the head-righting
+ * reflex keeps the head vertical as the trunk tilts).
  *
- * The spine's side bend is about its +Z, negative to the performer's left,
- * and its twist about +Y turns the chest to the left (`HUMANOID_JOINT_AXES`);
- * the neck and the head share those axes. A share is the fraction of the way
- * from each joint's present angle to the end of its range toward the side; a
- * negative share turns the trunk the other way by that fraction of the way
- * to the other ends. A joint the rig leaves without a freedom keeps it.
+ * The spine's side bend is about its +Z, negative to the performer's left, and
+ * its twist about +Y turns the chest to the left (`HUMANOID_JOINT_AXES`); the
+ * neck and the head share those axes. A share is the fraction of the way from
+ * each joint's present angle to the end of its range toward the side; a
+ * negative share turns the trunk the other way by that fraction of the way to
+ * the other ends. A joint the rig leaves without a freedom keeps it.
  */
 export namespace HumanTrunkTurn {
   /**
@@ -28,9 +28,11 @@ export namespace HumanTrunkTurn {
    *
    * @param body The body, for its joints' ranges.
    * @param posture The posture.
-   * @param share The share of the way to the range's ends, from -1 to 1; positive toward `side`.
+   * @param share The share of the way to the range's ends, from -1 to 1;
+   *   positive toward `side`.
    * @param side The side the trunk turns toward at a positive share.
-   * @returns The posture with the spine, the chest, the neck and the head set; every other part unchanged.
+   * @returns The posture with the spine, the chest, the neck and the head set;
+   *   every other part unchanged.
    */
   export function turned(
     body: IAutoMovieMotionHumanBody,
@@ -39,7 +41,9 @@ export namespace HumanTrunkTurn {
     side: "left" | "right",
   ): IAutoMovieMotionHumanPosture {
     const toLeft: number = side === "left" ? 1 : -1;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+    const joints: IAutoMovieMotionHumanPosture["joints"] = {
+      ...posture.joints,
+    };
     let roll: number = 0;
     let twist: number = 0;
     for (const bone of ["spine", "chest"] as const) {
@@ -75,14 +79,13 @@ function range(
   body: IAutoMovieMotionHumanBody,
   bone: AutoMovieHumanoidBone,
 ): ReturnType<typeof getConstraint> {
-  return getConstraint(
-    bone,
-    readHumanBone(body, bone)
-      ?.constraint ?? null,
-  );
+  return getConstraint(bone, readHumanBone(body, bone)?.constraint ?? null);
 }
 
-/** An angle moved a share of the way to its range's end on the side `sign * share` points to. */
+/**
+ * An angle moved a share of the way to its range's end on the side `sign *
+ * share` points to.
+ */
 function toward(
   was: number,
   limits: Limits | undefined,

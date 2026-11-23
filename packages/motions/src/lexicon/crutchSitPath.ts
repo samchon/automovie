@@ -35,9 +35,7 @@ const LIFT: number = 0.04;
  * `length` above the tip.
  */
 export namespace crutchSitPath {
-  /**
-   * A crutch's grip and tip in its own frame.
-   */
+  /** A crutch's grip and tip in its own frame. */
   export interface ICrutch {
     /** The grip, in the crutch's frame, metres. */
     grip: IAutoMovieVector3;

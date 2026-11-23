@@ -11,19 +11,20 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * A rope as a taut line: a fixed prop's `bar` affordance between its two
- * ends in world metres, its axis along the bar's `+X`. The upper end of an
- * upright line is its anchor.
+ * A rope as a taut line: a fixed prop's `bar` affordance between its two ends
+ * in world metres, its axis along the bar's `+X`. The upper end of an upright
+ * line is its anchor.
  */
 export namespace ropeLine {
-  /**
-   * A rope line in world metres.
-   */
+  /** A rope line in world metres. */
   export interface ILine {
     /** The line's lower end, or its `-X` end when level, world metres. */
     low: IAutoMovieVector3;
 
-    /** The line's upper end, the anchor, or its `+X` end when level, world metres. */
+    /**
+     * The line's upper end, the anchor, or its `+X` end when level, world
+     * metres.
+     */
     high: IAutoMovieVector3;
 
     /** Unit direction from low to high. */
@@ -43,7 +44,8 @@ export namespace ropeLine {
    * @param subject The rope prop.
    * @param id Its bar affordance.
    * @returns The line.
-   * @throws {HumanRefusal} If the prop moves or has no bar of that id with a length.
+   * @throws {HumanRefusal} If the prop moves or has no bar of that id with a
+   *   length.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,
@@ -125,7 +127,8 @@ export namespace ropeLine {
    * @param context The action's context.
    * @param rope The rope prop.
    * @param staged The rope's staged points by name, world metres.
-   * @param line The rope's line, which a hand's grip faces square across toward the climber.
+   * @param line The rope's line, which a hand's grip faces square across toward
+   *   the climber.
    * @returns The aim the support law reads.
    */
   export function aim(

@@ -7,27 +7,26 @@ import type {
 import { HumanSkill } from "../skill/HumanSkill";
 
 /**
- * Where a strike lands relative to its aim: the author's declared accuracy
- * plus the performer's seeded endpoint scatter.
+ * Where a strike lands relative to its aim: the author's declared accuracy plus
+ * the performer's seeded endpoint scatter.
  *
  * - `hit`: on the aim point; the weapon stops on the first surface it meets.
- * - `graze`: one weapon width beside it; the weapon glances and follows
- *   through.
+ * - `graze`: one weapon width beside it; the weapon glances and follows through.
  * - `miss`: clear of it by two weapon widths and 5 cm; the weapon follows
  *   through.
- * - a vector: that world offset, stopping on whatever it meets.
+ * - A vector: that world offset, stopping on whatever it meets.
  *
- * The scatter is impulse variability, a normal draw with the standard
- * deviation `k D / T` of `HumanSkill.scatter` (Schmidt et al. 1979), shaped
- * by skill: a novice scatters isotropically, an expert keeps the error out
- * of the directions that decide the hit, the lateral share falling to 0.3 of
- * the along-line share on the `path` axis (minimal intervention, Todorov and
- * Jordan 2002; provisional share).
+ * The scatter is impulse variability, a normal draw with the standard deviation
+ * `k D / T` of `HumanSkill.scatter` (Schmidt et al. 1979), shaped by skill: a
+ * novice scatters isotropically, an expert keeps the error out of the
+ * directions that decide the hit, the lateral share falling to 0.3 of the
+ * along-line share on the `path` axis (minimal intervention, Todorov and Jordan
+ * 2002; provisional share).
  */
 export namespace StrikingQuality {
   /**
-   * Half the width of a closed fist, metres: hand breadth is about 0.46 of
-   * hand length in adults (Pheasant and Haslegrave, Bodyspace, 3rd ed., hand
+   * Half the width of a closed fist, metres: hand breadth is about 0.46 of hand
+   * length in adults (Pheasant and Haslegrave, Bodyspace, 3rd ed., hand
    * dimensions: 87 against 189 mm), and the fist is as wide as the hand.
    *
    * @param hand The hand's length, wrist to fingertip, metres.

@@ -1,7 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** The nearest wrist on the circle traced by rotating a palm about its contact normal. */
+/**
+ * The nearest wrist on the circle traced by rotating a palm about its contact
+ * normal.
+ */
 interface ICarriedWristCircle {
   /** Distance from the fixed shoulder to that wrist, metres. */
   distance: number;

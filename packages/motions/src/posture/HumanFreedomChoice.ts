@@ -1,31 +1,40 @@
 import type { IAutoMovieMotionHumanFreedomChoice } from "@automovie/interface";
 
 /**
- * The values of the freedoms a law leaves a held thing's grasp or pose,
- * chosen by what the fitted body makes of them: the one shared chooser of a
- * held tool's pose (`StrikingRoll.chosen`) and of a kept grip on a handle
+ * The values of the freedoms a law leaves a held thing's grasp or pose, chosen
+ * by what the fitted body makes of them: the one shared chooser of a held
+ * tool's pose (`StrikingRoll.chosen`) and of a kept grip on a handle
  * (`pushSled`).
  *
  * A law states a pose by values (a roll about a tool's line, a lean inside a
  * cone, a turn about a round handle, a place along its grip band) and judges
- * each by fitting the body to it and reading how far the fitted hand misses,
- * at one instant or at several, the worst of them counting. The values are
- * tried in the law's order of preference, nearest the asked pose first, and
- * the first held exactly is taken; when none is, the least missed is refined
- * by a pattern search (Hooke and Jeeves 1961) inside each freedom's bounds,
- * or round its period for a wrapped one, and while still none holds exactly
- * the search starts again from each other tried value, least missed first,
- * that no finished search ended within half a step of (a multistart local
- * search, Marti 2003), the budget shared by every start.
+ * each by fitting the body to it and reading how far the fitted hand misses, at
+ * one instant or at several, the worst of them counting. The values are tried
+ * in the law's order of preference, nearest the asked pose first, and the first
+ * held exactly is taken; when none is, the least missed is refined by a pattern
+ * search (Hooke and Jeeves 1961) inside each freedom's bounds, or round its
+ * period for a wrapped one, and while still none holds exactly the search
+ * starts again from each other tried value, least missed first, that no
+ * finished search ended within half a step of (a multistart local search, Marti
+ * 2003), the budget shared by every start.
  */
 export namespace HumanFreedomChoice {
-  /** How near a fitted hand's miss must be to none for a pose to count as held exactly, metres, and the margin a later candidate must win by. */
+  /**
+   * How near a fitted hand's miss must be to none for a pose to count as held
+   * exactly, metres, and the margin a later candidate must win by.
+   */
   export const EXACT: number = 1e-4;
 
-  /** The shares of each freedom's step a refinement takes in turn, halving: the last is an eighth of the first. */
+  /**
+   * The shares of each freedom's step a refinement takes in turn, halving: the
+   * last is an eighth of the first.
+   */
   export const REFINE: readonly number[] = [1, 0.5, 0.25, 0.125];
 
-  /** The most candidates the refinements of one choice judge together, a search budget: each is one posture resolution per instant it is judged at. */
+  /**
+   * The most candidates the refinements of one choice judge together, a search
+   * budget: each is one posture resolution per instant it is judged at.
+   */
   export const FITS: number = 48;
 
   /**
@@ -33,14 +42,15 @@ export namespace HumanFreedomChoice {
    * multiple of a step up to the half turn, the turn toward the hand's own
    * sense before its opposite. A turn about an axis mirrors to the opposite
    * turn about the mirrored axis, so the left hand's sense is the right's
-   * negated: listed in one order for both, the left hand tried the mirror
-   * of `-step` where the right tries `step`, and of two turns that hold
-   * alike the two hands kept turns that are not each other's mirror.
+   * negated: listed in one order for both, the left hand tried the mirror of
+   * `-step` where the right tries `step`, and of two turns that hold alike the
+   * two hands kept turns that are not each other's mirror.
    *
    * @param step The spacing of the turns, degrees, positive and finite.
    * @param side The hand.
    * @returns The turns, degrees, in `(-180, 180]`.
-   * @throws {RangeError} For a step that is not positive, or so fine that the multiples up to the half turn are not a safe integer count.
+   * @throws {RangeError} For a step that is not positive, or so fine that the
+   *   multiples up to the half turn are not a safe integer count.
    */
   export function turns(step: number, side: "left" | "right"): number[] {
     const count: number = Math.floor(180 / step);

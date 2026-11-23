@@ -50,7 +50,10 @@ interface IThrowObjectAim {
   /** The grip point at release, in world metres. */
   release: IAutoMovieVector3;
 
-  /** The optional authored implement used to transfer the grip's motion to the projectile. */
+  /**
+   * The optional authored implement used to transfer the grip's motion to the
+   * projectile.
+   */
   implement: IAutoMovieMotionHumanThrowObjectLever.IImplement | undefined;
 
   /** The released point, its velocity and the grip's share of the launch. */
@@ -59,7 +62,10 @@ interface IThrowObjectAim {
   /** The hand velocity carried through release, in world metres per second. */
   velocity: IAutoMovieVector3;
 
-  /** The acceleration phase duration, in seconds, including the carry to release. */
+  /**
+   * The acceleration phase duration, in seconds, including the carry to
+   * release.
+   */
   accelerate: number;
 
   /** The grip point immediately before the release carry, in world metres. */

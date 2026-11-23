@@ -7,7 +7,10 @@ import type {
 
 import { prepareDanceFootCourse } from "./prepareDanceFootCourse";
 
-/** A foot's offset from its stance over the floor, metres: `x` to the body's left, `z` forward. */
+/**
+ * A foot's offset from its stance over the floor, metres: `x` to the body's
+ * left, `z` forward.
+ */
 interface IOffset {
   /** To the body's left. */
   x: number;
@@ -76,11 +79,12 @@ interface ISteps {
 }
 
 /**
- * Prepare the ordered footfalls and rigid foot courses of a step-touch
- * or box step. Apply an optional waltz turn at each destination beat.
+ * Prepare the ordered footfalls and rigid foot courses of a step-touch or box
+ * step. Apply an optional waltz turn at each destination beat.
  *
  * @param steps The figure, beat times, entry foot anchors and step sizes.
- * @returns Each foot's ordered falls and prepared course for posture and contact planning.
+ * @returns Each foot's ordered falls and prepared course for posture and
+ *   contact planning.
  */
 export function prepareDanceSteps({
   kind,

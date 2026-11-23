@@ -28,14 +28,10 @@ import { HumanGraspUse } from "./HumanGraspUse";
  * line.
  */
 export namespace HumanGraspUsePreparation {
-  /**
-   * The request: `HumanGraspUse.presented`'s props.
-   */
+  /** The request: `HumanGraspUse.presented`'s props. */
   export type IInput = IAutoMovieMotionHumanGraspUse.IPresentedProps;
 
-  /**
-   * The setup a presented key is built from.
-   */
+  /** The setup a presented key is built from. */
   export interface IPrepared {
     /** The request's context. */
     context: IInput["context"];
@@ -49,22 +45,37 @@ export namespace HumanGraspUsePreparation {
     /** The working-point affordance. */
     tip: IAutoMovieAffordance;
 
-    /** The region of the performer's own body the use is at; ahead of the body when absent. */
+    /**
+     * The region of the performer's own body the use is at; ahead of the body
+     * when absent.
+     */
     at: AutoMovieHumanoidRegion | undefined;
 
-    /** The region's point on the entry body, world metres; absent ahead of the body. */
+    /**
+     * The region's point on the entry body, world metres; absent ahead of the
+     * body.
+     */
     site: IAutoMovieVector3 | undefined;
 
-    /** The candidate wrist's rotation turned by the shortest turn onto the asked line. */
+    /**
+     * The candidate wrist's rotation turned by the shortest turn onto the asked
+     * line.
+     */
     laid: IAutoMovieQuaternion;
 
-    /** The grip socket's place ahead of the body (`HumanGraspUse.place`), world metres. */
+    /**
+     * The grip socket's place ahead of the body (`HumanGraspUse.place`), world
+     * metres.
+     */
     ahead: IAutoMovieVector3;
 
     /** The grip socket's offset from the wrist in hand axes, metres. */
     socket: IAutoMovieVector3;
 
-    /** Rotations by degrees about the asked line, or the surface's normal for an `along` use. */
+    /**
+     * Rotations by degrees about the asked line, or the surface's normal for an
+     * `along` use.
+     */
     roll: ReturnType<typeof Quaternion.prepareAxisAngle>;
   }
 
@@ -74,13 +85,21 @@ export namespace HumanGraspUsePreparation {
    * @param props The request.
    * @param closure The prop frame at closure, or the entry frame when absent.
    * @returns The setup.
-   * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop lacks the handle or the working point; a `parameter` refusal on `use` for an `along` or `worn` line with no region of the performer's own.
+   * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop lacks
+   *   the handle or the working point; a `parameter` refusal on `use` for an
+   *   `along` or `worn` line with no region of the performer's own.
    */
-  export function of(props: IInput, closure?: IAutoMovieRigidTransform): IPrepared {
+  export function of(
+    props: IInput,
+    closure?: IAutoMovieRigidTransform,
+  ): IPrepared {
     const context: (typeof props)["context"] = props.context;
     const held: IAutoMovieMotionHumanPropReader = context.prop(props.prop);
-    const world: IAutoMovieRigidTransform = closure ?? held.frame(context.start);
-    const contact: (id: string) => IAutoMovieAffordance | undefined = (id: string): IAutoMovieAffordance | undefined =>
+    const world: IAutoMovieRigidTransform =
+      closure ?? held.frame(context.start);
+    const contact: (id: string) => IAutoMovieAffordance | undefined = (
+      id: string,
+    ): IAutoMovieAffordance | undefined =>
       (held.prop.affordances ?? []).find(
         (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
       );
@@ -134,14 +153,18 @@ export namespace HumanGraspUsePreparation {
     // hand, at the offset it has in the candidate grasp.
     // The entry places only what is read: the arm for the presenting place
     // (`HumanGraspUse.place`) and the region's bone.
-    const region: IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"] | undefined =
+    const region:
+      | IAutoMovieMotionHumanBody["surfaces"]["regions"]["mouth"]
+      | undefined =
       at === undefined ? undefined : context.body.surfaces.regions[at];
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       context.body,
       context.entry.pose,
       undefined,
       new Set<AutoMovieHumanoidBone>([
-        `${props.side}UpperArm`, `${props.side}LowerArm`, `${props.side}Hand`,
+        `${props.side}UpperArm`,
+        `${props.side}LowerArm`,
+        `${props.side}Hand`,
         ...(region === undefined ? [] : [region.bone]),
       ]),
     );
@@ -227,7 +250,17 @@ export namespace HumanGraspUsePreparation {
       "grip",
     ).point;
 
-    return { context, held, world, tip, at, site, laid, ahead, socket,
-      roll: Quaternion.prepareAxisAngle(asked) };
+    return {
+      context,
+      held,
+      world,
+      tip,
+      at,
+      site,
+      laid,
+      ahead,
+      socket,
+      roll: Quaternion.prepareAxisAngle(asked),
+    };
   }
 }

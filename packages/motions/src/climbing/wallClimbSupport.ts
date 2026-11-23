@@ -16,18 +16,19 @@ const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
 
 /**
  * Build the stances for `HumanChain.support` from a route on fixed wall holds.
- * Each stance owns at least three distinct holds. Releasing one foot before
- * the other takes its hold stages a swap without sharing a contact point.
- * Hand targets locate the grip socket and foot targets locate the toes. Quaine and
- * Martin measured the change from four contacts to three in *A biomechanical
- * study of equilibrium in sport rock climbing* (1999, DOI
- * 10.1016/S0966-6362(99)00024-7).
- * The support planner owns contact placement, timing and reach refusals.
- * Finger closure and wall contact forces are outside the point fit.
+ * Each stance owns at least three distinct holds. Releasing one foot before the
+ * other takes its hold stages a swap without sharing a contact point. Hand
+ * targets locate the grip socket and foot targets locate the toes. Quaine and
+ * Martin measured the change from four contacts to three in _A biomechanical
+ * study of equilibrium in sport rock climbing_ (1999, DOI
+ * 10.1016/S0966-6362(99)00024-7). The support planner owns contact placement,
+ * timing and reach refusals. Finger closure and wall contact forces are outside
+ * the point fit.
  *
  * @param route The starting holds and the ordered one-limb changes.
  * @returns The support parameters for the route.
- * @throws {HumanRefusal} If two limbs claim one hold or an explicit release would leave fewer than three assignments.
+ * @throws {HumanRefusal} If two limbs claim one hold or an explicit release
+ *   would leave fewer than three assignments.
  */
 export function wallClimbSupport(
   route: IAutoMovieMotionHumanWallClimb,

@@ -8,8 +8,8 @@ import { minimumJerk } from "@automovie/engine";
 export namespace gestureSignal {
   /**
    * A periodic stroke signal that starts and ends at rest: `sin(2 pi n u)`
-   * under a window easing in over the first and out over the last 15 % of
-   * the stroke, so the hand leaves and rejoins its held goal smoothly.
+   * under a window easing in over the first and out over the last 15 % of the
+   * stroke, so the hand leaves and rejoins its held goal smoothly.
    *
    * @param u Stroke share.
    * @param cycles Cycles.
@@ -34,8 +34,8 @@ export namespace gestureSignal {
   }
 
   /**
-   * A rise held to the end, for a push: minimum-jerk over the first 60 % of
-   * the stroke.
+   * A rise held to the end, for a push: minimum-jerk over the first 60 % of the
+   * stroke.
    *
    * @param u Stroke share.
    * @returns The signal in [0, 1]; 1 from 60 % of the stroke on.

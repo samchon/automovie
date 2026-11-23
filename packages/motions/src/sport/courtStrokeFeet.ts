@@ -55,7 +55,8 @@ interface ISupport {
 
 /**
  * Prepare the two court stroke foot placements and the corresponding
- * ground-support windows. Use the vertical flight curve shared with the pelvis.
+ * ground-support windows. Use the vertical flight curve shared with the
+ * pelvis.
  *
  * @param support Entry and landing anchors, local clock and flight state.
  * @returns Leg rows and their ground contacts in left-to-right order.

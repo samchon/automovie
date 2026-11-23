@@ -11,9 +11,9 @@ import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 
 /**
  * Continue a grounded shoulder exchange into a mat roll as soon as the
- * receiver's seat reaches the floor. The fitted seat and back keys supply
- * the endpoints. The feet finish bearing at the seat and the roll lets the
- * body's changing colliders rest on the mat through the handoff.
+ * receiver's seat reaches the floor. The fitted seat and back keys supply the
+ * endpoints. The feet finish bearing at the seat and the roll lets the body's
+ * changing colliders rest on the mat through the handoff.
  */
 export function grappleMatRoll(
   body: IAutoMovieMotionHumanBody,

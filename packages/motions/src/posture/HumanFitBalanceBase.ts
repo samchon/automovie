@@ -2,16 +2,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
  * The base of support of a balance (`HumanFitBalance`) as half-planes: the
- * convex hull of the bearing points on the floor (Andrew's monotone chain),
- * and the half-planes whose intersection it is, each with the corners it
- * passes through, so a row can move the base with the corners' bones.
+ * convex hull of the bearing points on the floor (Andrew's monotone chain), and
+ * the half-planes whose intersection it is, each with the corners it passes
+ * through, so a row can move the base with the corners' bones.
  */
 export namespace HumanFitBalanceBase {
   /**
-   * Which corners a half-plane passes through: a side of the base (a
-   * polygon's edge or a segment's side) the line through `p` and `q`, a cap
-   * the line across the segment at its end `p` with `q` its other end, a
-   * point's axis half-plane its one corner `p`.
+   * Which corners a half-plane passes through: a side of the base (a polygon's
+   * edge or a segment's side) the line through `p` and `q`, a cap the line
+   * across the segment at its end `p` with `q` its other end, a point's axis
+   * half-plane its one corner `p`.
    */
   export interface IThrough {
     /** The half-plane's kind. */
@@ -28,7 +28,8 @@ export namespace HumanFitBalanceBase {
    * The hull of floor points and its half-planes.
    *
    * @param points The bearing points, world metres; their heights are not read.
-   * @returns The hull's corners, each with the index of the point it is, in hull order, and the half-planes over them.
+   * @returns The hull's corners, each with the index of the point it is, in
+   *   hull order, and the half-planes over them.
    */
   export function of(
     points: readonly IAutoMovieVector3[],
@@ -41,7 +42,10 @@ export namespace HumanFitBalanceBase {
     return { ...halfPlanes(corners), corners };
   }
 
-  /** The unit inward normal of a convex polygon's edge from corner `k` to the next; the monotone chain leaves no edge of zero length. */
+  /**
+   * The unit inward normal of a convex polygon's edge from corner `k` to the
+   * next; the monotone chain leaves no edge of zero length.
+   */
   function inward(
     outline: readonly { x: number; z: number }[],
     k: number,
@@ -61,7 +65,10 @@ export namespace HumanFitBalanceBase {
       : { x: -n.x, z: -n.z };
   }
 
-  /** The same ordered arithmetic mean of corners previously read independently for every edge. */
+  /**
+   * The same ordered arithmetic mean of corners previously read independently
+   * for every edge.
+   */
   function mean(outline: readonly { x: number; z: number }[]): {
     x: number;
     z: number;
@@ -75,7 +82,11 @@ export namespace HumanFitBalanceBase {
     return { x, z };
   }
 
-  /** Andrew's monotone chain on the caller's owned planar projection, sorted in place and traversed in both directions without a reversed copy; the corners kept are the caller's own records. */
+  /**
+   * Andrew's monotone chain on the caller's owned planar projection, sorted in
+   * place and traversed in both directions without a reversed copy; the corners
+   * kept are the caller's own records.
+   */
   function hull<T extends { x: number; z: number }>(points: T[]): T[] {
     const sorted: T[] = points.sort(
       (a: T, b: T): number => a.x - b.x || a.z - b.z,
@@ -108,7 +119,8 @@ export namespace HumanFitBalanceBase {
   }
 
   /**
-   * A corner of the hull: a floor point and the index of the bearing point it projects.
+   * A corner of the hull: a floor point and the index of the bearing point it
+   * projects.
    */
   export interface ICorner {
     /** The floor point's x, world metres. */
@@ -122,7 +134,8 @@ export namespace HumanFitBalanceBase {
   }
 
   /**
-   * A base's half-planes, in one order: each its anchor, its inward normal and the corners it passes through.
+   * A base's half-planes, in one order: each its anchor, its inward normal and
+   * the corners it passes through.
    */
   export interface IPlanes {
     /** A floor point each half-plane passes through, world metres. */
@@ -137,10 +150,10 @@ export namespace HumanFitBalanceBase {
 
   /**
    * The half-planes whose intersection is a convex hull of floor points: a
-   * polygon's edges, each with its inward normal; a segment's two sides,
-   * whose intersection is its line, and an inward cap at each end; a point's
-   * four axis half-planes, which meet only at it. No hull has none but an
-   * empty one, which bears nothing.
+   * polygon's edges, each with its inward normal; a segment's two sides, whose
+   * intersection is its line, and an inward cap at each end; a point's four
+   * axis half-planes, which meet only at it. No hull has none but an empty one,
+   * which bears nothing.
    */
   function halfPlanes(corners: readonly { x: number; z: number }[]): IPlanes {
     if (corners.length === 0) return { anchors: [], normals: [], through: [] };

@@ -16,7 +16,10 @@ interface IFlatHand {
   share: number;
 }
 
-/** A posture at the origin: the thumb's clearance reads only the hand's own frame. */
+/**
+ * A posture at the origin: the thumb's clearance reads only the hand's own
+ * frame.
+ */
 const NEUTRAL: IAutoMovieMotionHumanPosture = {
   root: { x: 0, y: 0, z: 0 },
   yaw: 0,
@@ -26,7 +29,10 @@ const NEUTRAL: IAutoMovieMotionHumanPosture = {
   limbs: {},
 };
 
-/** Each body's flat hands, solved once per side: the thumb's clearance depends only on the hand's own shape. */
+/**
+ * Each body's flat hands, solved once per side: the thumb's clearance depends
+ * only on the hand's own shape.
+ */
 const FLAT_HANDS: WeakMap<
   IAutoMovieMotionHumanBody,
   Partial<Record<AutoMovieHumanSide, IFlatHand>>
@@ -34,9 +40,9 @@ const FLAT_HANDS: WeakMap<
 
 /**
  * A seated hand laid flat by a share: the flat shape with its thumb's
- * metacarpal twisted until the thumb clears the palmar plane
- * (`bendFloorHand`), so a palm laid on a thigh or an armrest does not drive
- * its thumb into it. The twist is solved once per body and side.
+ * metacarpal twisted until the thumb clears the palmar plane (`bendFloorHand`),
+ * so a palm laid on a thigh or an armrest does not drive its thumb into it. The
+ * twist is solved once per body and side.
  *
  * @param body The body.
  * @param posture The posture to write the hand into.

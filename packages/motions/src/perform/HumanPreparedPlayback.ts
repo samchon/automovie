@@ -24,15 +24,18 @@ interface IBinding {
   ready: boolean;
 }
 
-/** Private plan ownership. Entries hold evaluators and phase data, never query results. */
+/**
+ * Private plan ownership. Entries hold evaluators and phase data, never query
+ * results.
+ */
 const bindings: WeakMap<Plan, IBinding> = new WeakMap();
 
 /**
- * Pass a native action's phase evaluators to its display leaf. Public
- * authoring still reads the plan's posture callback. A law supplies its exact
- * event boundaries and owns the mathematics and validity of each evaluator.
- * Display resolves any result that contains authoring alone through its usual
- * stages. An already resolved result can be transferred once to the same leaf.
+ * Pass a native action's phase evaluators to its display leaf. Public authoring
+ * still reads the plan's posture callback. A law supplies its exact event
+ * boundaries and owns the mathematics and validity of each evaluator. Display
+ * resolves any result that contains authoring alone through its usual stages.
+ * An already resolved result can be transferred once to the same leaf.
  */
 export namespace HumanPreparedPlayback {
   /** The native source follows the common interface contract. */
@@ -44,7 +47,10 @@ export namespace HumanPreparedPlayback {
   /** Human posture data returned from the same leaf evaluation. */
   export type ISample = IAutoMovieMotionHumanPlayback.ISample;
 
-  /** Own copies of the phase records in the lifetime of their original native plan. */
+  /**
+   * Own copies of the phase records in the lifetime of their original native
+   * plan.
+   */
   export function attach(
     plan: Plan,
     body: IAutoMovieMotionHumanBody,
@@ -61,7 +67,10 @@ export namespace HumanPreparedPlayback {
     });
   }
 
-  /** Connect placement's existing posture wrapper to this exact native authoring. */
+  /**
+   * Connect placement's existing posture wrapper to this exact native
+   * authoring.
+   */
   export function locate(
     plan: Plan,
     original: Reader,
@@ -77,7 +86,11 @@ export namespace HumanPreparedPlayback {
   /** Enable an event-dependent evaluator after the whole placement has settled. */
   export function prepare(plan: Plan): void {
     const binding: IBinding | undefined = bindings.get(plan);
-    if (binding === undefined || binding.ready || plan.posture !== binding.located)
+    if (
+      binding === undefined ||
+      binding.ready ||
+      plan.posture !== binding.located
+    )
       return;
     binding.source.prepare?.();
     binding.ready = true;
@@ -92,13 +105,13 @@ export namespace HumanPreparedPlayback {
   /** Used by a law's unchanged-input interval declaration after placement. */
   export function owns(plan: Plan, reader: Reader): boolean {
     const binding: IBinding | undefined = bindings.get(plan);
-    return binding !== undefined &&
-      (reader === binding.original || reader === binding.located);
+    return (
+      binding !== undefined &&
+      (reader === binding.original || reader === binding.located)
+    );
   }
 
-  /**
-   * Evaluate the active native phase at its actual local second.
-   */
+  /** Evaluate the active native phase at its actual local second. */
   export function read(
     plan: Plan,
     body: IAutoMovieMotionHumanBody,
@@ -109,7 +122,8 @@ export namespace HumanPreparedPlayback {
     ...args: Parameters<Reader>
   ): ISample | undefined {
     const binding: IBinding | undefined = bindings.get(plan);
-    if (binding === undefined || !binding.ready || binding.body !== body) return undefined;
+    if (binding === undefined || !binding.ready || binding.body !== body)
+      return undefined;
     const placed: boolean = reader === binding.located;
     if (binding.source.mode === "fitted") {
       if (
@@ -117,7 +131,8 @@ export namespace HumanPreparedPlayback {
         (!placed && reader !== binding.original) ||
         !full ||
         !prepareHumanPoseResolution.isNativeSource(args[2])
-      ) return undefined;
+      )
+        return undefined;
     } else if (!placed || (binding.source.mode === "bare-posture" && !bare))
       return undefined;
 
@@ -134,7 +149,9 @@ export namespace HumanPreparedPlayback {
           )
         : phase.sample(...args);
     } catch (error) {
-      throw error instanceof HumanRefusal && placed && binding.where !== undefined
+      throw error instanceof HumanRefusal &&
+        placed &&
+        binding.where !== undefined
         ? error.locate(binding.where)
         : error;
     }

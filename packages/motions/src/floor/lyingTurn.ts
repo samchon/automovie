@@ -11,12 +11,12 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 type Tilt = Pick<IAutoMovieMotionHumanPosture, "yaw" | "pitch" | "roll">;
 
 /**
- * A lying body's turn about its own long axis. A lying body is the supine
- * one, `Ry(yaw) Rx(-90)` (the head toward the heading's back, the chest
- * up), turned by `turn` degrees about its long axis, the root's `+Y`:
- * `Ry(yaw) Rx(-90) Ry(turn)`. At 0 it lies on its back, at 90 on its left
- * side (the chest toward where its left side faced), at 180 or -180 face
- * down and at -90 on its right side; a log roll keeps adding turns.
+ * A lying body's turn about its own long axis. A lying body is the supine one,
+ * `Ry(yaw) Rx(-90)` (the head toward the heading's back, the chest up), turned
+ * by `turn` degrees about its long axis, the root's `+Y`: `Ry(yaw) Rx(-90)
+ * Ry(turn)`. At 0 it lies on its back, at 90 on its left side (the chest toward
+ * where its left side faced), at 180 or -180 face down and at -90 on its right
+ * side; a log roll keeps adding turns.
  */
 export namespace lyingTurn {
   /** A lying heading and turn. */
@@ -24,12 +24,17 @@ export namespace lyingTurn {
     /** The supine heading, degrees: the head toward its back. */
     yaw: number;
 
-    /** The turn about the long axis, degrees: 0 supine, 90 on the left side, 180 prone, -90 on the right side. */
+    /**
+     * The turn about the long axis, degrees: 0 supine, 90 on the left side, 180
+     * prone, -90 on the right side.
+     */
     turn: number;
   }
 
   /** The named lying positions' turns, degrees. */
-  export const TURNS: Readonly<Record<"supine" | "lateralLeft" | "prone" | "lateralRight", number>> = {
+  export const TURNS: Readonly<
+    Record<"supine" | "lateralLeft" | "prone" | "lateralRight", number>
+  > = {
     supine: 0,
     lateralLeft: 90,
     prone: 180,
@@ -44,8 +49,16 @@ export namespace lyingTurn {
    */
   export function of(posture: Tilt): ITurn {
     const rotation: IAutoMovieQuaternion = resolveHumanPosture.heading(posture);
-    const head: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });
-    const chest: IAutoMovieVector3 = Quaternion.rotateVector(rotation, { x: 0, y: 0, z: 1 });
+    const head: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 1,
+      z: 0,
+    });
+    const chest: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+      x: 0,
+      y: 0,
+      z: 1,
+    });
     const yaw: number = (Math.atan2(-head.x, -head.z) * 180) / Math.PI;
     const left: IAutoMovieVector3 = {
       x: Math.cos((yaw * Math.PI) / 180),

@@ -18,19 +18,20 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { standRelaxed } from "./standRelaxed";
 
 /**
- * The relaxed hanging arms of a body over the stance it actually stands in:
- * the quiet stance's relaxed arms (`standRelaxed`), each shoulder abducted
- * further by the least angle that leaves that hand's digits clear of the
- * body in this stance. The relaxed arm's rule is the least abduction that
- * hangs the hand beside the thigh with its digits clear; a stance whose
- * thighs lie elsewhere than the quiet stance's (a fighting stance's
- * staggered feet, a wide stance) moves the thigh under the hand, so the rule
- * is read again on the thighs as they stand. An arm already clear keeps the
- * quiet abduction, so a stance near the quiet one hangs its arms as every
- * other stand does.
+ * The relaxed hanging arms of a body over the stance it actually stands in: the
+ * quiet stance's relaxed arms (`standRelaxed`), each shoulder abducted further
+ * by the least angle that leaves that hand's digits clear of the body in this
+ * stance. The relaxed arm's rule is the least abduction that hangs the hand
+ * beside the thigh with its digits clear; a stance whose thighs lie elsewhere
+ * than the quiet stance's (a fighting stance's staggered feet, a wide stance)
+ * moves the thigh under the hand, so the rule is read again on the thighs as
+ * they stand. An arm already clear keeps the quiet abduction, so a stance near
+ * the quiet one hangs its arms as every other stand does.
  *
  * @param body The body.
- * @param stances The standing postures the arms hang in, clear of every one (a stand's entry and settled stances, the ends of its settle); their own arm and digit angles are replaced.
+ * @param stances The standing postures the arms hang in, clear of every one (a
+ *   stand's entry and settled stances, the ends of its settle); their own arm
+ *   and digit angles are replaced.
  * @returns The two arms' and hands' clinical angles.
  * @throws {Error} When the shoulder has no abduction range.
  */
@@ -78,14 +79,22 @@ export function standClearArms(
   return out;
 }
 
-/** Whether a side's hand, hung at an abduction, sinks its digits into the body in one stance. */
+/**
+ * Whether a side's hand, hung at an abduction, sinks its digits into the body
+ * in one stance.
+ */
 type Sinks = (side: AutoMovieHumanSide, abduction: number) => boolean;
 
-/** The digit-depth reader of one stance: resolved once, a candidate re-clamping one upper arm's record. */
+/**
+ * The digit-depth reader of one stance: resolved once, a candidate re-clamping
+ * one upper arm's record.
+ */
 function sinking(
   body: IAutoMovieMotionHumanBody,
   stance: IAutoMovieMotionHumanPosture,
-  quiet: Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>,
+  quiet: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  >,
   prepared: ReturnType<typeof prepareHumanPoseResolution>,
   projection: ReturnType<typeof prepareHumanPostureProjection>,
   clampJoint: ReturnType<typeof prepareHumanPostureProjection.joints>,
@@ -120,7 +129,10 @@ function sinking(
   // A candidate differs from the resolved stance in one upper arm's direct
   // record; without the projector's one-joint owner the whole stance
   // resolves again.
-  const posed = (side: AutoMovieHumanSide, abduction: number): IAutoMoviePose => {
+  const posed = (
+    side: AutoMovieHumanSide,
+    abduction: number,
+  ): IAutoMoviePose => {
     const bone: AutoMovieHumanoidBone = `${side}UpperArm`;
     if (clampJoint !== undefined)
       return {

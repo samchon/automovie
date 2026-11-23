@@ -32,12 +32,11 @@ import type { strikingStepSupport } from "./strikingStepSupport";
  * Builds a kick's geometry.
  *
  * The contact is decided first, at the launch ({@link KickLaunch}), on the
- * figure itself ({@link KickContact}):
- * the carriage under which the fitted leg lands its weapon on the planned
- * point with the support foot on its plant. The displayed contact goal is
- * then that fitted leg (its ankle, its knee and its foot rotation), so the
- * figure shows exactly what was judged, and the chamber is the same leg with
- * the knee folded ({@link KickChamber}).
+ * figure itself ({@link KickContact}): the carriage under which the fitted leg
+ * lands its weapon on the planned point with the support foot on its plant. The
+ * displayed contact goal is then that fitted leg (its ankle, its knee and its
+ * foot rotation), so the figure shows exactly what was judged, and the chamber
+ * is the same leg with the knee folded ({@link KickChamber}).
  *
  * Between its plant, the chamber and the contact the leg travels on the path
  * {@link KickSwing} carries with the pelvis. Each online correction of the
@@ -51,8 +50,10 @@ export namespace KickGeometry {
    * @param context The kick's context, its entry being the kick's own start.
    * @param timing The kick's timing.
    * @param t0 Film second of the kick's time zero.
-   * @param fixed The contact second the performance committed: null when the leg met nothing, undefined when the kick offers no weapon.
-   * @param launch What the kick fixed at its launch (`KickLaunch`): its line, its seeded miss, its carriage inputs and its contact.
+   * @param fixed The contact second the performance committed: null when the
+   *   leg met nothing, undefined when the kick offers no weapon.
+   * @param launch What the kick fixed at its launch (`KickLaunch`): its line,
+   *   its seeded miss, its carriage inputs and its contact.
    * @returns The geometry.
    */
   export function build(
@@ -166,17 +167,16 @@ export namespace KickGeometry {
   /**
    * Assemble the posture from the body, the kicking leg and the guard.
    *
-   * When the leg meets a surface, the whole striking chain (the pelvis's
-   * turn and lean, and the leg under it) holds for the dwell and then
-   * withdraws along the way it came: the kick's own approach played
-   * backwards from the stop to its start on a minimum-jerk clock, so it
-   * leaves at rest and arrives at rest. Every configuration of the approach
-   * up to the stop was clear of the body it met (the stop is the first
-   * contact), so retracing it never passes the knee or the shin through that
-   * body, wherever the contact was. The support foot's step-up stops where
-   * the contact found it, so the retraced body stands on the same foot it
-   * approached on, and the kicking foot replants by the share of the step
-   * the support foot had made.
+   * When the leg meets a surface, the whole striking chain (the pelvis's turn
+   * and lean, and the leg under it) holds for the dwell and then withdraws
+   * along the way it came: the kick's own approach played backwards from the
+   * stop to its start on a minimum-jerk clock, so it leaves at rest and arrives
+   * at rest. Every configuration of the approach up to the stop was clear of
+   * the body it met (the stop is the first contact), so retracing it never
+   * passes the knee or the shin through that body, wherever the contact was.
+   * The support foot's step-up stops where the contact found it, so the
+   * retraced body stands on the same foot it approached on, and the kicking
+   * foot replants by the share of the step the support foot had made.
    *
    * @param body The kicking body.
    * @param timing The kick's timing.
@@ -331,11 +331,11 @@ export namespace KickGeometry {
   }
 
   /**
-   * The feet's contact windows, as shares of the kick's duration: the
-   * kicking foot is planted until the launch and at the replant, and the
-   * support foot pivots on its ball throughout, except while it slides a
-   * step (up or back) between the launch and the chamber key, when it bears
-   * the body as it slides (a `bear` window).
+   * The feet's contact windows, as shares of the kick's duration: the kicking
+   * foot is planted until the launch and at the replant, and the support foot
+   * pivots on its ball throughout, except while it slides a step (up or back)
+   * between the launch and the chamber key, when it bears the body as it slides
+   * (a `bear` window).
    */
   function windows(
     timing: IAutoMovieMotionHumanKickGeometry.ITiming,

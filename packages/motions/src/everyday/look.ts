@@ -24,29 +24,27 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
 
 /**
- * Standing and turning the eyes, head and trunk to a target, either at once
- * or, when cued by something seen or heard, after a seeded reaction time:
- * the orienting response of a bystander.
+ * Standing and turning the eyes, head and trunk to a target, either at once or,
+ * when cued by something seen or heard, after a seeded reaction time: the
+ * orienting response of a bystander.
  *
- * The feet stay planted where they are (the stand law places the body), and
- * the gaze goal is the eyes' lines on the target, recruited eyes, head and
- * trunk in that order ({@link HumanGaze}); the target is tracked while the
- * action lasts. Use the gaze layer to look while doing something else; this
- * action is for a gaze that is the whole performance or that must turn the
- * trunk.
+ * The feet stay planted where they are (the stand law places the body), and the
+ * gaze goal is the eyes' lines on the target, recruited eyes, head and trunk in
+ * that order ({@link HumanGaze}); the target is tracked while the action lasts.
+ * Use the gaze layer to look while doing something else; this action is for a
+ * gaze that is the whole performance or that must turn the trunk.
  *
- * An uncued look at a target outside the 120 degree field the performer
- * attends ahead (60 degrees either side of the heading) is refused: nothing
- * there could have drawn the look, so the author declares the cue. A cue
- * delays the shift by a simple reaction time drawn from an ex-Gaussian, the
- * distribution simple reaction times follow (Hohle 1965, J Exp Psychol
- * 69:382): a visual cue `seen` with mu, sigma and tau of 260, 35 and 70 ms
- * for a novice to 220, 25 and 40 ms for an elite on the `reaction` axis, and
- * an acoustic `signal` 40 ms faster in mu, since simple auditory reaction is
- * faster than visual by a few tens of milliseconds (Welford 1980, Reaction
- * Times). The values are provisional: they place the mean inside the 200 to
- * 300 ms of simple visual reaction in adults, and no study located measures
- * orienting onset by skill.
+ * An uncued look at a target outside the 120 degree field the performer attends
+ * ahead (60 degrees either side of the heading) is refused: nothing there could
+ * have drawn the look, so the author declares the cue. A cue delays the shift
+ * by a simple reaction time drawn from an ex-Gaussian, the distribution simple
+ * reaction times follow (Hohle 1965, J Exp Psychol 69:382): a visual cue `seen`
+ * with mu, sigma and tau of 260, 35 and 70 ms for a novice to 220, 25 and 40 ms
+ * for an elite on the `reaction` axis, and an acoustic `signal` 40 ms faster in
+ * mu, since simple auditory reaction is faster than visual by a few tens of
+ * milliseconds (Welford 1980, Reaction Times). The values are provisional: they
+ * place the mean inside the 200 to 300 ms of simple visual reaction in adults,
+ * and no study located measures orienting onset by skill.
  *
  * Events: `gazeOn`, when the eyes reach the target, and `settled`, when the
  * head and trunk end their turn.
@@ -55,7 +53,10 @@ export namespace look {
   /** The action's name. */
   export const name: AutoMovieMotionHumanActionName = "look";
 
-  /** Cancel table: a look holds no contact beyond the stand, so it can be cut anywhere. */
+  /**
+   * Cancel table: a look holds no contact beyond the stand, so it can be cut
+   * anywhere.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
     walk: [
@@ -69,7 +70,10 @@ export namespace look {
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A look may be performed over a carrier: it claims the head, and the trunk when the shift recruits it. */
+  /**
+   * A look may be performed over a carrier: it claims the head, and the trunk
+   * when the shift recruits it.
+   */
   export const overlay: boolean = true;
 
   /** Half the attended field ahead, degrees. */
@@ -77,13 +81,13 @@ export namespace look {
 
   /**
    * Plan a look: refuse an uncued target outside the attended field, draw a
-   * cued look's reaction time, split the gaze shift over eyes, head and
-   * trunk, time each part, and return standing postures aimed at the tracked
-   * target.
+   * cued look's reaction time, split the gaze shift over eyes, head and trunk,
+   * time each part, and return standing postures aimed at the tracked target.
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} When an uncued target lies outside the attended field, or the duration is not positive.
+   * @throws {HumanRefusal} When an uncued target lies outside the attended
+   *   field, or the duration is not positive.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLook.IParams>,
@@ -230,7 +234,6 @@ export namespace look {
    * @param random The stream; reads indices 0 to 2.
    * @param cue Visual or acoustic.
    * @returns Seconds; at least 0.1.
-   *
    * @evidence contracts/development/common.md#meaningful-documentation States the distribution, the skill scaling, the stream indices read, the unit and the floor.
    * @evidence contracts/development/implementation.md#principled-implementation Draws an ex-Gaussian, the distribution simple reaction times follow (Hohle 1965): a normal from HumanSkill.normal plus an inverse-transform exponential, with mu, sigma and tau interpolated on the `reaction` axis and mu 40 ms lower for an acoustic cue (Welford 1980).
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure draw from the caller's seeded stream, kept apart from the plan that uses it.
@@ -251,10 +254,9 @@ export namespace look {
   }
 
   /**
-   * The ex-Gaussian parameters of an orienting reaction, seconds: mu 0.26 s
-   * to 0.22 s, sigma 35 ms to 25 ms and tau 70 ms to 40 ms on the
-   * `reaction` axis (provisional), mu 40 ms lower for an acoustic cue
-   * (Welford 1980).
+   * The ex-Gaussian parameters of an orienting reaction, seconds: mu 0.26 s to
+   * 0.22 s, sigma 35 ms to 25 ms and tau 70 ms to 40 ms on the `reaction` axis
+   * (provisional), mu 40 ms lower for an acoustic cue (Welford 1980).
    *
    * @param skill The skill; its `reaction` axis scales the parameters.
    * @param cue Visual or acoustic.

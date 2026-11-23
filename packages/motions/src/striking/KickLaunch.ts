@@ -30,31 +30,27 @@ import { strikingStepSupport } from "./strikingStepSupport";
  * What a kick fixes when it is launched: the point it aims at as the kicker
  * perceives it then, the line, the travel and the pelvis's turn that point
  * gives, the seeded miss, the carriage's inputs, and the launch's contact,
- * decided on the fitted figure (`KickContact`) with the chamber folded from
- * it and the leg's path.
+ * decided on the fitted figure (`KickContact`) with the chamber folded from it
+ * and the leg's path.
  *
  * A kick's geometry is built again whenever the performance settles (another
- * action was placed, a stop was committed): three or four times a kick. Of
- * what it holds, only the tracker of the aim, the corrections' contacts and
- * the committed stop follow what settled; the launch follows the one reading
- * the kicker made before its start. So the launch is its own record, made
- * once for the plan, and a geometry is built on it. A settle that shows the
- * partner elsewhere at the launch's own reading (a stop committed on an
- * earlier action of theirs) gives a launch that reads differently, and only
- * then is it made again.
+ * action was placed, a stop was committed): three or four times a kick. Of what
+ * it holds, only the tracker of the aim, the corrections' contacts and the
+ * committed stop follow what settled; the launch follows the one reading the
+ * kicker made before its start. So the launch is its own record, made once for
+ * the plan, and a geometry is built on it. A settle that shows the partner
+ * elsewhere at the launch's own reading (a stop committed on an earlier action
+ * of theirs) gives a launch that reads differently, and only then is it made
+ * again.
  */
 export namespace KickLaunch {
-  /**
-   * One goal's plan with the leg its contact fitted.
-   */
+  /** One goal's plan with the leg its contact fitted. */
   export interface IPlanned extends KickPlans.IPlan {
     /** The fitted contact leg. */
     fit: KickChain.IFit;
   }
 
-  /**
-   * A kick's launch.
-   */
+  /** A kick's launch. */
   export interface ILaunch {
     /** The target's point at a film second, as the kicker reads it. */
     aim: (seconds: number) => IAutoMovieVector3;
@@ -62,13 +58,19 @@ export namespace KickLaunch {
     /** The point aimed at when the kick is launched, world metres. */
     first: IAutoMovieVector3;
 
-    /** The goal predicted at the launch with the seeded miss, world metres: the tracker's planned goal. */
+    /**
+     * The goal predicted at the launch with the seeded miss, world metres: the
+     * tracker's planned goal.
+     */
     planned: IAutoMovieVector3;
 
     /** The horizontal unit line toward the target. */
     line: IAutoMovieVector3;
 
-    /** What a redirect kept of its source when the launch was made; absent for a fresh kick. */
+    /**
+     * What a redirect kept of its source when the launch was made; absent for a
+     * fresh kick.
+     */
     kept: IAutoMovieMotionHumanKickGeometry.IKept | undefined;
 
     /** The seeded miss added to the aim, world metres. */
@@ -83,7 +85,12 @@ export namespace KickLaunch {
     /** Whether the kick is a feint. */
     feint: boolean;
 
-    /** Solve a contact for a goal on this launch's line, with a decided step (metres), a lean tried first (degrees), the pelvis drive a decided step goes with (metres) and a chamber flexion in place of the skill's (degrees) when given. */
+    /**
+     * Solve a contact for a goal on this launch's line, with a decided step
+     * (metres), a lean tried first (degrees), the pelvis drive a decided step
+     * goes with (metres) and a chamber flexion in place of the skill's
+     * (degrees) when given.
+     */
     contact: (
       goal: IAutoMovieVector3,
       decided: number | undefined,
@@ -92,7 +99,10 @@ export namespace KickLaunch {
       chamber?: number,
     ) => IPlanned;
 
-    /** The chamber's knee flexion when the launch's clearing decided it, degrees (`KickClear`); the skill's own when absent. */
+    /**
+     * The chamber's knee flexion when the launch's clearing decided it, degrees
+     * (`KickClear`); the skill's own when absent.
+     */
     chamber?: number;
 
     /** The launch's own contact, which decides the step. */
@@ -105,7 +115,8 @@ export namespace KickLaunch {
    * @param context The kick's context, its entry being the kick's own start.
    * @param timing The kick's timing.
    * @param t0 Film second of the kick's time zero.
-   * @param kept What a redirect keeps of its source; a fresh kick reads its own line and steps up when short.
+   * @param kept What a redirect keeps of its source; a fresh kick reads its own
+   *   line and steps up when short.
    * @param before The launch this plan made before, when it has one.
    * @returns The launch.
    */
@@ -335,7 +346,10 @@ export namespace KickLaunch {
     return a.x === b.x && a.y === b.y && a.z === b.z;
   }
 
-  /** The height band of a target point against a body's own heights, the floor at zero. */
+  /**
+   * The height band of a target point against a body's own heights, the floor
+   * at zero.
+   */
   function band(
     body: IAutoMovieMotionHumanBody,
     point: IAutoMovieVector3,

@@ -16,21 +16,19 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * A ride's hands that take none of its grips (`HumanRide`): an arm its seated
- * entry poses by its joints, which the trunk carries, and an arm that keeps
- * a held prop where the entry displays it (`HeldRideArms`), which the
- * support carries. An equestrian articulation bends the trunk over the
- * pelvis and tips the pelvis with the stride (the jump's two-point flexes
- * the spine and chest forward while the seat lifts), so a hand the chest
- * carries swings back and down into the thigh it rested on, and a hand the
- * saddle carries is left behind by the trunk it hangs from. Under an
- * articulation both ride the pelvis instead: the wrist, its turn and the
- * elbow keep the places they had in the seated posture's root frame,
- * carried by the posture's root and heading at each second.
+ * entry poses by its joints, which the trunk carries, and an arm that keeps a
+ * held prop where the entry displays it (`HeldRideArms`), which the support
+ * carries. An equestrian articulation bends the trunk over the pelvis and tips
+ * the pelvis with the stride (the jump's two-point flexes the spine and chest
+ * forward while the seat lifts), so a hand the chest carries swings back and
+ * down into the thigh it rested on, and a hand the saddle carries is left
+ * behind by the trunk it hangs from. Under an articulation both ride the pelvis
+ * instead: the wrist, its turn and the elbow keep the places they had in the
+ * seated posture's root frame, carried by the posture's root and heading at
+ * each second.
  */
 export namespace RideRestingHands {
-  /**
-   * A resting hand's wrist in the seated posture's root frame.
-   */
+  /** A resting hand's wrist in the seated posture's root frame. */
   export interface IRest {
     /** The wrist from the seated root, in the seated heading's frame, metres. */
     offset: IAutoMovieVector3;
@@ -38,7 +36,11 @@ export namespace RideRestingHands {
     /** The hand's rotation in the seated heading's frame. */
     turn: IAutoMovieQuaternion;
 
-    /** The elbow from the seated root, in the seated heading's frame, metres: the arm's bend hint, so the arm keeps the side its elbow was displayed on. */
+    /**
+     * The elbow from the seated root, in the seated heading's frame, metres:
+     * the arm's bend hint, so the arm keeps the side its elbow was displayed
+     * on.
+     */
     elbow: IAutoMovieVector3;
   }
 
@@ -52,7 +54,8 @@ export namespace RideRestingHands {
    * @param seated The seated posture the ride is entered with.
    * @param entry The pose displayed at the entry.
    * @param sides The hands that take no grip of the ride.
-   * @returns Each such hand's wrist and elbow in the seated root frame; none for no side.
+   * @returns Each such hand's wrist and elbow in the seated root frame; none
+   *   for no side.
    */
   export function of(
     body: IAutoMovieMotionHumanBody,
@@ -61,20 +64,17 @@ export namespace RideRestingHands {
     sides: readonly AutoMovieHumanSide[],
   ): Rests {
     if (sides.length === 0) return {};
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(
-        body,
-        entry,
-        undefined,
-        new Set<AutoMovieHumanoidBone>(
-          sides.flatMap(
-            (side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
-              `${side}LowerArm`,
-              `${side}Hand`,
-            ],
-          ),
-        ),
-      );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      entry,
+      undefined,
+      new Set<AutoMovieHumanoidBone>(
+        sides.flatMap((side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
+          `${side}LowerArm`,
+          `${side}Hand`,
+        ]),
+      ),
+    );
     const back: IAutoMovieQuaternion = Quaternion.inverse(
       resolveHumanPosture.heading(seated),
     );
@@ -93,8 +93,8 @@ export namespace RideRestingHands {
   }
 
   /**
-   * A resting hand's arm goal on a posture: its wrist, its turn and its
-   * elbow carried by the posture's root and heading.
+   * A resting hand's arm goal on a posture: its wrist, its turn and its elbow
+   * carried by the posture's root and heading.
    *
    * @param rest The hand's wrist and elbow in the seated root frame.
    * @param posture The ride's posture at the second, articulated.

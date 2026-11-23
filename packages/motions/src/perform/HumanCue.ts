@@ -4,28 +4,31 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Cue tracks: the named instants for speech, music and staged actions,
- * to sync to and cut on (`HumanPerformance.IInput.cues`).
+ * Cue tracks: the named instants for speech, music and staged actions, to sync
+ * to and cut on (`HumanPerformance.IInput.cues`).
  *
- * The screenplay and the score decide these instants; nothing here listens
- * to audio or guesses a stress. A track is a list of named film seconds, so
- * a production may also write one by hand for anything else that happens at
- * a known time.
+ * The screenplay and the score decide these instants; nothing here listens to
+ * audio or guesses a stress. A track is a list of named film seconds, so a
+ * production may also write one by hand for anything else that happens at a
+ * known time.
  */
 export namespace HumanCue {
   /**
    * Emit one `section` cue per authored section, addressed by its zero-based
-   * index. Sections may share an authored film second. With path distances,
-   * a section responds at `from + distance / speed`.
+   * index. Sections may share an authored film second. With path distances, a
+   * section responds at `from + distance / speed`.
    *
-   * A stadium wave passes from section to section
-   * ([Farkas, Helbing and Vicsek, 2002](https://doi.org/10.1038/419131a)).
-   * Commencement can cue several sections together
-   * ([Penn's ceremony instructions](https://commencement.upenn.edu/graduates)).
+   * A stadium wave passes from section to section ([Farkas, Helbing and Vicsek,
+   * 2002](https://doi.org/10.1038/419131a)). Commencement can cue several
+   * sections together ([Penn's ceremony
+   * instructions](https://commencement.upenn.edu/graduates)).
    *
-   * @param wave The sections' film seconds or their distances, origin second and speed.
+   * @param wave The sections' film seconds or their distances, origin second
+   *   and speed.
    * @returns A cue track ready for `HumanPerformance` or the schedule resolver.
-   * @throws {Error} If timing sources conflict, the list is empty, values are outside the documented ranges, or computed seconds are nonfinite or fail to advance at distinct distances.
+   * @throws {Error} If timing sources conflict, the list is empty, values are
+   *   outside the documented ranges, or computed seconds are nonfinite or fail
+   *   to advance at distinct distances.
    */
   export function sectionWave(
     wave: IAutoMovieMotionHumanCue.ISectionWave,
@@ -82,16 +85,18 @@ export namespace HumanCue {
   }
 
   /**
-   * A command track: for each order its preparatory word `${word}Caution`
-   * (when it has one) and its word of execution `${word}`, in film order, as
-   * drill gives a command in two parts (US Army TC 3-21.5: the preparatory
-   * command and the command of execution). An action synced to a word with
-   * `latency: "reaction"` is warned when its preparatory word is on the
-   * track. The words' seconds are the screenplay's.
+   * A command track: for each order its preparatory word `${word}Caution` (when
+   * it has one) and its word of execution `${word}`, in film order, as drill
+   * gives a command in two parts (US Army TC 3-21.5: the preparatory command
+   * and the command of execution). An action synced to a word with `latency:
+   * "reaction"` is warned when its preparatory word is on the track. The words'
+   * seconds are the screenplay's.
    *
    * @param orders The commands, in the order given.
    * @returns The track.
-   * @throws {Error} When a second is not finite, a caution is not positive, a preparatory word falls before the film, or one falls at or before an earlier command's word of execution, naming both words.
+   * @throws {Error} When a second is not finite, a caution is not positive, a
+   *   preparatory word falls before the film, or one falls at or before an
+   *   earlier command's word of execution, naming both words.
    */
   export function orders(
     orders: readonly IAutoMovieMotionHumanCue.IOrder[],
@@ -140,10 +145,10 @@ export namespace HumanCue {
   }
 
   /**
-   * A cue track from published instants, read structurally from anything
-   * that publishes them (an archetype ride's footfalls and gait changes), so
-   * a rider, a squadron's riders or a dancer read a support's or a band's
-   * events without this package importing what publishes them.
+   * A cue track from published instants, read structurally from anything that
+   * publishes them (an archetype ride's footfalls and gait changes), so a
+   * rider, a squadron's riders or a dancer read a support's or a band's events
+   * without this package importing what publishes them.
    *
    * @param source What publishes the instants.
    * @param names The labels to keep; every label when absent.
@@ -168,12 +173,13 @@ export namespace HumanCue {
 
   /**
    * A beat track: `beat` at every beat and `downbeat` at the first beat of
-   * every bar, so `{ event: "beat", index: 5 }` is the sixth beat and
-   * `{ event: "downbeat", index: 1 }` the start of the second bar.
+   * every bar, so `{ event: "beat", index: 5 }` is the sixth beat and `{ event:
+   * "downbeat", index: 1 }` the start of the second bar.
    *
    * @param beats The tempo, the first beat, the count and the meter.
    * @returns The track.
-   * @throws {Error} When the tempo is not positive, or the count or the meter is not a positive whole number.
+   * @throws {Error} When the tempo is not positive, or the count or the meter
+   *   is not a positive whole number.
    */
   export function beats(
     beats: IAutoMovieMotionHumanCue.IBeats,
@@ -198,13 +204,14 @@ export namespace HumanCue {
 
   /**
    * A dialogue track: for each line `lineStart`, its `accent`s and
-   * `phraseEnd`s, and `lineEnd`, in film order across the lines, so
-   * `{ event: "accent", index: 3 }` is the fourth stressed syllable of the
-   * scene and `{ event: "lineEnd", index: 0 }` the end of the first line.
+   * `phraseEnd`s, and `lineEnd`, in film order across the lines, so `{ event:
+   * "accent", index: 3 }` is the fourth stressed syllable of the scene and `{
+   * event: "lineEnd", index: 0 }` the end of the first line.
    *
    * @param lines The lines, in the order spoken.
    * @returns The track.
-   * @throws {Error} When a line ends before it starts, or an accent or a phrase end lies outside its line.
+   * @throws {Error} When a line ends before it starts, or an accent or a phrase
+   *   end lies outside its line.
    */
   export function dialogue(
     lines: readonly IAutoMovieMotionHumanCue.ILine[],

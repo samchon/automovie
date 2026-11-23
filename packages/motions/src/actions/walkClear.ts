@@ -11,17 +11,18 @@ import { HumanObstacle } from "../perform/HumanObstacle";
 
 /**
  * Refuses a walked way that goes through something solid: a wall with no
- * opening on the way, an opening narrower than the walker's shoulders or
- * one lower than the walker stands.
+ * opening on the way, an opening narrower than the walker's shoulders or one
+ * lower than the walker stands.
  *
- * A walker takes the breadth of the chest and the height of the stature.
- * Each straight stretch of the way, from the start by the places passed to
- * the end, is asked of the performance's obstacles
- * (`HumanObstacle.blocking`), and the first that is blocked is refused with
- * the obstacle, where the way meets it, why, and what would pass: the
- * obstacle's openings for a solid, or the measure the opening would need.
+ * A walker takes the breadth of the chest and the height of the stature. Each
+ * straight stretch of the way, from the start by the places passed to the end,
+ * is asked of the performance's obstacles (`HumanObstacle.blocking`), and the
+ * first that is blocked is refused with the obstacle, where the way meets it,
+ * why, and what would pass: the obstacle's openings for a solid, or the measure
+ * the opening would need.
  *
- * @param context The walk's context: the walker, where it stands, the places it passes and its end.
+ * @param context The walk's context: the walker, where it stands, the places it
+ *   passes and its end.
  * @throws {HumanRefusal} A `reach` refusal on `path` when a stretch is blocked.
  */
 export function walkClear(
@@ -84,20 +85,18 @@ export function walkClear(
   }
 }
 
-/**
- * Companion check of {@link walkClear}.
- */
+/** Companion check of {@link walkClear}. */
 export namespace walkClear {
   /**
-   * Refuses a place to stand by a person when something solid lies between
-   * the two: a walker escorting, following or meeting someone ends on their
-   * side of a wall, not across it.
+   * Refuses a place to stand by a person when something solid lies between the
+   * two: a walker escorting, following or meeting someone ends on their side of
+   * a wall, not across it.
    *
    * @param context The action's context.
    * @param place Where the walker would stand, world metres.
    * @param person Where the person is, world metres.
-   * @throws {HumanRefusal} A `reach` refusal on `path` naming the obstacle between them.
-   *
+   * @throws {HumanRefusal} A `reach` refusal on `path` naming the obstacle
+   *   between them.
    * @evidence contracts/development/common.md#meaningful-documentation States the rule and the refusal.
    * @evidence contracts/development/implementation.md#principled-implementation The stretch between the two is asked of the performance's obstacles as a body's own passage would be, so an open door wide and high enough for the walker does not count as a wall between them.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One question, one refusal.

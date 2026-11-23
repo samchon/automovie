@@ -5,15 +5,15 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Whether an arm is the last limb a posture's solve fits and fits alone:
- * the other arm has no goal and no leg's goal rides a bone of this arm.
+ * Whether an arm is the last limb a posture's solve fits and fits alone: the
+ * other arm has no goal and no leg's goal rides a bone of this arm.
  *
  * The posture's solve fits the legs first and the arms after them, so under
- * this condition nothing is fitted after this arm and nothing fitted before
- * it reads it. The rest of the body is then the same whatever this arm's
- * goal, and fitting the arm alone on the posture's pose without it gives
- * the arm the posture's own solve gives. A search over one posture poses
- * that base once and fits each candidate's arm on it.
+ * this condition nothing is fitted after this arm and nothing fitted before it
+ * reads it. The rest of the body is then the same whatever this arm's goal, and
+ * fitting the arm alone on the posture's pose without it gives the arm the
+ * posture's own solve gives. A search over one posture poses that base once and
+ * fits each candidate's arm on it.
  *
  * @param limbs The posture's limb goals; this arm's own goal is not read.
  * @param side The arm.

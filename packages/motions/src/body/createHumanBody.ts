@@ -30,7 +30,11 @@ import { humanSettledJoints } from "../posture/humanSettledJoints";
  *
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
- * @returns The body with its measure, surfaces, topology, rest joints, bone records by name and immutable canonical FK preparation. The bone-local mass model, the quiet-stance alignment, collider placement, hull faces and each side's hanging arm are prepared by their actual first queries. Recreate it after editing the input rig or profile.
+ * @returns The body with its measure, surfaces, topology, rest joints, bone
+ *   records by name and immutable canonical FK preparation. The bone-local mass
+ *   model, the quiet-stance alignment, collider placement, hull faces and each
+ *   side's hanging arm are prepared by their actual first queries. Recreate it
+ *   after editing the input rig or profile.
  */
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
@@ -190,11 +194,12 @@ interface IReader {
   key: string;
   value: unknown;
 }
-/**
- * Identify bodies whose factory-installed readers can be used by native motion.
- */
+/** Identify bodies whose factory-installed readers can be used by native motion. */
 export namespace createHumanBody {
-  /** Whether this body's original FK, projection, hanging and limb readers are still installed. */
+  /**
+   * Whether this body's original FK, projection, hanging and limb readers are
+   * still installed.
+   */
   export function owns(body: IAutoMovieMotionHumanBody): boolean {
     const readers: readonly IReader[] | undefined = NATIVE_READERS.get(body);
     return (
@@ -208,8 +213,8 @@ export namespace createHumanBody {
   }
 
   /**
-   * Read the two current scalar measures the ordinary Bend candidate scorer uses.
-   *
+   * Read the two current scalar measures the ordinary Bend candidate scorer
+   * uses.
    */
   export function bendMeasure(
     body: IAutoMovieMotionHumanBody,

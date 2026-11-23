@@ -1,11 +1,11 @@
 import type { IAutoMovieMotionHumanGait } from "@automovie/interface";
 
 /**
- * The follow preset: come up behind the person (`from: "behind"`) to the
- * social distance (`at: "social"`, `HumanProxemics.GAPS`), matching their
- * speed on the way (`track: "pace"`), as a follower closes the gap. Spread
- * into `approach`'s parameters with the person; the `follow` row of
- * `HumanPursuit` fixes these values.
+ * The follow preset: come up behind the person (`from: "behind"`) to the social
+ * distance (`at: "social"`, `HumanProxemics.GAPS`), matching their speed on the
+ * way (`track: "pace"`), as a follower closes the gap. Spread into `approach`'s
+ * parameters with the person; the `follow` row of `HumanPursuit` fixes these
+ * values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the side, distance and tracking the preset fixes with their results, how it is applied and which row reads it.
  * @evidence contracts/development/design.md#principled-representation The approach's own side, band and tracking as one `ITrackingApproachPreset`, so it fits any body as the approach does.

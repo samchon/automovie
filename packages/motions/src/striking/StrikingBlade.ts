@@ -33,20 +33,20 @@ import { StrikingHeld } from "./StrikingHeld";
 import { StrikingSupport } from "./StrikingSupport";
 
 /**
- * The stroke of a held tool, shared by every blade and firearm action: the
- * tool is taken from where the hand holds it to a ready pose, carried along
- * a path to its decisive pose, kept there and returned, while the feet stay
- * or the leading foot steps or lunges under it.
+ * The stroke of a held tool, shared by every blade and firearm action: the tool
+ * is taken from where the hand holds it to a ready pose, carried along a path
+ * to its decisive pose, kept there and returned, while the feet stay or the
+ * leading foot steps or lunges under it.
  *
  * The action states only tool poses (hand frames built by
- * {@link StrikingHeld.hand}); this owns the time course and the body. The
- * clock is a phrase with the standard instants: the tool leaves the entry
- * hold for the ready pose by `ready`, runs its path from `strokeStart`, is at
- * its decisive pose at `stroke`, follows through to `strokeEnd`, stays until
+ * {@link StrikingHeld.hand}); this owns the time course and the body. The clock
+ * is a phrase with the standard instants: the tool leaves the entry hold for
+ * the ready pose by `ready`, runs its path from `strokeStart`, is at its
+ * decisive pose at `stroke`, follows through to `strokeEnd`, stays until
  * `relax` and is back in the entry hold at `end`, or, recovered to its guard
- * (`coursed`), back at the path's start along the path it came, or stays
- * where the stroke left it for an action that ends in its pose (a guard, a
- * levelled aim).
+ * (`coursed`), back at the path's start along the path it came, or stays where
+ * the stroke left it for an action that ends in its pose (a guard, a levelled
+ * aim).
  *
  * An advance carries the body with the stroke: the leading foot leaves the
  * floor at `strokeStart` and lands at `stroke`, the pelvis travels a share of
@@ -62,7 +62,8 @@ export namespace StrikingBlade {
    * @param side The arm.
    * @param advance How the body goes.
    * @param line The horizontal unit line of the advance.
-   * @param travel How far the advance carries the leading foot, metres; its full travel when absent.
+   * @param travel How far the advance carries the leading foot, metres; its
+   *   full travel when absent.
    * @returns The shoulder joint at the decisive instant, world metres.
    */
   export function shoulder(
@@ -81,8 +82,8 @@ export namespace StrikingBlade {
   }
 
   /**
-   * A posture with the trunk twisted about its own axis, the chest taking
-   * the larger share, as `AutoMovieMotionHumanTrunk.turn` splits it.
+   * A posture with the trunk twisted about its own axis, the chest taking the
+   * larger share, as `AutoMovieMotionHumanTrunk.turn` splits it.
    *
    * @param posture The posture.
    * @param degrees The twist added, positive toward the performer's left.
@@ -117,7 +118,9 @@ export namespace StrikingBlade {
    *
    * @param context The action's context.
    * @param stroke The stroke.
-   * @param along Whether the recovery draws the tool back along its path to the path's start, its guard, and keeps it there, for a stroke whose path keeps one basin of the arm; back to the entry hold when absent.
+   * @param along Whether the recovery draws the tool back along its path to the
+   *   path's start, its guard, and keeps it there, for a stroke whose path
+   *   keeps one basin of the arm; back to the entry hold when absent.
    * @returns The plan, whose decisive instant is `stroke`.
    */
   export function plan(
@@ -463,22 +466,25 @@ export namespace StrikingBlade {
   }
 
   /**
-   * Plan a one-handed stroke whose path stays in one basin of the arm (a
-   * thrust drawn back from its landing, recovered to its guard) with the arm
-   * laid as one admitted course (`courseArmGoal`) instead of a fit per
-   * sample: the reach from the entry hold to the guard, the path's start,
-   * free, as the planner lays it; from there the attack, its follow-through
-   * and the recovery to the guard held to the end, instant by instant on the
-   * branch and swivel the instant before chose. The course is admitted
-   * against the stroke's own speed (`precisionStrokePeak`) and the reach's
-   * minimum-jerk peak, 15/8 of its mean speed over the arm's own travel to
-   * the guard. A supported stroke is the fitted plan unchanged.
+   * Plan a one-handed stroke whose path stays in one basin of the arm (a thrust
+   * drawn back from its landing, recovered to its guard) with the arm laid as
+   * one admitted course (`courseArmGoal`) instead of a fit per sample: the
+   * reach from the entry hold to the guard, the path's start, free, as the
+   * planner lays it; from there the attack, its follow-through and the recovery
+   * to the guard held to the end, instant by instant on the branch and swivel
+   * the instant before chose. The course is admitted against the stroke's own
+   * speed (`precisionStrokePeak`) and the reach's minimum-jerk peak, 15/8 of
+   * its mean speed over the arm's own travel to the guard. A supported stroke
+   * is the fitted plan unchanged.
    *
    * @param context The action's context.
    * @param stroke The stroke.
-   * @param travel The arm's own travel from the entry hold to the guard, metres: the greater of the hand's and the elbow's, which the caller measured on the two fitted arms.
+   * @param travel The arm's own travel from the entry hold to the guard,
+   *   metres: the greater of the hand's and the elbow's, which the caller
+   *   measured on the two fitted arms.
    * @returns The plan, whose decisive instant is `stroke`, its arm coursed.
-   * @throws {HumanRefusal} When no arm course meets the trajectory's constraints, as the plan is composed.
+   * @throws {HumanRefusal} When no arm course meets the trajectory's
+   *   constraints, as the plan is composed.
    */
   export function coursed(
     context: IAutoMovieMotionHumanActionContext,

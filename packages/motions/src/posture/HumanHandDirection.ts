@@ -8,9 +8,9 @@ import type {
 import { HumanFrame } from "./HumanFrame";
 
 /**
- * A named direction of a hand as a world vector: how `HumanHand.Direction`,
- * an axis of the performer's floor frame, a share of the way between two
- * axes or explicit components, is read for one hand of a performer.
+ * A named direction of a hand as a world vector: how `HumanHand.Direction`, an
+ * axis of the performer's floor frame, a share of the way between two axes or
+ * explicit components, is read for one hand of a performer.
  */
 export namespace HumanHandDirection {
   /**
@@ -21,7 +21,9 @@ export namespace HumanHandDirection {
    * @param yaw The performer's heading, degrees about +Y.
    * @param direction The direction, on any rung.
    * @returns The unit vector, world frame.
-   * @throws {Error} When a between joins opposite axes or its share lies outside [0, 1], when explicit components are all zero, or when an explicit source is empty.
+   * @throws {Error} When a between joins opposite axes or its share lies
+   *   outside [0, 1], when explicit components are all zero, or when an
+   *   explicit source is empty.
    */
   export function of(
     side: AutoMovieHumanSide,
@@ -60,8 +62,12 @@ export namespace HumanHandDirection {
   /**
    * Prepare a fixed hand's named axes for changing actual headings.
    *
-   * @param side The unchanged acting hand; the ordinary right-side fallback is preserved.
-   * @returns A fresh world vector for each current yaw in degrees and named floor axis. Current heading reads remain the caller's; only lazily demanded axis scalars and one exact last-yaw transform preparation are shared.
+   * @param side The unchanged acting hand; the ordinary right-side fallback is
+   *   preserved.
+   * @returns A fresh world vector for each current yaw in degrees and named
+   *   floor axis. Current heading reads remain the caller's; only lazily
+   *   demanded axis scalars and one exact last-yaw transform preparation are
+   *   shared.
    */
   export function prepare(
     side: AutoMovieHumanSide,

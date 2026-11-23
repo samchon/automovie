@@ -22,30 +22,33 @@ import { HumanBendRead } from "./HumanBendRead";
  * The base is the posture every unclaimed channel keeps (standing, a fighting
  * stance, seated, walking). The clock gives the duration and the events. At a
  * second, the base's posture is taken and every primitive whose window holds
- * that second writes its channels onto it, in {@link AutoMovieMotionHumanChannel.ORDER}, so
- * an arm reads the trunk the action already placed. The plan's contact
- * windows and weapons are the base's followed by the primitives', and its
- * `channels` are the channels some primitive claims, in that order; where
- * none claims the root, the trunk or a leg, the base's legs-still or still
- * window is the plan's `legsStill`. Each
+ * that second writes its channels onto it, in
+ * {@link AutoMovieMotionHumanChannel.ORDER}, so an arm reads the trunk the
+ * action already placed. The plan's contact windows and weapons are the base's
+ * followed by the primitives', and its `channels` are the channels some
+ * primitive claims, in that order; where none claims the root, the trunk or a
+ * leg, the base's legs-still or still window is the plan's `legsStill`. Each
  * primitive is also given the posture so far at any second of the action
  * (`IAutoMovieMotionHumanPrimitive.write`'s `before`): the base and the
  * primitives before it, so a movement planned once over its span (an arm's
- * trajectory) reads the very postures it will be written on, and its plan
- * is a constant of the action. That plan is made here, when the action is
- * composed (`IAutoMovieMotionHumanPrimitive.prepare`, in writing order), so
- * no posture read plans and a plan that cannot be made refuses the action.
- * Completed posture prefixes are shared at each exact clamped second within
- * one prefix read during preparation or one posture evaluation. A reader
- * retained by a primitive uses the scope active when it is called, never
- * the scope in which it was given to that primitive.
- * A posture or prefix reader may demand only named channels. The composer
- * follows active writers' declared input dependencies backward and leaves
- * unrelated writers unevaluated; omitted dependencies require all channels.
+ * trajectory) reads the very postures it will be written on, and its plan is a
+ * constant of the action. That plan is made here, when the action is composed
+ * (`IAutoMovieMotionHumanPrimitive.prepare`, in writing order), so no posture
+ * read plans and a plan that cannot be made refuses the action. Completed
+ * posture prefixes are shared at each exact clamped second within one prefix
+ * read during preparation or one posture evaluation. A reader retained by a
+ * primitive uses the scope active when it is called, never the scope in which
+ * it was given to that primitive. A posture or prefix reader may demand only
+ * named channels. The composer follows active writers' declared input
+ * dependencies backward and leaves unrelated writers unevaluated; omitted
+ * dependencies require all channels.
  *
  * @param props The base, the clock and the primitives.
  * @returns The plan.
- * @throws {Error} When the base and the clock differ in duration, a primitive claims no channel, a primitive's window is reversed or leaves the clock, or two primitives claim one channel over overlapping windows; and whatever a primitive's plan refuses with (a planned arm's `HumanRefusal`).
+ * @throws {Error} When the base and the clock differ in duration, a primitive
+ *   claims no channel, a primitive's window is reversed or leaves the clock, or
+ *   two primitives claim one channel over overlapping windows; and whatever a
+ *   primitive's plan refuses with (a planned arm's `HumanRefusal`).
  */
 export function composeAutoMovieMotionHumanAction(
   props: IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction.IProps,
@@ -124,7 +127,11 @@ export function composeAutoMovieMotionHumanAction(
   ];
   const base: IAutoMovieMotionHumanActionPlan = props.base;
 
-  /** Completed demanded prefixes at each exact second of one evaluation: the first second read and its prefixes, and every other second's prefixes in `later`, made when a second one is read. */
+  /**
+   * Completed demanded prefixes at each exact second of one evaluation: the
+   * first second read and its prefixes, and every other second's prefixes in
+   * `later`, made when a second one is read.
+   */
   interface Evaluation {
     /** Contextual numeric loan, owned by one explicit native raw evaluation. */
     bend?: AutoMovieMotionHumanBendRepeat.IRead;
@@ -135,7 +142,10 @@ export function composeAutoMovieMotionHumanAction(
     /** That second's completed prefixes by prefix and demand. */
     first: Map<number, IAutoMovieMotionHumanPosture> | undefined;
 
-    /** Every other second's completed prefixes, the map `Map`'s own key equality finds a second in. */
+    /**
+     * Every other second's completed prefixes, the map `Map`'s own key equality
+     * finds a second in.
+     */
     later: Map<number, Map<number, IAutoMovieMotionHumanPosture>> | undefined;
   }
 
@@ -236,7 +246,9 @@ export function composeAutoMovieMotionHumanAction(
       (p: IAutoMovieMotionHumanPrimitive): IAutoMovieMotionHumanFollow[] =>
         p.follows === true
           ? p.channels.map(
-              (channel: AutoMovieMotionHumanChannel): IAutoMovieMotionHumanFollow => ({
+              (
+                channel: AutoMovieMotionHumanChannel,
+              ): IAutoMovieMotionHumanFollow => ({
                 channel,
                 from: p.from,
                 to: p.to,
@@ -313,7 +325,10 @@ export function composeAutoMovieMotionHumanAction(
     );
   }
 
-  /** Run with a fresh scope, restoring an enclosing evaluation even if this one throws. */
+  /**
+   * Run with a fresh scope, restoring an enclosing evaluation even if this one
+   * throws.
+   */
   function evaluate<T>(
     run: (current: Evaluation) => T,
     source?: Resolution,

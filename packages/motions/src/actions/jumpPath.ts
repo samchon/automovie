@@ -6,23 +6,24 @@ import type {
 
 /**
  * The paths the jump's phases are drawn on: a quintic Hermite path for the
- * root, a straight interpolation for the feet, and the nearest equivalent
- * of a heading.
+ * root, a straight interpolation for the feet, and the nearest equivalent of a
+ * heading.
  */
 export namespace jumpPath {
   /**
    * A quintic Hermite path from a point and velocity to a point and velocity
    * over a duration, ending at rest acceleration and starting at `a0`, rest
    * when absent: the push-off continues the interrupted motion's own root
-   * acceleration, which a planted leg's knee would otherwise show as a step
-   * in its flexion rate's slope at the cut.
+   * acceleration, which a planted leg's knee would otherwise show as a step in
+   * its flexion rate's slope at the cut.
    *
    * @param p0 The start, metres.
    * @param v0 The start's velocity, metres per second.
    * @param p1 The end, metres.
    * @param v1 The end's velocity, metres per second.
    * @param duration The path's seconds.
-   * @param a0 The start's acceleration, metres per second squared; rest when absent.
+   * @param a0 The start's acceleration, metres per second squared; rest when
+   *   absent.
    * @returns A point reader at local seconds, held at the path's ends.
    */
   export function prepare(
@@ -48,7 +49,9 @@ export namespace jumpPath {
     return (t: number): IAutoMovieVector3 => {
       const u: number = Math.min(1, Math.max(0, t / duration));
       const [x, y, z]: number[] = AutoMovieStationHermite.combine(
-        from, into, AutoMovieStationHermite.weights(u, duration, 0, true),
+        from,
+        into,
+        AutoMovieStationHermite.weights(u, duration, 0, true),
       );
 
       // The copied endpoint arrays have exactly three entries.
@@ -77,7 +80,8 @@ export namespace jumpPath {
   }
 
   /**
-   * The equivalent of a heading nearest another, so a turn takes the shorter way.
+   * The equivalent of a heading nearest another, so a turn takes the shorter
+   * way.
    *
    * @param angle The heading, degrees.
    * @param near The heading to stay near, degrees.

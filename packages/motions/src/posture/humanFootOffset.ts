@@ -11,8 +11,10 @@ import type {
  * @param body The canonical body owning rest joints and sole sockets.
  * @param side The foot.
  * @param point The sole socket, or the metatarsophalangeal joint itself.
- * @param toes Toe flexion in degrees, positive lifting the toes; zero when absent.
- * @returns The original ankle-local offset; a foot-owned socket keeps its borrowed point, while articulated/joint offsets are fresh.
+ * @param toes Toe flexion in degrees, positive lifting the toes; zero when
+ *   absent.
+ * @returns The original ankle-local offset; a foot-owned socket keeps its
+ *   borrowed point, while articulated/joint offsets are fresh.
  */
 export function humanFootOffset(
   body: IAutoMovieMotionHumanBody,
@@ -33,15 +35,14 @@ export function humanFootOffset(
   return articulated(joint, socket.point, toes);
 }
 
-/**
- * Fixed ankle-local socket preparation for an action's changing toe angles.
- */
+/** Fixed ankle-local socket preparation for an action's changing toe angles. */
 export namespace humanFootOffset {
   /**
    * Resolve actual rest/socket geometry once, then evaluate actual toe flexion.
    * MTP queries return fresh subtraction values and foot-owned sockets retain
    * their ordinary borrowed point. The body geometry must stay unchanged until
-   * the caller releases this bounded reader with its action; no query is stored.
+   * the caller releases this bounded reader with its action; no query is
+   * stored.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,

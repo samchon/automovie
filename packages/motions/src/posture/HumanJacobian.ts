@@ -25,32 +25,31 @@ import type {
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
- * The analytic Jacobian of a posed body: how each of a posture's variables
- * (the root's place, its yaw, pitch and roll, and any joint angle) moves
- * the bones, read from the one forward kinematics that posed them.
+ * The analytic Jacobian of a posed body: how each of a posture's variables (the
+ * root's place, its yaw, pitch and roll, and any joint angle) moves the bones,
+ * read from the one forward kinematics that posed them.
  *
- * Each variable is a twist: the bones it moves turn about a world axis
- * through a point, or move along a direction (Siciliano et al. 2009,
- * section 3.1.3). A bone's segment then has the twist's angular velocity
- * and its origin the linear velocity `v + ω × (o − pivot)`, and any point
- * on it moves at `v_origin + ω × (p − o)`, so a caller with many probes on
- * few segments reads each segment's twist once (`twist`) and a caller with
- * few points reads their columns directly (`velocity`). The root's place
- * moves every bone along its axis; its heading turns every bone about the
- * root, yaw about the world's up, pitch about the yawed left axis and roll
- * about the yawed and pitched forward axis (`resolveHumanPosture.heading`).
- * A joint's three angles compose its rotation in the engine's order
- * (`jointToQuaternion`): twist, abduction, flexion for a proximal twist, so
- * the flexion axis is the basis axis turned by the twist and the abduction
- * before it, and abduction, flexion, twist for a distal one. The frame
- * before the joint is its parent's world rotation turned by its rest
- * rotation, and a clinical angle is the rig's angle mapped by the rest
- * frame, so a turn per clinical degree is the axis scaled by the frame's
- * sign. The angles are the clamped ones forward kinematics reads, so at a
- * range limit the motion is the one the joint makes inward.
- * The established body-indexed rig snapshot requires that body's skeleton,
- * topology and clinical bases to remain unchanged for its lifetime; reads
- * retain that existing policy rather than introducing another global cache.
+ * Each variable is a twist: the bones it moves turn about a world axis through
+ * a point, or move along a direction (Siciliano et al. 2009, section 3.1.3). A
+ * bone's segment then has the twist's angular velocity and its origin the
+ * linear velocity `v + ω × (o − pivot)`, and any point on it moves at `v_origin
+ * + ω × (p − o)`, so a caller with many probes on few segments reads each
+ * segment's twist once (`twist`) and a caller with few points reads their
+ * columns directly (`velocity`). The root's place moves every bone along its
+ * axis; its heading turns every bone about the root, yaw about the world's up,
+ * pitch about the yawed left axis and roll about the yawed and pitched forward
+ * axis (`resolveHumanPosture.heading`). A joint's three angles compose its
+ * rotation in the engine's order (`jointToQuaternion`): twist, abduction,
+ * flexion for a proximal twist, so the flexion axis is the basis axis turned by
+ * the twist and the abduction before it, and abduction, flexion, twist for a
+ * distal one. The frame before the joint is its parent's world rotation turned
+ * by its rest rotation, and a clinical angle is the rig's angle mapped by the
+ * rest frame, so a turn per clinical degree is the axis scaled by the frame's
+ * sign. The angles are the clamped ones forward kinematics reads, so at a range
+ * limit the motion is the one the joint makes inward. The established
+ * body-indexed rig snapshot requires that body's skeleton, topology and
+ * clinical bases to remain unchanged for its lifetime; reads retain that
+ * existing policy rather than introducing another global cache.
  */
 export namespace HumanJacobian {
   /**
@@ -72,20 +71,24 @@ export namespace HumanJacobian {
   }
 
   /**
-   * Read variable motions and the exact joints clamped while forming them.
-   * The posture, body and resolved bones must describe the same current
-   * candidate and remain unchanged until this synchronous read returns.
-   * Repeated variables share only that candidate's completed joint preparation;
-   * another finite-difference or optimization candidate needs another read.
-   * An operation may lend its actual canonical engine clamp factory for
-   * this same unchanged skeleton; this shares metadata, not projected answers.
+   * Read variable motions and the exact joints clamped while forming them. The
+   * posture, body and resolved bones must describe the same current candidate
+   * and remain unchanged until this synchronous read returns. Repeated
+   * variables share only that candidate's completed joint preparation; another
+   * finite-difference or optimization candidate needs another read. An
+   * operation may lend its actual canonical engine clamp factory for this same
+   * unchanged skeleton; this shares metadata, not projected answers.
    *
    * @param body The unchanged body described by its established rig snapshot.
    * @param posture The current clinical angles and root heading.
    * @param bones The same candidate's actual resolved bone frames.
-   * @param variables Requested variables, including duplicates, in output order.
-   * @param projection Only clampJointToSkeleton.prepare for this same unchanged skeleton and canonical axes, borrowed from the current synchronous operation; omitted, angle demand prepares it locally.
-   * @returns Fresh motions and a map of the actual clamped joints used for angle variables.
+   * @param variables Requested variables, including duplicates, in output
+   *   order.
+   * @param projection Only clampJointToSkeleton.prepare for this same unchanged
+   *   skeleton and canonical axes, borrowed from the current synchronous
+   *   operation; omitted, angle demand prepares it locally.
+   * @returns Fresh motions and a map of the actual clamped joints used for
+   *   angle variables.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -122,95 +125,104 @@ export namespace HumanJacobian {
       linear: Vector3.cross(axis, Vector3.scale(pivot, -1)),
       moves,
     });
-    const motions: IAutoMovieMotionHumanJacobian.IMotion[] = variables.map((variable: IAutoMovieMotionHumanJacobian.IVariable): IAutoMovieMotionHumanJacobian.IMotion => {
-      if (variable.kind === "place")
-        return {
-          angular: ZERO,
-          linear: {
-            x: variable.axis === "x" ? 1 : 0,
-            y: variable.axis === "y" ? 1 : 0,
-            z: variable.axis === "z" ? 1 : 0,
-          },
-          moves: null,
-        };
-      if (variable.kind === "heading")
+    const motions: IAutoMovieMotionHumanJacobian.IMotion[] = variables.map(
+      (
+        variable: IAutoMovieMotionHumanJacobian.IVariable,
+      ): IAutoMovieMotionHumanJacobian.IMotion => {
+        if (variable.kind === "place")
+          return {
+            angular: ZERO,
+            linear: {
+              x: variable.axis === "x" ? 1 : 0,
+              y: variable.axis === "y" ? 1 : 0,
+              z: variable.axis === "z" ? 1 : 0,
+            },
+            moves: null,
+          };
+        if (variable.kind === "heading")
+          return turning(
+            Vector3.scale(
+              variable.axis === "yaw"
+                ? { x: 0, y: 1, z: 0 }
+                : variable.axis === "pitch"
+                  ? Quaternion.rotateVector(yawed, { x: 1, y: 0, z: 0 })
+                  : Quaternion.rotateVector(pitched, { x: 0, y: 0, z: 1 }),
+              RADIAN,
+            ),
+            posture.root,
+            null,
+          );
+        const bone: AutoMovieHumanoidBone = variable.bone;
+        let reading: IJointReading | undefined = prepared?.get(bone);
+        if (reading === undefined) {
+          const def: IAutoMovieBone = rig.bones.get(bone)!;
+          const basis: IAutoMovieJointAxes = rig.bases.get(bone)!;
+          const set: readonly [number, number, number] = posture.joints[
+            bone
+          ] ?? [0, 0, 0];
+          clamp ??= clampJointToSkeleton.prepare(body.skeleton);
+          const joint: IAutoMovieJointPose = clamp({
+            bone,
+            flexion: set[0],
+            abduction: set[1],
+            twist: set[2],
+          });
+          const frame: IAutoMovieRestFrame | undefined =
+            HUMANOID_REST_FRAME[bone];
+          const parent: IAutoMovieQuaternion =
+            def.parent === null
+              ? heading
+              : bones.get(def.parent)!.worldRotation;
+          const order: readonly Name[] =
+            basis.rotationOrder === "flexion-abduction-twist"
+              ? ["flexion", "abduction", "twist"]
+              : basis.twistPlacement === "distal"
+                ? ["abduction", "flexion", "twist"]
+                : ["twist", "abduction", "flexion"];
+          reading = {
+            joint,
+            basis,
+            frame,
+            order,
+            prefix: [Quaternion.multiply(parent, def.rest.rotation)],
+          };
+          clamped.set(bone, joint);
+          prepared ??= new Map();
+          prepared.set(bone, reading);
+        }
+        const name: Name = NAMES[variable.axis];
+        const depth: number = reading.order.indexOf(name);
+
+        // Extend only the factors this requested axis has before it. A later
+        // variable on this unchanged joint reuses the completed same prefix.
+        while (reading.prefix.length <= depth) {
+          const earlier: Name = reading.order[reading.prefix.length - 1]!;
+          const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+            reading.basis[earlier],
+            ((reading.joint[earlier] ?? 0) -
+              (reading.frame?.[earlier]?.neutral ?? 0)) /
+              (reading.frame?.[earlier]?.sign ?? 1),
+          );
+          reading.prefix.push(
+            Quaternion.multiply(
+              reading.prefix[reading.prefix.length - 1]!,
+              factor,
+            ),
+          );
+        }
         return turning(
           Vector3.scale(
-            variable.axis === "yaw"
-              ? { x: 0, y: 1, z: 0 }
-              : variable.axis === "pitch"
-                ? Quaternion.rotateVector(yawed, { x: 1, y: 0, z: 0 })
-                : Quaternion.rotateVector(pitched, { x: 0, y: 0, z: 1 }),
-            RADIAN,
+            Quaternion.rotateVector(
+              reading.prefix[depth]!,
+              reading.basis[name],
+            ),
+            RADIAN / (reading.frame?.[name]?.sign ?? 1),
           ),
-          posture.root,
-          null,
+          bones.get(bone)!.worldPosition,
+          rig.carried.get(bone)!,
         );
-      const bone: AutoMovieHumanoidBone = variable.bone;
-      let reading: IJointReading | undefined = prepared?.get(bone);
-      if (reading === undefined) {
-        const def: IAutoMovieBone = rig.bones.get(bone)!;
-        const basis: IAutoMovieJointAxes = rig.bases.get(bone)!;
-        const set: readonly [number, number, number] = posture.joints[bone] ?? [
-          0, 0, 0,
-        ];
-        clamp ??= clampJointToSkeleton.prepare(body.skeleton);
-        const joint: IAutoMovieJointPose = clamp({
-          bone,
-          flexion: set[0],
-          abduction: set[1],
-          twist: set[2],
-        });
-        const frame: IAutoMovieRestFrame | undefined =
-          HUMANOID_REST_FRAME[bone];
-        const parent: IAutoMovieQuaternion =
-          def.parent === null ? heading : bones.get(def.parent)!.worldRotation;
-        const order: readonly Name[] =
-          basis.rotationOrder === "flexion-abduction-twist"
-            ? ["flexion", "abduction", "twist"]
-            : basis.twistPlacement === "distal"
-              ? ["abduction", "flexion", "twist"]
-              : ["twist", "abduction", "flexion"];
-        reading = {
-          joint,
-          basis,
-          frame,
-          order,
-          prefix: [Quaternion.multiply(parent, def.rest.rotation)],
-        };
-        clamped.set(bone, joint);
-        prepared ??= new Map();
-        prepared.set(bone, reading);
-      }
-      const name: Name = NAMES[variable.axis];
-      const depth: number = reading.order.indexOf(name);
-
-      // Extend only the factors this requested axis has before it. A later
-      // variable on this unchanged joint reuses the completed same prefix.
-      while (reading.prefix.length <= depth) {
-        const earlier: Name = reading.order[reading.prefix.length - 1]!;
-        const factor: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-          reading.basis[earlier],
-          ((reading.joint[earlier] ?? 0) -
-            (reading.frame?.[earlier]?.neutral ?? 0)) /
-            (reading.frame?.[earlier]?.sign ?? 1),
-        );
-        reading.prefix.push(
-          Quaternion.multiply(
-            reading.prefix[reading.prefix.length - 1]!,
-            factor,
-          ),
-        );
-      }
-      return turning(
-        Vector3.scale(
-          Quaternion.rotateVector(reading.prefix[depth]!, reading.basis[name]),
-          RADIAN / (reading.frame?.[name]?.sign ?? 1),
-        ),
-        bones.get(bone)!.worldPosition,
-        rig.carried.get(bone)!,
-      );
-    });
+      },
+    );
     return { motions, clamped };
   }
 
@@ -220,7 +232,8 @@ export namespace HumanJacobian {
    * @param motion The motion.
    * @param bone The segment's bone.
    * @param origin The bone's origin, world metres.
-   * @returns The segment's angular velocity and its origin's linear velocity; nought when the motion does not move the bone.
+   * @returns The segment's angular velocity and its origin's linear velocity;
+   *   nought when the motion does not move the bone.
    */
   export function twist(
     motion: IAutoMovieMotionHumanJacobian.IMotion,
@@ -241,7 +254,8 @@ export namespace HumanJacobian {
    * @param motion The motion.
    * @param bone The bone the point rides on.
    * @param point The point, world metres.
-   * @returns Metres per the variable's unit; nought when the motion does not move the bone.
+   * @returns Metres per the variable's unit; nought when the motion does not
+   *   move the bone.
    */
   export function velocity(
     motion: IAutoMovieMotionHumanJacobian.IMotion,
@@ -253,14 +267,15 @@ export namespace HumanJacobian {
   }
 
   /**
-   * The world-Y component of velocity for a caller that needs height alone.
-   * It uses the same affected-bone membership and cross/add grouping as
-   * velocity, without forming its unused X/Z components or vector records.
+   * The world-Y component of velocity for a caller that needs height alone. It
+   * uses the same affected-bone membership and cross/add grouping as velocity,
+   * without forming its unused X/Z components or vector records.
    *
    * @param motion The completed coordinate motion.
    * @param bone The bone carrying the point.
    * @param point Its world point, metres.
-   * @returns Vertical metres per variable unit, or positive zero when unaffected.
+   * @returns Vertical metres per variable unit, or positive zero when
+   *   unaffected.
    */
   export function velocityY(
     motion: IAutoMovieMotionHumanJacobian.IMotion,
@@ -268,14 +283,19 @@ export namespace HumanJacobian {
     point: IAutoMovieVector3,
   ): number {
     if (motion.moves !== null && !motion.moves.has(bone)) return 0;
-    return motion.linear.y +
-      (motion.angular.z * point.x - motion.angular.x * point.z);
+    return (
+      motion.linear.y +
+      (motion.angular.z * point.x - motion.angular.x * point.z)
+    );
   }
 
   /** A joint's clinical axis. */
   type Name = "flexion" | "abduction" | "twist";
 
-  /** One candidate's result, without retaining the temporary prefix/clamp preparation. */
+  /**
+   * One candidate's result, without retaining the temporary prefix/clamp
+   * preparation.
+   */
   interface IReading {
     /** Fresh motions in the requested variable order. */
     motions: IAutoMovieMotionHumanJacobian.IMotion[];
@@ -295,14 +315,20 @@ export namespace HumanJacobian {
     /** Canonical clinical affine map, absent when identity applies. */
     frame: IAutoMovieRestFrame | undefined;
 
-    /** Intrinsic composition order from the explicit chart or legacy twist placement. */
+    /**
+     * Intrinsic composition order from the explicit chart or legacy twist
+     * placement.
+     */
     order: readonly Name[];
 
     /** Parent/rest base followed by only the earlier factors actually requested. */
     prefix: IAutoMovieQuaternion[];
   }
 
-  /** A body's bones by name, each bone's normalised basis and the bones each carries, itself included. */
+  /**
+   * A body's bones by name, each bone's normalised basis and the bones each
+   * carries, itself included.
+   */
   interface IRig {
     /** The bones. */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieBone>;

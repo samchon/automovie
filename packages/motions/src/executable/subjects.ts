@@ -11,19 +11,41 @@ import { markMotionCaptureCase } from "../capture/markMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 import { MotionCaptureFigure } from "./MotionCaptureFigure";
 
-/** Steps per second of the key that matches an asked second to a sampled instant: microseconds, far finer than any two instants of a case and far coarser than float error. */
+/**
+ * Steps per second of the key that matches an asked second to a sampled
+ * instant: microseconds, far finer than any two instants of a case and far
+ * coarser than float error.
+ */
 const MICRO: number = 1_000_000;
 
-/** Margin in metres around everything a case draws, which the ground grid covers. */
+/**
+ * Margin in metres around everything a case draws, which the ground grid
+ * covers.
+ */
 const MARGIN: number = 0.18;
 
 /** Side in metres of one cell of the ground grid. */
 const GRID_CELL: number = 0.25;
 
 /**
- * The draw page's subjects for the motion capture harness: one subject, named by the case, built from the case's props.
+ * The draw page's subjects for the motion capture harness: one subject, named
+ * by the case, built from the case's props.
  *
- * The subject is the case's scene on a light background under an ambient light and one sun: its performers as solid polygon men named by their ids, its ghosts translucent and named `ghost-<id>`, its boxes as shaded meshes named `box-<i>`, and a ground grid named `ground`, lines every 0.25 m over the floor's rectangle under everything drawn at any instant with a margin of 0.18 m, so the ground widens no fitted view. Its clock is the case's grid. Seeking a second places every figure in its pose at the sampled second within a microsecond of it, a case instant or a grid frame, and any other second of the clock at the grid frame at or before it, as a video holds a frame, so the inspector plays the case; a second outside the clock throws. The case's trails, targets and drift are its marks through `markMotionCaptureCase`, the same at every second, and its labelled instants are the subject's named instants, so each still's caption and record row name its beat. The delivery camera stands on the three-quarter side looking at the middle of what is drawn; the case is read through the fitted views `motionCapture` asks for.
+ * The subject is the case's scene on a light background under an ambient light
+ * and one sun: its performers as solid polygon men named by their ids, its
+ * ghosts translucent and named `ghost-<id>`, its boxes as shaded meshes named
+ * `box-<i>`, and a ground grid named `ground`, lines every 0.25 m over the
+ * floor's rectangle under everything drawn at any instant with a margin of 0.18
+ * m, so the ground widens no fitted view. Its clock is the case's grid. Seeking
+ * a second places every figure in its pose at the sampled second within a
+ * microsecond of it, a case instant or a grid frame, and any other second of
+ * the clock at the grid frame at or before it, as a video holds a frame, so the
+ * inspector plays the case; a second outside the clock throws. The case's
+ * trails, targets and drift are its marks through `markMotionCaptureCase`, the
+ * same at every second, and its labelled instants are the subject's named
+ * instants, so each still's caption and record row name its beat. The delivery
+ * camera stands on the three-quarter side looking at the middle of what is
+ * drawn; the case is read through the fitted views `motionCapture` asks for.
  *
  * @param props The case's page data, from `planMotionCaptureProps`.
  * @returns The case's subject under its name.

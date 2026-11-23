@@ -2,23 +2,34 @@ import { wrapDegrees } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * How far a walk's footprint may turn, from the foot's own last footprint
- * and from the line to its hip, so the walk takes a turn the way the legs
- * can (`walkSteps`).
+ * How far a walk's footprint may turn, from the foot's own last footprint and
+ * from the line to its hip, so the walk takes a turn the way the legs can
+ * (`walkSteps`).
  *
  * A body that sets off toward a way behind it turns about over its first
  * footfalls: each foot turns at most `STEP` of the turn's amplitude from its
- * own last footprint, the yaw a foot turns in one swing of a standing turn,
- * so a turn about takes some three steps instead of one swing through the
- * whole turn. And a footprint turns no further from the line to its hip
- * than keeps that line within `ROLL` of the foot's side when the foot
- * lifts, so the ankle's inversion and eversion hold the stance.
+ * own last footprint, the yaw a foot turns in one swing of a standing turn, so
+ * a turn about takes some three steps instead of one swing through the whole
+ * turn. And a footprint turns no further from the line to its hip than keeps
+ * that line within `ROLL` of the foot's side when the foot lifts, so the
+ * ankle's inversion and eversion hold the stance.
  */
 export namespace walkHeading {
-  /** The furthest a planted leg's line leans to the side of its foot, degrees: 5° inside the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM), provisional room for the pelvis's drop and list. */
+  /**
+   * The furthest a planted leg's line leans to the side of its foot, degrees:
+   * 5° inside the ankle's 25° of inversion and eversion (DEFAULT_HUMANOID_ROM),
+   * provisional room for the pelvis's drop and list.
+   */
   export const ROLL: number = 20;
 
-  /** The yaw a foot turns in one swing of a standing turn, degrees, at the turn's amplitude, degrees: 73.5 +/- 14.3 at 90, 88.6 +/- 24.4 at 135 and 95.0 +/- 26.0 at 180, over 1.95, 2.75 and 3.25 steps (Khobkhun, Hollands and Richards 2022, Appl Sci 12:5474, Table 1, 20 younger adults turning on level ground at a self-selected speed, inertial sensors); between them linear, and the nearest beyond. */
+  /**
+   * The yaw a foot turns in one swing of a standing turn, degrees, at the
+   * turn's amplitude, degrees: 73.5 +/- 14.3 at 90, 88.6 +/- 24.4 at 135 and
+   * 95.0 +/- 26.0 at 180, over 1.95, 2.75 and 3.25 steps (Khobkhun, Hollands
+   * and Richards 2022, Appl Sci 12:5474, Table 1, 20 younger adults turning on
+   * level ground at a self-selected speed, inertial sensors); between them
+   * linear, and the nearest beyond.
+   */
   export const STEP: readonly (readonly [number, number])[] = [
     [90, 73.54],
     [135, 88.55],
@@ -44,15 +55,19 @@ export namespace walkHeading {
     return STEP.at(-1)![1];
   }
 
-  /** The footfalls an ordinary arrival turns over: the two before the closing pair turn a third and two thirds of the arrival's turn, and the pair faces it. */
+  /**
+   * The footfalls an ordinary arrival turns over: the two before the closing
+   * pair turn a third and two thirds of the arrival's turn, and the pair faces
+   * it.
+   */
   export const CLOSING: number = 3;
 
   /**
-   * The footfalls a walk turns its arrival over: `CLOSING`, or, for an
-   * arrival turned about further than `CLOSING` step turns carry, as many
-   * step turns as it needs, the extra ones taken in place at the arrival,
-   * so no footfall turns further from the one before than a step turn and
-   * the feet never cross (a step turn, Hase and Stein 1999).
+   * The footfalls a walk turns its arrival over: `CLOSING`, or, for an arrival
+   * turned about further than `CLOSING` step turns carry, as many step turns as
+   * it needs, the extra ones taken in place at the arrival, so no footfall
+   * turns further from the one before than a step turn and the feet never cross
+   * (a step turn, Hase and Stein 1999).
    *
    * @param turn The arrival's heading less the way in, degrees.
    * @param stepTurn The most one footfall turns from the one before, degrees.
@@ -63,9 +78,9 @@ export namespace walkHeading {
   }
 
   /**
-   * A heading turned from another toward a target by no more than a bound:
-   * a footfall of a walk facing off its entry turns from the entry by at
-   * most as many step turns as it is footfalls in.
+   * A heading turned from another toward a target by no more than a bound: a
+   * footfall of a walk facing off its entry turns from the entry by at most as
+   * many step turns as it is footfalls in.
    *
    * @param from The heading turned from, degrees.
    * @param target The heading asked, degrees, unwrapped near `from`.
@@ -79,18 +94,23 @@ export namespace walkHeading {
 
   /**
    * How many opening footfalls a walk steps in place to turn about: when a
-   * foot's first swing cannot face the way the walk sets off (turning at
-   * most `step` of the turn), the feet alternate in place, each turning at
-   * most that far, until both face within `twist` of the way, so the walk
-   * sets off from feet the pelvis can face between.
+   * foot's first swing cannot face the way the walk sets off (turning at most
+   * `step` of the turn), the feet alternate in place, each turning at most that
+   * far, until both face within `twist` of the way, so the walk sets off from
+   * feet the pelvis can face between.
    *
    * @param heading The way the walk sets off, degrees, unwrapped about `yaw`.
    * @param lead The foot that steps first; the feet alternate.
    * @param start Each foot's facing before the walk, degrees.
    * @param yaw The heading the walk starts from, degrees.
-   * @param twist How far the pelvis turns from a foot it stands on, degrees (`walkReach.TWIST`).
-   * @param stepped Whether the walk opens with a step turn (`uncrossed`), whose stance foot stands behind the way's start: its feet turn in place before it sets off however far a swing could turn them, so the pelvis never sets off from a foot behind it.
-   * @returns The count; 0 when the first swing of each foot faces the way and the walk is no step turn.
+   * @param twist How far the pelvis turns from a foot it stands on, degrees
+   *   (`walkReach.TWIST`).
+   * @param stepped Whether the walk opens with a step turn (`uncrossed`), whose
+   *   stance foot stands behind the way's start: its feet turn in place before
+   *   it sets off however far a swing could turn them, so the pelvis never sets
+   *   off from a foot behind it.
+   * @returns The count; 0 when the first swing of each foot faces the way and
+   *   the walk is no step turn.
    */
   export function opening(
     heading: number,
@@ -106,8 +126,9 @@ export namespace walkHeading {
       right: yaw + wrapDegrees(start.right - yaw),
     };
     // A foot already within the twist of the way turns no more in place.
-    const far: (s: "left" | "right") => boolean = (s: "left" | "right"): boolean =>
-      Math.abs(heading - last[s]) > twist;
+    const far: (s: "left" | "right") => boolean = (
+      s: "left" | "right",
+    ): boolean => Math.abs(heading - last[s]) > twist;
     if (
       !stepped &&
       Math.abs(heading - last.left) <= limit &&
@@ -126,14 +147,16 @@ export namespace walkHeading {
   }
 
   /**
-   * The footfalls' facings with each foot turning at most `step` of the
-   * walk's largest turn from its own last footprint, in order.
+   * The footfalls' facings with each foot turning at most `step` of the walk's
+   * largest turn from its own last footprint, in order.
    *
-   * @param towards Each footfall's facing as the way asks it, degrees, unwrapped about the starting heading.
+   * @param towards Each footfall's facing as the way asks it, degrees,
+   *   unwrapped about the starting heading.
    * @param lead The foot of the first footfall; the feet alternate.
    * @param start Each foot's facing before the walk, degrees.
    * @param yaw The heading the walk starts from, degrees.
-   * @param kept How many footfalls at the end keep their asked facing (the closing pair).
+   * @param kept How many footfalls at the end keep their asked facing (the
+   *   closing pair).
    * @returns The facings, degrees.
    */
   export function about(
@@ -165,19 +188,21 @@ export namespace walkHeading {
   }
 
   /**
-   * The foot that sets off, so its first footprint never lands across the
-   * foot it leaves standing: the foot further behind leads, unless its
-   * footprint would land past the other foot's line, which on a sharp turn
-   * toward the standing foot's side is a crossover through the stance leg;
-   * then the other foot leads, the step turn a turn is taken with, the
-   * turning foot moving first (Hase and Stein 1999).
+   * The foot that sets off, so its first footprint never lands across the foot
+   * it leaves standing: the foot further behind leads, unless its footprint
+   * would land past the other foot's line, which on a sharp turn toward the
+   * standing foot's side is a crossover through the stance leg; then the other
+   * foot leads, the step turn a turn is taken with, the turning foot moving
+   * first (Hase and Stein 1999).
    *
-   * @param behind The foot further behind along the way, the lead a straight walk takes.
+   * @param behind The foot further behind along the way, the lead a straight
+   *   walk takes.
    * @param ankles Each foot's ankle before the walk, world metres.
    * @param facings Each foot's facing before the walk, degrees.
    * @param way The way's point under the first footprint, world metres.
    * @param heading The first footprint's facing, degrees.
-   * @param lateral How far either side of the way a first footprint lies, metres.
+   * @param lateral How far either side of the way a first footprint lies,
+   *   metres.
    * @returns The lead.
    */
   export function uncrossed(
@@ -223,19 +248,21 @@ export namespace walkHeading {
   }
 
   /**
-   * A footprint kept on its own side of the other foot's last footprint: a
-   * walk that faces away from its way (aside, a sidestep) places each foot
-   * its rest separation to its side of the way, and a step longer than the
-   * two separations would land the trailing foot past the leading one, a
-   * crossover through the stance leg. The footprint then closes up to the
-   * other foot instead, the step-close of a sidestep.
+   * A footprint kept on its own side of the other foot's last footprint: a walk
+   * that faces away from its way (aside, a sidestep) places each foot its rest
+   * separation to its side of the way, and a step longer than the two
+   * separations would land the trailing foot past the leading one, a crossover
+   * through the stance leg. The footprint then closes up to the other foot
+   * instead, the step-close of a sidestep.
    *
    * @param point The footprint's ankle, world metres.
-   * @param other The other foot's last footprint and its own offset across the facing, or undefined before it has one.
+   * @param other The other foot's last footprint and its own offset across the
+   *   facing, or undefined before it has one.
    * @param toward The footprint's facing, degrees.
    * @param side The footprint's foot.
    * @param lateral The footprint's own offset across the facing, metres.
-   * @returns The footprint, moved across the facing only as far as keeps the two feet their offsets apart.
+   * @returns The footprint, moved across the facing only as far as keeps the
+   *   two feet their offsets apart.
    */
   export function separated(
     point: IAutoMovieVector3,
@@ -259,13 +286,13 @@ export namespace walkHeading {
   }
 
   /**
-   * A step turn's footprint (Hase and Stein 1999): the turning foot steps
-   * round the standing foot's last footprint to its own side of it at the
-   * new facing, the two feet their offsets apart across that facing, so a
-   * turn about at an arrival pivots on the standing foot instead of
-   * orbiting the arrival point.
+   * A step turn's footprint (Hase and Stein 1999): the turning foot steps round
+   * the standing foot's last footprint to its own side of it at the new facing,
+   * the two feet their offsets apart across that facing, so a turn about at an
+   * arrival pivots on the standing foot instead of orbiting the arrival point.
    *
-   * @param other The standing foot's last footprint and its own offset across the facing.
+   * @param other The standing foot's last footprint and its own offset across
+   *   the facing.
    * @param toward The footprint's facing, degrees.
    * @param side The stepping foot.
    * @param lateral The footprint's own offset across the facing, metres.
@@ -285,12 +312,14 @@ export namespace walkHeading {
     const lz: number = -Math.sin(a);
     const sign: number = side === "left" ? 1 : -1;
     const gap: number = Math.abs(lateral) + Math.abs(other.lateral);
-    return { x: other.point.x + sign * gap * lx, y: height, z: other.point.z + sign * gap * lz };
+    return {
+      x: other.point.x + sign * gap * lx,
+      y: height,
+      z: other.point.z + sign * gap * lz,
+    };
   }
 
-  /**
-   * A foot's last footprint for `separated`.
-   */
+  /** A foot's last footprint for `separated`. */
   export interface ISeparated {
     /** The ankle, world metres. */
     point: IAutoMovieVector3;
@@ -300,14 +329,16 @@ export namespace walkHeading {
   }
 
   /**
-   * A footprint's heading turned no further from the line to its hip than
-   * the ankle can lean sideways when the foot lifts.
+   * A footprint's heading turned no further from the line to its hip than the
+   * ankle can lean sideways when the foot lifts.
    *
    * @param heading The footprint's heading, degrees.
    * @param point The footprint's ankle, world metres.
    * @param hip The hip over it when the foot lifts, world metres.
-   * @param leeway How far across the foot the hip may lie, metres: the leg's height times the tangent of `ROLL`.
-   * @param behind Whether a hip behind the foot (a backward step) leans the leg the other way.
+   * @param leeway How far across the foot the hip may lie, metres: the leg's
+   *   height times the tangent of `ROLL`.
+   * @param behind Whether a hip behind the foot (a backward step) leans the leg
+   *   the other way.
    * @returns The heading, degrees.
    */
   export function leaned(

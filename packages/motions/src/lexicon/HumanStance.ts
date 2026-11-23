@@ -15,8 +15,8 @@ import { HUMAN_STANCE_THINKING } from "../next/presets/HUMAN_STANCE_THINKING";
 import { selfAction } from "../touch/selfAction";
 
 /**
- * Named ways of standing and what a body does by itself, each a row of
- * `rest` or `selfAction`. Register the ones a film uses.
+ * Named ways of standing and what a body does by itself, each a row of `rest`
+ * or `selfAction`. Register the ones a film uses.
  */
 export namespace HumanStance {
   /** Arms crossed on the chest. */

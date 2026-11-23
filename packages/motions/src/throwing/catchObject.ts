@@ -40,38 +40,38 @@ import { catchObjectApproach } from "./catchObjectApproach";
 import { catchObjectFingers } from "./catchObjectFingers";
 
 /**
- * Catching an object thrown by another action: the hands meet it where its
- * path enters the reach, give with it, and bring it to the chest.
+ * Catching an object thrown by another action: the hands meet it where its path
+ * enters the reach, give with it, and bring it to the chest.
  *
  * The goal is an interception. The throw's plan carries its launch
- * (`throwObject.of`), so the path is known in closed form, drag-free. The
- * catch point is where the path first comes within `REACH` arm lengths
- * ahead of the catcher's root along its heading (provisional), and the
- * contact instant the path's time there; a path that never comes so near,
- * or a point the arms cannot reach from the shoulders, is refused. With two
- * hands the palms take the object from both sides, each palm on its surface
- * across the catcher's left-right axis; with one the palm takes it from
- * behind, facing the way it comes, or with a worn glove (`glove`) the hand
- * turned as that palm would be and moved so the glove's pocket meets it. The
- * fingers take the turn about the palm's normal (`ROLLS`, upward first) the
- * arm holds at the contact with the least strain
- * (`AutoMovieMotionHumanBend.strain`), so the wrist's range decides it. The ball's size is the
- * ball's own (`ball`, `HumanBall`). The hands travel there on minimum-jerk
- * progress over the aimed movement time to an object of its size (McIntosh
- * et al. 2018, `AutoMovieMotionHumanTiming.aimed`), arriving at contact;
- * the anticipatory `prepare` instant is 100 ms before impact (Lacquaniti and
- * Maioli 1989, J Neurosci 9:134). After contact the hands give `GIVE` along
- * the object's velocity over `GIVE_TIME` (the issue's 0.05 to 0.15 m,
- * provisional), which is `secured`, then carry it to before the sternum and
- * hold it. Events: `reach`, `prepare`, `contact`, `secured`, `held`.
+ * (`throwObject.of`), so the path is known in closed form, drag-free. The catch
+ * point is where the path first comes within `REACH` arm lengths ahead of the
+ * catcher's root along its heading (provisional), and the contact instant the
+ * path's time there; a path that never comes so near, or a point the arms
+ * cannot reach from the shoulders, is refused. With two hands the palms take
+ * the object from both sides, each palm on its surface across the catcher's
+ * left-right axis; with one the palm takes it from behind, facing the way it
+ * comes, or with a worn glove (`glove`) the hand turned as that palm would be
+ * and moved so the glove's pocket meets it. The fingers take the turn about the
+ * palm's normal (`ROLLS`, upward first) the arm holds at the contact with the
+ * least strain (`AutoMovieMotionHumanBend.strain`), so the wrist's range
+ * decides it. The ball's size is the ball's own (`ball`, `HumanBall`). The
+ * hands travel there on minimum-jerk progress over the aimed movement time to
+ * an object of its size (McIntosh et al. 2018,
+ * `AutoMovieMotionHumanTiming.aimed`), arriving at contact; the anticipatory
+ * `prepare` instant is 100 ms before impact (Lacquaniti and Maioli 1989, J
+ * Neurosci 9:134). After contact the hands give `GIVE` along the object's
+ * velocity over `GIVE_TIME` (the issue's 0.05 to 0.15 m, provisional), which is
+ * `secured`, then carry it to before the sternum and hold it. Events: `reach`,
+ * `prepare`, `contact`, `secured`, `held`.
  *
- * The catch may start any time up to that `prepare` instant: with the throw,
- * or later, as when the thrower cuts its own throw at the release to catch
- * what it tossed (a juggle, a rhythmic toss).
+ * The catch may start any time up to that `prepare` instant: with the throw, or
+ * later, as when the thrower cuts its own throw at the release to catch what it
+ * tossed (a juggle, a rhythmic toss).
  *
- * Not yet: hand closure timed by optical expansion (Savelsbergh et al.
- * 1991), a running catch (McLeod and Dienes 1996), a fumble, the catch
- * against the chest, and a held prop handed from the throw.
+ * Not yet: hand closure timed by optical expansion (Savelsbergh et al. 1991), a
+ * running catch (McLeod and Dienes 1996), a fumble, the catch against the
+ * chest, and a held prop handed from the throw.
  */
 export namespace catchObject {
   /** The action's name. */
@@ -103,19 +103,31 @@ export namespace catchObject {
     ],
   };
 
-  /** May be performed over a carrier, such as seated or while another action carries the body: it claims only the parts it moves. */
+  /**
+   * May be performed over a carrier, such as seated or while another action
+   * carries the body: it claims only the parts it moves.
+   */
   export const overlay: boolean = true;
 
-  /** How far ahead of the root the object is met, arm lengths (`catchObjectApproach.REACH`). */
+  /**
+   * How far ahead of the root the object is met, arm lengths
+   * (`catchObjectApproach.REACH`).
+   */
   export const REACH: number = catchObjectApproach.REACH;
 
-  /** The height a self-tossed object is caught at on its way down (`catchObjectApproach.TOSS`). */
+  /**
+   * The height a self-tossed object is caught at on its way down
+   * (`catchObjectApproach.TOSS`).
+   */
   export const TOSS: number = catchObjectApproach.TOSS;
 
   /** How far the hands give with the object after contact, metres (provisional). */
   export const GIVE: number = 0.1;
 
-  /** The turns of the fingers about the palm's normal tried on the ball, degrees from upward: the whole way round in steps of 30. */
+  /**
+   * The turns of the fingers about the palm's normal tried on the ball, degrees
+   * from upward: the whole way round in steps of 30.
+   */
   export const ROLLS: readonly number[] = [
     0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180,
   ];
@@ -138,9 +150,13 @@ export namespace catchObject {
    * Plan a catch.
    *
    * @param context The action's context.
-   * @param interception An optional realized interception supplied by `stageCatch`.
+   * @param interception An optional realized interception supplied by
+   *   `stageCatch`.
    * @returns The plan.
-   * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no size, the glove is not worn on the one catching hand or has no pocket, the path never comes within reach, or the catch would start before the action.
+   * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no
+   *   size, the glove is not worn on the one catching hand or has no pocket,
+   *   the path never comes within reach, or the catch would start before the
+   *   action.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,

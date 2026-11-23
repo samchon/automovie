@@ -40,19 +40,22 @@ type AutoMovieMotionHumanJointAngles = readonly [number, number, number];
 const AIR: number = 0.025;
 
 /**
- * Stage seated shoe or sock transfer with one foot raised and the other grounded.
+ * Stage seated shoe or sock transfer with one foot raised and the other
+ * grounded.
  *
- * The seat and opposite foot carry the body while the working foot rises.
- * The thigh and lower leg lift while the spine leans over the working foot. The five distinct
- * phases recorded in the seated shoe study include raising a leg and inserting
- * the foot (Jin et al., Table 2, https://pmc.ncbi.nlm.nih.gov/articles/PMC6451954/).
- * The slow hand phase here is an authored stage timing.
+ * The seat and opposite foot carry the body while the working foot rises. The
+ * thigh and lower leg lift while the spine leans over the working foot. The
+ * five distinct phases recorded in the seated shoe study include raising a leg
+ * and inserting the foot (Jin et al., Table 2,
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC6451954/). The slow hand phase here
+ * is an authored stage timing.
  *
  * @param context The live entry and held or worn footwear.
  * @param side The foot that enters or leaves the footwear.
  * @param hand The hand that holds the prop.
  * @param remove Whether to take it off instead of putting it on.
- * @returns A seated performance with an actual aperture crossing and custody transfer.
+ * @returns A seated performance with an actual aperture crossing and custody
+ *   transfer.
  * @throws {HumanRefusal} For a failed seat, reach, identity or fit.
  */
 export function wardrobeFoot(
@@ -317,7 +320,10 @@ export function wardrobeFoot(
   return shown;
 }
 
-/** The coursed plan once it is laid, read by the shell's custody through the hand it shows. */
+/**
+ * The coursed plan once it is laid, read by the shell's custody through the
+ * hand it shows.
+ */
 interface ICourse {
   /** The coursed plan; absent until the course is laid. */
   shown?: IAutoMovieMotionHumanActionPlan;
@@ -332,7 +338,11 @@ function event(plan: IAutoMovieMotionHumanActionPlan, name: string): number {
   );
 }
 
-/** Construct the actual heel-based foot frame held during the seated lift: the heel, its forward axis toward the ball and its across axis from the ankle, all rigid on the foot bone. */
+/**
+ * Construct the actual heel-based foot frame held during the seated lift: the
+ * heel, its forward axis toward the ball and its across axis from the ankle,
+ * all rigid on the foot bone.
+ */
 function footFrame(
   body: IAutoMovieMotionHumanActionContext["body"],
   posture: IAutoMovieMotionHumanPosture,
@@ -367,7 +377,10 @@ function footFrame(
   };
 }
 
-/** At removal, align the hand across the rear pull while it still rides the foot. */
+/**
+ * At removal, align the hand across the rear pull while it still rides the
+ * foot.
+ */
 function gripFrame(
   prop: IAutoMovieRigidTransform,
   hold: IAutoMovieAffordance,

@@ -5,15 +5,13 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The Laplacian of an interaction mesh (Ho, Komura and Tai 2010, sections
- * 5 and 5.1): nearby parts influence each other by inverse-distance weights;
- * the skeleton's own bone edges are omitted so the deformation objective
- * does not oppose the bone lengths that the constraints must change.
+ * The Laplacian of an interaction mesh (Ho, Komura and Tai 2010, sections 5 and
+ * 5.1): nearby parts influence each other by inverse-distance weights; the
+ * skeleton's own bone edges are omitted so the deformation objective does not
+ * oppose the bone lengths that the constraints must change.
  */
 export namespace HumanInteractionMeshLaplacian {
-  /**
-   * A sparse row of the Laplacian over point indices.
-   */
+  /** A sparse row of the Laplacian over point indices. */
   export type Row = { point: number; value: number }[];
 
   /**

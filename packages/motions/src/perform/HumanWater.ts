@@ -41,7 +41,8 @@ const PLATE: number = 1.17;
  * root's horizontal speed under the summed drag of the body held in its shape,
  * `m dv/dt = -Σ ½ ρ C_d A |v| v`, integrated from its start
  * (`integrateMotionTrajectory`), so it decays as quadratic drag does, `v0 / (1
- * + k v0 t)` with `k = Σ ½ ρ C_d A / m`.
+ *
+ * - K v0 t)`with`k = Σ ½ ρ C_d A / m`.
  *
  * The registered swimImmersed law uses the same segment model for a held supine
  * shape and for an opt-in breaststroke. The stroke uses each segment's own

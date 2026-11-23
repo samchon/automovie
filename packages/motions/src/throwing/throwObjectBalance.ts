@@ -18,16 +18,19 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The free arm of an underarm delivery held out for balance: as the ball
- * arm swings back and through, the other arm reaches out to its side, a
- * little ahead and below the shoulder (the bowler's balance arm), clear of
- * the trunk the delivery turns and inclines, and returns as the delivery
- * recovers. The hand is placed `REACH` of the arm's length out from its
- * shoulder, `DROP` of it down and `AHEAD` of it forward, palm down and the
- * fingers out; it comes in over the windup and leaves over the recovery.
+ * The free arm of an underarm delivery held out for balance: as the ball arm
+ * swings back and through, the other arm reaches out to its side, a little
+ * ahead and below the shoulder (the bowler's balance arm), clear of the trunk
+ * the delivery turns and inclines, and returns as the delivery recovers. The
+ * hand is placed `REACH` of the arm's length out from its shoulder, `DROP` of
+ * it down and `AHEAD` of it forward, palm down and the fingers out; it comes in
+ * over the windup and leaves over the recovery.
  */
 export namespace throwObjectBalance {
-  /** How far out the balance hand reaches, a share of the arm's length (provisional). */
+  /**
+   * How far out the balance hand reaches, a share of the arm's length
+   * (provisional).
+   */
   export const REACH: number = 0.85;
 
   /** How far below the shoulder, a share of the arm's length (provisional). */
@@ -41,7 +44,8 @@ export namespace throwObjectBalance {
    *
    * @param context The delivery's context.
    * @param clock The delivery's clock: `windup`, `cocked`, `recover` and `end`.
-   * @returns The primitive for a bowling delivery's free arm; none for another style.
+   * @returns The primitive for a bowling delivery's free arm; none for another
+   *   style.
    */
   export function of(
     context: Pick<

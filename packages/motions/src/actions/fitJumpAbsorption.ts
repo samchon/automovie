@@ -19,18 +19,20 @@ import { jumpState } from "./jumpState";
 /**
  * Fit a rotating floor landing's absorption to its planted soles.
  *
- * The incoming downward speed can drive the knee and ankle through more
- * flexion than a flat sole allows. Test the authored course and find a
- * shallower supported endpoint when needed. If the incoming speed makes
- * even the shallow course dip too far, test stronger braking at impact
- * with the same incoming velocity, duration and footprint frame.
+ * The incoming downward speed can drive the knee and ankle through more flexion
+ * than a flat sole allows. Test the authored course and find a shallower
+ * supported endpoint when needed. If the incoming speed makes even the shallow
+ * course dip too far, test stronger braking at impact with the same incoming
+ * velocity, duration and footprint frame.
  *
  * @param body The jumping body used for ground fitting.
  * @param landing The unchanged footprints and nominal world-root endpoints.
  * @param velocity The ballistic world velocity at touchdown, metres per second.
  * @param seconds The absorption phase's duration in seconds.
- * @param demand The current lowered posture at a candidate world root and seconds since touchdown.
- * @returns The tested absorption endpoint and its initial vertical acceleration.
+ * @param demand The current lowered posture at a candidate world root and
+ *   seconds since touchdown.
+ * @returns The tested absorption endpoint and its initial vertical
+ *   acceleration.
  */
 export function fitJumpAbsorption(
   body: IAutoMovieMotionHumanBody,
@@ -147,7 +149,10 @@ export namespace fitJumpAbsorption {
   export interface IPath {
     /** The world root at the end of absorption, metres. */
     root: IAutoMovieVector3;
-    /** Upward acceleration at the start of absorption, metres per second squared. */
+    /**
+     * Upward acceleration at the start of absorption, metres per second
+     * squared.
+     */
     acceleration: number;
   }
 }

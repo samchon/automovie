@@ -12,22 +12,25 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
- * Where a held tool works: the work point a hammer, a saw or a screwdriver
- * is brought to, and for a stir the vessel stirred.
+ * Where a held tool works: the work point a hammer, a saw or a screwdriver is
+ * brought to, and for a stir the vessel stirred.
  *
  * A stir works inside a vessel (`createVessel`): the spoon circles over the
  * vessel's `inside`, halfway between that floor and the `rim` (provisional:
- * deep enough to move what the vessel holds, clear of its floor), on a
- * circle a third of the forearm across (the arm's own stir) or half the
- * inside's radius where that is smaller (provisional: the spoon's bowl kept
- * clear of the wall). The hand holds the spoon from above the rim, so a
- * spoon whose grip to face is shorter than that depth below the rim is
- * refused, as is a stir aimed at anything but a vessel's inside.
+ * deep enough to move what the vessel holds, clear of its floor), on a circle a
+ * third of the forearm across (the arm's own stir) or half the inside's radius
+ * where that is smaller (provisional: the spoon's bowl kept clear of the wall).
+ * The hand holds the spoon from above the rim, so a spoon whose grip to face is
+ * shorter than that depth below the rim is refused, as is a stir aimed at
+ * anything but a vessel's inside.
  */
 export namespace HumanToolWork {
   /** Where a tool works. */
   export interface IWork {
-    /** The working point at a contact, world metres: for a stir, the circle's point nearest the performer. */
+    /**
+     * The working point at a contact, world metres: for a stir, the circle's
+     * point nearest the performer.
+     */
     on: IAutoMovieVector3;
 
     /** A stir's circle radius, metres; 0 for the other kinds. */
@@ -38,9 +41,12 @@ export namespace HumanToolWork {
    * Where a tool works.
    *
    * @param context The action's context.
-   * @param work The kind, the aimed work point, the performer's forward and the tool's reach from its grip to its face, metres.
+   * @param work The kind, the aimed work point, the performer's forward and the
+   *   tool's reach from its grip to its face, metres.
    * @returns The work point and a stir's circle.
-   * @throws {HumanRefusal} When a stir's work point is no vessel's inside, the vessel declares no `rim` or no inside width, or the spoon is too short to reach the stirring depth from above the rim.
+   * @throws {HumanRefusal} When a stir's work point is no vessel's inside, the
+   *   vessel declares no `rim` or no inside width, or the spoon is too short to
+   *   reach the stirring depth from above the rim.
    */
   export function of(
     context: Pick<

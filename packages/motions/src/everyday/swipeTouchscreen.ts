@@ -29,22 +29,28 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
-/** The mean touch-in to touch-out time in seconds for a single-finger swipe (Jeong, Table 2.6). */
+/**
+ * The mean touch-in to touch-out time in seconds for a single-finger swipe
+ * (Jeong, Table 2.6).
+ */
 const SWIPE_SECONDS: number = 0.2851;
-/** The normalized endpoint tolerance used by HumanSegmentEntry and HumanSegmentCut. */
+/**
+ * The normalized endpoint tolerance used by HumanSegmentEntry and
+ * HumanSegmentCut.
+ */
 const CONTACT_SHARE_TOLERANCE: number = 1e-9;
 
 /**
  * One fingertip reaches a named touchscreen, swipes in its local X direction
  * and withdraws. `strokeStart` is touch-in, `strokeEnd` (also `relax`) is
- * touch-out. The hand returns to its entry pose at full duration. The stroke takes
- * 285.1 ms by default, the mean touch-in to touch-out duration from Jeong
- * and Liu (2017, doi:10.1080/00140139.2017.1313457). Jeong reports the
- * measured mean in Table 2.6 of his dissertation. The shared transport rule
- * times the reach and withdrawal. The contact carries no weight. The screen
- * belongs to a stationary fixture and the body keeps its entry stance.
- * Stage a free hand in front of the glass and within reach of the entire
- * stroke. The next action can cut in once the hand has withdrawn.
+ * touch-out. The hand returns to its entry pose at full duration. The stroke
+ * takes 285.1 ms by default, the mean touch-in to touch-out duration from Jeong
+ * and Liu (2017, doi:10.1080/00140139.2017.1313457). Jeong reports the measured
+ * mean in Table 2.6 of his dissertation. The shared transport rule times the
+ * reach and withdrawal. The contact carries no weight. The screen belongs to a
+ * stationary fixture and the body keeps its entry stance. Stage a free hand in
+ * front of the glass and within reach of the entire stroke. The next action can
+ * cut in once the hand has withdrawn.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the target frame, contact, events, timing source, and reach refusal.
  * @evidence contracts/development/design.md#principled-representation A registrable arm-stroke law whose endpoints are shares of the declared screen width.
@@ -58,12 +64,15 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
       any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
     },
     /**
-     * Resolve the screen and compose an index fingertip stroke over the held entry stance.
+     * Resolve the screen and compose an index fingertip stroke over the held
+     * entry stance.
      *
-     * @param context Entry posture, prop reader and normalized screen endpoints.
+     * @param context Entry posture, prop reader and normalized screen
+     *   endpoints.
      * @returns The composed stroke plan and its unloaded hand contact window.
-     * @throws {HumanRefusal} On invalid hand, endpoints or duration, a screen without a width, a movable or articulated screen, or a wrist path outside geometric reach.
-     *
+     * @throws {HumanRefusal} On invalid hand, endpoints or duration, a screen
+     *   without a width, a movable or articulated screen, or a wrist path
+     *   outside geometric reach.
      * @evidence contracts/development/common.md#meaningful-documentation States the plan, its inputs and its refusals.
      * @evidence contracts/development/implementation.md#principled-implementation Interpolates the displayed endpoints and aligns the index tip against the plane normal on the phrase clock. Tests reach at both ends and at the path's closest approach to the shoulder.
      * @evidence contracts/development/implementation.md#clear-and-simple-structure Resolve the screen, build the clock, check reach, then compose one arm stroke.

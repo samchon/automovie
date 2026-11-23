@@ -27,25 +27,24 @@ import { everydayVerdicts } from "./everydayVerdicts";
  * from quiet standing and drawn every tenth of a second or denser, with the
  * peak of the reaction among the stills.
  *
- * Every case reports the largest range-of-motion overshoot (none). Beyond
- * that:
+ * Every case reports the largest range-of-motion overshoot (none). Beyond that:
  *
  * - `reaction-flinch-ahead` and `reaction-flinch-side`: a flinch from a threat
- *   ahead at head height and from one at the left; foot slip at most 5 mm,
- *   each planted foot within 5 mm of the floor, the head farther from the
- *   threat at the peak than at the start and moved no more than the law's
- *   size allows (its height above the hips times the lean's sine, plus the
- *   shift and 30 mm for the neck's duck), and each wrist before the face at
- *   the peak, within the cover's own reach of the face point (the forearm's
- *   radius, two fists and one hand).
- * - `reaction-stagger-back` and `reaction-stagger-side`: a 1 m/s push from
- *   ahead and from the left; foot slip at most 5 mm, each planted foot within
- *   5 mm of the floor and the extrapolated centre of mass inside the feet's
- *   base at the end (Hof, Gazendam and Sinke 2005).
- * - `reaction-knockdown`: a knockdown from a blow ahead; the lowest point of
- *   the body's collision shapes never below the floor by more than 10 mm, the
- *   seat and the feet both within 10 mm of the floor as the seat lands, and
- *   the lowest point within 10 mm of the floor once the body lies.
+ *   ahead at head height and from one at the left; foot slip at most 5 mm, each
+ *   planted foot within 5 mm of the floor, the head farther from the threat at
+ *   the peak than at the start and moved no more than the law's size allows
+ *   (its height above the hips times the lean's sine, plus the shift and 30 mm
+ *   for the neck's duck), and each wrist before the face at the peak, within
+ *   the cover's own reach of the face point (the forearm's radius, two fists
+ *   and one hand).
+ * - `reaction-stagger-back` and `reaction-stagger-side`: a 1 m/s push from ahead
+ *   and from the left; foot slip at most 5 mm, each planted foot within 5 mm of
+ *   the floor and the extrapolated centre of mass inside the feet's base at the
+ *   end (Hof, Gazendam and Sinke 2005).
+ * - `reaction-knockdown`: a knockdown from a blow ahead; the lowest point of the
+ *   body's collision shapes never below the floor by more than 10 mm, the seat
+ *   and the feet both within 10 mm of the floor as the seat lands, and the
+ *   lowest point within 10 mm of the floor once the body lies.
  *
  * @param bodies The sweep bodies to run each case on; `m-average` when absent.
  * @returns The cases.

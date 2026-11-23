@@ -20,7 +20,10 @@ interface IInterval {
   at: IOffset;
 
   /** Actual rigid departure and arrival placements, borrowed unchanged. */
-  placements: readonly [IAutoMovieMotionHumanFoot.IPlacement, IAutoMovieMotionHumanFoot.IPlacement];
+  placements: readonly [
+    IAutoMovieMotionHumanFoot.IPlacement,
+    IAutoMovieMotionHumanFoot.IPlacement,
+  ];
 
   /** Native fixed geometry, acquired only when placement is actually observed. */
   arc?: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>;
@@ -37,15 +40,18 @@ interface IReading {
 
 /**
  * Prepare a dance foot's fixed footfalls and rigid swing geometry. Each
- * observation independently selects its original half-beat interval;
- * placement, bearing and lateral offsets retain their separate readers.
+ * observation independently selects its original half-beat interval; placement,
+ * bearing and lateral offsets retain their separate readers.
  *
- * @param path Ordered footfalls with unchanged second-valued beats and local-metre offsets.
- * @param placements The unchanged actual world placement of each path/origin offset.
+ * @param path Ordered footfalls with unchanged second-valued beats and
+ *   local-metre offsets.
+ * @param placements The unchanged actual world placement of each path/origin
+ *   offset.
  * @param origin The initial local offset, present in placements.
  * @param period The existing beat period, seconds.
  * @param clearance The original swing height, metres.
- * @returns Independent current-time readers for local offset, fresh rigid placement and bearing.
+ * @returns Independent current-time readers for local offset, fresh rigid
+ *   placement and bearing.
  */
 export function prepareDanceFootCourse(
   path: readonly { beat: number; at: IOffset }[],

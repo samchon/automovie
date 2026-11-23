@@ -41,17 +41,18 @@ const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 /**
- * Turn on the selected ski edges or use a Nordic pole and opposite ski
- * on the shared glide. Alpine skiing measures a transfer across opposing
- * edges during the turn (https://doi.org/10.1371/journal.pone.0176975).
- * The distinct Nordic stroke follows the pole and opposite ski phases of
- * Pellegrini et al. (2020, Figure 2,
- * https://pubmed.ncbi.nlm.nih.gov/32439501/). The authored glide supplies
- * speed and stopping. The pole's own prop motion supplies its moving grip.
+ * Turn on the selected ski edges or use a Nordic pole and opposite ski on the
+ * shared glide. Alpine skiing measures a transfer across opposing edges during
+ * the turn (https://doi.org/10.1371/journal.pone.0176975). The distinct Nordic
+ * stroke follows the pole and opposite ski phases of Pellegrini et al. (2020,
+ * Figure 2, https://pubmed.ncbi.nlm.nih.gov/32439501/). The authored glide
+ * supplies speed and stopping. The pole's own prop motion supplies its moving
+ * grip.
  *
  * @param context The entered stance and the authored snow technique.
  * @returns The fitted glide and the named edge or pole transitions.
- * @throws {HumanRefusal} When the edge change or the pole support is infeasible.
+ * @throws {HumanRefusal} When the edge change or the pole support is
+ *   infeasible.
  */
 export function HumanSnowGlide(context: Context): Plan {
   const base: Plan = HumanSurfaceGlide.plan(context);

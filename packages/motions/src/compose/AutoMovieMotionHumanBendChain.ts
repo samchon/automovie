@@ -22,15 +22,15 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
  * An arm chain prepared on a posture's trunk for the elbow search of
- * `AutoMovieMotionHumanBend`: the engine's two-bone preparation, the
- * shoulder, the arm's span, the rig's clinical axes and the trunk's posed
- * colliders the forearm must clear.
+ * `AutoMovieMotionHumanBend`: the engine's two-bone preparation, the shoulder,
+ * the arm's span, the rig's clinical axes and the trunk's posed colliders the
+ * forearm must clear.
  */
 export namespace AutoMovieMotionHumanBendChain {
   /**
    * One trunk both arm chains are prepared on in one synchronous bilateral
-   * preparation: the trunk pose, the workspace its forward kinematics runs
-   * in and the trunk's colliders placed by the first side.
+   * preparation: the trunk pose, the workspace its forward kinematics runs in
+   * and the trunk's colliders placed by the first side.
    */
   export interface IPrepared {
     /** The trunk pose, the posture's root and heading with no joint. */
@@ -42,13 +42,14 @@ export namespace AutoMovieMotionHumanBendChain {
     /** The sides prepared so far. */
     readonly sides: Set<AutoMovieHumanSide>;
 
-    /** The trunk's placed colliders, world metres, from the first side; each chain receives a copy. */
+    /**
+     * The trunk's placed colliders, world metres, from the first side; each
+     * chain receives a copy.
+     */
     shapes?: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 
-  /**
-   * An arm chain prepared on a posture's trunk.
-   */
+  /** An arm chain prepared on a posture's trunk. */
   export interface IChain {
     /** The engine's preparation of the chain. */
     prepared: NonNullable<ReturnType<typeof prepareChainPlant>>;
@@ -72,7 +73,8 @@ export namespace AutoMovieMotionHumanBendChain {
    * @param body The body.
    * @param posture The root and the heading; an absent pitch or roll is 0.
    * @param side The arm.
-   * @param source The bilateral source prepare made for this body and posture, when both arms are prepared together.
+   * @param source The bilateral source prepare made for this body and posture,
+   *   when both arms are prepared together.
    * @returns The chain with the trunk's shapes posed.
    */
   export function of(
@@ -82,7 +84,8 @@ export namespace AutoMovieMotionHumanBendChain {
     source?: IPrepared,
   ): IChain | null {
     const shared: IPrepared | undefined = source;
-    const axes: ReturnType<typeof skeletonJointAxes> = body.poseResolution.jointAxes;
+    const axes: ReturnType<typeof skeletonJointAxes> =
+      body.poseResolution.jointAxes;
     const pose: IAutoMoviePose = shared?.pose ?? {
       skeleton: body.skeleton.id,
       root: Transform.of(
@@ -116,7 +119,8 @@ export namespace AutoMovieMotionHumanBendChain {
         body.poseResolution,
       );
       if (prepared === null) return null;
-      const shapes: IAutoMovieMotionHumanColliders.IPlaced[] = shared?.shapes ??
+      const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
+        shared?.shapes ??
         HumanArmClearance.trunk(
           body,
           poseBones(body, pose, resolution(), HumanArmObstacleBones.TRUNK),
@@ -125,7 +129,9 @@ export namespace AutoMovieMotionHumanBendChain {
       return {
         prepared,
         shoulder: prepared.upper.worldPosition,
-        span: Vector3.length(prepared.lowerOffset) + Vector3.length(prepared.effectorOffset),
+        span:
+          Vector3.length(prepared.lowerOffset) +
+          Vector3.length(prepared.effectorOffset),
         axes,
         shapes: shared === undefined ? shapes : copyShapes(shapes),
       };
@@ -138,8 +144,8 @@ export namespace AutoMovieMotionHumanBendChain {
   }
 
   /**
-   * The source both arms of one trunk are prepared on: the posture's root
-   * and heading as a pose with no joint, and a workspace for its forward
+   * The source both arms of one trunk are prepared on: the posture's root and
+   * heading as a pose with no joint, and a workspace for its forward
    * kinematics. The caller passes it to `of` for each side, on the same body
    * and posture.
    */
@@ -167,15 +173,25 @@ export namespace AutoMovieMotionHumanBendChain {
   }
 
   /** Keep the source's placement independent of every returned chain's mutation. */
-  function copyShapes(shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[]): IAutoMovieMotionHumanColliders.IPlaced[] {
+  function copyShapes(
+    shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  ): IAutoMovieMotionHumanColliders.IPlaced[] {
     return shapes.map(copyShape);
   }
 
-  /** One fresh outward collider frame; only the original immutable shape geometry is shared. */
-  function copyShape(shape: IAutoMovieMotionHumanColliders.IPlaced): IAutoMovieMotionHumanColliders.IPlaced {
+  /**
+   * One fresh outward collider frame; only the original immutable shape
+   * geometry is shared.
+   */
+  function copyShape(
+    shape: IAutoMovieMotionHumanColliders.IPlaced,
+  ): IAutoMovieMotionHumanColliders.IPlaced {
     return {
       bone: shape.bone,
-      pose: { position: { ...shape.pose.position }, rotation: { ...shape.pose.rotation } },
+      pose: {
+        position: { ...shape.pose.position },
+        rotation: { ...shape.pose.rotation },
+      },
       shapes: shape.shapes,
     };
   }

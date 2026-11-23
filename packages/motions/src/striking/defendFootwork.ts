@@ -11,13 +11,14 @@ import type { defendGeometry } from "./defendGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
 
 /**
- * Continue an interrupted step beneath the defence's own clock. A checking
- * leg that bears at the cut can lift once the other foot has landed.
+ * Continue an interrupted step beneath the defence's own clock. A checking leg
+ * that bears at the cut can lift once the other foot has landed.
  *
  * @param context The displayed cut entry.
  * @param timing The defence's own action-relative timing.
  * @param checking The checking foot, when the defence lifts one.
- * @returns The shared landing, release and displayed leg goals, or undefined when the defence starts from settled feet.
+ * @returns The shared landing, release and displayed leg goals, or undefined
+ *   when the defence starts from settled feet.
  */
 export function defendFootwork(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -81,10 +82,16 @@ export namespace defendFootwork {
    * @evidence contracts/development/design.md#prohibited-design-shortcuts A foot that bears at the cut touches down at zero, so no flag duplicates the landing record.
    */
   export interface ISupport {
-    /** Each foot's touchdown second on the defence's clock; zero for a foot that bears at the cut. */
+    /**
+     * Each foot's touchdown second on the defence's clock; zero for a foot that
+     * bears at the cut.
+     */
     touchdown: Record<AutoMovieHumanSide, number>;
 
-    /** The second the checking leg may leave the floor, after the other foot has landed. */
+    /**
+     * The second the checking leg may leave the floor, after the other foot has
+     * landed.
+     */
     release: number;
 
     /** The displayed leg goals at a second of the defence. */

@@ -9,14 +9,15 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
- * Read the support that survives a cut before choosing the next swing. Keep
- * the displayed bearing placement and lower each airborne foot's baseline to
- * the same floor. The first beat can then move from its actual cut placement
- * to a real touchdown. Ordinary steps and cuts with both feet down need no
+ * Read the support that survives a cut before choosing the next swing. Keep the
+ * displayed bearing placement and lower each airborne foot's baseline to the
+ * same floor. The first beat can then move from its actual cut placement to a
+ * real touchdown. Ordinary steps and cuts with both feet down need no
  * correction.
  *
  * @param context The incoming step's body and displayed entry state.
- * @returns The inherited support and ground placements, in world metres, or undefined when no foot is airborne at a step's cut.
+ * @returns The inherited support and ground placements, in world metres, or
+ *   undefined when no foot is airborne at a step's cut.
  */
 export function strikingStepSupport(
   context: IAutoMovieMotionHumanActionContext,
@@ -93,8 +94,8 @@ export namespace strikingStepSupport {
     >;
 
     /**
-     * Height above the landing placement, metres, at local seconds before
-     * the foot's touchdown second, and zero from touchdown on.
+     * Height above the landing placement, metres, at local seconds before the
+     * foot's touchdown second, and zero from touchdown on.
      */
     rise(side: AutoMovieHumanSide, seconds: number, touchdown: number): number;
   }

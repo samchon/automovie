@@ -3,8 +3,8 @@
  * its footfalls give it: at each heel strike the pelvis faces midway between
  * the two feet it stands on, so neither hip turns further than the other.
  *
- * Between the knots the heading follows a monotone piecewise cubic (Fritsch
- * and Butland 1984): continuous with its rate, never overshooting a knot, and
+ * Between the knots the heading follows a monotone piecewise cubic (Fritsch and
+ * Butland 1984): continuous with its rate, never overshooting a knot, and
  * constant wherever the knots are, so a straight walk keeps its heading.
  */
 export class WalkTurn {

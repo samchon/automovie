@@ -1,8 +1,9 @@
 import type { IAutoMovieMotionHumanAcrobatics } from "@automovie/interface";
 
 /**
- * The round-off led with the right hand: the right hand goes down first. Spread into
- * `roundOff`'s parameters; the `roundOffRight` row of `HumanGymnastics` fixes this value.
+ * The round-off led with the right hand: the right hand goes down first. Spread
+ * into `roundOff`'s parameters; the `roundOffRight` row of `HumanGymnastics`
+ * fixes this value.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the hand the preset fixes, how it is applied and which row reads it.
  * @evidence contracts/development/design.md#principled-representation The round-off's own leading hand as one `IRoundOffPreset`.

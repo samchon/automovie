@@ -44,7 +44,10 @@ export namespace AquaticPosture {
     };
   }
 
-  /** Prepare a posed transition; the caller may replace its root with a support trajectory. */
+  /**
+   * Prepare a posed transition; the caller may replace its root with a support
+   * trajectory.
+   */
   export function blend(
     from: IAutoMovieMotionHumanPosture,
     to: IAutoMovieMotionHumanPosture,
@@ -81,7 +84,8 @@ export namespace AquaticPosture {
 
   /**
    * Prepare one observation of a fixed set of canonical bones for changing
-   * poses. The result contains the requested displayed centres in world metres.
+   * poses. The result contains the requested displayed centres in world
+   * metres.
    */
   export function markers(
     body: Context["body"],
@@ -111,8 +115,8 @@ export namespace AquaticPosture {
 
   /**
    * The arm a posture shows from its own joints, without the arm goals it
-   * writes: where a coursed arm (`courseArmGoal`) starts when the law's own
-   * key holds it at the course's start.
+   * writes: where a coursed arm (`courseArmGoal`) starts when the law's own key
+   * holds it at the course's start.
    */
   export function rest(
     body: Context["body"],
@@ -127,7 +131,10 @@ export namespace AquaticPosture {
       side,
     );
   }
-  /** Place the root at a world point and carry any world-space rotation pivot with it. */
+  /**
+   * Place the root at a world point and carry any world-space rotation pivot
+   * with it.
+   */
   export function translate(
     posture: IAutoMovieMotionHumanPosture,
     root: IAutoMovieVector3,
@@ -148,7 +155,10 @@ export namespace AquaticPosture {
     };
   }
 
-  /** Heading-relative offset from the entry, with an independently chosen world height. */
+  /**
+   * Heading-relative offset from the entry, with an independently chosen world
+   * height.
+   */
   export function along(
     entry: IAutoMovieMotionHumanPosture,
     distance: number,

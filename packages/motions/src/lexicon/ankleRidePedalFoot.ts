@@ -12,16 +12,21 @@ import { HumanFoot } from "../posture/HumanFoot";
 type Placement = Required<Pick<IAutoMovieHumanLimbGoal, "point" | "rotation">>;
 
 /**
- * A foot goal turned toes-down about its contact until its ankle is within the leg's reach of the hip with the knee `knee` bent, no further than `ankling`: a cyclist's ankle through the bottom of the stroke (`HumanMountRider.ankled`, which supplies the rider's bounds).
+ * A foot goal turned toes-down about its contact until its ankle is within the
+ * leg's reach of the hip with the knee `knee` bent, no further than `ankling`:
+ * a cyclist's ankle through the bottom of the stroke (`HumanMountRider.ankled`,
+ * which supplies the rider's bounds).
  *
  * @param body The body.
  * @param side The foot.
  * @param goal The foot's goal on its pedal.
  * @param hip The hip joint, world metres.
- * @param level The rotation a foot whose goal leaves its turn free stands with: level, facing as the body does.
+ * @param level The rotation a foot whose goal leaves its turn free stands with:
+ *   level, facing as the body does.
  * @param knee The knee flexion the leg keeps, degrees.
  * @param ankling The furthest the foot points down, degrees.
- * @returns The goal, turned about the ball of the foot where the leg would run short; the goal itself where it reaches.
+ * @returns The goal, turned about the ball of the foot where the leg would run
+ *   short; the goal itself where it reaches.
  */
 export function ankleRidePedalFoot(
   body: IAutoMovieMotionHumanBody,

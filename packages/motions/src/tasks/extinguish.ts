@@ -48,25 +48,23 @@ const SWEEPS: number = 3;
 const SPAN: number = 40;
 
 /**
- * Aim, squeeze and sweep an extinguisher whose pin is already pulled: the
- * A, S and S of OSHA's PASS (pull, aim, squeeze, sweep; Portable fire
- * extinguishers,
+ * Aim, squeeze and sweep an extinguisher whose pin is already pulled: the A, S
+ * and S of OSHA's PASS (pull, aim, squeeze, sweep; Portable fire extinguishers,
  * https://osha.gov/etools/evacuation-plans-procedures/emergency-standards/portable-extinguishers/use).
  * Register as `extinguish`; the chain's `pass` pulls the pin first.
  *
- * The extinguisher rides the hand on its `handle`, so its `nozzle` lies at
- * a fixed lever from the wrist. The wrist stays where it is and turns the
- * least that points the nozzle's discharge at the fire's base (the aim),
- * then sweeps that aim side to side about the vertical through the wrist,
- * `span` degrees in all, `sweeps` times, while the holding hand's index
- * finger squeezes the `lever` down on its `leverTip` and holds it. The aim
- * is reached over `AIM` seconds and released over another, the lever let
- * go as the sweeps end. Events: `strokeStart` as the squeeze begins,
- * `strokeEnd` as the sweeps end.
+ * The extinguisher rides the hand on its `handle`, so its `nozzle` lies at a
+ * fixed lever from the wrist. The wrist stays where it is and turns the least
+ * that points the nozzle's discharge at the fire's base (the aim), then sweeps
+ * that aim side to side about the vertical through the wrist, `span` degrees in
+ * all, `sweeps` times, while the holding hand's index finger squeezes the
+ * `lever` down on its `leverTip` and holds it. The aim is reached over `AIM`
+ * seconds and released over another, the lever let go as the sweeps end.
+ * Events: `strokeStart` as the squeeze begins, `strokeEnd` as the sweeps end.
  *
- * Refusals: a hand that does not hold the extinguisher, a pin still in
- * (the lever is locked until it is pulled), an extinguisher without its
- * lever, pin or nozzle, and a non-positive sweep count or span.
+ * Refusals: a hand that does not hold the extinguisher, a pin still in (the
+ * lever is locked until it is pulled), an extinguisher without its lever, pin
+ * or nozzle, and a non-positive sweep count or span.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the PASS source, the held lever, the aim, the sweep, the squeeze, the timing and the refusals.
  * @evidence contracts/development/design.md#principled-representation A law record over the extinguisher's declared lever, pin and nozzle.

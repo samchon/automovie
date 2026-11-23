@@ -37,7 +37,10 @@ const WHEELS: readonly string[] = [
 /** Push-foot clearance outside the deck's edge, in foot lengths (provisional). */
 const PUSH_MARGIN: number = 1 / 4;
 
-/** Toe lift over the deck while a foot travels or the board rises, in foot lengths (provisional). */
+/**
+ * Toe lift over the deck while a foot travels or the board rises, in foot
+ * lengths (provisional).
+ */
 const TOE_CLEARANCE: number = 1 / 3;
 
 /** Extra push-foot lift at take-off, in toe clearances (provisional). */
@@ -49,20 +52,24 @@ const LOAD_DROP: number = 0.18;
 /** Pelvis drop absorbing the landing, in thigh lengths (provisional). */
 const ABSORB_DROP: number = 0.24;
 
-/** Pelvis drop toward a street push, in thigh lengths, before the push fit lowers it to reach (provisional). */
+/**
+ * Pelvis drop toward a street push, in thigh lengths, before the push fit
+ * lowers it to reach (provisional).
+ */
 const PUSH_DROP: number = 0.17;
 
 /**
- * Transfer the entered stance between street and deck, then follow the
- * authored tail strike, flight and grounded landing. Frederick et al.
- * measured the separate launch and landing ground reactions. Nakashima
- * et al. studied the timing of separation between board and feet.
+ * Transfer the entered stance between street and deck, then follow the authored
+ * tail strike, flight and grounded landing. Frederick et al. measured the
+ * separate launch and landing ground reactions. Nakashima et al. studied the
+ * timing of separation between board and feet.
  * https://pubmed.ncbi.nlm.nih.gov/16760565/
  * https://www.jstage.jst.go.jp/article/mej/8/5/8_21-00230/_article
  *
  * @param context An acquired stance and a skateboard on the film clock.
  * @returns A carried pose with separate deck and world support windows.
- * @throws {HumanRefusal} When the entry, deck or authored floor contacts are infeasible.
+ * @throws {HumanRefusal} When the entry, deck or authored floor contacts are
+ *   infeasible.
  */
 export function prepareSkateboardPhrase(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISkateboardPhraseParams>,

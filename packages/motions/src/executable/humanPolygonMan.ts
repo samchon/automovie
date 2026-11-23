@@ -7,17 +7,17 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A polygon man of any Human parameters on the canonical rig, for local
- * motion checks and captures.
+ * A polygon man of any Human parameters on the canonical rig, for local motion
+ * checks and captures.
  *
  * The body is prepared by Human at the skeleton level
- * (`AutoMovieHumanCanonicalBody.prepare`: joints by closed-form placement
- * laws, girth radii from the person's measures, the T-pose and a contact
- * profile from the polygon's own primitives), tens of milliseconds a body
- * with no curve of the detailed figure built or solved; its measure is read
- * by the engine's `measureAutoMovieHumanoidBody`. Nothing is kept between
- * calls or on disk: a preparation costs less than reading and checking a
- * stored one against the sources it depends on.
+ * (`AutoMovieHumanCanonicalBody.prepare`: joints by closed-form placement laws,
+ * girth radii from the person's measures, the T-pose and a contact profile from
+ * the polygon's own primitives), tens of milliseconds a body with no curve of
+ * the detailed figure built or solved; its measure is read by the engine's
+ * `measureAutoMovieHumanoidBody`. Nothing is kept between calls or on disk: a
+ * preparation costs less than reading and checking a stored one against the
+ * sources it depends on.
  *
  * @param id Stable body id, used as the skeleton id.
  * @param params Human's parameters.
@@ -38,9 +38,7 @@ export function humanPolygonMan(
   };
 }
 
-/**
- * Companion types of {@link humanPolygonMan}.
- */
+/** Companion types of {@link humanPolygonMan}. */
 export namespace humanPolygonMan {
   /** A prepared polygon man. */
   export interface IPolygonMan {

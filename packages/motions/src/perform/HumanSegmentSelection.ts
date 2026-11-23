@@ -1,15 +1,13 @@
 import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
-
-/**
- * Select a placed carrier for an exact film second in placement order.
- */
+/** Select a placed carrier for an exact film second in placement order. */
 export namespace HumanSegmentSelection {
   /**
    * The last placed segment entered by a second, with the existing endpoint
    * allowance. State construction and placement own the dense segment list.
    *
-   * @param segments The unchanged placement-order array, initialized empty and populated by placement pushes.
+   * @param segments The unchanged placement-order array, initialized empty and
+   *   populated by placement pushes.
    * @param seconds Film seconds.
    * @returns The last matching segment reference, or none before any entry.
    */

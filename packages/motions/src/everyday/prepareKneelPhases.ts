@@ -21,7 +21,10 @@ interface IPhase {
   /** Each foot's unchanged pivot/arc owner. */
   feet: Record<"left" | "right", ReturnType<typeof prepareKneelFoot>>;
 
-  /** The fixed line or seated-back arc, absent while the dynamic balance course owns the root. */
+  /**
+   * The fixed line or seated-back arc, absent while the dynamic balance course
+   * owns the root.
+   */
   root?: (share: number) => IAutoMovieVector3;
 }
 

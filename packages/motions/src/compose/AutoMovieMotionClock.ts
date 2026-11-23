@@ -15,10 +15,10 @@ import { AutoMovieMotionWave } from "./AutoMovieMotionWave";
  * owner of progress between two of them.
  *
  * A primitive asks the clock how far the action is between two instants and
- * never does window arithmetic of its own, so every channel of an action
- * moves on the same instants and a partner's action or an interrupt row reads
- * the same names. The shared names are Kendon's gesture phases with a
- * contact (Kendon 1980; McNeill 1992): `prepare`, `strokeStart`, `contact`,
+ * never does window arithmetic of its own, so every channel of an action moves
+ * on the same instants and a partner's action or an interrupt row reads the
+ * same names. The shared names are Kendon's gesture phases with a contact
+ * (Kendon 1980; McNeill 1992): `prepare`, `strokeStart`, `contact`,
  * `strokeEnd`, `retract`. A family adds its own (`chamber`, `takeoff`,
  * `landing`). `start` and `end` always exist, at 0 and at the duration.
  */
@@ -30,17 +30,23 @@ export namespace AutoMovieMotionClock {
   export const END: string = AutoMovieMotionClockNative.END;
 
   /**
-   * A fixed window's uniform and minimum-jerk readers, its two instants resolved once.
+   * A fixed window's uniform and minimum-jerk readers, its two instants
+   * resolved once.
    */
-  export function prepare(clock: IAutoMovieMotionClock, from: string, to: string): AutoMovieMotionInterval.IPrepared {
+  export function prepare(
+    clock: IAutoMovieMotionClock,
+    from: string,
+    to: string,
+  ): AutoMovieMotionInterval.IPrepared {
     return AutoMovieMotionClockNative.prepare(clock, from, to);
   }
 
-  /**
-   * A fixed rise and fall's envelope, each window's instants resolved once.
-   */
-  export function prepareEnvelope(clock: IAutoMovieMotionClock, rise: readonly [string, string],
-    fall: readonly [string, string]): (seconds: number) => number {
+  /** A fixed rise and fall's envelope, each window's instants resolved once. */
+  export function prepareEnvelope(
+    clock: IAutoMovieMotionClock,
+    rise: readonly [string, string],
+    fall: readonly [string, string],
+  ): (seconds: number) => number {
     return AutoMovieMotionClockNative.prepareEnvelope(clock, rise, fall);
   }
   /**
@@ -49,21 +55,27 @@ export namespace AutoMovieMotionClock {
    * @param duration Duration, seconds.
    * @param instants The named instants, in any order.
    * @returns The clock.
-   * @throws {Error} On a duration that is not positive, a reserved or repeated name, or an instant outside the duration.
+   * @throws {Error} On a duration that is not positive, a reserved or repeated
+   *   name, or an instant outside the duration.
    */
-  export function of(duration: number, instants: readonly IAutoMovieMotionClockInstant[]): IAutoMovieMotionClock {
+  export function of(
+    duration: number,
+    instants: readonly IAutoMovieMotionClockInstant[],
+  ): IAutoMovieMotionClock {
     return AutoMovieMotionClockNative.of(duration, instants);
   }
 
   /**
-   * A clock from phases laid end to end: each phase's name is the instant
-   * that opens it, and the duration is the sum of the lengths.
+   * A clock from phases laid end to end: each phase's name is the instant that
+   * opens it, and the duration is the sum of the lengths.
    *
    * @param phases The phases in order.
    * @returns The clock.
    * @throws {Error} On a negative length, or what {@link of} refuses.
    */
-  export function sequence(phases: readonly IAutoMovieMotionClockPhase[]): IAutoMovieMotionClock {
+  export function sequence(
+    phases: readonly IAutoMovieMotionClockPhase[],
+  ): IAutoMovieMotionClock {
     const instants: IAutoMovieMotionClockInstant[] = [];
     let seconds: number = 0;
     for (const phase of phases) {
@@ -76,8 +88,8 @@ export namespace AutoMovieMotionClock {
   }
 
   /**
-   * The standard instants of a phrase in time order, between `start` and
-   * `end`: the synchronisation points BML 1.0 gives every behaviour.
+   * The standard instants of a phrase in time order, between `start` and `end`:
+   * the synchronisation points BML 1.0 gives every behaviour.
    */
   export const PHRASE: readonly [
     "ready",
@@ -91,14 +103,16 @@ export namespace AutoMovieMotionClock {
    * A clock with the standard instants of a phrase: `start`, `ready`,
    * `strokeStart`, `stroke` (the instant of contact or of greatest extent),
    * `strokeEnd`, `relax`, `end`. A phase of no length puts its two instants at
-   * one time, so every phrase has every name and two actions can be aligned
-   * by any of them.
+   * one time, so every phrase has every name and two actions can be aligned by
+   * any of them.
    *
    * @param durations The six phase lengths.
    * @returns The clock.
    * @throws {Error} On a negative length, or a phrase of no length.
    */
-  export function phrase(durations: IAutoMovieMotionPhraseDurations ): IAutoMovieMotionClock {
+  export function phrase(
+    durations: IAutoMovieMotionPhraseDurations,
+  ): IAutoMovieMotionClock {
     const lengths: readonly number[] = [
       durations.prepare,
       durations.wait ?? 0,
@@ -128,16 +142,21 @@ export namespace AutoMovieMotionClock {
    * @returns The phases, for {@link sequence}.
    * @throws {Error} On a count that is not a positive integer.
    */
-  export function repeat(span: readonly IAutoMovieMotionClockPhase[], count: number): IAutoMovieMotionClockPhase[] {
+  export function repeat(
+    span: readonly IAutoMovieMotionClockPhase[],
+    count: number,
+  ): IAutoMovieMotionClockPhase[] {
     if (!(Number.isInteger(count) && count > 0))
       throw new Error("A movement repeats a positive whole number of times");
-    return Array.from({ length: count }, (_: unknown, i: number): IAutoMovieMotionClockPhase[] =>
-      span.map(
-        (phase: IAutoMovieMotionClockPhase): IAutoMovieMotionClockPhase => ({
-          name: `${phase.name}${i + 1}`,
-          seconds: phase.seconds,
-        }),
-      ),
+    return Array.from(
+      { length: count },
+      (_: unknown, i: number): IAutoMovieMotionClockPhase[] =>
+        span.map(
+          (phase: IAutoMovieMotionClockPhase): IAutoMovieMotionClockPhase => ({
+            name: `${phase.name}${i + 1}`,
+            seconds: phase.seconds,
+          }),
+        ),
     ).flat();
   }
 
@@ -149,7 +168,8 @@ export namespace AutoMovieMotionClock {
    * first half of a minimum-jerk movement, and stays 1 from then on.
    *
    * @param clock The clock.
-   * @param window The instants the movement starts, passes the point and ends at.
+   * @param window The instants the movement starts, passes the point and ends
+   *   at.
    * @param seconds Seconds since the action's start.
    * @returns 0 until the start, 1 at the point, the overshoot's share after it.
    */
@@ -172,14 +192,19 @@ export namespace AutoMovieMotionClock {
   }
 
   /** The original clock-driven oscillation, owned by AutoMovieMotionWave.sample. */
-  export const wave: typeof AutoMovieMotionWave.sample = AutoMovieMotionWave.sample;
+  export const wave: typeof AutoMovieMotionWave.sample =
+    AutoMovieMotionWave.sample;
 
-  /** Fixed wave constants with every actual custom clock.linear callback preserved. */
-  export const prepareWave: typeof AutoMovieMotionWave.prepare = AutoMovieMotionWave.prepare;
+  /**
+   * Fixed wave constants with every actual custom clock.linear callback
+   * preserved.
+   */
+  export const prepareWave: typeof AutoMovieMotionWave.prepare =
+    AutoMovieMotionWave.prepare;
   /**
    * A clock with each of its spans stretched by a factor of its own. A span
-   * runs from one instant to the next in time order and is named by the
-   * instant that opens it; the first span is opened by `start`.
+   * runs from one instant to the next in time order and is named by the instant
+   * that opens it; the first span is opened by `start`.
    *
    * @param clock The clock.
    * @param factor The factor of the span an instant opens; positive.
@@ -218,10 +243,13 @@ export namespace AutoMovieMotionClock {
    * physics sets (a flight, a fall, a recoil) and no manner changes.
    *
    * @param clock The clock.
-   * @param tempo The factor on every other span's length; positive, 1 for no change.
-   * @param fixed The instants that open the spans left as they are; none when absent.
+   * @param tempo The factor on every other span's length; positive, 1 for no
+   *   change.
+   * @param fixed The instants that open the spans left as they are; none when
+   *   absent.
    * @returns The scaled clock, with the same instant names.
-   * @throws {Error} On a tempo that is not positive, or a fixed name the clock lacks.
+   * @throws {Error} On a tempo that is not positive, or a fixed name the clock
+   *   lacks.
    */
   export function scale(
     clock: IAutoMovieMotionClock,
@@ -235,16 +263,17 @@ export namespace AutoMovieMotionClock {
   }
 
   /**
-   * A clock whose named instant falls on a given second: the spans before
-   * the instant are stretched by one factor so it lands there, and the spans
-   * after it keep their lengths. Two roles of a mutual action align their
-   * clocks to the meeting's shared instant this way.
+   * A clock whose named instant falls on a given second: the spans before the
+   * instant are stretched by one factor so it lands there, and the spans after
+   * it keep their lengths. Two roles of a mutual action align their clocks to
+   * the meeting's shared instant this way.
    *
    * @param clock The clock.
    * @param instant The instant to place.
    * @param seconds Where it falls, seconds since the action's start; positive.
    * @returns The aligned clock, with the same instant names.
-   * @throws {Error} When the instant is at the action's start, or the second is not positive.
+   * @throws {Error} When the instant is at the action's start, or the second is
+   *   not positive.
    */
   export function align(
     clock: IAutoMovieMotionClock,
@@ -264,4 +293,3 @@ export namespace AutoMovieMotionClock {
     });
   }
 }
-

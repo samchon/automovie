@@ -25,9 +25,7 @@ export namespace HumanMountPush {
    */
   export const DORSAL: number = ANKLE_DORSIFLEXION.unloaded - 3;
 
-  /**
-   * The pushing foot rolled over its ball at an instant.
-   */
+  /** The pushing foot rolled over its ball at an instant. */
   export interface IRoll {
     /** The leg's goal: the rolled ankle and foot, bearing on the ball. */
     goal: IAutoMovieHumanLimbGoal;

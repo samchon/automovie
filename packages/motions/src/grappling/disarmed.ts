@@ -16,11 +16,11 @@ import { HumanHand } from "../posture/HumanHand";
 
 /**
  * The armed partner of a disarm (`IAutoMovieMotionHumanDisarm.IYield`). The
- * partner keeps the posture it entered with; its armed forearm turns with
- * the lever from the defender's grip to the take, and its hand opens at the
- * defender's `taken` instant, read from the disarm's own placed plan, where
- * its grip on the weapon ends, so the weapon passes to the defender's hand
- * with one owner at every instant.
+ * partner keeps the posture it entered with; its armed forearm turns with the
+ * lever from the defender's grip to the take, and its hand opens at the
+ * defender's `taken` instant, read from the disarm's own placed plan, where its
+ * grip on the weapon ends, so the weapon passes to the defender's hand with one
+ * owner at every instant.
  */
 export namespace disarmed {
   /** The action's name. */
@@ -40,7 +40,9 @@ export namespace disarmed {
    *
    * @param context The action's context.
    * @returns The plan.
-   * @throws {HumanRefusal} On `of` when no disarm by that defender is anchored there or it has no `taken` instant, and on `prop` when this performer holds nothing.
+   * @throws {HumanRefusal} On `of` when no disarm by that defender is anchored
+   *   there or it has no `taken` instant, and on `prop` when this performer
+   *   holds nothing.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IYield>,

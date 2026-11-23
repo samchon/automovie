@@ -8,14 +8,12 @@ import type {
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 
 /**
- * The beat schedule of a rung-ladder climb: both hands reach their first
- * rungs in one beat, then each rung takes four beats, one limb moving up one
- * rung at a time in the climb's limb order. `climbLadder` owns the poses.
+ * The beat schedule of a rung-ladder climb: both hands reach their first rungs
+ * in one beat, then each rung takes four beats, one limb moving up one rung at
+ * a time in the climb's limb order. `climbLadder` owns the poses.
  */
 export namespace climbLadderBeats {
-  /**
-   * One limb's move up one rung.
-   */
+  /** One limb's move up one rung. */
   export interface IMove {
     /** The rung the move reaches, 1 the first above the start. */
     n: number;
@@ -27,9 +25,7 @@ export namespace climbLadderBeats {
     to: number;
   }
 
-  /**
-   * Where a limb is at an instant.
-   */
+  /** Where a limb is at an instant. */
   export interface IReading {
     /** The rung index the limb holds or moves to. */
     index: number;
@@ -41,9 +37,7 @@ export namespace climbLadderBeats {
     moving: boolean;
   }
 
-  /**
-   * The prepared schedule.
-   */
+  /** The prepared schedule. */
   export interface IBeats {
     /** Seconds per beat. */
     beat: number;

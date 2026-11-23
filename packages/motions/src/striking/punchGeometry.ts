@@ -44,26 +44,24 @@ import type { punchReach } from "./punchReach";
  *
  * The contact is solved first ({@link punchContact}), the feet and the trunk
  * follow it ({@link punchFootwork}), and the wrist travels on superposed
- * minimum-jerk units through the contact point ({@link StrikingStroke}). A
- * punch stopped on a body holds for the dwell, then its arm and its trunk's
- * turn retrace the approach back to the launch, the wrist carried onto the
- * guard it returns to: every configuration of the approach up to the first
- * contact was clear of the body it met, so the way back is too, where a
- * straight return to the guard cuts through a covering glove.
+ * minimum-jerk units through the contact point ({@link StrikingStroke}). A punch
+ * stopped on a body holds for the dwell, then its arm and its trunk's turn
+ * retrace the approach back to the launch, the wrist carried onto the guard it
+ * returns to: every configuration of the approach up to the first contact was
+ * clear of the body it met, so the way back is too, where a straight return to
+ * the guard cuts through a covering glove.
  *
  * The arm travels between two named configurations
- * (`HumanPosture.IGoal.reference`): the one it launches in, read off the
- * entry pose, and the one it has at the contact, that instant's own solution
- * read once. Every goal of the stroke is anchored at full weight on their
- * mix by the fist's share of the way out, and back by its share of the
- * return, so the elbow stays on one side of the choice where two
- * configurations nearly tie. A reference that fades near the guard left that
- * choice free there, and the elbow jumped 15 cm between two solutions.
+ * (`HumanPosture.IGoal.reference`): the one it launches in, read off the entry
+ * pose, and the one it has at the contact, that instant's own solution read
+ * once. Every goal of the stroke is anchored at full weight on their mix by the
+ * fist's share of the way out, and back by its share of the return, so the
+ * elbow stays on one side of the choice where two configurations nearly tie. A
+ * reference that fades near the guard left that choice free there, and the
+ * elbow jumped 15 cm between two solutions.
  */
 export namespace punchGeometry {
-  /**
-   * A punch's timing.
-   */
+  /** A punch's timing. */
   export interface ITiming {
     /** The punching side. */
     side: "left" | "right";
@@ -90,12 +88,11 @@ export namespace punchGeometry {
     duration: number;
   }
 
-  /**
-   * A built punch.
-   */
+  /** A built punch. */
   export interface IGeometry {
     /**
-     * The complete posture at local seconds, borrowing only current same-body FK/ROM metadata.
+     * The complete posture at local seconds, borrowing only current same-body
+     * FK/ROM metadata.
      */
     posture(
       seconds: number,
@@ -115,9 +112,12 @@ export namespace punchGeometry {
    *
    * @param context The action's context.
    * @param timing The punch's timing.
-   * @param fixed The committed stop's second, null when the arm met nothing, undefined when the punch offers no weapon.
-   * @param tangent The varied point within a person's region, when the punch varies.
-   * @param entered What the punch reads of its own entry alone (`punchLaunch`), made once for the plan.
+   * @param fixed The committed stop's second, null when the arm met nothing,
+   *   undefined when the punch offers no weapon.
+   * @param tangent The varied point within a person's region, when the punch
+   *   varies.
+   * @param entered What the punch reads of its own entry alone (`punchLaunch`),
+   *   made once for the plan.
    * @returns The geometry.
    */
   export function build(

@@ -4,21 +4,18 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The trunk lean and clinical joint angles of a collapse at its sag, drop
- * and lay shares, degrees. The angles are provisional stage readings in the
- * knockdown's convention (`KnockdownFloor`): a positive pitch leans the
- * trunk forward, a positive roll toward the body's right, flexion raises a
- * limb forward. A forward fall kneels, then pitches nearly prone with the
- * hips and knees opening; a sideways fall kneels, then rolls onto one hip
- * and shoulder; an in-place collapse folds the knees and hips fully with the
- * trunk over them. A protective body raises its arms toward the floor ahead
- * of its trunk, a limp one keeps them at its sides with the head following
- * the trunk.
+ * The trunk lean and clinical joint angles of a collapse at its sag, drop and
+ * lay shares, degrees. The angles are provisional stage readings in the
+ * knockdown's convention (`KnockdownFloor`): a positive pitch leans the trunk
+ * forward, a positive roll toward the body's right, flexion raises a limb
+ * forward. A forward fall kneels, then pitches nearly prone with the hips and
+ * knees opening; a sideways fall kneels, then rolls onto one hip and shoulder;
+ * an in-place collapse folds the knees and hips fully with the trunk over them.
+ * A protective body raises its arms toward the floor ahead of its trunk, a limp
+ * one keeps them at its sides with the head following the trunk.
  */
 export namespace CollapseFold {
-  /**
-   * One evaluated fold.
-   */
+  /** One evaluated fold. */
   export interface IFold {
     /** Trunk pitch, degrees; positive forward. */
     pitch: number;
@@ -30,13 +27,17 @@ export namespace CollapseFold {
     joints: IAutoMovieMotionHumanJoints.Angles;
   }
 
-  /** The share of the lay at which a protective body's hands reach the floor, before its trunk: provisional. */
+  /**
+   * The share of the lay at which a protective body's hands reach the floor,
+   * before its trunk: provisional.
+   */
   export const HANDS: number = 0.6;
 
   /**
    * Evaluate a collapse's fold.
    *
-   * @param direction Where the body goes down; not `backward`, which the knockdown owns.
+   * @param direction Where the body goes down; not `backward`, which the
+   *   knockdown owns.
    * @param tone How the body meets the floor.
    * @param side A sideways fall's side.
    * @param sag The sag's share.
@@ -156,7 +157,10 @@ export namespace CollapseFold {
   /** The sag's knee softening and trunk sway, degrees (provisional). */
   const SAG: Readonly<{ knee: number; pitch: number }> = { knee: 15, pitch: 4 };
 
-  /** The arms of each tone, degrees (provisional): a protective reach toward the floor and its brace, a limp arm hanging. */
+  /**
+   * The arms of each tone, degrees (provisional): a protective reach toward the
+   * floor and its brace, a limp arm hanging.
+   */
   const ARMS: Readonly<{
     reach: number;
     ahead: number;

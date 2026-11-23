@@ -38,17 +38,20 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** A shared fit and seating tolerance, metres, from the motion campaign's 15 mm contact bound. */
+/**
+ * A shared fit and seating tolerance, metres, from the motion campaign's 15 mm
+ * contact bound.
+ */
 const CONTACT: number = 0.015;
 
 /**
- * Take a stiff hat by its declared brim grip, lift it briefly and set it
- * back on the head (Emily Post, *Etiquette*, 1922, “Lifting the Hat,”
- * https://www.gutenberg.org/ebooks/14314). The lift is provisionally one
- * third of the head radius. `strokeStart` closes the grip, `stroke` marks
- * the lift's apex and `strokeEnd` reseats the hat. The action uses a still
- * base. Stage the hat on the performer's crown with its wear socket facing
- * inward and keep it worn until the action starts.
+ * Take a stiff hat by its declared brim grip, lift it briefly and set it back
+ * on the head (Emily Post, _Etiquette_, 1922, “Lifting the Hat,”
+ * https://www.gutenberg.org/ebooks/14314). The lift is provisionally one third
+ * of the head radius. `strokeStart` closes the grip, `stroke` marks the lift's
+ * apex and `strokeEnd` reseats the hat. The action uses a still base. Stage the
+ * hat on the performer's crown with its wear socket facing inward and keep it
+ * worn until the action starts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the source, movement, event order, provisional lift and supported starting state.
  */
@@ -66,7 +69,10 @@ export const tipHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTipHat>
     plan,
   };
 
-/** Plan the right or left arm's grasp, lift, reseat and return over the entry stance. */
+/**
+ * Plan the right or left arm's grasp, lift, reseat and return over the entry
+ * stance.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTipHat>,
 ): IAutoMovieMotionHumanActionPlan {

@@ -15,9 +15,9 @@ type Place = IAutoMovieMotionHumanPlaced.IArm["place"];
 
 /**
  * Prepare the two overhead places carried along the chest in a side stretch.
- * The admitted motion keeps its entry chest and source grid fixed through
- * reach and return. The ordinary reader observes its borrowed entry anew.
- * The change of frame follows Lynch and Park, Modern Robotics, §3.3.1.
+ * The admitted motion keeps its entry chest and source grid fixed through reach
+ * and return. The ordinary reader observes its borrowed entry anew. The change
+ * of frame follows Lynch and Park, Modern Robotics, §3.3.1.
  */
 export function stretchOverheadPlace(
   body: IAutoMovieMotionHumanBody,

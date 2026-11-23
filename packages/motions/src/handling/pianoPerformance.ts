@@ -13,10 +13,10 @@ import { pianoPedal } from "./pianoPedal";
 import { pianoScore } from "./pianoScore";
 
 /**
- * Play a keyboard score while the right foot works the damper pedal. Both
- * parts start on the same seated pose. The pedal owns the right leg and
- * its contact schedule, while the score writes the hands. Keys and pedal
- * retain their authored timing even when one part is shorter.
+ * Play a keyboard score while the right foot works the damper pedal. Both parts
+ * start on the same seated pose. The pedal owns the right leg and its contact
+ * schedule, while the score writes the hands. Keys and pedal retain their
+ * authored timing even when one part is shorter.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the common entry, limb ownership and duration rule.
  * @evidence contracts/development/implementation.md#principled-implementation Composes disjoint joints and prop drives and changes normalized event shares to the combined duration.

@@ -10,17 +10,20 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { HumanFoot } from "../posture/HumanFoot";
 import type { kneelKeys } from "./kneelKeys";
 
-/** Halvings of the heel's rise, from a right angle to below a thousandth of a degree. */
+/**
+ * Halvings of the heel's rise, from a right angle to below a thousandth of a
+ * degree.
+ */
 const HALVINGS: number = 17;
 
 /**
- * A planted foot left behind its hip as the other knee comes down ahead of
- * it, as a lunge's trailing foot: kept flat while its ankle stays within its
+ * A planted foot left behind its hip as the other knee comes down ahead of it,
+ * as a lunge's trailing foot: kept flat while its ankle stays within its
  * dorsiflexion range, otherwise up on its toes by the least heel rise that
- * brings the ankle back to that range, the toes' joint kept on its floor
- * point and the toes extending by the rise up to their range. The ankle's
- * flexion is read on the knee the two-bone leg puts between the hip and the
- * ankle, bent toward the body's forward, the leg's pole.
+ * brings the ankle back to that range, the toes' joint kept on its floor point
+ * and the toes extending by the rise up to their range. The ankle's flexion is
+ * read on the knee the two-bone leg puts between the hip and the ankle, bent
+ * toward the body's forward, the leg's pole.
  *
  * @param body The body.
  * @param side The leg.

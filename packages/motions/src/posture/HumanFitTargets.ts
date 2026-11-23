@@ -12,9 +12,7 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitTargetSlopes } from "./HumanFitTargetSlopes";
 import { HumanJacobian } from "./HumanJacobian";
 
-/**
- * Effector constraints in a fixed world frame or a moving bone frame.
- */
+/** Effector constraints in a fixed world frame or a moving bone frame. */
 export namespace HumanFitTargets {
   /**
    * Append point, spherical point-bound, rotation and normal rows.
@@ -38,108 +36,132 @@ export namespace HumanFitTargets {
   ): HumanBodyFitRows.IRead[] {
     const rows: HumanBodyFitRows.IRead[] = [];
     const current: HumanBodyFitRows.IReading = step.at;
-    step.targets.forEach((target: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): void => {
-      const at: IFrame = frame(target, current, k);
-      const motions: IAutoMovieMotionHumanJacobian.ITwist[] = step.motions.map(
-        (motion: IAutoMovieMotionHumanJacobian.IMotion): IAutoMovieMotionHumanJacobian.ITwist =>
-          relative(target, current, k, motion, at),
-      );
-      const axes: readonly ("x" | "y" | "z")[] = target.axes ?? ["x", "y", "z"];
-      const scaled: (
-        f: (motion: IAutoMovieMotionHumanJacobian.ITwist, i: number) => number,
-      ) => number[] = (
-        f: (motion: IAutoMovieMotionHumanJacobian.ITwist, i: number) => number,
-      ): number[] =>
-        motions.map(
-          (motion: IAutoMovieMotionHumanJacobian.ITwist, i: number): number =>
-            f(motion, i) * step.units[i]! * mm,
-        );
-      const price: number = target.price ?? step.price;
-      if (target.bound === undefined) {
-        for (const axis of axes)
-          equal(
-            `${axis}:${k}`,
-            (r: HumanBodyFitRows.IReading): number =>
-              (r === current ? at : frame(target, r, k)).point[axis],
-            target.goal[axis],
-            scaled(
-              (motion: IAutoMovieMotionHumanJacobian.ITwist): number => motion.linear[axis],
-            ),
-            price,
+    step.targets.forEach(
+      (target: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): void => {
+        const at: IFrame = frame(target, current, k);
+        const motions: IAutoMovieMotionHumanJacobian.ITwist[] =
+          step.motions.map(
+            (
+              motion: IAutoMovieMotionHumanJacobian.IMotion,
+            ): IAutoMovieMotionHumanJacobian.ITwist =>
+              relative(target, current, k, motion, at),
           );
-      } else {
-        const delta: IAutoMovieVector3 = error(target, at.point);
-        const distance: number = Vector3.length(delta);
-        const f: (r: HumanBodyFitRows.IReading) => number = (
-          r: HumanBodyFitRows.IReading,
-        ): number =>
-          r === current
-            ? distance
-            : Vector3.length(error(target, frame(target, r, k).point));
-        rows.push({
-          row: {
-            key: `point-ball:${k}`,
-            index: step.index,
-            coef: scaled((motion: IAutoMovieMotionHumanJacobian.ITwist): number =>
-              distance === 0 ? 0 : Vector3.dot(delta, motion.linear) / distance,
-            ),
-            l: -Infinity,
-            u: (target.bound - distance) * mm,
-            weight: price,
-          },
-          f,
-        });
-      }
-      if (target.rotation !== undefined) {
-        const e: IAutoMovieVector3 = turn(target.rotation, at.turn);
-        const columns: IAutoMovieVector3[] = HumanFitTargetSlopes.rotation(
-          e,
-          motions,
-        );
-        for (const axis of ["x", "y", "z"] as const)
-          equal(
-            `r${axis}:${k}`,
-            (r: HumanBodyFitRows.IReading): number =>
-              r === current
-                ? -e[axis]
-                : -turn(target.rotation!, frame(target, r, k).turn)[axis],
-            0,
-            scaled(
-              (_motion: IAutoMovieMotionHumanJacobian.ITwist, i: number): number =>
-                columns[i]![axis],
-            ),
-            price,
+        const axes: readonly ("x" | "y" | "z")[] = target.axes ?? [
+          "x",
+          "y",
+          "z",
+        ];
+        const scaled: (
+          f: (
+            motion: IAutoMovieMotionHumanJacobian.ITwist,
+            i: number,
+          ) => number,
+        ) => number[] = (
+          f: (
+            motion: IAutoMovieMotionHumanJacobian.ITwist,
+            i: number,
+          ) => number,
+        ): number[] =>
+          motions.map(
+            (motion: IAutoMovieMotionHumanJacobian.ITwist, i: number): number =>
+              f(motion, i) * step.units[i]! * mm,
           );
-      }
-      if (target.normal !== undefined) {
-        const axes: [IAutoMovieVector3, IAutoMovieVector3] = across(
-          target.normal.world,
-        );
-        const columns: IAutoMovieVector3[] = HumanFitTargetSlopes.normal(
-          target.normal,
-          at.turn,
-          motions,
-        );
-        let normalAt: IAutoMovieVector3 | undefined;
-        axes.forEach((axis: IAutoMovieVector3, j: number): void =>
-          equal(
-            `n${j}:${k}`,
-            (r: HumanBodyFitRows.IReading): number =>
-              Vector3.dot(
-                r === current
-                  ? (normalAt ??= tilt(target, at.turn))
-                  : tilt(target, frame(target, r, k).turn),
-                axis,
+        const price: number = target.price ?? step.price;
+        if (target.bound === undefined) {
+          for (const axis of axes)
+            equal(
+              `${axis}:${k}`,
+              (r: HumanBodyFitRows.IReading): number =>
+                (r === current ? at : frame(target, r, k)).point[axis],
+              target.goal[axis],
+              scaled(
+                (motion: IAutoMovieMotionHumanJacobian.ITwist): number =>
+                  motion.linear[axis],
               ),
-            0,
-            scaled((_motion: IAutoMovieMotionHumanJacobian.ITwist, i: number): number =>
-              Vector3.dot(columns[i]!, axis),
+              price,
+            );
+        } else {
+          const delta: IAutoMovieVector3 = error(target, at.point);
+          const distance: number = Vector3.length(delta);
+          const f: (r: HumanBodyFitRows.IReading) => number = (
+            r: HumanBodyFitRows.IReading,
+          ): number =>
+            r === current
+              ? distance
+              : Vector3.length(error(target, frame(target, r, k).point));
+          rows.push({
+            row: {
+              key: `point-ball:${k}`,
+              index: step.index,
+              coef: scaled(
+                (motion: IAutoMovieMotionHumanJacobian.ITwist): number =>
+                  distance === 0
+                    ? 0
+                    : Vector3.dot(delta, motion.linear) / distance,
+              ),
+              l: -Infinity,
+              u: (target.bound - distance) * mm,
+              weight: price,
+            },
+            f,
+          });
+        }
+        if (target.rotation !== undefined) {
+          const e: IAutoMovieVector3 = turn(target.rotation, at.turn);
+          const columns: IAutoMovieVector3[] = HumanFitTargetSlopes.rotation(
+            e,
+            motions,
+          );
+          for (const axis of ["x", "y", "z"] as const)
+            equal(
+              `r${axis}:${k}`,
+              (r: HumanBodyFitRows.IReading): number =>
+                r === current
+                  ? -e[axis]
+                  : -turn(target.rotation!, frame(target, r, k).turn)[axis],
+              0,
+              scaled(
+                (
+                  _motion: IAutoMovieMotionHumanJacobian.ITwist,
+                  i: number,
+                ): number => columns[i]![axis],
+              ),
+              price,
+            );
+        }
+        if (target.normal !== undefined) {
+          const axes: [IAutoMovieVector3, IAutoMovieVector3] = across(
+            target.normal.world,
+          );
+          const columns: IAutoMovieVector3[] = HumanFitTargetSlopes.normal(
+            target.normal,
+            at.turn,
+            motions,
+          );
+          let normalAt: IAutoMovieVector3 | undefined;
+          axes.forEach((axis: IAutoMovieVector3, j: number): void =>
+            equal(
+              `n${j}:${k}`,
+              (r: HumanBodyFitRows.IReading): number =>
+                Vector3.dot(
+                  r === current
+                    ? (normalAt ??= tilt(target, at.turn))
+                    : tilt(target, frame(target, r, k).turn),
+                  axis,
+                ),
+              0,
+              scaled(
+                (
+                  _motion: IAutoMovieMotionHumanJacobian.ITwist,
+                  i: number,
+                ): number => Vector3.dot(columns[i]!, axis),
+              ),
+              price,
             ),
-            price,
-          ),
-        );
-      }
-    });
+          );
+        }
+      },
+    );
     return rows;
   }
 
@@ -182,7 +204,8 @@ export namespace HumanFitTargets {
    * @param target The goal.
    * @param r The current body reading.
    * @param k Its index.
-   * @returns Point distance in millimetres, without subtracting its physical radius, and turn in degrees.
+   * @returns Point distance in millimetres, without subtracting its physical
+   *   radius, and turn in degrees.
    */
   export function residual(
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
@@ -205,9 +228,7 @@ export namespace HumanFitTargets {
     };
   }
 
-  /**
-   * Rotation vector taking current to goal, in the shared frame's radians.
-   */
+  /** Rotation vector taking current to goal, in the shared frame's radians. */
   export function turn(
     goal: IAutoMovieQuaternion,
     current: IAutoMovieQuaternion,
@@ -228,9 +249,7 @@ export namespace HumanFitTargets {
       : Vector3.scale(v, (2 * Math.atan2(sine, Math.abs(q.w))) / sine);
   }
 
-  /**
-   * Least turn from the desired normal to the effector normal, radians.
-   */
+  /** Least turn from the desired normal to the effector normal, radians. */
   export function tilt(
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
     rotation: IAutoMovieQuaternion,
@@ -247,9 +266,7 @@ export namespace HumanFitTargets {
       : Vector3.scale(axis, angle / sine);
   }
 
-  /**
-   * Two orthonormal transverse directions of a finite nonzero normal.
-   */
+  /** Two orthonormal transverse directions of a finite nonzero normal. */
   export function across(
     normal: IAutoMovieVector3,
   ): [IAutoMovieVector3, IAutoMovieVector3] {
@@ -273,14 +290,20 @@ interface IFrame {
   point: IAutoMovieVector3;
   turn: IAutoMovieQuaternion;
 
-  /** Present only for a moving goal frame; its inverse also transforms this model's relative twists. */
+  /**
+   * Present only for a moving goal frame; its inverse also transforms this
+   * model's relative twists.
+   */
   anchor?: { bone: AutoMovieHumanoidBone; inverse: IAutoMovieQuaternion };
 }
 
 /** The additive identity for world or goal-frame velocities. */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/** Read each new goal frame on its actual anchor, sharing that same inverse with the current model's relative twists. */
+/**
+ * Read each new goal frame on its actual anchor, sharing that same inverse with
+ * the current model's relative twists.
+ */
 function frame(
   target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
   r: HumanBodyFitRows.IReading,

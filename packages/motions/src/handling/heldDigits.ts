@@ -19,27 +19,28 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 
 /**
- * The holding hand's digits kept on the moving contacts of a held prop's
- * driven articulations: the thumb in a scissor ring as the blade it rides
- * swings, a fingertip on a chopstick as it pinches.
+ * The holding hand's digits kept on the moving contacts of a held prop's driven
+ * articulations: the thumb in a scissor ring as the blade it rides swings, a
+ * fingertip on a chopstick as it pinches.
  *
  * A held prop is rigid in the hand, so a contact riding one of its
- * articulations moves, in the hand's own frame, by the articulation's
- * travel: turned about a hinge's axis through its pivot, or slid along a
- * slider's `+X`. The digit's pad starts where the entry pose has it, in its
- * grip on the contact, and rides the contact rigidly from there, so it
- * keeps that grip with no jump as the work starts. A ring or a stick fixes
- * where the pad bears, not how it faces, so the goal is a place alone and
- * the digit faces as its own joints carry it there. The goal is written in
- * that frame (`IAutoMovieHumanDigitGoal.on`), so it holds whatever the arm
- * does.
+ * articulations moves, in the hand's own frame, by the articulation's travel:
+ * turned about a hinge's axis through its pivot, or slid along a slider's `+X`.
+ * The digit's pad starts where the entry pose has it, in its grip on the
+ * contact, and rides the contact rigidly from there, so it keeps that grip with
+ * no jump as the work starts. A ring or a stick fixes where the pad bears, not
+ * how it faces, so the goal is a place alone and the digit faces as its own
+ * joints carry it there. The goal is written in that frame
+ * (`IAutoMovieHumanDigitGoal.on`), so it holds whatever the arm does.
  *
  * @param context The action's context.
  * @param held The held prop.
  * @param drive The authored drives.
  * @param drives The planned drives, one per authored drive.
- * @returns The digit goals at an action second; empty when no drive names a digit.
- * @throws {HumanRefusal} When a digit's contact does not ride its driven articulation, or that articulation neither turns nor slides.
+ * @returns The digit goals at an action second; empty when no drive names a
+ *   digit.
+ * @throws {HumanRefusal} When a digit's contact does not ride its driven
+ *   articulation, or that articulation neither turns nor slides.
  */
 export function heldDigits(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -148,15 +149,13 @@ export function heldDigits(
   };
 }
 
-/**
- * The companion reader of {@link heldDigits}.
- */
+/** The companion reader of {@link heldDigits}. */
 export namespace heldDigits {
   /**
    * Where a contact riding an articulation lies at a travel, in its prop's
-   * frame: turned about a turning joint's `+Y` through its pivot by the
-   * travel in degrees (a hinge, a wheel, a knob, a crank), or slid along a
-   * slider's `+X` by it in metres.
+   * frame: turned about a turning joint's `+Y` through its pivot by the travel
+   * in degrees (a hinge, a wheel, a knob, a crank), or slid along a slider's
+   * `+X` by it in metres.
    *
    * @param joint The articulation the contact rides.
    * @param site The contact.
@@ -195,7 +194,10 @@ export namespace heldDigits {
   }
 }
 
-/** The articulation kinds whose travel is a turn about the frame's `+Y`, degrees; every other moves along `+X`. */
+/**
+ * The articulation kinds whose travel is a turn about the frame's `+Y`,
+ * degrees; every other moves along `+X`.
+ */
 const TURNING: ReadonlySet<string> = new Set([
   "hinge",
   "wheel",
@@ -240,7 +242,10 @@ interface IWorked {
   /** The articulation's pivot in the hand's frame, metres. */
   pivot: IAutoMovieVector3;
 
-  /** The unit axis a hinge turns about, or a slider slides along, in the hand's frame. */
+  /**
+   * The unit axis a hinge turns about, or a slider slides along, in the hand's
+   * frame.
+   */
   axis: IAutoMovieVector3;
 
   /** Whether the articulation turns (a hinge) rather than slides. */

@@ -33,14 +33,18 @@ interface IArrival {
 
 /**
  * Prepare a swing from the stance reader that owns its endpoints: the
- * departure, its predecessor a `WALK_TICK` earlier and the arrival are read once,
- * and the returned reader evaluates the swing at any share of it.
+ * departure, its predecessor a `WALK_TICK` earlier and the arrival are read
+ * once, and the returned reader evaluates the swing at any share of it.
  *
  * @param body The plan's fixed body.
  * @param gait The gait's lift, straight leg and landing rule.
- * @param at The stance endpoint reader, in action seconds, borrowing only the preparing observation's optional FK source.
- * @param closing Whether a foot's swing landing at a second lands in its closing stance, which it sets down into at rest whatever the gait; none when absent.
- * @returns A preparer that reads one swing's three endpoints and returns its random-access share reader.
+ * @param at The stance endpoint reader, in action seconds, borrowing only the
+ *   preparing observation's optional FK source.
+ * @param closing Whether a foot's swing landing at a second lands in its
+ *   closing stance, which it sets down into at rest whatever the gait; none
+ *   when absent.
+ * @returns A preparer that reads one swing's three endpoints and returns its
+ *   random-access share reader.
  */
 export function walkSwing(
   body: IAutoMovieMotionHumanBody,
@@ -146,18 +150,20 @@ export function walkSwing(
 
 /**
  * How far a swing bows out from the stance foot it passes: on a curve the
- * straight chord between a foot's footprints cuts in toward the other foot,
- * so where it passes the stance foot it is brought out to the nearer of the
- * two widths the footprints themselves stood beside it at, and to no less
- * than the gait's step width, which a tight curve's footprints may close
- * below. A straight walk's chord keeps its width and does not bow.
+ * straight chord between a foot's footprints cuts in toward the other foot, so
+ * where it passes the stance foot it is brought out to the nearer of the two
+ * widths the footprints themselves stood beside it at, and to no less than the
+ * gait's step width, which a tight curve's footprints may close below. A
+ * straight walk's chord keeps its width and does not bow.
  *
  * @param side The swinging foot.
  * @param width The gait's step width, metres.
  * @param from Its departing ankle, world metres.
  * @param to Its landing ankle, world metres.
  * @param stance The other foot's stance as the swing passes it.
- * @returns The bow's amplitude on the swing's raised-cosine profile, horizontal world metres, or undefined when the chord keeps its width or never passes the stance foot.
+ * @returns The bow's amplitude on the swing's raised-cosine profile, horizontal
+ *   world metres, or undefined when the chord keeps its width or never passes
+ *   the stance foot.
  */
 function passing(
   side: "left" | "right",

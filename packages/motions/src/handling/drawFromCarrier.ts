@@ -40,37 +40,37 @@ import { pickUp } from "./pickUp";
 import { putDownTarget } from "./putDownTarget";
 
 /**
- * Draw a gripped object out of its carrier along a straight line, the
- * inverse of aperture placement (`putDownAperture`): a sword drawn from its
- * scabbard. Register it with `HumanChain.extend({ drawFromCarrier })` or by
- * name, and with the performance.
+ * Draw a gripped object out of its carrier along a straight line, the inverse
+ * of aperture placement (`putDownAperture`): a sword drawn from its scabbard.
+ * Register it with `HumanChain.extend({ drawFromCarrier })` or by name, and
+ * with the performance.
  *
- * The hand has gripped the seated object (a pickup with no lift). The
- * object then rides the carrier's slide socket while the action drives the
- * carrier's slider from the seat to the opening on one minimum-jerk movement,
- * timed as a loaded carry (`HumanPrehension.carry`), so the carrier keeps it
- * on its line as a scabbard guides its blade, the parent-constraint handoff
- * of digital prop work (Autodesk Maya, Parent constraint,
+ * The hand has gripped the seated object (a pickup with no lift). The object
+ * then rides the carrier's slide socket while the action drives the carrier's
+ * slider from the seat to the opening on one minimum-jerk movement, timed as a
+ * loaded carry (`HumanPrehension.carry`), so the carrier keeps it on its line
+ * as a scabbard guides its blade, the parent-constraint handoff of digital prop
+ * work (Autodesk Maya, Parent constraint,
  * https://help.autodesk.com/cloudhelp/2022/ENU/Maya-CharacterAnimation/files/GUID-F6785389-FAC1-429F-8783-B06B0B8AF1A8.htm).
  * The hand follows on its grip, its wrist placed through the grip's rigid
- * offset read from the displayed frames at the start, and takes the object
- * over at the opening. The rest of the body
- * holds the posture the action was entered in, so the carrier, worn or
- * placed, holds still under the line. Adult insertion trials separate the
- * transport to an opening from the aligned insertion (Ossmy et al. 2020,
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC6851484/); this is the aligned
- * part run backward. The fitted hand is judged against its planned place on
- * the grip at plan time, and a draw it cannot follow is refused rather than
- * shown with the hand off the hilt. Events: `unseated` at the start and `drawn` at the end. A cut to
- * `stand` inside the draw, or to `walk` at its end, keeps the grip. Over a
- * carrier (a seated rider's draw), the draw claims only its hands and arms,
- * their goals riding the bone the carrier is worn on so they follow the line
- * as the body moves; there the fit is not judged against the line. With a
- * `pull`, a blade longer than the arm's reach, the other hand slides the
- * carrier back along its own line and then turns it about where it hangs
- * toward the drawing shoulder, each by the least that brings the drawn wrist
- * within reach (`pivoting`), while the trunk turns away, and the blade
- * leaves low and in front along the moving line.
+ * offset read from the displayed frames at the start, and takes the object over
+ * at the opening. The rest of the body holds the posture the action was entered
+ * in, so the carrier, worn or placed, holds still under the line. Adult
+ * insertion trials separate the transport to an opening from the aligned
+ * insertion (Ossmy et al. 2020,
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC6851484/); this is the aligned part
+ * run backward. The fitted hand is judged against its planned place on the grip
+ * at plan time, and a draw it cannot follow is refused rather than shown with
+ * the hand off the hilt. Events: `unseated` at the start and `drawn` at the
+ * end. A cut to `stand` inside the draw, or to `walk` at its end, keeps the
+ * grip. Over a carrier (a seated rider's draw), the draw claims only its hands
+ * and arms, their goals riding the bone the carrier is worn on so they follow
+ * the line as the body moves; there the fit is not judged against the line.
+ * With a `pull`, a blade longer than the arm's reach, the other hand slides the
+ * carrier back along its own line and then turns it about where it hangs toward
+ * the drawing shoulder, each by the least that brings the drawn wrist within
+ * reach (`pivoting`), while the trunk turns away, and the blade leaves low and
+ * in front along the moving line.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the entry state, the path, the timing, the held body, the events and the cut.
  * @evidence contracts/development/design.md#principled-representation The object rides the carrier's own slide socket on the authored line, so the displayed object follows the line exactly; the hand follows it within `GRIP` and owns it from the opening.
@@ -110,8 +110,11 @@ export const drawFromCarrier: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
  *
  * @param context The entry with the object gripped and seated.
  * @returns The draw.
- * @throws {HumanRefusal} On `prop` when the hand does not hold it or the drawn wrist lies beyond the arm, on `from` when the carrier is not named, on `from.aperture` when the two affordances are not a straight aligned line or the fitted hand leaves its planned place on the grip by more than `GRIP`, and on `from.point` when the object is not seated there.
- *
+ * @throws {HumanRefusal} On `prop` when the hand does not hold it or the drawn
+ *   wrist lies beyond the arm, on `from` when the carrier is not named, on
+ *   `from.aperture` when the two affordances are not a straight aligned line or
+ *   the fitted hand leaves its planned place on the grip by more than `GRIP`,
+ *   and on `from.point` when the object is not seated there.
  * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and each refusal.
  * @evidence contracts/development/implementation.md#principled-implementation Each moving hand is planned as one admitted course over the draw (`courseArmGoal`), judged on its goals. The world frames of both affordances come from `putDownTarget` as for aperture placement; the object rides the slide socket the drive moves along the line, and the grip's rigid offset O from the displayed hand and object gives the following wrist frame P O^-1 at each object frame P.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the grip, read the line, check the seat and reach, drive the slide and pose one following transport, then judge the fitted hand.
@@ -542,12 +545,12 @@ interface IOver {
 }
 
 /**
- * The draw over a carrier: a seated rider drawing from a carrier worn on
- * its body. The carrier action keeps the body; the draw claims only its
- * hands and arms, and their goals ride the bone the carrier is worn on, so
- * the hands follow the line as the body moves under the rider. The path is
- * the grounded draw's, carried into that bone's frame at the entry; the
- * trunk's turn of a long draw is the carrier's, so it is left out.
+ * The draw over a carrier: a seated rider drawing from a carrier worn on its
+ * body. The carrier action keeps the body; the draw claims only its hands and
+ * arms, and their goals ride the bone the carrier is worn on, so the hands
+ * follow the line as the body moves under the rider. The path is the grounded
+ * draw's, carried into that bone's frame at the entry; the trunk's turn of a
+ * long draw is the carrier's, so it is left out.
  */
 function overCarrier(over: IOver): IAutoMovieMotionHumanActionPlan {
   const {
@@ -717,8 +720,8 @@ interface IPulled {
 }
 
 /**
- * The other hand's pull, when the draw asks for one: the hand already holds
- * the worn carrier at its throat, and the carrier hangs from a bone of this
+ * The other hand's pull, when the draw asks for one: the hand already holds the
+ * worn carrier at its throat, and the carrier hangs from a bone of this
  * performer.
  */
 function pulling(
@@ -774,7 +777,10 @@ function pulling(
   };
 }
 
-/** The two roots of a point's slide back along a carrier's line that put it at an arm's reach from a shoulder, metres; the reach holds between them. */
+/**
+ * The two roots of a point's slide back along a carrier's line that put it at
+ * an arm's reach from a shoulder, metres; the reach holds between them.
+ */
 interface IRoots {
   /** The lesser root. */
   low: number;
@@ -783,11 +789,20 @@ interface IRoots {
   high: number;
 }
 
-/** A pulled carrier's pivot: the frames its slide and turn about its hanger give. */
+/**
+ * A pulled carrier's pivot: the frames its slide and turn about its hanger
+ * give.
+ */
 interface IPivot {
-  /** The drawn object's world frame at a share of the pivot and a slider travel, metres. */
+  /**
+   * The drawn object's world frame at a share of the pivot and a slider travel,
+   * metres.
+   */
   blade(share: number, travel: number): IAutoMovieRigidTransform;
-  /** A frame carried rigidly with the carrier by a share of the pivot: the pulling hand's wrist. */
+  /**
+   * A frame carried rigidly with the carrier by a share of the pivot: the
+   * pulling hand's wrist.
+   */
   carry(
     frame: IAutoMovieRigidTransform,
     share: number,
@@ -795,22 +810,21 @@ interface IPivot {
 }
 
 /**
- * The pulled carrier's pivot. A long blade leaves its scabbard low and in
- * front as the other hand draws the scabbard back: first along its own line,
- * the frog riding the belt, by the least slide that brings the drawn wrist
- * within `operate.REACH` of the drawing arm's length from its shoulder, as
- * far as the pulling hand can carry the throat within its own reach (both
- * closed form: a point `e` from a shoulder slid back by `r` along the line's
- * unit direction `d` lies `|e - r d|` from it, so the reach holds between the
- * roots of `r^2 - 2 r (d.e) + |e|^2 - R^2`); then, for what the slide leaves,
- * by the least turn about the slid hanger (the carrier's `belt` affordance,
- * or its origin where it declares none) toward the drawing shoulder: with
- * `v` the drawn wrist and `w` the shoulder from the hanger, the wrist turned
- * by `t` lies `sqrt(|v|^2 + |w|^2 - 2|v||w|cos(phi - t))` from the shoulder,
- * `phi` the angle between them, so `t = phi - acos(c)`, `c` the law of
- * cosines' cosine at the reach. A wrist already within reach needs neither;
- * one neither brings within it turns straight at the shoulder and is refused
- * by the reach check that follows.
+ * The pulled carrier's pivot. A long blade leaves its scabbard low and in front
+ * as the other hand draws the scabbard back: first along its own line, the frog
+ * riding the belt, by the least slide that brings the drawn wrist within
+ * `operate.REACH` of the drawing arm's length from its shoulder, as far as the
+ * pulling hand can carry the throat within its own reach (both closed form: a
+ * point `e` from a shoulder slid back by `r` along the line's unit direction
+ * `d` lies `|e - r d|` from it, so the reach holds between the roots of `r^2 -
+ * 2 r (d.e) + |e|^2 - R^2`); then, for what the slide leaves, by the least turn
+ * about the slid hanger (the carrier's `belt` affordance, or its origin where
+ * it declares none) toward the drawing shoulder: with `v` the drawn wrist and
+ * `w` the shoulder from the hanger, the wrist turned by `t` lies `sqrt(|v|^2 +
+ * |w|^2 - 2|v||w|cos(phi - t))` from the shoulder, `phi` the angle between
+ * them, so `t = phi - acos(c)`, `c` the law of cosines' cosine at the reach. A
+ * wrist already within reach needs neither; one neither brings within it turns
+ * straight at the shoulder and is refused by the reach check that follows.
  */
 function pivoting(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrawFromCarrier>,
@@ -978,8 +992,16 @@ function pivoting(
 /** The draw's samples the fitted hand is judged at, beyond the start. */
 const JUDGED: number = 8;
 
-/** How far the fitted hand may leave its planned place on the guided grip, metres: half of the 2 cm a scabbard is made wider than its blade (Wulflund, https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html), the play the grip has before it would bind the blade. */
+/**
+ * How far the fitted hand may leave its planned place on the guided grip,
+ * metres: half of the 2 cm a scabbard is made wider than its blade (Wulflund,
+ * https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html),
+ * the play the grip has before it would bind the blade.
+ */
 const GRIP: number = 0.01;
 
-/** How far the gripped object's frame may sit from the seat when the draw starts, metres: aperture placement's 15 mm seat tolerance. */
+/**
+ * How far the gripped object's frame may sit from the seat when the draw
+ * starts, metres: aperture placement's 15 mm seat tolerance.
+ */
 const SEATED: number = 0.015;

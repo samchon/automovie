@@ -14,13 +14,22 @@ import { treeLimbs } from "./treeLimbs";
 /** Seconds per single hand or foot move (provisional). */
 const BEAT: number = 0.6;
 
-/** The names of the change groups a step expands into, by rank: holds taken, feet moved, hands moved, holds let go. */
+/**
+ * The names of the change groups a step expands into, by rank: holds taken,
+ * feet moved, hands moved, holds let go.
+ */
 const GROUPS: readonly string[] = ["Take", "Feet", "Hands", "Release"];
 
-/** The near and far hold on a branch, metres out from the trunk face (provisional: two hands' widths apart, near the strong root). */
+/**
+ * The near and far hold on a branch, metres out from the trunk face
+ * (provisional: two hands' widths apart, near the strong root).
+ */
 const HOLDS: readonly [number, number] = [0.15, 0.45];
 
-/** The near and far foot on a branch's top, metres out from the trunk face (provisional). */
+/**
+ * The near and far foot on a branch's top, metres out from the trunk face
+ * (provisional).
+ */
 const STEPS: readonly [number, number] = [0.25, 0.5];
 
 /**
@@ -30,7 +39,6 @@ const STEPS: readonly [number, number] = [0.25, 0.5];
  *
  * @param measure The body's measure.
  * @returns The two heights, lower first.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States both heights and the measures they are read from.
  * @evidence contracts/development/implementation.md#principled-implementation A step at the knee's and the hip's height is reached by the body's own legs, where fixed metres outgrow a small body's.
  * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure Two sums.
@@ -45,13 +53,22 @@ function walkHeights(
   return [measure.ankleHeight + measure.shank, measure.hipHeight];
 }
 
-/** A foot's slide either side of the line facing the bole, metres (provisional: the feet hip width apart). */
+/**
+ * A foot's slide either side of the line facing the bole, metres (provisional:
+ * the feet hip width apart).
+ */
 const SPLAY: number = 0.12;
 
-/** A hand's slide either side on the bole when no branch is above, metres (provisional: a hug's span). */
+/**
+ * A hand's slide either side on the bole when no branch is above, metres
+ * (provisional: a hug's span).
+ */
 const HUG: number = 0.2;
 
-/** The heel hook: hanging from the branch, the left leg drawn up to hook its heel over it, the right foot on the bole (provisional angles, degrees). */
+/**
+ * The heel hook: hanging from the branch, the left leg drawn up to hook its
+ * heel over it, the right foot on the bole (provisional angles, degrees).
+ */
 const HOOK: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: -10,
   roll: 0,
@@ -69,7 +86,10 @@ const HOOK: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/** The astride sitting pose: the thighs spread over the branch, the shins hanging, the hands forward on it (provisional). */
+/**
+ * The astride sitting pose: the thighs spread over the branch, the shins
+ * hanging, the hands forward on it (provisional).
+ */
 const ASTRIDE: IAutoMovieMotionHumanLieDown.IPose = {
   pitch: 10,
   roll: 0,
@@ -88,18 +108,16 @@ const ASTRIDE: IAutoMovieMotionHumanLieDown.IPose = {
 };
 
 /**
- * A tree climb's stances on staged points of the tree, one hand or foot
- * moving at a time: the route up grips the lowest branch from the ground,
- * walks the feet up the bole, hooks a heel over the branch and stands on
- * it, then for each higher branch moves the hands up to the next hold and
- * steps the feet up; the descent replays it reversed. Every stance is
- * checked against the branches' loads with the body's weight shared evenly
- * by its bearing contacts.
+ * A tree climb's stances on staged points of the tree, one hand or foot moving
+ * at a time: the route up grips the lowest branch from the ground, walks the
+ * feet up the bole, hooks a heel over the branch and stands on it, then for
+ * each higher branch moves the hands up to the next hold and steps the feet up;
+ * the descent replays it reversed. Every stance is checked against the
+ * branches' loads with the body's weight shared evenly by its bearing
+ * contacts.
  */
 export namespace treeClimbRoute {
-  /**
-   * A staged hold.
-   */
+  /** A staged hold. */
   export interface IHold {
     /** The body part. */
     part: IAutoMovieMotionHumanSupport.IContact["part"];
@@ -116,13 +134,14 @@ export namespace treeClimbRoute {
     /** Its surface's outward normal. */
     normal: IAutoMovieVector3;
 
-    /** The branch it loads and how far out, or undefined on the bole or the ground. */
+    /**
+     * The branch it loads and how far out, or undefined on the bole or the
+     * ground.
+     */
     branch?: ILoad;
   }
 
-  /**
-   * Where a hold loads a branch.
-   */
+  /** Where a hold loads a branch. */
   export interface ILoad {
     /** The branch, from 0. */
     index: number;
@@ -131,9 +150,7 @@ export namespace treeClimbRoute {
     out: number;
   }
 
-  /**
-   * The expanded route.
-   */
+  /** The expanded route. */
   export interface IRoute {
     /** The support stances. */
     stances: IAutoMovieMotionHumanSupport.IStance[];
@@ -142,9 +159,7 @@ export namespace treeClimbRoute {
     staged: Map<string, IHold>;
   }
 
-  /**
-   * A stance of holds.
-   */
+  /** A stance of holds. */
   export interface IStance {
     /** The holds. */
     holds: IHold[];
@@ -165,7 +180,8 @@ export namespace treeClimbRoute {
    * @param toward Unit horizontal from the bole's axis toward the climber.
    * @param top The branch stood on at the end.
    * @returns The stances.
-   * @throws {HumanRefusal} If the lowest branch is beyond the standing reach or the branch does not exist.
+   * @throws {HumanRefusal} If the lowest branch is beyond the standing reach or
+   *   the branch does not exist.
    */
   export function up(
     body: IAutoMovieMotionHumanBody,
@@ -361,7 +377,11 @@ export namespace treeClimbRoute {
       };
       return [
         { holds: [from, to], event: "floor", prefer: getUp.POSES.stood },
-        { holds: [leftFloor, to], event: "stepLeft", prefer: getUp.POSES.stood },
+        {
+          holds: [leftFloor, to],
+          event: "stepLeft",
+          prefer: getUp.POSES.stood,
+        },
         {
           holds: [leftFloor, rightFloor],
           event: "stepRight",
@@ -432,11 +452,7 @@ export namespace treeClimbRoute {
             prefer: HOOK,
           },
           {
-            holds: [
-              stand(lowest, "left"),
-              stand(lowest, "right"),
-              ...hands(0),
-            ],
+            holds: [stand(lowest, "left"), stand(lowest, "right"), ...hands(0)],
             event: "stand0",
             prefer: getUp.POSES.stood,
           },
@@ -458,9 +474,9 @@ export namespace treeClimbRoute {
   }
 
   /**
-   * Sit astride a branch from standing on it: the hands keep their holds
-   * above while the feet leave the branch, the body hanging from them, then
-   * the seat comes down onto the branch's seat with the legs either side.
+   * Sit astride a branch from standing on it: the hands keep their holds above
+   * while the feet leave the branch, the body hanging from them, then the seat
+   * comes down onto the branch's seat with the legs either side.
    *
    * @param tree The tree.
    * @param standing The stance stood in on the branch.
@@ -500,13 +516,15 @@ export namespace treeClimbRoute {
     ];
   }
   /**
-   * Expand stances so the holds change a group at a time (taken, feet, hands, let go), and check every one against the branches' loads.
+   * Expand stances so the holds change a group at a time (taken, feet, hands,
+   * let go), and check every one against the branches' loads.
    *
    * @param body The canonical motion body.
    * @param tree The tree.
    * @param stances The stances in order.
    * @returns The support stances, with every staged point by name.
-   * @throws {HumanRefusal} If a stance loads a branch past its limit, naming the branch and the load.
+   * @throws {HumanRefusal} If a stance loads a branch past its limit, naming
+   *   the branch and the load.
    */
   export function expand(
     body: IAutoMovieMotionHumanBody,
@@ -582,9 +600,13 @@ export namespace treeClimbRoute {
       // step costs at most four keys whatever the number of limbs it moves.
       const ranks: number[] = [...new Set(changes.map(rank))];
       ranks.forEach((r: number, i: number): void => {
-        for (const part of changes.filter((p: string): boolean => rank(p) === r)) {
+        for (const part of changes.filter(
+          (p: string): boolean => rank(p) === r,
+        )) {
           const next: IHold | undefined = of(stance.holds, part);
-          current = current.filter((hold: IHold): boolean => hold.part !== part);
+          current = current.filter(
+            (hold: IHold): boolean => hold.part !== part,
+          );
           if (next !== undefined) current.push(next);
         }
         const last: boolean = i === ranks.length - 1;

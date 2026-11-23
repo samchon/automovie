@@ -15,14 +15,14 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * A wheel's bearing windows (`GymnasticsWheel`) with each foot's edge
- * declared where the foot rolls past the ankle's range: the wheel's carried
- * foot turns with its leg, so at an end of its window it stands rolled;
- * where that roll passes the ankle's (`DEFAULT_HUMANOID_ROM`'s foot
- * abduction), the laid foot bears on the edge the roll lowers
- * (`HumanFoot.edge`) and turns about it (`AutoMovieMotionHumanFootRelax`),
- * so the window declares that edge as the point held and the plant audits
- * read the point the foot bears on. Read once per plan.
+ * A wheel's bearing windows (`GymnasticsWheel`) with each foot's edge declared
+ * where the foot rolls past the ankle's range: the wheel's carried foot turns
+ * with its leg, so at an end of its window it stands rolled; where that roll
+ * passes the ankle's (`DEFAULT_HUMANOID_ROM`'s foot abduction), the laid foot
+ * bears on the edge the roll lowers (`HumanFoot.edge`) and turns about it
+ * (`AutoMovieMotionHumanFootRelax`), so the window declares that edge as the
+ * point held and the plant audits read the point the foot bears on. Read once
+ * per plan.
  *
  * @param body The body.
  * @param contacts The wheel's bearing windows, shares of the duration.
@@ -38,7 +38,9 @@ export function edgeGymnasticsWheelFeet(
 ): IAutoMovieMotionHumanContactWindow[] {
   const range: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.max;
   return contacts.map(
-    (c: IAutoMovieMotionHumanContactWindow): IAutoMovieMotionHumanContactWindow => {
+    (
+      c: IAutoMovieMotionHumanContactWindow,
+    ): IAutoMovieMotionHumanContactWindow => {
       if (c.part !== "leftFoot" && c.part !== "rightFoot") return c;
       const bone: AutoMovieHumanoidBone = c.part;
       const side: AutoMovieHumanSide = c.part === "leftFoot" ? "left" : "right";
@@ -50,11 +52,16 @@ export function edgeGymnasticsWheelFeet(
       ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
         poseBones(
           body,
-          resolveHumanPosture(body, { ...carried(share * duration), limbs: {} }),
+          resolveHumanPosture(body, {
+            ...carried(share * duration),
+            limbs: {},
+          }),
           undefined,
           new Set<AutoMovieHumanoidBone>([bone, toes]),
         );
-      const a: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shown(c.from);
+      const a: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shown(
+        c.from,
+      );
       const b: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = shown(c.to);
       const rollA: number = HumanFoot.roll(a.get(bone)!.worldRotation);
       const rollB: number = HumanFoot.roll(b.get(bone)!.worldRotation);
