@@ -44,13 +44,6 @@ interface ILayerState {
  *
  * @param props The span, its continuity, the placement and layer readers, the contact query and the work limits.
  * @returns Sub-frame findings with their bracketing span, and one coverage row per layer and per unresolved pair.
- * @evidence contracts/development/common.md#meaningful-documentation States the candidate rule, the swept bound, the stopping rule, the cut rule and the restoration.
- * @evidence contracts/development/implementation.md#principled-implementation Places actual instants through the playback placement, measures each with the same pair resolution as a placed frame, and stops by feature motion against thickness.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Endpoint snapshots, candidate selection, bisection and reporting are separate steps sharing one instant memo.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No motion law is assumed between placed instants; a reached limit defers the pair rather than clearing it.
- * @evidence contracts/development/implementation.md#efficient-algorithms Pairs that barely move or never approach cost no extra placement; each placed instant is shared by every pair that needs it.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Collected parts, solids and posed surfaces are memoized per instant.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Releases every instant at return and restores the drawn placement.
  */
 export function observeAutoMovieCollisionMotion(
   props: observeAutoMovieCollisionMotion.IProps,
@@ -173,11 +166,6 @@ export function observeAutoMovieCollisionMotion(
 
 /**
  * The span, placement, layers and limits of one motion observation.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each layer field's clock, each limit's unit and each input.
- * @evidence contracts/development/design.md#principled-representation ILayer is the same layer identity, root, ownership and windows the placed-frame observer reads; ILimits adds placements and bisection depth beside the witness limits; IProps is the drawn clock, the preceding instant, the continuity of the span and the host's placement.
- * @evidence contracts/development/design.md#minimal-and-owned-surface ILayer carries only what the pair resolution needs, the host chooses ILimits per mode, and the production inspection entry point supplies IProps.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A layer missing at an instant contributes no pair there, a reached limit defers and never clears, and the host decides continuity from its cut instead of the observer guessing it.
  */
 export namespace observeAutoMovieCollisionMotion {
   /**

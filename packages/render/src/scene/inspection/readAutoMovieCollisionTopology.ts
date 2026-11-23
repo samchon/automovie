@@ -14,13 +14,6 @@ const TOPOLOGY: WeakMap<
  *
  * @param geometry The drawn geometry.
  * @returns Its drawn triangles, rest bounds and closure, or null when the buffers or draw range cannot be read.
- * @evidence contracts/development/common.md#meaningful-documentation States the cache key, the draw range rule and the null outcome.
- * @evidence contracts/development/implementation.md#principled-implementation Reads indices inside the draw range, rejects out-of-range indices and judges closure by directed-edge balance.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader owns triangle extraction, bounds and closure for every collision source.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A cut or misaligned draw range, normalized or non-three-component positions certify nothing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the drawn indices once per buffer version.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Cached per geometry by position, index and draw-range versions.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A weak map releases the record with its geometry.
  */
 export function readAutoMovieCollisionTopology(
   geometry: THREE.BufferGeometry,
@@ -48,11 +41,6 @@ export function readAutoMovieCollisionTopology(
 
 /**
  * Drawn triangles, bounds, closure, lazy posing and world boxes shared by every collision source.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each topology field's space and states what the lazy posing, world box and finiteness helpers return.
- * @evidence contracts/development/design.md#principled-representation ITopology holds rest positions, drawn triangle indices, rest bounds and closure.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Read by the collision sources and their lazy surfaces only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Closure is derived from the drawn triangles, never from a constructor, and a non-finite placement yields no world box.
  */
 export namespace readAutoMovieCollisionTopology {
   /**

@@ -1,21 +1,3 @@
-# src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the film clock, the half-open ownership of every boundary and what each declaration supplies.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Expectations come from the producer's own staging: phase anchors in support-local metres, expected grips in hand-local frames, holder schedules and shot-local tracks. Observations stay the displayed scene graph.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Only the declarations and the sample clock enter. The observer measures them, and Engine owns the limits and the timeline mapping.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No declaration is inferred from proximity, receipts or physical control, and no window is extended past its end.
-
 # src/scene/inspection/ISelectAutoMoviePlacedChecks.ts#ISelectAutoMoviePlacedChecks.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation

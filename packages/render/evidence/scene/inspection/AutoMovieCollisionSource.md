@@ -1,21 +1,3 @@
-# src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource
-
-## @evidence contracts/development/design.md#principled-representation
-
-An instanced batch maps each drawn instance index to its generator slot and managed group. A cord keeps its solver particles and radius beside the tube drawn through them. A rigid model keeps each part's built placement relative to its root, so a part moved since is no longer part of the assembly.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The generator that draws the object writes its record once per update, and only the placed collision collector reads it.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Names and scene nesting never imply a slot, a group or a cord. An object without a record is read as ordinary geometry.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the writer, the reader, the units and the index correspondence.
-
 # src/scene/inspection/AutoMovieCollisionSource.ts#AutoMovieCollisionSource.IInstances
 
 ## @evidence contracts/development/design.md#principled-representation

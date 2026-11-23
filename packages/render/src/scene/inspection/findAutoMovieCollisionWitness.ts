@@ -27,13 +27,6 @@ const EDGES: WeakMap<
  *
  * @param props The pair, the part solids and surfaces, the allowance law and the shared work budget.
  * @returns A witness, a proof of clearance, an exhausted budget, or an incomplete search.
- * @evidence contracts/development/common.md#meaningful-documentation States the order of the search and when absence of a witness proves clearance.
- * @evidence contracts/development/implementation.md#principled-implementation Signed distance to an exact solid by the Engine query, or to a closed drawn surface by its nearest triangle and generalized winding number; edges by a convex bracketing search or the spans between triangle crossings.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One search per direction, vertices before edges, sharing one solid reader and one allowance law.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Clearance needs both directions searched completely; a missing solid or surface leaves the search incomplete.
- * @evidence contracts/development/implementation.md#efficient-algorithms Points outside the other solid's bounds skip its distance; comparison and triangle work count against the frame's limits.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Posed surfaces, solids and edge lists are memoized for the frame.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing after the call beyond the caller's memo.
  */
 export function findAutoMovieCollisionWitness(
   props: findAutoMovieCollisionWitness.IProps,
@@ -89,11 +82,6 @@ export function findAutoMovieCollisionWitness(
 
 /**
  * Inputs, solids and outcomes of the witness search.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names each input, outcome, solid cost and depth sign, and what the solid, geometry, distance and posed helpers return.
- * @evidence contracts/development/design.md#principled-representation IProps makes the allowance a law of the two parts and the joints owning each side; IOutcome distinguishes evidence, proof, limits and missing inputs; ISolid carries bounds, pose error, per-query cost, point distance and an edge's deepest point; IDepth is a separation in world metres with an optional joint label.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the observer calls the search and maps each outcome to coverage; a solid is built once per part per frame and its depth is read by the allowance law only.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The budget is shared with the frame, never reset per pair; an incomplete search never reads as clear; only exact solids and closed drawn surfaces are solids; an unlabelled holder satisfies only unscoped windows.
  */
 export namespace findAutoMovieCollisionWitness {
   /**

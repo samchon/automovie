@@ -21,13 +21,6 @@ import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
  * @param layer The placed layer and its source-owned identities.
  * @param budget Posed-vertex allowance charged when a surface is read, and an optional part allowance charged per collected part; collection stops when the parts run out.
  * @returns Parts in traversal order, posed surfaces by part and unsupported reasons by part.
- * @evidence contracts/development/common.md#meaningful-documentation States which drawn object yields which geometry authority, how parts are named and when a surface is posed.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the drawn world and instance matrices, the generator's slot, cord and assembly records, and the shared entity path for identity.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One traversal dispatches each drawn object kind to one reader module.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nesting and names grant no group; a built rigid model groups its parts only while each still holds its built placement. A clash with a source-declared path is refused rather than renamed by time.
- * @evidence contracts/development/implementation.md#efficient-algorithms Visits visible nodes once and names meshes with one frontier memo per layer.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Readers share cached topology and box proofs; surfaces are posed only on demand.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned closures borrow the placed meshes for the current observation only.
  */
 export function collectAutoMovieCollisionParts(
   layer: collectAutoMovieCollisionParts.ILayer,
@@ -138,11 +131,6 @@ export function collectAutoMovieCollisionParts(
 
 /**
  * The layer read by the collector and the surfaces and reasons it returns.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what each member carries: ILayer what each member replaces, ISurface its units and index spaces, IPartSurface the three outcomes of reading, and IResult each map.
- * @evidence contracts/development/design.md#principled-representation ILayer is a root with source identities; ISurface holds world vertices with the drawn triangle list, closure, pose error and optional joint labels; IPartSurface pairs a shared surface with an optional ownership test; IResult is keyed by part identity.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only ownership and opaque replacements reach the collector, the witness search alone consumes surfaces, reading charges the vertex budget once, and the observer reads each map once per finding.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Nesting implies no identity, degenerate drawn triangles contribute no vertex, a refused budget stays distinct from an unsupported surface, and a part without geometry carries its reason.
  */
 export namespace collectAutoMovieCollisionParts {
   /**

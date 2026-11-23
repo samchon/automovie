@@ -22,13 +22,6 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
  * @param identity Its collision identity and ownership.
  * @param budget Posed vertices the frame may still spend; charged when a surface is read.
  * @param add Receives the part, its lazy surface and any unsupported reason.
- * @evidence contracts/development/common.md#meaningful-documentation States the three admitted kinds and when each surface is posed.
- * @evidence contracts/development/implementation.md#principled-implementation Uses the stock box proof, the skin owner's culling sphere and pose, and topology-derived closure.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One reader per ordinary mesh kind, sharing the lazy surface owner.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Custom appearance, morphs, custom mesh classes and open surfaces certify nothing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Constant work per mesh until a candidate pair reads its surface.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The box proof and topology are cached per geometry version.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure borrows the mesh for the current observation.
  */
 export function readAutoMovieCollisionMesh(
   mesh: THREE.Mesh,
@@ -100,11 +93,6 @@ export function readAutoMovieCollisionMesh(
 
 /**
  * The callback shape every collision source reports parts through.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States what one report carries: a part, its optional lazy surface and an optional unsupported reason.
- * @evidence contracts/development/design.md#principled-representation One callback receives a part with its optional surface and reason, so every source reports through the same shape.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only the collector supplies the callback, and the cord, instance and mesh readers call it.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A reason accompanies a part whose geometry cannot be read instead of the part being dropped.
  */
 export namespace readAutoMovieCollisionMesh {
   /** Receives one part, its optional lazy surface and an optional unsupported reason. */

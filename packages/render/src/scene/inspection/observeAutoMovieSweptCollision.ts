@@ -18,13 +18,6 @@ import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFindi
  * layer back.
  *
  * @param props The layer's cells, windows, parts, clocks, budget and report sinks.
- * @evidence contracts/development/common.md#meaningful-documentation States the allowance rule, the exclusion and the unverified report.
- * @evidence contracts/development/implementation.md#principled-implementation Delegates each affine capsule cell to the Engine sweep owner with the window active throughout the cell.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One loop over the cells with one report per cell.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No motion law is invented for a part without a certified cell.
- * @evidence contracts/development/implementation.md#efficient-algorithms Each cell is capped by the remaining interval budget.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Cells are independent.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Returns plain data through the sinks.
  */
 export function observeAutoMovieSweptCollision(
   props: observeAutoMovieSweptCollision.IProps,
@@ -133,11 +126,6 @@ export function observeAutoMovieSweptCollision(
 
 /**
  * The motion cells of one layer and the sinks the observer shares with them.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the clock relation of a cell and names each input.
- * @evidence contracts/development/design.md#principled-representation ICell holds two part paths, the Engine cell without its depth and the offset from the layer clock to the film clock; IProps holds the layer's own inputs and the observer's shared sinks.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The allowed depth comes from the layer's named windows, and only the scene observer calls this.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The source certifies the affine motion and the observer never infers it; the interval budget is shared with the frame.
  */
 export namespace observeAutoMovieSweptCollision {
   /**

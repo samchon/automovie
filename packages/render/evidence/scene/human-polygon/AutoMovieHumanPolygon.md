@@ -1,21 +1,3 @@
-# src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents frames, units, source exterior requirements, actual mesh registries and rigid-joint limitations.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Represents Structural inputs and actual drawing handles for the original polygon mannequin: one renderer-owned drawing handle; Human owns registered skeletal data and the renderer owns concrete native objects.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Owned by the module that declares `AutoMovieHumanPolygon` in packages/render/src/scene/human-polygon/AutoMovieHumanPolygon.ts; its retained IDrawing serves native display consumers; skeletal inputs are shared through IAutoMovieHumanSkeleton.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; the native drawing handle borrows canonical Human placements rather than restating their shape.
-
 # src/scene/human-polygon/AutoMovieHumanPolygon.ts#AutoMovieHumanPolygon.IPresentation
 
 ## @evidence contracts/development/common.md#meaningful-documentation

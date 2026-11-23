@@ -50,14 +50,6 @@ interface IProps {
  * @param props The admitted scene, drawables, region and pass count.
  * @returns The measured isolated and visible pixel counts, or the reason the
  * scratch framebuffer could not reproduce the delivered raster.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the two passes, the region-sized framebuffer behind a full-raster viewport, and both outcomes.
- * @evidence contracts/development/implementation.md#principled-implementation A viewport the size of the delivered raster, offset by the region's corner, rasterizes every scratch sample where the delivered frame does, and a scratch depth buffer of the canvas's precision reproduces its depth tests; a mismatch refuses.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission and the region stay with measureAutoMovieCameraOcclusionPixels; this function only renders and counts.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The original canvas is never scratch storage, and a composite pixel outside the isolated subject refuses rather than counting.
- * @evidence contracts/development/implementation.md#efficient-algorithms At most two renders of the scene into a region-sized target, one reused RGBA buffer, and a single pass when the subject is empty or nothing can cover it.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each audit renders the current placement; no earlier raster is valid for it.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrowed materials, layers, background and framebuffer are restored, and the owned target and mask materials disposed, on success and on error.
  */
 export function renderAutoMovieCameraOcclusionMasks(
   props: IProps,
@@ -194,11 +186,6 @@ export function renderAutoMovieCameraOcclusionMasks(
 
 /**
  * Types shared between the pixel audit's admission and its mask rendering.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the units and origin of a region, the coordinate frame of a range and each drawable member's ownership and frame.
- * @evidence contracts/development/design.md#principled-representation IRegion is an integer native-sample origin and size in the frame glViewport and readPixels use; IRange is the divided clip coordinates of an enclosing box's corners; IDrawable is the original material and layer mask the masks swap and restore, with membership from the source semantic root.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Four numbers locate the scratch target, two corners suffice for overlap and depth-order tests, and a drawable carries exactly the state the passes change and the range the admission tests.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A region is aligned outward to whole delivered pixels, a range exists only when every corner lies in front of the camera, and only ordinary rigid meshes with stock opaque materials are admitted.
  */
 export namespace renderAutoMovieCameraOcclusionMasks {
   /**

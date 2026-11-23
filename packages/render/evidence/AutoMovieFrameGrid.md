@@ -1,21 +1,3 @@
-# src/AutoMovieFrameGrid.ts#AutoMovieFrameGrid
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the index origin, temporal spacing, endpoint, and consumers.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Frame indices are zero-based integers, timestamps and duration are seconds, and cadence is positive frames per second. JavaScript numbers do not enforce these constraints, so the caller supplies a valid presentation clock and index.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Render owns frame schedules. The take producer reads the last index and frame times, and the preview controls also map a playhead second to a displayed frame index.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The endpoint rule works for both exact-grid and fractional durations and requires no caller-specific mode.
-
 # src/AutoMovieFrameGrid.ts#AutoMovieFrameGrid.last
 
 ## @evidence contracts/development/common.md#meaningful-documentation

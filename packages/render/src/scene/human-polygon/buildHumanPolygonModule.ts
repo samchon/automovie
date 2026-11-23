@@ -16,14 +16,6 @@ import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
  * edges taken in order of direction, each closed on the other ring's vertex
  * that supports it, so the drawn surface is the one the module's collider
  * hull takes from the same ring points. Its front query intersects those same emitted triangles for face attachment.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Moves registered points into the bone rest frame once and consumes its supplied posed placement once; existing LoftMesh zipper and cap own exterior connectivity.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One module assembly returns the surface target, its matching diagnostic target and the material-bearing mesh without choosing anatomy or a palette.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No new solver, shape authority, source course, sample tuning or placement correction is introduced.
- * @evidence contracts/development/common.md#meaningful-documentation States the caller's section and resource ownership and this module's local-frame assembly responsibility.
- * @evidence contracts/development/implementation.md#efficient-algorithms Assembly follows supplied ring and index populations; front queries scan emitted triangles, and procedural rings retain the existing eight-sided display LOD.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Diagnostic loops reuse emitted ring positions and existing materials; the caller retains a single cleanup inventory.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Every created buffer is registered with the caller's geometry inventory; this assembler creates no cache, material or independent resource lifetime.
  */
 export function buildHumanPolygonModule(
   bone: IAutoMovieHumanBindBone,
@@ -269,11 +261,6 @@ export function buildHumanPolygonModule(
 }
 
 /** Explicit section inputs shared by the display selector and mesh assembler.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents section axes, optional source points and display coordinates, and the query's local units, frontmost selection and missing-hit result.
- * @evidence contracts/development/design.md#principled-representation Represents Explicit section inputs shared by the display selector and mesh assembler: companion namespace of 2 members (`ISection`, `frontAt`); units and frames named in its text: metre, frame, second, local. It has no optional member, so no absent-value state combines with another.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Owned by the module that declares `buildHumanPolygonModule` in packages/render/src/scene/human-polygon/buildHumanPolygonModule.ts; its surface is the 2 members listed and the text shows 3 other files naming it, mostly packages/render (3), so no member is declared for a presumed future need.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace buildHumanPolygonModule {
   /**
