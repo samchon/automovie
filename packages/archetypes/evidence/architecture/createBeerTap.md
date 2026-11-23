@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createBeerTap.ts#createBeerTap
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, where each faucet stands, what each contact is and what is left out.

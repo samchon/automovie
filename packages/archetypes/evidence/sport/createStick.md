@@ -1,4 +1,4 @@
-# src/index.ts#createStick
+# src/sport/createStick.ts#createStick
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The saved and named calls use the same construction.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The call retains no inputs.
-
-# src/index.ts#createStick
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

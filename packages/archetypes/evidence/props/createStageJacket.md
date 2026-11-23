@@ -1,4 +1,4 @@
-# src/index.ts#createStageJacket
+# src/props/createStageJacket.ts#createStageJacket
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The existing builder owns primitive geometry, articulated bindings and model col
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns a complete model and retains no inputs.
-
-# src/index.ts#createStageJacket
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

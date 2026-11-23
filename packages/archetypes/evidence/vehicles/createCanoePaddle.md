@@ -1,4 +1,4 @@
-# src/index.ts#createCanoePaddle
+# src/vehicles/createCanoePaddle.ts#createCanoePaddle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Reuses the measured blade's panel construction and the contact convention of the
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains no external state.
-
-# src/index.ts#createCanoePaddle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

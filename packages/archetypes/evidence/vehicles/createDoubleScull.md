@@ -1,4 +1,4 @@
-# src/index.ts#createDoubleScull
+# src/vehicles/createDoubleScull.ts#createDoubleScull
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ One cross-section family spans the hull and both stations share one rigging cons
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The returned builder product owns its model buffers without retaining scene or caller data.
-
-# src/index.ts#createDoubleScull
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

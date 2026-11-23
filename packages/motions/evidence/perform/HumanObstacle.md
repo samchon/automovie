@@ -1,4 +1,4 @@
-# src/internal.ts#HumanObstacle.wall
+# src/perform/HumanObstacle.ts#HumanObstacle.wall
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Nothing to reuse or cache.
 
 A pure function that retains nothing.
 
-# src/internal.ts#HumanObstacle.apertures
+# src/perform/HumanObstacle.ts#HumanObstacle.apertures
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ Places the object with `HumanObject.frame`, as its seats and props are placed.
 
 A pure function that retains nothing.
 
-# src/internal.ts#HumanObstacle.object
+# src/perform/HumanObstacle.ts#HumanObstacle.object
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -88,7 +88,7 @@ Places the object with `HumanObject.frame` and reads its openings with `aperture
 
 A pure function that retains nothing.
 
-# src/internal.ts#HumanObstacle.blocking
+# src/perform/HumanObstacle.ts#HumanObstacle.blocking
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

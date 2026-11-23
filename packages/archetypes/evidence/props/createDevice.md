@@ -1,4 +1,4 @@
-# src/index.ts#createDevice
+# src/props/createDevice.ts#createDevice
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The saved and named calls use the same producer.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The call retains no inputs.
-
-# src/index.ts#createDevice
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

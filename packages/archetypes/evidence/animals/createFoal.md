@@ -24,8 +24,6 @@ Reuses the horse's body, builder and tack.
 
 The producer retains nothing.
 
-# src/animals/createFoal.ts#createFoal
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States each growth curve, its source or that it is authored and provisional, how the bone fractions follow and the age range.

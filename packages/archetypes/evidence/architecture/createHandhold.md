@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createHandhold.ts#createHandhold
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States each kind's place, its contacts and its static use with the missing law.

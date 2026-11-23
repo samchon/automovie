@@ -24,8 +24,6 @@ Reuses immutable-in-type source means and the shared body representation; each c
 
 Retains no query, cache or handle. The returned scalar profile belongs to the caller; unknown mass shares leave uniform-density allocation to the existing body builder.
 
-# src/animals/AutoMovieArchetypeOxBody.ts#AutoMovieArchetypeOxBody
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Identifies both cohorts, SI units, external landmarks, mean-ratio transfer and every construction-only quantity; no anatomical ROM or visual result is claimed.

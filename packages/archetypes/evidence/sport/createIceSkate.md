@@ -1,4 +1,4 @@
-# src/index.ts#createIceSkate
+# src/sport/createIceSkate.ts#createIceSkate
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call draws and constructs its own object.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains no work after publishing the archetype.
-
-# src/index.ts#createIceSkate
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/furniture/createLectern.ts#createLectern
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the lectern stands, where the speaker is and its two contacts.

@@ -24,8 +24,6 @@ Each call builds independent scenery.
 
 Acquires no resources outside the returned model.
 
-# src/architecture/createLoadingTower.ts#createLoadingTower
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the scene origin, axes, geometry and staging contacts.

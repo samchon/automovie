@@ -1,4 +1,4 @@
-# src/internal.ts#HumanFreedomChoice.turns
+# src/posture/HumanFreedomChoice.ts#HumanFreedomChoice.turns
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ One owner of the order for the grasp, wear and dress choosers.
 
 Returns a fresh list and retains nothing.
 
-# src/internal.ts#HumanFreedomChoice.chosen
+# src/posture/HumanFreedomChoice.ts#HumanFreedomChoice.chosen
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

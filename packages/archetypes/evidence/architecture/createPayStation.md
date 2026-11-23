@@ -24,8 +24,6 @@ Uses the shared rectangle for the standing cabinet and the same geometry through
 
 The producer returns one completed model and retains no input references.
 
-# src/architecture/createPayStation.ts#createPayStation
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Describes the model, its inputs, frame and contacts.

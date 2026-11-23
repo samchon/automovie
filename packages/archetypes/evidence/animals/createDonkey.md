@@ -24,8 +24,6 @@ Reuses the horse's builder, tack and gait table.
 
 Retains nothing.
 
-# src/animals/createDonkey.ts#createDonkey
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what the donkey shares with the horse, and how its size, proportions and mass are derived.

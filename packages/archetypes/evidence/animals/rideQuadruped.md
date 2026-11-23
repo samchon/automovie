@@ -1,4 +1,4 @@
-# src/animals/index.ts#rideQuadruped
+# src/animals/rideQuadruped.ts#rideQuadruped
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The admitted plan/table, phase rows, neutral source chains, prepared solvers, ri
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains the final assembly's S+1 phases, its strides and instants, plus the prepared source; each sample owns independent geometry with no completed-pose cache or external handle.
-
-# src/animals/index.ts#rideQuadruped
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

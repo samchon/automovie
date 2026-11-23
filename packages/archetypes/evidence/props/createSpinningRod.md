@@ -1,4 +1,4 @@
-# src/index.ts#createSpinningRod
+# src/props/createSpinningRod.ts#createSpinningRod
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call builds one model.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
-
-# src/index.ts#createSpinningRod
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

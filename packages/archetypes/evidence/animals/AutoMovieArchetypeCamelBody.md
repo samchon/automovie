@@ -24,8 +24,6 @@ Source means are reused by reference while every returned array and nested profi
 
 The caller owns the result and no query or external handle is retained. Omitted mass shares and foot material preserve their explicit unknown status in the shared builder.
 
-# src/animals/AutoMovieArchetypeCamelBody.ts#AutoMovieArchetypeCamelBody
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States every measurement path, separate cohort, cross-cohort normalization, unknown anatomical pose and construction-only quantity; no visual verdict or ROM claim is made.

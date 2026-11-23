@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createLadder.ts#createLadder
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the ladder's foot, the way it is climbed, its tilt and how rungs are named.

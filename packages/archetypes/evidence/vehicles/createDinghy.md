@@ -1,4 +1,4 @@
-# src/index.ts#createDinghy
+# src/vehicles/createDinghy.ts#createDinghy
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Both side panels arise from the same hull sections. The moving sheet reuses the 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Model owns its mesh, physics and contact buffers.
-
-# src/index.ts#createDinghy
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

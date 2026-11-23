@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing after returning the model.
 
-# src/architecture/createSwing.ts#createSwing
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, the pivot axis, the separate seat and the swing plane.

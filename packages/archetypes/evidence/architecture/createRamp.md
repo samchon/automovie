@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createRamp.ts#createRamp
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the ramp's direction, origin and the two contacts.

@@ -24,8 +24,6 @@ Builds one independent set of parts per shaft.
 
 Returns four parts and the kernel's mesh with no external handles.
 
-# src/environments/lifts/liftShaftParts.ts#liftShaftParts
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the coordinate system, the supplied front-wall cuts and how the three other panels fit.

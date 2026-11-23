@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/furniture/createShowcase.ts#createShowcase
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, which side is whose, how the model is chosen and each contact.

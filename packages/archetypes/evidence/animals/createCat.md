@@ -24,8 +24,6 @@ The common model builder owns dimensions, part solids and mass; the common ride 
 
 The producer returns independent records without retaining the caller parameters or any external resource.
 
-# src/animals/createCat.ts#createCat
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Describes the fixed shape, seeded time coordinate, explicitly bare mass and shared ground contact ownership.

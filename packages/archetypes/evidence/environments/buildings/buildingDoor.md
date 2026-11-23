@@ -24,8 +24,6 @@ A reusable plan makes one distinct interactive node per occurrence; this adapter
 
 The output holds two finite model records and the optional caller-owned rotation clip. The part filter and source door are released after preparation.
 
-# src/environments/buildings/buildingDoor.ts#buildingDoor
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Defines what stays static, the source of aperture dimensions, the hinge frame and the shot clock.

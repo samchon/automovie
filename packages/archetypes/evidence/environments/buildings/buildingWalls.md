@@ -24,8 +24,6 @@ Constructs one plan's wall table in one call; the prepared result belongs to the
 
 Holds edge, cut and aperture lists only within plan preparation. Returned wall records own only their intervals and opening references.
 
-# src/environments/buildings/buildingWalls.ts#buildingWalls
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States shared-wall construction, winding, opening association and the normalized input.

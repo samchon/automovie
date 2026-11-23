@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createWoodenDummy.ts#createWoodenDummy
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the origin, axes, parts, affordances and which band is provisional.

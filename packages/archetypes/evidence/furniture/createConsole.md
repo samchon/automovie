@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/furniture/createConsole.ts#createConsole
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, how the width is chosen, how the depth is shared and each contact.

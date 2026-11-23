@@ -24,8 +24,6 @@ The catalogue and contact builder serve the canonical and legacy authoring input
 
 Keeps no inputs or resources.
 
-# src/vehicles/BoatConstruction.ts#BoatConstruction
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names the hull's waterline frame and separate outfitting owner.

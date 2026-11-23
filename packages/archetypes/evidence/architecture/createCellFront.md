@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createCellFront.ts#createCellFront
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the grille stands, which side the cell is and how its bars are named.

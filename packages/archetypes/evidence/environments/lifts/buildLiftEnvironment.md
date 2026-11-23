@@ -24,8 +24,6 @@ Geometry, stop positions and declared clearances are shared by the stage, build 
 
 Outputs plain geometry and prop arrays bounded by the stop count and wall tessellation, and opens no host resources.
 
-# src/environments/lifts/buildLiftEnvironment.ts#buildLiftEnvironment
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Explains the model source, fixed and moving members, coordinate policy and connection owner.

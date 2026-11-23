@@ -24,8 +24,6 @@ Resolves a new occurrence's landing frames and geometry once; no cache shares pl
 
 The reusable definition retains a copy of its scalar dimensions and anchor names. One result owns a bounded set of slab records and does not retain a placement callback.
 
-# src/environments/buildings/createPassage.ts#createPassage
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States named landing authority, dimensions, result populations and refusals.

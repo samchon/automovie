@@ -24,8 +24,6 @@ Reuses `AutoMovieArchetypeEquine.equid`, which the pony shares; each call builds
 
 Retains nothing.
 
-# src/animals/createHorse.ts#createHorse
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the horse stands, that its parts are the shared quadruped's bones, how it is posed, where the body ends and where each tack's contacts are.

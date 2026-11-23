@@ -1,4 +1,4 @@
-# src/index.ts#createStageFittedCarrier
+# src/props/createStageFittedCarrier.ts#createStageFittedCarrier
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Reads the generated part dimensions rather than duplicating the padded display c
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Does not keep the display model or any external resources.
-
-# src/index.ts#createStageFittedCarrier
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

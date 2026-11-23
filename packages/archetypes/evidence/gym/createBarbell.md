@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createBarbell.ts#createBarbell
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the bar lies, where its origin is and what that asks of a scene, and the two contacts.

@@ -24,8 +24,6 @@ The horse is `createHorse`'s, unchanged.
 
 Retains nothing.
 
-# src/animals/createQuadruped.ts#createQuadruped
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what every kind shares, what differs and which producer each kind is.

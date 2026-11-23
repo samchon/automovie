@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createTightrope.ts#createTightrope
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it stands and the contact.

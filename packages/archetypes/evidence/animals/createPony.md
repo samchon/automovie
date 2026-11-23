@@ -24,8 +24,6 @@ Reuses the horse's builder, tack and gait table.
 
 Retains nothing.
 
-# src/animals/createPony.ts#createPony
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what the pony shares with the horse, how its breed is chosen, how its size, proportions and mass shares are derived and how it rides.

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createJumpRope.ts#createJumpRope
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the rope lies and its two handles.

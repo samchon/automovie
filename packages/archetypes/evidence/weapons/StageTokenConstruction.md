@@ -24,8 +24,6 @@ Shares the legacy draw and the profile's parts and frames.
 
 Keeps no inputs or resources.
 
-# src/weapons/StageTokenConstruction.ts#StageTokenConstruction
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Describes the source record and digital display callback.

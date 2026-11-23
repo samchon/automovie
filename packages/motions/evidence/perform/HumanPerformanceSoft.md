@@ -1,4 +1,4 @@
-# src/internal.ts#HumanPerformanceSoft.held
+# src/perform/HumanPerformanceSoft.ts#HumanPerformanceSoft.held
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ A pure read with nothing to reuse.
 
 Returns fresh records.
 
-# src/internal.ts#HumanPerformanceSoft.at
+# src/perform/HumanPerformanceSoft.ts#HumanPerformanceSoft.at
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ The solve is kept per performance state and prop subject, both fixed once the pe
 
 The cache is a weak map on the state, released with the performance; each prop keeps (steps + 1) x 3P doubles.
 
-# src/internal.ts#HumanPerformanceSoft.load
+# src/perform/HumanPerformanceSoft.ts#HumanPerformanceSoft.load
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -88,7 +88,7 @@ Shares `at`'s solve.
 
 Retains nothing beyond the shared solve.
 
-# src/internal.ts#HumanPerformanceSoft.sustained
+# src/perform/HumanPerformanceSoft.ts#HumanPerformanceSoft.sustained
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -118,7 +118,7 @@ Reads the solve `at` and `load` keep.
 
 Returns fresh records; the solves are kept by `of`.
 
-# src/internal.ts#HumanPerformanceSoft.of
+# src/perform/HumanPerformanceSoft.ts#HumanPerformanceSoft.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

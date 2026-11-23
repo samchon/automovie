@@ -1,4 +1,4 @@
-# src/index.ts#HumanPerformance.prototype.simulate
+# src/perform/HumanPerformance.ts#HumanPerformance.prototype.simulate
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ The copy shares this performance's earlier readings rather than baking them agai
 
 The copy retains the readings, each holding its completed simulation; no native handle outlives the bake.
 
-# src/index.ts#HumanPerformance.prototype.simulations
+# src/perform/HumanPerformance.ts#HumanPerformance.prototype.simulations
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ A reading.
 
 Returns a fresh array of the retained records.
 
-# src/index.ts#HumanPerformance.prototype.fracture
+# src/perform/HumanPerformance.ts#HumanPerformance.prototype.fracture
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

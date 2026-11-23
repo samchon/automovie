@@ -1,4 +1,4 @@
-# src/index.ts#createLaptop
+# src/props/createLaptop.ts#createLaptop
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The original draw and the key field construction serve both input devices.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The producer retains nothing.
-
-# src/index.ts#createLaptop
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

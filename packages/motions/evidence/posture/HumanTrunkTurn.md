@@ -1,4 +1,4 @@
-# src/internal.ts#HumanTrunkTurn.turned
+# src/posture/HumanTrunkTurn.ts#HumanTrunkTurn.turned
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

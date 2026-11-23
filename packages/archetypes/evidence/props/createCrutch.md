@@ -1,4 +1,4 @@
-# src/index.ts#createCrutch
+# src/props/createCrutch.ts#createCrutch
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call returns independently dimensioned geometry.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Only the new model retains its parts and data.
-
-# src/index.ts#createCrutch
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

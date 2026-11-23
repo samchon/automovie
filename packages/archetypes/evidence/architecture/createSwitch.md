@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createSwitch.ts#createSwitch
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States where the control is, which way it faces and what moves.

@@ -1,4 +1,4 @@
-# src/index.ts#createRadio
+# src/props/createRadio.ts#createRadio
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The producer uses the common device draw and case geometry.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Each call returns a complete model and retains no inputs.
-
-# src/index.ts#createRadio
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

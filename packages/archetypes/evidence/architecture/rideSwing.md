@@ -1,4 +1,4 @@
-# src/architecture/index.ts#rideSwing
+# src/architecture/rideSwing.ts#rideSwing
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The turning points serve every read.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains one angle per half swing while the caller keeps the ride.
-
-# src/architecture/index.ts#rideSwing
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

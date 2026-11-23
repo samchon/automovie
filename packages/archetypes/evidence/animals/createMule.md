@@ -24,8 +24,6 @@ Reuses the horse's builder, tack and gait table.
 
 Retains nothing.
 
-# src/animals/createMule.ts#createMule
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what the mule shares with the horse, how its sex is chosen and where its size, mass and proportions come from.

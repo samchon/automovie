@@ -1,4 +1,4 @@
-# src/index.ts#createStagePercussionRifle
+# src/weapons/createStagePercussionRifle.ts#createStagePercussionRifle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Shares the stock construction with the matchlock.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Keeps no inputs.
-
-# src/index.ts#createStagePercussionRifle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

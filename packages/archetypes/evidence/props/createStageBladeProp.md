@@ -1,4 +1,4 @@
-# src/index.ts#createStageBladeProp
+# src/props/createStageBladeProp.ts#createStageBladeProp
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The builder records the same padded surfaces for display and geometry queries.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The result owns its generated data and the producer retains no per-model state.
-
-# src/index.ts#createStageBladeProp
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

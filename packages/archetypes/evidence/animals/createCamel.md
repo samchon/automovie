@@ -24,8 +24,6 @@ Shared cohort/body/lead/equipment owners each retain their construction; the ide
 
 The returned model owns its records and no query, process, renderer or global cache is retained.
 
-# src/animals/createCamel.ts#createCamel
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names the pooled/five-group selection policy, unknown group frequencies, separate provisional conformation cohort, authored mass and estimated single hump.

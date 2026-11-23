@@ -24,8 +24,6 @@ Body/profile, coherent reference recording, collar/lead and yoke/pack geometry/c
 
 Returns independent model records and retains no construction callback, mutable registry, process or renderer.
 
-# src/animals/createOx.ts#createOx
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names the whole Kathani reference, separate provisional limb cohort, measured horn/ear lengths and authored geometry/equipment limits.

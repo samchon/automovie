@@ -1,4 +1,4 @@
-# src/index.ts#rideBicycle
+# src/vehicles/rideBicycle.ts#rideBicycle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The course is planned once, for the dead-centre instants and for the ride that s
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Holds the bicycle and the plan for as long as the caller keeps the ride.
-
-# src/index.ts#rideBicycle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

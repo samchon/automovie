@@ -24,8 +24,6 @@ A pure function of its two inputs.
 
 Returns one fresh four-number record.
 
-# src/animals/EquineSwimStroke.ts#EquineSwimStroke
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States both sources, the angle conventions, the cycle origin, which event phases are measured and which authored, and the unmeasured proximal swing.

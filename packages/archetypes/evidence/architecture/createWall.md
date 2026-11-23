@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createWall.ts#createWall
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the wall's plane and what each contact is for.

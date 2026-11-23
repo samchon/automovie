@@ -1,4 +1,4 @@
-# src/index.ts#createWaterPoloBall
+# src/sport/createWaterPoloBall.ts#createWaterPoloBall
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each draw owns one independently sized ball.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 No external state.
-
-# src/index.ts#createWaterPoloBall
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

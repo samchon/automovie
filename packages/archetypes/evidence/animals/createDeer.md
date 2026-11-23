@@ -24,8 +24,6 @@ Shared body/reference/lead owners build the model. The shared head attachment ow
 
 Returns independent scalar model records without retained callbacks, global registry, process or renderer.
 
-# src/animals/createDeer.ts#createDeer
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Separates sex/age-specific 1995 body/antler observations from older same-sex 1997 skeletal samples, authored catalogue frequencies and coarse branching; equipment requires explicit total mass.

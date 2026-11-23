@@ -24,8 +24,6 @@ The catalogue and contact builder serve the canonical and legacy authoring input
 
 Keeps no inputs or resources.
 
-# src/vehicles/CartConstruction.ts#CartConstruction
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names the draw and geometry ownership of the land forms.

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createTrampoline.ts#createTrampoline
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it stands and its contact.

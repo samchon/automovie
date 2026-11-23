@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createBin.ts#createBin
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how each kind stands, how its model is chosen, its contacts and why its lid does not open.

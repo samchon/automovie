@@ -1,4 +1,4 @@
-# src/index.ts#AutoMovieMotionHumanBathing.intoTub
+# src/next/AutoMovieMotionHumanBathing.ts#AutoMovieMotionHumanBathing.intoTub
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Each call appends to its own chain.
 
 Retains nothing.
 
-# src/index.ts#AutoMovieMotionHumanBathing.outOfTub
+# src/next/AutoMovieMotionHumanBathing.ts#AutoMovieMotionHumanBathing.outOfTub
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ Each call appends to its own chain.
 
 Retains nothing.
 
-# src/index.ts#AutoMovieMotionHumanBathing.shower
+# src/next/AutoMovieMotionHumanBathing.ts#AutoMovieMotionHumanBathing.shower
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -88,7 +88,7 @@ Each call appends to its own chain.
 
 Retains nothing.
 
-# src/index.ts#AutoMovieMotionHumanBathing.towelDry
+# src/next/AutoMovieMotionHumanBathing.ts#AutoMovieMotionHumanBathing.towelDry
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createBalancePole.ts#createBalancePole
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it lies and the two grips.

@@ -1,4 +1,4 @@
-# src/internal.ts#HumanPropDynamics.hingeProp
+# src/perform/HumanPropDynamics.ts#HumanPropDynamics.hingeProp
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ All reads of the returned track share the one integrated trajectory and the prop
 
 The track retains the path knots and affordance index for its lifetime. It acquires no external resources.
 
-# src/internal.ts#HumanPropDynamics.slideProp
+# src/perform/HumanPropDynamics.ts#HumanPropDynamics.slideProp
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

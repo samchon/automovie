@@ -24,8 +24,6 @@ Each constructor call builds an independent model.
 
 Construction retains no external resources.
 
-# src/gym/createRhythmicBall.ts#createRhythmicBall
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the model's floor, centre and palm references and their use.

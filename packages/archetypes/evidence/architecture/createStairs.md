@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createStairs.ts#createStairs
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the flight's direction and origin, how steps are named and where a rail runs.

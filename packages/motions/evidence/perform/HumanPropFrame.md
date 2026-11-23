@@ -1,4 +1,4 @@
-# src/internal.ts#HumanPropFrame.parent
+# src/perform/HumanPropFrame.ts#HumanPropFrame.parent
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createDoor.ts#createDoor
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the door's plane and origin, which way it opens, what moves with what and what each hand contact is.

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createGate.ts#createGate
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the lane's frame, each kind's parts, its contacts, and why the arm and wings are no contacts.

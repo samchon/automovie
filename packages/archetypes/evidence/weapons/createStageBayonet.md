@@ -1,4 +1,4 @@
-# src/index.ts#createStageBayonet
+# src/weapons/createStageBayonet.ts#createStageBayonet
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Reads the generated barrel rather than repeating the musket catalogue.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Does not keep the musket model or any external resource.
-
-# src/index.ts#createStageBayonet
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

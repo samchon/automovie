@@ -1,4 +1,4 @@
-# src/index.ts#createRailCarriage
+# src/vehicles/createRailCarriage.ts#createRailCarriage
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call builds an independent model.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains no model or external resource.
-
-# src/index.ts#createRailCarriage
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

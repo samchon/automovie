@@ -1,4 +1,4 @@
-# src/index.ts#createBowlingLane
+# src/sport/createBowlingLane.ts#createBowlingLane
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ New model per call.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing after the builder returns.
-
-# src/index.ts#createBowlingLane
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#assembleCostumeArmour
+# src/weapons/assembleCostumeArmour.ts#assembleCostumeArmour
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Reuses canonical wear contacts, the body's rest record and the shared prop bindi
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The returned bindings reference only the caller's models and independently owned offset records.
-
-# src/index.ts#assembleCostumeArmour
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createAutoMovieHumanPolygonFigure
+# src/scene/human-polygon/createAutoMovieHumanPolygonFigure.ts#createAutoMovieHumanPolygonFigure
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

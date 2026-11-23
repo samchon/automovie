@@ -24,8 +24,6 @@ One model-axis draw owns reference/provenance selection. Prepared body profiles 
 
 The returned model owns its records. The O(K) profile/plan catalogue, draw session and construction callbacks are call-local and become unreachable after emission; no process, global cache or external handle is retained.
 
-# src/animals/createCohortQuadruped.ts#createCohortQuadruped
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States exact whole-reference ownership, fixed/seedless/seeded selection, authored catalogue frequency, source versus equipment mass and declared timing spread.

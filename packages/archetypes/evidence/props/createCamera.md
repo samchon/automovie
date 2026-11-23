@@ -1,4 +1,4 @@
-# src/index.ts#createCamera
+# src/props/createCamera.ts#createCamera
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The producer uses the common device draw.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Each call returns a complete model and retains no inputs.
-
-# src/index.ts#createCamera
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

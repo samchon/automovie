@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createExerciseMat.ts#createExerciseMat
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the mat lies and its contact.

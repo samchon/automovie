@@ -24,8 +24,6 @@ Both entry points run the exact same producer.
 
 The dispatcher keeps no inputs or intermediate state.
 
-# src/architecture/createAppliance.ts#createAppliance
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Describes the saved recipe and draw namespace.

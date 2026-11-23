@@ -1,4 +1,4 @@
-# src/index.ts#createScenicShip
+# src/vehicles/createScenicShip.ts#createScenicShip
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call builds one independently authored set.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Holds nothing beyond the returned archetype.
-
-# src/index.ts#createScenicShip
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

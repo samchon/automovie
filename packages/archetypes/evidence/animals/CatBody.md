@@ -24,8 +24,6 @@ Existing body and head owners consume the same profile; the cat adds no mesh or 
 
 The returned profile owns its records and retains no external handles.
 
-# src/animals/CatBody.ts#CatBody
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Identifies the distinct source groups and separates literal measurements from authored and derived controls.

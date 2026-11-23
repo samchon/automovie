@@ -1,4 +1,4 @@
-# src/internal.ts#HumanWater.stroke
+# src/perform/HumanWater.ts#HumanWater.stroke
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

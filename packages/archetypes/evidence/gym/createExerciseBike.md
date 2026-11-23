@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createExerciseBike.ts#createExerciseBike
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the bike stands, the crank's rest and sense and its contacts.

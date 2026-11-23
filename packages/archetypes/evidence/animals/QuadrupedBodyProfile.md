@@ -24,8 +24,6 @@ One shared mapping serves ox, camel and deer. Immutable-in-type source data is r
 
 Retains no props, query, cache or external handle. The caller owns all returned records; no segment shares or foot material are added, leaving their absence explicit for the existing builder.
 
-# src/animals/QuadrupedBodyProfile.ts#QuadrupedBodyProfile
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Defines reference/instance metres, control directions, circular/capsule interpretations, producer-owned provenance, resource ownership and refusals; no anatomical or visual result is asserted.

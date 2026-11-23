@@ -1,4 +1,4 @@
-# src/index.ts#createCraftTool
+# src/props/createCraftTool.ts#createCraftTool
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call builds one independent model.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Keeps no inputs.
-
-# src/index.ts#createCraftTool
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

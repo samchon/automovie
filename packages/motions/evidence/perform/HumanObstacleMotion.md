@@ -1,4 +1,4 @@
-# src/internal.ts#HumanObstacleMotion.footprint
+# src/perform/HumanObstacleMotion.ts#HumanObstacleMotion.footprint
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Nothing to reuse.
 
 Retains nothing.
 
-# src/internal.ts#HumanObstacleMotion.at
+# src/perform/HumanObstacleMotion.ts#HumanObstacleMotion.at
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ Nothing to reuse.
 
 Retains nothing.
 
-# src/internal.ts#HumanObstacleMotion.prop
+# src/perform/HumanObstacleMotion.ts#HumanObstacleMotion.prop
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

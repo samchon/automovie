@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createRack.ts#createRack
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it stands, which side the lifter is on and the contact.

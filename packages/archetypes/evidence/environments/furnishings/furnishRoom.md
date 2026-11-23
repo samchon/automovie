@@ -24,8 +24,6 @@ Instances share the production's model prototypes, measured bounds and candidate
 
 Reservation, prototype and occupancy maps live only for the call. The returned records are bounded by the requested group count, fixed props and model affordances. No external resources are held.
 
-# src/environments/furnishings/furnishRoom.ts#furnishRoom
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States frame, floor contact, slot and aisle policy, priority of keep-outs and overrides, errors and emitted records.

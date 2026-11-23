@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createBoard.ts#createBoard
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the board hangs, where each kind is mounted and its contacts.

@@ -1,4 +1,4 @@
-# src/index.ts#collectAutoMovieCollisionParts
+# src/scene/inspection/collectAutoMovieCollisionParts.ts#collectAutoMovieCollisionParts
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

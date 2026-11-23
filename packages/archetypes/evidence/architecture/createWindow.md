@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createWindow.ts#createWindow
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the window's plane, which side the room is on and what moves.

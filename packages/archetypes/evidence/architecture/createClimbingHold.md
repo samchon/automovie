@@ -24,8 +24,6 @@ Each call builds one independent ledge.
 
 Retains no inputs after returning the ledge.
 
-# src/architecture/createClimbingHold.ts#createClimbingHold
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the mounting face, dimension axes and two contact frames.

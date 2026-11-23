@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createPullUpBar.ts#createPullUpBar
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the two kinds, how it stands and the contact.

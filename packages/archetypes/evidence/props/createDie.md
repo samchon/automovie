@@ -1,4 +1,4 @@
-# src/index.ts#createDie
+# src/props/createDie.ts#createDie
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Shares the tabletop contacts with the card, chip and note.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Keeps no inputs.
-
-# src/index.ts#createDie
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

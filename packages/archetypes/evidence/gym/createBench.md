@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createBench.ts#createBench
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it stands, which way it runs and the three contacts.

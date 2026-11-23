@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing after returning the model.
 
-# src/architecture/createSeesaw.ts#createSeesaw
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, the pivot axis and the separate beam.

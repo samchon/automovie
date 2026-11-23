@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createBar.ts#createBar
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the bar's direction, how it is gripped and what is left out.

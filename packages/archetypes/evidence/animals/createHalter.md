@@ -24,8 +24,6 @@ Reuses the shared builder.
 
 Retains nothing.
 
-# src/animals/createHalter.ts#createHalter
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, the straps, the fit, the two contacts and which values are authored.

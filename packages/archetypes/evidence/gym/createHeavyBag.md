@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createHeavyBag.ts#createHeavyBag
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States where the origin is, which side is struck, its two contacts and that a swing is not modelled.

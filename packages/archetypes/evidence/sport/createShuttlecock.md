@@ -1,4 +1,4 @@
-# src/index.ts#createShuttlecock
+# src/sport/createShuttlecock.ts#createShuttlecock
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Uses the same archetype bands, convex collision parts and affordance frames as o
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The archetype is independently owned.
-
-# src/index.ts#createShuttlecock
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

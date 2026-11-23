@@ -1,4 +1,4 @@
-# src/internal.ts#HumanPhysics.supportOffset
+# src/law/HumanPhysics.ts#HumanPhysics.supportOffset
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ A single geometric projection with no time or pose samples.
 
 No geometry is retained after the query.
 
-# src/internal.ts#HumanPhysics.shift
+# src/law/HumanPhysics.ts#HumanPhysics.shift
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ A reading.
 
 Returns a fresh record; retains nothing.
 
-# src/internal.ts#HumanPhysics.prepare
+# src/law/HumanPhysics.ts#HumanPhysics.prepare
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -88,7 +88,7 @@ All actual posture samples borrow the same admitted endpoints.
 
 Returns numeric bounds and blend lengths without retaining the action or its resolver.
 
-# src/internal.ts#HumanPhysics.weightAt
+# src/law/HumanPhysics.ts#HumanPhysics.weightAt
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -118,7 +118,7 @@ Borrows already-resolved bounds from the plan.
 
 Returns a scalar and retains nothing.
 
-# src/internal.ts#HumanPhysics.instant
+# src/law/HumanPhysics.ts#HumanPhysics.instant
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -148,7 +148,7 @@ A reading.
 
 Returns a fresh record; retains nothing.
 
-# src/internal.ts#HumanPhysics.weight
+# src/law/HumanPhysics.ts#HumanPhysics.weight
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -178,7 +178,7 @@ A reading.
 
 Retains nothing.
 
-# src/internal.ts#HumanPhysics.judged
+# src/law/HumanPhysics.ts#HumanPhysics.judged
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -208,7 +208,7 @@ A reading.
 
 Retains nothing.
 
-# src/internal.ts#HumanPhysics.intervals
+# src/law/HumanPhysics.ts#HumanPhysics.intervals
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

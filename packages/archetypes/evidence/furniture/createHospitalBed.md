@@ -24,8 +24,6 @@ The legacy selector calls the same geometry owner and keeps its original draw na
 
 Each call hands its model data to the caller and acquires no external resource.
 
-# src/furniture/createHospitalBed.ts#createHospitalBed
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 A hospital bed with a caster base, patient support and bars along both sides.

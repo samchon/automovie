@@ -1,4 +1,4 @@
-# src/index.ts#createCyclingHelmet
+# src/props/createCyclingHelmet.ts#createCyclingHelmet
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The named and saved entry points share this producer and its draw stream.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The call retains no inputs.
-
-# src/index.ts#createCyclingHelmet
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

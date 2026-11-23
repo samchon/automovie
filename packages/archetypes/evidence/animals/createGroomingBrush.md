@@ -24,8 +24,6 @@ Reuses the shared builder and draw session.
 
 Retains nothing.
 
-# src/animals/createGroomingBrush.ts#createGroomingBrush
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the brush lies, how it is held, its two contacts and which values are read and authored.

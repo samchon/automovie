@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/furniture/createSeat.ts#createSeat
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what is modelled, where the seat frame stands, how places are addressed and where the origin is.

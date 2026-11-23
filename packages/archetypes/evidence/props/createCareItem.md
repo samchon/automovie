@@ -1,4 +1,4 @@
-# src/index.ts#createCareItem
+# src/props/createCareItem.ts#createCareItem
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Saved and named calls use the same producer.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The call retains no inputs.
-
-# src/index.ts#createCareItem
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

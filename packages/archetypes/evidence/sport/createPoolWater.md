@@ -1,4 +1,4 @@
-# src/index.ts#createPoolWater
+# src/sport/createPoolWater.ts#createPoolWater
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The admitted spans supply both the mesh and the water reference. Color conversio
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The returned model owns its fresh data. The producer retains nothing.
-
-# src/index.ts#createPoolWater
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

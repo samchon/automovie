@@ -1,4 +1,4 @@
-# src/internal.ts#HumanBase.after
+# src/law/HumanBase.ts#HumanBase.after
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

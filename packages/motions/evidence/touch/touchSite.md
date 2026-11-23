@@ -1,4 +1,4 @@
-# src/internal.ts#touchSite.of
+# src/touch/touchSite.ts#touchSite.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Each call retains its original constant geometry. Only drawn/literal tangent off
 
 The plan-owned reader retains its fixed site and at most two polar coefficients; original draw arrays end after setup, and each returned frame is independent with no pose or time history.
 
-# src/internal.ts#touchSite.span
+# src/touch/touchSite.ts#touchSite.span
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

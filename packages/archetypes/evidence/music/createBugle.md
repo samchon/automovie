@@ -1,4 +1,4 @@
-# src/index.ts#createBugle
+# src/music/createBugle.ts#createBugle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Saved recipes call this producer with the original seed namespace and geometry.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Each call returns an independent model and retains no inputs.
-
-# src/index.ts#createBugle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

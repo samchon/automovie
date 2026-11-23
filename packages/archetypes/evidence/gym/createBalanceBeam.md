@@ -24,8 +24,6 @@ Each invocation builds its independent model.
 
 Construction retains no state.
 
-# src/gym/createBalanceBeam.ts#createBalanceBeam
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names the floor and beam frames, the shape and the admitted dimensions.

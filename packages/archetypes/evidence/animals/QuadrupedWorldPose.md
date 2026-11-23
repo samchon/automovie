@@ -24,8 +24,6 @@ The neutral frames, parent order and rest attachments are prepared once and shar
 
 Retains the neutral frames and attachments of one animal; every returned pose and model is the caller's.
 
-# src/animals/QuadrupedWorldPose.ts#QuadrupedWorldPose
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the representation, its frames, the read and emit inverse pair and the cited blending method with its continuity guarantee.

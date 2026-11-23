@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createRing.ts#createRing
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the ring stands and its contacts.

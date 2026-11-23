@@ -1,4 +1,4 @@
-# src/internal.ts#chiSau.plan
+# src/sport/chiSau.ts#chiSau.plan
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

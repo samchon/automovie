@@ -1,4 +1,4 @@
-# src/index.ts#createCricketWicket
+# src/sport/createCricketWicket.ts#createCricketWicket
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call builds its own prop.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing after construction.
-
-# src/index.ts#createCricketWicket
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

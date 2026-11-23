@@ -24,8 +24,6 @@ Reuses the shared builder and span.
 
 Retains nothing.
 
-# src/animals/createHobble.ts#createHobble
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the parts, the frame, the strap's rest length and which values are authored.

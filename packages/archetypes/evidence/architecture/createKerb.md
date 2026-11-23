@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createKerb.ts#createKerb
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it stands, which side is approached and its two contacts.

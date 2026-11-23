@@ -1,4 +1,4 @@
-# src/index.ts#createComb
+# src/props/createComb.ts#createComb
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The named and saved entry points share this producer and its original draw strea
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The call retains no inputs.
-
-# src/index.ts#createComb
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

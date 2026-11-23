@@ -24,8 +24,6 @@ Callers place each lift once and owning context supplies the shared anchor looku
 
 Returns one sorted row per stop and retains no reference resolver.
 
-# src/environments/lifts/liftStopHeights.ts#liftStopHeights
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Identifies the input and output frames and explains stops and their refusal conditions.

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createSled.ts#createSled
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the sled stands, which way it is pushed and its three contacts.

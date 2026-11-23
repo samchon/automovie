@@ -1,4 +1,4 @@
-# src/index.ts#rowBoat
+# src/vehicles/rowBoat.ts#rowBoat
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -21,8 +21,6 @@ Samples reuse the plan and oar geometry. The film binding shares the native cloc
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The ride owns the boat, plan and sea. Native ride and reader identities weakly own binding metadata. No prior sampled output is retained by the binding.
-
-# src/index.ts#rowBoat
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

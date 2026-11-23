@@ -24,8 +24,6 @@ Published reference records serve every call, while returned profile records/arr
 
 The caller owns the result. No query or resource is retained; omitted segment shares leave the builder's coarse uniform-density allocation explicit.
 
-# src/animals/AutoMovieArchetypeDeerBody.ts#AutoMovieArchetypeDeerBody
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names both sex/age-specific body and skeletal samples, true-bone versus tape measures, SI normalization and every unmeasured construction parameter; no visual or ROM result is implied.

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/furniture/createTable.ts#createTable
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what is modelled and which edge is the front.

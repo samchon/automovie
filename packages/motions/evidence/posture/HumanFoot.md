@@ -1,4 +1,4 @@
-# src/internal.ts#HumanFoot.headingPitch
+# src/posture/HumanFoot.ts#HumanFoot.headingPitch
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Both scalar values derive from this same supplied quaternion within this call; n
 
 Returns one fresh scalar pair and retains no input or state.
 
-# src/internal.ts#HumanFoot.pivot
+# src/posture/HumanFoot.ts#HumanFoot.pivot
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ Reuses rotation and offset.
 
 Retains nothing.
 
-# src/internal.ts#HumanFoot.preparePivot
+# src/posture/HumanFoot.ts#HumanFoot.preparePivot
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -88,7 +88,7 @@ The caller fixes body, side, socket, heading, toes and roll. Default at remains 
 
 One reader retains its default contact, socket offset and rotation prefix until its solve/action releases it; explicit current contacts and queried results are not retained.
 
-# src/internal.ts#HumanFoot.preparePoint
+# src/posture/HumanFoot.ts#HumanFoot.preparePoint
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

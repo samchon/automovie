@@ -1,4 +1,4 @@
-# src/index.ts#HumanObject.frame
+# src/perform/HumanObject.ts#HumanObject.frame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Nothing to reuse or cache.
 
 A pure function that retains nothing.
 
-# src/index.ts#HumanObject.prop
+# src/perform/HumanObject.ts#HumanObject.prop
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ An exact native model and callback pair can pass its existing stationary domains
 
 The prop owns its affordances, colliders and any issued carrier domain metadata for its lifetime.
 
-# src/index.ts#HumanObject.cord
+# src/perform/HumanObject.ts#HumanObject.cord
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -88,7 +88,7 @@ Reuses the provider's public span reader and the existing soft solver settings.
 
 Returns a soft prop and its finite domain. Film-state ownership stays with the performance.
 
-# src/index.ts#HumanObject.seat
+# src/perform/HumanObject.ts#HumanObject.seat
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

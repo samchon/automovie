@@ -24,8 +24,6 @@ The legacy selector calls the same geometry owner and keeps its original draw na
 
 Each call hands its model data to the caller and acquires no external resource.
 
-# src/furniture/createBunkBed.ts#createBunkBed
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 A stacked pair of beds with lower side seats, an upper sleep surface and a guard bar.

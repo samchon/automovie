@@ -24,8 +24,6 @@ Both rings and all their sections share a prepared cell. The common articulation
 
 Construction retains no external resources.
 
-# src/gym/createStillRings.ts#createStillRings
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names the floor frame, the separate grips and the swing axes.

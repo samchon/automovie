@@ -24,8 +24,6 @@ Every species uses the same neck landmarks and the same geometry/contact owner; 
 
 The builder owns the returned geometry/contact data; the helper retains no input, cache or external resource.
 
-# src/animals/AutoMovieArchetypeQuadrupedLead.ts#AutoMovieArchetypeQuadrupedLead
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States construction ownership, authored SI dimensions, contact identity and geometric admission.

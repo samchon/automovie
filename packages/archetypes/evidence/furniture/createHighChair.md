@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/furniture/createHighChair.ts#createHighChair
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the chair stands, its contact, and what is left out with the missing law.

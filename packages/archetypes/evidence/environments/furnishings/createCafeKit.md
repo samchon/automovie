@@ -24,8 +24,6 @@ All dining groups in an occurrence share the table and chair draw and their exte
 
 The module captures the room parameters only. Model prototypes and planner allocations belong to one call and survive only where the emitted stage records use them.
 
-# src/environments/furnishings/createCafeKit.ts#createCafeKit
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States room orientation, defaults through the shared layout, count, role paths, returned records and placement refusal.

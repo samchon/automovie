@@ -24,8 +24,6 @@ A pure profile construction.
 
 Retains nothing.
 
-# src/animals/AutoMovieArchetypeDogBody.ts#AutoMovieArchetypeDogBody
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Separates measured landmarks from the explicitly constructed control rig.

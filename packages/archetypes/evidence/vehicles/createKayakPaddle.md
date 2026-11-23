@@ -1,4 +1,4 @@
-# src/index.ts#createKayakPaddle
+# src/vehicles/createKayakPaddle.ts#createKayakPaddle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Reuses the blade panel and handle construction, reflected at its two ends.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Each returned model owns its parts and input provenance.
-
-# src/index.ts#createKayakPaddle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

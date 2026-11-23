@@ -1,4 +1,4 @@
-# src/internal.ts#HumanAuditModel.IFrame
+# src/posture/HumanAuditModel.ts#HumanAuditModel.IFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ What a clearance consumer reads.
 
 The parts and probes are the model's own, in its order.
 
-# src/internal.ts#HumanAuditModel.frame
+# src/posture/HumanAuditModel.ts#HumanAuditModel.frame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

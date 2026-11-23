@@ -1,4 +1,4 @@
-# src/architecture/index.ts#rideSeesaw
+# src/architecture/rideSeesaw.ts#rideSeesaw
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each read is independent arithmetic.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains the push-off list while the caller keeps the ride.
-
-# src/architecture/index.ts#rideSeesaw
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#rideWheelchair
+# src/vehicles/rideWheelchair.ts#rideWheelchair
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The ride's plan is shared by every sample.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Holds the chair and the plan for as long as the caller keeps the ride.
-
-# src/index.ts#rideWheelchair
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

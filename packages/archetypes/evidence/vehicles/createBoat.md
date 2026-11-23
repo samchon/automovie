@@ -1,4 +1,4 @@
-# src/index.ts#createBoat
+# src/vehicles/createBoat.ts#createBoat
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The saved and named calls are the same producer with the same seed data.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
-
-# src/index.ts#createBoat
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

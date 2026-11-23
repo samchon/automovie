@@ -24,8 +24,6 @@ The ten fixed primary rows and their three source descriptions have one module o
 
 The module retains ten rows and three source records; lookup clones all exposed nested records/tuples so returned data cannot mutate the reference table. Calls acquire no handles or retain caller observations.
 
-# src/animals/AutoMovieArchetypeEquineJointLimits.ts#AutoMovieArchetypeEquineJointLimits
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 The lookup and compare operation define proximal bone mapping, study-specific included-angle degrees, paired mean/SD tuples, source identity/conditions, unsupported joints and unknown runtime limits. Compare requires one retained DOI and a finite [0,360] angle and reports signed endpoint-SD differences, not probability or pose admission.

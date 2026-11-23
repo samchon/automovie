@@ -24,8 +24,6 @@ Admitted local plans are shared by all placements of this definition; results an
 
 The caller's reusable function retains only the normalized plan and scalar construction options; each placement returns separately owned records.
 
-# src/environments/buildings/createBuilding.ts#createBuilding
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Documents the source choices, reuse, metre coordinates, anchor identities and orientation, and refusal conditions.

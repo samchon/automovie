@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createHatch.ts#createHatch
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, which side the ladder and the hinge are on, which way the cover opens and each contact.

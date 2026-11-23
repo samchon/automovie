@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createRowingMachine.ts#createRowingMachine
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the machine stands, the way the rower faces and its four contacts.

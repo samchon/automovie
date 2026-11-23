@@ -24,8 +24,6 @@ Each occurrence shares a bench prototype and a dumbbell prototype across its sta
 
 The returned module keeps the layout parameters. Each call owns its model draws and emits a population bounded by the requested stations. It owns no external resources.
 
-# src/environments/furnishings/createGymKit.ts#createGymKit
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the room origin, orientation, bench and weight roles, attached contact paths and failure condition.

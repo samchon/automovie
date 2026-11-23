@@ -1,4 +1,4 @@
-# src/index.ts#createStandingLamp
+# src/props/createStandingLamp.ts#createStandingLamp
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The legacy selector calls the same geometry owner and keeps its original draw na
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Each call hands its model data to the caller and acquires no external resource.
-
-# src/index.ts#createStandingLamp
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

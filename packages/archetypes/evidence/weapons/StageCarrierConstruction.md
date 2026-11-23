@@ -24,8 +24,6 @@ Shares the legacy draw and the profile's parts and frames.
 
 Keeps no inputs or resources.
 
-# src/weapons/StageCarrierConstruction.ts#StageCarrierConstruction
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names shared carrier fit and form-owned geometry.

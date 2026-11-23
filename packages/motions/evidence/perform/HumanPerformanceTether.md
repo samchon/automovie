@@ -1,4 +1,4 @@
-# src/internal.ts#HumanPerformanceTether.span
+# src/perform/HumanPerformanceTether.ts#HumanPerformanceTether.span
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Each read is independent.
 
 Retains nothing.
 
-# src/internal.ts#HumanPerformanceTether.pull
+# src/perform/HumanPerformanceTether.ts#HumanPerformanceTether.pull
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ The index is built once per resolved performance.
 
 The index lives as long as the resolved performance.
 
-# src/internal.ts#HumanPerformanceTether.stretch
+# src/perform/HumanPerformanceTether.ts#HumanPerformanceTether.stretch
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

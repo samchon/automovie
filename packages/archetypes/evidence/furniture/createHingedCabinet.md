@@ -24,8 +24,6 @@ The legacy selector calls the same geometry owner and keeps its original draw na
 
 Each call hands its model data to the caller and acquires no external resource.
 
-# src/furniture/createHingedCabinet.ts#createHingedCabinet
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Wardrobe leaves have admitted travel and carry their pulls. The locker has a hinge frame with no admitted travel.

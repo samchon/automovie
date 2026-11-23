@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createElevator.ts#createElevator
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, how the doors open, the static use with its missing law, and why no button is declared.

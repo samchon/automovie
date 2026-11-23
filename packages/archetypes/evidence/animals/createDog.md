@@ -24,8 +24,6 @@ One draw session owns the selected cohort and every dimension.
 
 Returns an independently owned model without external resources.
 
-# src/animals/createDog.ts#createDog
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States source scope, authored mass, contact, units and remaining physical gaps.

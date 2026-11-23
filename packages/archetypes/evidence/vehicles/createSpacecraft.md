@@ -1,4 +1,4 @@
-# src/index.ts#createSpacecraft
+# src/vehicles/createSpacecraft.ts#createSpacecraft
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The two adjacent hull segments share their shoulder station; each convex panel i
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The builder hands its model to the caller and retains no external resources.
-
-# src/index.ts#createSpacecraft
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/index.ts#createKeyboard
+# src/props/createKeyboard.ts#createKeyboard
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ A saved recipe and the named SDK function use the same producer.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains no inputs.
-
-# src/index.ts#createKeyboard
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

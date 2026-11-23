@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing after returning the model.
 
-# src/architecture/createMovingWalkway.ts#createMovingWalkway
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, the drawn structure and the separate moving band.

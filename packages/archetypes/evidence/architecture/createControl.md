@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createControl.ts#createControl
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States where the control stands, how each kind moves, why the lever states no travel, and each contact.

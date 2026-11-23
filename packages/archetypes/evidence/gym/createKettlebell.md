@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createKettlebell.ts#createKettlebell
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it stands, what it is built of, why the mass leaves the shape alone and the contact.

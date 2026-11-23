@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing after returning the model.
 
-# src/architecture/createRoundabout.ts#createRoundabout
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, the spindle and the separate disc.

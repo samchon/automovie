@@ -1,4 +1,4 @@
-# src/index.ts#rideMotorcycle
+# src/vehicles/rideMotorcycle.ts#rideMotorcycle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The ride's plan is shared by every sample, and the lean check is the one the bic
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Holds the machine and the plan for as long as the caller keeps the ride.
-
-# src/index.ts#rideMotorcycle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

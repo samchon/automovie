@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/furniture/createSafe.ts#createSafe
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, how the door sits, which way it would open, why it states no travel, what is left out and its contact.

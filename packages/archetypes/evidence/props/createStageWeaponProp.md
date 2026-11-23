@@ -1,4 +1,4 @@
-# src/index.ts#createStageWeaponProp
+# src/props/createStageWeaponProp.ts#createStageWeaponProp
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The shared builder records each primitive for both its model and geometry consum
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Each model owns its data and the producer retains no state.
-
-# src/index.ts#createStageWeaponProp
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

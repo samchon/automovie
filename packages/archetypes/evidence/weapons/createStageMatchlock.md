@@ -1,4 +1,4 @@
-# src/index.ts#createStageMatchlock
+# src/weapons/createStageMatchlock.ts#createStageMatchlock
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Shares the stock construction with the percussion rifle.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Keeps no inputs.
-
-# src/index.ts#createStageMatchlock
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

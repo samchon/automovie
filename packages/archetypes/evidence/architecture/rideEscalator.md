@@ -1,4 +1,4 @@
-# src/architecture/index.ts#rideEscalator
+# src/architecture/rideEscalator.ts#rideEscalator
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ One profile serves every read.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains the profile and placement while the caller keeps the ride.
-
-# src/architecture/index.ts#rideEscalator
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

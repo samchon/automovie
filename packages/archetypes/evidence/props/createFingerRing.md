@@ -1,4 +1,4 @@
-# src/index.ts#createFingerRing
+# src/props/createFingerRing.ts#createFingerRing
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call builds one model.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
-
-# src/index.ts#createFingerRing
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

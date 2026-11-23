@@ -1,4 +1,4 @@
-# src/index.ts#cutExact
+# src/internal/mesh-observations/cutExact.ts#cutExact
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

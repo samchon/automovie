@@ -24,8 +24,6 @@ The saved and named calls are the same producer with the same seed data.
 
 Each call hands its model data to the caller and acquires no external resource.
 
-# src/furniture/createStorage.ts#createStorage
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Replay a saved storage variant with the original dimensions, identifier and model choices.

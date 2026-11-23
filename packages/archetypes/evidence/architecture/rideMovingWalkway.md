@@ -1,4 +1,4 @@
-# src/architecture/index.ts#rideMovingWalkway
+# src/architecture/rideMovingWalkway.ts#rideMovingWalkway
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each read is independent arithmetic.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains the placement, speed and direction while the caller keeps the ride.
-
-# src/architecture/index.ts#rideMovingWalkway
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

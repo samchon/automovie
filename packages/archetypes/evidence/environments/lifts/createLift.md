@@ -1,4 +1,4 @@
-# src/environments/index.ts#createLift
+# src/environments/lifts/createLift.ts#createLift
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The immutable authored data and open intervals are reused for every occurrence a
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 A module retains only copied authored data and one bounded open-window index. A placement returns its own plain records and opens no resources.
-
-# src/environments/index.ts#createLift
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

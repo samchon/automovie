@@ -1,4 +1,4 @@
-# src/index.ts#createSnowboard
+# src/sport/createSnowboard.ts#createSnowboard
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call constructs a board with its own draw and scene identity.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 No state is retained after build.
-
-# src/index.ts#createSnowboard
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

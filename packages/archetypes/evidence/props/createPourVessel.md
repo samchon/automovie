@@ -1,4 +1,4 @@
-# src/index.ts#createPourVessel
+# src/props/createPourVessel.ts#createPourVessel
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call admits one independently dimensioned vessel.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The builder returns only the in-memory vessel data and acquires no external resource.
-
-# src/index.ts#createPourVessel
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

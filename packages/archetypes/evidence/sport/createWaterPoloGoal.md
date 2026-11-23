@@ -1,4 +1,4 @@
-# src/index.ts#createWaterPoloGoal
+# src/sport/createWaterPoloGoal.ts#createWaterPoloGoal
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Fore and aft frame and net coordinates share the drawn dimensions.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 All geometry belongs to the returned model.
-
-# src/index.ts#createWaterPoloGoal
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

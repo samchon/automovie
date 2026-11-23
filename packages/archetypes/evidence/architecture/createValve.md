@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createValve.ts#createValve
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, how the model is chosen, its contact and why it states no travel.

@@ -24,8 +24,6 @@ Shares recorded dimensions and part construction with the saved recipe.
 
 The producer returns one completed model and retains no input references.
 
-# src/architecture/createWashingMachine.ts#createWashingMachine
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Describes the model, its inputs, frame and contacts.

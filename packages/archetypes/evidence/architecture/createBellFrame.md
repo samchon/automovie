@@ -24,8 +24,6 @@ Each call builds an independent scene model.
 
 Uses no host or external resources.
 
-# src/architecture/createBellFrame.ts#createBellFrame
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the floor origin, front direction, step position and fixed pose.

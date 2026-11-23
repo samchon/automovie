@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createSaloonDoor.ts#createSaloonDoor
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the doors hang, which ways they swing and each contact.

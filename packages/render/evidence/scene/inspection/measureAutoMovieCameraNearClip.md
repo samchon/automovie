@@ -1,4 +1,4 @@
-# src/index.ts#measureAutoMovieCameraNearClip
+# src/scene/inspection/measureAutoMovieCameraNearClip.ts#measureAutoMovieCameraNearClip
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

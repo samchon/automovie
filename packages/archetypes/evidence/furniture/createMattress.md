@@ -24,8 +24,6 @@ The legacy selector calls the same geometry owner and keeps its original draw na
 
 Each call hands its model data to the caller and acquires no external resource.
 
-# src/furniture/createMattress.ts#createMattress
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 A loose mattress set directly on its floor with a lying surface and side contacts.

@@ -24,8 +24,6 @@ The integrated path serves every sample.
 
 Retains the path's knots and the footing for the ride's lifetime.
 
-# src/animals/AutoMovieArchetypeEquineDraggedLoad.ts#AutoMovieArchetypeEquineDraggedLoad
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the pull point, the pursuit, the heading, the ground and depth, the headland lift, the traces and the declared draught.

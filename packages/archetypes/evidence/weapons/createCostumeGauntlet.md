@@ -1,4 +1,4 @@
-# src/index.ts#createCostumeGauntlet
+# src/weapons/createCostumeGauntlet.ts#createCostumeGauntlet
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Shares the legacy draw and the profile's parts and frames.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Keeps no inputs or resources.
-
-# src/index.ts#createCostumeGauntlet
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

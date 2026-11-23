@@ -1,4 +1,4 @@
-# src/index.ts#createMotorcycle
+# src/vehicles/createMotorcycle.ts#createMotorcycle
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each call builds one independent model.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
-
-# src/index.ts#createMotorcycle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

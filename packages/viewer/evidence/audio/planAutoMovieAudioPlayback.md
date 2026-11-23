@@ -1,4 +1,4 @@
-# src/audio/index.ts#planAutoMovieAudioPlayback
+# src/audio/planAutoMovieAudioPlayback.ts#planAutoMovieAudioPlayback
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

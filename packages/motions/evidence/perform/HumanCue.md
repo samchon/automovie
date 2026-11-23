@@ -1,4 +1,4 @@
-# src/index.ts#HumanCue.sectionWave
+# src/perform/HumanCue.ts#HumanCue.sectionWave
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Returns ordinary schedule cues so alignment and section indexing use the existin
 
 Keeps only the returned list and retains no input or state.
 
-# src/index.ts#HumanCue.orders
+# src/perform/HumanCue.ts#HumanCue.orders
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ Nothing to reuse or cache.
 
 Returns a new list and retains nothing.
 
-# src/index.ts#HumanCue.instants
+# src/perform/HumanCue.ts#HumanCue.instants
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -88,7 +88,7 @@ Nothing to reuse or cache.
 
 Returns a new list and retains nothing.
 
-# src/index.ts#HumanCue.beats
+# src/perform/HumanCue.ts#HumanCue.beats
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -118,7 +118,7 @@ Nothing to reuse or cache.
 
 Returns a new list and retains nothing.
 
-# src/index.ts#HumanCue.dialogue
+# src/perform/HumanCue.ts#HumanCue.dialogue
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

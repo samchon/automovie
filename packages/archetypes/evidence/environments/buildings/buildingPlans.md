@@ -24,8 +24,6 @@ The caller can reuse a normalized plan for each placement without revalidating i
 
 Returns records bounded by the authored levels, rooms, polygon vertices and openings, with no cache or resource handles.
 
-# src/environments/buildings/buildingPlans.ts#buildingPlans
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Documents the unit, output and allowed boundary contact.

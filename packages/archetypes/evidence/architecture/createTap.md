@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createTap.ts#createTap
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how the tap stands, which way the spout reaches and its two contacts.

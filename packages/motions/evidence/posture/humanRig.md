@@ -1,4 +1,4 @@
-# src/internal.ts#humanRig
+# src/posture/humanRig.ts#humanRig
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

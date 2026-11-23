@@ -1,4 +1,4 @@
-# src/index.ts#createTransitBus
+# src/vehicles/createTransitBus.ts#createTransitBus
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Each scene id gets a separately poseable model.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Acquires no external resources and holds only the returned model.
-
-# src/index.ts#createTransitBus
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createClimbingRope.ts#createClimbingRope
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it hangs and the contact.

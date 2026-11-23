@@ -24,8 +24,6 @@ The two box models are built once and shared by every sample.
 
 Retains the two box models.
 
-# src/animals/AutoMovieArchetypeEquinePackLoad.ts#AutoMovieArchetypeEquinePackLoad
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the contact convention, the box's placement, the balance rule and the refusal.

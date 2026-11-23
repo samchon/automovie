@@ -1,4 +1,4 @@
-# src/index.ts#HumanRefusal
+# src/law/HumanRefusal.ts#HumanRefusal
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

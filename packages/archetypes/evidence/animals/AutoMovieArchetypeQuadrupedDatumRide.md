@@ -24,8 +24,6 @@ The underlying ride's preparation serves every sample.
 
 Retains the underlying ride and one height.
 
-# src/animals/AutoMovieArchetypeQuadrupedDatumRide.ts#AutoMovieArchetypeQuadrupedDatumRide
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States why the datum moves, the translation, which outputs are raised and the frame the plan keeps.

@@ -24,8 +24,6 @@ Shares the legacy draw and the profile's parts and frames.
 
 Keeps no inputs or resources.
 
-# src/props/StageBladeConstruction.ts#StageBladeConstruction
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Describes its shared digital parts, the guard ownership and the contact regions.

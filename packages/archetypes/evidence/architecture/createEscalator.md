@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing after returning the model.
 
-# src/architecture/createEscalator.ts#createEscalator
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, the drawn structure, the separate moving tread and the EN 115-1 admission.

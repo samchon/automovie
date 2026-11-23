@@ -24,8 +24,6 @@ The producer's one draw session supplies every recorded dimension.
 
 The returned model owns its data and no process resource is opened.
 
-# src/animals/QuadrupedAnimal.ts#QuadrupedAnimal
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the construction and the two physical approximations.

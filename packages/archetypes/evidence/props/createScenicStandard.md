@@ -1,4 +1,4 @@
-# src/index.ts#createScenicStandard
+# src/props/createScenicStandard.ts#createScenicStandard
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Builds a model per call.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains no evaluation state.
-
-# src/index.ts#createScenicStandard
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

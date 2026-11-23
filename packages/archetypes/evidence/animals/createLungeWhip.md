@@ -24,8 +24,6 @@ Reuses the shared builder.
 
 Retains nothing.
 
-# src/animals/createLungeWhip.ts#createLungeWhip
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the frame, the parts, the grip, the shaft's source and what is left out.

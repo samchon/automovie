@@ -24,8 +24,6 @@ The legacy selector calls the same geometry owner and keeps its original draw na
 
 Each call hands its model data to the caller and acquires no external resource.
 
-# src/furniture/createCrib.ts#createCrib
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 A crib with a surrounding slat frame and grasp bars on both sides.

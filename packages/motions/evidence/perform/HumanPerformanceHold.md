@@ -1,4 +1,4 @@
-# src/internal.ts#HumanPerformanceHold.prop
+# src/perform/HumanPerformanceHold.ts#HumanPerformanceHold.prop
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ Seated offsets are kept on the grip records the grip cache holds.
 
 The socket path keeps one entry per active sample and releases entries as each hop returns. Only offsets on grip records persist with the performance.
 
-# src/internal.ts#HumanPerformanceHold.mount
+# src/perform/HumanPerformanceHold.ts#HumanPerformanceHold.mount
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ Borrows the same grip records and flight selection used to display the prop.
 
 Returns a borrowed socket identity without retaining any query.
 
-# src/internal.ts#HumanPerformanceHold.holder
+# src/perform/HumanPerformanceHold.ts#HumanPerformanceHold.holder
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

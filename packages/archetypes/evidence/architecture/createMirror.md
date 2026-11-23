@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/architecture/createMirror.ts#createMirror
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States where each kind stands and its contact.

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createDumbbell.ts#createDumbbell
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States how it lies, how the heads are sized and the contact.

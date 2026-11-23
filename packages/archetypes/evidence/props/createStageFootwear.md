@@ -1,4 +1,4 @@
-# src/index.ts#createStageFootwear
+# src/props/createStageFootwear.ts#createStageFootwear
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ Both forms use their shared cavity and attachment contract.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns a complete model and retains no inputs.
-
-# src/index.ts#createStageFootwear
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

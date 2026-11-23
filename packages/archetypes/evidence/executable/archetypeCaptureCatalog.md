@@ -24,8 +24,6 @@ Called once by the subjects module.
 
 Holds plain data only.
 
-# src/executable/archetypeCaptureCatalog.ts#archetypeCaptureCatalog
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what the list is for and that nothing else reads it.

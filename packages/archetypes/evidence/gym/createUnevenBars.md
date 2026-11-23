@@ -24,8 +24,6 @@ Each call builds an independent model.
 
 Construction retains no external resources.
 
-# src/gym/createUnevenBars.ts#createUnevenBars
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names the bars' alignment, support frame and grip locations.

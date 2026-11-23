@@ -1,4 +1,4 @@
-# src/index.ts#createBow
+# src/weapons/createBow.ts#createBow
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -23,8 +23,6 @@ The string's halves are `AutoMovieArchetypeBuilder.span`'s lines from the limb t
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
-
-# src/index.ts#createBow
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

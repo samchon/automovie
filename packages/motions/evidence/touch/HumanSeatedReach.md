@@ -1,4 +1,4 @@
-# src/internal.ts#HumanSeatedReach.rooms
+# src/touch/HumanSeatedReach.ts#HumanSeatedReach.rooms
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,7 +28,7 @@ The ranges are the engine's `getConstraint` on the body's rig.
 
 A pure function.
 
-# src/internal.ts#HumanSeatedReach.lean
+# src/touch/HumanSeatedReach.ts#HumanSeatedReach.lean
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -58,7 +58,7 @@ A pure function.
 
 Retains nothing.
 
-# src/internal.ts#HumanSeatedReach.posed
+# src/touch/HumanSeatedReach.ts#HumanSeatedReach.posed
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -86,7 +86,7 @@ Constant work.
 
 A pure function.
 
-# src/internal.ts#HumanSeatedReach.goal
+# src/touch/HumanSeatedReach.ts#HumanSeatedReach.goal
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -116,7 +116,7 @@ The resolution and bisection remain their owners'; each role's fixed left axis a
 
 Prepared axes/pivots and rooms live only until goal returns or throws; only the caller's actual resolution result escapes, without a reader or pose history.
 
-# src/internal.ts#HumanSeatedReach.need
+# src/touch/HumanSeatedReach.ts#HumanSeatedReach.need
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

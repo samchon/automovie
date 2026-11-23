@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createParallelBars.ts#createParallelBars
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the two kinds, how they stand and the two contacts.

@@ -24,8 +24,6 @@ Each call builds one independent model.
 
 Retains nothing.
 
-# src/gym/createSpringboard.ts#createSpringboard
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States the layout, the frame, the contact and the first pass.

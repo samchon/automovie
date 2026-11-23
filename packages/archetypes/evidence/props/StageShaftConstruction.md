@@ -24,8 +24,6 @@ Shares the legacy draw and the profile's parts and frames.
 
 Keeps no inputs or resources.
 
-# src/props/StageShaftConstruction.ts#StageShaftConstruction
-
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Describes the digital base shape and the geometry builder contract.
