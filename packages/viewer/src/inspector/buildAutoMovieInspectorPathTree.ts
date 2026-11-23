@@ -3,10 +3,17 @@ import type { IAutoMovieInspectorPathNode } from "./IAutoMovieInspectorPathNode.
 /**
  * Arrange identity paths into the tree of their names, for the selection panel.
  *
- * Each distinct path becomes one node marked `drawn`, and each prefix of it a node above, created once however many paths share it. Siblings keep the order in which their first path appeared, so paths listed in scene order give the scene's order, and a path repeated later, as two objects that share a path are, adds nothing. The empty path, which an object with no named ancestor has, becomes one top-level node with the empty name and no pattern.
+ * Each distinct path becomes one node marked `drawn`, and each prefix of it a
+ * node above, created once however many paths share it. Siblings keep the order
+ * in which their first path appeared, so paths listed in scene order give the
+ * scene's order, and a path repeated later, as two objects that share a path
+ * are, adds nothing. The empty path, which an object with no named ancestor
+ * has, becomes one top-level node with the empty name and no pattern.
  *
  * ```ts
- * const tree = buildAutoMovieInspectorPathTree(listAutoMovieInspectionPaths(scene).map(({ path }) => path));
+ * const tree = buildAutoMovieInspectorPathTree(
+ *   listAutoMovieInspectionPaths(scene).map(({ path }) => path),
+ * );
  * ```
  */
 export function buildAutoMovieInspectorPathTree(

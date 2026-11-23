@@ -3,16 +3,17 @@ import type { IAutoMovieAudioCue } from "./IAutoMovieAudioCue.js";
 /**
  * Which cues sound when playback starts at a film instant and runs at a
  * transport rate, and how each is started: a cue already sounding starts at
- * once part-way into its excerpt, a later cue after its film delay divided
- * by the transport rate, and an ended cue not at all. Source offsets advance
- * by the cue's own rate times the elapsed film seconds, and the playback
- * rate multiplies the cue rate by the transport rate. Pure, so a seek and a
- * resume plan the same playback from the same instant.
+ * once part-way into its excerpt, a later cue after its film delay divided by
+ * the transport rate, and an ended cue not at all. Source offsets advance by
+ * the cue's own rate times the elapsed film seconds, and the playback rate
+ * multiplies the cue rate by the transport rate. Pure, so a seek and a resume
+ * plan the same playback from the same instant.
  *
  * @param cues The cue list.
  * @param seconds The film instant playback starts from.
  * @param rate Film seconds per wall second; positive.
- * @param lengths Source length in seconds by asset, for cues without a duration.
+ * @param lengths Source length in seconds by asset, for cues without a
+ *   duration.
  * @returns One start per sounding cue, in cue order.
  */
 export function planAutoMovieAudioPlayback(
@@ -45,9 +46,7 @@ export function planAutoMovieAudioPlayback(
   }
   return starts;
 }
-/**
- * Companion types of {@link planAutoMovieAudioPlayback}.
- */
+/** Companion types of {@link planAutoMovieAudioPlayback}. */
 export namespace planAutoMovieAudioPlayback {
   /** One planned source start. */
   export interface IStart {

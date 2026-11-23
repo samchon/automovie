@@ -1,10 +1,10 @@
 import * as THREE from "three";
 
 /**
- * Synchronize a perspective viewport with its CSS size and selected pixel ratio.
- * The renderer updates its drawing buffer without changing authored CSS layout.
- * The returned function reports a changed raster or projection so the caller can
- * redraw its original producer at the current completed time.
+ * Synchronize a perspective viewport with its CSS size and selected pixel
+ * ratio. The renderer updates its drawing buffer without changing authored CSS
+ * layout. The returned function reports a changed raster or projection so the
+ * caller can redraw its original producer at the current completed time.
  */
 export function createViewerViewportResize(
   renderer: Pick<

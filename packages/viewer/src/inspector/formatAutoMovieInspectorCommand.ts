@@ -5,11 +5,19 @@ import { formatAutoMovieCapturePlanRequest } from "@automovie/render";
 const PLAIN: RegExp = /^[\w%+,./:=@-]+$/u;
 
 /**
- * Write the `automovie capture` command that repeats a request: its options, and the command line a person copies.
+ * Write the `automovie capture` command that repeats a request: its options,
+ * and the command line a person copies.
  *
- * Every pair `formatAutoMovieCapturePlanRequest` writes becomes one `--<key>=<value>` option, in its order. The `=` form is used for every option, so a value that starts with `-`, such as an axis cut `-x:0.2`, or that is empty stays the option's value. `readAutoMovieCaptureArguments` reads the options back to the same named values, so the command's reader gives an equal request.
+ * Every pair `formatAutoMovieCapturePlanRequest` writes becomes one
+ * `--<key>=<value>` option, in its order. The `=` form is used for every
+ * option, so a value that starts with `-`, such as an axis cut `-x:0.2`, or
+ * that is empty stays the option's value. `readAutoMovieCaptureArguments` reads
+ * the options back to the same named values, so the command's reader gives an
+ * equal request.
  *
- * The text is `automovie capture` followed by the options, each quoted for a POSIX shell when it holds a character outside letters, digits and `_ % + , . / : = @ -`, such as the `*` of a pattern or the `;` between views.
+ * The text is `automovie capture` followed by the options, each quoted for a
+ * POSIX shell when it holds a character outside letters, digits and `_ % + , .
+ * / : = @ -`, such as the `*` of a pattern or the `;` between views.
  *
  * ```ts
  * const { text } = formatAutoMovieInspectorCommand(request);

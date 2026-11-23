@@ -1,11 +1,11 @@
 /**
- * Stage an original completed snapshot without publishing its generation.
- * The caller's copy port owns one latest bitmap and leaves it intact on a
- * refused copy. Commit admits that prepared snapshot, or copies a direct
- * active display; only then may the start port encode/upload it. Disposal
- * releases the caller's pending bitmap and forbids further publication.
- * The active query reports lifecycle availability, including uncommitted
- * staging; it does not assert an admitted display or completed filesystem IO.
+ * Stage an original completed snapshot without publishing its generation. The
+ * caller's copy port owns one latest bitmap and leaves it intact on a refused
+ * copy. Commit admits that prepared snapshot, or copies a direct active
+ * display; only then may the start port encode/upload it. Disposal releases the
+ * caller's pending bitmap and forbids further publication. The active query
+ * reports lifecycle availability, including uncommitted staging; it does not
+ * assert an admitted display or completed filesystem IO.
  */
 export function createViewerDisplayPublication(props: {
   copy: () => boolean;

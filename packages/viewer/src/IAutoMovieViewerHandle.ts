@@ -5,9 +5,7 @@ import type * as THREE from "three";
  * release the renderer, including any dissolve GPU state the frames created.
  */
 export interface IAutoMovieViewerHandle {
-  /**
-   * Renderer allocated by this mount and shared with the host's explicit draws.
-   */
+  /** Renderer allocated by this mount and shared with the host's explicit draws. */
   renderer: THREE.WebGLRenderer;
 
   /**
@@ -18,7 +16,8 @@ export interface IAutoMovieViewerHandle {
   completeFrame: (elapsedSeconds?: number) => void;
 
   /**
-   * Stop the mounted loop and attempt each owned shadow, compositor and renderer retirement; cleanup failures propagate.
+   * Stop the mounted loop and attempt each owned shadow, compositor and
+   * renderer retirement; cleanup failures propagate.
    */
   stop: () => void;
 }

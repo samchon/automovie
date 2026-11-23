@@ -16,7 +16,10 @@ import { createViewerCameraState } from "./createViewerCameraState.js";
  * active-camera or other application state needs that application's adapter.
  */
 export function createViewerFrameControl(options: {
-  /** Native camera owned by this mount; other active cameras need their source adapter. */
+  /**
+   * Native camera owned by this mount; other active cameras need their source
+   * adapter.
+   */
   camera: THREE.Camera;
   /** Actual completed scene time, in seconds. */
   currentSeconds: () => number;
@@ -26,7 +29,10 @@ export function createViewerFrameControl(options: {
   rebase: (seconds: number) => void;
   /** Complete an original draw at these authoritative scene seconds. */
   redraw: (seconds: number) => void;
-  /** Optional source pause; release(true) resumes, release(false) retires without resuming. */
+  /**
+   * Optional source pause; release(true) resumes, release(false) retires
+   * without resuming.
+   */
   freezeCompleted?: () => (resume: boolean) => void;
 }): {
   control: NonNullable<IAutoMovieViewerCompletedFrame["control"]>;

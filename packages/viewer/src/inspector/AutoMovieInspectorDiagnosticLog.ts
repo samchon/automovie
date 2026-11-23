@@ -32,22 +32,26 @@ type ISeen =
   | { key: string; kind: "second"; seconds: number };
 
 /**
- * Report confirmed problems when first seen and summarize observed multi-sample spans.
+ * Report confirmed problems when first seen and summarize observed multi-sample
+ * spans.
  *
  * Two links can extend a span. Checks at actual neighboring frame indices make
- * a `frames` span, as a stepped or exact review visits them. Painted samples
- * of one uninterrupted playback, forward in time with no seek or restart
- * between them, make a `playback` span: its first, worst and last are the
- * painted samples, and the film between them was not checked frame by frame.
- * Sparse, reversed and skipped samples may show individual findings, and a
- * bounded recent history prevents replay from reporting the same evidence again.
+ * a `frames` span, as a stepped or exact review visits them. Painted samples of
+ * one uninterrupted playback, forward in time with no seek or restart between
+ * them, make a `playback` span: its first, worst and last are the painted
+ * samples, and the film between them was not checked frame by frame. Sparse,
+ * reversed and skipped samples may show individual findings, and a bounded
+ * recent history prevents replay from reporting the same evidence again.
  */
 export class AutoMovieInspectorDiagnosticLog {
   private active: Map<string, IOpen> = new Map();
   private readonly recent: ISeen[] = [];
   private previous: IPrevious | undefined;
 
-  /** The presentation owner supplies how to publish a new incident and a closed observed span. */
+  /**
+   * The presentation owner supplies how to publish a new incident and a closed
+   * observed span.
+   */
   public constructor(
     private readonly report: Pick<
       IAutoMovieInspectorScene.IReport,
@@ -56,7 +60,8 @@ export class AutoMovieInspectorDiagnosticLog {
   ) {}
 
   /**
-   * Read the confirmed findings of one successfully painted pose, with the playhead state it was painted at.
+   * Read the confirmed findings of one successfully painted pose, with the
+   * playhead state it was painted at.
    */
   public observe(
     packet: Diagnostics,
@@ -141,7 +146,8 @@ export class AutoMovieInspectorDiagnosticLog {
   }
 
   /**
-   * Report outstanding measured spans when the mount ends and release all retained state.
+   * Report outstanding measured spans when the mount ends and release all
+   * retained state.
    */
   public dispose(): void {
     for (const episode of this.active.values()) this.complete(episode);
@@ -150,7 +156,10 @@ export class AutoMovieInspectorDiagnosticLog {
     this.previous = undefined;
   }
 
-  /** Report a closed span only if it joins more than one sample and includes a new observation. */
+  /**
+   * Report a closed span only if it joins more than one sample and includes a
+   * new observation.
+   */
   private complete(episode: IOpen): void {
     if (episode.samples <= 1 || !episode.fresh) return;
     const { scope, first, worst, last, samples, basis } = episode;
@@ -162,7 +171,10 @@ export class AutoMovieInspectorDiagnosticLog {
     });
   }
 
-  /** Remember one actual sample, returning whether this is a new visit in the recent history. */
+  /**
+   * Remember one actual sample, returning whether this is a new visit in the
+   * recent history.
+   */
   private remember(key: string, time: Diagnostics.ITime): boolean {
     const frame: number | undefined = time.outputFrame;
     let extension: Extract<ISeen, { kind: "frames" }> | undefined;

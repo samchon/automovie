@@ -3,13 +3,13 @@
  * seeks, interval playback at a review speed, optional synchronized sound and
  * capture freezes, all through one synchronous `place(seconds)` producer.
  *
- * A placement commits the displayed second only after the producer succeeds,
- * so a failed draw never masquerades as a sought frame. Playback anchors one
+ * A placement commits the displayed second only after the producer succeeds, so
+ * a failed draw never masquerades as a sought frame. Playback anchors one
  * wall-clock origin (no integrated render deltas), snaps to the frame grid of
- * `fps` and draws the interval's exact end before pausing. Sound starts
- * before the anchor and a generation token cancels a start that a later
- * pause, seek or speed change superseded. The clock source is injectable, so
- * the logic runs in milliseconds without a browser.
+ * `fps` and draws the interval's exact end before pausing. Sound starts before
+ * the anchor and a generation token cancels a start that a later pause, seek or
+ * speed change superseded. The clock source is injectable, so the logic runs in
+ * milliseconds without a browser.
  */
 export class AutoMovieViewerTransport {
   /** Last successfully displayed second. */
@@ -107,9 +107,7 @@ export class AutoMovieViewerTransport {
     }
   }
 
-  /**
-   * Stop playback and sound without moving the displayed second.
-   */
+  /** Stop playback and sound without moving the displayed second. */
   public pause(): void {
     this.generation++;
     this.playing = false;
@@ -217,28 +215,18 @@ export class AutoMovieViewerTransport {
 }
 /** Companion types of {@link AutoMovieViewerTransport}. */
 export namespace AutoMovieViewerTransport {
-  /**
-   * A synchronized sound source.
-   */
+  /** A synchronized sound source. */
   export interface IAudio {
-    /**
-     * Start from a film second at a speed; resolves once sounding.
-     */
+    /** Start from a film second at a speed; resolves once sounding. */
     play(seconds: number, rate: number): Promise<void>;
 
-    /**
-     * Stop any current sound.
-     */
+    /** Stop any current sound. */
     pause(): void;
   }
 
-  /**
-   * Transport settings and collaborators.
-   */
+  /** Transport settings and collaborators. */
   export interface IOptions {
-    /**
-     * The synchronous producer that displays a second; throws on failure.
-     */
+    /** The synchronous producer that displays a second; throws on failure. */
     place(seconds: number): void;
 
     /** Available source range, seconds. */
@@ -253,9 +241,7 @@ export namespace AutoMovieViewerTransport {
     /** Optional sound source. */
     audio?: IAudio;
 
-    /**
-     * Clock in milliseconds; `performance.now` by default.
-     */
+    /** Clock in milliseconds; `performance.now` by default. */
     now?(): number;
   }
 }

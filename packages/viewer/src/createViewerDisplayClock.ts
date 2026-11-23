@@ -1,6 +1,6 @@
 /**
- * Keep requested draw time separate from the last completed display clock.
- * A completion inherits its synchronous producer's time; an out-of-loop guide
+ * Keep requested draw time separate from the last completed display clock. A
+ * completion inherits its synchronous producer's time; an out-of-loop guide
  * redraw preserves the displayed time unless its producer supplies a new one.
  * Nested redraws restore the enclosing request after completion or refusal.
  * Seconds must be finite and nonnegative before clock state changes.

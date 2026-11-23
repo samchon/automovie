@@ -1,12 +1,15 @@
 import type * as THREE from "three";
 
 /**
- * The original scene/camera at an owning producer's completed draw boundary.
- * A controller, when supplied, owns typed state capture/restoration. Consumers
+ * The original scene/camera at an owning producer's completed draw boundary. A
+ * controller, when supplied, owns typed state capture/restoration. Consumers
  * observe synchronously and must not treat requested state as rendered facts.
  */
 export interface IAutoMovieViewerCompletedFrame {
-  /** Native camera used by the original draw; composite layer cameras belong in facts. */
+  /**
+   * Native camera used by the original draw; composite layer cameras belong in
+   * facts.
+   */
   camera: THREE.Camera;
 
   /** Original drawn scene; composite facts retain each layer's observed objects. */

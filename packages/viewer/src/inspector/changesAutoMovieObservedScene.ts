@@ -1,12 +1,13 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 
 /**
- * Whether applying an inspection changes scene state that a placed observation reads.
+ * Whether applying an inspection changes scene state that a placed observation
+ * reads.
  *
- * `applyAutoMovieInspection` takes unselected objects off their layers (`parts`,
- * `hide`, `surface` off), overrides materials (`shade` other than beauty,
- * `color`), adds mark geometry to its overlay group (`marks`, `trail`) and
- * gives materials a clipping plane (`section`). An inspection with none of
+ * `applyAutoMovieInspection` takes unselected objects off their layers
+ * (`parts`, `hide`, `surface` off), overrides materials (`shade` other than
+ * beauty, `color`), adds mark geometry to its overlay group (`marks`, `trail`)
+ * and gives materials a clipping plane (`section`). An inspection with none of
  * these leaves only its empty overlay group and its screen-space labels, which
  * no observer reads, so the scene it leaves can be observed as placed.
  *

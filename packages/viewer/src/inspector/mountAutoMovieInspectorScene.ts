@@ -45,21 +45,58 @@ interface ILive {
 }
 
 /**
- * Mount a subject on the inspector's canvas: build an instance, apply the request's inspection, and draw it every animation frame at the playhead's second through the request's first view.
+ * Mount a subject on the inspector's canvas: build an instance, apply the
+ * request's inspection, and draw it every animation frame at the playhead's
+ * second through the request's first view.
  *
- * The instance is created at once and arrives later. When it arrives the mount checks its clock and raster, seeks it to the request's first second and waits until it is ready there, lists its paths and the marks of its first second, applies the inspection of the newest request (or, when the scene refuses it, of the request that asks for nothing, reported through `refused`), sets the playhead's duration and second, reports `ready` and schedules the first frame. Each frame advances a playing playhead by the wall time since the last frame, follows the host's size, and redraws when the playhead's snapshot or the request changed: seek the instance and, once its promise resolves, update the inspection with the second's marks, resolve the view and render. While a seek is pending no other is started, and the next frame seeks the newest second, so a slow subject drops intermediate seconds instead of queueing them. A drawing error pauses playback and is reported once until a frame draws again.
+ * The instance is created at once and arrives later. When it arrives the mount
+ * checks its clock and raster, seeks it to the request's first second and waits
+ * until it is ready there, lists its paths and the marks of its first second,
+ * applies the inspection of the newest request (or, when the scene refuses it,
+ * of the request that asks for nothing, reported through `refused`), sets the
+ * playhead's duration and second, reports `ready` and schedules the first
+ * frame. Each frame advances a playing playhead by the wall time since the last
+ * frame, follows the host's size, and redraws when the playhead's snapshot or
+ * the request changed: seek the instance and, once its promise resolves, update
+ * the inspection with the second's marks, resolve the view and render. While a
+ * seek is pending no other is started, and the next frame seeks the newest
+ * second, so a slow subject drops intermediate seconds instead of queueing
+ * them. A drawing error pauses playback and is reported once until a frame
+ * draws again.
  *
- * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives or is ready disposes the instance then and creates no renderer, and a seek that resolves after dispose draws nothing.
+ * The picture's aspect is the subject's raster, not the canvas's, so a view
+ * frames what a capture of the same subject frames; the page gives the canvas
+ * that aspect. The mount adds no listener and holds at most one pending frame,
+ * so a mount, dispose and mount again on one canvas, as React's StrictMode runs
+ * an effect, leaves one renderer and one frame loop; a mount disposed before
+ * its instance arrives or is ready disposes the instance then and creates no
+ * renderer, and a seek that resolves after dispose draws nothing.
  *
- * An opted-in subject is observed at the second actually placed, before the inspection changes the scene: an inspection that changes layers, materials, mark geometry or clipping is restored before the seek and re-applied after the observation, while one that changes none of them, as the default request, stays applied and only updates its marks, as for any subject. Its findings reach the report and the diagnostic log with the playhead's playing flag and jump count, so uninterrupted playback can join painted samples into an observed span. Its witness cubes are drawn under the beauty shade unless `overlay(false)` hid them; hiding them stops no check and no report.
+ * An opted-in subject is observed at the second actually placed, before the
+ * inspection changes the scene: an inspection that changes layers, materials,
+ * mark geometry or clipping is restored before the seek and re-applied after
+ * the observation, while one that changes none of them, as the default request,
+ * stays applied and only updates its marks, as for any subject. Its findings
+ * reach the report and the diagnostic log with the playhead's playing flag and
+ * jump count, so uninterrupted playback can join painted samples into an
+ * observed span. Its witness cubes are drawn under the beauty shade unless
+ * `overlay(false)` hid them; hiding them stops no check and no report.
  *
- * The page draws the first view and the first pass of the request; the capture command draws them all. While paused, the labels the request asks for are placed by the inspection on the picture's pixels, with the stamp's font pixel at least one CSS pixel of the canvas as a capture keeps it at least one sheet pixel, and reported in CSS pixels; a named view with a focus is framed on what the focus selects.
+ * The page draws the first view and the first pass of the request; the capture
+ * command draws them all. While paused, the labels the request asks for are
+ * placed by the inspection on the picture's pixels, with the stamp's font pixel
+ * at least one CSS pixel of the canvas as a capture keeps it at least one sheet
+ * pixel, and reported in CSS pixels; a named view with a focus is framed on
+ * what the focus selects.
  */
 export function mountAutoMovieInspectorScene(props: {
   /** The subject to build. */
   subject: IAutoMovieDrawSubject;
 
-  /** The subject's name, as the request's `subject` key and the refusals name it. */
+  /**
+   * The subject's name, as the request's `subject` key and the refusals name
+   * it.
+   */
   name: string;
 
   /** The request in force when the mount starts. */
@@ -96,7 +133,10 @@ export function mountAutoMovieInspectorScene(props: {
       if (!disposed) report.error(messageOf(error));
     });
 
-  /** Take an arrived instance into use once it is ready at its first second, releasing it if anything fails. */
+  /**
+   * Take an arrived instance into use once it is ready at its first second,
+   * releasing it if anything fails.
+   */
   async function arrive(instance: IAutoMovieDrawScene): Promise<void> {
     let seconds: number;
     try {
@@ -210,7 +250,10 @@ export function mountAutoMovieInspectorScene(props: {
     }
   }
 
-  /** One animation frame: advance, follow the size, redraw when something changed, schedule the next. */
+  /**
+   * One animation frame: advance, follow the size, redraw when something
+   * changed, schedule the next.
+   */
   function frame(nowMs: number): void {
     const now: ILive | undefined = live;
     if (disposed || now === undefined) return;
@@ -244,7 +287,10 @@ export function mountAutoMovieInspectorScene(props: {
     now.frame = host.requestFrame(frame);
   }
 
-  /** Seek one second and draw it once the subject is ready there; frames skip drawing while a seek is pending. */
+  /**
+   * Seek one second and draw it once the subject is ready there; frames skip
+   * drawing while a seek is pending.
+   */
   function draw(
     now: ILive,
     snapshot: AutoMovieInspectorPlayhead.ISnapshot,
@@ -277,7 +323,10 @@ export function mountAutoMovieInspectorScene(props: {
       });
   }
 
-  /** Draw the second the subject is now at through the applied request's first view. */
+  /**
+   * Draw the second the subject is now at through the applied request's first
+   * view.
+   */
   function paint(
     now: ILive,
     snapshot: AutoMovieInspectorPlayhead.ISnapshot,
@@ -357,7 +406,10 @@ export function mountAutoMovieInspectorScene(props: {
     }
   }
 
-  /** Report a drawing error once until a frame draws again, and stop playback on it. */
+  /**
+   * Report a drawing error once until a frame draws again, and stop playback on
+   * it.
+   */
   function fail(
     now: ILive,
     snapshot: AutoMovieInspectorPlayhead.ISnapshot,
@@ -371,7 +423,10 @@ export function mountAutoMovieInspectorScene(props: {
     }
   }
 
-  /** Install the current request against the actual objects and keep the preceding request active on refusal. */
+  /**
+   * Install the current request against the actual objects and keep the
+   * preceding request active on refusal.
+   */
   function installInspection(
     now: ILive,
     request: IAutoMovieCapturePlanRequest,
@@ -463,14 +518,20 @@ export function mountAutoMovieInspectorScene(props: {
   };
 }
 
-/** The first second a request draws: its first explicit second, or the start of its sampling. */
+/**
+ * The first second a request draws: its first explicit second, or the start of
+ * its sampling.
+ */
 function firstSecond(request: IAutoMovieCapturePlanRequest): number {
   return request.sampling.kind === "at"
     ? request.sampling.seconds[0]!
     : request.sampling.from;
 }
 
-/** A request's inspection as the text it writes, the identity an applied inspection is reused by. */
+/**
+ * A request's inspection as the text it writes, the identity an applied
+ * inspection is reused by.
+ */
 function written(request: IAutoMovieCapturePlanRequest): string {
   return JSON.stringify(formatAutoMovieInspectionRequest(request.inspection));
 }

@@ -1,7 +1,7 @@
 /**
- * One placed audio source excerpt on the film clock, the same shape the
- * Render mixer (`mixAutoMovieAudioPcm`) sums, so Viewer playback and the
- * exported soundtrack read one cue list.
+ * One placed audio source excerpt on the film clock, the same shape the Render
+ * mixer (`mixAutoMovieAudioPcm`) sums, so Viewer playback and the exported
+ * soundtrack read one cue list.
  */
 export interface IAutoMovieAudioCue {
   /** Source id. */

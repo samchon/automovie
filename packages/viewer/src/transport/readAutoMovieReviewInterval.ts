@@ -1,8 +1,8 @@
 /**
  * The review interval and speed a URL requests, read only after the source's
- * available range is known: missing bounds select the available range and
- * speed 1, while an empty, nonfinite or out-of-range value refuses instead
- * of being clamped.
+ * available range is known: missing bounds select the available range and speed
+ * 1, while an empty, nonfinite or out-of-range value refuses instead of being
+ * clamped.
  *
  * @param params The URL's search parameters `start`, `end` and `speed`.
  * @param available The available range, seconds.

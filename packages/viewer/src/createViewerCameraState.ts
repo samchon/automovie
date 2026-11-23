@@ -6,8 +6,8 @@ import type { IViewerCameraStateSnapshot } from "./IViewerCameraStateSnapshot.js
  * Transfer detached, auto-updating Perspective/Orthographic cameras through
  * their public native lens/transform API, including film and view offsets.
  * Parented, manual-matrix and custom-projection cameras are explicitly refused:
- * another owner must transfer those relationships rather than guess them.
- * All unknown state is validated before the original camera is mutated.
+ * another owner must transfer those relationships rather than guess them. All
+ * unknown state is validated before the original camera is mutated.
  */
 export function createViewerCameraState(camera: THREE.Camera): {
   capture: () => IViewerCameraStateSnapshot;
