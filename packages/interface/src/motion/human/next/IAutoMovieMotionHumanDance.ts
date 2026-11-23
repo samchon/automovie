@@ -118,15 +118,16 @@ export interface IAutoMovieMotionHumanDance<Chain> {
    * `AutoMovieMotionHumanDance.slowDanceSway(chain, params)` takes the chain
    * first and returns it with the actions appended.
    *
+   * @param chain The chain the helper appends to; it is returned with the
+   *   actions added.
    * @param params The `by`, `beat` and `count` of
    *   `IAutoMovieMotionHumanDance.ISlowDanceSway`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
    * @returns The chain with the action appended.
    * @throws {HumanRefusal} When `count` is not a whole number of one or more.
    */
   slowDanceSway(
+    chain: Chain,
     params: IAutoMovieMotionHumanDance.ISlowDanceSway,
-    anchor?: string,
   ): Chain;
 }
 

@@ -21,17 +21,18 @@ export interface IAutoMovieMotionHumanDining<Chain> {
    * `AutoMovieMotionHumanDining.inspectRefrigerator(chain, params)` takes the
    * chain first and returns it with the actions appended.
    *
-   * @param params The efrigerator, shelf, swing and hand of
-   *   IAutoMovieMotionHumanDining.IInspectRefrigerator.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
+   * @param chain The chain the helper appends to; it is returned with the
+   *   actions added.
+   * @param params The refrigerator, shelf, swing and hand of
+   *   `IAutoMovieMotionHumanDining.IInspectRefrigerator`.
    * @returns The chain with the handle operation followed by the shelf look
    *   appended.
    * @throws {HumanRefusal} When the additional opening is nonpositive or
    *   nonfinite.
    */
   inspectRefrigerator(
+    chain: Chain,
     params: IAutoMovieMotionHumanDining.IInspectRefrigerator,
-    anchor?: string,
   ): Chain;
 }
 

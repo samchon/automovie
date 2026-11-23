@@ -29,11 +29,13 @@ export interface IAutoMovieMotionHumanSleep<Chain> {
    * A helper, not a chain method: `AutoMovieMotionHumanSleep.sleep(chain,
    * params)` takes the chain first and returns it with the actions appended.
    *
+   * @param chain The chain the helper appends to; it is returned with the
+   *   actions added.
    * @param params The `duration`, `changes`, `seed` and `on` of
    *   `IAutoMovieMotionHumanSleep.ISleep`.
    * @returns The chain with the turns appended.
    */
-  sleep(params: IAutoMovieMotionHumanSleep.ISleep): Chain;
+  sleep(chain: Chain, params: IAutoMovieMotionHumanSleep.ISleep): Chain;
 
   /**
    * Pulling a cover over the body.
