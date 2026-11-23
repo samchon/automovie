@@ -66,6 +66,9 @@ const REACH: number = 0.5;
  *    VII-A: the leg is unloaded before it swings).
  * 6. A swing under way is re-aimed by the same rules with its elapsed time spent:
  *    it keeps its own side and lands sooner than a fresh swing.
+ * 7. Unloading ranks capturing steps only: past every step's reach a front foot
+ *    of a four-support body steps, not a rear one the centre of pressure has
+ *    already left.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMoviePhysicalBalance.assess` on rectangular foot patches and reads its state, step target and timing.
@@ -391,6 +394,28 @@ export function test_physical_balance_step_choice(): void {
     failures.push(
       `an in-flight step lands at ${JSON.stringify(late?.target)}, no sooner than a fresh one at ${JSON.stringify(fresh?.target)}`,
     );
+
+  // 7. A step that cannot capture is not chosen for being unloadable: under
+  // a forward push past every step's reach, a front foot steps, not a rear
+  // one whose remaining supports hold the centre of pressure on the front
+  // edge.
+  const beyond = AutoMoviePhysicalBalance.assess({
+    center: { x: 0, y: HEIGHT, z: 3 },
+    velocity: { x: 0, y: 0, z: 0 },
+    gravity: G,
+    floor: 0,
+    supports: four,
+    pattern: pattern(four.map((support) => support.bone)),
+    maximumStep: REACH,
+    margin: MARGIN,
+    unavailable: [],
+    swing: SWING,
+    inset: INSET,
+    heading: { x: 0, y: 0, z: 1 },
+    pressure: { x: 0, y: 0, z: 0.38 },
+  }).step;
+  if (!beyond || beyond.viable !== false || !beyond.bone.startsWith("front"))
+    failures.push(`past every reach, ${beyond?.bone} stepped (viable ${beyond?.viable})`);
 
   TestValidator.equals("recovery step choice", failures, []);
 }

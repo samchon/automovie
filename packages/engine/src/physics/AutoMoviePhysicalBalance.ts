@@ -393,7 +393,11 @@ export namespace AutoMoviePhysicalBalance {
         b: (typeof candidates)[number],
       ): number =>
         Number(b.viable) - Number(a.viable) ||
-        Number(b.unloadable) - Number(a.unloadable) ||
+        // Unloading ranks capturing steps only: a limb that can leave the
+        // commanded centre of pressure but cannot capture is no help, as a
+        // rear foot under a forward push, already unloaded but unable to
+        // extend the support toward the push.
+        Number(b.viable && b.unloadable) - Number(a.viable && a.unloadable) ||
         Number(a.support.bone === input.recent) -
           Number(b.support.bone === input.recent) ||
         a.distance - b.distance ||

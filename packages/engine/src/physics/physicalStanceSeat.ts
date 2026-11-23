@@ -5,28 +5,29 @@ import { physicalStanceBalance } from "./physicalStanceBalance";
 /**
  * Advance one stance foot's seating by one substep, in place.
  *
- * - Seated: its sole's far edge rises by the outline's span times the sine of its
- *   turn from the plant; it leaves seated above `physicalStanceBalance.UNSEAT`
- *   and returns below `RESEAT`, each held for `DWELL` (Coros, Beaudoin and van
- *   de Panne 2010, Section 3.3).
- * - Load: the floor's measured normal force, low-passed over `LOAD_SECONDS`, so a
- *   single substep's flicker does not decide it, with hysteresis: the foot
- *   touches once it passes `TOUCH` of the weight and stops below `RELEASE`.
- * - Bearing: a touching foot's share ramps toward one over `FADE`, so a foot that
- *   touches down joins the support continuously (Kim, Jorgensen and Sentis
- *   2018); one whose load falls away gives its share up at once.
+ * - Seated: its sole's far edge rises by the outline's span times the sine of
+ *   its turn from the plant; it leaves seated above
+ *   `physicalStanceBalance.UNSEAT` and returns below `RESEAT`, each held for
+ *   `DWELL` (Coros, Beaudoin and van de Panne 2010, Section 3.3).
+ * - Load: the floor's measured normal force, low-passed over
+ *   `LOAD_SECONDS`; it decides lift-off and touchdown only.
+ * - Bearing: whether the foot can carry the centre of pressure is geometry, a
+ *   sole point within the contact skin of the floor, never its measured load,
+ *   which is itself the result of where the command put the centre of
+ *   pressure: a foot the command left unloaded could otherwise never be
+ *   commanded again. A grounded foot's share ramps toward one over `FADE`, so
+ *   a foot that touches down joins the support continuously (Kim, Jorgensen
+ *   and Sentis 2018); a lifted one bears nothing at once.
  * - Flatness: its share ramps toward whether it is grounded and seated.
  *
- * @param input The seat, the sole's present height spread, metres, the floor's
- *   measured normal force on the foot this substep and the body's weight,
- *   newtons, whether the foot is grounded, the present local seconds and the
- *   substep, seconds.
+ * @param input The seat, the sole's present height spread, metres, the
+ *   floor's measured normal force on the foot this substep, newtons, whether
+ *   the foot is grounded, the present local seconds and the substep, seconds.
  */
 export function physicalStanceSeat(input: {
   seat: physicalStanceSeat.ISeat;
   spread: number;
   load: number;
-  weight: number;
   grounded: boolean;
   seconds: number;
   dt: number;
@@ -35,10 +36,7 @@ export function physicalStanceSeat(input: {
 
   // The sole's own relief is latched when its stance begins, so a curved
   // sole is not read as lifted; an edge lifting raises the spread past it.
-  const lift: number = Math.max(
-    0,
-    input.spread - (seat.relief ?? input.spread),
-  );
+  const lift: number = Math.max(0, input.spread - (seat.relief ?? input.spread));
   const opposite: boolean = seat.seated
     ? lift > physicalStanceBalance.UNSEAT
     : lift < physicalStanceBalance.RESEAT;
@@ -48,13 +46,10 @@ export function physicalStanceSeat(input: {
     seat.since = input.seconds;
   }
   seat.load = physicalStanceSeat.lowPass(seat.load ?? 0, input.load, input.dt);
-  seat.touching = seat.touching
-    ? seat.load > physicalStanceBalance.RELEASE * input.weight
-    : seat.load > physicalStanceBalance.TOUCH * input.weight;
   const step: number = input.dt / physicalStanceBalance.FADE;
   const toward = (share: number, target: number): number =>
     share + Math.max(-step, Math.min(step, target - share));
-  seat.bearing = seat.touching ? toward(seat.bearing ?? 1, 1) : 0;
+  seat.bearing = input.grounded ? toward(seat.bearing ?? 1, 1) : 0;
   seat.flat = toward(seat.flat ?? 1, input.grounded && seat.seated ? 1 : 0);
 }
 

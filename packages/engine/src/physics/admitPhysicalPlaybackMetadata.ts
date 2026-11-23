@@ -209,7 +209,6 @@ export function admitPhysicalPlaybackMetadata(
         (!Number.isSafeInteger(state.revision) || state.revision < 0)) ||
       (state.failedLanding !== undefined &&
         typeof state.failedLanding !== "boolean") ||
-      (state.cleared !== undefined && typeof state.cleared !== "boolean") ||
       (state.seating !== undefined &&
         (typeof state.seating !== "object" ||
           Array.isArray(state.seating) ||
@@ -220,7 +219,6 @@ export function admitPhysicalPlaybackMetadata(
               bearing?: number;
               flat?: number;
               load?: number;
-              touching?: boolean;
               relief?: number;
               anchor?: {
                 point: { x: number; y: number; z: number };
@@ -241,8 +239,6 @@ export function admitPhysicalPlaybackMetadata(
                   seat.anchor.rotation?.z,
                   seat.anchor.rotation?.w,
                 ].every(Number.isFinite)) ||
-              (seat.touching !== undefined &&
-                typeof seat.touching !== "boolean") ||
               [seat.bearing, seat.flat].some(
                 (share: number | undefined): boolean =>
                   share !== undefined && !(share >= 0 && share <= 1),

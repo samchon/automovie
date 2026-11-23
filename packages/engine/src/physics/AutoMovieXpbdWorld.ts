@@ -350,6 +350,14 @@ export namespace AutoMovieXpbdWorld {
     released?: ReadonlySet<AutoMovieXpbdBody>;
 
     /**
+     * Tree bodies the task keeps as stance supports whether or not they press
+     * the floor this step: the joints from each to the root stay among the
+     * task's unknowns with their motion rows, so a planted foot at zero load
+     * keeps its leg's posture rather than dropping to its motors' own damping.
+     */
+    stance?: readonly AutoMovieXpbdBody[];
+
+    /**
      * The root body's world angular velocity the task asks after the step,
      * radians per second: a motion row beside the posture's, so the trunk's
      * servo also acts through whatever joint motion the wrench leaves free.

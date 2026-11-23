@@ -117,6 +117,7 @@ export * from "./physicalStanceJointTarget";
 export * from "./physicalStanceSeat";
 export * from "./physicalSupportFootprint";
 export * from "./physicalSupportPoint";
+export * from "./physicalSwingReference";
 export * from "./physicalSupportRootDrop";
 export * from "./physicalTrackingWithdrawn";
 export * from "./planPhysicalBalanceTargets";

@@ -42,8 +42,7 @@ import { trackPhysicalRootSupportTargets } from "./trackPhysicalRootSupportTarge
 import { trackPhysicalSupports } from "./trackPhysicalSupports";
 
 /**
- * Apply bounded PD forces and equal-opposite joint torques before the fixed
- * step.
+ * Apply bounded PD forces and equal-opposite joint torques before the fixed step.
  */
 export function trackPhysicalWorld(
   world: AutoMovieXpbdWorld,
@@ -300,6 +299,7 @@ export function trackPhysicalWorld(
             )
             .map((support: (typeof supports)[number]): string => support.bone),
           state: assessment.state,
+          ...(assessment.swing ? { path: assessment.swing } : {}),
         });
       rootIntent.pose.position.y -= lowering.rootDrop;
       rootIntent.velocity.y -= lowering.rootDropVelocity;
@@ -500,7 +500,8 @@ export function trackPhysicalWorld(
                 role: "planted" as const,
                 latched:
                   (planted
-                    ? assessment?.state.seating?.[joint.child]?.anchor?.rotation
+                    ? assessment?.state.seating?.[joint.child]?.anchor
+                        ?.rotation
                     : undefined) ?? authoredGoals[joint.child]!.pose.rotation,
               }
             : stance !== undefined && stance.chain[0] === joint.child
@@ -596,9 +597,9 @@ function plantedPoses(
 const NO_POSTURE: ReadonlySet<string> = new Set();
 
 /**
- * The limb a recovery swing has lifted: none while it still gives up its share
- * of the stance (`advancePhysicalBalance`), which the stance and support
- * tracking then still carry.
+ * The limb a recovery swing has lifted: none while it still gives up its
+ * share of the stance (`advancePhysicalBalance`), which the stance and
+ * support tracking then still carry.
  */
 function lifted(
   state: IAutoMoviePhysicalRecoveryState | undefined,
@@ -608,8 +609,8 @@ function lifted(
 }
 
 /**
- * The limb asked to step that has not lifted yet: it is still support, giving
- * up its share (`advancePhysicalBalance`).
+ * The limb asked to step that has not lifted yet: it is still support,
+ * giving up its share (`advancePhysicalBalance`).
  */
 function requested(
   state: IAutoMoviePhysicalRecoveryState | undefined,

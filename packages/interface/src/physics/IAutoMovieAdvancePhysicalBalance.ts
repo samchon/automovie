@@ -22,5 +22,12 @@ export namespace IAutoMovieAdvancePhysicalBalance {
     state: IAutoMoviePhysicalRecoveryState;
     /** New map of world support-point goals in metres for active or retained recovery owners. */
     goals: Record<string, IAutoMovieVector3>;
+    /**
+     * A lifted swing's path as its drive takes it, metres: the clearance its
+     * stance can carry and how much further its lowest point hangs below its
+     * endpoint than when planted, so the joints' reference is fit to the same
+     * path. Absent while no limb swings.
+     */
+    swing?: { height: number; hang: number };
   };
 }

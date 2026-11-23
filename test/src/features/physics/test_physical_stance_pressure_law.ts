@@ -10,15 +10,21 @@ import { TestValidator } from "@nestia/e2e";
  * closed forms without a simulation:
  *
  * 1. The command is u = xi + k (xi - xi_ref) plus the integral's bias (Hof et al.
- *    2005; Stephens 2011, Eq. 5.31): kept as is inside the polygon, moved to
- *    the nearest edge point and reported clamped outside it.
+ *    2005; Stephens 2011, Eq. 5.31). The support is shared capture first,
+ *    trunk second, convergence last (Lee and Goswami 2012): along one axis of
+ *    a shrunken extent [-0.10, 0.38] within a support reaching 0.40, a
+ *    capture point at 0.29 with the trunk asking 0.05 m of offset gives p =
+ *    0.38 and u = 0.33; at 0.36, the same; at 0.39 with -0.02, p = 0.40 and u
+ *    = 0.42; and p never falls behind xi. Past the support p sits at its
+ *    edge and the pivot takes the hip strategy's offset, or the trunk's
+ *    without one.
  * 2. A square shrunk by the margin keeps its centre and loses the margin on every
  *    side.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each law and its closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.law` and `shrink` and reads their values.
- * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated formulas evaluated by hand for a square polygon.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a command inside the polygon from a clamped one, and a bias from none.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.law`, `allocate` and `shrink` and reads their values.
+ * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated formulas and the research note's allocation cases evaluated by hand for a strip and a square.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a command with room from a trimmed one, the shrunken edge from the support's own, inside from past the support, a hip strategy spinning up from one braking and none, and a bias from none.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_stance_pressure_law(): void {
@@ -38,37 +44,64 @@ export function test_physical_stance_pressure_law(): void {
   ];
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-  // 1. Inside: the command itself.
-  const inside = physicalStanceBalance.law(
+  // 1. The command with a bias.
+  const biased: IAutoMovieVector3 = physicalStanceBalance.law(
     { x: 0, y: 0, z: 0.03 },
     origin,
-    square,
+    { x: 0.01, z: -0.01 },
   );
-  near("inside u.z", inside.pressure.z, 0.03 + k * 0.03);
-  if (inside.clamped) failures.push("a command inside the polygon was clamped");
-  // With a bias.
-  const biased = physicalStanceBalance.law(
-    { x: 0, y: 0, z: 0.03 },
-    origin,
-    square,
-    {
-      x: 0.01,
-      z: -0.01,
-    },
-  );
-  near("biased u.x", biased.pressure.x, 0.01);
-  near("biased u.z", biased.pressure.z, 0.03 + k * 0.03 - 0.01);
-  // Outside: the nearest edge point, clamped.
-  const outside = physicalStanceBalance.law(
-    { x: 0, y: 0, z: 0.08 },
-    origin,
-    square,
-  );
-  near("outside command z", outside.command.z, 0.08 + k * 0.08);
-  near("outside u.z", outside.pressure.z, 0.1);
-  near("outside u.x", outside.pressure.x, 0);
-  if (!outside.clamped)
-    failures.push("a command outside the polygon was not clamped");
+  near("biased u.x", biased.x, 0.01);
+  near("biased u.z", biased.z, 0.03 + k * 0.03 - 0.01);
+
+  // 1b. The allocation along one axis: a wide strip whose shrunken extent is
+  // [-0.10, 0.38] and whose support reaches 0.40 forward, the reference at
+  // the origin.
+  const strip = (back: number, front: number): IAutoMovieVector3[] => [
+    { x: -0.5, y: 0, z: back },
+    { x: 0.5, y: 0, z: back },
+    { x: 0.5, y: 0, z: front },
+    { x: -0.5, y: 0, z: front },
+  ];
+  const allocate = (
+    xi: number,
+    delta: number,
+    hip?: number,
+  ): ReturnType<typeof physicalStanceBalance.allocate> =>
+    physicalStanceBalance.allocate({
+      capture: { x: 0, y: 0, z: xi },
+      reference: origin,
+      command: { x: 0, y: 0, z: xi * (1 + k) },
+      offset: { x: 0, y: 0, z: delta },
+      shrunken: strip(-0.1, 0.38),
+      support: strip(-0.12, 0.4),
+      ...(hip !== undefined ? { hip: (): number => hip } : {}),
+    });
+  const cases: [string, ReturnType<typeof allocate>, number, number][] = [
+    // The trunk is served and the braking trimmed.
+    ["trunk served", allocate(0.29, 0.05), 0.38, 0.33],
+    // Capture holds: the centre of pressure is not behind the capture point.
+    ["capture held", allocate(0.36, 0.05), 0.38, 0.33],
+    // Past the shrunken edge the support's own edge, the pivot outside.
+    ["true edge", allocate(0.39, -0.02), 0.4, 0.42],
+    // A large backward offset still keeps the centre of pressure at xi.
+    ["never behind", allocate(0.2, -0.3), 0.2, 0.5],
+    // Past the support: the hip strategy's offset out, then back, and the
+    // trunk's moment without one.
+    ["hip out", allocate(0.45, 0.05, 0.1), 0.4, 0.5],
+    ["hip back", allocate(0.45, 0.05, -0.1), 0.4, 0.3],
+    ["no hip", allocate(0.45, 0.05), 0.4, 0.35],
+  ];
+  for (const [name, result, p, u] of cases) {
+    near(`${name} p`, result.pressure.z, p);
+    near(`${name} u`, result.pivot.z, u);
+    near(`${name} lateral`, Math.abs(result.pressure.x) + Math.abs(result.pivot.x), 0);
+    if (!result.clamped) failures.push(`${name} was not trimmed`);
+  }
+  // Room enough: the command itself, untrimmed.
+  const free = allocate(0.05, 0.02);
+  near("free u", free.pivot.z, 0.05 * (1 + k));
+  near("free p", free.pressure.z, 0.05 * (1 + k) + 0.02);
+  if (free.clamped) failures.push("a command with room was trimmed");
 
   // 2. The shrunken square.
   const shrunk: IAutoMovieVector3[] = physicalStanceBalance.shrink(

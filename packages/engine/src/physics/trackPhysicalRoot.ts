@@ -17,16 +17,15 @@ import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracki
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
+import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { physicalCentroidalTask } from "./physicalCentroidalTask";
 import { physicalJointInertia } from "./physicalJointInertia";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 
 /**
- * Realize one bounded root demand through an external wrench, or under internal
- * actuation as the root task of the motors' whole-body solve.
+ * Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve) as stated in this comment.
  * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (Realize one bounded root demand through an external wrench, or under internal actuation as the root task of the motors' whole-body solve) directly over its typed inputs (`input`) as nested iteration of depth 3 (map over (["x", "y", "z"] as const); filter over ( body.supportTracking?.pattern ??; flatMap over supports .filter((support: (type), delegating to `Vector3.add`, `Tracking.force`, `Vector3.subtract`, `base.translation`, `base.velocityAtPoint`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body performs no validation and relies on its callers. Apart from structural 0, 1 and 2 the body uses no numeric literal.
@@ -243,9 +242,9 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
             spin: shift,
             velocity: rootIntent.velocity,
             // The swinging hip's reaction and, in double support, the trunk's
-            // orientation servo, kept within the centre of pressure's room so
-            // the task never asks the floor for more than it can bear (Feng
-            // et al. 2013, Section III-B). With its feet held, a body has
+            // orientation servo, served after capture and before convergence
+            // with the centre of pressure kept on the support
+            // (`physicalStanceBalance.allocate`). With its feet held, a body has
             // few joint motions beyond what its momentum fixes, a
             // four-support body none, so the trunk turns back only through
             // the ground's moment; the stance hips and the root's spin row
@@ -258,6 +257,13 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
               recoveryBone === undefined ? orientation : { x: 0, y: 0, z: 0 },
             ),
             origin,
+            // The trunk's intended attitude, which its hip strategy's angle
+            // is measured from (`physicalStanceBalance.hip`): the strategy
+            // that holds the body instead of a step, so none while a limb
+            // swings, whose landing captures it (Stephens 2011, Table 4.1).
+            ...(recoveryBone === undefined
+              ? { intended: rootIntent.pose.rotation }
+              : {}),
             strength: rootStrength,
             ...(integral
               ? { bias: { x: integral.bias.x, y: 0, z: integral.bias.z } }
@@ -372,10 +378,11 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
 }
 
 /**
- * The torque the swinging hip exerts on its thigh, world N m: the swing drive's
- * demand already accumulated at that hip (`advancePhysicalBalance`). Its
- * reaction turns the torso, so the stance supports add it to the torso's moment
- * (Yin, Loken and van de Panne 2007, Section 3.2). None while no limb swings.
+ * The torque the swinging hip exerts on its thigh, world N m: the swing
+ * drive's demand already accumulated at that hip (`advancePhysicalBalance`).
+ * Its reaction turns the torso, so the stance supports add it to the torso's
+ * moment (Yin, Loken and van de Panne 2007, Section 3.2). None while no limb
+ * swings.
  */
 function swingHip(
   body: IAutoMoviePhysicalSimulationInput.IBody,
@@ -420,7 +427,7 @@ function submit(
   const { settings, body, bound, step, seconds } = input;
   const task: AutoMovieXpbdWorld.IRootTask = {
     ...wrench,
-    ...transitions(input, Math.max(0, wrench.force.y)),
+    ...transitions(input, limbs, Math.max(0, wrench.force.y)),
   };
   const points: (IAutoMovieCollectPhysicalSupports.IPoint & {
     bone: string;
@@ -470,16 +477,18 @@ function submit(
   });
 }
 /**
- * The support transitions a root task carries: the limb asked to step keeps its
- * contacts held while its bearing share of the vertical force bounds their
- * total, ramping to zero before it lifts (Herzog et al. 2016, Section 5.3); the
- * lifted limb's contacts are released to the contact passes, so its swing moves
- * it off the floor.
+ * The support transitions a root task carries: the limb asked to step keeps
+ * its contacts held while its bearing share of the vertical force bounds
+ * their total, ramping to zero before it lifts (Herzog et al. 2016, Section
+ * 5.3); the lifted limb's contacts are released to the contact passes, so
+ * its swing moves it off the floor; every stance limb's carriers stay the
+ * task's stance whatever their load, so their legs keep their posture rows.
  */
 function transitions(
   input: trackPhysicalRoot.IInput,
+  limbs: readonly IAutoMovieFootfallPattern["limbs"][number][],
   force: number,
-): Pick<AutoMovieXpbdWorld.IRootTask, "bounds" | "released"> {
+): Pick<AutoMovieXpbdWorld.IRootTask, "bounds" | "released" | "stance"> {
   const segments: ReadonlyMap<string, AutoMovieXpbdBody> =
     input.bound.segments.get(input.body.id)!;
   const pattern: readonly IAutoMovieFootfallPattern["limbs"][number][] = (
@@ -503,6 +512,10 @@ function transitions(
   };
   const leaving: AutoMovieXpbdBody[] = carriers(input.requested);
   const lifted: AutoMovieXpbdBody[] = carriers(input.recoveryBone);
+  const stance: AutoMovieXpbdBody[] = limbs.flatMap(
+    (limb: IAutoMovieFootfallPattern["limbs"][number]): AutoMovieXpbdBody[] =>
+      carriers(limb.bone),
+  );
   const share: number = input.requested
     ? Math.max(0, Math.min(1, input.seating?.[input.requested]?.bearing ?? 1))
     : 1;
@@ -511,12 +524,12 @@ function transitions(
       ? { bounds: [{ bodies: leaving, force: share * force }] }
       : {}),
     ...(lifted.length > 0 ? { released: new Set(lifted) } : {}),
+    ...(stance.length > 0 ? { stance } : {}),
   };
 }
 
 /**
- * Transient native state and explicit policy, without retained wrappers or
- * provider-specific selectors.
+ * Transient native state and explicit policy, without retained wrappers or provider-specific selectors.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (Transient native state and explicit policy, without retained wrappers or provider-specific selectors) and documents 1 documented member as stated in this comment.
  * @evidence contracts/development/design.md#principled-representation Represents Transient native state and explicit policy, without retained wrappers or provider-specific selectors: companion namespace of 1 member (`IInput`); units and frames named in its text: seconds. It has no optional member, so no absent-value state combines with another.
@@ -537,10 +550,7 @@ export namespace trackPhysicalRoot {
     /** The stance carriers' planted poses: authored, moved by a landed step. */ planted?: Readonly<
       Record<string, IAutoMovieRigidTransform>
     >;
-    /**
-     * Each stance foot's seating and its ramped bearing and flatness shares
-     * (`advancePhysicalBalance`).
-     */ seating?: Readonly<
+    /** Each stance foot's seating and its ramped bearing and flatness shares (`advancePhysicalBalance`). */ seating?: Readonly<
       Record<
         string,
         {
@@ -549,46 +559,29 @@ export namespace trackPhysicalRoot {
           bearing?: number;
           flat?: number;
           load?: number;
-          touching?: boolean;
           relief?: number;
           anchor?: { point: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
         }
       >
     >;
-    /**
-     * The authored pose's centre of mass, world metres, moved with any landed
-     * step; internal actuation balances it.
-     */ center?: IAutoMovieVector3;
-    /**
-     * Whether a recovery step has landed, so the stance stands on a new
-     * polygon.
-     */ landed?: boolean;
-    /**
-     * The centre-of-pressure integral's persisted state, advanced in place
-     * (`physicalStanceBalance.integrate`).
-     */ integral?: physicalStanceBalance.IIntegral;
+    /** The authored pose's centre of mass, world metres, moved with any landed step; internal actuation balances it. */ center?: IAutoMovieVector3;
+    /** Whether a recovery step has landed, so the stance stands on a new polygon. */ landed?: boolean;
+    /** The centre-of-pressure integral's persisted state, advanced in place (`physicalStanceBalance.integrate`). */ integral?: physicalStanceBalance.IIntegral;
     /** Whether an external push lands on the body this control frame. */ pushed?: boolean;
     /** Declared gravity-compensation moment about the root. */ gravity: IAutoMovieVector3;
     /** Internal Cartesian moments accumulate into bounded joint motors. */ actuation?: Map<
       string,
       IAutoMovieVector3
     >;
-    /**
-     * Actual solved floor witnesses with their measured impulses and centres of
-     * pressure.
-     */ supports: IAutoMovieCollectPhysicalSupports.ISupport[];
+    /** Actual solved floor witnesses with their measured impulses and centres of pressure. */ supports: IAutoMovieCollectPhysicalSupports.ISupport[];
     /** Endpoint currently owned by recovery: a lifted swing limb. */ recoveryBone?: string;
-    /**
-     * A limb asked to step that has not lifted yet: its share of the stance
-     * ramps out.
-     */ requested?: string;
+    /** A limb asked to step that has not lifted yet: its share of the stance ramps out. */ requested?: string;
     /** Enclosing cache interval. */ step: number;
     /** Exact declared native tick time. */ seconds: number;
     /** Native integration duration. */ dt: number;
     /** The world whose motors' solve takes the root's task. */ world: AutoMovieXpbdWorld;
-    /**
-     * Every segment's sampled goal, with the balance's root offset; the
-     * momentum task's reference pose.
-     */ goals: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>;
+    /** Every segment's sampled goal, with the balance's root offset; the momentum task's reference pose. */ goals: Readonly<
+      Record<string, IAutoMovieSamplePhysicalTarget.IResult>
+    >;
   }
 }

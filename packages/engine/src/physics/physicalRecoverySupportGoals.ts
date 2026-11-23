@@ -12,7 +12,10 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 /**
  * Recover original declared world endpoints at a single clock. Accepted
  * recovery offsets translate the declaration; a fitted, unmet output never
- * becomes a new promise.
+ * becomes a new promise. A lifted swing follows its drive's path when given
+ * (`IAutoMovieAdvancePhysicalBalance.IResult.swing`): the clearance its stance
+ * can carry and its lowest point's hang, so the joints' reference and the
+ * drive share one path; else the policy's clearance.
  */
 export function physicalRecoverySupportGoals(
   body: IAutoMoviePhysicalSimulationInput.IBody,
@@ -20,6 +23,7 @@ export function physicalRecoverySupportGoals(
   pattern: IAutoMovieFootfallPattern,
   state: IAutoMoviePhysicalRecoveryState | undefined,
   seconds: number,
+  path?: { height: number; hang: number },
 ): Record<string, IAutoMovieVector3> {
   return Object.fromEntries(
     pattern.limbs.map(
@@ -50,12 +54,15 @@ export function physicalRecoverySupportGoals(
             swing: state.swing,
             point: original,
             velocity: { x: 0, y: 0, z: 0 },
-            height: body.balance.height,
+            height: path?.height ?? body.balance.height,
             seconds,
           }).point;
           return [
             limb.bone,
-            Vector3.add(point, Vector3.subtract(moved, original)),
+            Vector3.add(
+              Vector3.add(point, Vector3.subtract(moved, original)),
+              { x: 0, y: path?.hang ?? 0, z: 0 },
+            ),
           ];
         }
         return [

@@ -71,8 +71,10 @@ import { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
  * Andersen (2012) measured the motion, each direction its own
  * (`AutoMovieHumanJointStrength`): hip and knee flexion and extension,
  * ankle dorsi- and plantar flexion, shoulder abduction and adduction, elbow
- * and wrist flexion and extension. The axes they did not measure keep an
- * unsourced placeholder, 50 N m per downstream kilogram, still open.
+ * and wrist flexion and extension; the hip's abduction, adduction and
+ * rotations take McNabb et al.'s (2024) per-kilogram means instead. The axes
+ * neither measured keep an unsourced placeholder, 50 N m per downstream
+ * kilogram, still open.
  * Self-contact is excluded between joint neighbours, among the palm and
  * digits of one hand, between the abdomen and each upper arm and between the
  * two thighs. The last two are body pairs that overlap in the reference pose:

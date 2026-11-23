@@ -350,11 +350,11 @@ Holds one number.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the record asks and of whom: the wrench, the supports leaving or released, and the root's spin.
+States what the record asks and of whom: the wrench, the supports leaving or released, the stance bodies whose legs keep their posture rows, and the root's spin.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A world force in newtons and a moment in newton metres about a world origin in metres; force bounds in newtons on groups of tree bodies; a set of released bodies; a world angular velocity in radians per second.
+A world force in newtons and a moment in newton metres about a world origin in metres; force bounds in newtons on groups of tree bodies; a set of released bodies; a list of stance bodies; a world angular velocity in radians per second.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

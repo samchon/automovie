@@ -89,11 +89,30 @@ const HARBO: Readonly<Record<string, IMotion>> = {
 };
 
 /**
+ * Peak isometric hip torques per kilogram of body mass, N m/kg, for the motions
+ * Harbo et al. did not measure: McNabb, Sanchez, Selfe, Reeves and Callaghan
+ * (2024), "Handheld dynamometry: Validity and reliability of measuring hip
+ * joint rate of torque development and peak torque", PLoS ONE
+ * 19(8):e0308956, Table 5, session 1 means: 30 healthy adults, 13 of them
+ * men, aged 30 +- 8 years and 70.6 +- 11.8 kg, belt-stabilised. The cohort
+ * pools both sexes and gives no age or stature term, so a person's torque is
+ * the cohort mean times body mass whatever the sex, at the cohort's age
+ * rather than `AGE`.
+ */
+const MCNABB: Readonly<Record<string, number>> = {
+  hipAbduction: 1.29,
+  hipAdduction: 1.08,
+  hipInternalRotation: 0.72,
+  hipExternalRotation: 0.66,
+};
+
+/**
  * The clinical channels the models cover, by the bone the joint moves: the
  * motion toward the channel's clinical maximum, then toward its minimum. The
- * rig's clinical signs (`DEFAULT_HUMANOID_ROM`) put flexion positive at the
- * hip, knee and elbow, abduction positive at the shoulder, dorsiflexion
- * positive at the ankle and extension positive at the wrist.
+ * rig's clinical signs (`DEFAULT_HUMANOID_ROM`, `HUMANOID_REST_FRAME`) put
+ * flexion positive at the hip, knee and elbow, abduction positive at the hip
+ * and shoulder, external rotation positive at the hip, dorsiflexion positive
+ * at the ankle and extension positive at the wrist.
  */
 const COVERED: Readonly<
   Record<
@@ -101,7 +120,11 @@ const COVERED: Readonly<
     Partial<Record<"flexion" | "abduction" | "twist", [string, string]>>
   >
 > = {
-  UpperLeg: { flexion: ["hipFlexion", "hipExtension"] },
+  UpperLeg: {
+    flexion: ["hipFlexion", "hipExtension"],
+    abduction: ["hipAbduction", "hipAdduction"],
+    twist: ["hipExternalRotation", "hipInternalRotation"],
+  },
   LowerLeg: { flexion: ["kneeFlexion", "kneeExtension"] },
   Foot: { flexion: ["ankleDorsiflexion", "anklePlantarflexion"] },
   UpperArm: { abduction: ["shoulderAbduction", "shoulderAdduction"] },
@@ -132,7 +155,9 @@ export namespace AutoMovieHumanJointStrength {
 
   /**
    * A clinical channel's peak torques toward its clinical maximum and minimum,
-   * N m, or undefined where Harbo et al. measured neither motion.
+   * N m: Harbo et al.'s regressions, McNabb et al.'s per-kilogram means for
+   * the hip's abduction, adduction and rotations, or undefined where neither
+   * measured the motions.
    *
    * @param person The person.
    * @param bone The bone the joint moves.
@@ -148,6 +173,8 @@ export namespace AutoMovieHumanJointStrength {
       COVERED[bone.replace(/^(left|right)/, "")]?.[channel];
     if (motions === undefined) return undefined;
     const torque = (name: string): number => {
+      const share: number | undefined = MCNABB[name];
+      if (share !== undefined) return share * person.mass;
       const [intercept, age, height, mass] = person.male
         ? HARBO[name]!.male
         : HARBO[name]!.female;

@@ -10,9 +10,10 @@ import { TestValidator } from "@nestia/e2e";
  *    still ramping, and never while the floor still carries it, however long it
  *    has waited (Pratt et al., M2V2, Section VII-A; Feng et al. 2015, Figure
  *    2).
- * 2. Early touchdown: a lifted foot's load above `TOUCH` of the weight lands it
- *    only once held for `DWELL`; a load under it restarts the count (Stephens
- *    2011, Figure 4.6).
+ * 2. Early touchdown: a lifted foot pressed with 800 N, above `TOUCH` of the
+ *    weight, rejoins the support on the second successive substep, an aborted
+ *    lift; one substep's load does not, and a load under it restarts the count
+ *    (Stephens 2011, Figure 4.6; Feng et al. 2015, Section III-A4).
  * 3. Second step: none while a landed foot ramps in, and then only after the
  *    capture point has stayed outside for `DWELL` (Pratt et al., M2V2, Section
  *    IX-C).
@@ -20,11 +21,14 @@ import { TestValidator } from "@nestia/e2e";
  *    against the range, the vertical momentum left out.
  * 5. Saturation: an orientation error within the limit is kept; a larger one is
  *    shortened to the limit about the same axis.
+ * 6. Swing drive: the path's feed-forward alone, m (g y + a), carried by the
+ *    limb's effective mass; at rest on its path the leg is held against its
+ *    weight, and no position error enters it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.release`, `touchdown`, `ready`, `tipping` and `saturate` and reads their values.
- * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated thresholds and the closed-form rate and angle evaluated by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a loaded from an unloaded limb, a long-waiting loaded one from an unloaded one, a held load from a scuff, a ramping landing from a settled one, horizontal from vertical momentum, and a small error from a saturated one.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.release`, `touchdown`, `ready`, `tipping`, `saturate` and `swingForce` and reads their values.
+ * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated thresholds and the closed-form rate, angle and force evaluated by hand.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a loaded from an unloaded limb, a long-waiting loaded one from an unloaded one, a held load from a single substep's, a ramping landing from a settled one, horizontal from vertical momentum, a small error from a saturated one, and a resting swing from an accelerating one.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_recovery_timing(): void {
@@ -35,6 +39,7 @@ export function test_physical_recovery_timing(): void {
   const W: number = 700;
   const { RELEASE, TOUCH, DWELL, TORSO_ERROR }: typeof physicalStanceBalance =
     physicalStanceBalance;
+  const dt: number = 1 / 960;
 
   // 1. Lift-off on the measured load alone.
   const release = (bearing: number, load: number): boolean =>
@@ -43,26 +48,29 @@ export function test_physical_recovery_timing(): void {
   check("loaded limb", release(0, 1.5 * RELEASE * W), false);
   check("unloaded limb", release(0, 0.5 * RELEASE * W), true);
 
-  // 2. Early touchdown held for DWELL.
+  // 2. Early touchdown on the second successive substep.
   const first = physicalStanceBalance.touchdown({
-    load: 2 * TOUCH * W,
+    load: 800,
     weight: W,
     since: undefined,
     seconds: 1,
+    dt,
   });
   check("touch starts", first.since === 1 && !first.landed, true);
   const held = physicalStanceBalance.touchdown({
-    load: 2 * TOUCH * W,
+    load: 800,
     weight: W,
     since: first.since,
-    seconds: 1 + DWELL,
+    seconds: 1 + dt,
+    dt,
   });
-  check("held touch lands", held.landed, true);
+  check("held touch rejoins", held.landed, true);
   const scuff = physicalStanceBalance.touchdown({
     load: 0.5 * TOUCH * W,
     weight: W,
     since: first.since,
-    seconds: 1 + DWELL,
+    seconds: 1 + dt,
+    dt,
   });
   check("scuff restarts", scuff.since === undefined && !scuff.landed, true);
 
@@ -116,6 +124,30 @@ export function test_physical_recovery_timing(): void {
   const cut = physicalStanceBalance.saturate(identity, large, TORSO_ERROR);
   if (!(Math.abs(angleOf(cut) - TORSO_ERROR) < 1e-9) || !(cut.z > 0))
     failures.push(`a large error became ${angleOf(cut)} about ${cut.z}`);
+
+  // 6. The swing's drive: 6.2 kg at rest, then accelerating.
+  const rest = physicalStanceBalance.swingForce({
+    mass: 6.2,
+    gravity: 9.81,
+    acceleration: { x: 0, y: 0, z: 0 },
+  });
+  if (
+    !(Math.abs(rest.y - 6.2 * 9.81) < 1e-9) ||
+    rest.x !== 0 ||
+    rest.z !== 0
+  )
+    failures.push(`a resting swing is driven by ${JSON.stringify(rest)}`);
+  const moving = physicalStanceBalance.swingForce({
+    mass: 6.2,
+    gravity: 9.81,
+    acceleration: { x: 1, y: -2, z: 3 },
+  });
+  if (
+    !(Math.abs(moving.x - 6.2) < 1e-9) ||
+    !(Math.abs(moving.y - 6.2 * 7.81) < 1e-9) ||
+    !(Math.abs(moving.z - 6.2 * 3) < 1e-9)
+  )
+    failures.push(`an accelerating swing is driven by ${JSON.stringify(moving)}`);
 
   TestValidator.equals("recovery timing", failures, []);
 }

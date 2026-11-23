@@ -12,6 +12,7 @@ import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
+import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 
 /** A support limb of the balance pattern. */
@@ -26,13 +27,17 @@ type Limb = IAutoMovieFootfallPattern["limbs"][number];
  *   z0), with z0 the authored pose's centre-of-mass height, moves as xi' =
  *   omega (xi - u) about the centre of pressure u (Hof, Gazendam and Sinke
  *   2005, Eqs. 2-3, 6).
- * - Command: u = xi + k (xi - xi_ref), kept on the planted support polygon shrunk
- *   by a margin, which returns xi to xi_ref and keeps the pressure off the
- *   feet's edges (Pratt et al., M2V2, Eq. 1 and footnote 2). xi_ref is the
- *   authored centre of mass over the planted polygon, clamped into it.
- * - Wrench: the pendulum's horizontal force m omega^2 (c - u), the weight with a
- *   height servo held to a narrow band, and the torso's servo moment with any
- *   swinging hip's reaction (Stephens 2011, Eqs. 5.23, 5.26).
+ * - Command: u = xi + k (xi - xi_ref), which returns xi to xi_ref (Pratt et al.,
+ *   M2V2, Eq. 1). xi_ref is the authored centre of mass over the planted
+ *   polygon, clamped into it. The centre of pressure is kept on the support
+ *   polygon shrunk by a margin, off the feet's edges (M2V2, footnote 2), and
+ *   the support is shared between capture, the torso's moment and the
+ *   command's convergence in that order (`allocate`).
+ * - Wrench: the pendulum's horizontal force m omega^2 (c - u) through the
+ *   allocated pivot u, the weight with a height servo held to a narrow band,
+ *   and the moment the centre of pressure's offset from the pivot carries: the
+ *   torso's servo moment with any swinging hip's reaction, or past the
+ *   support's edge a hip strategy (Stephens 2011, Eqs. 5.23, 5.26; `hip`).
  * - Bearing: each planted foot bears on its outline latched at the planted pose
  *   and shrunk by the margin, so each foot's own centre of pressure stays
  *   inside its outline (Stephens 2011, Eqs. 5.6-5.7); an infeasible wrench
@@ -179,6 +184,11 @@ export namespace physicalStanceBalance {
     torque: IAutoMovieVector3;
     /** The point the moment is taken about, world metres. */
     origin: IAutoMovieVector3;
+    /**
+     * The trunk's intended world rotation, which the hip strategy's angle is
+     * measured from (`hip`); absent, no hip strategy.
+     */
+    intended?: IAutoMovieQuaternion;
     /** The tracking strength in [0, 1]. */
     strength: number;
     /** The centre-of-pressure integral's bias, world metres (`integrate`). */
@@ -198,9 +208,14 @@ export namespace physicalStanceBalance {
     capture: IAutoMovieVector3;
     /** The reference. */
     reference: IAutoMovieVector3;
-    /** The command. */
+    /** The centre of pressure commanded on the support. */
     pressure: IAutoMovieVector3;
-    /** Whether the command was clamped onto the bearing polygon. */
+    /**
+     * The centroidal moment pivot the pendulum's force is aimed through, world
+     * metres; it may leave the support (`allocate`).
+     */
+    pivot: IAutoMovieVector3;
+    /** Whether the law's command was trimmed. */
     clamped: boolean;
     /**
      * The actual centre of mass and its velocity, world metres and metres per
@@ -295,12 +310,7 @@ export namespace physicalStanceBalance {
           y: floor,
           z: input.center.z + input.velocity.z / omega,
         });
-    const { pressure, clamped }: ReturnType<typeof law> = law(
-      capture,
-      reference,
-      polygon,
-      input.bias,
-    );
+    const command: IAutoMovieVector3 = law(capture, reference, input.bias);
     const weight: number = mass * gravity;
     const lift: number = Math.max(
       weight * (1 - BAND),
@@ -311,26 +321,61 @@ export namespace physicalStanceBalance {
           2 * mass * omega * (velocity.y - input.velocity.y),
       ),
     );
+    // The torso's moment asks the centre of pressure to lie (tau_z, -tau_x) /
+    // F_y from the pivot; the support is shared between capture, that moment
+    // and convergence in that order (`allocate`), and the moment borne is
+    // what the two points' offset carries. Yaw is left out: the feet turn the
+    // body only by opposing friction, and heading is the stance hips' (Coros,
+    // Beaudoin and van de Panne 2010, Section 3.5).
+    const limbs: readonly Limb[] =
+      (body.supportTracking?.pattern ?? body.balance?.pattern)?.limbs ??
+      input.stance;
+    const { pressure, pivot, clamped }: ReturnType<typeof allocate> = allocate(
+      {
+        capture,
+        reference,
+        command,
+        offset: { x: input.torque.z / lift, y: 0, z: -input.torque.x / lift },
+        shrunken: polygon,
+        support: bearable.hull,
+        ...(input.intended
+          ? {
+              hip: (direction: IAutoMovieVector3): number | undefined => {
+                const strategy = hip({
+                  profile: body.profile,
+                  segments,
+                  limbs,
+                  stance: input.stance,
+                  direction,
+                  intended: input.intended!,
+                });
+                if (!strategy) return undefined;
+                // Bang-bang: out while the trunk can still be stopped within
+                // the angle left, back once its turn would carry it past.
+                const braking: boolean =
+                  strategy.rate > 0 &&
+                  (strategy.rate * strategy.rate * strategy.inertia) /
+                    (2 * strategy.torque) >=
+                    strategy.angle;
+                if (!braking && !(strategy.angle > 0)) return undefined;
+                return ((braking ? -1 : 1) * strategy.torque) / lift;
+              },
+            }
+          : {}),
+      },
+    );
     const force: IAutoMovieVector3 = Vector3.scale(
       {
-        x: mass * omega * omega * (center.x - pressure.x),
+        x: mass * omega * omega * (center.x - pivot.x),
         y: lift,
-        z: mass * omega * omega * (center.z - pressure.z),
+        z: mass * omega * omega * (center.z - pivot.z),
       },
       input.strength,
     );
-    // The torso's moment moves the centre of pressure by (tau_z, -tau_x) /
-    // F_y; it is kept within what the polygon leaves past the command, mg
-    // times the distance from u to the shrunken edge each way, so it never
-    // asks the feet for a moment they cannot bear. Yaw is left out: the feet
-    // turn the body only by opposing friction, and heading is the stance
-    // hips' (Coros, Beaudoin and van de Panne 2010, Section 3.5).
-    const authority = (x: number, z: number): number =>
-      lift * reach(polygon, pressure, { x, y: 0, z });
     const reaction: IAutoMovieVector3 = {
-      x: Math.max(-authority(0, 1), Math.min(authority(0, -1), input.torque.x)),
+      x: -(pressure.z - pivot.z) * lift,
       y: 0,
-      z: Math.max(-authority(-1, 0), Math.min(authority(1, 0), input.torque.z)),
+      z: (pressure.x - pivot.x) * lift,
     };
     const torque: IAutoMovieVector3 = Vector3.add(
       Vector3.cross(Vector3.subtract(center, input.origin), force),
@@ -342,6 +387,7 @@ export namespace physicalStanceBalance {
       capture,
       reference,
       pressure,
+      pivot,
       clamped,
       center,
       velocity,
@@ -738,12 +784,15 @@ export namespace physicalStanceBalance {
 
   /**
    * A lifted swing foot's early touchdown: its measured load above `TOUCH` of
-   * the weight held for `DWELL` before the swing's minimum phase is a contact,
-   * so the foot joins the support and the step is planned again; a single
-   * substep's scuff is not (Stephens 2011, Figure 4.6).
+   * the weight on two successive substeps before the swing's minimum phase is
+   * a contact, an aborted lift or an early touchdown, so the foot joins the
+   * support again and the step is planned again, and the floor's force on it
+   * is the root task's once more; a single substep's scuff is not (Stephens
+   * 2011, Figure 4.6; Feng et al. 2015, Section III-A4).
    *
    * @param input The foot's measured load and the weight, newtons; when its
-   *   load began, local seconds, if it is pressing; the present local seconds.
+   *   load began, local seconds, if it is pressing; the present local seconds;
+   *   and the substep, seconds.
    * @returns When its present load began, absent while it does not press, and
    *   whether it has touched down.
    */
@@ -752,10 +801,11 @@ export namespace physicalStanceBalance {
     weight: number;
     since: number | undefined;
     seconds: number;
+    dt: number;
   }): { since?: number; landed: boolean } {
     if (!(input.load > TOUCH * input.weight)) return { landed: false };
     const since: number = input.since ?? input.seconds;
-    return { since, landed: input.seconds - since >= DWELL - 1e-9 };
+    return { since, landed: input.seconds - since >= input.dt - 1e-9 };
   }
 
   /**
@@ -853,7 +903,8 @@ export namespace physicalStanceBalance {
    * Section III-B: the hull of the points in contact); its ankle point only
    * when that edge is unknown. Their vertices are the contact points the stance
    * may load, and the command's polygon is the union of them shrunk by `MARGIN`
-   * (Pratt et al., M2V2, footnote 2). The margin is kept on the whole support,
+   * (Pratt et al., M2V2, footnote 2); the union unshrunk, the hull, is the
+   * support itself (`allocate`). The margin is kept on the whole support,
    * not on each foot, so a narrow foot (a heel point and a forefoot edge) keeps
    * its own vertices instead of collapsing to one point that bears no moment. A
    * foot with a bearing share under one is drawn that share of the way out from
@@ -871,6 +922,7 @@ export namespace physicalStanceBalance {
   ): {
     feet: { limb: T; points: IAutoMovieVector3[] }[];
     polygon: IAutoMovieVector3[];
+    hull: IAutoMovieVector3[];
   } {
     const drawn = feet.map(({ limb, outline, flat, ankle, edge }) => ({
       limb,
@@ -914,10 +966,8 @@ export namespace physicalStanceBalance {
         });
       },
     );
-    return {
-      feet: drawn,
-      polygon: shrink(convexHull2D(points), MARGIN),
-    };
+    const hull: IAutoMovieVector3[] = convexHull2D(points);
+    return { feet: drawn, polygon: shrink(hull, MARGIN), hull };
   }
 
   /**
@@ -952,37 +1002,352 @@ export namespace physicalStanceBalance {
     ];
   }
   /**
-   * The centre-of-pressure law: the command u = xi + k (xi - xi_ref), trimmed
-   * by the integral's bias, kept on the polygon that can bear it (Hof et al.
-   * 2005; Pratt et al., M2V2; Stephens 2011, Eq. 5.31 for the bias). Whether
-   * the polygon clamped it is returned with it.
+   * The centre-of-pressure law's command u = xi + k (xi - xi_ref), trimmed by
+   * the integral's bias (Hof et al. 2005; Pratt et al., M2V2; Stephens 2011,
+   * Eq. 5.31 for the bias): the pivot the pendulum's force is aimed through
+   * when nothing trims it (`allocate`).
    */
   export function law(
     capture: IAutoMovieVector3,
     reference: IAutoMovieVector3,
-    polygon: readonly IAutoMovieVector3[],
     bias?: { x: number; z: number },
-  ): {
-    command: IAutoMovieVector3;
-    pressure: IAutoMovieVector3;
-    clamped: boolean;
-  } {
-    const command: IAutoMovieVector3 = Vector3.add(
+  ): IAutoMovieVector3 {
+    return Vector3.add(
       Vector3.add(
         capture,
         Vector3.scale(Vector3.subtract(capture, reference), GAIN),
       ),
       { x: bias?.x ?? 0, y: 0, z: bias?.z ?? 0 },
     );
+  }
+
+  /**
+   * Share the support between capture, the trunk and convergence, in that
+   * order: the centre of pressure p is kept on the support and the centroidal
+   * moment pivot u, through which the pendulum's force m omega^2 (c - u) is
+   * aimed, may leave it, as linear momentum is kept before angular when both
+   * cannot be (Lee and Goswami 2012). The capture point with the body's spin,
+   * xi_eff = xi + omega k / (m g), moves as xi_eff' = omega (xi - p), so it is
+   * the centre of pressure that holds it (Koolen et al., Corollary 3;
+   * derived):
+   *
+   * 1. Capture: p is not behind xi_eff along its displacement from the
+   *    reference, so xi_eff does not diverge while it is inside the support.
+   * 2. Trunk: p is nearest u_law + delta, delta = (M_z, -M_x) / F_y the offset
+   *    the trunk's moment asks of it from the pivot, on the shrunken polygon,
+   *    or on the support itself once xi_eff has passed the shrunken edge, and
+   *    then u = p - delta.
+   * 3. Convergence: u_law = xi + k (xi - xi_ref) takes what is left, the term
+   *    that is trimmed.
+   *
+   * Past the support's edge, p sits at the edge nearest xi_eff. A body with a
+   * hip strategy toward it (`hip`) sets the pivot's offset past p instead of
+   * the trunk's servo: out along the excess while its trunk spins up, back
+   * while it brakes (Hofmann, Popovic and Herr 2009; Pratt et al. 2006, the
+   * flywheel model). Without one the trunk's moment is served as inside.
+   *
+   * @param input The capture point with spin, its reference and the law's
+   *   command, world metres; the trunk's offset delta, metres; the shrunken
+   *   polygon and the support, world metres; and the hip strategy's signed
+   *   pivot offset along an outward direction, metres, or undefined for none.
+   * @returns The centre of pressure, the pivot, and whether the command was
+   *   trimmed.
+   */
+  export function allocate(input: {
+    capture: IAutoMovieVector3;
+    reference: IAutoMovieVector3;
+    command: IAutoMovieVector3;
+    offset: IAutoMovieVector3;
+    shrunken: readonly IAutoMovieVector3[];
+    support: readonly IAutoMovieVector3[];
+    hip?: (direction: IAutoMovieVector3) => number | undefined;
+  }): {
+    pressure: IAutoMovieVector3;
+    pivot: IAutoMovieVector3;
+    clamped: boolean;
+  } {
+    const { capture, command, offset } = input;
+    const result = (
+      pressure: IAutoMovieVector3,
+      pivot: IAutoMovieVector3,
+    ): { pressure: IAutoMovieVector3; pivot: IAutoMovieVector3; clamped: boolean } => ({
+      pressure,
+      pivot,
+      clamped: Math.hypot(pivot.x - command.x, pivot.z - command.z) > 1e-9,
+    });
+    const edge: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+      input.support,
+      capture,
+    );
+    const gap: number = Math.hypot(capture.x - edge.x, capture.z - edge.z);
+    if (input.support.length >= 3 && gap > 1e-9) {
+      const direction: IAutoMovieVector3 = {
+        x: (capture.x - edge.x) / gap,
+        y: 0,
+        z: (capture.z - edge.z) / gap,
+      };
+      const strategy: number | undefined = input.hip?.(direction);
+      if (strategy !== undefined) {
+        const along: number =
+          (command.x - edge.x) * direction.x +
+          (command.z - edge.z) * direction.z;
+        const shift: number =
+          strategy >= 0 ? Math.min(strategy, Math.max(0, along)) : strategy;
+        return result(edge, Vector3.add(edge, Vector3.scale(direction, shift)));
+      }
+      return result(edge, Vector3.subtract(edge, offset));
+    }
+    const inner: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+      input.shrunken,
+      capture,
+    );
+    const room: readonly IAutoMovieVector3[] =
+      input.shrunken.length >= 3 &&
+      Math.hypot(capture.x - inner.x, capture.z - inner.z) <= 1e-9
+        ? input.shrunken
+        : input.support;
+    const away: IAutoMovieVector3 = Vector3.subtract(capture, input.reference);
+    const length: number = Math.hypot(away.x, away.z);
+    const admissible: IAutoMovieVector3[] =
+      room.length >= 3 && length > 1e-9
+        ? clip(room, capture, { x: away.x / length, y: 0, z: away.z / length })
+        : [...room];
+    const wanted: IAutoMovieVector3 = Vector3.add(command, offset);
     const pressure: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
-      polygon,
-      command,
+      admissible.length > 0 ? admissible : room,
+      wanted,
+    );
+    return result(pressure, Vector3.subtract(pressure, offset));
+  }
+
+  /**
+   * The trunk excursion a hip strategy may spend, radians: half the 0.5 rad
+   * hip strategy range (Stephens 2011, Table 4.1), since the recovery tests
+   * count 0.5 rad as tipped (stated).
+   */
+  export const HIP_RANGE: number = 0.25;
+
+  /**
+   * The hip strategy a stance has toward a horizontal direction: the trunk,
+   * every segment off the support limbs, turned about the stance hips' axis
+   * across the direction, a = y x n, by their joints' torque (Horak and
+   * Nashner 1986; Stephens 2011, Section 4.2). A hip off that axis by e rises
+   * or sinks by e theta as the trunk turns, so the trunk turns about the hips
+   * as a hinge only while e `HIP_RANGE` stays within `LIFT`. A stance whose
+   * hips lie apart along the direction, two feet side by side against a
+   * lateral push or a four-legged body either way, has none and holds by its
+   * centre of pressure alone: in the frontal plane the hips load and unload
+   * the legs rather than turn the trunk (Winter 1995). Derived.
+   *
+   * The torque is the stance hips' bound about the axis, each joint axis
+   * counted by its alignment with it, sum min(tau+, tau-) |e_i . a|, so the
+   * strategy's spin-up and its braking both fit; the inertia is the trunk's
+   * about the axis through the hips' mean (parallel-axis theorem). The angle
+   * left is `HIP_RANGE` less the trunk's lean toward the direction from its
+   * intended attitude, and the rate is its turning rate that way.
+   *
+   * @param input The profile, its segments, every support limb, the stance
+   *   limbs, the outward direction, and the trunk's intended world rotation.
+   * @returns The torque, N m; the inertia, kg m^2; the angle left, radians;
+   *   the rate, radians per second; or undefined without a hip strategy.
+   */
+  export function hip(input: {
+    profile: IAutoMoviePhysicalProfile;
+    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    limbs: readonly Limb[];
+    stance: readonly Limb[];
+    direction: IAutoMovieVector3;
+    intended: IAutoMovieQuaternion;
+  }): { torque: number; inertia: number; angle: number; rate: number } | undefined {
+    const size: number = Math.hypot(input.direction.x, input.direction.z);
+    if (!(size > 0) || input.stance.length === 0) return undefined;
+    const n: IAutoMovieVector3 = {
+      x: input.direction.x / size,
+      y: 0,
+      z: input.direction.z / size,
+    };
+    const axis: IAutoMovieVector3 = { x: n.z, y: 0, z: -n.x };
+    const hips: { pivot: IAutoMovieVector3; torque: number }[] = [];
+    for (const limb of input.stance) {
+      const joint = input.profile.joints.find(
+        (candidate): boolean => candidate.child === limb.chain[0],
+      );
+      const parent: AutoMovieXpbdBody | undefined = joint
+        ? input.segments.get(joint.parent)
+        : undefined;
+      if (!joint || !parent) return undefined;
+      const frame: IAutoMovieQuaternion = Quaternion.multiply(
+        parent.rotation(),
+        joint.parentFrame.rotation,
+      );
+      hips.push({
+        pivot: Vector3.add(
+          parent.translation(),
+          Quaternion.rotateVector(parent.rotation(), joint.parentFrame.position),
+        ),
+        torque: joint.axes.reduce((sum: number, entry): number => {
+          const e: IAutoMovieVector3 = Quaternion.rotateVector(frame, {
+            x: entry.axis === "x" ? 1 : 0,
+            y: entry.axis === "y" ? 1 : 0,
+            z: entry.axis === "z" ? 1 : 0,
+          });
+          return (
+            sum +
+            Math.min(entry.maximumTorque, entry.reverseTorque ?? entry.maximumTorque) *
+              Math.abs(Vector3.dot(e, axis))
+          );
+        }, 0),
+      });
+    }
+    const along: number[] = hips.map((h) => Vector3.dot(h.pivot, n));
+    if (Math.max(...along) - Math.min(...along) > LIFT / HIP_RANGE)
+      return undefined;
+    const torque: number = hips.reduce((sum, h) => sum + h.torque, 0);
+    const mean: IAutoMovieVector3 = Vector3.scale(
+      hips.reduce(
+        (sum: IAutoMovieVector3, h): IAutoMovieVector3 => Vector3.add(sum, h.pivot),
+        { x: 0, y: 0, z: 0 },
+      ),
+      1 / hips.length,
+    );
+    const legs: Set<string> = new Set(
+      input.limbs.flatMap((limb: Limb): string[] => [
+        ...limb.chain,
+        ...(limb.contacts ?? []),
+      ]),
+    );
+    let inertia: number = 0;
+    let root: AutoMovieXpbdBody | undefined;
+    for (const segment of input.profile.segments) {
+      const rigid: AutoMovieXpbdBody | undefined = input.segments.get(
+        segment.bone,
+      );
+      if (!rigid || legs.has(segment.bone)) continue;
+      if (!input.profile.joints.some((joint) => joint.child === segment.bone))
+        root = rigid;
+      const local: IAutoMovieVector3 = Quaternion.rotateVector(
+        Quaternion.inverse(
+          Quaternion.multiply(rigid.rotation(), segment.inertiaRotation),
+        ),
+        axis,
+      );
+      const arm: IAutoMovieVector3 = Vector3.subtract(rigid.worldCom(), mean);
+      const on: number = Vector3.dot(arm, axis);
+      inertia +=
+        segment.inertia.x * local.x * local.x +
+        segment.inertia.y * local.y * local.y +
+        segment.inertia.z * local.z * local.z +
+        segment.mass * (Vector3.dot(arm, arm) - on * on);
+    }
+    if (!root || !(torque > 0) || !(inertia > 0)) return undefined;
+    const lean: number = Vector3.dot(
+      PhysicalRotationVector.log(
+        Quaternion.multiply(root.rotation(), Quaternion.inverse(input.intended)),
+      ),
+      axis,
     );
     return {
-      command,
-      pressure,
-      clamped:
-        Math.hypot(pressure.x - command.x, pressure.z - command.z) > 1e-9,
+      torque,
+      inertia,
+      angle: HIP_RANGE - lean,
+      rate: Vector3.dot(root.angvel(), axis),
+    };
+  }
+
+  /**
+   * How far past the support's edge a hip strategy captures the capture point,
+   * metres: a bang-bang torque tau for T1 and -tau for T1 spends the angle
+   * theta with the trunk at rest at both ends, T1 = sqrt(theta I / tau), and
+   * moves the pivot tau / (m g) past the centre of pressure and back, so from
+   * xi' = omega (xi - p - tau / (m g)) an excess e0 returns to the edge iff e0
+   * <= (tau / (m g)) (1 - e^(-omega T1))^2 (the flywheel model, Pratt et al.
+   * 2006; derived).
+   *
+   * @param input The torque, N m; the trunk's inertia, kg m^2; the angle left,
+   *   radians; the body's mass, kg; gravity, m/s^2; and the pendulum's
+   *   frequency, per second.
+   * @returns The reach, metres; zero without torque, inertia or angle.
+   */
+  export function hipReach(input: {
+    torque: number;
+    inertia: number;
+    angle: number;
+    mass: number;
+    gravity: number;
+    omega: number;
+  }): number {
+    if (!(input.torque > 0) || !(input.inertia > 0) || !(input.angle > 0))
+      return 0;
+    const half: number = Math.sqrt((input.angle * input.inertia) / input.torque);
+    return (
+      (input.torque / (input.mass * input.gravity)) *
+      (1 - Math.exp(-input.omega * half)) ** 2
+    );
+  }
+
+  /**
+   * Whether the capture point has gone past what the stance holds without a
+   * step: past the support by more than the margin and the hip strategy's
+   * reach toward it, and not coming back, the capture point without the
+   * body's spin at or past the support's nearest point along the excess,
+   * since xi_eff' = omega (xi - p) with p at that point (Koolen et al.,
+   * Corollary 3; derived).
+   *
+   * @param input The support, the capture point with spin and the spin's
+   *   shift, world metres; the margin, metres; and the hip strategy's reach
+   *   along an outward direction, metres.
+   * @returns Whether a step is due.
+   */
+  export function exceeds(input: {
+    support: readonly IAutoMovieVector3[];
+    capture: IAutoMovieVector3;
+    spin: IAutoMovieVector3;
+    margin: number;
+    reach: (direction: IAutoMovieVector3) => number;
+  }): boolean {
+    const edge: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+      input.support,
+      input.capture,
+    );
+    const gap: number = Math.hypot(
+      input.capture.x - edge.x,
+      input.capture.z - edge.z,
+    );
+    if (!(gap > input.margin)) return false;
+    const n: IAutoMovieVector3 = {
+      x: (input.capture.x - edge.x) / gap,
+      y: 0,
+      z: (input.capture.z - edge.z) / gap,
+    };
+    if (gap <= input.margin + input.reach(n)) return false;
+    return (
+      (input.capture.x - input.spin.x - edge.x) * n.x +
+        (input.capture.z - input.spin.z - edge.z) * n.z >=
+      0
+    );
+  }
+
+  /**
+   * A lifted swing's drive at its endpoint, newtons: its effective mass
+   * carried against gravity and along its path's acceleration, m (g y + a),
+   * the feed-forward its joints' motors apply through J^T within their caps;
+   * the joints' own servos on the reference fit to the same path correct what
+   * remains (Coros, Beaudoin and van de Panne 2010, Section 3; Yin, Loken and
+   * van de Panne 2007, Section 3.2).
+   *
+   * @param input The effective mass, kg; gravity's magnitude, m/s^2; and the
+   *   path's acceleration, world m/s^2.
+   * @returns The force, world newtons.
+   */
+  export function swingForce(input: {
+    mass: number;
+    gravity: number;
+    acceleration: IAutoMovieVector3;
+  }): IAutoMovieVector3 {
+    return {
+      x: input.mass * input.acceleration.x,
+      y: input.mass * (input.gravity + input.acceleration.y),
+      z: input.mass * input.acceleration.z,
     };
   }
 
@@ -1059,6 +1424,36 @@ export namespace physicalStanceBalance {
     );
     return inside && hull.length >= 3 ? hull : [{ ...mean }];
   }
+}
+
+/**
+ * The part of a convex polygon on a half-plane's side, (q - point) . normal >=
+ * 0, as a counter-clockwise hull (Sutherland and Hodgman 1974, one clipping
+ * edge).
+ */
+function clip(
+  polygon: readonly IAutoMovieVector3[],
+  point: IAutoMovieVector3,
+  normal: IAutoMovieVector3,
+): IAutoMovieVector3[] {
+  const side = (q: IAutoMovieVector3): number =>
+    (q.x - point.x) * normal.x + (q.z - point.z) * normal.z;
+  const kept: IAutoMovieVector3[] = [];
+  polygon.forEach((a: IAutoMovieVector3, i: number): void => {
+    const b: IAutoMovieVector3 = polygon[(i + 1) % polygon.length]!;
+    const sa: number = side(a);
+    const sb: number = side(b);
+    if (sa >= 0) kept.push({ ...a });
+    if (sa >= 0 !== sb >= 0) {
+      const t: number = sa / (sa - sb);
+      kept.push({
+        x: a.x + (b.x - a.x) * t,
+        y: a.y,
+        z: a.z + (b.z - a.z) * t,
+      });
+    }
+  });
+  return convexHull2D(kept);
 }
 
 /**
