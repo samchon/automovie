@@ -26,38 +26,57 @@ const SUBJECT: IAutoMovieCaptureSubject = {
   fps: 10,
   width: 32,
   height: 18,
-  views: [],
+  views: ["front", "right"],
   drawables: [],
   marks: [],
 };
 
 /**
- * A round comparison pairs cells by what fixes them and reports every cell one round lacks as unmatched with its cause, measuring pixels only between stills of one backend.
+ * A round comparison pairs cells by what fixes them and reports every cell one
+ * round lacks as unmatched with its cause, measuring pixels only between stills
+ * of one backend.
  *
  * Scenarios:
  *
- * 1. A second round missing the first round's cell at 2 s reports that cell unmatched with the cause that this capture has no such cell; the cell at 1 s, drawn alike, pairs with no changed pixel, no difference image and equal hashes in both records.
- * 2. A third round changing one pixel at 2 s pairs it with one changed pixel, the box of that pixel and a difference image; a cell at 3 s the compared round lacks is unmatched with the cause that the round has no such cell.
- * 3. A cell drawn by another backend is laid side by side with no difference numbers.
- * 4. A cell whose resolved camera differs is unmatched naming both cameras, and a cell the compared round failed to draw is unmatched with that failure.
- * 5. Each comparison writes a comparison sheet of three cells per entry, two entries of 32 by 18 stills sharing one 192 by 45 row with a four-line 27 px caption strip, since a caption such as `before t001.000-film-beauty` wraps at 7 characters, and the record lists the comparison.
+ * 1. A second round missing the first round's cell at 2 s reports that cell
+ *    unmatched with the cause that this capture has no such cell; the cell at 1
+ *    s, drawn alike, pairs with no changed pixel, no difference image and equal
+ *    hashes in both records.
+ * 2. A third round changing one pixel at 2 s pairs it with one changed pixel, the
+ *    box of that pixel and a difference image; a cell at 3 s the compared round
+ *    lacks is unmatched with the cause that the round has no such cell.
+ * 3. A cell drawn by another backend is laid side by side with no difference
+ *    numbers.
+ * 4. A cell whose resolved camera differs is unmatched naming both cameras, and a
+ *    cell the compared round failed to draw is unmatched with that failure.
+ * 5. Each comparison writes a comparison sheet of three cells per entry, two
+ *    entries of 32 by 18 stills sharing one 192 by 45 row with a four-line 27
+ *    px caption strip, since a caption such as `before t001.000-film-beauty`
+ *    wraps at 7 characters, and the record lists the comparison.
+ * 6. A time comparison with several views and passes on each side keeps all rows
+ *    and pairs their matching views, regardless of plan order.
+ * 7. A time comparison cannot choose between two source views of one pass when the
+ *    current view identifies neither. All three cells are unmatched and explain
+ *    the ambiguity.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage and reads the comparison in each record and the files written; a comparison over only the matching cells, one that measured across backends, or one that paired cells seen through different cameras fails.
  * @evidence contracts/development/testing.md#independent-expectations Every still is a flat colour this test chooses, so which pixels change, where, and whether hashes agree is known by hand; the pairing and unmatched rules are those of `.agents/skills/visual-debugging/comparison.md`.
- * @evidence contracts/development/testing.md#distinguishing-cases An unchanged pair, a one-pixel change, a cell only in the earlier round, a cell only in the later round, a backend change, a camera change and an earlier failure. Folder refusals of a missing round are owned by `test_capture_folder_ownership`.
+ * @evidence contracts/development/testing.md#distinguishing-cases An unchanged pair, a one-pixel change, a cell only in the earlier round, a cell only in the later round, a backend change, a camera change, an earlier failure, and several same-time cells with either uniquely corresponding or ambiguous views. Folder refusals of a missing round are owned by `test_capture_folder_ownership`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_round_comparison`; it draws in memory.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the cases, each naming the input and the behavior it pins.
  */
 export async function test_capture_round_comparison(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
   const capture: (
     text: string,
     draw: (cell: IAutoMovieCaptureCell) => IAutoMovieCaptureDrawing,
+    match?: "cell" | "time",
   ) => Promise<
     Extract<IAutoMovieCaptureRecord, { state: "complete" }>
   > = async (
     text: string,
     draw: (cell: IAutoMovieCaptureCell) => IAutoMovieCaptureDrawing,
+    match: "cell" | "time" = "cell",
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
     const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
       request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
@@ -76,7 +95,7 @@ export async function test_capture_round_comparison(): Promise<void> {
         compare: plan.request.compare,
       }),
       revision: "r",
-      match: "cell",
+      match,
     });
   };
   const flat: (
@@ -254,5 +273,58 @@ export async function test_capture_round_comparison(): Promise<void> {
     "two entries of three cells share one row with its caption strip",
     [sheet.width, sheet.height],
     [192, 45],
+  );
+
+  // 6. Multiple current and earlier views and passes, in reverse order.
+  await capture(
+    "at=1&views=front;right&passes=beauty,depth&round=many",
+    (): IAutoMovieCaptureDrawing => flat(false),
+  );
+  const reordered: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture(
+      "at=1&views=right;front&passes=depth,beauty&round=reordered&compare=many",
+      (): IAutoMovieCaptureDrawing => flat(false),
+      "time",
+    );
+  TestValidator.equals(
+    "all equal-time cells pair by their corresponding pass and view",
+    reordered.comparison!.entries.map(
+      (entry: IAutoMovieCaptureCellComparison): [string, string] | null =>
+        entry.state === "paired" ? [entry.current, entry.earlier] : null,
+    ),
+    [
+      ["t001.000-right-depth", "t001.000-right-depth"],
+      ["t001.000-right-beauty", "t001.000-right-beauty"],
+      ["t001.000-front-depth", "t001.000-front-depth"],
+      ["t001.000-front-beauty", "t001.000-front-beauty"],
+    ],
+  );
+
+  // 7. An unmatched view cannot identify one of two same-time beauty cells.
+  await capture(
+    "at=1&views=front;right&round=two-views",
+    (): IAutoMovieCaptureDrawing => flat(false),
+  );
+  const ambiguous: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
+    await capture(
+      "at=1&round=ambiguous&compare=two-views",
+      (): IAutoMovieCaptureDrawing => flat(false),
+      "time",
+    );
+  TestValidator.equals(
+    "the ambiguous current cell and both source cells are reported separately",
+    ambiguous.comparison!.entries.map(
+      (
+        entry: IAutoMovieCaptureCellComparison,
+      ): [string | null, string | null] | null =>
+        entry.state === "unmatched" && entry.cause.includes("ambiguous")
+          ? [entry.current, entry.earlier]
+          : null,
+    ),
+    [
+      ["t001.000-film-beauty", null],
+      [null, "t001.000-front-beauty"],
+      [null, "t001.000-right-beauty"],
+    ],
   );
 }

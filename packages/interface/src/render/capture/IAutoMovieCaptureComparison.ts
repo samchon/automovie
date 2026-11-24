@@ -7,10 +7,10 @@ import type { IAutoMovieCaptureFindingDiff } from "./IAutoMovieCaptureFindingDif
  * and the record keeps it.
  *
  * `.agents/skills/visual-debugging/comparison.md` pairs two cells only when
- * everything but the compared thing agrees, and reports a cell one capture
- * holds and the other lacks as unmatched with its cause. A pair is measured
- * pixel by pixel only when both stills name the same backend; otherwise it is
- * laid side by side and the mode says so.
+ * everything but the compared thing agrees, and reports each cell without a
+ * comparable counterpart as unmatched with its cause. A pair is measured pixel
+ * by pixel only when both stills name the same backend; otherwise it is laid
+ * side by side and the mode says so.
  */
 export interface IAutoMovieCaptureComparison {
   /** Name of the earlier round. */
@@ -18,7 +18,9 @@ export interface IAutoMovieCaptureComparison {
 
   /**
    * `cell` pairs by selection, second, view and pass with the resolved camera;
-   * `time` pairs by second alone, as an encoded file against its source.
+   * `time` pairs by second, pass and selection. A unique pair may have
+   * different views, as with an encoded file and its source. Where a key
+   * repeats, only unique equal views pair.
    */
   match: "cell" | "time";
 

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The state and mode discriminants require paired names and distinguish numerical differences from unmatched causes. Numeric ranges, ordered pixel bounds and at least one nonnull unmatched name are producer invariants not enforced by this shape.
+The state and mode discriminants require paired names and distinguish numerical differences from unmatched causes, including absence, ambiguity and an undrawn counterpart. Numeric ranges, ordered pixel bounds and at least one nonnull unmatched name are producer invariants.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
