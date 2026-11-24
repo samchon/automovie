@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 const isMeshLike: (
   object: THREE.Object3D,

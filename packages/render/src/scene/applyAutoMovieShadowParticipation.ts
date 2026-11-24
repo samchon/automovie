@@ -1,6 +1,6 @@
 import type * as THREE from "three";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { SPACE_GROUP_NAME } from "./buildSpace.js";
 
 /**

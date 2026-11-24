@@ -53,7 +53,8 @@ export const readAutoMovieDisplayDestinationEncoding: (
       gl.COLOR_ATTACHMENT0,
       parameter,
     ),
-  );  if (component === gl.UNSIGNED_NORMALIZED) {
+  );
+  if (component === gl.UNSIGNED_NORMALIZED) {
     if (sizes.some((size: number): boolean => size < 8))
       throw new Error(
         "Display destination requires at least eight unsigned-normalized bits in every RGBA channel.",

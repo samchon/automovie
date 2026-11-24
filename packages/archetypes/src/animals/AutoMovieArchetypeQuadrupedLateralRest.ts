@@ -196,6 +196,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
         z: 0,
       });
       return {
+        kind: "lateral",
         animal: original.animal,
         placement,
         support: support(original.animal, placement).sites,
@@ -214,6 +215,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
     const bound: Bound = support(animal, placement);
     placement.translation.y = floorY - bound.lowest;
     return {
+      kind: "lateral",
       animal,
       placement,
       support: bound.sites,

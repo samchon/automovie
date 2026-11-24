@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
 import { POSE_OVERLAY_NAME } from "./POSE_OVERLAY_NAME.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
@@ -102,7 +102,8 @@ export const applyPoseMode: (
             ...overlay.children.map(
               (child: THREE.Object3D): (() => void) =>
                 (): void => {
-                  if (AutoMovieThreeKind.isLine(child)) child.geometry.dispose();
+                  if (AutoMovieThreeKind.isLine(child))
+                    child.geometry.dispose();
                 },
             ),
             (): void => {

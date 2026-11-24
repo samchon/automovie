@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
@@ -36,7 +37,8 @@ export function collectAutoMovieOwnedResources(
   group.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
     // A skinned mesh's skeleton owns the bone texture the renderer uploads its
     // bone matrices into; it is retired with the subtree that bound it.
-    if (AutoMovieThreeKind.isSkinnedMesh(object)) skeletons.add(object.skeleton);
+    if (AutoMovieThreeKind.isSkinnedMesh(object))
+      skeletons.add(object.skeleton);
     if (!AutoMovieThreeKind.isMesh(object)) return;
     const mesh: THREE.Mesh = object;
     geometries.add(mesh.geometry);

@@ -9,8 +9,8 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import type * as THREE from "three";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyTransform } from "./applyTransform.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";

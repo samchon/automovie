@@ -80,11 +80,10 @@ export function crutchHeldLeg(
 ) => IAutoMovieMotionHumanPosture {
   const { body, side, lifted, held, read } = props;
   const leg: `${AutoMovieHumanSide}Leg` = `${side}Leg`;
-  const cleared: number = lifted + (held - lifted) / 3;
   // The held leg's course from the bearing pose, planned as TrajOpt
   // plans a chain (Schulman et al. 2014, IJRR 33:1251): the hip's flexion,
-  // abduction and twist and the knee's flexion at the law's phase instants
-  // (`knots`), the joint velocity cost and the held pose's joint cost,
+  // abduction and twist and the knee's flexion at its timesteps (`knots`),
+  // the joint velocity cost and the held pose's joint cost,
   // trajopt's `JointVelCost` and `JointPosCost` in radians at coefficient 1,
   // under the collision constraint (section IV-A) at each knot and, swept
   // (section IV-B), between consecutive knots: every probe of the leg's
@@ -97,10 +96,17 @@ export function crutchHeldLeg(
   // functions convexified as trajopt's (`HumanSequentialConvexFunctions`),
   // each read in its own knots' variables, from the law's own fold as its
   // seed, and played on the minimum-jerk path (`HumanArmRefine.hermite`).
+  // The fold from the lift to the held pose discretized as TrajOpt
+  // discretizes a trajectory, into evenly spaced timesteps: its arm
+  // trajectories' eleven (Schulman et al. 2013, RSS, section VI), the leg
+  // being one limb's chain as an arm is; the law's contact events after the
+  // held pose are timesteps of their own, fixed where the law puts them.
   const knots: number[] = [
-    lifted,
-    cleared,
-    held,
+    ...Array.from(
+      { length: TIMESTEPS },
+      (_: unknown, i: number): number =>
+        lifted + ((held - lifted) * i) / (TIMESTEPS - 1),
+    ),
     ...(props.knots ?? []).filter((t: number): boolean => t > held),
   ];
   const model: IAutoMovieMotionHumanAuditTangleModel.IModel = body.tangle;
@@ -470,3 +476,9 @@ export namespace crutchHeldLeg {
     foot: readonly [number, number, number];
   }
 }
+
+/**
+ * TrajOpt's timestep count for an arm trajectory (Schulman et al. 2013, RSS,
+ * section VI).
+ */
+const TIMESTEPS: number = 11;

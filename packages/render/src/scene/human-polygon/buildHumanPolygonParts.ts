@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import * as THREE from "three";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 
 /**

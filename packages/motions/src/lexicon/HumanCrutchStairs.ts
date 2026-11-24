@@ -347,7 +347,9 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     // instant the first step's foot leaves its place: a support step lifts at
     // a third of its move (`supportStep`), the move being half a step.
     const lifted: number = climb.ready;
-    // The sound foot's set-downs, action seconds, and each one's settle.
+    // The sound foot's set-downs, action seconds, and each one's settle: a
+    // support step's lift at a third of its half-step move (`supportStep`),
+    // the same timing that raises the held leg.
     const bears: readonly number[] = plan.events
       .filter((e: IAutoMovieMotionEvent): boolean => e.name.startsWith("bear"))
       .map((e: IAutoMovieMotionEvent): number => e.share * plan.duration)

@@ -68,7 +68,12 @@ export namespace AutoMovieLoftPoint {
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
       AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
-      if (source !== null)
+      // An evaluated source's point overflows or is indeterminate where its
+      // fields leave binary64.
+      if (
+        source !== null &&
+        !q.every((v: number): boolean => Math.abs(v) <= Number.MAX_VALUE)
+      )
         throw new Error("The actual native point has no finite world value.");
       return q;
     };

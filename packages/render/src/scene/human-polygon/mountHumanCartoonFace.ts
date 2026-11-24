@@ -1,7 +1,7 @@
 import * as THREE from "three";
-import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 
 /** Bake and mount the original cartoon marks on the actual polygon front. */

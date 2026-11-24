@@ -4,10 +4,10 @@ import type {
   IAutoMovieMeasureFeatureEdges,
 } from "@automovie/interface";
 import * as THREE from "three";
-import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../proceduralShading/AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
+import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 
 /** Texels per row of the feature edge texture. */
 const ROW: number = 1024;

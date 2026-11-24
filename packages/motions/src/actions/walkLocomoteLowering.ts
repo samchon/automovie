@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, type preparePoseResolution } from "@automovie/engine";
+import type { preparePoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionPlan,
@@ -36,8 +36,9 @@ type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
  * arXiv:2412.13423; `prepareHumanSampledCourse`) with every swing's toe-off and
  * heel strike, where the stances it stands on change, a knot, and read between
  * those knots from a knot course (`prepareHumanKnotCourse`, a minimum-jerk path
- * after Flash and Hogan 1985, J. Neurosci. 5(7):1688). A read then places the
- * stances under the lowered hips with no root search.
+ * after Flash and Hogan 1985, J. Neurosci. 5(7):1688), no two knots nearer than
+ * a tick (`WALK_TICK`). A read then places the stances under the lowered hips
+ * with no root search.
  */
 export namespace walkLocomoteLowering {
   /**
@@ -48,10 +49,16 @@ export namespace walkLocomoteLowering {
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
   /**
-   * The stance pitch's tolerance, degrees: the angular resolution the heel-rise
-   * rule reads flat to (`ROM_TOLERANCE`).
+   * The stance pitch's tolerance on a foot of a length, degrees: the turn that
+   * moves the foot's far end by the lowering's millimetre (`TOLERANCE`), the
+   * resolution the contact verdicts read.
+   *
+   * @param foot The foot's length, metres.
+   * @returns The tolerance, degrees.
    */
-  export const PITCH_TOLERANCE: number = ROM_TOLERANCE;
+  export function pitchTolerance(foot: number): number {
+    return (TOLERANCE / foot) * (180 / Math.PI);
+  }
 
   /**
    * The contact events of a walk's swings: every toe-off and heel strike.
@@ -88,7 +95,7 @@ export namespace walkLocomoteLowering {
       marks: marks(swings),
       sample: (t: number): number[] => [exact(t)],
       tolerance: { kind: "absolute", absolute: TOLERANCE },
-      step: 1e-3 /*EXPERIMENT*/,
+      step: AutoMovieMotionHumanArmCourse.STEP,
     });
   }
 
@@ -102,12 +109,14 @@ export namespace walkLocomoteLowering {
    *
    * @param duration The take's duration, seconds.
    * @param swings Every swing of the plan.
+   * @param foot The foot's length, metres (`pitchTolerance`).
    * @param exact Each foot's exact pitch at a second, degrees.
    * @returns Each foot's pitch at a second, degrees.
    */
   export function prepareStances(
     duration: number,
     swings: readonly walkLocomoteSwings.ISwing[],
+    foot: number,
     exact: (t: number) => Readonly<Record<AutoMovieHumanSide, number>>,
   ): (seconds: number) => Record<AutoMovieHumanSide, number> {
     const course: (
@@ -125,8 +134,8 @@ export namespace walkLocomoteLowering {
           ),
         ),
         sample: (t: number): number[] => [exact(t)[side]],
-        tolerance: { kind: "absolute", absolute: PITCH_TOLERANCE },
-        step: 1e-3 /*EXPERIMENT*/,
+        tolerance: { kind: "absolute", absolute: pitchTolerance(foot) },
+        step: AutoMovieMotionHumanArmCourse.STEP,
       });
     const left: (seconds: number) => number[] = course("left");
     const right: (seconds: number) => number[] = course("right");

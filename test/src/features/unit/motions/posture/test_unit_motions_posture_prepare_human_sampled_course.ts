@@ -35,9 +35,12 @@ const TOLERANCE: number = 1e-4;
  *    hundredth.
  * 4. Before and after the interval it holds `sin 0` and `sin 2`.
  * 5. A value that steps at 1 s, with no mark there, over 0 to 2 s on a step of a
- *    quarter second, is read only at its six starting knots: the most knots a
- *    quarter-second grid allows over 2 s is nine, fewer than the six and the
- *    five middles a sweep would add.
+ *    quarter second, is read at its six starting knots and the five middles of
+ *    one sweep, 11 knots, the limit (`limit`) of one halving of the 0.4 s
+ *    starting spacing to 0.2 s, under the step: the sweep that would halve the
+ *    stretch across the step again is not run. A 0.2 s stretch on a 1/30 s step
+ *    is limited to 11 knots as well, its 0.04 s spacing halved once to 0.02 s,
+ *    and a stretch whose starting spacing is already under its step to 6.
  * 6. An interval of half `GAP` reads its start once and holds it.
  * 7. Through 0 s, half `GAP` and 1 s the course equals the course through 0 and 1
  *    s, and one knot holds its value at every second.
@@ -124,7 +127,15 @@ export function test_unit_motions_posture_prepare_human_sampled_course(): void {
     tolerance: { kind: "absolute", absolute: TOLERANCE },
     step: 0.25,
   });
-  TestValidator.equals("the step's knots", stepped.length, 6);
+  TestValidator.equals(
+    "the step's knots",
+    [
+      stepped.length,
+      prepareHumanSampledCourse.limit(0.2, 1 / 30),
+      prepareHumanSampledCourse.limit(0.1, 1 / 30),
+    ],
+    [11, 11, 6],
+  );
 
   // 6. An interval within the gap.
   const short: number[] = [];

@@ -1,10 +1,10 @@
 import type { IAutoMovieMeshSkin } from "@automovie/interface";
 import * as THREE from "three";
-import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
 import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend.js";
 import { AutoMovieSkinPose } from "./AutoMovieSkinPose.js";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
 /**
  * A skinned mesh whose CPU queries read the deformation its shaders draw.

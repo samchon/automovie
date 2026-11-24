@@ -4,8 +4,8 @@ import type {
   IAutoMovieSceneEnvironment,
 } from "@automovie/interface";
 import * as THREE from "three";
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieShadowTextureHost } from "./IAutoMovieShadowTextureHost.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { matchesAutoMovieShadowTextureProfile } from "./matchesAutoMovieShadowTextureProfile.js";

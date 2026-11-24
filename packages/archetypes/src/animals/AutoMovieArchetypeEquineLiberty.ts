@@ -103,7 +103,7 @@ export namespace AutoMovieArchetypeEquineLiberty {
         archetype: shown.animal,
         // A sternal rest poses its parts in place; a lateral rest adds a rigid placer.
         placement:
-          "placement" in shown
+          shown.kind === "lateral"
             ? AutoMovieArchetypeFrame.compose(halt.placement, shown.placement)
             : AutoMovieArchetypeFrame.copy(halt.placement),
         course: ride.plan.at(Math.min(seconds, ride.duration)),

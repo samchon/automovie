@@ -4,8 +4,8 @@ import type {
   IAutoMovieSemanticMask,
 } from "@automovie/interface";
 import type * as THREE from "three";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { maskRoots } from "./maskRoots.js";
 import { nearest } from "./nearest.js";
 import { unresolvedOf } from "./unresolvedOf.js";

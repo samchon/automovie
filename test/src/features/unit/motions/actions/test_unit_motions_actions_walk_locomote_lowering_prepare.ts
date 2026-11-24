@@ -25,7 +25,8 @@ const ROUNDING: number = 1e-12;
  *    course passes the exact lowering at every second it read.
  * 3. Before the take and after it the course holds its end values.
  * 4. Each pitch course passes its exact pitch at both ends of the take and at the
- *    left foot's events.
+ *    left foot's events, and on a 0.26 m foot the pitch tolerance is the turn
+ *    that moves its far end a millimetre, 0.001 / 0.26 radians.
  */
 export function test_unit_motions_actions_walk_locomote_lowering_prepare(): void {
   const swings: { side: "left"; off: number; on: number }[] = [
@@ -60,6 +61,7 @@ export function test_unit_motions_actions_walk_locomote_lowering_prepare(): void
     walkLocomoteLowering.prepareStances(
       1,
       swings,
+      0.26,
       (t: number): Record<"left" | "right", number> => ({
         left: 10 * t,
         right: -5 * t,
@@ -71,6 +73,11 @@ export function test_unit_motions_actions_walk_locomote_lowering_prepare(): void
       nclose(pitches(t).left, 10 * t, ROUNDING),
     ) &&
       nclose(pitches(0).right, 0, ROUNDING) &&
-      nclose(pitches(1).right, -5, ROUNDING),
+      nclose(pitches(1).right, -5, ROUNDING) &&
+      nclose(
+        walkLocomoteLowering.pitchTolerance(0.26),
+        ((0.001 / 0.26) * 180) / Math.PI,
+        ROUNDING,
+      ),
   );
 }

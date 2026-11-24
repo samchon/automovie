@@ -1,5 +1,6 @@
 import type { IAutoMovieSampledChannel } from "@automovie/interface";
 import type * as THREE from "three";
+
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**

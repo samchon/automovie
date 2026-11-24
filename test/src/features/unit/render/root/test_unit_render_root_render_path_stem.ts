@@ -9,8 +9,8 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. "shot 01/take" becomes "shot_01_take".
- * 2. "final..." becomes "final"; "", "." and ".." become "render"; "a/../b"
- *    stays one component, "a_.._b".
+ * 2. "final..." becomes "final"; "", "." and ".." become "render"; "a/../b" stays
+ *    one component, "a_.._b".
  * 3. "con" and "NUL.mp4" become "_con" and "_NUL.mp4"; "console" is kept.
  */
 export function test_unit_render_root_render_path_stem(): void {

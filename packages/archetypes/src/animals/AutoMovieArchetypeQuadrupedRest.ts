@@ -329,6 +329,7 @@ export function AutoMovieArchetypeQuadrupedRest<
     if (phase === "resting" && Math.abs(belly) > roundoff)
       throw new RangeError(`Rest trunk misses its belly support by ${belly} m`);
     return {
+      kind: "sternal",
       animal: posed,
       joints,
       root,

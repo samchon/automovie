@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**

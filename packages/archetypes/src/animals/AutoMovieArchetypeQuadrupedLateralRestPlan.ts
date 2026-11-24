@@ -26,6 +26,8 @@ export namespace AutoMovieArchetypeQuadrupedLateralRestPlan {
 
   /** Currently posed archetype and the rigid model-to-scene placement. */
   export interface ISample<Id extends string, D extends string> {
+    /** A lateral rest's sample, placed by its own rigid placer. */
+    kind: "lateral";
     /** Fresh posed animal in model space. */
     animal: AutoMovieArchetype<Id, D>;
     /** Unit-scale rigid placer's transform in scene metres. */

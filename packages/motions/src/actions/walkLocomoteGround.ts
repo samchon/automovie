@@ -256,8 +256,10 @@ export namespace walkLocomoteGround {
       walkLocomoteLowering.prepareStances(
         context.steps.duration,
         swings,
+        context.body.measure.footLength,
         (t: number): Record<AutoMovieHumanSide, number> => exact(t).pitches,
       );
+    console.log(`KNOTPROBE duration=${context.steps.duration.toFixed(2)} swings=${swings.length} solved=${solved.size}`);
     return {
       settle: (
         t: number,

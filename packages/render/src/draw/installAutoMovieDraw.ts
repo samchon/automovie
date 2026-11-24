@@ -177,17 +177,17 @@ export function installAutoMovieDraw<Props = unknown>(
 
   // Leaving the page releases what it holds.
   target.addEventListener?.(
-      "pagehide",
-      (): void => {
-        void loading.then((loaded: ILoaded): void => {
-          loaded.placement.restore();
-          loaded.scene.dispose();
-          loaded.beauty.dispose();
-          loaded.renderer.dispose();
-        });
-      },
-      { once: true },
-    );
+    "pagehide",
+    (): void => {
+      void loading.then((loaded: ILoaded): void => {
+        loaded.placement.restore();
+        loaded.scene.dispose();
+        loaded.beauty.dispose();
+        loaded.renderer.dispose();
+      });
+    },
+    { once: true },
+  );
 }
 
 /** The created subject and the page's renderer. */

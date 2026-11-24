@@ -231,20 +231,17 @@ const decodedExtent: (
       : !data && image.naturalHeight !== undefined
         ? image.naturalHeight || image.height
         : image.height;
-  return width !== undefined &&
-    height !== undefined &&
-    width > 0 &&
-    height > 0
+  return width !== undefined && height !== undefined && width > 0 && height > 0
     ? { width, height }
     : undefined;
 };
 
 /**
- * The extent fields a decoded texture source can carry: a data texture's
- * `{ data, width, height, depth? }`, an image element's natural size, a video
+ * The extent fields a decoded texture source can carry: a data texture's `{
+ * data, width, height, depth? }`, an image element's natural size, a video
  * frame's display size, or a canvas or bitmap's own size. three declares a
- * texture's image and a mipmap level without a type, so this accessor names
- * the fields this reader takes from them.
+ * texture's image and a mipmap level without a type, so this accessor names the
+ * fields this reader takes from them.
  */
 interface IDecodedImage {
   /** The stored width in texels. */

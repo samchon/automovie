@@ -82,6 +82,9 @@ export namespace AutoMovieArchetypeQuadrupedRestPlan {
 
   /** A newly evaluated physical drawing plus the goals used to make it. */
   export interface ISample<Id extends string, Dimension extends string> {
+    /** A sternal rest's sample, posed in place. */
+    kind: "sternal";
+
     /** New part/contact transforms; the source animal is not modified. */
     animal: AutoMovieArchetype<Id, Dimension>;
 

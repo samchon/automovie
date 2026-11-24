@@ -57,7 +57,8 @@ export namespace AutoMovieViewSectionRange {
       );
     let range: IAutoMovieViewSectionRange.IFamily["range"] = null;
     const ellipse: number = AutoMovieViewSection.ELLIPSE;
-    if (allowed(ellipse)) {
+    // A girth without a finite target has no range to search.
+    if (Math.abs(girth) <= Number.MAX_VALUE && allowed(ellipse)) {
       const anchor: IAutoMovieViewSectionRange.ITrial = at(ellipse);
       if (anchor.fault === null) {
         if (Math.abs(anchor.source.girth - girth) <= TOLERANCE)

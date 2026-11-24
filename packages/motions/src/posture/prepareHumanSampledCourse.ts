@@ -63,7 +63,7 @@ export function prepareHumanSampledCourse(
             to: b,
             evaluate: props.sample,
             tolerance: props.tolerance,
-            maxKnots: Math.ceil((b - a) / props.step) + 1,
+            maxKnots: prepareHumanSampledCourse.limit(b - a, props.step),
           });
         placed.times.forEach((seconds: number, k: number): void => {
           if (j === 0 || k > 0)
@@ -118,11 +118,31 @@ export namespace prepareHumanSampledCourse {
     tolerance: prepareHumanAdaptiveKnots.Tolerance;
 
     /**
-     * The finest spacing a piece is knotted at, seconds: the grid the display
-     * reads the value on, so a rule that never meets the tolerance (a step
-     * inside a piece) stops there.
+     * The finest spacing a stretch is knotted at, seconds (`limit`): the
+     * site's own resolution, or the grid the display reads the value on, so a
+     * rule that never meets the tolerance (a step inside a stretch) stops
+     * there.
      */
     step: number;
+  }
+
+  /**
+   * The most knots a stretch may take for its spacing to come down to a step
+   * and no further: AutoKnots starts from six uniform knots and halves a
+   * sub-interval at a time, so its spacings are the stretch's fifth halved
+   * `k` times, and the limit is the knots of the fewest halvings that bring
+   * that spacing to the step or under it, `5 * 2^k + 1`.
+   *
+   * @param width The stretch's length, seconds.
+   * @param step The finest spacing asked, seconds.
+   * @returns The knot limit.
+   */
+  export function limit(width: number, step: number): number {
+    const halvings: number = Math.max(
+      0,
+      Math.ceil(Math.log2(width / (INITIAL_SPANS * step)) - 1e-9),
+    );
+    return INITIAL_SPANS * 2 ** halvings + 1;
   }
 
   /** One knot: its second and its exact value there. */
@@ -168,6 +188,9 @@ export namespace prepareHumanSampledCourse {
     return (seconds: number): number[] => course.position(seconds);
   }
 }
+
+/** The sub-intervals of AutoKnots' six uniform starting knots. */
+const INITIAL_SPANS: number = 5;
 
 /** One piece of a sampled course, between two of its breaks. */
 interface IPiece {
