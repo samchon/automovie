@@ -1,4 +1,7 @@
-import { createViewerFrameControl } from "@automovie/viewer";
+import {
+  type IViewerFrameTransfer,
+  createViewerFrameControl,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -9,7 +12,9 @@ import { nclose } from "../internal/predicates";
  * A failed original restore preserves borrowed camera and mount base.
  *
  * Scenarios:
- * 1. Source refusal after camera transfer restores the preceding camera/base and original cause.
+ *
+ * 1. Source refusal after camera transfer restores the preceding camera/base and
+ *    original cause.
  * 2. Valid source restoration still transfers requested native camera/time.
  * 3. Independent camera and mount rollback failures retain the source cause first.
  *
@@ -45,13 +50,12 @@ export function test_viewer_frame_control_restore_refusal(): void {
         displayed = seconds;
       },
     });
-  const original: unknown = owner.control.capture();
+  const original: IViewerFrameTransfer = owner.control.capture();
   camera.position.set(7, 8, 9);
-  const incoming: unknown = owner.control.capture();
+  const incoming: IViewerFrameTransfer = owner.control.capture();
   owner.control.restore(original);
   assert.throws(
-    (): void =>
-      owner.control.restore({ ...(incoming as object), elapsedSeconds: 0 }),
+    (): void => owner.control.restore({ ...incoming, elapsedSeconds: 0 }),
     (error: unknown): boolean => error === refusal,
   );
   TestValidator.predicate(
@@ -67,7 +71,7 @@ export function test_viewer_frame_control_restore_refusal(): void {
     rebases.slice(-2),
     [0, 3.4],
   );
-  owner.control.restore({ ...(incoming as object), elapsedSeconds: 4 });
+  owner.control.restore({ ...incoming, elapsedSeconds: 4 });
   TestValidator.equals("valid restore transfers source time", displayed, 4);
   TestValidator.predicate(
     "valid restore transfers camera",
@@ -98,10 +102,10 @@ export function test_viewer_frame_control_restore_refusal(): void {
         throw sourceFailure;
       },
     });
-  const transfer: unknown = failed.control.capture();
+  const transfer: IViewerFrameTransfer = failed.control.capture();
   let caught: unknown;
   try {
-    failed.control.restore({ ...(transfer as object), elapsedSeconds: 0 });
+    failed.control.restore({ ...transfer, elapsedSeconds: 0 });
   } catch (error) {
     caught = error;
   }

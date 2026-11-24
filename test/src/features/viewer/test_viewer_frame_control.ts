@@ -1,4 +1,7 @@
-import { createViewerFrameControl } from "@automovie/viewer";
+import {
+  type IViewerFrameTransfer,
+  createViewerFrameControl,
+} from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -9,14 +12,19 @@ import { nclose } from "../internal/predicates";
  * The actual mounted controller coordinates a separately clocked producer.
  *
  * Scenarios:
- * 1. Capture, a different seek, restore and paused redraw reproduce source time and camera.
- * 2. Nested freezes suppress ticks but permit explicit restore/redraw; final release resumes without counting the held wall time.
- * 3. Desired pause survives release, and disposal retires the source lease without resuming.
- * 4. Invalid transfers refuse before native camera, source or mount-clock mutation.
+ *
+ * 1. Capture, a different seek, restore and paused redraw reproduce source time
+ *    and camera.
+ * 2. Nested freezes suppress ticks but permit explicit restore/redraw; final
+ *    release resumes without counting the held wall time.
+ * 3. Desired pause survives release, and disposal retires the source lease without
+ *    resuming.
+ * 4. Invalid transfers refuse before native camera, source or mount-clock
+ *    mutation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the public controller used by mountViewer with actual Three camera transfer and an independently advanced producer clock. Asserts source placement, camera values, suppressed producer calls, nested release count, explicit frozen draws, desired pause and terminal refusal.
  * @evidence contracts/development/testing.md#independent-expectations Authored scene time 3 seconds and camera position provide the transfer oracle. A 30-second frozen wall interval contributes zero motion, while a subsequent 100 ms contributes 0.1 seconds; expected calls follow outermost acquisition/final release ownership rather than an implementation snapshot.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts live ticks with frozen ticks, explicit draws with animation suppression, nested and repeated release, paused and playing intent, invalid time/camera inputs and terminal cleanup. The companion failure test owns acquisition/release failures; browser/GPU completion remains operator validation.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts live ticks with frozen ticks, explicit draws with animation suppression, nested and repeated release, paused and playing intent, invalid time and camera values and terminal cleanup. The companion failure test owns acquisition/release failures; browser/GPU completion remains operator validation.
  * @evidence contracts/development/testing.md#execution-ownership Uses actual public controller and native CPU camera objects through declared producer ports; starts no browser, process, renderer or timer and replaces no global or foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Capture, a different seek, restore and paused redraw reproduce source time and camera.).
  */
@@ -67,7 +75,7 @@ export function test_viewer_frame_control(): void {
       previous = now;
       ++draws;
     });
-  const saved: unknown = owner.control.capture();
+  const saved: IViewerFrameTransfer = owner.control.capture();
   seconds = 10;
   camera.position.set(8, 9, 10);
   owner.control.restore(saved);
@@ -125,12 +133,12 @@ export function test_viewer_frame_control(): void {
   );
   const beforeDraws: number = draws;
   const beforeRebases: number = rebases;
-  for (const state of [
-    null,
-    { elapsedSeconds: -1 },
-    { elapsedSeconds: NaN },
-    { elapsedSeconds: 4, camera: {} },
-  ])
+  const invalids: IViewerFrameTransfer[] = [
+    { ...saved, elapsedSeconds: -1 },
+    { ...saved, elapsedSeconds: NaN },
+    { ...saved, camera: { ...saved.camera, type: "unknown" } },
+  ];
+  for (const state of invalids)
     assert.throws((): void => owner.control.restore(state));
   TestValidator.equals("invalid transfer never draws", draws, beforeDraws);
   TestValidator.equals(
@@ -154,7 +162,7 @@ export function test_viewer_frame_control(): void {
     false,
   ]);
   for (const operation of [
-    (): unknown => owner.control.capture(),
+    (): IViewerFrameTransfer => owner.control.capture(),
     (): void => owner.control.restore(saved),
     (): void => owner.control.redraw!(),
     (): unknown => owner.control.freeze!(),

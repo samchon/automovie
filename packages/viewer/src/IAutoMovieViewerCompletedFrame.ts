@@ -1,5 +1,7 @@
 import type * as THREE from "three";
 
+import type { IViewerFrameTransfer } from "./IViewerFrameTransfer.js";
+
 /**
  * The original scene/camera at an owning producer's completed draw boundary. A
  * controller, when supplied, owns typed state capture/restoration. Consumers
@@ -42,10 +44,10 @@ export interface IAutoMovieViewerCompletedFrame {
   /** Actual application controller; its state is serialized only by its owner. */
   control?: {
     /** Capture application-owned state corresponding to the live completed view. */
-    capture: () => unknown;
+    capture: () => IViewerFrameTransfer;
 
-    /** Restore only states admitted by this application's controller. */
-    restore: (state: unknown) => void;
+    /** Restore a state this controller captured. */
+    restore: (state: IViewerFrameTransfer) => void;
 
     /** Synchronously redraw through the original producer or report failure. */
     redraw?: () => void;

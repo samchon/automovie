@@ -14,5 +14,6 @@ export * from "./audio/index.js";
 export * from "./inspector/index.js";
 export * from "./transport/index.js";
 export * from "./IViewerCameraStateSnapshot.js";
+export * from "./IViewerFrameTransfer.js";
 export * from "./createViewerDisplayClock.js";
 export * from "./createViewerDisplayPublication.js";
