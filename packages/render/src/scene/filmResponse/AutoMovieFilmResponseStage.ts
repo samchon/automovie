@@ -103,6 +103,27 @@ export class AutoMovieFilmResponseStage {
   private readonly medium_: AutoMovieFilmMediumPass =
     new AutoMovieFilmMediumPass();
 
+  /** The blur's texel step, shared by its uniform. */
+  private readonly step_: THREE.Vector2 = new THREE.Vector2();
+
+  /** The blur's kernel weights, shared by its uniform. */
+  private readonly weights_: number[] = new Array<number>(32).fill(0);
+
+  /** The glare levels' weights, shared by the final pass's uniform. */
+  private readonly glareWeights_: THREE.Vector3 = new THREE.Vector3();
+
+  /** The sensor response matrix, shared by the final pass's uniform. */
+  private readonly response_: THREE.Matrix3 = new THREE.Matrix3();
+
+  /** The grade's slope, shared by the final pass's uniform. */
+  private readonly slope_: THREE.Vector3 = new THREE.Vector3(1, 1, 1);
+
+  /** The grade's offset, shared by the final pass's uniform. */
+  private readonly offset_: THREE.Vector3 = new THREE.Vector3();
+
+  /** The grade's power, shared by the final pass's uniform. */
+  private readonly power_: THREE.Vector3 = new THREE.Vector3(1, 1, 1);
+
   /**
    * Make the stage's programs; no GPU resource is allocated until the first
    * draw with optics.
@@ -130,8 +151,8 @@ export class AutoMovieFilmResponseStage {
     });
     this.blur_ = material(AUTOMOVIE_FILM_RESPONSE_SHADERS.blur, {
       tSource: { value: null },
-      uStep: { value: new THREE.Vector2() },
-      uWeights: { value: new Array<number>(32).fill(0) },
+      uStep: { value: this.step_ },
+      uWeights: { value: this.weights_ },
       uRadius: { value: 0 },
     });
     this.final_ = material(AUTOMOVIE_FILM_RESPONSE_SHADERS.final, {
@@ -140,14 +161,14 @@ export class AutoMovieFilmResponseStage {
       tGlare0: { value: null },
       tGlare1: { value: null },
       tGlare2: { value: null },
-      uGlareWeights: { value: new THREE.Vector3() },
+      uGlareWeights: { value: this.glareWeights_ },
       uGlareStrength: { value: 0 },
-      uResponse: { value: new THREE.Matrix3() },
+      uResponse: { value: this.response_ },
       uCurve: { value: 0 },
       uGrade: { value: 0 },
-      uSlope: { value: new THREE.Vector3(1, 1, 1) },
-      uOffset: { value: new THREE.Vector3() },
-      uPower: { value: new THREE.Vector3(1, 1, 1) },
+      uSlope: { value: this.slope_ },
+      uOffset: { value: this.offset_ },
+      uPower: { value: this.power_ },
       uSaturation: { value: 1 },
       uAlpha: { value: 0 },
     });
@@ -351,7 +372,7 @@ export class AutoMovieFilmResponseStage {
     const m: number[] = autoMovieFilmResponseMatrix(optics);
     uniforms.tLinear!.value = targets.linear.texture;
     uniforms.tDepth!.value = targets.linear.depthTexture;
-    (uniforms.uResponse!.value as THREE.Matrix3).set(
+    this.response_.set(
       m[0]!,
       m[1]!,
       m[2]!,
@@ -372,7 +393,7 @@ export class AutoMovieFilmResponseStage {
         uniforms[`tGlare${index}`]!.value = kernel.output.texture;
       },
     );
-    (uniforms.uGlareWeights!.value as THREE.Vector3).set(
+    this.glareWeights_.set(
       targets.kernels[0]!.plan.weight,
       targets.kernels[1]!.plan.weight,
       targets.kernels[2]!.plan.weight,
@@ -380,9 +401,9 @@ export class AutoMovieFilmResponseStage {
     const grade: IAutoMovieFilmOptics.IGrade | undefined = optics.grade;
     uniforms.uGrade!.value = grade === undefined ? 0 : 1;
     if (grade !== undefined) {
-      (uniforms.uSlope!.value as THREE.Vector3).fromArray(grade.slope);
-      (uniforms.uOffset!.value as THREE.Vector3).fromArray(grade.offset);
-      (uniforms.uPower!.value as THREE.Vector3).fromArray(grade.power);
+      this.slope_.fromArray(grade.slope);
+      this.offset_.fromArray(grade.offset);
+      this.power_.fromArray(grade.power);
       uniforms.uSaturation!.value = grade.saturation;
     }
     return targets;
@@ -418,17 +439,17 @@ export class AutoMovieFilmResponseStage {
     const uniforms: Record<string, THREE.IUniform> = this.blur_.uniforms;
     for (const kernel of targets.kernels) {
       const source: THREE.WebGLRenderTarget = levels[kernel.plan.level]!;
-      const weights: number[] = uniforms.uWeights!.value as number[];
+      const weights: number[] = this.weights_;
       weights.fill(0);
       kernel.plan.weights.forEach((value: number, offset: number): void => {
         weights[offset] = value;
       });
       uniforms.uRadius!.value = kernel.plan.weights.length - 1;
       uniforms.tSource!.value = source.texture;
-      (uniforms.uStep!.value as THREE.Vector2).set(1 / source.width, 0);
+      this.step_.set(1 / source.width, 0);
       pass(this.blur_, kernel.across);
       uniforms.tSource!.value = kernel.across.texture;
-      (uniforms.uStep!.value as THREE.Vector2).set(0, 1 / source.height);
+      this.step_.set(0, 1 / source.height);
       pass(this.blur_, kernel.output);
     }
   }

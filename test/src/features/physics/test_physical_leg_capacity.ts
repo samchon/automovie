@@ -15,17 +15,16 @@ import { TestValidator } from "@nestia/e2e";
  * A support leg's force capacity and the region it leaves the centre of
  * pressure, against closed forms:
  *
- * 1. Capacity: a hip at (0, 1, 0) and a knee at (0, 0.55, 0.3), each turning
- *    about x, hold a foot point at (0, 0.1, 0.2). The floor's newton turns the
- *    hip by (p - o) x n . x = -0.2, which its motor holds forward within 100 N
- *    m, 500 N, and the knee by +0.1, held in reverse within 60 N m, 600 N:
- *    the leg holds 500 N (tau = J^T f; Herzog et al. 2016, Section 2.1).
- * 2. Region: a front foot spanning z in [0.2, 0.4] that may carry at most 0.6
- *    of the weight, with a rear foot spanning [-0.4, -0.2], leaves the
- *    centre of pressure a front edge at 0.4 (-0.2) + 0.6 (0.4) = 0.16; a
- *    command far ahead is allocated there, where the front foot's share is
- *    exactly 0.6, never more (MIT Cheetah-Software `maxForce`; Chen et al.
- *    2022, `f_max`).
+ * 1. Capacity: a hip at (0, 1, 0) and a knee at (0, 0.55, 0.3), each turning about
+ *    x, hold a foot point at (0, 0.1, 0.2). The floor's newton turns the hip by
+ *    (p - o) x n . x = -0.2, which its motor holds forward within 100 N m, 500
+ *    N, and the knee by +0.1, held in reverse within 60 N m, 600 N: the leg
+ *    holds 500 N (tau = J^T f; Herzog et al. 2016, Section 2.1).
+ * 2. Region: a front foot spanning z in [0.2, 0.4] that may carry at most 0.6 of
+ *    the weight, with a rear foot spanning [-0.4, -0.2], leaves the centre of
+ *    pressure a front edge at 0.4 (-0.2) + 0.6 (0.4) = 0.16; a command far
+ *    ahead is allocated there, where the front foot's share is exactly 0.6,
+ *    never more (MIT Cheetah-Software `maxForce`; Chen et al. 2022, `f_max`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the capacity, the region and their closed forms.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalLegCapacity`, `physicalLegCapacity.region` and `physicalStanceAllocation.allocate` and reads their values.
@@ -104,7 +103,9 @@ export function test_physical_leg_capacity(): void {
     const front: number = Math.max(...region.map((p) => p.z));
     const back: number = Math.min(...region.map((p) => p.z));
     if (!(Math.abs(front - 0.16) < 1e-12) || !(Math.abs(back + 0.4) < 1e-12))
-      failures.push(`the region spans ${back} to ${front} against -0.4 to 0.16`);
+      failures.push(
+        `the region spans ${back} to ${front} against -0.4 to 0.16`,
+      );
     const allocated = physicalStanceAllocation.allocate({
       capture: { x: 0, y: 0, z: 0.1 },
       reference: zero,

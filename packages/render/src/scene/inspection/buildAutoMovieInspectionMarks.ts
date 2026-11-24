@@ -1,6 +1,5 @@
 import type { IAutoMovieMark } from "@automovie/interface";
 import * as THREE from "three";
-import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
@@ -100,10 +99,7 @@ export function buildAutoMovieInspectionMarks(
     resize: (width: number, height: number): void => {
       for (const entry of built)
         if (entry.strokes !== null)
-          (entry.strokes.material as LineMaterial).resolution.set(
-            width,
-            height,
-          );
+          entry.strokes.material.resolution.set(width, height);
     },
     dispose: (): void => {
       group.removeFromParent();

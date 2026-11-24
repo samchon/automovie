@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
+import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
 /** The largest finite binary32 magnitude a GPU vertex attribute can hold. */
 const F32_MAX: number = 3.4028234663852886e38;
@@ -159,12 +160,14 @@ export function createAutoMovieSurfaceAppearance(input: {
       if (disposed || seconds < 0)
         throw new Error("Invalid surface-appearance update");
       for (const record of records) {
-        const position: THREE.BufferAttribute = record.geometry.getAttribute(
+        const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+          record.geometry,
           "position",
-        ) as THREE.BufferAttribute;
-        const color: THREE.BufferAttribute = record.geometry.getAttribute(
+        );
+        const color: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+          record.geometry,
           "color",
-        ) as THREE.BufferAttribute;
+        );
         position.copyArray(record.positions);
         if (record.moved) {
           position.needsUpdate = true;

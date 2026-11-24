@@ -34,7 +34,7 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
  * stand with a share of at most one (`HumanCarriedLift`). The knots are fitted
  * when the plan is prepared (`prepare`); a read before that fits its own second
  * and keeps nothing.
- */export namespace HumanCarriedLiftKnots {
+ */ export namespace HumanCarriedLiftKnots {
   /**
    * The farthest an interpolated posture may put a joint centre from the
    * middle's own fit, metres: the solver's millimetre.
@@ -97,8 +97,7 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
   }
 
   /**
-   * Fit a phase's knots where AutoKnots places them on the fit's joint
-   * centres.
+   * Fit a phase's knots where AutoKnots places them on the fit's joint centres.
    *
    * @param course The phase's course, its knots set here.
    * @param body The carried body.
@@ -111,14 +110,18 @@ import { turnHumanPosture } from "../posture/turnHumanPosture";
     frozen: Frozen,
   ): void {
     if (!(course.to > course.from)) {
-      course.knots = [{ seconds: course.from, reading: own(frozen(course.from)) }];
+      course.knots = [
+        { seconds: course.from, reading: own(frozen(course.from)) },
+      ];
       return;
     }
     const knots: prepareHumanAdaptiveKnots.ISeededKnots<IReading> =
       prepareHumanAdaptiveKnots.seeded<IReading>({
         from: course.from,
         to: course.to,
-        evaluate: (seconds: number): prepareHumanAdaptiveKnots.IPoint<IReading> => {
+        evaluate: (
+          seconds: number,
+        ): prepareHumanAdaptiveKnots.IPoint<IReading> => {
           const reading: IReading = own(frozen(seconds));
           return { values: centres(body, reading.posture), payload: reading };
         },

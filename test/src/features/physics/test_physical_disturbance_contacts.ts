@@ -18,16 +18,17 @@ const SUBSTEPS: number = 32;
 /**
  * While a push response plays, the floor's reaction is recorded from its curves
  * (`recordPhysicalSpanContacts`) as the linear inverted pendulum's: the record
- * the momentum audit reads holds the weight and only the planted feet carry it.
+ * the momentum audit reads holds the weight and only the planted feet carry
+ * it.
  *
  * Scenarios, the two-foot biped of `test_physical_disturbance_span` pushed
  * forward at 1.2 m/s after a 0.1 s reaction, recorded substep by substep from
  * two steps before the trigger, both feet planted, sixteen steps on into the
  * swing:
  *
- * 1. Momentum: every step's floor normal impulses sum to m g / rate, the
- *    weight's impulse; with the centre of mass's height held, Newton's second
- *    law leaves no vertical momentum unaccounted.
+ * 1. Momentum: every step's floor normal impulses sum to m g / rate, the weight's
+ *    impulse; with the centre of mass's height held, Newton's second law leaves
+ *    no vertical momentum unaccounted.
  * 2. Provenance: every receipt joins the floor to a foot, and while one foot
  *    swings it receives no sample.
  * 3. Wrench: every recorded support wrench asks and is allocated the weight up,
@@ -81,7 +82,10 @@ export function test_physical_disturbance_contacts(): void {
   TestValidator.predicate("the push steps", !!trigger && !!touchdown);
   if (!trigger || !touchdown) return;
   type Recorded = Parameters<typeof recordPhysicalSpanContacts>[0];
-  const collider = (body: string, bone: string): IAutoMovieContactReceipt["a"] => ({
+  const collider = (
+    body: string,
+    bone: string,
+  ): IAutoMovieContactReceipt["a"] => ({
     body,
     bone,
     shape: bone,
@@ -107,7 +111,10 @@ export function test_physical_disturbance_contacts(): void {
   // From two steps before the trigger, both feet planted, well into the
   // swing: the stance's switch is where a share can go astray.
   const first: number = Math.floor(trigger.seconds * RATE) - 2;
-  const last: number = Math.min(Math.ceil(touchdown.seconds * RATE), first + 16);
+  const last: number = Math.min(
+    Math.ceil(touchdown.seconds * RATE),
+    first + 16,
+  );
   for (let step: number = first; step <= last; step++) {
     const found: Set<string> = new Set();
     for (let substep: number = 1; substep <= SUBSTEPS; substep++)
@@ -133,32 +140,52 @@ export function test_physical_disturbance_contacts(): void {
     let impulse: number = 0;
     for (const receipt of contacts)
       for (const sample of receipt.samples ?? [])
-        if (Math.round(sample.seconds * RATE) === step) impulse += sample.impulse;
+        if (Math.round(sample.seconds * RATE) === step)
+          impulse += sample.impulse;
     if (Math.abs(impulse - weight / RATE) > 1e-9 * weight)
-      failures.push(`step ${step}: floor impulse ${impulse} N s, weight ${weight / RATE} N s`);
+      failures.push(
+        `step ${step}: floor impulse ${impulse} N s, weight ${weight / RATE} N s`,
+      );
   }
   // 2. Floor to foot only; nothing on the swinging foot.
   for (const receipt of contacts) {
-    const ends: string[] = [receipt.a, receipt.b].map((end) => `${end.body}/${end.bone}`);
-    if (!ends.includes("floor/floor") || !ends.some((end) => end === "biped/left" || end === "biped/right"))
+    const ends: string[] = [receipt.a, receipt.b].map(
+      (end) => `${end.body}/${end.bone}`,
+    );
+    if (
+      !ends.includes("floor/floor") ||
+      !ends.some((end) => end === "biped/left" || end === "biped/right")
+    )
       failures.push(`a receipt joins ${ends}`);
-    const bone: string = receipt.a.body === "biped" ? receipt.a.bone : receipt.b.bone;
+    const bone: string =
+      receipt.a.body === "biped" ? receipt.a.bone : receipt.b.bone;
     if (bone === trigger.bone)
       for (const sample of receipt.samples ?? [])
         if (
           sample.seconds > trigger.seconds + 1 / RATE &&
           sample.seconds < touchdown.seconds - 1 / RATE
         )
-          failures.push(`the swinging ${bone} carries ${sample.impulse} N s at ${sample.seconds} s`);
+          failures.push(
+            `the swinging ${bone} carries ${sample.impulse} N s at ${sample.seconds} s`,
+          );
   }
   // 3. The wrench is the reaction, the weight up, borne whole.
   for (const wrench of bound.supportWrenches)
     if (
       Math.abs(wrench.requested.force.y - weight) > 1e-9 * weight ||
       Math.abs(wrench.allocated.force.y - weight) > 1e-9 * weight ||
-      Math.hypot(wrench.residual.force.x, wrench.residual.force.y, wrench.residual.force.z) > 1e-12
+      Math.hypot(
+        wrench.residual.force.x,
+        wrench.residual.force.y,
+        wrench.residual.force.z,
+      ) > 1e-12
     )
-      failures.push(`a wrench at ${wrench.seconds} s: ${JSON.stringify(wrench.allocated.force)}`);
-  TestValidator.predicate("wrenches recorded", bound.supportWrenches.length > 0);
+      failures.push(
+        `a wrench at ${wrench.seconds} s: ${JSON.stringify(wrench.allocated.force)}`,
+      );
+  TestValidator.predicate(
+    "wrenches recorded",
+    bound.supportWrenches.length > 0,
+  );
   TestValidator.equals("span contacts", failures.slice(0, 8), []);
 }

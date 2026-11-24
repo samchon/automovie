@@ -2,9 +2,7 @@ import {
   type IAutoMoviePhysicalBinding,
   physicalSpanPose,
 } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalRecoveryState,
-} from "@automovie/interface";
+import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**

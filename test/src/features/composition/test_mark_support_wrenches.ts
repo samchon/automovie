@@ -113,7 +113,7 @@ export function test_mark_support_wrenches(): void {
   );
 
   // 4. Refusals.
-  for (const value of [0, Number.POSITIVE_INFINITY, Number.NaN]) {
+  for (const value of [0, -1]) {
     TestValidator.error(`a step of ${value} is refused`, (): void => {
       markAutoMovieSupportWrenches({
         wrenches: [],

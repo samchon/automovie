@@ -5,9 +5,9 @@ import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { AutoMovieXpbdSupportRows as Rows } from "./AutoMovieXpbdSupportRows";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { solveXpbdArticulationTask as Task } from "./solveXpbdArticulationTask";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
-import { solveXpbdArticulationTask as Task } from "./solveXpbdArticulationTask";
 import { solveXpbdSupportComplementarity } from "./solveXpbdSupportComplementarity";
 
 /**

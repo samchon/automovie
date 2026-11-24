@@ -13,21 +13,20 @@ import { TestValidator } from "@nestia/e2e";
  * pressure is exact on its edges:
  *
  * Scenarios:
+ *
  * 1. Four grounded feet, two of them measuring no load, all keep their full
- *    bearing share, so the support is the four-foot polygon: a load the
- *    command itself took away does not shrink where it can return.
- * 2. A foot lifted off the floor bears nothing at once, whatever load it
- *    measured; one grounded again ramps in over `FADE`, half of it at half
- *    the window.
- * 3. A foot leaving the stance has its outline drawn from the remaining
- *    foot's outline by its share: the support's far edge on its side moves
- *    linearly with the share, from both feet's polygon to the remaining
- *    foot's alone (Feng et al. 2015, Section II-B4; Herzog et al. 2016,
- *    Section 5.3).
- * 4. A point on a support's front edge has no room forward and the support's
- *    whole depth backward; a point inside has its distance to each edge.
- * 5. Entry: a touching foot keeps its entry share however little it carries,
- *    and a loaded one keeps it through a lost contact; one out of contact and
+ *    bearing share, so the support is the four-foot polygon: a load the command
+ *    itself took away does not shrink where it can return.
+ * 2. A foot lifted off the floor bears nothing at once, whatever load it measured;
+ *    one grounded again ramps in over `FADE`, half of it at half the window.
+ * 3. A foot leaving the stance has its outline drawn from the remaining foot's
+ *    outline by its share: the support's far edge on its side moves linearly
+ *    with the share, from both feet's polygon to the remaining foot's alone
+ *    (Feng et al. 2015, Section II-B4; Herzog et al. 2016, Section 5.3).
+ * 4. A point on a support's front edge has no room forward and the support's whole
+ *    depth backward; a point inside has its distance to each edge.
+ * 5. Entry: a touching foot keeps its entry share however little it carries, and a
+ *    loaded one keeps it through a lost contact; one out of contact and
  *    unloaded has left the holds, its share zero; touching again it is
  *    re-latched once and its share ramps back over `FADE`, half of it at half
  *    the window (design-4017-qp3, Section 3, rules 2 and 3).
@@ -146,7 +145,9 @@ export function test_physical_stance_seat(): void {
     const edge: number = Math.min(...support.map((p) => p.x));
     const expected: number = 0.05 - 0.2 * share + margin;
     if (!(Math.abs(edge - expected) < 1e-9))
-      findings.push(`at share ${share} the far edge is ${edge}, not ${expected}`);
+      findings.push(
+        `at share ${share} the far edge is ${edge}, not ${expected}`,
+      );
   }
 
   // 4. The room from an edge point and from inside.
@@ -176,7 +177,9 @@ export function test_physical_stance_seat(): void {
     findings.push(`a touching unloaded foot has entry ${rear.entry}`);
   advance(rear, weight, true, 1, false);
   if (rear.entry !== 1)
-    findings.push(`a loaded foot's lost contact reset its entry to ${rear.entry}`);
+    findings.push(
+      `a loaded foot's lost contact reset its entry to ${rear.entry}`,
+    );
   advance(rear, 0, true, 24, false);
   if (rear.entry !== 0)
     findings.push(`a foot out of contact and unloaded has entry ${rear.entry}`);

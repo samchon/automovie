@@ -81,8 +81,8 @@ const MARGIN: number = 0.02;
 const LIFT: number = 0.005;
 
 /**
- * The rounding a contact witness's place may carry beyond half its
- * separation, metres: a millimetre, far under any collider's size.
+ * The rounding a contact witness's place may carry beyond half its separation,
+ * metres: a millimetre, far under any collider's size.
  */
 const WITNESS: number = 0.001;
 
@@ -116,8 +116,9 @@ const FALLEN: number = 0.6;
  *   (`physicalStanceBalance.FADE`) and its quickest swing to its reach l, T in
  *   all (Khadiv et al. 2017, Section III-B), while the remaining supports hold
  *   the centre of pressure at their edge p. The capture point there grows as p
- *   + (xi - p) e^(omega T) (Hof et al. 2005, Eq. 3), so a push is capturable
- *   while that stays within the leading limb's reach l.
+ *
+ *   - (xi - p) e^(omega T) (Hof et al. 2005, Eq. 3), so a push is capturable while
+ *       that stays within the leading limb's reach l.
  * - Any steps: repeated steps of reach l every T capture at most l e^(-omega T) /
  *   (1 - e^(-omega T)) beyond the edge (Koolen et al., Eq. 26). The pushes are
  *   half the in-place bound, the middle of the one-step window and one and a
@@ -126,8 +127,8 @@ const FALLEN: number = 0.6;
  *   Human no one-step window: its trailing foot holds the centre of pressure a
  *   stance width away from the stepping one.
  *
- * A record of a pushed body, its frames, contacts, wrenches and recovery
- * state, is judged against its outcome (`judge`) and audited (`audit`) as pure
+ * A record of a pushed body, its frames, contacts, wrenches and recovery state,
+ * is judged against its outcome (`judge`) and audited (`audit`) as pure
  * functions of the record; no simulation runs here.
  */
 export namespace PhysicalDisturbance {
@@ -284,8 +285,8 @@ export namespace PhysicalDisturbance {
    * - In place: the largest pulse whose capture point stays on the polygon (Hof
    *   et al. 2005, Eqs. 7-8);
    * - One step: the capture point at the trigger, two steps after the pulse,
-   *   within the reach's e^(-omega T) of the remaining supports' edge (Koolen et
-   *   al., Eq. 25);
+   *   within the reach's e^(-omega T) of the remaining supports' edge (Koolen
+   *   et al., Eq. 25);
    * - Any steps: Koolen et al., Eq. 26 with that T.
    */
   export function bounds(subject: ISubject, axis: Axis): IPushes {
@@ -408,8 +409,8 @@ export namespace PhysicalDisturbance {
 
   /**
    * A recovery's swing phases in time order: the steps sharing one start, a
-   * diagonal pair's two feet lifting together as one contact switch of the
-   * gait (Chen et al. 2022, Section 2.1, Example 1).
+   * diagonal pair's two feet lifting together as one contact switch of the gait
+   * (Chen et al. 2022, Section 2.1, Example 1).
    */
   export function phases(
     steps: IAutoMoviePhysicalRecoveryState["steps"],
@@ -426,8 +427,8 @@ export namespace PhysicalDisturbance {
   }
 
   /**
-   * The swing phases armed before the one ahead of them had resolved: one
-   * swing phase at a time, so none is ever armed during another.
+   * The swing phases armed before the one ahead of them had resolved: one swing
+   * phase at a time, so none is ever armed during another.
    */
   export function overlaps(
     steps: IAutoMoviePhysicalRecoveryState["steps"],
@@ -457,8 +458,8 @@ export namespace PhysicalDisturbance {
   /**
    * The controller's own step time for a full-reach step, seconds: the
    * reaction, the unloading ramp and the quickest swing the hip allows
-   * (`physicalStanceSwing.swingBound`), as `advancePhysicalBalance` states
-   * it at the standing pose.
+   * (`physicalStanceSwing.swingBound`), as `advancePhysicalBalance` states it
+   * at the standing pose.
    */
   export function timing(subject: ISubject): number {
     const policy = subject.policy;
@@ -483,16 +484,16 @@ export namespace PhysicalDisturbance {
           subject.profile,
           // The targets as the rigid poses the swing reads.
           new Map(
-          Object.entries(subject.targets).map(
-            ([bone, at]: [string, IAutoMovieRigidTransform]) => [
-              bone,
-              {
-                translation: (): IAutoMovieVector3 => at.position,
-                rotation: (): IAutoMovieQuaternion => at.rotation,
-              },
-            ],
+            Object.entries(subject.targets).map(
+              ([bone, at]: [string, IAutoMovieRigidTransform]) => [
+                bone,
+                {
+                  translation: (): IAutoMovieVector3 => at.position,
+                  rotation: (): IAutoMovieQuaternion => at.rotation,
+                },
+              ],
+            ),
           ),
-        ),
           limb,
         ),
       )
@@ -517,14 +518,14 @@ export namespace PhysicalDisturbance {
    * outcome is decided, and what failed. `final` marks the outcome's cap, by
    * which an undecided run has failed.
    *
-   * - Sustained: never a step, the root never tipped, every support flat and
-   *   only supports on the floor throughout; decided once, after the push, the
+   * - Sustained: never a step, the root never tipped, every support flat and only
+   *   supports on the floor throughout; decided once, after the push, the
    *   capture point is inside the support and coming back.
-   * - Recover: never down, at most one landed swing phase, no failed landing,
-   *   one swing phase at a time and only supports on the floor; decided once
-   *   every step resolved and the capture point stayed inside the support for
-   *   1 / omega, the time in which a diverging one grows e times, with the
-   *   root upright, the supports flat and the height kept.
+   * - Recover: never down, at most one landed swing phase, no failed landing, one
+   *   swing phase at a time and only supports on the floor; decided once every
+   *   step resolved and the capture point stayed inside the support for 1 /
+   *   omega, the time in which a diverging one grows e times, with the root
+   *   upright, the supports flat and the height kept.
    * - Fall: never captured after the push; decided once the body is down or
    *   tipped, or at the cap still diverging from landing to landing.
    */
@@ -572,15 +573,20 @@ export namespace PhysicalDisturbance {
     const strays: string[] = touched(cache, id).filter(
       (bone: string): boolean => !supportsOf(subject).has(bone),
     );
-    if (strays.length !== 0) return fail(`non-support bones touched the floor: ${strays}`);
+    if (strays.length !== 0)
+      return fail(`non-support bones touched the floor: ${strays}`);
     if (name === "sustained") {
       if (steps.length !== 0) return fail(`stepped ${steps.length} times`);
       for (let i: number = 0; i <= index; i++) {
         if (tilt(i) > TIPPED)
-          return fail(`root tipped ${tilt(i).toFixed(1)} deg at ${frames[i]!.seconds} s`);
+          return fail(
+            `root tipped ${tilt(i).toFixed(1)} deg at ${frames[i]!.seconds} s`,
+          );
         const raised: number = lift(subject, frames[i]!.bodies[id]!);
         if (raised > LIFT)
-          return fail(`a support lifted ${(raised * 1000).toFixed(1)} mm at ${frames[i]!.seconds} s`);
+          return fail(
+            `a support lifted ${(raised * 1000).toFixed(1)} mm at ${frames[i]!.seconds} s`,
+          );
       }
       if (index >= PUSH_END + CHECKPOINT) {
         const now = captureAt(subject, cache, id, index);
@@ -604,7 +610,9 @@ export namespace PhysicalDisturbance {
     if (steps.some((step): boolean => step.resolved?.status === "failed"))
       return fail("a landing failed");
     if (overlaps(steps).length !== 0)
-      return fail(`swing phases ${overlaps(steps)} armed before the one ahead resolved`);
+      return fail(
+        `swing phases ${overlaps(steps)} armed before the one ahead resolved`,
+      );
     const dwell: number = Math.ceil(RATE / omegaOf(subject));
     const settled: number = Math.max(
       PUSH_END + 1,
@@ -622,7 +630,9 @@ export namespace PhysicalDisturbance {
     }
     if (inside) {
       const raised: number = lift(subject, frames[index]!.bodies[id]!);
-      return tilt(index) > TIPPED || raised > LIFT || !(height(index) > start * 0.9)
+      return tilt(index) > TIPPED ||
+        raised > LIFT ||
+        !(height(index) > start * 0.9)
         ? fail(
             `captured with the root tilted ${tilt(index).toFixed(1)} deg, a support lifted ${(raised * 1000).toFixed(1)} mm, height ${height(index)} of ${start}`,
           )
@@ -638,18 +648,18 @@ export namespace PhysicalDisturbance {
   /**
    * Audit a decided run's record, whatever the outcome:
    *
-   * - Floor load: over every window the body's vertical momentum changes by
-   *   the floor's recorded normal impulse less its weight's, within #3092's 2
+   * - Floor load: over every window the body's vertical momentum changes by the
+   *   floor's recorded normal impulse less its weight's, within #3092's 2
    *   percent of the weight (Newton's second law): an external force holding
    *   the body, or a floor load left out of the record, breaks it.
    * - Contact provenance: every solver sample of the floor's contact with the
    *   body, a world witness midpoint merged over its step's substeps
    *   (`readXpbdManifolds`, `recordPhysicalContact`), lies within half its
-   *   separation of the floor and of the bone it names, as the bone sweeps
-   *   from the frame before to the sample's own.
+   *   separation of the floor and of the bone it names, as the bone sweeps from
+   *   the frame before to the sample's own.
    * - Bounded effort: no support wrench exceeds the body's force bound.
-   * - Honest steps: every landed step's limb left the floor after the step
-   *   began and touched it again by its landing.
+   * - Honest steps: every landed step's limb left the floor after the step began
+   *   and touched it again by its landing.
    */
   export function audit(
     subject: ISubject,
@@ -662,8 +672,10 @@ export namespace PhysicalDisturbance {
     const weight: number = subject.profile.mass * 9.81;
     const loads: number[] = frames.map((): number => 0);
     const loaded: Map<string, Set<number>> = new Map();
-    const bounds: Map<string, { min: IAutoMovieVector3; max: IAutoMovieVector3 }> =
-      new Map();
+    const bounds: Map<
+      string,
+      { min: IAutoMovieVector3; max: IAutoMovieVector3 }
+    > = new Map();
     for (const receipt of cache.contacts) {
       const end: "a" | "b" | undefined =
         receipt.a.body === id && receipt.b.body === "floor"
@@ -757,7 +769,8 @@ export namespace PhysicalDisturbance {
     const span: number = Math.round(WINDOW * RATE);
     for (let from: number = 0; from + span < frames.length; from += span) {
       let impulse: number = 0;
-      for (let k: number = from + 1; k <= from + span; k++) impulse += loads[k]!;
+      for (let k: number = from + 1; k <= from + span; k++)
+        impulse += loads[k]!;
       const residual: number =
         momentum[from + span]! - momentum[from]! - (impulse - weight * WINDOW);
       if (Math.abs(residual) > LOAD * weight * WINDOW) {
@@ -785,7 +798,9 @@ export namespace PhysicalDisturbance {
         ? [limb.bone, ...(limb.contacts ?? [])]
         : [step.bone];
       const on = (k: number): boolean =>
-        bones.some((bone: string): boolean => loaded.get(bone)?.has(k) ?? false);
+        bones.some(
+          (bone: string): boolean => loaded.get(bone)?.has(k) ?? false,
+        );
       const from: number = Math.ceil(step.start * RATE);
       const to: number = Math.round(step.resolved.seconds * RATE);
       let left: number = -1;
@@ -814,10 +829,7 @@ export namespace PhysicalDisturbance {
   }
 
   /** The body's bones the solver recorded on the floor. */
-  function touched(
-    cache: ICache,
-    id: string,
-  ): string[] {
+  function touched(cache: ICache, id: string): string[] {
     return [
       ...new Set(
         cache.contacts
@@ -834,11 +846,11 @@ export namespace PhysicalDisturbance {
   }
 
   /**
-   * How far the supports' sole edges have risen off their plants, metres:
-   * the largest rise, over the supports, of the bearing face's height spread
-   * at the pose over its spread when planted, the face's corners carried
-   * rigidly with the bone. The controller's seating latches the same spread
-   * when a stance begins (`IAutoMoviePhysicalRecoveryState.seating`).
+   * How far the supports' sole edges have risen off their plants, metres: the
+   * largest rise, over the supports, of the bearing face's height spread at the
+   * pose over its spread when planted, the face's corners carried rigidly with
+   * the bone. The controller's seating latches the same spread when a stance
+   * begins (`IAutoMoviePhysicalRecoveryState.seating`).
    */
   function lift(
     subject: ISubject,
@@ -862,8 +874,8 @@ export namespace PhysicalDisturbance {
 
   /**
    * A support bone's bearing face in its own frame: its shapes' vertices, a
-   * hull's points or a box's corners, within the foot-lift bound of the
-   * lowest at the planted pose, so a side or a raised toe is not bearing.
+   * hull's points or a box's corners, within the foot-lift bound of the lowest
+   * at the planted pose, so a side or a raised toe is not bearing.
    */
   function bearing(subject: ISubject, bone: string): IAutoMovieVector3[] {
     const segment: IAutoMoviePhysicalSegment | undefined =
@@ -894,7 +906,9 @@ export namespace PhysicalDisturbance {
       (point: IAutoMovieVector3): number => physicalSupportPoint(pose, point).y,
     );
     const lowest: number = Math.min(...heights);
-    return local.filter((_, i: number): boolean => heights[i]! <= lowest + LIFT);
+    return local.filter(
+      (_, i: number): boolean => heights[i]! <= lowest + LIFT,
+    );
   }
 
   /** The angle between two orientations, degrees. */
@@ -909,7 +923,8 @@ export namespace PhysicalDisturbance {
   /**
    * Whether a body is captured at a frame: its capture point inside the
    * shrunken support polygon its limbs stand on and its horizontal speed within
-   * omega times the margin (Koolen et al., Corollary 3; Hof et al. 2005, Eq. 7).
+   * omega times the margin (Koolen et al., Corollary 3; Hof et al. 2005, Eq.
+   * 7).
    */
   function captured(
     subject: ISubject,
@@ -919,7 +934,9 @@ export namespace PhysicalDisturbance {
   ): boolean {
     const at = captureAt(subject, cache, id, index);
     return (
-      at.polygon.length >= 3 && at.beyond < 1e-9 && at.speed <= at.omega * MARGIN
+      at.polygon.length >= 3 &&
+      at.beyond < 1e-9 &&
+      at.speed <= at.omega * MARGIN
     );
   }
 
@@ -982,8 +999,8 @@ export namespace PhysicalDisturbance {
   }
 
   /**
-   * The capture point's distance past the support at each landed swing
-   * phase, metres: at the frame of the phase's last landing.
+   * The capture point's distance past the support at each landed swing phase,
+   * metres: at the frame of the phase's last landing.
    */
   export function landedExcesses(
     subject: ISubject,
@@ -1007,9 +1024,9 @@ export namespace PhysicalDisturbance {
 
   /**
    * Whether a body keeps diverging from step to step: the capture point past
-   * the support at each landing further than at the one before, as the
-   * capture point beyond the any-step bound does (Koolen et al., Eq. 25);
-   * fewer than two landings leave the verdict to capture alone.
+   * the support at each landing further than at the one before, as the capture
+   * point beyond the any-step bound does (Koolen et al., Eq. 25); fewer than
+   * two landings leave the verdict to capture alone.
    */
   export function diverging(excesses: readonly number[]): boolean {
     return excesses.every(

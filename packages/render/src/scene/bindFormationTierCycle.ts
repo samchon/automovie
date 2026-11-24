@@ -35,27 +35,20 @@ export const bindFormationTierCycle: (
     _object: THREE.Scene<THREE.Object3DEventMap>,
     _camera: THREE.Camera,
     _shadowCamera: THREE.Camera,
-    _geometry: THREE.BufferGeometry<
+    geometry: THREE.BufferGeometry<
       THREE.NormalBufferAttributes,
       THREE.BufferGeometryEventMap
     >,
     material: THREE.Material<THREE.MaterialEventMap>,
-    // Three r186 dispatches the drawn geometry group, or null for an ungrouped
-    // draw; its declaration names the scene-graph Group, so the parameter
-    // admits both and the group's flag tells them apart.
+    // three's shadow map passes the drawn entry of `geometry.groups`, or
+    // null for an ungrouped draw, so the palette is that group's material.
     group: THREE.Group | THREE.GeometryGroup | null,
   ): void => {
+    const drawn: THREE.GeometryGroup | undefined = geometry.groups.find(
+      (entry: THREE.GeometryGroup): boolean => entry === group,
+    );
     const palette: THREE.Material<THREE.MaterialEventMap> =
-      representation.materials[
-        isGeometryGroup(group) ? (group.materialIndex ?? 0) : 0
-      ]!;
+      representation.materials[drawn?.materialIndex ?? 0]!;
     shadows.beforeDraw(material, palette);
   };
 };
-
-/** Whether a shadow draw names a geometry group rather than a scene group. */
-function isGeometryGroup(
-  group: THREE.Group | THREE.GeometryGroup | null,
-): group is THREE.GeometryGroup {
-  return group !== null && (group as THREE.Group).isGroup !== true;
-}

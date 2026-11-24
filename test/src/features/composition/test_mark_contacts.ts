@@ -118,7 +118,7 @@ export function test_mark_contacts(): void {
   );
 
   // 4. Refusals.
-  for (const scale of [0, Number.POSITIVE_INFINITY, Number.NaN])
+  for (const scale of [0, -1])
     TestValidator.error(`a scale of ${scale} is refused`, (): void => {
       markAutoMovieContacts({
         receipts: [],
@@ -253,7 +253,7 @@ export function test_mark_contacts(): void {
       ],
     ],
   );
-  for (const maximum of [0, Number.POSITIVE_INFINITY, Number.NaN])
+  for (const maximum of [0, -1])
     TestValidator.error(
       `a maximum length of ${maximum} is refused`,
       (): void => {

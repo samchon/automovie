@@ -88,7 +88,7 @@ export namespace walkLocomoteLowering {
       marks: marks(swings),
       sample: (t: number): number[] => [exact(t)],
       tolerance: { kind: "absolute", absolute: TOLERANCE },
-      step: AutoMovieMotionHumanArmCourse.STEP,
+      step: 1e-3 /*EXPERIMENT*/,
     });
   }
 
@@ -126,7 +126,7 @@ export namespace walkLocomoteLowering {
         ),
         sample: (t: number): number[] => [exact(t)[side]],
         tolerance: { kind: "absolute", absolute: PITCH_TOLERANCE },
-        step: AutoMovieMotionHumanArmCourse.STEP,
+        step: 1e-3 /*EXPERIMENT*/,
       });
     const left: (seconds: number) => number[] = course("left");
     const right: (seconds: number) => number[] = course("right");

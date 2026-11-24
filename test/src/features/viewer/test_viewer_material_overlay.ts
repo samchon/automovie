@@ -55,13 +55,22 @@ const NAILS: IAutoMovieMaterialOverlay = {
 };
 
 /**
- * Material overlay metadata and generated shader programs preserve the declared blend order and texture roles. The unit observes these products without native shader compilation or composited pixels.
+ * Material overlay metadata and generated shader programs preserve the declared
+ * blend order and texture roles. The unit observes these products without
+ * native shader compilation or composited pixels.
  *
  * Scenarios:
- * 1. Tint/normal and replacement/roughness overlays preserve their images, factors and strengths, image listing order and generated program-key shape after subsurface/detail patches.
- * 2. A normal overlay supplies a flat fallback when no base normal exists; an absent resolver applies no overlay.
- * 3. Generated programs carry transformed UVs and insert color, roughness and tangent-normal operations at their declared boundaries, after an earlier detail patch where applicable.
- * 4. Validation refuses oversized lists, invalid factors/strength/roughness/scales and wrong texture color spaces, while admitting the authored pair.
+ *
+ * 1. Tint/normal and replacement/roughness overlays preserve their images, factors
+ *    and strengths, image listing order and generated program-key shape after
+ *    subsurface/detail patches.
+ * 2. A normal overlay supplies a flat fallback when no base normal exists; an
+ *    absent resolver applies no overlay.
+ * 3. Generated programs carry transformed UVs and insert color, roughness and
+ *    tangent-normal operations at their declared boundaries, after an earlier
+ *    detail patch where applicable.
+ * 4. Validation refuses oversized lists, invalid factors/strength/roughness/scales
+ *    and wrong texture color spaces, while admitting the authored pair.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds real overlay materials, reads published texture/factor records and generated shader programs, and validates authored declarations; catches dropped fields, wrong patch order and malformed layers admitted to projection.
  * @evidence contracts/development/testing.md#independent-expectations Authored scalar factors, multiply-versus-replace composition and native shader-stage boundaries define expected output. Generated shader text is product output but does not establish compiled GLSL or observed colors/normals.
@@ -272,7 +281,6 @@ export function test_viewer_material_overlay(): void {
   TestValidator.equals(
     "overlays are validated",
     namedFacts([
-
       [
         "tooMany",
         (): boolean =>

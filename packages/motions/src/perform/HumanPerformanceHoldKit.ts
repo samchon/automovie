@@ -29,7 +29,6 @@ export function HumanPerformanceHoldKit(
   own: IAutoMovieMotionHumanPerformanceHold.IPropOwn | undefined,
   path: HumanPerformanceHoldKit.IMountPath | undefined,
   grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
-  reader?: string,
 ): HumanPerformanceHoldKit.IKit {
   // A window opening on a hand that already holds the prop (a put down
   // after a pick up) keeps that grip's offset: the hand never re-seats what
@@ -54,27 +53,9 @@ export function HumanPerformanceHoldKit(
         if (times.size === 0) visited.delete(subject);
       }
     }
-    if (w.bone === undefined) {
-      // The holder's own posture reading the prop its hand holds would read
-      // the very hand it is still placing. It reads the hand where the grip
-      // took the prop instead, an earlier instant, never the fit in progress:
-      // the closure the performance prepared, or that instant's hand before.
-      if (reader === w.subject && at === seconds) {
-        if (!(w.from < at))
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: `props.${subject}.held`,
-            value: subject,
-            reason: `placing ${w.subject}'s ${w.side} hand at ${at} s reads ${subject}, which that hand holds`,
-            fix: "build the goal from the law's own carrying hand, not from the held prop's displayed frame",
-          });
-        return (
-          w.closure ??
-          HumanPerformanceRead.hand(self, w.subject, w.side, w.from)
-        );
-      }
+    // A held one rides the hand as the performance displays it at the second.
+    if (w.bone === undefined)
       return HumanPerformanceRead.hand(self, w.subject, w.side, at);
-    }
     const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
       self,
       w.subject,

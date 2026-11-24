@@ -316,13 +316,6 @@ export namespace IAutoMovieMotionHumanPerformanceState {
     offset?: IAutoMovieRigidTransform;
 
     /**
-     * A hand span's grip socket frame where the grip closed, solved when the
-     * performance is prepared: what the holder's own posture reads the prop on,
-     * so the read never re-enters the hand it is placing.
-     */
-    closure?: IAutoMovieRigidTransform;
-
-    /**
      * The grip window's in-hand motion of the prop, composed on `offset` by the
      * span's share (`IAutoMovieMotionHumanContactWindow.inHand`); none when the
      * prop keeps its offset.

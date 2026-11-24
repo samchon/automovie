@@ -14,9 +14,9 @@ import type {
   IAutoMovieTrack,
 } from "@automovie/interface";
 import * as THREE from "three";
-import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 import type { IAutoMovieFlamesObject } from "./IAutoMovieFlamesObject.js";
 import type { IPrepareAutoMovieFlamesProps } from "./IPrepareAutoMovieFlamesProps.js";
 import { createAutoMovieFlameMaterial } from "./createAutoMovieFlameMaterial.js";
@@ -97,9 +97,9 @@ export function prepareAutoMovieFlames(
       );
       const mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> =
         new THREE.Mesh(
-        geometry,
-        createAutoMovieFlameMaterial(emission.color, emission.luminance),
-      );
+          geometry,
+          createAutoMovieFlameMaterial(emission.color, emission.luminance),
+        );
       meshes.push(mesh);
       emissions.push(emission);
       mesh.name = name;
@@ -120,7 +120,8 @@ export function prepareAutoMovieFlames(
   return {
     apply: (seconds: number): void => {
       cues.forEach((cue: IAutoMovieFlameCue, index: number): void => {
-        const mesh: THREE.Mesh = meshes[index]!;
+        const mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> =
+          meshes[index]!;
         mesh.visible =
           cue.on === undefined || (cue.on[0] <= seconds && seconds < cue.on[1]);
         if (!mesh.visible) return;

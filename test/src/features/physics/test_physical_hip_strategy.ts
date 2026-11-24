@@ -18,24 +18,24 @@ import { TestValidator } from "@nestia/e2e";
  * The hip strategy and the step trigger match their closed forms without a
  * simulated body:
  *
- * 1. Reach: a 1 kHz flywheel model, xi' = omega (xi - p - tau(t) / (m g)) with
- *    tau bang-bang over T1 = sqrt(theta I / tau) each way, brings an excess of
- *    0.9 of the closed-form reach back to the support's edge and loses one of
- *    1.1, its trunk ending at rest at theta (Pratt et al. 2006; derived). The
+ * 1. Reach: a 1 kHz flywheel model, xi' = omega (xi - p - tau(t) / (m g)) with tau
+ *    bang-bang over T1 = sqrt(theta I / tau) each way, brings an excess of 0.9
+ *    of the closed-form reach back to the support's edge and loses one of 1.1,
+ *    its trunk ending at rest at theta (Pratt et al. 2006; derived). The
  *    Human's sagittal numbers, 320 N m, 7.8 kg m^2, 0.25 rad, 78.5 kg and omega
  *    3.21 per second, reach about 2 cm.
- * 2. Trigger: a capture point 1.6 mm past the shrunken edge, inside the
- *    support, holds; 2.5 cm past the support steps against that reach; 1.5 cm
- *    past it holds with the trunk's angle left and steps once it is spent; one
- *    whose spin-free part is coming back holds; and one within the margin
- *    holds (Koolen et al., Corollary 3). With the previous step's excess
- *    measured, whether it shrinks is read from it: a capture point stalled
- *    6.5 cm outside steps although its spin-free part is inside, and one whose
- *    excess fell holds (design-4017-edge, E3).
- * 3. Capacity: two hips side by side have a strategy against a forward push,
- *    with the torque their aligned axes give and the trunk's inertia about
- *    them, and none against a lateral one; one stance hip has one either way;
- *    a trunk leaning toward the push has that much less angle left.
+ * 2. Trigger: a capture point 1.6 mm past the shrunken edge, inside the support,
+ *    holds; 2.5 cm past the support steps against that reach; 1.5 cm past it
+ *    holds with the trunk's angle left and steps once it is spent; one whose
+ *    spin-free part is coming back holds; and one within the margin holds
+ *    (Koolen et al., Corollary 3). With the previous step's excess measured,
+ *    whether it shrinks is read from it: a capture point stalled 6.5 cm outside
+ *    steps although its spin-free part is inside, and one whose excess fell
+ *    holds (design-4017-edge, E3).
+ * 3. Capacity: two hips side by side have a strategy against a forward push, with
+ *    the torque their aligned axes give and the trunk's inertia about them, and
+ *    none against a lateral one; one stance hip has one either way; a trunk
+ *    leaning toward the push has that much less angle left.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the reach, the trigger and the capacity rule with their closed forms.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceHip.hipReach`, `exceeds` and `hip` and reads their values.
@@ -156,7 +156,10 @@ export function test_physical_hip_strategy(): void {
     AutoMovieXpbdBody,
     "translation" | "rotation" | "worldCom" | "angvel"
   >;
-  const rigid = (position: IAutoMovieVector3, center: IAutoMovieVector3): Rigid => ({
+  const rigid = (
+    position: IAutoMovieVector3,
+    center: IAutoMovieVector3,
+  ): Rigid => ({
     translation: (): IAutoMovieVector3 => position,
     rotation: (): IAutoMovieQuaternion => identity,
     worldCom: (): IAutoMovieVector3 => center,
@@ -165,7 +168,10 @@ export function test_physical_hip_strategy(): void {
   const segments: ReadonlyMap<string, Rigid> = new Map([
     ["pelvis", rigid({ x: 0, y: 1, z: 0 }, { x: 0, y: 1.3, z: 0 })],
     ["leftUpperLeg", rigid({ x: 0.1, y: 1, z: 0 }, { x: 0.1, y: 0.8, z: 0 })],
-    ["rightUpperLeg", rigid({ x: -0.1, y: 1, z: 0 }, { x: -0.1, y: 0.8, z: 0 })],
+    [
+      "rightUpperLeg",
+      rigid({ x: -0.1, y: 1, z: 0 }, { x: -0.1, y: 0.8, z: 0 }),
+    ],
   ]);
   const axis = (
     name: "x" | "z",

@@ -1,5 +1,4 @@
 import type * as THREE from "three";
-
 import type { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 
 import type { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
@@ -7,11 +6,11 @@ import type { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 /**
  * The literal class flags three.js sets on each instance (`Mesh.isMesh`,
  * `MeshStandardMaterial.isMeshStandardMaterial`, ...), declared on the base
- * class as absent-or-true. three's own declarations put each flag only on the
- * subclass, so a value held at its base type could not read it; declaring it
- * on the base, where every subclass instance either carries it or does not,
- * lets the narrowing functions of {@link AutoMovieThreeKind} read the flag as
- * three's renderer does.
+ * class as optional, with the type the subclass declares (`true` or `boolean`).
+ * three's own declarations put each flag only on the subclass, so a value held
+ * at its base type could not read it; declaring it on the base, where every
+ * subclass instance either carries it or does not, lets the narrowing functions
+ * of {@link AutoMovieThreeKind} read the flag as three's renderer does.
  */
 declare module "three" {
   interface Object3D {
@@ -25,24 +24,24 @@ declare module "three" {
     readonly isPoints?: true;
     readonly isSprite?: true;
     readonly isBone?: true;
-    readonly isLight?: true;
-    readonly isDirectionalLight?: true;
-    readonly isPointLight?: true;
-    readonly isSpotLight?: true;
-    readonly isRectAreaLight?: true;
-    readonly isCamera?: true;
-    readonly isOrthographicCamera?: true;
-    readonly isPerspectiveCamera?: true;
+    readonly isLight?: boolean;
+    readonly isDirectionalLight?: boolean;
+    readonly isPointLight?: boolean;
+    readonly isSpotLight?: boolean;
+    readonly isRectAreaLight?: boolean;
+    readonly isCamera?: boolean;
+    readonly isOrthographicCamera?: boolean;
+    readonly isPerspectiveCamera?: boolean;
   }
 
   interface Material {
-    readonly isMeshStandardMaterial?: true;
-    readonly isMeshPhongMaterial?: true;
-    readonly isMeshLambertMaterial?: true;
-    readonly isMeshBasicMaterial?: true;
-    readonly isMeshToonMaterial?: true;
-    readonly isShaderMaterial?: true;
-    readonly isRawShaderMaterial?: true;
+    readonly isMeshStandardMaterial?: boolean;
+    readonly isMeshPhongMaterial?: boolean;
+    readonly isMeshLambertMaterial?: boolean;
+    readonly isMeshBasicMaterial?: boolean;
+    readonly isMeshToonMaterial?: boolean;
+    readonly isShaderMaterial?: boolean;
+    readonly isRawShaderMaterial?: boolean;
   }
 
   interface Texture {
@@ -57,7 +56,7 @@ declare module "three" {
   }
 
   interface RenderTarget {
-    readonly isWebGLRenderTarget?: true;
+    readonly isWebGLRenderTarget?: boolean;
   }
 
   interface BufferAttribute {

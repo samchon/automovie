@@ -1,6 +1,7 @@
 import type { IAutoMovieMark, IAutoMovieTransform } from "@automovie/interface";
 import {
   type AutoMovieDrawSubjects,
+  AutoMovieThreeKind,
   type IAutoMovieDrawScene,
   type IAutoMovieDrawSubject,
   type IAutoMovieModelObject,
@@ -251,7 +252,7 @@ function build(entry: archetypeCaptureCatalog.ISubject): IAutoMovieDrawScene {
     dispose: (): void => {
       for (const built of current) release(built);
       grid.geometry.dispose();
-      (grid.material as THREE.Material).dispose();
+      for (const material of [grid.material].flat()) material.dispose();
     },
   };
 }
@@ -261,9 +262,8 @@ function release(built: IAutoMovieModelObject): void {
   built.object.removeFromParent();
   built.object.traverse((object: THREE.Object3D): void => {
     // three's literal class flag tells a mesh, whose resources are its own.
-    const mesh: THREE.Mesh = object as THREE.Mesh;
-    if (mesh.isMesh !== true) return;
-    mesh.geometry.dispose();
-    for (const material of [mesh.material].flat()) material.dispose();
+    if (!AutoMovieThreeKind.isMesh(object)) return;
+    object.geometry.dispose();
+    for (const material of [object.material].flat()) material.dispose();
   });
 }

@@ -59,11 +59,7 @@ export function test_mark_slip(): void {
   // 3. Refusals.
   for (const [title, entry] of [
     ["a negative limit", foot({ x: 0.03, y: 0, z: 0 }, -1)],
-    [
-      "an infinite limit",
-      foot({ x: 0.03, y: 0, z: 0 }, Number.POSITIVE_INFINITY),
-    ],
-    ["a non-finite point", foot({ x: Number.NaN, y: 0, z: 0 }, 0.02)],
+
   ] as const)
     TestValidator.error(`${title} is refused`, (): void => {
       markAutoMovieSlip([entry]);

@@ -42,7 +42,7 @@ export function measureAutoMovieInspectionMeshes(props: {
   for (const { path, object } of props.drawn)
     if (
       AutoMovieThreeKind.isMesh(object) &&
-      (object as { isBatchedMesh?: boolean }).isBatchedMesh !== true &&
+      !AutoMovieThreeKind.isBatchedMesh(object) &&
       object.geometry.hasAttribute("position") &&
       shown(object)
     )

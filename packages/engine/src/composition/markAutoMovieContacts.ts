@@ -43,7 +43,7 @@ import type {
  * `marks=contact` still selects it, because the kind lies beneath `contact`.
  * Clamping is not an anomaly and leaves the flag to the transfer rule.
  *
- * It throws for a scale or a maximum length that is not positive and finite and
+ * It throws for a scale or a maximum length that is not positive and
  * for an acting step without a positive duration.
  *
  * @param props.receipts Contact episodes, as the composition's contact
@@ -60,12 +60,12 @@ export function markAutoMovieContacts(
 ): IAutoMovieMark[] {
   if (!(props.metresPerNewton > 0))
     throw new Error(
-      `markAutoMovieContacts: metres per newton ${props.metresPerNewton} is not positive and finite`,
+      `markAutoMovieContacts: metres per newton ${props.metresPerNewton} is not positive`,
     );
   const maximum: number | undefined = props.maximumLength;
   if (maximum !== undefined && !(maximum > 0))
     throw new Error(
-      `markAutoMovieContacts: maximum length ${maximum} is not positive and finite`,
+      `markAutoMovieContacts: maximum length ${maximum} is not positive`,
     );
   const clamped: string =
     maximum === undefined

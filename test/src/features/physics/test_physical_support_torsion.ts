@@ -20,37 +20,37 @@ import { TestValidator } from "@nestia/e2e";
  * asks within its points' cones; a foot entering the holds is bounded by its
  * entry share; and the trunk's heading servo returns without overshoot.
  *
- * Scenarios, on a free 10 kg rigid body whose centre of mass lies on its
- * soles' plane, each sole's four corners at (+-0.1, 0, +-0.05) m from its
- * centre, mu = 0.8, one 1/480 s substep under gravity and a yaw moment:
+ * Scenarios, on a free 10 kg rigid body whose centre of mass lies on its soles'
+ * plane, each sole's four corners at (+-0.1, 0, +-0.05) m from its centre, mu =
+ * 0.8, one 1/480 s substep under gravity and a yaw moment:
  *
- * 1. Four coplanar soles on one body, none able to turn about the vertical
- *    against the others, as a four-legged body's two-axis legs: their
- *    torsional rows would be one hold four times over, yet the program
- *    solves, every sole's moment within its bound, and the task's cancelling
- *    moment, -5 N m, leaves the body without spin (TSID `contact-6d.cpp`:
- *    friction an inequality on the corner forces).
- * 2. The same with the task asking no moment: the body turns under the 5 N m
- *    as a free body would, so the torsional rows hold nothing of their own.
- * 3. One sole asked to cancel 30 N m, past its bound mu (|r . t1| + |r . t2|)
- *    m g = 0.8 0.15 98.1 = 11.77 N m: its moment stops at the bound and the
- *    body slips, its spin positive but below the free spin.
- * 4. One sole coming down at 0.3 m/s as it touches again, its normal rows
- *    bounded at a quarter of its weight over the substep, adds no more than
- *    that whatever its hold would need (design-4017-qp3, Section 3, rule 3).
- * 5. The trunk's heading servo, the root task's yaw on its saturated error
- *    (Human gains 5 m and m, the pelvis's 0.2 kg m^2 in its stable PD, the
- *    whole body's 1.5 kg m^2 about the vertical, stated), turns a 10 degree
- *    heading error back to under 0.5 degree in 2 s without passing zero; a 30
- *    degree error asks the same moment as one at the saturation limit.
- * 6. Capacity: four loaded corners of a 0.2 by 0.1 m sole hold mu times
- *    4 (0.1 + 0.05) per unit impulse about the normal; a patch pressed at one
- *    point, or with its lever points unloaded, holds none and so gets no
- *    torsional row, whose cone would be the single point zero (TSID
- *    `contact-6d.cpp`: moments only from the points' levers).
- * 7. A bound's room never goes below nothing: an impact the contact passes
- *    already gave past the bound is the floor's, not taken back through the
- *    other supports (Herzog et al. 2016, Section 5.3; unilateral contact).
+ * 1. Four coplanar soles on one body, none able to turn about the vertical against
+ *    the others, as a four-legged body's two-axis legs: their torsional rows
+ *    would be one hold four times over, yet the program solves, every sole's
+ *    moment within its bound, and the task's cancelling moment, -5 N m, leaves
+ *    the body without spin (TSID `contact-6d.cpp`: friction an inequality on
+ *    the corner forces).
+ * 2. The same with the task asking no moment: the body turns under the 5 N m as a
+ *    free body would, so the torsional rows hold nothing of their own.
+ * 3. One sole asked to cancel 30 N m, past its bound mu (|r . t1| + |r . t2|) m g
+ *    = 0.8 0.15 98.1 = 11.77 N m: its moment stops at the bound and the body
+ *    slips, its spin positive but below the free spin.
+ * 4. One sole coming down at 0.3 m/s as it touches again, its normal rows bounded
+ *    at a quarter of its weight over the substep, adds no more than that
+ *    whatever its hold would need (design-4017-qp3, Section 3, rule 3).
+ * 5. The trunk's heading servo, the root task's yaw on its saturated error (Human
+ *    gains 5 m and m, the pelvis's 0.2 kg m^2 in its stable PD, the whole
+ *    body's 1.5 kg m^2 about the vertical, stated), turns a 10 degree heading
+ *    error back to under 0.5 degree in 2 s without passing zero; a 30 degree
+ *    error asks the same moment as one at the saturation limit.
+ * 6. Capacity: four loaded corners of a 0.2 by 0.1 m sole hold mu times 4 (0.1 +
+ *    0.05) per unit impulse about the normal; a patch pressed at one point, or
+ *    with its lever points unloaded, holds none and so gets no torsional row,
+ *    whose cone would be the single point zero (TSID `contact-6d.cpp`: moments
+ *    only from the points' levers).
+ * 7. A bound's room never goes below nothing: an impact the contact passes already
+ *    gave past the bound is the floor's, not taken back through the other
+ *    supports (Herzog et al. 2016, Section 5.3; unilateral contact).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each program, its bound and its expected solution in closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Solves `solveXpbdSupportCascade` over rows built with `AutoMovieXpbdSupportRows.impulse` and `along`, and integrates `AutoMoviePhysicalTracking.torque` on `physicalStanceBalance.saturate`.
@@ -80,9 +80,14 @@ export function test_physical_support_torsion(): void {
   if (solved === null) findings.push("four soles on one body have no solution");
   else {
     const moments: number[] = torsion(cancelled, solved);
-    const sum: number = moments.reduce((a: number, b: number): number => a + b, 0);
+    const sum: number = moments.reduce(
+      (a: number, b: number): number => a + b,
+      0,
+    );
     if (!(Math.abs(spin(cancelled, solved)) < 1e-9))
-      findings.push(`four soles leave the body spinning at ${spin(cancelled, solved)}`);
+      findings.push(
+        `four soles leave the body spinning at ${spin(cancelled, solved)}`,
+      );
     if (!(Math.abs(sum + 5 * h) < 1e-9))
       findings.push(`four soles take ${sum / h} N m against 5`);
     for (const [i, moment] of moments.entries()) {
@@ -207,13 +212,19 @@ export function test_physical_support_torsion(): void {
     { x: -0.1, y: 0, z: -0.05 },
     { x: 0.1, y: 0, z: -0.05 },
   ];
-  const open: number = AutoMovieXpbdSupportRows.capacity(corners, t, [1, 1, 1, 1]);
+  const open: number = AutoMovieXpbdSupportRows.capacity(
+    corners,
+    t,
+    [1, 1, 1, 1],
+  );
   if (!(Math.abs(open - 4 * 0.15) < 1e-12))
     findings.push(`four loaded corners hold ${open} against 0.6`);
   if (AutoMovieXpbdSupportRows.capacity([{ x: 0, y: 0, z: 0 }], t, [5]) !== 0)
     findings.push("a patch pressed at one point has torsional capacity");
   if (AutoMovieXpbdSupportRows.capacity(corners, t, [0, 0, 0, 0]) !== 0)
-    findings.push("a patch with its lever points unloaded has torsional capacity");
+    findings.push(
+      "a patch with its lever points unloaded has torsional capacity",
+    );
 
   // 7. A bound's room: a foot entering at a zero share whose landing impact
   // the contact passes already gave, 2849 N over the substep, has no room
@@ -257,11 +268,11 @@ interface IProgram {
 /**
  * A 10 kg body standing on soles centred at `centres`, each sole free in its
  * own translation and tilt but all turning about the vertical together, as a
- * four-legged body's two-axis legs leave them: four normal rows at each
- * sole's corners, two tangential rows and the torsional row at its centre,
- * under gravity and a yaw moment over one 1/480 s substep, coming down at
- * `descent`, the task asking the weight and the yaw moment `asked`, and the
- * first sole's normal rows bounded by `entry` when given.
+ * four-legged body's two-axis legs leave them: four normal rows at each sole's
+ * corners, two tangential rows and the torsional row at its centre, under
+ * gravity and a yaw moment over one 1/480 s substep, coming down at `descent`,
+ * the task asking the weight and the yaw moment `asked`, and the first sole's
+ * normal rows bounded by `entry` when given.
  */
 function program(
   centres: readonly IAutoMovieVector3[],
@@ -365,13 +376,22 @@ function program(
             z: row.point.z + centres[row.state]!.z,
           },
         });
-        return [impulse[3]!, impulse[4]!, impulse[5]!, impulse[0]!, impulse[1]!, impulse[2]!];
+        return [
+          impulse[3]!,
+          impulse[4]!,
+          impulse[5]!,
+          impulse[0]!,
+          impulse[1]!,
+          impulse[2]!,
+        ];
       }),
       target: [0, mass * 9.81 * h, 0, 0, asked * h, 0],
       set: { rows, patches },
       actuators: [],
       motion: [],
-      ...(entry !== undefined ? { bounds: [{ rows: normals[0]!, impulse: entry }] } : {}),
+      ...(entry !== undefined
+        ? { bounds: [{ rows: normals[0]!, impulse: entry }] }
+        : {}),
       warm: { first: [], second: [] },
     },
     normals,
@@ -391,7 +411,8 @@ function spin(program: IProgram, solution: readonly number[]): number {
   return (
     program.input.u[r]! +
     program.input.k[r]!.reduce(
-      (sum: number, value: number, s: number): number => sum + value * solution[s]!,
+      (sum: number, value: number, s: number): number =>
+        sum + value * solution[s]!,
       0,
     )
   );

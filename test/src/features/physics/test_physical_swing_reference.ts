@@ -178,7 +178,10 @@ export async function test_physical_swing_reference(): Promise<void> {
     ],
   };
   const body: {
-    balance: { pattern: Pick<IAutoMovieFootfallPattern, "limbs">; height: number };
+    balance: {
+      pattern: Pick<IAutoMovieFootfallPattern, "limbs">;
+      height: number;
+    };
   } = { balance: { pattern, height: 0.1 } };
   const target: Pick<IAutoMoviePhysicalSimulationInput.ITarget, "segments"> = {
     segments: {
@@ -340,9 +343,9 @@ export async function test_physical_swing_reference(): Promise<void> {
   };
   const limb: IAutoMovieFootfallPattern["limbs"][number] =
     recording.body.balance!.pattern.limbs.find(
-    (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
-      candidate.bone === "rightFoot",
-  )!;
+      (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
+        candidate.bone === "rightFoot",
+    )!;
   const hip: IAutoMoviePhysicalJoint = human.profile.joints.find(
     (joint: IAutoMoviePhysicalJoint): boolean => joint.child === limb.chain[0],
   )!;

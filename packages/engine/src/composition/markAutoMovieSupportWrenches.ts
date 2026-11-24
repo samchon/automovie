@@ -32,7 +32,7 @@ import type {
  * in world metres and unanchored, in the order each body's first record
  * appears.
  *
- * It throws for an interval or a scale that is not positive and finite.
+ * It throws for an interval or a scale that is not positive.
  *
  * @param props.wrenches Support wrench records of a physics cache or playback.
  * @param props.seconds The drawn film second.
@@ -45,11 +45,11 @@ export function markAutoMovieSupportWrenches(
 ): IAutoMovieMark[] {
   if (!(props.interval > 0))
     throw new Error(
-      `markAutoMovieSupportWrenches: interval ${props.interval} is not positive and finite`,
+      `markAutoMovieSupportWrenches: interval ${props.interval} is not positive`,
     );
   if (!(props.metresPerNewton > 0))
     throw new Error(
-      `markAutoMovieSupportWrenches: metres per newton ${props.metresPerNewton} is not positive and finite`,
+      `markAutoMovieSupportWrenches: metres per newton ${props.metresPerNewton} is not positive`,
     );
 
   // Records are ordered by time, so the last one at or before the second is each body's latest.

@@ -40,8 +40,6 @@ export namespace HumanPerformanceHold {
    * @param seconds Film seconds.
    * @param own The performer reading the prop and their own bones, for a prop
    *   they may carry.
-   * @param reader The performer whose posture reads the prop, if any: a prop
-   *   its own hand holds is read on the hand where the grip closed.
    * @returns Its frame.
    * @throws {HumanRefusal} If the selected socket chain revisits a prop at the
    *   same film second.
@@ -51,9 +49,8 @@ export namespace HumanPerformanceHold {
     subject: string,
     seconds: number,
     own?: IAutoMovieMotionHumanPerformanceHold.IPropOwn,
-    reader?: string,
   ): IAutoMovieRigidTransform {
-    return read(self, subject, seconds, own, undefined, reader);
+    return read(self, subject, seconds, own);
   }
 
   /** The active mounted carrier, provided no newer flight has taken custody. */
@@ -133,7 +130,6 @@ export namespace HumanPerformanceHold {
     seconds: number,
     own: IAutoMovieMotionHumanPerformanceHold.IPropOwn | undefined,
     path?: HumanPerformanceHoldKit.IMountPath,
-    reader?: string,
   ): IAutoMovieRigidTransform {
     if (path?.get(subject)?.has(seconds))
       throw new HumanRefusal({
@@ -178,7 +174,7 @@ export namespace HumanPerformanceHold {
     if (window === undefined) return prop.frame;
     const at: number = Math.min(seconds, window.to);
     const { carrier, moved }: HumanPerformanceHoldKit.IKit =
-      HumanPerformanceHoldKit(self, subject, seconds, own, path, grips, reader);
+      HumanPerformanceHoldKit(self, subject, seconds, own, path, grips);
     // Carried by the performer reading it: their own body as the read gives it.
     const hold = (
       w: IAutoMovieMotionHumanPerformanceState.IGrip,

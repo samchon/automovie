@@ -13,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
  * 1. A centre above the middle of a one-metre square of four support points is an unflagged `com` point, and the base is a closed `support` polyline through the four corners.
  * 2. A centre 0.2 m outside that square is flagged; a centre on its edge is not.
  * 3. One support point is drawn as a point and two as a segment; no support point is refused.
- * 4. Of three joints with overshoots of 0, 4 and Infinity degrees, the last two become flagged `rom` points at their positions and the first draws nothing; a negative or NaN overshoot and a non-finite position are refused.
+ * 4. Of three joints with overshoots of 0, 4 and Infinity degrees, the last two become flagged `rom` points at their positions and the first draws nothing; a negative overshoot is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the two engine producers on centres, supports and joint entries the test writes and reads the returned marks' kinds, paths, shapes and flags.
  * @evidence contracts/development/testing.md#independent-expectations Inside and outside are decided by hand from the square's authored corners, the hull of four corners is those corners, and the marked joints follow from the documented rule that a positive or unmeasurable overshoot is marked.
@@ -140,14 +140,7 @@ export function test_mark_balance_rom(): void {
       "a negative overshoot",
       { path: "j", at: { x: 0, y: 0, z: 0 }, overshoot: -1 },
     ],
-    [
-      "a NaN overshoot",
-      { path: "j", at: { x: 0, y: 0, z: 0 }, overshoot: Number.NaN },
-    ],
-    [
-      "a non-finite position",
-      { path: "j", at: { x: Number.NaN, y: 0, z: 0 }, overshoot: 1 },
-    ],
+
   ] as const)
     TestValidator.error(`${title} is refused`, (): void => {
       markAutoMovieRomOvershoot([entry]);

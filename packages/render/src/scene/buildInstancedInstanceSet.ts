@@ -12,6 +12,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
 import type { IAutoMovieInstanceSetViewerObject } from "./IAutoMovieInstanceSetViewerObject.js";
 import type { IAutoMovieInstanceSetViewerStats } from "./IAutoMovieInstanceSetViewerStats.js";
@@ -620,13 +621,16 @@ const exactPaletteMaterial: (
   material: THREE.Material,
   borrowed: boolean,
 ): THREE.Material => {
-  // A three.js material either carries a diffuse `color` or has none at all;
-  // there is no third state to test for, so the presence of the channel is the
-  // whole question.
-  const clone: THREE.Material<THREE.MaterialEventMap> &
-    Partial<Pick<THREE.MeshStandardMaterial, "color">> = (
-    borrowed ? material.clone() : material
-  ) as THREE.Material & Partial<Pick<THREE.MeshStandardMaterial, "color">>;
-  clone.color?.set(0xffffff);
+  // The mesh materials that carry a diffuse `color` are told by their class
+  // flags; any other material has no diffuse channel to neutralize.
+  const clone: THREE.Material = borrowed ? material.clone() : material;
+  if (
+    AutoMovieThreeKind.isMeshStandardMaterial(clone) ||
+    AutoMovieThreeKind.isMeshBasicMaterial(clone) ||
+    AutoMovieThreeKind.isMeshLambertMaterial(clone) ||
+    AutoMovieThreeKind.isMeshPhongMaterial(clone) ||
+    AutoMovieThreeKind.isMeshToonMaterial(clone)
+  )
+    clone.color.set(0xffffff);
   return clone;
 };

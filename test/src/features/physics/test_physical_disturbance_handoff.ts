@@ -6,20 +6,21 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A body is handed from physics to its push response only when its joints
- * hold together (`physicalSpanPose.admissible`): every joint's two anchors, its
+ * A body is handed from physics to its push response only when its joints hold
+ * together (`physicalSpanPose.admissible`): every joint's two anchors, its
  * parent frame on the parent's pose and its child frame on the child's, within
  * the handoff's linear error of each other, the envelope an ownership return
  * starts inside (`assertPhysicalReturnPath`).
  *
- * Scenarios, a thigh and shank joined at a knee 0.45 m below the thigh's origin:
+ * Scenarios, a thigh and shank joined at a knee 0.45 m below the thigh's
+ * origin:
  *
  * 1. Anchors that meet are admissible under a 1 mm limit.
  * 2. A shank 2 mm off the knee is not admissible under 1 mm, and is under 3 mm:
  *    the boundary is the limit itself.
  * 3. A joint whose child has no pose is skipped.
- * 4. A rotation of the thigh about its own origin carries the knee: the shank
- *    left behind is not admissible, the one moved with it is.
+ * 4. A rotation of the thigh about its own origin carries the knee: the shank left
+ *    behind is not admissible, the one moved with it is.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the condition, the chain and each case.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSpanPose.admissible` on in-memory joints and poses and reads its decision.

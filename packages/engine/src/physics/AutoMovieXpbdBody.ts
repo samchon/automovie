@@ -6,6 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { AutoMovieXpbdInertia } from "./AutoMovieXpbdInertia";
 
 /**
  * One rigid body of the engine's extended position-based dynamics world
@@ -201,19 +202,17 @@ export class AutoMovieXpbdBody {
    */
   public inverseInertia(v: IAutoMovieVector3): IAutoMovieVector3 {
     if (!this.dynamic) return { x: 0, y: 0, z: 0 };
-    const r: IAutoMovieQuaternion = Quaternion.multiply(
+    const inertia: IAutoMovieVector3 = this.inertia;
+    return AutoMovieXpbdInertia.apply(
       this.orientation,
       this.inertiaRotation,
-    );
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(r),
       v,
+      (local: IAutoMovieVector3): IAutoMovieVector3 => ({
+        x: inertia.x > 0 ? local.x / inertia.x : 0,
+        y: inertia.y > 0 ? local.y / inertia.y : 0,
+        z: inertia.z > 0 ? local.z / inertia.z : 0,
+      }),
     );
-    return Quaternion.rotateVector(r, {
-      x: this.inertia.x > 0 ? local.x / this.inertia.x : 0,
-      y: this.inertia.y > 0 ? local.y / this.inertia.y : 0,
-      z: this.inertia.z > 0 ? local.z / this.inertia.z : 0,
-    });
   }
 
   /**
@@ -224,10 +223,9 @@ export class AutoMovieXpbdBody {
    * images of the world axes.
    */
   public freezeInverseInertia(): void {
-    const x: IAutoMovieVector3 = this.inverseInertia({ x: 1, y: 0, z: 0 });
-    const y: IAutoMovieVector3 = this.inverseInertia({ x: 0, y: 1, z: 0 });
-    const z: IAutoMovieVector3 = this.inverseInertia({ x: 0, y: 0, z: 1 });
-    this.frozen = [x.x, y.x, z.x, x.y, y.y, z.y, x.z, y.z, z.z];
+    this.frozen = AutoMovieXpbdInertia.freeze(
+      (v: IAutoMovieVector3): IAutoMovieVector3 => this.inverseInertia(v),
+    );
   }
 
   /**
@@ -239,12 +237,7 @@ export class AutoMovieXpbdBody {
    */
   public frozenInverseInertia(v: IAutoMovieVector3): IAutoMovieVector3 {
     if (!this.dynamic) return { x: 0, y: 0, z: 0 };
-    const m: number[] = this.frozen;
-    return {
-      x: m[0]! * v.x + m[1]! * v.y + m[2]! * v.z,
-      y: m[3]! * v.x + m[4]! * v.y + m[5]! * v.z,
-      z: m[6]! * v.x + m[7]! * v.y + m[8]! * v.z,
-    };
+    return AutoMovieXpbdInertia.multiply(this.frozen, v);
   }
 
   /**
@@ -255,19 +248,17 @@ export class AutoMovieXpbdBody {
    * @returns The product, world frame, times kilogram square metres.
    */
   public worldInertia(v: IAutoMovieVector3): IAutoMovieVector3 {
-    const r: IAutoMovieQuaternion = Quaternion.multiply(
+    const inertia: IAutoMovieVector3 = this.inertia;
+    return AutoMovieXpbdInertia.apply(
       this.orientation,
       this.inertiaRotation,
-    );
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(r),
       v,
+      (local: IAutoMovieVector3): IAutoMovieVector3 => ({
+        x: local.x * inertia.x,
+        y: local.y * inertia.y,
+        z: local.z * inertia.z,
+      }),
     );
-    return Quaternion.rotateVector(r, {
-      x: local.x * this.inertia.x,
-      y: local.y * this.inertia.y,
-      z: local.z * this.inertia.z,
-    });
   }
 
   /**

@@ -121,7 +121,13 @@ export async function test_physical_human_quiet_support(): Promise<void> {
   const recorded: IStanding = { segments, planted, center, supports };
 
   const shares = (label: string, by: number): IShares | undefined =>
-    demand(quiet, profile, shift(recorded, profile, quiet, by), label, failures);
+    demand(
+      quiet,
+      profile,
+      shift(recorded, profile, quiet, by),
+      label,
+      failures,
+    );
   const follows = (label: string, shifted: IShares | undefined): void => {
     if (
       shifted &&
@@ -239,14 +245,16 @@ function standing(
       ]),
     ),
     center: centerOf(profile, segments),
-    supports: limbs.map((limb: IAutoMovieFootfallPattern["limbs"][number]): ISole => ({
-      bone: limb.bone,
-      points: (limb.contacts ?? [limb.bone])
-        .flatMap((bone: string): IAutoMovieVector3[] =>
-          corners(bone, pose(bone)),
-        )
-        .filter((point: IAutoMovieVector3): boolean => point.y <= LIFT),
-    })),
+    supports: limbs.map(
+      (limb: IAutoMovieFootfallPattern["limbs"][number]): ISole => ({
+        bone: limb.bone,
+        points: (limb.contacts ?? [limb.bone])
+          .flatMap((bone: string): IAutoMovieVector3[] =>
+            corners(bone, pose(bone)),
+          )
+          .filter((point: IAutoMovieVector3): boolean => point.y <= LIFT),
+      }),
+    ),
   };
 }
 
@@ -446,7 +454,10 @@ function mean(points: readonly IAutoMovieVector3[]): IAutoMovieVector3 {
 }
 
 /** A support limb's measured sole points, world metres. */
-type ISole = Pick<IAutoMovieCollectPhysicalSupports.ISupport, "bone" | "points">;
+type ISole = Pick<
+  IAutoMovieCollectPhysicalSupports.ISupport,
+  "bone" | "points"
+>;
 
 /** A standing frame as the stance demand reads it. */
 interface IStanding {

@@ -53,6 +53,30 @@ export class AutoMovieFilmIndirectStage {
   /** The last probe bake and its texture; null until a draw asks for probes. */
   private probes_: IBake | null = null;
 
+  /** The visibility raster, shared by the patched materials' uniform. */
+  private readonly filmResolution_: THREE.Vector2 = new THREE.Vector2(1, 1);
+
+  /** The probe grid's minimum corner, shared by its uniform. */
+  private readonly probeMin_: THREE.Vector3 = new THREE.Vector3();
+
+  /** The probe grid's counts, shared by its uniform. */
+  private readonly probeCounts_: THREE.Vector3 = new THREE.Vector3(1, 1, 1);
+
+  /** The horizon search's projection, shared by its uniform. */
+  private readonly projection_: THREE.Matrix4 = new THREE.Matrix4();
+
+  /** The horizon search's inverse projection, shared by its uniform. */
+  private readonly inverseProjection_: THREE.Matrix4 = new THREE.Matrix4();
+
+  /** The horizon search's raster, shared by its uniform. */
+  private readonly resolution_: THREE.Vector2 = new THREE.Vector2();
+
+  /** The blur's inverse projection, shared by its uniform. */
+  private readonly blurInverseProjection_: THREE.Matrix4 = new THREE.Matrix4();
+
+  /** The blur's raster, shared by its uniform. */
+  private readonly blurResolution_: THREE.Vector2 = new THREE.Vector2();
+
   /**
    * The uniforms the patched materials read: the visibility texture and its
    * raster, the probe texture with the grid's minimum corner, spacing and
@@ -61,12 +85,12 @@ export class AutoMovieFilmIndirectStage {
   private readonly uniforms_: Record<string, THREE.IUniform> = {
     uFilmOcclusion: { value: null },
     uFilmOcclusionOn: { value: 0 },
-    uFilmResolution: { value: new THREE.Vector2(1, 1) },
+    uFilmResolution: { value: this.filmResolution_ },
     uFilmProbes: { value: null },
     uFilmProbesOn: { value: 0 },
-    uFilmProbeMin: { value: new THREE.Vector3() },
+    uFilmProbeMin: { value: this.probeMin_ },
     uFilmProbeSpacing: { value: 1 },
-    uFilmProbeCounts: { value: new THREE.Vector3(1, 1, 1) },
+    uFilmProbeCounts: { value: this.probeCounts_ },
   };
 
   /** The double-sided view-space normal material of the occlusion prepass. */
@@ -115,17 +139,17 @@ export class AutoMovieFilmIndirectStage {
     this.occlusion_ = material(AUTOMOVIE_FILM_OCCLUSION_SHADERS.occlusion, {
       tDepth: { value: null },
       tNormal: { value: null },
-      uProjection: { value: new THREE.Matrix4() },
-      uInverseProjection: { value: new THREE.Matrix4() },
-      uResolution: { value: new THREE.Vector2() },
+      uProjection: { value: this.projection_ },
+      uInverseProjection: { value: this.inverseProjection_ },
+      uResolution: { value: this.resolution_ },
       uRadius: { value: 1 },
       uSample: { value: 0 },
     });
     this.blur_ = material(AUTOMOVIE_FILM_OCCLUSION_SHADERS.blur, {
       tVisibility: { value: null },
       tDepth: { value: null },
-      uInverseProjection: { value: new THREE.Matrix4() },
-      uResolution: { value: new THREE.Vector2() },
+      uInverseProjection: { value: this.blurInverseProjection_ },
+      uResolution: { value: this.blurResolution_ },
     });
     this.quad_ = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.occlusion_);
     this.quad_.frustumCulled = false;
@@ -291,17 +315,9 @@ export class AutoMovieFilmIndirectStage {
     }
     const { volume, texture }: IBake = this.probes_!;
     this.uniforms_.uFilmProbes!.value = texture;
-    (this.uniforms_.uFilmProbeMin!.value as THREE.Vector3).set(
-      volume.min.x,
-      volume.min.y,
-      volume.min.z,
-    );
+    this.probeMin_.set(volume.min.x, volume.min.y, volume.min.z);
     this.uniforms_.uFilmProbeSpacing!.value = volume.spacing;
-    (this.uniforms_.uFilmProbeCounts!.value as THREE.Vector3).set(
-      volume.counts.x,
-      volume.counts.y,
-      volume.counts.z,
-    );
+    this.probeCounts_.set(volume.counts.x, volume.counts.y, volume.counts.z);
   }
 
   /** Measure the occlusion visibility of this draw into the visibility target. */
@@ -338,23 +354,20 @@ export class AutoMovieFilmIndirectStage {
       const o: Record<string, THREE.IUniform> = this.occlusion_.uniforms;
       o.tDepth!.value = targets.normal.depthTexture;
       o.tNormal!.value = targets.normal.texture;
-      (o.uProjection!.value as THREE.Matrix4).copy(projection);
-      (o.uInverseProjection!.value as THREE.Matrix4).copy(inverse);
-      (o.uResolution!.value as THREE.Vector2).set(props.width, props.height);
+      this.projection_.copy(projection);
+      this.inverseProjection_.copy(inverse);
+      this.resolution_.set(props.width, props.height);
       o.uRadius!.value = occlusion.radius;
       o.uSample!.value = props.sample;
       this.pass(renderer, this.occlusion_, targets.raw);
       const b: Record<string, THREE.IUniform> = this.blur_.uniforms;
       b.tVisibility!.value = targets.raw.texture;
       b.tDepth!.value = targets.normal.depthTexture;
-      (b.uInverseProjection!.value as THREE.Matrix4).copy(inverse);
-      (b.uResolution!.value as THREE.Vector2).set(props.width, props.height);
+      this.blurInverseProjection_.copy(inverse);
+      this.blurResolution_.set(props.width, props.height);
       this.pass(renderer, this.blur_, targets.visibility);
       this.uniforms_.uFilmOcclusion!.value = targets.visibility.texture;
-      (this.uniforms_.uFilmResolution!.value as THREE.Vector2).set(
-        props.width,
-        props.height,
-      );
+      this.filmResolution_.set(props.width, props.height);
     } finally {
       for (const [object, mask] of overlays) object.layers.mask = mask;
       scene.overrideMaterial = override;

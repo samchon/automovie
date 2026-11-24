@@ -4,8 +4,8 @@ import type {
   IAutoMovieSemanticMaskEntry,
 } from "@automovie/interface";
 import * as THREE from "three";
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import {
   applyDualQuaternionSkinning,
   dualQuaternionSkinningOf,
@@ -152,7 +152,7 @@ export const applyAutoMovieSemanticMask: (props: {
           (): void => {
             entry.mesh.instanceColor = entry.attribute;
             if (entry.values !== null && entry.attribute !== null) {
-              (entry.attribute.array as Float32Array).set(entry.values);
+              entry.attribute.copyArray(entry.values);
               entry.attribute.needsUpdate = true;
             }
           },
@@ -237,8 +237,7 @@ export const applyAutoMovieSemanticMask: (props: {
       colors.push({
         mesh: instanced,
         attribute: previous,
-        values:
-          previous === null ? null : (previous.array as Float32Array).slice(),
+        values: previous === null ? null : Float32Array.from(previous.array),
       });
       const set: string = entry.id.slice(INSTANCE_SET_PREFIX.length);
       const paint: THREE.Color = new THREE.Color();

@@ -6,9 +6,8 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdSupportRows as Rows } from "./AutoMovieXpbdSupportRows";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
-
 import { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
+import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
 /** A support row. */
 type IRow = Contacts.IRow;
@@ -149,7 +148,7 @@ export namespace solveXpbdArticulationTask {
         s >= set.rows.length
           ? new Array<number>(width).fill(0)
           : objective
-            ? solveXpbdArticulationContacts.objectiveRow(
+            ? Contacts.objectiveRow(
                 set.rows[s]!,
                 Vector3.add(set.rows[s]!.point, tree.origin),
                 tree.states[set.rows[s]!.state]!.body,
@@ -219,7 +218,7 @@ export namespace solveXpbdArticulationTask {
         );
         return {
           rows: patches.flatMap((patch: IPatch): number[] => patch.normals),
-          impulse: solveXpbdArticulationContacts.room({
+          impulse: Contacts.room({
             force: bound.force,
             h,
             given: patches.reduce(

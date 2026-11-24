@@ -71,15 +71,16 @@ export function test_physical_checkpoint_capture(): void {
   ]);
   const released: Set<string> = new Set();
   // The binding's parts a checkpoint keeps; the run's other parts are not read.
-  const bound: Parameters<typeof capturePhysicalSimulationCheckpoint>[0]["bound"] =
-    {
-      released,
-      contactReleased: new Set<string>(),
-      planned,
-      supportPlanned: new Map(),
-      contactTargets: new Map(),
-      handoffs: new Map(),
-    };
+  const bound: Parameters<
+    typeof capturePhysicalSimulationCheckpoint
+  >[0]["bound"] = {
+    released,
+    contactReleased: new Set<string>(),
+    planned,
+    supportPlanned: new Map(),
+    contactTargets: new Map(),
+    handoffs: new Map(),
+  };
   const active: Map<string, IAutoMovieContactReceipt> = new Map();
   const softened: Map<string, number> = new Map();
   const capture = (step: number): void =>

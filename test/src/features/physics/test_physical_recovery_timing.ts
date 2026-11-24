@@ -18,8 +18,8 @@ import { TestValidator } from "@nestia/e2e";
  *    weight, rejoins the support on the second successive substep, an aborted
  *    lift; one substep's load does not, and a load under it restarts the count
  *    (Stephens 2011, Figure 4.6; Feng et al. 2015, Section III-A4). A foot
- *    reloaded before it has cleared the floor stays swinging however long it
- *    is pressed: its load is the floor it never left, not a landing
+ *    reloaded before it has cleared the floor stays swinging however long it is
+ *    pressed: its load is the floor it never left, not a landing
  *    (design-4017-verdicts, C17). A toe scraping the floor while the cleared
  *    foot still rises is a scuff and is ignored; the same contact while it
  *    comes down lands (Stephens 2011, Figure 4.6; Feng et al. 2015, Section
@@ -186,11 +186,7 @@ export function test_physical_recovery_timing(): void {
     gravity: 9.81,
     acceleration: { x: 0, y: 0, z: 0 },
   });
-  if (
-    !(Math.abs(rest.y - 6.2 * 9.81) < 1e-9) ||
-    rest.x !== 0 ||
-    rest.z !== 0
-  )
+  if (!(Math.abs(rest.y - 6.2 * 9.81) < 1e-9) || rest.x !== 0 || rest.z !== 0)
     failures.push(`a resting swing is driven by ${JSON.stringify(rest)}`);
   const moving = physicalStanceSwing.swingForce({
     mass: 6.2,
@@ -202,7 +198,9 @@ export function test_physical_recovery_timing(): void {
     !(Math.abs(moving.y - 6.2 * 7.81) < 1e-9) ||
     !(Math.abs(moving.z - 6.2 * 3) < 1e-9)
   )
-    failures.push(`an accelerating swing is driven by ${JSON.stringify(moving)}`);
+    failures.push(
+      `an accelerating swing is driven by ${JSON.stringify(moving)}`,
+    );
 
   TestValidator.equals("recovery timing", failures, []);
 }

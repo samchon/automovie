@@ -13,13 +13,18 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Articulated bodies at one cached instant become bone segments between joined segments and joint points at every segment, for any rig.
+ * Articulated bodies at one cached instant become bone segments between joined
+ * segments and joint points at every segment, for any rig.
  *
  * Scenarios:
  *
- * 1. A two-bone chain of three segments, `root`, `mid` and `tip`, joined root to mid and mid to tip, gives two bone segments from parent to child position and three joint points at the segments' positions, at paths under the body and its bones, unanchored.
+ * 1. A two-bone chain of three segments, `root`, `mid` and `tip`, joined root to
+ *    mid and mid to tip, gives two bone segments from parent to child position
+ *    and three joint points at the segments' positions, at paths under the body
+ *    and its bones, unanchored.
  * 2. Two bodies give each body's marks under its own id, body by body.
- * 3. A frame that lacks a segment the profile names is refused naming the body and the bone.
+ * 3. A frame that lacks a segment the profile names is refused naming the body and
+ *    the bone.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the engine producer on profiles and frames the test writes and reads the returned marks' paths, kinds, shapes and anchors.
  * @evidence contracts/development/testing.md#independent-expectations Expected ends and points are the positions written into the frame, and the expected paths follow the documented `<body>/<bone>/bone` and `<body>/<bone>/joint` forms.

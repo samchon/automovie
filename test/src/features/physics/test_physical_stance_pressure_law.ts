@@ -22,31 +22,29 @@ import { TestValidator } from "@nestia/e2e";
  * closed forms without a simulation:
  *
  * 1. The command is u = xi + k (xi - xi_ref) plus the integral's bias (Hof et al.
- *    2005; Stephens 2011, Eq. 5.31). The support is shared capture first,
- *    trunk second, convergence last (Lee and Goswami 2012): along one axis of
- *    a shrunken extent [-0.10, 0.38] within a support reaching 0.40, a
- *    capture point at 0.29 with the trunk asking 0.05 m of offset gives p =
- *    0.38 and u = 0.33; at 0.31, 7 cm inside the shrunken edge as the
- *    quadruped's 0.75x push stands, and at 0.36, the same; and p never falls
- *    behind xi. Past the support p sits at its edge and the pivot takes the
- *    hip strategy's offset, or the trunk's without one. In the band past the
- *    shrunken edge convergence comes first as far as the hip strategy
- *    reaches: at 0.39 with -0.02, p = 0.40 and u = u_law under a strategy
- *    reaching that far, u = p + 0.05 under one reaching 0.05, and u = p -
- *    delta = 0.42 without one; with u_law inside the support the trunk's
- *    offset is trimmed to the room left. Without a strategy the pivot never
- *    falls inside the capture point along the outward normal: at 0.387 a 3 cm
- *    trunk offset is cut to 1.3 cm, about 10 N m under 760 N (Hof et al.
- *    2005).
- * 1e. The pivot stays within the stance hips' room of the centre of pressure:
- *    a diagonal pair of hips holding 100 N m each about the pitch axis, whose
- *    feet each carry 300 N 0.1 m ahead of them, keep 70 N m each, and a trunk
- *    asking 0.5 m of offset under 600 N gets 140 / 600 m (design-4017-edge,
- *    E1, rule 2; Herzog et al. 2016, Section 2.1).
- * 1d. In single support the stance bears the trunk's roll and pitch and the
- *    swinging hip's torque, the hip's whole (Yin, Loken and van de Panne
- *    2007, Section 3.2): on one sole the offset is served on the centre of
- *    pressure within the sole's room and through the pivot beyond it.
+ *    2005; Stephens 2011, Eq. 5.31). The support is shared capture first, trunk
+ *    second, convergence last (Lee and Goswami 2012): along one axis of a
+ *    shrunken extent [-0.10, 0.38] within a support reaching 0.40, a capture
+ *    point at 0.29 with the trunk asking 0.05 m of offset gives p = 0.38 and u
+ *    = 0.33; at 0.31, 7 cm inside the shrunken edge as the quadruped's 0.75x
+ *    push stands, and at 0.36, the same; and p never falls behind xi. Past the
+ *    support p sits at its edge and the pivot takes the hip strategy's offset,
+ *    or the trunk's without one. In the band past the shrunken edge convergence
+ *    comes first as far as the hip strategy reaches: at 0.39 with -0.02, p =
+ *    0.40 and u = u_law under a strategy reaching that far, u = p + 0.05 under
+ *    one reaching 0.05, and u = p - delta = 0.42 without one; with u_law inside
+ *    the support the trunk's offset is trimmed to the room left. Without a
+ *    strategy the pivot never falls inside the capture point along the outward
+ *    normal: at 0.387 a 3 cm trunk offset is cut to 1.3 cm, about 10 N m under
+ *    760 N (Hof et al. 2005). 1e. The pivot stays within the stance hips' room
+ *    of the centre of pressure: a diagonal pair of hips holding 100 N m each
+ *    about the pitch axis, whose feet each carry 300 N 0.1 m ahead of them,
+ *    keep 70 N m each, and a trunk asking 0.5 m of offset under 600 N gets 140
+ *    / 600 m (design-4017-edge, E1, rule 2; Herzog et al. 2016, Section 2.1).
+ *    1d. In single support the stance bears the trunk's roll and pitch and the
+ *    swinging hip's torque, the hip's whole (Yin, Loken and van de Panne 2007,
+ *    Section 3.2): on one sole the offset is served on the centre of pressure
+ *    within the sole's room and through the pivot beyond it.
  * 2. A square shrunk by the margin keeps its centre and loses the margin on every
  *    side.
  *
@@ -124,7 +122,11 @@ export function test_physical_stance_pressure_law(): void {
   for (const [name, result, p, u] of cases) {
     near(`${name} p`, result.pressure.z, p);
     near(`${name} u`, result.pivot.z, u);
-    near(`${name} lateral`, Math.abs(result.pressure.x) + Math.abs(result.pivot.x), 0);
+    near(
+      `${name} lateral`,
+      Math.abs(result.pressure.x) + Math.abs(result.pivot.x),
+      0,
+    );
     if (!result.clamped) failures.push(`${name} was not trimmed`);
   }
   // Room enough: the command itself, untrimmed.
@@ -228,9 +230,7 @@ export function test_physical_stance_pressure_law(): void {
   const trunk: ReadonlyMap<
     string,
     Pick<AutoMovieXpbdBody, "translation" | "rotation">
-  > = new Map([
-    ["trunk", body({ x: 0, y: 0.5, z: 0 })],
-  ]);
+  > = new Map([["trunk", body({ x: 0, y: 0.5, z: 0 })]]);
   const diagonal = (force: number) =>
     (["frontLeft", "backRight"] as const).map((bone) => ({
       limb: {
