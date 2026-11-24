@@ -54,7 +54,7 @@ export namespace InstrumentBuild {
     kind: createInstrument.Kind,
     name: string,
     params: Readonly<Partial<Omit<createInstrument.IParams, "kind">>>,
-    seed: number | string | undefined,
+    seed: number | undefined,
     construct: (
       builder: AutoMovieArchetypeBuilder<Id, createInstrument.Dimension>,
       dimensions: Partial<Record<createInstrument.Dimension, number>>,

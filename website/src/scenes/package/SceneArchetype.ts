@@ -14,10 +14,13 @@ export namespace SceneArchetype {
     archetypes.AutoMovieArchetypeMass.IProperties | null
   >;
 
-  /** A producer as the site calls it, with the variant list that names its selector. */
+  /**
+   * A producer as the site calls it, with the variant list that names its
+   * selector.
+   */
   export interface IProducer {
     /** Build the model from its parameters and an optional seed. */
-    (params: Record<string, unknown>, seed?: string): Model;
+    (params: Record<string, unknown>, seed?: number): Model;
 
     /** The frames, when the producer's selector is `frame`. */
     FRAMES?: readonly string[];
@@ -54,7 +57,7 @@ export namespace SceneArchetype {
         ...(object.params ?? {}),
         ...(object.kind === undefined ? {} : { [key]: object.kind }),
       },
-      object.seed,
+      object.seed === undefined ? undefined : Number(object.seed),
     );
   }
 }

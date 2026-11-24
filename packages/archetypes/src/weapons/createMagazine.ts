@@ -41,7 +41,7 @@ const PMAG: string =
  */
 export function createMagazine(
   params: createMagazine.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createMagazine.Affordance, createMagazine.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createMagazine.Dimension> =
     new AutoMovieArchetypeDrawSession<createMagazine.Dimension>(

@@ -26,7 +26,7 @@ const STAGED: string =
  */
 export function createSwimFin(
   params: createSwimFin.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSwimFin.Affordance, createSwimFin.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSwimFin.Dimension> =
     new AutoMovieArchetypeDrawSession(

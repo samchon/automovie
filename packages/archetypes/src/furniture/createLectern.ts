@@ -38,7 +38,7 @@ const ESTIMATES: Readonly<{ slab: number }> = { slab: 0.02 };
  */
 export function createLectern(
   params: createLectern.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLectern.Affordance, createLectern.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLectern.Dimension> =
     new AutoMovieArchetypeDrawSession<createLectern.Dimension>(

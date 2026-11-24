@@ -52,7 +52,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `door-hinged-${hinge}-${hardware}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype =>
         createDoor({ kind: "hinged", hinge, hardware, ...dimensions }, seed),
@@ -61,7 +61,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `door-sliding-${hinge}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype =>
         createDoor({ kind: "sliding", hinge, ...dimensions }, seed),
@@ -70,7 +70,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `window-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createWindow({ kind, ...dimensions }, seed),
     );
@@ -78,21 +78,21 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `switch-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createSwitch({ kind, ...dimensions }, seed),
     );
   add(
     "stairs",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createStairs({ ...dimensions }, seed),
   );
   add(
     "ramp",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createRamp({ ...dimensions }, seed),
   );
@@ -100,14 +100,14 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `kerb-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createKerb({ kind, ...dimensions }, seed),
     );
   add(
     "tap",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createTap({ ...dimensions }, seed),
   );
@@ -115,7 +115,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `sanitary-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createSanitary({ kind, ...dimensions }, seed),
     );
@@ -123,7 +123,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `appliance-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createAppliance({ kind, ...dimensions }, seed),
     );
@@ -131,7 +131,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `obstacle-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createObstacle({ kind, ...dimensions }, seed),
     );
@@ -139,7 +139,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `streetFixture-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype =>
         createStreetFixture({ kind, ...dimensions }, seed),
@@ -148,7 +148,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `bin-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBin({ kind, ...dimensions }, seed),
     );
@@ -156,7 +156,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `gate-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createGate({ kind, ...dimensions }, seed),
     );
@@ -164,14 +164,14 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `machine-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createMachine({ kind, ...dimensions }, seed),
     );
   add(
     "valve",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createValve({ ...dimensions }, seed),
   );
@@ -179,7 +179,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `handhold-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createHandhold({ kind, ...dimensions }, seed),
     );
@@ -187,7 +187,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `mirror-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createMirror({ kind, ...dimensions }, seed),
     );
@@ -195,14 +195,14 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `board-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBoard({ kind, ...dimensions }, seed),
     );
   add(
     "saloonDoor",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createSaloonDoor({ ...dimensions }, seed),
   );
@@ -210,28 +210,28 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `control-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createControl({ kind, ...dimensions }, seed),
     );
   add(
     "hatch",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createHatch({ ...dimensions }, seed),
   );
   add(
     "beerTap",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createBeerTap({ ...dimensions }, seed),
   );
   add(
     "cellFront",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype =>
       createCellFront({ ...createCellFront.REFERENCE, ...dimensions }, seed),
@@ -239,7 +239,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
   add(
     "elevator",
     (
-      seed?: number | string,
+      seed?: number,
       dimensions?: archetypeCatalog.Dimensions,
     ): AutoMovieArchetype => createElevator({ ...dimensions }, seed),
   );
@@ -247,7 +247,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `wall-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createWall({ kind, ...dimensions }, seed),
     );
@@ -255,7 +255,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `bar-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createBar({ kind, ...dimensions }, seed),
     );
@@ -263,7 +263,7 @@ export function archetypeCatalogBuilt(add: archetypeCatalog.Add): void {
     add(
       `ladder-${kind}`,
       (
-        seed?: number | string,
+        seed?: number,
         dimensions?: archetypeCatalog.Dimensions,
       ): AutoMovieArchetype => createLadder({ kind, ...dimensions }, seed),
     );

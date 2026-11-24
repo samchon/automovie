@@ -35,7 +35,7 @@ type Figures = Readonly<Partial<Record<createJumpRope.Dimension, number>>>;
  */
 export function createJumpRope(
   params: createJumpRope.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createJumpRope.Affordance, createJumpRope.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createJumpRope.Dimension> =
     new AutoMovieArchetypeDrawSession<createJumpRope.Dimension>(

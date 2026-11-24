@@ -36,7 +36,7 @@ const WALL: number = 0.008;
  */
 export function createWeaponLoop(
   params: createWeaponLoop.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWeaponLoop.Affordance, createWeaponLoop.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createWeaponLoop.Dimension> =
     new AutoMovieArchetypeDrawSession<createWeaponLoop.Dimension>(

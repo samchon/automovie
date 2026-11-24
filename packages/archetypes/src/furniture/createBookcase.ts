@@ -14,7 +14,7 @@ import type { createStorage } from "./createStorage";
  */
 export function createBookcase(
   params: createBookcase.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBookcase.Affordance, createBookcase.Dimension> {
   return StorageMechanisms.bookcase(params, seed);
 }

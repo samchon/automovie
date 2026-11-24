@@ -70,7 +70,7 @@ const POWER: string =
  */
 export function createPolearm(
   params: createPolearm.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPolearm.Affordance, createPolearm.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPolearm.Dimension> =
     new AutoMovieArchetypeDrawSession<createPolearm.Dimension>(

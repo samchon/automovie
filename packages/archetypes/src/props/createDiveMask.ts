@@ -25,7 +25,7 @@ const STAGED: string =
  */
 export function createDiveMask(
   params: createDiveMask.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDiveMask.Affordance, createDiveMask.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDiveMask.Dimension> =
     new AutoMovieArchetypeDrawSession(

@@ -57,7 +57,7 @@ const ESTIMATES: Readonly<{ panel: number; foot: number }> = {
  */
 export function createMirror(
   params: createMirror.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createMirror.Affordance, createMirror.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createMirror.Dimension> =
     new AutoMovieArchetypeDrawSession<createMirror.Dimension>(

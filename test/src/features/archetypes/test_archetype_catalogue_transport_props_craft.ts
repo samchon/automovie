@@ -50,13 +50,20 @@ const COURSE: AutoMovieArchetypeCourse.ICourse = {
 };
 
 /**
- * The canonical land and water forms preserve saved geometry and real motion support.
+ * The canonical land and water forms preserve saved geometry and real motion
+ * support.
  *
  * Scenarios:
- * 1. Every saved cart and boat kind builds the same model through its named producer.
- * 2. A towed cart's wheels meet the floor and its hitch follows a separately moving leader through both producer forms.
- * 3. The rowboat seats its rower facing aft with oars on their locks, the canoe faces its paddlers forward without oarlocks, and every pulling-boat thwart faces aft without an oarlock.
- * 4. A moving double-scull crew reads back the same stations from the saved and named rowboat.
+ *
+ * 1. Every saved cart and boat kind builds the same model through its named
+ *    producer.
+ * 2. A towed cart's wheels meet the floor and its hitch follows a separately
+ *    moving leader through both producer forms.
+ * 3. The rowboat seats its rower facing aft with oars on their locks, the canoe
+ *    faces its paddlers forward without oarlocks, and every pulling-boat thwart
+ *    faces aft without an oarlock.
+ * 4. A moving double-scull crew reads back the same stations from the saved and
+ *    named rowboat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Covers the seeded legacy selector, public detached producer, model-space wheels and tow hitch, and visible stations on a moving hull.
  * @evidence contracts/development/testing.md#behavioral-verification Builds all saved cart and boat variants through both SDK inputs and makes actual towing and row-crew reads.
@@ -65,7 +72,7 @@ const COURSE: AutoMovieArchetypeCourse.ICourse = {
  * @evidence contracts/development/testing.md#execution-ownership The in-memory feature runner owns all generated archetypes, tracks and performances.
  */
 export function test_archetype_catalogue_transport_props_craft(): void {
-  const seed: string = "canonical-transport";
+  const seed: number = 1038;
   const id: string = "carrier";
   const trolley: ReturnType<typeof createShoppingTrolley> =
     createShoppingTrolley({ id }, seed);
@@ -215,7 +222,10 @@ export function test_archetype_catalogue_transport_props_craft(): void {
   );
 }
 
-/** Compare the authored model, its explicit measured dimensions and its provenance. */
+/**
+ * Compare the authored model, its explicit measured dimensions and its
+ * provenance.
+ */
 function sameModel(
   label: string,
   canonical: AutoMovieArchetype,

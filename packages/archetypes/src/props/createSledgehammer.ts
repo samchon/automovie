@@ -25,7 +25,7 @@ const STAGED: string =
  */
 export function createSledgehammer(
   params: createSledgehammer.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createSledgehammer.Affordance,
   createSledgehammer.Dimension

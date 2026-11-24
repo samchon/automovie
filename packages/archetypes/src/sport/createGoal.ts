@@ -17,7 +17,7 @@ import { createVolleyballNet } from "./createVolleyballNet";
  */
 export function createGoal(
   params: createGoal.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createGoal.Affordance, createGoal.Dimension> {
   const kind: createGoal.Kind = ArchetypeDraw.choice(
     "goal",
@@ -29,7 +29,7 @@ export function createGoal(
   // The stored input can carry any former choice. The selected draw admits only its own profile.
   const produce: (
     params: createGoal.IParams,
-    seed?: number | string,
+    seed?: number,
   ) => AutoMovieArchetype<createGoal.Affordance, createGoal.Dimension> =
     createGoal.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

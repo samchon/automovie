@@ -15,7 +15,7 @@ import { createPlatformBed } from "./createPlatformBed";
 /** A saved bed recipe's producer as the dispatcher calls it. */
 type Producer = (
   params: createBed.IParams,
-  seed?: number | string,
+  seed?: number,
 ) => AutoMovieArchetype<createBed.Affordance, createBed.Dimension>;
 
 /**
@@ -32,7 +32,7 @@ type Producer = (
  */
 export function createBed(
   params: createBed.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBed.Affordance, createBed.Dimension> {
   const kind: createBed.Kind = ArchetypeDraw.choice(
     "bed",

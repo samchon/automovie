@@ -39,7 +39,7 @@ const UNREAD: string =
  */
 export function createStartingBlock(
   params: createStartingBlock.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStartingBlock.Affordance,
   createStartingBlock.Dimension

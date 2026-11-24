@@ -29,7 +29,7 @@ const NORMS: string =
  */
 export function createStillRings(
   params: createStillRings.IParams = {},
-  seed?: string | number,
+  seed?: number,
 ): AutoMovieArchetype<createStillRings.Affordance, createStillRings.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createStillRings.Dimension> =
     new AutoMovieArchetypeDrawSession(

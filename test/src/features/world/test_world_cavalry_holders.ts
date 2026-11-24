@@ -21,14 +21,18 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** The horse producer's model. */
 type Horse = ReturnType<typeof createHorse>;
 
-/** Metres between the two held horses' heads, either side of the holder: an authored staging choice. */
+/**
+ * Metres between the two held horses' heads, either side of the holder: an
+ * authored staging choice.
+ */
 const PAIR: number = 1.1;
 
 /** Seconds the holder stands holding. */
 const HOLD: number = 8;
 
 /**
- * In dismounted action a horse holder stands between two troopers' horses and holds one lead in each hand while the others go forward on foot.
+ * In dismounted action a horse holder stands between two troopers' horses and
+ * holds one lead in each hand while the others go forward on foot.
  *
  * Scenarios:
  *
@@ -43,10 +47,7 @@ const HOLD: number = 8;
  */
 export function test_world_cavalry_holders(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const horse: Horse = createHorse(
-    { withersHeight: 1.62, tempo: 0 },
-    "trooper",
-  );
+  const horse: Horse = createHorse({ withersHeight: 1.62, tempo: 0 }, 1029);
   const parked: (x: number) => IAutoMovieRigidTransform = (
     x: number,
   ): IAutoMovieRigidTransform => ({

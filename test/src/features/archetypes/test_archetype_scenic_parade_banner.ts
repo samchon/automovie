@@ -15,8 +15,9 @@ import { vclose } from "../internal/vclose";
  * One banner exposes two separate carrier sites on the real pole geometry.
  *
  * Scenarios:
- * 1. Build a fixed banner. Measure the panel and each pole from the colliders
- *    and check that the grips lie on opposite panel edges over the exposed poles.
+ *
+ * 1. Build a fixed banner. Measure the panel and each pole from the colliders and
+ *    check that the grips lie on opposite panel edges over the exposed poles.
  * 2. Adapt the banner to one human-motion prop. Both grip points and the front
  *    marker remain addressable in the prop's local frame.
  * 3. Repeat one seed and refuse a pole height that would bury the grips.
@@ -118,8 +119,8 @@ export function test_archetype_scenic_parade_banner(): void {
   );
   TestValidator.equals(
     "one seed repeats the banner geometry",
-    JSON.stringify(createScenicParadeBanner({}, "spring").shapes()),
-    JSON.stringify(createScenicParadeBanner({}, "spring").shapes()),
+    JSON.stringify(createScenicParadeBanner({}, 1008).shapes()),
+    JSON.stringify(createScenicParadeBanner({}, 1008).shapes()),
   );
   TestValidator.error("a pole shorter than the panel is refused", () =>
     createScenicParadeBanner({ poleHeight: 0.4, panelHeight: 0.5 }),

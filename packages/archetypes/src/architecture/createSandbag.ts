@@ -19,7 +19,7 @@ import { ObstacleDraw } from "./ObstacleDraw";
  */
 export function createSandbag(
   params: createSandbag.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSandbag.Affordance, createSandbag.Dimension> {
   const { builder, d }: ObstacleDraw.IObstacle<createSandbag.Affordance> =
     ObstacleDraw.begin("sandbag", "sandbag", "composite", params, seed);

@@ -17,11 +17,17 @@ interface IMark {
 }
 
 /**
- * A horse ridden on a timed formation route keeps every planted hoof within its limb's reach through a trotting bend, and a route it cannot follow refuses with a typed reason naming the second.
+ * A horse ridden on a timed formation route keeps every planted hoof within its
+ * limb's reach through a trotting bend, and a route it cannot follow refuses
+ * with a typed reason naming the second.
  *
  * Scenarios:
- * 1. The mounted-passage lead route from a halt into a 3 m sidestep bend at a trot samples every 0.05 s without a reach failure.
- * 2. A route that doubles the sidestep in the same time, beyond the gaits' declared speeds, refuses with an AutoMovieArchetypeRefusal rather than a raw RangeError.
+ *
+ * 1. The mounted-passage lead route from a halt into a 3 m sidestep bend at a trot
+ *    samples every 0.05 s without a reach failure.
+ * 2. A route that doubles the sidestep in the same time, beyond the gaits'
+ *    declared speeds, refuses with an AutoMovieArchetypeRefusal rather than a
+ *    raw RangeError.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the route, the sampling and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Samples the public ride over the bend and catches the refusal type.
@@ -42,7 +48,7 @@ export function test_archetype_equine_timed_bend(): void {
     { seconds: 18, x: -4.5, z: 27 },
   ];
   const ride = rideQuadruped(
-    createHorse({}, "hazel"),
+    createHorse({}, 1002),
     AutoMovieArchetypeCourse.timed("hazel", marks),
   );
   for (let at: number = 6; at <= 18; at += 0.05)
@@ -57,7 +63,7 @@ export function test_archetype_equine_timed_bend(): void {
   let refusal: unknown;
   try {
     const wide = rideQuadruped(
-      createHorse({}, "hazel"),
+      createHorse({}, 1002),
       AutoMovieArchetypeCourse.timed(
         "hazel",
         marks.map(

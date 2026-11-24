@@ -31,14 +31,10 @@ import {
 import { IDENTITY_TRANSFORM, createSkeleton } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
 
-/**
- * The story span the production's source travels across, in story seconds.
- */
+/** The story span the production's source travels across, in story seconds. */
 const SPAN: number = 600;
 
-/**
- * The production's one declared source, carried at story time zero.
- */
+/** The production's one declared source, carried at story time zero. */
 const key: IAutoMovieLight = {
   id: "key",
   type: "directional",
@@ -47,9 +43,7 @@ const key: IAutoMovieLight = {
   intensity: 3,
 };
 
-/**
- * A light the scene stages for itself, which the production never addresses.
- */
+/** A light the scene stages for itself, which the production never addresses. */
 const practical: IAutoMovieLight = {
   id: "practical",
   type: "point",
@@ -150,9 +144,7 @@ const buildContext: (
   lighting: design.lighting,
 });
 
-/**
- * What one shot is lit by at its own opening moment.
- */
+/** What one shot is lit by at its own opening moment. */
 const openingLights: (
   context: Pick<IAutoMovieShotBuildContext, "contract" | "lighting">,
   staged: readonly IAutoMovieLight[],
@@ -173,9 +165,7 @@ const intensityOf: (
 ) => number = (lights: readonly IAutoMovieLight[], id: string): number =>
   lights.find((light: IAutoMovieLight): boolean => light.id === id)!.intensity;
 
-/**
- * The shot program the engine ladder compiles, with room for a light clip.
- */
+/** The shot program the engine ladder compiles, with room for a light clip. */
 const shotProgram: (
   lightMotions?: IAutoMovieClip[],
 ) => IAutoMovieShotProgram & { lightMotions?: IAutoMovieClip[] } = (
@@ -202,9 +192,7 @@ const shotProgram: (
   };
 };
 
-/**
- * A clip dimming the staged source over this shot's own two seconds.
- */
+/** A clip dimming the staged source over this shot's own two seconds. */
 const dim: () => IAutoMovieClip = (): IAutoMovieClip => ({
   id: "sunDims",
   name: null,
@@ -234,7 +222,7 @@ const compileWith: (
   const program: IAutoMovieShotProgram & { lightMotions?: IAutoMovieClip[] } =
     shotProgram(lightMotions);
   const torch: ReturnType<typeof createTorch> | null = withPractical
-    ? createTorch({}, "wiring")
+    ? createTorch({}, 1026)
     : null;
   if (torch !== null) {
     program.stage.set = [
@@ -300,13 +288,20 @@ const compileWith: (
 };
 
 /**
- * Resolves story lighting from explicitly assembled context fields and compiles shot programs with or without lightMotions, checking resulting intensities, identities and clip admission.
+ * Resolves story lighting from explicitly assembled context fields and compiles
+ * shot programs with or without lightMotions, checking resulting intensities,
+ * identities and clip admission.
  *
  * Scenarios:
- * 1. Resolve two explicitly assembled story contexts and preserve practical intensity.
- * 2. Preserve staged light identity/order/count when production lighting is absent.
- * 3. Compile authored and omitted shot lightMotions, checking clip identity and pointer kind.
- * 4. Resolve the runtime-bound practical through the registered shot, including its exact switch boundaries.
+ *
+ * 1. Resolve two explicitly assembled story contexts and preserve practical
+ *    intensity.
+ * 2. Preserve staged light identity/order/count when production lighting is
+ *    absent.
+ * 3. Compile authored and omitted shot lightMotions, checking clip identity and
+ *    pointer kind.
+ * 4. Resolve the runtime-bound practical through the registered shot, including
+ *    its exact switch boundaries.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves story lighting from explicitly assembled context fields and compiles shot programs with or without lightMotions, checking resulting intensities, identities and clip admission.
  * @evidence contracts/development/testing.md#independent-expectations A source intensity ramp 3 to 1 gives 2 at half span within canonical nclose; authored pins and light ids determine expectations. The test constructs buildContext itself and does not prove production-builder context assembly. Compilation checks ordinary clip id/count and pointer kind. Combined lighting uses the authored five-candela switch and the manual source's intensity one quarter into its linear fade.

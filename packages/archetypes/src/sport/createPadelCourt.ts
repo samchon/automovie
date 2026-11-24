@@ -24,7 +24,7 @@ import {
  */
 export function createPadelCourt(
   params: createPadelCourt.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPadelCourt.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("padelCourt", {}, seed, {});

@@ -19,7 +19,7 @@ export function createLipstick(
     GroomingPropDraw.IParams,
     "id" | "length" | "width" | "mass"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLipstick.Affordance, createLipstick.Dimension> {
   const {
     builder,

@@ -53,7 +53,7 @@ const RISE: number = 0.45;
  */
 export function createSeesaw(
   params: createSeesaw.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSeesaw.Affordance, createSeesaw.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSeesaw.Dimension> =
     new AutoMovieArchetypeDrawSession(

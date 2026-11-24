@@ -70,11 +70,11 @@ const PATH: IAutoMovieTerrainRecipe.IPath = {
  */
 export function test_location_terrain_woods(): void {
   const build: (
-    seed: string,
+    seed: number,
     woods?: Partial<IAutoMovieTerrainRecipe.IWoods>,
     path?: boolean,
   ) => IAutoMovieEnvironment = (
-    seed: string,
+    seed: number,
     woods: Partial<IAutoMovieTerrainRecipe.IWoods> = {},
     path: boolean = true,
   ): IAutoMovieEnvironment =>
@@ -135,14 +135,14 @@ export function test_location_terrain_woods(): void {
       ),
     );
 
-  const trail: IAutoMovieEnvironment = build("first");
+  const trail: IAutoMovieEnvironment = build(1);
   const planted: readonly IAutoMovieExplicitInstanceTransform[] =
     transformsOf(trail);
   const trunk: number = trunkOf(trail);
-  const clear: IAutoMovieEnvironment = build("first", {}, false);
+  const clear: IAutoMovieEnvironment = build(1, {}, false);
   const open: readonly IAutoMovieExplicitInstanceTransform[] =
     transformsOf(clear);
-  const mixed: IAutoMovieEnvironment = build("first", {
+  const mixed: IAutoMovieEnvironment = build(1, {
     species: { whiteOak: 1, douglasFir: 1 },
   });
   const rule: IAutoMovieHeightRule = trail.stage.space!.surfaces[0]!.height!;
@@ -216,8 +216,7 @@ export function test_location_terrain_woods(): void {
       "a count above the accepted sites is refused naming how many fit",
       (): boolean =>
         throwsError(
-          (): IAutoMovieEnvironment =>
-            build("first", { count: planted.length + 1 }),
+          (): IAutoMovieEnvironment => build(1, { count: planted.length + 1 }),
           ["forest/land/woods/stand", `${planted.length} sites fit`],
         ),
     ],
@@ -225,7 +224,7 @@ export function test_location_terrain_woods(): void {
       "a smaller count keeps the first sites of the full planting",
       (): boolean => {
         const few: readonly IAutoMovieExplicitInstanceTransform[] =
-          transformsOf(build("first", { count: 3 }));
+          transformsOf(build(1, { count: 3 }));
         return (
           few.length === 3 &&
           JSON.stringify(few) === JSON.stringify(planted.slice(0, 3))
@@ -235,9 +234,9 @@ export function test_location_terrain_woods(): void {
     [
       "the same seed repeats the set byte for byte, and another seed moves a site",
       (): boolean => {
-        const again: IAutoMovieEnvironment = build("first");
+        const again: IAutoMovieEnvironment = build(1);
         const other: readonly IAutoMovieExplicitInstanceTransform[] =
-          transformsOf(build("second"));
+          transformsOf(build(2));
         return (
           JSON.stringify(again.runtime.world.instanceSets) ===
             JSON.stringify(trail.runtime.world.instanceSets) &&
@@ -294,12 +293,12 @@ export function test_location_terrain_woods(): void {
       "a zero spacing, an unknown species and an edge outline are refused by name",
       (): boolean =>
         throwsError(
-          (): IAutoMovieEnvironment => build("first", { spacing: 0 }),
+          (): IAutoMovieEnvironment => build(1, { spacing: 0 }),
           ["forest/land/woods/stand", "spacing"],
         ) &&
         throwsError(
           (): IAutoMovieEnvironment =>
-            build("first", {
+            build(1, {
               species: { whiteOak: 1, beech: 1 } as Partial<
                 Record<"whiteOak" | "douglasFir", number>
               >,
@@ -308,7 +307,7 @@ export function test_location_terrain_woods(): void {
         ) &&
         throwsError(
           (): IAutoMovieEnvironment =>
-            build("first", {
+            build(1, {
               outline: [
                 [0, 5],
                 [35, 5],

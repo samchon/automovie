@@ -32,7 +32,7 @@ const BOX: string =
  */
 export function createPlyoBox(
   params: createPlyoBox.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createPlyoBox.Affordance, createPlyoBox.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createPlyoBox.Dimension> =
     new AutoMovieArchetypeDrawSession<createPlyoBox.Dimension>(

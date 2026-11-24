@@ -20,7 +20,7 @@ import { stageTokenSphere } from "./stageTokenSphere";
  */
 export function createStageGrenadeProp(
   params: createStageGrenadeProp.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageGrenadeProp.Affordance,
   createStageGrenadeProp.Dimension

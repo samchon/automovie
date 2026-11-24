@@ -46,7 +46,7 @@ const HYDRANT: Readonly<IHydrant> = {
  */
 export function createFireHydrant(
   params: createFireHydrant.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createFireHydrant.Affordance,
   createFireHydrant.Dimension

@@ -16,10 +16,14 @@ interface IMark {
 }
 
 /**
- * A horse slowing sharply on a timed path keeps each stride's gait to its next footfall and then takes the gait its speed calls for.
+ * A horse slowing sharply on a timed path keeps each stride's gait to its next
+ * footfall and then takes the gait its speed calls for.
  *
  * Scenarios:
- * 1. A 1.6 m mare trots at 3 m/s, then slows to 1.3 m/s within 0.4 s, under one trot stride, and walks on: every 20 ms samples, and a `gait:trot-walk` change follows.
+ *
+ * 1. A 1.6 m mare trots at 3 m/s, then slows to 1.3 m/s within 0.4 s, under one
+ *    trot stride, and walks on: every 20 ms samples, and a `gait:trot-walk`
+ *    change follows.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the slowdown.
  * @evidence contracts/development/testing.md#behavioral-verification Samples the public ride and reads its gait instants.
@@ -28,7 +32,7 @@ interface IMark {
  * @evidence contracts/development/testing.md#execution-ownership A memory-only archetype unit.
  */
 export function test_archetype_equine_timed_slowdown(): void {
-  const horse = createHorse({ withersHeight: 1.6, tempo: 0 }, "mare");
+  const horse = createHorse({ withersHeight: 1.6, tempo: 0 }, 1003);
   const issues: string[] = [];
   const marks = (slow: number): IMark[] => {
     const out: IMark[] = [];

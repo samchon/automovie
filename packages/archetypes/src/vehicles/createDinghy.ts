@@ -67,7 +67,7 @@ interface IRing {
  */
 export function createDinghy(
   params: createDinghy.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDinghy.Affordance, createDinghy.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDinghy.Dimension> =
     new AutoMovieArchetypeDrawSession(

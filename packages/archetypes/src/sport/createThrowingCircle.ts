@@ -34,7 +34,7 @@ const RULES: string =
  */
 export function createThrowingCircle(
   params: createThrowingCircle.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createThrowingCircle.Affordance,
   createThrowingCircle.Dimension

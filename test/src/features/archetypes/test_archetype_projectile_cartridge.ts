@@ -6,13 +6,22 @@ import { validateModel } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A musket's paper cartridge is the US Ordnance Manual's: its size and weight, pinched in the middle and torn at its powder end.
+ * A musket's paper cartridge is the US Ordnance Manual's: its size and weight,
+ * pinched in the middle and torn at its powder end.
  *
  * Scenarios, for the cartridge at its seedless draw:
+ *
  * 1. It passes `validateModel`.
- * 2. It is 2.6 in long, the bundle of ten's length that the 1862 manual gives as the cartridge's (p. 268, p. 270), and .65 in across, the ball the paper is rolled on (Mordecai 1850, p. 246); it weighs a tenth of its ten's 13.2 oz (1862, p. 270).
- * 3. `grip` is a precision pinch of the paper's width at the middle of its length, and `end` the powder end at its top, `+Y` out along it, where the teeth bite it off.
- * 4. Each band is the one read figure, so three seeds draw the same cartridge, and a length, a diameter or a mass fixed a micro-unit off its figure is refused on that dimension.
+ * 2. It is 2.6 in long, the bundle of ten's length that the 1862 manual gives as
+ *    the cartridge's (p. 268, p. 270), and .65 in across, the ball the paper is
+ *    rolled on (Mordecai 1850, p. 246); it weighs a tenth of its ten's 13.2 oz
+ *    (1862, p. 270).
+ * 3. `grip` is a precision pinch of the paper's width at the middle of its length,
+ *    and `end` the powder end at its top, `+Y` out along it, where the teeth
+ *    bite it off.
+ * 4. Each band is the one read figure, so three seeds draw the same cartridge, and
+ *    a length, a diameter or a mass fixed a micro-unit off its figure is
+ *    refused on that dimension.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces the cartridge and reads its admission, its dimensions, its mass and its two contacts' places; a cartridge of another size, weight or grip, or one torn at its ball end, is caught.
  * @evidence contracts/development/testing.md#independent-expectations The sizes and the weight are the manuals' figures, written here; the contacts' places are read off the produced model.
@@ -49,7 +58,7 @@ export function test_archetype_projectile_cartridge(): void {
   if (!(Math.abs(end.frame.translation.y - length) <= 1e-12))
     findings.push(`the torn end is at ${end.frame.translation.y} m`);
   // 4. Every band is the one read figure: any seed draws the same cartridge, and a figure fixed a step off it is refused on that dimension.
-  for (const seed of [0, 1, "musket"])
+  for (const seed of [0, 1, 1046])
     if (
       JSON.stringify(createProjectile({ kind: "cartridge" }, seed)) !==
       JSON.stringify(cartridge)

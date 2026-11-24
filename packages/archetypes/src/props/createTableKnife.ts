@@ -18,7 +18,7 @@ export function createTableKnife(
   params: Pick<HandToolDraw.IParams, "id" | "gripDiameter"> & {
     model?: HandToolDraw.Model;
   } = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTableKnife.Affordance, createTableKnife.Dimension> {
   const {
     builder,

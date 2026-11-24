@@ -57,7 +57,7 @@ const SHAPE: Readonly<ICrutchShape> = {
  */
 export function createCrutch(
   params: createCrutch.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCrutch.Affordance, createCrutch.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCrutch.Dimension> =
     new AutoMovieArchetypeDrawSession("crutch", { height: "m" }, seed, params);

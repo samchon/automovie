@@ -145,7 +145,7 @@ export namespace FixtureDraw {
       Record<string, Readonly<Partial<Record<D, IAutoMovieArchetypeBand>>>>
     >,
     params: Partial<Record<D, number>> & { id?: string },
-    seed: number | string | undefined,
+    seed: number | undefined,
     construct: (
       builder: AutoMovieArchetypeBuilder<Id, D>,
       dimensions: Partial<Record<D, number>>,

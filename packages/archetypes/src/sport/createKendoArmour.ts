@@ -48,7 +48,7 @@ const UNREAD: string =
  */
 export function createKendoArmour(
   params: createKendoArmour.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createKendoArmour.Affordance,
   createKendoArmour.Dimension

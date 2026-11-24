@@ -19,7 +19,7 @@ export function createCigarette(
     SmokingPropDraw.IParams,
     "id" | "length" | "diameter" | "filter" | "mass"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCigarette.Affordance, createCigarette.Dimension> {
   const {
     builder,

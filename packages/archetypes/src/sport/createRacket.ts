@@ -32,7 +32,7 @@ import { buildTennisRacketHead } from "./buildTennisRacketHead";
  */
 export function createRacket(
   params: createRacket.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRacket.Affordance, createRacket.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRacket.Dimension> =
     new AutoMovieArchetypeDrawSession<createRacket.Dimension>(

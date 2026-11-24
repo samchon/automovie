@@ -22,7 +22,10 @@ const SIZES: Readonly<
   large: { length: 0.3, mass: 0.2 },
 };
 
-/** Made-up heights on a second axis, a dependent one filtered by the size picked. */
+/**
+ * Made-up heights on a second axis, a dependent one filtered by the size
+ * picked.
+ */
 const HEIGHTS: Readonly<
   Record<"low" | "mid" | "high", Readonly<Partial<Record<Dimension, number>>>>
 > = {
@@ -51,7 +54,7 @@ function model<Name extends string>(
         Partial<Record<Name, Readonly<Partial<Record<Dimension, number>>>>>
       >
     | undefined,
-  seed: number | string | undefined,
+  seed: number | undefined,
   fixed: Partial<Record<Dimension, number>> = {},
 ): AutoMovieArchetypeDrawSession.IModel<Name, Dimension> {
   return new AutoMovieArchetypeDrawSession<Dimension>(
@@ -63,14 +66,29 @@ function model<Name extends string>(
 }
 
 /**
- * A model is one of a variant's read models on a named axis, given or picked whole with its figures; each axis draws on its own stream, a dependent axis picks among the models an earlier pick admits, and a variant without models has none.
+ * A model is one of a variant's read models on a named axis, given or picked
+ * whole with its figures; each axis draws on its own stream, a dependent axis
+ * picks among the models an earlier pick admits, and a variant without models
+ * has none.
  *
  * Scenarios:
- * 1. A model given is kept with its figures; with no seed the first model is picked; the same seed gives the same model on every call; over 200 seeds every pick is one model with exactly its figures, and both models are picked.
- * 2. Two axes of one producer pick on their own streams: over 200 seeds the first axis's picks are the same whether or not a second axis is picked too, and the two axes do not always agree.
- * 3. A dependent axis filtered by the first pick (heights no greater than a size's length) only ever picks an admitted model, and over 200 seeds picks each admitted model.
- * 4. A variant without models, absent or empty, gives no name and no figures; a model given to it, and an unlisted model given to a variant with models, are refused with kind `parameter` on the axis.
- * 5. A fixed dimension the picked model supplies (its length) is refused with kind `parameter` on that dimension, given or picked; a fixed dimension it lacks (a height) is left to the producer's band, and the model is still picked.
+ *
+ * 1. A model given is kept with its figures; with no seed the first model is
+ *    picked; the same seed gives the same model on every call; over 200 seeds
+ *    every pick is one model with exactly its figures, and both models are
+ *    picked.
+ * 2. Two axes of one producer pick on their own streams: over 200 seeds the first
+ *    axis's picks are the same whether or not a second axis is picked too, and
+ *    the two axes do not always agree.
+ * 3. A dependent axis filtered by the first pick (heights no greater than a size's
+ *    length) only ever picks an admitted model, and over 200 seeds picks each
+ *    admitted model.
+ * 4. A variant without models, absent or empty, gives no name and no figures; a
+ *    model given to it, and an unlisted model given to a variant with models,
+ *    are refused with kind `parameter` on the axis.
+ * 5. A fixed dimension the picked model supplies (its length) is refused with kind
+ *    `parameter` on that dimension, given or picked; a fixed dimension it lacks
+ *    (a height) is left to the producer's band, and the model is still picked.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Picks through a draw session's `model` and reads its name, figures and refusals; a pick that blends two models, drifts between calls, shares one stream between axes, escapes a filtered list, skips a model, invents one for a variant without models, accepts a stray model, or drops a fixed figure in silence is caught.
  * @evidence contracts/development/testing.md#independent-expectations Made-up figures written here; a uniform draw of two or three over 200 seeds draws each with certainty for any practical purpose, and two independent axes agree on far fewer than 200 seeds.

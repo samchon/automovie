@@ -18,7 +18,7 @@ import type { createHolster } from "./createHolster";
  */
 export function createStagePouch(
   params: createStagePouch.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createStagePouch.Affordance, createStagePouch.Dimension> {
   return StageCarrierConstruction(
     "pouch",

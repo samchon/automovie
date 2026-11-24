@@ -36,7 +36,7 @@ import { createHorse } from "./createHorse";
  */
 export function createMule(
   params: createMule.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   AutoMovieArchetypeEquine.Affordance,
   AutoMovieArchetypeEquine.Dimension

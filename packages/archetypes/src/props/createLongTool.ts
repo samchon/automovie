@@ -24,7 +24,7 @@ import { createStageWorm } from "./createStageWorm";
  */
 export function createLongTool(
   params: createLongTool.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLongTool.Affordance, createLongTool.Dimension> {
   const kind: createLongTool.Kind = ArchetypeDraw.choice(
     "longTool",
@@ -36,7 +36,7 @@ export function createLongTool(
   // The saved input spans every variant. The selected producer checks its original recipe.
   const produce: (
     params: createLongTool.IParams,
-    seed?: number | string,
+    seed?: number,
   ) => AutoMovieArchetype<createLongTool.Affordance, createLongTool.Dimension> =
     createLongTool.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

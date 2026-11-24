@@ -14,7 +14,10 @@ import { TestValidator } from "@nestia/e2e";
 import { archetypeExtent } from "../internal/archetypeExtent";
 import { nclose } from "../internal/predicates";
 
-/** Tolerance for comparing computed model geometry with an authored coordinate, in metres. */
+/**
+ * Tolerance for comparing computed model geometry with an authored coordinate,
+ * in metres.
+ */
 const TOLERANCE: number = 1e-8;
 
 /** Whether two lengths in metres agree to within the geometry tolerance. */
@@ -23,12 +26,19 @@ function near(actual: number, expected: number): boolean {
 }
 
 /**
- * Scenic containers stand on the ground and expose a placement surface on a real lid or interior floor.
+ * Scenic containers stand on the ground and expose a placement surface on a
+ * real lid or interior floor.
  *
  * Scenarios:
- * 1. All five independently listed silhouettes have the supplied X, Y and Z dimensions and honor the author id.
- * 2. The closed forms place their surface on the actual lid or cap. Two are narrower than their body and the rectangular coffer uses its full lid. The open forms place their surface on a real interior floor and have clear center space above it.
- * 3. One crate seed replays its free dimensions. A different draw varies height without disturbing a fixed width, and an oversized width is refused.
+ *
+ * 1. All five independently listed silhouettes have the supplied X, Y and Z
+ *    dimensions and honor the author id.
+ * 2. The closed forms place their surface on the actual lid or cap. Two are
+ *    narrower than their body and the rectangular coffer uses its full lid. The
+ *    open forms place their surface on a real interior floor and have clear
+ *    center space above it.
+ * 3. One crate seed replays its free dimensions. A different draw varies height
+ *    without disturbing a fixed width, and an oversized width is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the sizing, actual-part contact, open-interior and seed observations.
  * @evidence contracts/development/testing.md#behavioral-verification Uses public archetypes, collider extents, public affordances, repeated seeds and normal dimension admission.
@@ -83,7 +93,7 @@ export function test_archetype_scenic_container(): void {
       id: kind,
     };
     const model: ReturnType<typeof createScenicContainer> =
-      createScenicContainer(params, "scenery");
+      createScenicContainer(params, 1007);
     const shapes: IAutoMoviePhysicalShape[] = model.shapes();
     const lateral: ReturnType<typeof archetypeExtent> = archetypeExtent(
       shapes,

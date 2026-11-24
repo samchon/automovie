@@ -18,15 +18,20 @@ import { nclose, vclose } from "../internal/predicates";
 const PITCH: number = (65 * 0.3048) / 20;
 
 /**
- * A starting gate's stalls, its front doors that open together and its rear doors that load each stall.
+ * A starting gate's stalls, its front doors that open together and its rear
+ * doors that load each stall.
  *
  * Scenarios:
  *
- * 1. A gate of the default 14 stalls and one of 3 lay their stalls one Derby pitch apart, centred on the gate's front.
- * 2. One travel of `door0` swings every front leaf out to lie along its partition toward the run, leaving the rear doors shut.
+ * 1. A gate of the default 14 stalls and one of 3 lay their stalls one Derby pitch
+ *    apart, centred on the gate's front.
+ * 2. One travel of `door0` swings every front leaf out to lie along its partition
+ *    toward the run, leaving the rear doors shut.
  * 3. A rear door swings back toward the loading side by itself.
- * 4. A saddle horse's rest footprint, stirrups included, fits a stall's clear width.
- * 5. A seed rebuilds the same gate, and no stalls, more than twenty or a fraction refuse on `stalls`.
+ * 4. A saddle horse's rest footprint, stirrups included, fits a stall's clear
+ *    width.
+ * 5. A seed rebuilds the same gate, and no stalls, more than twenty or a fraction
+ *    refuse on `stalls`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the gate's stall layout, the shared door release, the loading doors, the fit and the refusals the test checks.
  * @evidence contracts/development/testing.md#behavioral-verification Builds and articulates the public producer and reads its contacts and posed parts.
@@ -39,7 +44,7 @@ export function test_archetype_starting_gate(): void {
   for (const stalls of [3, 14]) {
     const gate: AutoMovieArchetype = createStartingGate(
       stalls === 14 ? {} : { stalls },
-      "gate",
+      1012,
     );
     const middles: IAutoMovieVector3[] = Array.from(
       { length: stalls },
@@ -61,7 +66,7 @@ export function test_archetype_starting_gate(): void {
   }
 
   // 2. The shared front release.
-  const gate: AutoMovieArchetype = createStartingGate({}, "gate");
+  const gate: AutoMovieArchetype = createStartingGate({}, 1012);
   const clear: number = gate.affordance("stall0").width!;
   const open: AutoMovieArchetype = gate.articulate({
     door0: createStartingGate.SWING,
@@ -113,12 +118,12 @@ export function test_archetype_starting_gate(): void {
   // 5. Seeds and refusals.
   TestValidator.equals(
     "a seed rebuilds the same gate",
-    JSON.stringify(createStartingGate({}, "gate")),
+    JSON.stringify(createStartingGate({}, 1012)),
     JSON.stringify(gate),
   );
   TestValidator.predicate(
     "another seed varies the gate",
-    JSON.stringify(createStartingGate({}, "other")) !== JSON.stringify(gate),
+    JSON.stringify(createStartingGate({}, 1013)) !== JSON.stringify(gate),
   );
   for (const stalls of [1, 20])
     TestValidator.equals(

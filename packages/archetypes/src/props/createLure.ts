@@ -31,7 +31,7 @@ const LURE: string =
  */
 export function createLure(
   params: createLure.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLure.Affordance, createLure.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLure.Dimension> =
     new AutoMovieArchetypeDrawSession<createLure.Dimension>(

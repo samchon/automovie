@@ -44,7 +44,7 @@ const GEOMETRY: Readonly<{
  */
 export function createIceSkate(
   params: createIceSkate.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createIceSkate.Affordance, "mass"> {
   const draw: AutoMovieArchetypeDrawSession<"mass"> =
     new AutoMovieArchetypeDrawSession("iceSkate", { mass: "kg" }, seed, params);

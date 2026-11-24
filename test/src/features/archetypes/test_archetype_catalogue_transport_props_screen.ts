@@ -54,13 +54,22 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
 
 /**
- * Independent inert silhouettes preserve old model frames and assemble into wearable props.
+ * Independent inert silhouettes preserve old model frames and assemble into
+ * wearable props.
  *
  * Scenarios:
- * 1. Every former kind of the six screen-prop families builds the same model through its named producer at one seed.
- * 2. A fitted carrier at the shortest and longest padded display clears all four walls, encloses the stored length up to its mouth, seats the display centred with its guard above the mouth and opens clear of it.
- * 3. A wrong display, a shared id, a wrong slot, a reused piece and a body without the slot's joints are refused.
- * 4. Through a walk, the display follows the carrier seat, the carrier's belt hook faces the pelvis, the vambrace and greave centre on their posed segments with +Y toward the upper joint, and the helmet centres midway up the head.
+ *
+ * 1. Every former kind of the six screen-prop families builds the same model
+ *    through its named producer at one seed.
+ * 2. A fitted carrier at the shortest and longest padded display clears all four
+ *    walls, encloses the stored length up to its mouth, seats the display
+ *    centred with its guard above the mouth and opens clear of it.
+ * 3. A wrong display, a shared id, a wrong slot, a reused piece and a body without
+ *    the slot's joints are refused.
+ * 4. Through a walk, the display follows the carrier seat, the carrier's belt hook
+ *    faces the pelvis, the vambrace and greave centre on their posed segments
+ *    with +Y toward the upper joint, and the helmet centres midway up the
+ *    head.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Covers the former six families and admits a separate digital carrier and a measured costume in a real performance.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public producers and live model props to check seeded silhouettes, enclosed vacant geometry, film-clock mounts, the belt hook and measured wear placement.
@@ -70,7 +79,7 @@ import { nclose } from "../internal/nclose";
  */
 export function test_archetype_catalogue_transport_props_screen(): void {
   const id: string = "screen-prop";
-  const seed: string = "canonical-screen-prop";
+  const seed: number = 1039;
   const variants = {
     mace: createStageMaceProp({ id }, seed),
     pike: createStageShaftProp({ id, kind: "pike" }, seed),
@@ -222,7 +231,10 @@ export function test_archetype_catalogue_transport_props_screen(): void {
   checkMount(carrier, swords.longsword, costume, body);
 }
 
-/** Compare stable model bytes and explicit draw provenance on the two authoring paths. */
+/**
+ * Compare stable model bytes and explicit draw provenance on the two authoring
+ * paths.
+ */
 function sameModel(
   label: string,
   canonical: AutoMovieArchetype,

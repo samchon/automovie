@@ -27,7 +27,7 @@ import {
  */
 export function createDumbbell(
   params: createDumbbell.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDumbbell.Affordance, createDumbbell.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDumbbell.Dimension> =
     new AutoMovieArchetypeDrawSession<createDumbbell.Dimension>(

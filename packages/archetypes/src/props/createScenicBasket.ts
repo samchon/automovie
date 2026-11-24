@@ -14,7 +14,7 @@ import type { createScenicContainer } from "./createScenicContainer";
  */
 export function createScenicBasket(
   params: createScenicBasket.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createScenicBasket.Affordance,
   createScenicBasket.Dimension

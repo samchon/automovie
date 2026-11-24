@@ -43,7 +43,7 @@ const ESTIMATES: Readonly<{ run: number; rim: number; body: number }> = {
  */
 export function createValve(
   params: createValve.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createValve.Affordance, createValve.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createValve.Dimension> =
     new AutoMovieArchetypeDrawSession<createValve.Dimension>(

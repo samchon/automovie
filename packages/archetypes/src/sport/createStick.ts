@@ -17,7 +17,7 @@ import { createLacrosseCrosse } from "./createLacrosseCrosse";
  */
 export function createStick(
   params: createStick.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createStick.Affordance, createStick.Dimension> {
   const kind: createStick.Kind = ArchetypeDraw.choice(
     "stick",

@@ -19,7 +19,7 @@ export function createHammer(
     HandToolDraw.IParams,
     "id" | "length" | "gripDiameter" | "mass"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHammer.Affordance, createHammer.Dimension> {
   const {
     builder,

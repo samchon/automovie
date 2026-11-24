@@ -32,13 +32,18 @@ interface ICase {
 const STEP: number = 0.02;
 
 /**
- * Steady fast gaits on timed paths sample every instant, their last included: a cued canter round a circle, an uncued straight at the trot's top speed and a cued gallop down a straight.
+ * Steady fast gaits on timed paths sample every instant, their last included: a
+ * cued canter round a circle, an uncued straight at the trot's top speed and a
+ * cued gallop down a straight.
  *
  * Scenarios:
+ *
  * 1. A 1.6 m horse canters at 5 m/s round an 11 m circle for 12 s.
- * 2. A 1.62 m horse goes uncued at 7.04 m/s, the trot's top speed at its height, for 15 s.
- * 3. A 1.62 m horse gallops at 7.5 m/s down a straight for 8 s.
- * Each ride is also sampled at its last instant, where its next footfall lies past the path's end.
+ * 2. A 1.62 m horse goes uncued at 7.04 m/s, the trot's top speed at its height,
+ *    for 15 s.
+ * 3. A 1.62 m horse gallops at 7.5 m/s down a straight for 8 s. Each ride is also
+ *    sampled at its last instant, where its next footfall lies past the path's
+ *    end.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the three rides and the end instant.
  * @evidence contracts/development/testing.md#behavioral-verification Samples the public ride every 20 ms and at its end.
@@ -84,7 +89,7 @@ export function test_archetype_equine_fast_timed(): void {
       marks,
     );
     const ride = rideQuadruped(
-      createHorse({ withersHeight: withers, tempo: 0 }, "runner"),
+      createHorse({ withersHeight: withers, tempo: 0 }, 1001),
       gait === undefined
         ? plan
         : { plan, cues: [{ from: 0, to: plan.duration, gait }] },

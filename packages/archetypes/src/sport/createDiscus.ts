@@ -31,7 +31,7 @@ const RULE: string =
  */
 export function createDiscus(
   params: createDiscus.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createDiscus.Affordance, createDiscus.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createDiscus.Dimension> =
     new AutoMovieArchetypeDrawSession<createDiscus.Dimension>(

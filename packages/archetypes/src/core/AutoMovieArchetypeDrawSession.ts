@@ -78,7 +78,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
   public constructor(
     archetype: string,
     units: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>>,
-    seed: number | string | undefined,
+    seed: number | undefined,
     fixed: NoInfer<Partial<Record<Dimension, number | undefined>>> = {},
   ) {
     this.archetype = archetype;

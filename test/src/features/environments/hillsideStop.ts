@@ -54,7 +54,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   const grade: number = 1.3;
   const environment: IAutoMovieEnvironment = createEnvironment({
     id: "hill",
-    seed: "hillside-stop",
+    seed: 1037,
     items: {
       terrain: {
         at: { x: -10, y: 0, z: -10 },

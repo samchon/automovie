@@ -71,7 +71,7 @@ const ESTIMATES: Readonly<IEstimates> = {
  */
 export function createVolleyballNet(
   params: createVolleyballNet.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createVolleyballNet.Affordance,
   createVolleyballNet.Dimension

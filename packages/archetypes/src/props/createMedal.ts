@@ -35,7 +35,7 @@ const RIBBON: string =
  */
 export function createMedal(
   params: createMedal.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createMedal.Affordance, createMedal.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createMedal.Dimension> =
     new AutoMovieArchetypeDrawSession<createMedal.Dimension>(

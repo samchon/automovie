@@ -30,10 +30,14 @@ const CLEARANCE: number = 0.05;
  *
  * Scenarios:
  *
- * 1. The rail laps one mile, starts at the home straight and reaches the first turn's apex where the oval's geometry puts it.
- * 2. Each runner leaves the middle of its stall and keeps the rail distance its pace gives, so the faster runners lead in order.
- * 3. The field keeps the authored clearance from the rail and from each other on concentric lanes.
- * 4. A faster runner planned onto a slower one's lane refuses with both names and the interval, and a pace beyond the gallop refuses on its mark.
+ * 1. The rail laps one mile, starts at the home straight and reaches the first
+ *    turn's apex where the oval's geometry puts it.
+ * 2. Each runner leaves the middle of its stall and keeps the rail distance its
+ *    pace gives, so the faster runners lead in order.
+ * 3. The field keeps the authored clearance from the rail and from each other on
+ *    concentric lanes.
+ * 4. A faster runner planned onto a slower one's lane refuses with both names and
+ *    the interval, and a pace beyond the gallop refuses on its mark.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the layout, the break, the clearances and the refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Builds the rail and the gate, plans each runner with `AutoMovieArchetypeOval.lane` and measures with `AutoMovieArchetypePassage`.
@@ -43,7 +47,7 @@ const CLEARANCE: number = 0.05;
  */
 export function test_world_race_field(): void {
   // 1. The rail.
-  const rail: AutoMovieArchetype = createRaceRail({}, "track");
+  const rail: AutoMovieArchetype = createRaceRail({}, 1034);
   const oval: AutoMovieArchetypeOval.IOval = AutoMovieArchetypeOval.lapped(
     createRaceRail.LAP,
     rail.dimensions.radius!,
@@ -68,10 +72,7 @@ export function test_world_race_field(): void {
   );
 
   // 2. The break from the gate and the order by pace.
-  const horse: AutoMovieArchetype = createHorse(
-    { withersHeight: 1.62 },
-    "runner",
-  );
+  const horse: AutoMovieArchetype = createHorse({ withersHeight: 1.62 }, 1001);
   const gallop: AutoMovieArchetypeManoeuvre.ISpeedRange =
     AutoMovieArchetypeQuadrupedGait.range(
       createQuadruped.species(horse),
@@ -80,7 +81,7 @@ export function test_world_race_field(): void {
     );
   const gate: AutoMovieArchetype = createStartingGate(
     { stalls: RUNNERS },
-    "gate",
+    1012,
   );
   const pitch: number = createStartingGate.PITCH;
   // The gate stands across the home straight's start, its stall nearest the rail one metre out.

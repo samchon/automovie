@@ -14,7 +14,10 @@ import { TestValidator } from "@nestia/e2e";
 /** Files in each rank. */
 const FILES: number = 3;
 
-/** Metres between files, knee to knee with room for the horses' posed limbs: an authored staging choice. */
+/**
+ * Metres between files, knee to knee with room for the horses' posed limbs: an
+ * authored staging choice.
+ */
 const SPACING: number = 2.2;
 
 /** Metres between the two ranks' wheel radii. */
@@ -24,12 +27,16 @@ const RANKS: number = 4;
 const STEP: number = 0.2;
 
 /**
- * A two-rank squadron wheels a quarter at the trot on real rides: every horse keeps its posed footprint clear of every other, and the replay repeats.
+ * A two-rank squadron wheels a quarter at the trot on real rides: every horse
+ * keeps its posed footprint clear of every other, and the replay repeats.
  *
  * Scenarios:
  *
- * 1. Each file rides its arc of the wheel on its own horse, the rear rank its rank distance behind on the same arcs, outer files faster in proportion to their radius.
- * 2. No two horses' posed envelopes come within the mounts' margin at any instant of the wheel.
+ * 1. Each file rides its arc of the wheel on its own horse, the rear rank its rank
+ *    distance behind on the same arcs, outer files faster in proportion to
+ *    their radius.
+ * 2. No two horses' posed envelopes come within the mounts' margin at any instant
+ *    of the wheel.
  * 3. A second build of the same squadron reads the same poses.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the squadron, the wheel and the three scenarios.
@@ -41,7 +48,7 @@ const STEP: number = 0.2;
 export function test_world_cavalry_squadron(): void {
   const horse: AutoMovieArchetype = createHorse(
     { withersHeight: 1.62, tempo: 0 },
-    "trooper",
+    1029,
   );
   const trot: AutoMovieArchetypeManoeuvre.ISpeedRange =
     AutoMovieArchetypeQuadrupedGait.range(

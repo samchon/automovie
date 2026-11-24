@@ -44,7 +44,7 @@ const PIECES: number = 12;
  */
 export function createFingerRing(
   params: createFingerRing.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createFingerRing.Affordance, createFingerRing.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createFingerRing.Dimension> =
     new AutoMovieArchetypeDrawSession<createFingerRing.Dimension>(

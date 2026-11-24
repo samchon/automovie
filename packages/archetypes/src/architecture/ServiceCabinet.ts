@@ -136,7 +136,7 @@ export namespace ServiceCabinet {
     name: string,
     color: string,
     params: Omit<createMachine.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): ICabinet<Id> {
     const draw: AutoMovieArchetypeDrawSession<createMachine.Dimension> =
       new AutoMovieArchetypeDrawSession(

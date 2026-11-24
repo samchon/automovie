@@ -23,7 +23,7 @@ import { createBow } from "./createBow";
 export function StageBowConstruction(
   kind: createBow.Kind,
   params: Omit<createBow.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   build: (
     builder: AutoMovieArchetypeBuilder<
       createBow.Affordance,

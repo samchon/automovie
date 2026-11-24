@@ -62,7 +62,7 @@ const HATCH: Readonly<{
  */
 export function createHatch(
   params: createHatch.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHatch.Affordance, createHatch.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createHatch.Dimension> =
     new AutoMovieArchetypeDrawSession<createHatch.Dimension>(

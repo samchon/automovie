@@ -29,7 +29,7 @@ import {
  */
 export function createExerciseMat(
   params: createExerciseMat.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createExerciseMat.Affordance,
   createExerciseMat.Dimension

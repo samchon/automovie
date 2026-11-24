@@ -43,7 +43,7 @@ export namespace StreetFixtureDraw {
     name: string,
     material: AutoMovieArchetypeMaterial.Kind,
     params: Omit<createStreetFixture.IParams, "kind">,
-    seed?: number | string,
+    seed?: number,
   ): IFixture<Id> {
     const draw: AutoMovieArchetypeDrawSession<createStreetFixture.Dimension> =
       new AutoMovieArchetypeDrawSession(

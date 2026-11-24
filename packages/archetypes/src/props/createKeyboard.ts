@@ -14,7 +14,7 @@ import { createLaptop } from "./createLaptop";
  */
 export function createKeyboard(
   params: createKeyboard.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension> {
   const kind: createKeyboard.Kind = ArchetypeDraw.choice(
     "keyboard",
@@ -26,7 +26,7 @@ export function createKeyboard(
   // The saved model union is wider than each producer's model table.
   const produce: (
     params: createKeyboard.IParams,
-    seed?: number | string,
+    seed?: number,
   ) => AutoMovieArchetype<createKeyboard.Affordance, createKeyboard.Dimension> =
     createKeyboard.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

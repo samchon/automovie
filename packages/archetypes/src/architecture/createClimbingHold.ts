@@ -27,7 +27,7 @@ const PROFILE: string = "Coarse wall-mounted climbing ledge for a film set";
  */
 export function createClimbingHold(
   params: createClimbingHold.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createClimbingHold.Affordance,
   createClimbingHold.Dimension

@@ -43,7 +43,7 @@ import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
  */
 export function createWheelchair(
   params: createWheelchair.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWheelchair.Affordance, createWheelchair.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createWheelchair.Dimension> =
     new AutoMovieArchetypeDrawSession<createWheelchair.Dimension>(

@@ -35,7 +35,7 @@ const SPONGE: string =
  */
 export function createCleaning(
   params: createCleaning.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCleaning.Affordance, createCleaning.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createCleaning.Dimension> =
     new AutoMovieArchetypeDrawSession<createCleaning.Dimension>(

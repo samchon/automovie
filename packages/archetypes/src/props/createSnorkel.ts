@@ -25,7 +25,7 @@ const STAGED: string =
  */
 export function createSnorkel(
   params: createSnorkel.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSnorkel.Affordance, createSnorkel.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSnorkel.Dimension> =
     new AutoMovieArchetypeDrawSession(

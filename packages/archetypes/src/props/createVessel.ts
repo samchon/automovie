@@ -29,7 +29,7 @@ const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
 /** A saved recipe's producer as the dispatcher calls it. */
 type Producer = (
   params: createVessel.IParams,
-  seed?: number | string,
+  seed?: number,
 ) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>;
 
 /**
@@ -46,7 +46,7 @@ type Producer = (
  */
 export function createVessel(
   params: createVessel.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension> {
   const kind: createVessel.Kind = ArchetypeDraw.choice(
     "vessel",

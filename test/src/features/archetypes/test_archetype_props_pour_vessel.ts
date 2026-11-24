@@ -18,18 +18,19 @@ import { convexCellObservation } from "../internal/convexCellObservation";
 import { nclose, vclose } from "../internal/predicates";
 
 /**
- * A serving cup has a clear receiving mouth, and a pitcher has a clear
- * spout and a reachable handle on the opposite side.
+ * A serving cup has a clear receiving mouth, and a pitcher has a clear spout
+ * and a reachable handle on the opposite side.
  *
  * Scenarios:
- * 1. At published cup and pitcher dimensions, the wall bases meet the floor.
- *    The open centre admits a vertical probe to the visible interior floor.
- * 2. The cup's upward socket and inner rim are level. The pitcher's lip
- *    projects beyond its 110 mm body rim and leaves space behind the tip.
- * 3. The handle grip lies on its vertical bar and admits a finger probe in
- *    the loop with the pouring edge on the opposite side.
- * 4. A repeated seed reproduces the cup and a different seed varies its
- *    diameter and empty mass within the maker's bounds.
+ *
+ * 1. At published cup and pitcher dimensions, the wall bases meet the floor. The
+ *    open centre admits a vertical probe to the visible interior floor.
+ * 2. The cup's upward socket and inner rim are level. The pitcher's lip projects
+ *    beyond its 110 mm body rim and leaves space behind the tip.
+ * 3. The handle grip lies on its vertical bar and admits a finger probe in the
+ *    loop with the pouring edge on the opposite side.
+ * 4. A repeated seed reproduces the cup and a different seed varies its diameter
+ *    and empty mass within the maker's bounds.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the measured geometry, seeded admission and four distinct scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Measures collider and mesh openings independently, probes the spout and handle clearance, reads the upward mouth and bar frames, and compares seeded models.
@@ -187,16 +188,16 @@ export function test_archetype_props_pour_vessel(): void {
 
   const seeded: ReturnType<typeof createPourVessel> = createPourVessel(
     { kind: "cup" },
-    "table",
+    1004,
   );
   const other: ReturnType<typeof createPourVessel> = createPourVessel(
     { kind: "cup" },
-    "counter",
+    1005,
   );
   TestValidator.equals(
     "same kind and seed reproduce the generated vessel",
     JSON.stringify(seeded),
-    JSON.stringify(createPourVessel({ kind: "cup" }, "table")),
+    JSON.stringify(createPourVessel({ kind: "cup" }, 1004)),
   );
   const diameter: number = archetypeExtent(seeded, "x").size;
   const otherDiameter: number = archetypeExtent(other, "x").size;
@@ -228,7 +229,10 @@ function separation(
   return physicalShapeSegmentDistance(pose, shape, from, to);
 }
 
-/** First intersection of a downward ray with the vessel's placed triangle surfaces. */
+/**
+ * First intersection of a downward ray with the vessel's placed triangle
+ * surfaces.
+ */
 function downwardMeshTravel(
   parts: readonly IAutoMovieModelPart[],
   from: IAutoMovieVector3,

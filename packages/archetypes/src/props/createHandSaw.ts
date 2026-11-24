@@ -20,7 +20,7 @@ export function createHandSaw(
     HandToolDraw.IParams,
     "id" | "length" | "gripDiameter" | "mass" | "blade"
   > = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createHandSaw.Affordance, createHandSaw.Dimension> {
   const {
     builder,

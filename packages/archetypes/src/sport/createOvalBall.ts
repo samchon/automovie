@@ -20,7 +20,7 @@ import type { createBall } from "./createBall";
  */
 export function createOvalBall(
   params: createOvalBall.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createOvalBall.Affordance, createOvalBall.Dimension> {
   const kind: createOvalBall.Kind = ArchetypeDraw.choice(
     "ball",

@@ -14,7 +14,7 @@ import type { createScenicContainer } from "./createScenicContainer";
  */
 export function createMoldedCrate(
   params: createMoldedCrate.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createMoldedCrate.Affordance,
   createMoldedCrate.Dimension

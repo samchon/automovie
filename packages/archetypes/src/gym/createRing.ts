@@ -41,7 +41,7 @@ const SIDES: readonly ["north", "south", "east", "west"] = [
  */
 export function createRing(
   params: createRing.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRing.Affordance, createRing.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRing.Dimension> =
     new AutoMovieArchetypeDrawSession<createRing.Dimension>(

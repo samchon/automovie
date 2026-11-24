@@ -25,7 +25,7 @@ const STAGED: string =
  */
 export function createRake(
   params: createRake.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRake.Affordance, createRake.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createRake.Dimension> =
     new AutoMovieArchetypeDrawSession("rake", createRake.UNITS, seed, params);

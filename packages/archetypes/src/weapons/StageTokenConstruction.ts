@@ -34,7 +34,7 @@ const NAMES: Readonly<Record<createProjectile.Kind, string>> = {
 export function StageTokenConstruction(
   kind: createProjectile.Kind,
   params: Omit<createProjectile.IParams, "kind">,
-  seed: number | string | undefined,
+  seed: number | undefined,
   build: StageTokenConstruction.Build,
 ): AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createProjectile.Dimension> =

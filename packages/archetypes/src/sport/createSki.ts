@@ -52,7 +52,7 @@ const STANCE: number = 0.02;
  */
 export function createSki(
   params: createSki.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createSki.Affordance, createSki.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createSki.Dimension> =
     new AutoMovieArchetypeDrawSession<createSki.Dimension>(

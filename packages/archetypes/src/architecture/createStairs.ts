@@ -47,7 +47,7 @@ const ADA: string =
  */
 export function createStairs(
   params: createStairs.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createStairs.Affordance, createStairs.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createStairs.Dimension> =
     new AutoMovieArchetypeDrawSession<createStairs.Dimension>(

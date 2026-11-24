@@ -19,7 +19,7 @@ import { StreetFixtureDraw } from "./StreetFixtureDraw";
  */
 export function createBollard(
   params: createBollard.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBollard.Affordance, createBollard.Dimension> {
   const { builder, d }: StreetFixtureDraw.IFixture<createBollard.Affordance> =
     StreetFixtureDraw.begin("bollard", "bollard", "steel", params, seed);

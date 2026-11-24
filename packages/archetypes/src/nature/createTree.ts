@@ -75,7 +75,7 @@ const BRANCHES: string =
  */
 export function createTree(
   params: createTree.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTree.Affordance, createTree.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createTree.Dimension> =
     new AutoMovieArchetypeDrawSession<createTree.Dimension>(

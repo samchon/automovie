@@ -14,7 +14,7 @@ import type { createTray } from "./createTray";
  */
 export function createCarryBasket(
   params: createCarryBasket.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createCarryBasket.Affordance,
   createCarryBasket.Dimension

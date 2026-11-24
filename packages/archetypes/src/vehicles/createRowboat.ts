@@ -19,7 +19,7 @@ import { createBoat } from "./createBoat";
  */
 export function createRowboat(
   params: createRowboat.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createRowboat.Affordance, createRowboat.Dimension> {
   return BoatConstruction("rowboat", params, seed, outfit);
 }

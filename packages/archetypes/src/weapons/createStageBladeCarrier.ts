@@ -23,7 +23,7 @@ import { createHolster } from "./createHolster";
  */
 export function createStageBladeCarrier(
   params: createStageBladeCarrier.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageBladeCarrier.Affordance,
   createStageBladeCarrier.Dimension

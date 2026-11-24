@@ -31,7 +31,7 @@ const SCENIC: string =
  */
 export function createScenicStandard(
   params: createScenicStandard.IParams,
-  seed?: string | number,
+  seed?: number,
 ): AutoMovieArchetype<
   createScenicStandard.Affordance,
   createScenicStandard.Dimension

@@ -23,16 +23,24 @@ import { nclose, vclose } from "../internal/predicates";
 const STEP: number = 0.1;
 
 /**
- * Plan the shared mounted manoeuvres and admit them against a horse's gait speeds and footprint.
+ * Plan the shared mounted manoeuvres and admit them against a horse's gait
+ * speeds and footprint.
  *
  * Scenarios:
  *
- * 1. A four-file wheel at the trot rides each file at its radius times the common rate, and a wheel too fast for the outer file refuses with the inner radii the trot allows.
- * 2. A Cantabrian loop at the canter opens one loosing window per lap, centred on the loop's point nearest the target, and a loop too small refuses with the least radius.
- * 3. A feigned retreat turns about after its cue within its turn's time, and turns back.
- * 4. Escorts keep their stations on a carriage through a turn and clear it by their margin.
+ * 1. A four-file wheel at the trot rides each file at its radius times the common
+ *    rate, and a wheel too fast for the outer file refuses with the inner radii
+ *    the trot allows.
+ * 2. A Cantabrian loop at the canter opens one loosing window per lap, centred on
+ *    the loop's point nearest the target, and a loop too small refuses with the
+ *    least radius.
+ * 3. A feigned retreat turns about after its cue within its turn's time, and turns
+ *    back.
+ * 4. Escorts keep their stations on a carriage through a turn and clear it by
+ *    their margin.
  * 5. A horse is a moving obstacle the crowd steers round without contact.
- * 6. A string member treads its leader's line a fixed gap behind, and an opening narrower than a horse and its margin refuses with the post and interval.
+ * 6. A string member treads its leader's line a fixed gap behind, and an opening
+ *    narrower than a horse and its margin refuses with the post and interval.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists each manoeuvre and its expectation.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieArchetypeManoeuvre`, `AutoMovieArchetypePassage` and the engine's crowd steering with a real horse's gait speeds and footprint, and reads the plans `AutoMovieArchetypeCourse.timed` makes.
@@ -41,10 +49,7 @@ const STEP: number = 0.1;
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec; the horses' animated gaits are the timed ride's (#3905).
  */
 export function test_world_mounted_manoeuvres(): void {
-  const horse: AutoMovieArchetype = createHorse(
-    { withersHeight: 1.7 },
-    "squadron",
-  );
+  const horse: AutoMovieArchetype = createHorse({ withersHeight: 1.7 }, 1031);
   const range: (
     gait: AutoMovieArchetypeQuadrupedGait.Gait,
   ) => AutoMovieArchetypeManoeuvre.ISpeedRange = (

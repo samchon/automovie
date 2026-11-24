@@ -18,7 +18,7 @@ import { createWatch } from "./createWatch";
  */
 export function createWearable(
   params: createWearable.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createWearable.Affordance, createWearable.Dimension> {
   const kind: createWearable.Kind = ArchetypeDraw.choice(
     "wearable",
@@ -30,7 +30,7 @@ export function createWearable(
   // The saved input spans every variant. The selected producer checks its original recipe.
   const produce: (
     params: createWearable.IParams,
-    seed?: number | string,
+    seed?: number,
   ) => AutoMovieArchetype<createWearable.Affordance, createWearable.Dimension> =
     createWearable.PRODUCERS[kind] as typeof produce;
   return produce(params, seed);

@@ -65,7 +65,7 @@ const HOYT: string =
  */
 export function createBow(
   params: createBow.IParams,
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBow.Affordance, createBow.Dimension> {
   const kind: createBow.Kind = ArchetypeDraw.choice(
     "bow",
@@ -77,7 +77,7 @@ export function createBow(
   type Producer = {
     build(
       params: createBow.IParams,
-      seed?: number | string,
+      seed?: number,
     ): AutoMovieArchetype<createBow.Affordance, createBow.Dimension>;
   }["build"];
   // The selected producer validates its options from the saved parameter union.

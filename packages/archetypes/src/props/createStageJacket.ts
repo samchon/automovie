@@ -71,7 +71,7 @@ const WALL: number = 0.012;
  */
 export function createStageJacket(
   params: createStageJacket.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createStageJacket.Affordance,
   createStageJacket.Dimension

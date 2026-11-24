@@ -36,7 +36,7 @@ const CONCEPT2: string =
  */
 export function createRowingMachine(
   params: createRowingMachine.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<
   createRowingMachine.Affordance,
   createRowingMachine.Dimension

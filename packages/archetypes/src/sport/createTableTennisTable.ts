@@ -24,7 +24,7 @@ import {
  */
 export function createTableTennisTable(
   params: createTableTennisTable.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createTableTennisTable.Affordance, never> {
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession("tableTennisTable", {}, seed, {});

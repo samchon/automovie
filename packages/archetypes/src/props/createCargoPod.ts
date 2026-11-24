@@ -15,7 +15,7 @@ import type { createScenicContainer } from "./createScenicContainer";
  */
 export function createCargoPod(
   params: createCargoPod.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createCargoPod.Affordance, createCargoPod.Dimension> {
   return ScenicContainerConstruction.mountedPod(params, seed);
 }

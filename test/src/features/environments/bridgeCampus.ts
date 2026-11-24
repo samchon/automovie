@@ -32,7 +32,7 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
   });
   const environment: IAutoMovieEnvironment = createEnvironment({
     id: "campus",
-    seed: "campus",
+    seed: 1036,
     items: {
       west: { use: west },
       east: { use: east, at: { x: 11, y: 0, z: 0 } },

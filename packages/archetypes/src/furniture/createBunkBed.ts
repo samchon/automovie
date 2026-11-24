@@ -15,7 +15,7 @@ import type { createBed } from "./createBed";
  */
 export function createBunkBed(
   params: createBunkBed.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createBunkBed.Affordance, createBunkBed.Dimension> {
   return BedConstruction.bunk(params, seed);
 }

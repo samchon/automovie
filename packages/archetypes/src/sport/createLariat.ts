@@ -32,7 +32,7 @@ import {
  */
 export function createLariat(
   params: createLariat.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createLariat.Affordance, createLariat.Dimension> {
   const draw: AutoMovieArchetypeDrawSession<createLariat.Dimension> =
     new AutoMovieArchetypeDrawSession<createLariat.Dimension>(

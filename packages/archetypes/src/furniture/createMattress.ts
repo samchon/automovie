@@ -15,7 +15,7 @@ import type { createBed } from "./createBed";
  */
 export function createMattress(
   params: createMattress.IParams = {},
-  seed?: number | string,
+  seed?: number,
 ): AutoMovieArchetype<createMattress.Affordance, createMattress.Dimension> {
   return BedConstruction.platform("mattress", params, seed);
 }

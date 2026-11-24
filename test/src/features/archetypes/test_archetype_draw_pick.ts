@@ -29,7 +29,7 @@ function pick(
   archetype: string,
   axis: string,
   value: "a" | "b" | "c" | undefined,
-  seed: number | string | undefined,
+  seed: number | undefined,
 ): string {
   return new AutoMovieArchetypeDrawSession<never>(archetype, {}, seed).model(
     axis,
@@ -39,13 +39,18 @@ function pick(
 }
 
 /**
- * A session's seeded pick is one of a producer's closed alternatives, given or drawn whole.
+ * A session's seeded pick is one of a producer's closed alternatives, given or
+ * drawn whole.
  *
  * Scenarios:
- * 1. A value given is returned as given for any seed; a value not listed is refused with kind `parameter`, the axis and exactly the alternatives.
+ *
+ * 1. A value given is returned as given for any seed; a value not listed is
+ *    refused with kind `parameter`, the axis and exactly the alternatives.
  * 2. With no seed and no value, the pick is the first alternative.
- * 3. The same seed gives the same pick on every call, a number seed and its text the same pick, and over 300 seeds each of three alternatives is drawn at least 60 times.
- * 4. The pick is keyed by producer and axis: over 300 seeds, two axes of one producer, and one axis of two producers, do not always agree.
+ * 3. The same seed gives the same pick on every call, and over 300 seeds each of
+ *    three alternatives is drawn at least 60 times.
+ * 4. The pick is keyed by producer and axis: over 300 seeds, two axes of one
+ *    producer, and one axis of two producers, do not always agree.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Picks through a draw session and reads its result and refusal; a pick that ignores a given value, accepts an unlisted one, depends on call order, skips an alternative or reuses one stream for two axes is caught.
  * @evidence contracts/development/testing.md#independent-expectations The refusal contract of #3368; a uniform draw of three over 300 seeds gives each 100 on average with a standard deviation near 8, so 60 lies five deviations below; two independent uniform draws of three agree on a third of seeds, so 300 agreements is impossible for independent streams.
@@ -55,7 +60,7 @@ function pick(
  */
 export function test_archetype_draw_pick(): void {
   const findings: string[] = [];
-  for (const seed of [undefined, 0, 7, "seven"])
+  for (const seed of [undefined, 0, 7, 1044])
     if (pick("thing", "model", "b", seed) !== "b")
       findings.push(`seed ${String(seed)}: a given value was not kept`);
   try {
@@ -79,10 +84,7 @@ export function test_archetype_draw_pick(): void {
   let producers: number = 0;
   for (let seed: number = 0; seed < 300; seed++) {
     const once: string = pick("thing", "model", undefined, seed);
-    if (
-      pick("thing", "model", undefined, seed) !== once ||
-      pick("thing", "model", undefined, String(seed)) !== once
-    )
+    if (pick("thing", "model", undefined, seed) !== once)
       findings.push(`seed ${seed}: the pick is not deterministic`);
     counts.set(once, (counts.get(once) ?? 0) + 1);
     if (pick("thing", "finish", undefined, seed) === once) axes++;
