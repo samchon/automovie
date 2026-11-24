@@ -224,10 +224,26 @@ export function test_human_head_landmarks(): void {
   );
   if (originals.sources.size !== 6 || originals.studies.length !== 2)
     failures.push("the selected read changed its published source scope");
-  if (originals.lofts.size !== 0 || originals.base.calibrated)
+  if (
+    originals.closureAttempt.state !== "unrequested" ||
+    originals.sources.get("head.mass") !== head.source.tapeInvariant.part
+  )
     failures.push(
-      "selected original reads triggered a raw loft or upper tape solve",
+      "selected original reads requested the upper tape or changed the lower host",
     );
+  const lipOriginal = head.originals(["lip.upper"]);
+  const raw: IAutoMovieHumanHeadComposer.IRaw = lipOriginal.prepareRaw([
+    "lip.upper",
+    "lip.upper",
+  ]);
+  const upperRaw = raw.lofts.get("lip.upper");
+  if (
+    raw.lofts.size !== 1 ||
+    upperRaw === undefined ||
+    upperRaw.chain === null ||
+    raw.diagnostics.length !== upperRaw.diagnostics.length
+  )
+    failures.push("the selected raw scope changed its lip loft or diagnostics");
 
   TestValidator.predicate(failures.join("\n"), failures.length === 0);
 }

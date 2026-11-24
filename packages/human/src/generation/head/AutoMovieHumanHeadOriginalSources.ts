@@ -4,7 +4,6 @@ import type {
   IAutoMovieHumanHeadComposer,
   IAutoMovieHumanHeadDome,
   IAutoMovieHumanHeadFeatures,
-  IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadOriginalSources,
   IAutoMovieHumanPair,
   IAutoMovieViewLoft,
@@ -17,29 +16,28 @@ import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
 
 /**
- * Explicit selected/full regional source requests on one canonical numerical host.
+ * Explicit selected/full regional source requests on one canonical numerical
+ * host.
  *
- * Two hosts serve these requests. A request whose every original reads the
- * mass only on or below nasion is authored on the canonical family's
- * pre-closure member (`IBase.tapeInvariant`), which equals every closed member
- * there bit for bit (the proof is on that field), so it never pays the upper
- * head-tape closure. Those originals and their reads are: the nose (`frontAt`
- * at the nasion-tip midpoint), both lips (one native contact section at
- * stomion), the philtrum (subnasale to labrale superius) and the mentolabial
- * sulcus (at sublabiale) on the mass, the lobule, alae and nostrils on the
- * nose, and the eye studies, which read the layout's landmarks only. Every
- * other request keeps the closed host: the orbital domes read the mass across
- * the palpebral fissure's height around the eye level, which reaches nasion,
- * and the auricles attach up to superaurale, above it. Requests mixing both
- * kinds, an absent list and the nested ear names retain the existing complete
- * regional catalogue on the closed host. This is a dependency boundary inside
- * the existing native bank; it is not the planned composed S01 source.
+ * Two hosts serve these requests. A request whose every original reads the mass
+ * only on or below nasion is authored on the canonical family's pre-closure
+ * member (`IBase.tapeInvariant`), which equals every closed member there bit
+ * for bit (the proof is on that field), so it never pays the upper head-tape
+ * closure. Those originals and their reads are: the nose (`frontAt` at the
+ * nasion-tip midpoint), both lips (one native contact section at stomion), the
+ * philtrum (subnasale to labrale superius) and the mentolabial sulcus (at
+ * sublabiale) on the mass, the nostril cutters on the original nose, and the
+ * eye studies, which read the layout's landmarks only. Every other request
+ * keeps the closed host: the orbital domes read the mass across the palpebral
+ * fissure's height around the eye level, which reaches nasion, and the auricles
+ * attach up to superaurale, above it. A request without a name list or with a
+ * closed-host regional dependency selects the complete catalogue. Exact
+ * top-level selections may share a single closed host.
  */
 export namespace AutoMovieHumanHeadOriginalSources {
   /**
-   * Existing public regional-name protocol, before any host or source is acquired.
-   * Nested/ear names are admitted requests for the existing whole catalogue;
-   * listing them is neither a constructor nor a new S01 composition.
+   * Existing public regional-name protocol, before any host or source is
+   * acquired. Listing source names requires no geometry.
    */
   export function names(): string[] {
     return [
@@ -78,92 +76,139 @@ export namespace AutoMovieHumanHeadOriginalSources {
     );
   }
 
-  /** Retain actual original objects and failures in this one immutable source invocation. */
+  /** Prepare each requested catalogue on its one actual host. */
   export function create(
     base: IAutoMovieHumanHeadComposer.IBase,
     ears: IAutoMovieHumanPair<IAutoMovieHumanEar>,
     places?: IAutoMovieHumanHeadComposer.IPlaces,
   ): IAutoMovieHumanHeadOriginalSources.IOutput {
+    const top: readonly string[] = AutoMovieHumanHeadFeatures.names();
     const known: Set<string> = new Set([...names(), base.guides.name]);
-    const empty: IAutoMovieHumanHeadComposer.IDefinition = {
-      base,
-      requestScope: "unrequested",
-      parts: [],
-      sources: new Map(),
-      attachments: [],
-      studies: [],
-      lofts: new Map(),
-      loft(name: string): IAutoMovieViewLoft.IResult {
-        throw new Error("No head original was requested: " + name);
-      },
-    };
-    const attempts: IAutoMovieHumanHeadDome.IAttempt[] = [];
-    const lofts: Map<string, IAutoMovieViewLoft.IResult> = new Map();
-    let top: IAutoMovieHumanHeadFeatures.IPrepared | undefined;
-    let complete: IAutoMovieHumanHeadComposer.IDefinition | undefined;
-
-    // The pre-closure host keeps its own attempts and lofts, so a later
-    // closed-host request neither repeats nor inherits these records.
-    const lowerAttempts: IAutoMovieHumanHeadDome.IAttempt[] = [];
-    const lowerLofts: Map<string, IAutoMovieViewLoft.IResult> = new Map();
-    let lowerTop: IAutoMovieHumanHeadFeatures.IPrepared | undefined;
-    let lowerInner: IAutoMovieHumanHeadFeatures.IFeature[] | undefined;
-    let lowerStudies: IAutoMovieViewPart[] | undefined;
-
-    /** Prepare only the canonical host and the five factory closures at explicit regional demand. */
-    const prepare: () => IAutoMovieHumanHeadFeatures.IPrepared =
-      (): IAutoMovieHumanHeadFeatures.IPrepared => {
-        top ??= AutoMovieHumanHeadFeatures.prepare(
-          base.closed().tape.plan,
-          base.closed().tape.part,
-          attempts,
+    return {
+      request(
+        requested?: readonly string[],
+      ): IAutoMovieHumanHeadComposer.IDefinition {
+        if (requested?.length === 0) {
+          /** Every raw name is unavailable in the empty definition. */
+          function loft(name: string): IAutoMovieViewLoft.IResult {
+            throw new Error("No head original was requested: " + name);
+          }
+          return {
+            base,
+            closureAttempt: { state: "unrequested" },
+            requestScope: "unrequested",
+            parts: [],
+            sources: new Map(),
+            attachments: [],
+            studies: [],
+            loft,
+            prepareRaw: (
+              rawNames: readonly string[],
+            ): IAutoMovieHumanHeadComposer.IRaw => prepareRaw(rawNames, loft),
+          };
+        }
+        const selected: readonly string[] = requested ?? [];
+        const unavailable: string[] = selected.filter(
+          (name: string): boolean => !known.has(name),
         );
-        return top;
-      };
+        if (unavailable.length !== 0)
+          throw new Error(
+            "Unknown head original request: " + unavailable.join(", "),
+          );
 
-    /** Publish only requested actual originals on their host; raw remains an explicit request on these sources. */
-    const publish: (
-      host: IHost,
-      parts: IAutoMovieHumanHeadFeatures.IFeature[],
-      studies: IAutoMovieViewPart[],
-      requestScope: NonNullable<
-        IAutoMovieHumanHeadComposer.IDefinition["requestScope"]
-      >,
-      names?: readonly string[],
-    ) => IAutoMovieHumanHeadComposer.IDefinition = (
-      host: IHost,
-      parts: IAutoMovieHumanHeadFeatures.IFeature[],
-      studies: IAutoMovieViewPart[],
-      requestScope: NonNullable<
-        IAutoMovieHumanHeadComposer.IDefinition["requestScope"]
-      >,
-      names?: readonly string[],
-    ): IAutoMovieHumanHeadComposer.IDefinition => {
-      const mass: IAutoMovieViewPart = host.part;
-      const sources: ReadonlyMap<string, IAutoMovieViewPart> = new Map([
-        [mass.name, mass],
-        ...parts.map(
-          (
-            feature: IAutoMovieHumanHeadFeatures.IFeature,
-          ): [string, IAutoMovieViewPart] => [feature.part.name, feature.part],
-        ),
-      ]);
-      const relevant: IAutoMovieHumanHeadDome.IAttempt[] =
-        requestScope === "complete-regional-catalogue"
-          ? host.attempts
-          : host.attempts.filter(
-              (attempt: IAutoMovieHumanHeadDome.IAttempt): boolean =>
-                names?.includes(attempt.name) ?? false,
-            );
-      return {
-        base,
-        parts,
-        sources,
-        attachments: relevant,
-        studies,
-        lofts: host.lofts,
-        requestScope,
-        loft(name: string): IAutoMovieViewLoft.IResult {
+        const invariant: boolean = requested?.every(tapeInvariant) ?? false;
+        const complete: boolean =
+          requested === undefined ||
+          (!invariant &&
+            requested.some(
+              (name: string): boolean =>
+                name !== base.guides.name && !top.includes(name),
+            ));
+        const closureAttempt: IAutoMovieHumanHeadComposer.IDefinition["closureAttempt"] =
+          invariant ? { state: "unrequested" } : base.attemptClosure();
+        if (closureAttempt.state === "failed") throw closureAttempt.error;
+        const { plan, part: mass }: typeof base.tapeInvariant =
+          closureAttempt.state === "succeeded"
+            ? closureAttempt.result.tape
+            : base.tapeInvariant;
+
+        const attempts: IAutoMovieHumanHeadDome.IAttempt[] = [];
+        const needsInner: boolean =
+          complete ||
+          (invariant &&
+            selected.some((name: string): boolean => INNER.has(name)));
+        const outer: IAutoMovieHumanHeadFeatures.IFeature[] =
+          AutoMovieHumanHeadFeatures.prepare(
+            plan,
+            mass,
+            attempts,
+            complete
+              ? undefined
+              : needsInner
+                ? [...selected, "nose"]
+                : selected,
+          );
+        const auricles: IAutoMovieHumanHeadFeatures.IFeature[] = complete
+          ? AutoMovieHumanHeadEarParts.of(plan, mass, ears, places?.ears, attempts)
+          : [];
+        const inner: IAutoMovieHumanHeadFeatures.IFeature[] = needsInner
+          ? AutoMovieHumanHeadInnerParts.of(
+              plan,
+              sourceMap(mass, outer),
+              attempts,
+            )
+          : [];
+        const regional: IAutoMovieHumanHeadFeatures.IFeature[] = [
+          ...outer,
+          ...auricles,
+          ...inner,
+        ];
+        const parts: IAutoMovieHumanHeadFeatures.IFeature[] =
+          complete || !invariant
+            ? regional
+            : regional.filter(
+                (feature: IAutoMovieHumanHeadFeatures.IFeature): boolean =>
+                  selected.includes(feature.part.name),
+              );
+        const studies: IAutoMovieViewPart[] =
+          complete || (invariant && selected.some(isStudy))
+            ? AutoMovieHumanHeadEyeParts.of(plan).filter(
+                (part: IAutoMovieViewPart): boolean =>
+                  complete || selected.includes(part.name),
+              )
+            : [];
+        const sources: ReadonlyMap<string, IAutoMovieViewPart> = sourceMap(
+          mass,
+          parts,
+        );
+        const requestScope: IAutoMovieHumanHeadComposer.IDefinition["requestScope"] =
+          complete
+            ? "complete-regional-catalogue"
+            : invariant
+              ? "selected-tape-invariant"
+              : "selected-top-level";
+
+        return {
+          base,
+          closureAttempt,
+          requestScope,
+          parts,
+          sources,
+          attachments: complete
+            ? attempts
+            : attempts.filter(
+                (attempt: IAutoMovieHumanHeadDome.IAttempt): boolean =>
+                  selected.includes(attempt.name),
+              ),
+          studies,
+          loft,
+          prepareRaw: (
+            rawNames: readonly string[],
+          ): IAutoMovieHumanHeadComposer.IRaw => prepareRaw(rawNames, loft),
+        };
+
+        /** Realize one actual original on the already selected host. */
+        function loft(name: string): IAutoMovieViewLoft.IResult {
           const part: IAutoMovieViewPart | undefined =
             sources.get(name) ??
             studies.find(
@@ -174,177 +219,58 @@ export namespace AutoMovieHumanHeadOriginalSources {
               "Head original " +
                 name +
                 " is unavailable: " +
-                (host.attempts.find(
+                (attempts.find(
                   (attempt: IAutoMovieHumanHeadDome.IAttempt): boolean =>
                     attempt.name === name,
                 )?.error ?? "no original source in this definition"),
             );
-
-          // The pre-closure mass is exact only on and below nasion, so it is
-          // never lofted as the head; the closed host owns that raw request.
-          if (part === mass && !host.closed)
+          if (part !== mass) return AutoMovieViewLoft.create(part);
+          if (closureAttempt.state !== "succeeded")
             throw new Error(
               "The pre-closure head host is exact only below nasion; request the closed head mass for its raw loft",
             );
-          const previous: IAutoMovieViewLoft.IResult | undefined =
-            host.lofts.get(name);
-          if (previous !== undefined) return previous;
-          const result: IAutoMovieViewLoft.IResult =
-            part === mass ? base.loft() : AutoMovieViewLoft.create(part);
-          host.lofts.set(name, result);
-          return result;
-        },
-      };
-    };
-
-    /** Author exactly the requested tape-invariant originals on the pre-closure host, without the closure. */
-    const invariant: (
-      names: readonly string[],
-    ) => IAutoMovieHumanHeadComposer.IDefinition = (
-      names: readonly string[],
-    ): IAutoMovieHumanHeadComposer.IDefinition => {
-      const host: {
-        plan: IAutoMovieHumanHeadLayout;
-        part: IAutoMovieViewPart;
-      } = base.tapeInvariant;
-      lowerTop ??= AutoMovieHumanHeadFeatures.prepare(
-        host.plan,
-        host.part,
-        lowerAttempts,
-      );
-      const factories: IAutoMovieHumanHeadFeatures.IPrepared = lowerTop;
-      const outer: IAutoMovieHumanHeadFeatures.IFeature[] = factories.read(
-        names.filter((name: string): boolean => TOP.has(name)),
-      );
-
-      // The nested parts take the mass and the nose as parents; both are the
-      // tape-invariant sources, so the nose is read from this same host.
-      const inner: IAutoMovieHumanHeadFeatures.IFeature[] = names.some(
-        (name: string): boolean => INNER.has(name),
-      )
-        ? (lowerInner ??= AutoMovieHumanHeadInnerParts.of(
-            host.plan,
-            new Map([
-              [host.part.name, host.part],
-              ["nose", factories.read(["nose"])[0]!.part],
-            ]),
-            lowerAttempts,
-          )).filter((feature: IAutoMovieHumanHeadFeatures.IFeature): boolean =>
-            names.includes(feature.part.name),
-          )
-        : [];
-      const studies: IAutoMovieViewPart[] = names.some(
-        (name: string): boolean =>
-          name.startsWith("globe.") || name.startsWith("fissure."),
-      )
-        ? (lowerStudies ??= AutoMovieHumanHeadEyeParts.of(host.plan)).filter(
-            (study: IAutoMovieViewPart): boolean => names.includes(study.name),
-          )
-        : [];
-      return publish(
-        {
-          part: host.part,
-          attempts: lowerAttempts,
-          lofts: lowerLofts,
-          closed: false,
-        },
-        [...outer, ...inner],
-        studies,
-        "selected-tape-invariant",
-        names,
-      );
-    };
-
-    /** The closed host's mass and records, at its explicit demand. */
-    const closedHost: () => IHost = (): IHost => ({
-      part: base.closed().tape.part,
-      attempts,
-      lofts,
-      closed: true,
-    });
-    return {
-      request(
-        names?: readonly string[],
-      ): IAutoMovieHumanHeadComposer.IDefinition {
-        if (names !== undefined) {
-          if (names.length === 0) return empty;
-          const unavailable: string[] = names.filter(
-            (name: string): boolean => !known.has(name),
-          );
-          if (unavailable.length !== 0)
-            throw new Error(
-              "Unknown head original request: " + unavailable.join(", "),
-            );
-          if (names.every(tapeInvariant)) return invariant(names);
+          return base.loft(closureAttempt.result);
         }
-        if (names === undefined && complete !== undefined) return complete;
-        const factories: IAutoMovieHumanHeadFeatures.IPrepared = prepare();
-        if (
-          names !== undefined &&
-          names.every(
-            (name: string): boolean =>
-              name === base.guides.name || factories.names.includes(name),
-          )
-        )
-          return publish(
-            closedHost(),
-            factories.read(names),
-            [],
-            "selected-top-level",
-            names,
-          );
-        if (complete !== undefined) return complete;
-        const { plan, part: mass }: ReturnType<typeof base.closed>["tape"] =
-          base.closed().tape;
-        const outer: IAutoMovieHumanHeadFeatures.IFeature[] = factories.read();
-        const parents: Map<string, IAutoMovieViewPart> = new Map([
-          [mass.name, mass],
-          ...outer.map(
-            (
-              feature: IAutoMovieHumanHeadFeatures.IFeature,
-            ): [string, IAutoMovieViewPart] => [
-              feature.part.name,
-              feature.part,
-            ],
-          ),
-        ]);
-        complete = publish(
-          closedHost(),
-          [
-            ...outer,
-            ...AutoMovieHumanHeadEarParts.of(
-              plan,
-              mass,
-              ears,
-              places?.ears,
-              attempts,
-            ),
-            ...AutoMovieHumanHeadInnerParts.of(plan, parents, attempts),
-          ],
-          AutoMovieHumanHeadEyeParts.of(plan),
-          "complete-regional-catalogue",
-        );
-        return complete;
       },
     };
   }
 
-  /** One host's mass, its attempt and loft records, and whether it is the closed member. */
-  interface IHost {
-    /** The mass the requested originals attach to. */
-    part: IAutoMovieViewPart;
-
-    /** Dome attempts authored on this host. */
-    attempts: IAutoMovieHumanHeadDome.IAttempt[];
-
-    /** Raw results already requested on this host. */
-    lofts: Map<string, IAutoMovieViewLoft.IResult>;
-
-    /** True for the closed member, the only one lofted as the head. */
-    closed: boolean;
+  /** Publish one result for each declared raw name and its actual diagnostics. */
+  export function prepareRaw(
+    requested: readonly string[],
+    loft: (name: string) => IAutoMovieViewLoft.IResult,
+  ): IAutoMovieHumanHeadComposer.IRaw {
+    const lofts: Map<string, IAutoMovieViewLoft.IResult> = new Map();
+    const diagnostics: IAutoMovieHumanHeadComposer.IRaw["diagnostics"] = [];
+    for (const name of new Set(requested)) {
+      const result: IAutoMovieViewLoft.IResult = loft(name);
+      lofts.set(name, result);
+      diagnostics.push(...result.diagnostics);
+    }
+    return { lofts, diagnostics };
   }
 
-  /** Top-level originals on the tape-invariant host: the nose and both lips; the orbital domes read up to nasion and stay closed. */
+  /** Index the actual original mass and the source leaves of this selection. */
+  function sourceMap(
+    mass: IAutoMovieViewPart,
+    parts: readonly IAutoMovieHumanHeadFeatures.IFeature[],
+  ): ReadonlyMap<string, IAutoMovieViewPart> {
+    const sources: Map<string, IAutoMovieViewPart> = new Map([
+      [mass.name, mass],
+    ]);
+    for (const feature of parts) sources.set(feature.part.name, feature.part);
+    return sources;
+  }
+
+  /** Eye studies read landmarks and stay outside the production skin tree. */
+  function isStudy(name: string): boolean {
+    return name.startsWith("globe.") || name.startsWith("fissure.");
+  }
+
+  /**
+   * Top-level originals on the tape-invariant host: the nose and both lips; the
+   * orbital domes read up to nasion and stay closed.
+   */
   const TOP: ReadonlySet<string> = new Set(["nose", "lip.upper", "lip.lower"]);
 
   /** Nested originals whose parents are the mass below nasion and the nose. */

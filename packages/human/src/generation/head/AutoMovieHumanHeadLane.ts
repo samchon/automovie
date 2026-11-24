@@ -72,7 +72,7 @@ export namespace AutoMovieHumanHeadLane {
       prepared ?? prepare(inputs, sex, neck);
     const composed: IAutoMovieHumanHeadComposer.IOutput =
       AutoMovieHumanHeadComposer.compose(
-        canonical.source.closed().tape.plan,
+        canonical.source.layout,
         inputs.head.earPair,
         neck.bottom[1],
         canonical.places,

@@ -8,7 +8,6 @@ import type {
   IAutoMovieHumanHeadFeatures,
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanPair,
-  IAutoMovieLoftContract,
   IAutoMovieViewLoft,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -21,12 +20,12 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 /**
  * The head subtree's parts placed: the head mass authored from its views
  * (`AutoMovieHumanHeadMassPart`), and every face part drawn from its own
- * (`AutoMovieHumanHeadFeatures` and kin), each in the anatomical frame its
- * own generating curves define. The joins are not made here: the
- * construction tree (`AutoMovieHumanHeadTree`) names each merge and diff,
- * and the engine realizes them (`realizeAutoMovieConstruction`). A join's
- * search may locate an intersection, but cannot move a whole anatomical
- * part or redefine an independently supplied distance.
+ * (`AutoMovieHumanHeadFeatures` and kin), each in the anatomical frame its own
+ * generating curves define. The joins are not made here: the construction tree
+ * (`AutoMovieHumanHeadTree`) names each merge and diff, and the engine realizes
+ * them (`realizeAutoMovieConstruction`). A join's search may locate an
+ * intersection, but cannot move a whole anatomical part or redefine an
+ * independently supplied distance.
  *
  * @evidence contracts/common.md#principled-implementation Composes parts already placed by their generating anatomical frames; a parent's realized skin never supplies a compensating translation.
  * @evidence contracts/common.md#clear-and-simple-design Owns part ordering, original millimetre sources and raw loft results; explicit source leaves borrow those same parts and the tree owns joins.
@@ -38,15 +37,16 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  */
 export namespace AutoMovieHumanHeadComposer {
   /**
-   * Prepare the canonical mass and neck before any regional source is requested.
+   * Prepare the canonical mass and neck before any regional source is
+   * requested.
    *
    * @evidence contracts/common.md#principled-implementation Uses the same neck law, selected tragion, caliper closure and mass source as full composition.
    * @evidence contracts/common.md#clear-and-simple-design Separates canonical material preparation from optional regional authoring.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A later regional failure cannot create a substitute mass, and this stage claims no completed head tree.
    * @evidence contracts/common.md#meaningful-documentation Input layout and optional original placement laws retain calibration-mm meanings.
    * @evidence contracts/performance.md#efficient-algorithms Caliper and guide preparation run eagerly; the upper tape solve, lower adapter loft and full raw loft run only at their respective explicit demands.
-   * @evidence contracts/performance.md#reuse-equivalent-work Original consumers and tree authoring borrow this source directly; selected raw consumers request its single call-owned lazy loft without rebuilding mass or neck.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the original source, closed plan and lazy closure; a requested loft is retained only by that same preparation, without a global cache.
+   * @evidence contracts/performance.md#reuse-equivalent-work Original consumers and tree authoring borrow this source directly; raw consumers pass the selected closure they already own.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources This scope owns the generating family; each explicit request owns its selected closure or raw result.
    */
   export function prepare(
     skeleton: IAutoMovieHumanHeadLayout,
@@ -56,13 +56,6 @@ export namespace AutoMovieHumanHeadComposer {
   ): IAutoMovieHumanHeadComposer.IBase {
     const canonical: IAutoMovieHumanHeadCanonical.IPrepared =
       AutoMovieHumanHeadCanonical.prepare(skeleton, neckBase, ears, places);
-    let mass: IAutoMovieViewLoft.IResult | undefined;
-    const loft: () => IAutoMovieViewLoft.IResult =
-      (): IAutoMovieViewLoft.IResult => {
-        if (mass === undefined)
-          mass = AutoMovieViewLoft.create(canonical.closed().tape.part);
-        return mass;
-      };
     return {
       layout: canonical.layout,
       guides: canonical.guides,
@@ -71,22 +64,14 @@ export namespace AutoMovieHumanHeadComposer {
       lower: canonical.lower,
       lowerSource: canonical.lowerSource,
       tapeInvariant: canonical.tapeInvariant,
-      loft,
       neck: canonical.layout.neck.curves ?? null,
       diagnostics: canonical.curves.diagnostics,
-      get closureAttempt(): IAutoMovieHumanHeadCanonical.IClosureAttempt {
-        return canonical.closureAttempt;
-      },
-      get calibrated(): boolean {
-        return canonical.result !== null;
-      },
-      get calibration(): IAutoMovieHumanHeadCanonical.IOutput | null {
-        return canonical.result;
-      },
+      attemptClosure: canonical.attemptClosure,
       closed: canonical.closed,
-      /** Observe only this preparation's existing raw result, without preparing one. */
-      get raw(): IAutoMovieViewLoft.IResult | null {
-        return mass ?? null;
+      loft(
+        closure: IAutoMovieHumanHeadCanonical.IOutput = canonical.closed(),
+      ): IAutoMovieViewLoft.IResult {
+        return AutoMovieViewLoft.create(closure.tape.part);
       },
     };
   }
@@ -119,14 +104,16 @@ export namespace AutoMovieHumanHeadComposer {
    *
    * @param skeleton The landmark skeleton, the vault exponent solved.
    * @param ears The two auricles' inputs, world mm.
-   * @param neckBase The original neck scaffold's bottom mean, calibration mm, locating an internal body overlap; absent, the layout's top mean. This is not a named base-tape point.
-   * @param places Heights the published laws give, calibration mm; absent, the skeleton's own.
-   *
+   * @param neckBase The original neck scaffold's bottom mean, calibration mm,
+   *   locating an internal body overlap; absent, the layout's top mean. This is
+   *   not a named base-tape point.
+   * @param places Heights the published laws give, calibration mm; absent, the
+   *   skeleton's own.
    * @evidence contracts/common.md#principled-implementation Retains every authored millimetre part unchanged for both its raw loft and invocation-bound production leaf; arbitrary original frame/scalar callbacks are not converted to sampled declarations.
    * @evidence contracts/common.md#clear-and-simple-design A mass and an ordered list of features become one output record; joins remain in the tree.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing intersection remains a tree diagnostic; a parent-foot translation cannot hide or change it.
    * @evidence contracts/common.md#meaningful-documentation Defines the input layout, optional published places and ownership of placement versus joins.
-   * @evidence contracts/performance.md#efficient-algorithms Tree authoring creates original leaves and getter records only. Explicit raw requests create at most one result per selected name; reading diagnostics enumerates only already-performed admissions.
+   * @evidence contracts/performance.md#efficient-algorithms Tree authoring creates original leaves and getter records only. One explicit raw selection creates one result per chosen name and returns the corresponding diagnostics.
    * @evidence contracts/performance.md#reuse-equivalent-work Parents, children and selected raw readers borrow the same actual definition and source map; source-leaf realization never requires a preloft or sampled callback.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the original definition, parts and any explicitly requested raw results; immutable dependencies share that lifetime without a global registry.
    */
@@ -141,21 +128,25 @@ export namespace AutoMovieHumanHeadComposer {
     // A selected definition, and one authored on the pre-closure host whose
     // mass is exact only below nasion, cannot stand in for the closed head.
     if (
-      originals?.requestScope === "selected-top-level" ||
-      originals?.requestScope === "selected-tape-invariant" ||
-      originals?.requestScope === "unrequested"
+      originals !== undefined &&
+      originals.requestScope !== "complete-regional-catalogue"
     )
       throw new Error(
         "An unrequested or selected original definition cannot assemble a complete head",
       );
     const base: IAutoMovieHumanHeadComposer.IBase =
       originals?.base ?? prepared ?? prepare(skeleton, ears, neckBase, places);
+    const definition: IAutoMovieHumanHeadComposer.IDefinition =
+      originals ?? define(base, ears, places);
+    if (definition.closureAttempt.state !== "succeeded")
+      throw new Error(
+        "The complete original definition needs its selected canonical member",
+      );
     const {
       plan,
       part: originalMass,
-    }: IAutoMovieHumanHeadCanonical.IOutput["tape"] = base.closed().tape;
-    const definition: IAutoMovieHumanHeadComposer.IDefinition =
-      originals ?? define(base, ears, places);
+    }: IAutoMovieHumanHeadCanonical.IOutput["tape"] =
+      definition.closureAttempt.result.tape;
     const attachments: IAutoMovieHumanHeadDome.IAttempt[] =
       definition.attachments;
 
@@ -265,8 +256,7 @@ export namespace AutoMovieHumanHeadComposer {
       lower.sectionOwner = massPart.originalSection;
       if (philtrum !== undefined && crest !== undefined)
         philtrum.sectionOwner = massPart.originalSection;
-      if (sulcus !== undefined)
-        sulcus.sectionOwner = massPart.originalSection;
+      if (sulcus !== undefined) sulcus.sectionOwner = massPart.originalSection;
     }
 
     const studies: IAutoMovieHumanHeadComposer.IOutput["studies"] =
@@ -289,6 +279,17 @@ export namespace AutoMovieHumanHeadComposer {
       massPart === originalMass
         ? definition.sources
         : new Map(definition.sources).set(massPart.name, massPart);
+
+    /**
+     * The final mass owns the perioral section field when both lips were
+     * admitted.
+     */
+    function loft(name: string): IAutoMovieViewLoft.IResult {
+      return name === massPart.name && massPart !== originalMass
+        ? AutoMovieViewLoft.create(massPart)
+        : definition.loft(name);
+    }
+
     return {
       plan,
       definition,
@@ -301,23 +302,11 @@ export namespace AutoMovieHumanHeadComposer {
       studies,
       /** Only explicit raw demand invokes the identical definition's supplier. */
       get mass(): IAutoMovieViewLoft.IResult {
-        return massPart === originalMass
-          ? definition.loft(massPart.name)
-          : AutoMovieViewLoft.create(massPart);
+        return loft(massPart.name);
       },
-      /** Reading diagnostics enumerates performed admissions, never unrequested geometry. */
-      get diagnostics(): IAutoMovieLoftContract.IDiagnostic[] {
-        return [
-          ...base.diagnostics,
-          ...(definition.lofts.has(massPart.name)
-            ? []
-            : (base.raw?.diagnostics ?? [])),
-          ...[...definition.lofts.values()].flatMap(
-            (
-              result: IAutoMovieViewLoft.IResult,
-            ): IAutoMovieLoftContract.IDiagnostic[] => result.diagnostics,
-          ),
-        ];
+      diagnostics: base.diagnostics,
+      prepareRaw(names: readonly string[]): IAutoMovieHumanHeadComposer.IRaw {
+        return AutoMovieHumanHeadOriginalSources.prepareRaw(names, loft);
       },
     };
   }
