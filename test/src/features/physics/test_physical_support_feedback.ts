@@ -61,9 +61,21 @@ export function test_physical_support_feedback(): void {
       }),
     ),
   };
+  // The hip and ankle from the fixture's own joint anchors: its bent knees
+  // hold the ankle 2 * 0.45 cos(pi / 8) m under the hip, so the root drops
+  // only by what a straight 0.9 m leg still lacks, none for a 0.2 m reach.
+  const anchor = (child: string): IAutoMovieRigidTransform["position"] => {
+    const joint = profile.joints.find((candidate) => candidate.child === child)!;
+    const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
+    return Vector3.add(
+      parent.position,
+      Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+    );
+  };
+  const reach: number = 0.2;
   const goal: IAutoMovieRigidTransform["position"] = {
     ...targets["support-0"]!.position,
-    x: targets["support-0"]!.position.x + 0.2,
+    x: targets["support-0"]!.position.x + reach,
   };
   const result: ReturnType<typeof planPhysicalSupportTargets> =
     planPhysicalSupportTargets({
@@ -75,7 +87,12 @@ export function test_physical_support_feedback(): void {
       iterations: 48,
       tolerance: 0.0001,
     });
-  const expectedDrop: number = 0.9 - Math.sqrt(0.9 ** 2 - 0.2 ** 2);
+  const expectedDrop: number = Math.max(
+    0,
+    anchor("upper-0").y -
+      anchor("support-0").y -
+      Math.sqrt(0.9 ** 2 - reach ** 2),
+  );
   const failures: string[] = [];
   if (Math.abs(result.rootDrop - expectedDrop) > 1e-10)
     failures.push(`root reach: ${result.rootDrop} versus ${expectedDrop}`);
