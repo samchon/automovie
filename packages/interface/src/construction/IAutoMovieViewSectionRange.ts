@@ -1,14 +1,15 @@
 import type { IAutoMovieSource } from "./IAutoMovieSource";
-import type { IAutoMovieViewSection } from "./IAutoMovieViewSection";
 
-/**
- * Data and callback contracts shared by the ViewSectionRange operations.
- */
+/** Data and callback contracts shared by the ViewSectionRange operations. */
 export namespace IAutoMovieViewSectionRange {
   /**
-   * One synchronous candidate's unchanged measured source and fault observation.
+   * One synchronous candidate's unchanged measured source and fault
+   * observation.
    */
   export interface ITrial {
+    /** Common normalized shoulder before applying the four departures. */
+    shoulder: number;
+
     /** Actual native source before unused display observations. */
     source: IAutoMovieSource;
 
@@ -16,19 +17,30 @@ export namespace IAutoMovieViewSectionRange {
     fault: string | null;
   }
 
-  /**
-   * An accepted candidate or actual local bracket, with call-owned numeric trials for one target solve.
-   */
-  export interface IFamily {
-    /** Actual local target bracket; null also permits a separately accepted original candidate. */
-    range: IAutoMovieViewSection.IRange | null;
+  /** Two actual admissible endpoints of an increasing common-shoulder range. */
+  export type IBracket = readonly [ITrial, ITrial];
 
-    /** Actual ellipse candidate already within the unchanged native target tolerance, without another probe. */
+  /** One target's near candidates and the bounded reader of its fixed box. */
+  export interface IFamily {
+    /** Actual local target bracket, when admitted by both endpoint readings. */
+    bracket: IBracket | null;
+
+    /**
+     * Actual ellipse candidate already within the unchanged native target
+     * tolerance, without another probe.
+     */
     accepted?: IAutoMovieViewSectionRange.ITrial;
 
     /**
-     * Same-shoulder actual source/admission; original preparation exceptions propagate.
+     * Prepare and measure one requested common shoulder. Original exceptions
+     * propagate.
      */
     at(shoulder: number): IAutoMovieViewSectionRange.ITrial;
+
+    /**
+     * Run the complete reach search from the already observed ellipse, when
+     * available.
+     */
+    reach(): IBracket | null;
   }
 }

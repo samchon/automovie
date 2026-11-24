@@ -1,4 +1,4 @@
-import { AutoMovieViewSection } from "@automovie/engine";
+import { AutoMovieIllinois, AutoMovieViewSection } from "@automovie/engine";
 import type {
   IAutoMovieLoftContract,
   IAutoMovieViewPart,
@@ -21,12 +21,13 @@ type Quarters = IAutoMovieViewPart.IQuarters<number>;
  * 4. Out of reach: a girth 1 mm under the reach gives the least shoulder's section and one `girth in reach` diagnostic, 1 mm over it the greatest shoulder's and one diagnostic; the reach's own ends give none.
  * 5. No valid section: a departure that pushes one quarter's shoulder past 1 gives no section and one `view section` diagnostic.
  * 6. Concentrated native clock: the four unchanged upper endpoints from36619 and their inward1e-6/2e-6 neighbors have finite lengths. On the two symmetric boxes, independent positive rational-quadratic control-polygon bounds also enclose the full perimeter.
+ * 7. A root between adjacent binary64 values rounds onto an endpoint. A structured trial reuses the endpoint reading while the scalar function still receives the rounded parameter.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieViewSection.range`, `.of` and `.solve` and reads their sections' `girth` and `shoulders` and their diagnostics. It catches a girth that does not rise with the shoulder (two shoulders for one girth), a reach outside the taut-tape bounds, a solve that lands on the wrong shoulder or misses its girth, a girth outside the reach clamped to the wrong end or reported more or less than once, and a broken box returning a section; any operator that solves one girth to its one shoulder and reports what it cannot reach passes.
  * @evidence contracts/development/testing.md#independent-expectations Convex geometry bounds the tape between the rhombus and box perimeters (#3045, #3046). Positive homogeneous quadratic subdivision additionally bounds raw symmetric-quarter length by chords and control polygons, independently of production native-speed/Gauss quadrature; floating arithmetic is not an interval certificate. The shoulder limit remains the published1e-6 mm girth tolerance divided by a second-order central or inward one-sided girth slope, doubled for difference error. Contract names remain `girth in reach` and `view section`. Monotonicity is read at64 shoulders, so a fold between them can pass.
  * @evidence contracts/development/testing.md#distinguishing-cases Positive: in-reach girths across each range, at both ends and with departures. Negative: girths 1 mm outside on each side, a box with no valid section, and made falling and off-shoulder readings. Boundary: the reach's end girths, which must solve with no diagnostic. The section's shape and its guides belong to `test_construction_operator_view_section`; the chain to `test_construction_operator_view_section_chain`.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_lofting_view_section_girth`; it builds made boxes in process, generates no person and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Reach: for a 60 by 40 box, a 120 by 40 box and two asymmetric boxes, the valid shoulder range holds the ellipse's shoulder and its girths...).
+ * @evidence contracts/development/common.md#meaningful-documentation Names the tested reach, closed-form lengths, target solves, diagnostic cases and the adjacent-float rounding case.
  */
 export function test_construction_operator_view_section_girth(): void {
   const failures: string[] = [];
@@ -190,6 +191,41 @@ export function test_construction_operator_view_section_girth(): void {
     failures.push(
       "proof: a section 0.01 off its shoulder passes the round-trip reader",
     );
+
+  const a: number = 1;
+  const b: number = 1 + Number.EPSILON;
+  const low = { residual: -1 };
+  const high = { residual: 1 };
+  const selected = AutoMovieIllinois.select(
+    (): never => {
+      throw new Error("The rounded endpoint already has a trial");
+    },
+    (trial: typeof low): number => trial.residual,
+    [a, low],
+    [b, high],
+    0,
+    1,
+  );
+  const queries: number[] = [];
+  const root: number | null = AutoMovieIllinois.root(
+    (parameter: number): number => {
+      queries.push(parameter);
+      return parameter === a ? -1 : 1;
+    },
+    a,
+    b,
+    0,
+    1,
+  );
+  if (
+    selected !== low ||
+    root !== a ||
+    queries.length !== 3 ||
+    queries[0] !== a ||
+    queries[1] !== b ||
+    queries[2] !== a
+  )
+    failures.push("Illinois changed an active endpoint trial or scalar callback");
 
   // Actual earlier upper endpoints and their inward observer nodes must all
   // have finite measurements. For the symmetric boxes the four raw conics

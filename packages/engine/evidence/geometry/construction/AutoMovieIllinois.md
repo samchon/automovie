@@ -70,8 +70,8 @@ Reads both endpoint residuals and constructs at most one new trial per requested
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Returns the actual member directly. No caller has to evaluate the parameter again to recover it.
+Carries both active endpoint trials with their scalar parameters and residual weights. An interpolation rounded exactly to an active endpoint reads that same trial, and the scalar wrapper still calls its residual at the rounded parameter. The selected trial returns directly.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Keeps the scalar bracket and selected member during the call. No lookup or refinement data survives.
+Keeps only the current bracket, its two trials and the selected member during the call.

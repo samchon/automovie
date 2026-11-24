@@ -1,13 +1,13 @@
 /**
- * A root of a continuous function inside a bracket by the Illinois rule:
- * regula falsi that halves the stored value of the end kept twice in a row,
- * improving the one-sided stagnation of plain regula falsi. The familiar
- * superlinear order concerns a sufficiently regular simple root, not every
- * continuous residual (Dowell and Jarratt, A modified regula falsi method for
- * computing the root of an equation, BIT 11, 1971).
+ * A root of a continuous function inside a bracket by the Illinois rule: regula
+ * falsi that halves the stored value of the end kept twice in a row, improving
+ * the one-sided stagnation of plain regula falsi. The familiar superlinear
+ * order concerns a sufficiently regular simple root, not every continuous
+ * residual (Dowell and Jarratt, A modified regula falsi method for computing
+ * the root of an equation, BIT 11, 1971).
  *
- * The bracket's ends must give values of opposite signs (or one zero), and
- * the root found stays inside it, so a monotone function gives its one root.
+ * The bracket's ends must give values of opposite signs (or one zero), and the
+ * root found stays inside it, so a monotone function gives its one root.
  */
 export namespace AutoMovieIllinois {
   /**
@@ -27,10 +27,20 @@ export namespace AutoMovieIllinois {
     tolerance: number,
     iterations: number,
   ): number | null {
-    return select((x: number): number => x, f, [a, a], [b, b], tolerance, iterations);
+    return select(
+      (x: number): number => x,
+      f,
+      [a, a],
+      [b, b],
+      tolerance,
+      iterations,
+    );
   }
 
-  /** Apply the same bracketed rule and return the selected evaluated trial. */
+  /**
+   * Apply the same bracketed rule and return the selected evaluated trial.
+   * The supplied trial records remain stable while they are bracket endpoints.
+   */
   export function select<T>(
     evaluate: (x: number) => T,
     residual: (trial: T) => number,
@@ -41,6 +51,8 @@ export namespace AutoMovieIllinois {
   ): T | null {
     let x0: number = a[0];
     let x1: number = b[0];
+    let trial0: T = a[1];
+    let trial1: T = b[1];
     let f0: number = residual(a[1]);
     let f1: number = residual(b[1]);
     if (f0 === 0) return a[1];
@@ -50,20 +62,28 @@ export namespace AutoMovieIllinois {
     let selected: T = a[1];
     for (let i: number = 0; i < iterations; i++) {
       const x: number = (x0 * f1 - x1 * f0) / (f1 - f0);
-      selected = evaluate(x);
+      // A rounded interpolation can land exactly on an active endpoint.
+      selected = Object.is(x, x0)
+        ? trial0
+        : Object.is(x, x1)
+          ? trial1
+          : evaluate(x);
       const fx: number = residual(selected);
       if (Math.abs(fx) <= tolerance) return selected;
       if (fx * f1 < 0) {
         // The root lies between x and x1: x0's end is replaced.
         x0 = x1;
+        trial0 = trial1;
         f0 = f1;
         x1 = x;
+        trial1 = selected;
         f1 = fx;
         side = 0;
       } else {
         // x1's end is replaced while x0 stays: halve x0's value after the
         // second time it stays, the Illinois step.
         x1 = x;
+        trial1 = selected;
         f1 = fx;
         if (side === -1) f0 /= 2;
         side = -1;
