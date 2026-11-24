@@ -10,6 +10,7 @@ import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalance
 import { physicalAuthoredCapture } from "./physicalAuthoredCapture";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import type { physicalBalanceStance } from "./physicalBalanceStance";
+import { physicalGlitchFilter as Glitch } from "./physicalGlitchFilter";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
 import { physicalQuadFrame as Frame } from "./physicalQuadFrame";
@@ -149,6 +150,8 @@ export function physicalQuadPlan(input: {
         desired: Polygon.local(WORLD, authored.position),
         support: hull,
         feet,
+        dt: sense.dt,
+        period: physicalQuadPlan.CONTROL_DT,
       });
     push = fall.state;
     falling = fall.swing !== undefined;
@@ -221,6 +224,8 @@ export function physicalQuadPlan(input: {
       desired: Polygon.local(WORLD, desired.position),
       support: hull,
       feet,
+      dt: sense.dt,
+      period: physicalQuadPlan.CONTROL_DT,
     }).state;
     if (push.safe.value && stepped.gait.halt === undefined)
       stepped.gait.halt = sense.seconds;
@@ -293,6 +298,14 @@ export namespace physicalQuadPlan {
    * .supportToSwingGlitchWindow`, l.48).
    */
   export const GLITCH_WINDOW: number = 0.15;
+
+  /**
+   * The generic quadruped's controller period, seconds, over which IHMC's
+   * windows count updates (`GenericQuadrupedSimulationFactory.CONTROL_DT`,
+   * l.38): the reused safe window here and the touchdown trigger's
+   * (`physicalQuadTouchdown`).
+   */
+  export const CONTROL_DT: number = 0.001;
 }
 
 /** The world-aligned frame the plan's polygons use. */
@@ -350,9 +363,10 @@ function enter(input: {
     hindRight: true,
     hindLeft: true,
   };
-  const foot = (): { first: boolean; since: number } => ({
+  const foot = (): IAutoMoviePhysicalRecoveryState.IGait["feet"]["frontLeft"] => ({
     first: true,
     since: sense.seconds,
+    trigger: Glitch.set(),
   });
   return {
     quadrants: input.quadrants,
@@ -437,7 +451,8 @@ function step(input: {
   for (const planned of active) {
     const bone: string = bones[planned.quadrant];
     if (swings[bone]) continue;
-    const foot: { first: boolean; since: number } = gait.feet[planned.quadrant];
+    const foot: IAutoMoviePhysicalRecoveryState.IGait["feet"]["frontLeft"] =
+      gait.feet[planned.quadrant];
     if (!foot.first && !(now - foot.since > physicalQuadPlan.GLITCH_WINDOW))
       continue;
     if ((sense.unavailable ?? []).includes(bone)) continue;
@@ -470,7 +485,11 @@ function step(input: {
     state.seating = seating;
     swings[bone] = lifted;
     state.steps = [...state.steps, structuredClone(lifted)];
-    gait.feet[planned.quadrant] = { first: false, since: now };
+    gait.feet[planned.quadrant] = {
+      first: false,
+      since: now,
+      trigger: Glitch.set(false),
+    };
     state.revision = (state.revision ?? 0) + 1;
   }
 

@@ -54,4 +54,19 @@ export namespace physicalGlitchFilter {
   export function set(value: boolean = false): IState {
     return { value, count: 0 };
   }
+
+  /**
+   * A reference window in this controller's updates: the reference counts its
+   * own controller's updates, so its window lasts `count` times its period;
+   * the same time in updates of `dt` is the nearest whole count, at least one,
+   * within half an update of the reference's time.
+   *
+   * @param count The reference's window, updates.
+   * @param period The reference controller's period, seconds.
+   * @param dt This controller's period, seconds.
+   * @returns The window, updates.
+   */
+  export function ticks(count: number, period: number, dt: number): number {
+    return Math.max(1, Math.round((count * period) / dt));
+  }
 }

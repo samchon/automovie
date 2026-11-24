@@ -63,7 +63,15 @@ export function test_physical_push_recovery(): void {
     desired: Polygon.IPoint = { x: 0, y: 0 },
     state: Recovery.IState = Recovery.initial(),
   ): { state: Recovery.IState; swing?: string } =>
-    Recovery.doubleSupport({ state, capture, desired, support, feet });
+    Recovery.doubleSupport({
+      state,
+      capture,
+      desired,
+      support,
+      feet,
+      dt: 0.002,
+      period: 0.002,
+    });
 
   // 1. The farther foot swings; the left wins a tie.
   TestValidator.equals("lateral", double({ x: 0, y: -0.3 }).swing, "left");
@@ -128,6 +136,7 @@ export function test_physical_push_recovery(): void {
     remaining: number,
   ): ReturnType<typeof Recovery.checkAndUpdate> =>
     Recovery.checkAndUpdate({
+      period: 0.002,
       state: from,
       remaining,
       dt: 0.002,

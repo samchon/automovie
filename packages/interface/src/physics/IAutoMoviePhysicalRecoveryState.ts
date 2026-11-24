@@ -199,7 +199,8 @@ export interface IAutoMoviePhysicalRecoveryState {
    * controller), present from a recovery trigger until its steps are done:
    * each support bone's quadrant; the xGait stream; the DCM planner; the step
    * adjustment; each quadrant's foot, whether its first trigger is still to
-   * come and when it last entered its present state, local seconds; and when
+   * come, when it last entered its present state, local seconds, and its
+   * touchdown trigger; and when
    * the gait was halted, if it was. Points are IHMC's z-up world frame, x the
    * world z, y the world x and z up, metres.
    */ gait?: IAutoMoviePhysicalRecoveryState.IGait;
@@ -315,10 +316,18 @@ export namespace IAutoMoviePhysicalRecoveryState {
 
     /**
      * Each leg's foot module (IHMC `QuadrupedFootControlModule`): whether its
-     * first trigger is still to come, and when it entered its present support
-     * or swing state, local seconds.
+     * first trigger is still to come, when it entered its present support or
+     * swing state, local seconds, and its swing's touchdown trigger, a filtered
+     * value and its count of controller updates.
      */
-    feet: Record<Quadrant, { first: boolean; since: number }>;
+    feet: Record<
+      Quadrant,
+      {
+        first: boolean;
+        since: number;
+        trigger: { value: boolean; count: number };
+      }
+    >;
 
     /** When the gait was halted, local seconds, if it was. */
     halt?: number;

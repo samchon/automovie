@@ -6,7 +6,7 @@ States the landing and timeout rules, the full seat and the adjustment's clearin
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-201903 `QuadrupedSwingState`: the touchdown trigger after 0.8 of the swing since lift-off (l.133, l.317-329), the wrench switch at 4 % of the weight (main's decision, `QuadrupedWrenchBasedFootSwitch` l.36) through a window of one (`QuadrupedFootControlModuleParameters` l.20), else the timeout at the interval's end (l.331-341, l.146); support fully constrained at once (`QuadrupedSupportState.onEntry` l.74-84); `completedStep` through the transition callback (l.493-494).
+201903 `QuadrupedSwingState`: the touchdown trigger after 0.8 of the swing since lift-off (l.133, l.317-329), the wrench switch at 4 % of the weight (main's decision, `QuadrupedWrenchBasedFootSwitch` l.36) through its trigger over one of the reference's 1 ms updates (`QuadrupedFootControlModuleParameters` l.20, `GenericQuadrupedSimulationFactory` l.38), its time kept (main's Q9), else the timeout at the interval's end (l.331-341, l.146); support fully constrained at once (`QuadrupedSupportState.onEntry` l.74-84); `completedStep` through the transition callback (l.493-494).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -31,11 +31,11 @@ It retains nothing; a landing adds one record to the caller's state.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents the constant with its source.
+Documents the constants with their sources.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The minimum phase, a share of the swing.
+The minimum phase, a share of the swing, and the trigger's window, the reference's updates.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -43,4 +43,4 @@ Owned here; read by the phase.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-A constant only.
+Constants only.

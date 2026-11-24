@@ -35,7 +35,7 @@ Documents the result and the constant.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The plan's next state, its goals and the assessment, and the glitch window in seconds.
+The plan's next state, its goals and the assessment, the glitch window in seconds, and the generic quadruped's controller period in seconds, over which its windows keep their time.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

@@ -6,7 +6,7 @@ States which IHMC release the module is, what it decides and places, that no ope
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The reference module's operations over its state, with its three constants in metres, seconds and updates.
+The reference module's operations over its state, with its three constants in metres, seconds and the reference's updates, the safe window's time kept over the caller's reference period (`physicalGlitchFilter.ticks`).
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

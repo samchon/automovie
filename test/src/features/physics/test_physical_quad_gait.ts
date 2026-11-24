@@ -3,6 +3,7 @@ import {
   physicalBalanceRamp,
   physicalBalanceSense,
   physicalBalanceStance,
+  physicalGlitchFilter,
   physicalQuadFrame,
   physicalQuadPlan,
   physicalQuadTouchdown,
@@ -34,8 +35,9 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  *    swing timed by the step and rising by its 0.1 m clearance, its foot's
  *    first trigger spent.
  * 6. Touchdown: a loaded foot does not land before 0.8 of its swing and lands
- *    after it, fully seated, its adjustment cleared; an unloaded foot lands
- *    only once its step's time has run out.
+ *    after it once its trigger has held for the reference's 1 ms, fully
+ *    seated, its adjustment cleared; an unloaded foot lands only once its
+ *    step's time has run out.
  * 7. Done: a gait halted at its entry prunes every step, ends, and resets the
  *    push recovery's fall.
  *
@@ -197,24 +199,43 @@ export function test_physical_quad_gait(): void {
       if (lifted.state.gait?.feet.frontLeft.first !== false)
         failures.push("lift: the foot's first trigger is not spent");
 
-      // 6. The touchdown.
+      // 6. The touchdown, over successive updates from a time on: the
+      // trigger's window is the reference's 1 ms in this controller's updates.
       const touch = (
         seconds: number,
         loaded: boolean,
+        updates: number = 1,
       ): IAutoMoviePhysicalRecoveryState => {
-        const readings: physicalBalanceSense.ISense = at(seconds).sense;
-        return physicalQuadTouchdown({
-          state: lifted.state,
-          sense: loaded
-            ? { ...readings, load: (): number => readings.weight }
-            : { ...readings, load: (): number => 0 },
-        });
+        let state: IAutoMoviePhysicalRecoveryState = lifted.state;
+        for (let k: number = 0; k < updates; k++) {
+          const readings: physicalBalanceSense.ISense = at(
+            seconds + k * sense.dt,
+          ).sense;
+          state = physicalQuadTouchdown({
+            state,
+            sense: loaded
+              ? { ...readings, load: (): number => readings.weight }
+              : { ...readings, load: (): number => 0 },
+          });
+        }
+        return state;
       };
-      if (touch(start + 0.33 * 0.7, true).swings?.[bone] === undefined)
+      const window: number = physicalGlitchFilter.ticks(
+        physicalQuadTouchdown.TRIGGER_WINDOW,
+        physicalQuadPlan.CONTROL_DT,
+        sense.dt,
+      );
+      if (touch(start + 0.33 * 0.7, true, window).swings?.[bone] === undefined)
         failures.push("touchdown: a loaded foot landed before 0.8 of its swing");
+      if (
+        window > 1 &&
+        touch(start + 0.33 * 0.9, true, window - 1).swings?.[bone] === undefined
+      )
+        failures.push("touchdown: a loaded foot landed before its trigger's window");
       const early: IAutoMoviePhysicalRecoveryState = touch(
         start + 0.33 * 0.9,
         true,
+        window,
       );
       if (early.swings?.[bone] !== undefined)
         failures.push("touchdown: a loaded foot past 0.8 did not land");

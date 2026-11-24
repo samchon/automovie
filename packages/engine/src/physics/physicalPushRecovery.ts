@@ -31,8 +31,8 @@ export namespace physicalPushRecovery {
     fall: boolean;
 
     /**
-     * The capture point is back within reach of its plan, filtered over
-     * `SAFE_WINDOW` updates.
+     * The capture point is back within reach of its plan, filtered over the
+     * time of `SAFE_WINDOW` reference updates.
      */
     safe: Glitch.IState;
 
@@ -53,8 +53,8 @@ export namespace physicalPushRecovery {
   export const MINIMUM_TIME_TO_REPLAN: number = 0.1;
 
   /**
-   * The updates the capture point must stay back in for the robot to be safe
-   * (l.101).
+   * The reference controller's updates the capture point must stay back in
+   * for the robot to be safe (l.101).
    */
   export const SAFE_WINDOW: number = 100;
 
@@ -75,8 +75,10 @@ export namespace physicalPushRecovery {
    *
    * @param input The state, the capture point and its plan, the support
    *   polygon, clockwise, and each foot's centroid by its bone, all in one
-   *   horizontal frame; a biped's two feet left first, which wins a tie
-   *   (l.180).
+   *   horizontal frame, a biped's two feet left first, which wins a tie
+   *   (l.180); and this controller's period and the reference controller's,
+   *   seconds, which keep the safe window's time (`physicalGlitchFilter
+   *   .ticks`).
    * @returns The next state and the bone to swing, the foot other than the
    *   closest, if the robot is falling.
    */
@@ -86,6 +88,8 @@ export namespace physicalPushRecovery {
     desired: Polygon.IPoint;
     support: readonly Polygon.IPoint[];
     feet: readonly { bone: string; centroid: Polygon.IPoint }[];
+    dt: number;
+    period: number;
   }): { state: IState; swing?: string } {
     const large: boolean =
       Math.hypot(
@@ -101,7 +105,7 @@ export namespace physicalPushRecovery {
           safe: Glitch({
             state: input.state.safe,
             value: true,
-            window: SAFE_WINDOW,
+            window: Glitch.ticks(SAFE_WINDOW, input.period, input.dt),
           }),
         },
       };
@@ -226,9 +230,9 @@ export namespace physicalPushRecovery {
    * touchdown, nor again once projected.
    *
    * @param input The state, the swing time left, seconds, not a number for one
-   *   second (l.239-240), the controller's update period, seconds, the region's
-   *   inputs, the footstep's position and the swing foot's outline placed at
-   *   it, in the support sole's frame.
+   *   second (l.239-240), the controller's update period and the reference
+   *   controller's, seconds, the region's inputs, the footstep's position and
+   *   the swing foot's outline placed at it, in the support sole's frame.
    * @returns The next state, the footstep's position, whether it moved, and the
    *   capture region at the preferred swing time.
    */
@@ -236,6 +240,7 @@ export namespace physicalPushRecovery {
     state: Readonly<IState>;
     remaining: number;
     dt: number;
+    period: number;
     region: Readonly<IRegion>;
     position: Polygon.IPoint;
     outline: readonly Polygon.IPoint[];
@@ -269,7 +274,7 @@ export namespace physicalPushRecovery {
         safe: Glitch({
           state: input.state.safe,
           value: true,
-          window: SAFE_WINDOW,
+          window: Glitch.ticks(SAFE_WINDOW, input.period, input.dt),
         }),
       });
     if (remaining < MINIMUM_TIME_TO_REPLAN) return kept({ ...input.state });

@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the touchdown rule, the filters, the minimum force for a centre of pressure, the disabled distance and that the filters count controller updates.
+States the touchdown rule, the filters, the minimum force for a centre of pressure, the disabled distance and that each window keeps the reference's time.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A port of IHMC's develop `WrenchBasedFootSwitch.update` (l.145-199) with its filter windows (l.121-129) and minimum force (l.37), and Zulu's thresholds (ZuluWalkingControllerParameters l.814-816). The centre of pressure's signed distance into the outline is Euclid's `signedDistance` (`physicalPlanarPolygon`). The header records the version mix: the class and its Zulu values are develop's, the rest of the push recovery 201903's.
+A port of IHMC's develop `WrenchBasedFootSwitch.update` (l.145-199) with its filter windows (l.121-129) and minimum force (l.37), and Zulu's thresholds (ZuluWalkingControllerParameters l.814-816). The centre of pressure's signed distance into the outline is Euclid's `signedDistance` (`physicalPlanarPolygon`). The header records the version mix: the class and its Zulu values are develop's, the rest of the push recovery 201903's. Each window is its count of the reference controller's updates over Zulu's period, in this controller's updates (`physicalGlitchFilter.ticks`, main's Q9).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

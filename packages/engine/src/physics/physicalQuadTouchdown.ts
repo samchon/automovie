@@ -6,6 +6,8 @@ import type {
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalBalanceTouchdown } from "./physicalBalanceTouchdown";
+import { physicalGlitchFilter as Glitch } from "./physicalGlitchFilter";
+import { physicalQuadPlan } from "./physicalQuadPlan";
 import type { physicalQuadrupedStep as Step } from "./physicalQuadrupedStep";
 import { physicalQuadrupedStepAdjustment } from "./physicalQuadrupedStepAdjustment";
 import { physicalQuadrupedWrenchFootSwitch } from "./physicalQuadrupedWrenchFootSwitch";
@@ -17,10 +19,11 @@ import { physicalQuadrupedWrenchFootSwitch } from "./physicalQuadrupedWrenchFoot
  * more than `MINIMUM_PHASE` of its swing has passed since it lifted and its
  * foot switch has hit the ground (l.133, l.317-329, l.490-491), the wrench
  * switch at 4 % of the weight (`physicalQuadrupedWrenchFootSwitch`) through a
- * touchdown trigger whose window of one passes the first reading
- * (`QuadrupedFootControlModuleParameters` l.20, `GlitchFilteredYoBoolean`
- * l.77-89); else it times out into support once its step's interval has run
- * out (l.331-341, l.488-489, `percentPastSwingForDone` 0, l.146).
+ * touchdown trigger, a glitch filter over one of the reference's updates
+ * (`QuadrupedFootControlModuleParameters` l.20), its time kept in this
+ * controller's updates (`physicalGlitchFilter.ticks`, `physicalQuadPlan
+ * .CONTROL_DT`); else it times out into support once its step's interval has
+ * run out (l.331-341, l.488-489, `percentPastSwingForDone` 0, l.146).
  *
  * Either way the foot enters support at once and fully constrained
  * (`QuadrupedSupportState.onEntry` l.74-84), so it is seated where it is,
@@ -52,15 +55,29 @@ export function physicalQuadTouchdown(input: {
   for (const swing of Object.values(input.state.swings)) {
     const quadrant: Step.Quadrant = gait.quadrants[swing.bone]!;
     const duration: number = swing.end - swing.start;
-    const minimum: boolean =
+
+    // The touchdown trigger is updated once the minimum phase has passed
+    // (l.325-329), over its window's time in this controller's updates.
+    if (
       (sense.seconds - gait.feet[quadrant].since) / duration >
-      physicalQuadTouchdown.MINIMUM_PHASE;
-    const loaded: boolean =
-      minimum &&
-      physicalQuadrupedWrenchFootSwitch({
-        force: sense.load(swing.bone),
-        weight: sense.weight,
-      });
+      physicalQuadTouchdown.MINIMUM_PHASE
+    )
+      state.gait!.feet[quadrant] = {
+        ...gait.feet[quadrant],
+        trigger: Glitch({
+          state: gait.feet[quadrant].trigger,
+          value: physicalQuadrupedWrenchFootSwitch({
+            force: sense.load(swing.bone),
+            weight: sense.weight,
+          }),
+          window: Glitch.ticks(
+            physicalQuadTouchdown.TRIGGER_WINDOW,
+            physicalQuadPlan.CONTROL_DT,
+            sense.dt,
+          ),
+        }),
+      };
+    const loaded: boolean = state.gait!.feet[quadrant].trigger.value;
     const done: boolean = (sense.seconds - swing.start) / duration >= 1.0;
     if (!loaded && !done) continue;
     land(state, sense, swing, quadrant, !done, input.trace);
@@ -77,6 +94,13 @@ export namespace physicalQuadTouchdown {
    * l.133).
    */
   export const MINIMUM_PHASE: number = 0.8;
+
+  /**
+   * The touchdown trigger's window, the reference's updates
+   * (`QuadrupedFootControlModuleParameters.defaultTouchdownTriggerWindow`,
+   * l.20).
+   */
+  export const TRIGGER_WINDOW: number = 1;
 }
 
 /** A swinging leg's landing written onto the phase's own state. */

@@ -135,6 +135,8 @@ export function physicalBipedPlan(input: {
               ),
             }),
           ),
+        dt: sense.dt,
+        period: physicalBipedPlan.CONTROL_DT,
       });
     push = fall.state;
     falling = fall.swing !== undefined;
@@ -399,6 +401,15 @@ export namespace physicalBipedPlan {
   export const SWING_TIME: number = 0.6;
 
   /**
+   * Zulu's walking controller's period, seconds, over which IHMC's windows
+   * count updates (`ZuluRobotModel.DEFAULT_CONTROL_DT` l.68, set for walking by
+   * `ZuluHighLevelControllerParameters` l.45, develop 4d2cfcc): the push
+   * recovery's safe window here, and the foot switches' windows
+   * (`physicalBipedTouchdown`).
+   */
+  export const CONTROL_DT: number = 0.003;
+
+  /**
    * The planted feet, left first, as IHMC's sides list them: left of the
    * stance's heading is up x forward.
    *
@@ -527,6 +538,7 @@ function check(
       state: push,
       remaining,
       dt: sense.dt,
+      period: physicalBipedPlan.CONTROL_DT,
       region: {
         support: swinging.y > 0 ? "right" : "left",
         capture: Polygon.local(frame, Polygon.world(WORLD, xi)),

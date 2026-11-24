@@ -32,11 +32,11 @@ It retains nothing; a trigger adds one step record to the caller's state.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents the result, the swing time, the pendulum rate and the feet's side order.
+Documents the result, the swing time, Zulu's controller period, the pendulum rate and the feet's side order.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The plan's result, the swing time, seconds, the rate's rule and the feet's left-first order IHMC's sides use.
+The plan's result, the swing time and Zulu's walking controller period, seconds, over which the safe and foot-switch windows keep their time, the rate's rule and the feet's left-first order IHMC's sides use.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

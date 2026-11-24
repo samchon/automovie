@@ -12,7 +12,7 @@ import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 
 /**
  * One update of IHMC's wrench-based foot switch, which decides a swing foot's
- * touchdown from its measured contact (`physicalBalanceTouchdown`): the foot
+ * touchdown from its measured contact (`physicalBipedTouchdown`): the foot
  * has hit the ground when its normal force passes the low threshold on two
  * successive updates while its centre of pressure lies inside its outline by
  * the threshold distance on three, or when the force passes the high threshold;
@@ -21,12 +21,15 @@ import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
  * The centre of pressure counts only once the normal force reaches
  * `MINIMUM_FORCE`, as the reference resolves it only then (l.175-179); a
  * threshold distance that is not a number disables the test (l.182-187). The
- * filters count the controller's own updates, one per substep it runs.
+ * reference's windows count its controller's updates, so each keeps its time
+ * here: its count times the reference's period, in this controller's updates
+ * (`physicalGlitchFilter.ticks`).
  *
  * @param input The switch's state, the foot's normal force, newtons, its
  *   measured centre of pressure on the floor in a horizontal frame, if any, the
- *   foot's contact outline in the same frame, and the thresholds, the Zulu
- *   values by default.
+ *   foot's contact outline in the same frame, this controller's period and the
+ *   reference controller's, seconds, and the thresholds, the Zulu values by
+ *   default.
  * @returns The state after the update, whose `hit.value` is whether the foot
  *   has hit the ground; the input is never written.
  */
@@ -35,8 +38,12 @@ export function physicalFootSwitch(input: {
   force: number;
   pressure?: Polygon.IPoint;
   outline: readonly Polygon.IPoint[];
+  dt: number;
+  period: number;
   thresholds?: Partial<physicalFootSwitch.IThresholds>;
 }): physicalFootSwitch.IState {
+  const window = (count: number): number =>
+    Glitch.ticks(count, input.period, input.dt);
   const thresholds: physicalFootSwitch.IThresholds = {
     ...physicalFootSwitch.ZULU,
     ...input.thresholds,
@@ -44,7 +51,7 @@ export function physicalFootSwitch(input: {
   const low: Glitch.IState = Glitch({
     state: input.state.low,
     value: input.force > thresholds.low,
-    window: physicalFootSwitch.LOW_WINDOW,
+    window: window(physicalFootSwitch.LOW_WINDOW),
   });
   const high: boolean = input.force > thresholds.high;
 
@@ -62,13 +69,13 @@ export function physicalFootSwitch(input: {
       state: input.state.cop,
       value:
         Polygon.signedDistance(input.outline, resolved) < -thresholds.distance,
-      window: physicalFootSwitch.COP_WINDOW,
+      window: window(physicalFootSwitch.COP_WINDOW),
     });
   }
   const hit: Glitch.IState = Glitch({
     state: input.state.hit,
     value: (low.value && cop.value) || high,
-    window: physicalFootSwitch.HIT_WINDOW,
+    window: window(physicalFootSwitch.HIT_WINDOW),
   });
   return { low, cop, hit };
 }
@@ -122,13 +129,16 @@ export namespace physicalFootSwitch {
    */
   export const MINIMUM_FORCE: number = 5.0;
 
-  /** The low force's filter window, updates (l.122). */
+  /** The low force's filter window, the reference's updates (l.122). */
   export const LOW_WINDOW: number = 2;
 
-  /** The centre-of-pressure test's filter window, updates (l.125). */
+  /**
+   * The centre-of-pressure test's filter window, the reference's updates
+   * (l.125).
+   */
   export const COP_WINDOW: number = 3;
 
-  /** The output's filter window, updates (l.129). */
+  /** The output's filter window, the reference's updates (l.129). */
   export const HIT_WINDOW: number = 2;
 
   /**

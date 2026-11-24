@@ -9,6 +9,7 @@ import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalance
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalBalanceTouchdown } from "./physicalBalanceTouchdown";
 import { physicalBipedDesired } from "./physicalBipedDesired";
+import { physicalBipedPlan } from "./physicalBipedPlan";
 import { physicalFootSwitch } from "./physicalFootSwitch";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery } from "./physicalPushRecovery";
@@ -88,6 +89,8 @@ export function physicalBipedTouchdown(input: {
         ? { pressure: Polygon.local(WORLD, support.pressure) }
         : {}),
       outline,
+      dt: sense.dt,
+      period: physicalBipedPlan.CONTROL_DT,
     });
   }
   state.switches = switches;

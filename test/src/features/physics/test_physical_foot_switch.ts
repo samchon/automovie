@@ -48,6 +48,10 @@ export function test_physical_foot_switch(): void {
         force,
         pressure,
         outline,
+        // One update of the reference's period each, so a window counts
+        // updates as the reference's does.
+        dt: 0.003,
+        period: 0.003,
         ...(thresholds ? { thresholds } : {}),
       });
       if (state.hit.value) return update;

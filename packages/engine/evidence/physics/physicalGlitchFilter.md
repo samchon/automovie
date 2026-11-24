@@ -93,3 +93,33 @@ It builds one value.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 It retains nothing.
+
+# src/physics/physicalGlitchFilter.ts#physicalGlitchFilter.ticks
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the conversion and its bound.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+A reference window counts its controller's updates, so its time is the count times the reference's period; the nearest whole count of this controller's updates keeps that time within half an update (main's Q9).
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One expression.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+At least one update, as a window of one follows the input at once.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A pure function of its arguments.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+It retains nothing.
