@@ -1,6 +1,5 @@
 import {
   AutoMoviePhysicalBalance,
-  AutoMoviePhysicalSimulation,
   Quaternion,
   Vector3,
   physicalShapeBounds,
@@ -20,24 +19,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanChain, HumanPerformance } from "@automovie/motions";
-import { createHash } from "node:crypto";
 
 import { PhysicalSupportFixtures } from "./PhysicalSupportFixtures";
-import { createPhysicalBalanceInput } from "./createPhysicalBalanceInput";
 
-/** The simulation's step rate, per second (`createPhysicalBalanceInput`). */
+/** A judged record's step rate, per second (`createPhysicalBalanceInput`). */
 const RATE: number = 120;
 
-/**
- * Steps between checkpoints, and the steps each resumed chunk adds: a chunk
- * ends on a checkpoint, so the next one resumes exactly where it ended.
- */
+/** The steps over which a sustained push's capture point must come back. */
 const CHECKPOINT: number = 6;
 
 /**
- * The steps of quiet stance before the push, a tenth of a second, within
- * which the stance settles (`test_physical_human_quiet_support`); a checkpoint
- * falls on its last step.
+ * The steps of quiet stance before the push in a judged record, a tenth of a
+ * second, within which the stance settles (`test_physical_human_quiet_support`).
  */
 const PREFIX: number = 12;
 
@@ -57,7 +50,7 @@ const PUSH_STEPS: number = Math.round(PUSH_SECONDS * RATE);
 /** The last step the push acts on. */
 const PUSH_END: number = PUSH_STEP + PUSH_STEPS - 1;
 
-/** The step budget every run states, so each chunk resumes the last. */
+/** The steps a subject's targets cover. */
 const BUDGET: number = 300;
 
 /**
@@ -129,10 +122,9 @@ const FALLEN: number = 0.6;
  *   Human no one-step window: its trailing foot holds the centre of pressure a
  *   stance width away from the stepping one.
  *
- * A run starts from the standing pose, holds a tenth of a second of quiet
- * stance, is pushed, and is simulated in checkpoint-aligned chunks, each
- * resuming the last, only until its verdict is decided (`judge`); the record
- * of the decided run is then audited once (`audit`).
+ * A record of a pushed body, its frames, contacts, wrenches and recovery
+ * state, is judged against its outcome (`judge`) and audited (`audit`) as pure
+ * functions of the record; no simulation runs here.
  */
 export namespace PhysicalDisturbance {
   /** A standing body ready to be pushed. */
@@ -240,41 +232,6 @@ export namespace PhysicalDisturbance {
     };
   }
 
-  /**
-   * Push a body by an outcome's impulse along an axis, run it only until the
-   * outcome is decided, and check it: the verdict, then the decided run's
-   * record (`audit`).
-   */
-  export async function verify(
-    subject: ISubject,
-    name: Outcome,
-    axis: Axis,
-    failures: string[],
-  ): Promise<void> {
-    const full: IAutoMoviePhysicalSimulationInput.IBody = subject.body();
-    const value: number = impulse(subject, name, axis);
-    const cap: number = capOf(subject, name);
-    const label: string = `${subject.profile.id}/${name} ${axis} ${value.toFixed(1)} N s`;
-    let run: IAutoMoviePhysicalSimulation = await AutoMoviePhysicalSimulation.compute(
-      inputOf(subject, full, axis, value, PREFIX),
-    );
-    let verdict: IVerdict = { decided: false, failures: [] };
-    for (let steps: number = PREFIX + CHECKPOINT; ; steps += CHECKPOINT) {
-      run = await AutoMoviePhysicalSimulation.compute(
-        inputOf(subject, full, axis, value, steps),
-        run,
-      );
-      verdict = judge(subject, name, run.cache, full.id, steps >= cap);
-      if (verdict.decided) break;
-    }
-    failures.push(
-      ...verdict.failures.map((failure: string): string => `${label}: ${failure}`),
-      ...audit(subject, run.cache, full.id, full.maximumRootForce).map(
-        (failure: string): string => `${label}: ${failure}`,
-      ),
-    );
-  }
-
   /** The impulse each outcome is checked with along an axis. */
   export function impulse(
     subject: ISubject,
@@ -287,23 +244,6 @@ export namespace PhysicalDisturbance {
       : name === "recover"
         ? (pushes.place + pushes.step) / 2
         : 1.5 * pushes.any;
-  }
-
-  /**
-   * The step by which an outcome must be decided: the push's end, the
-   * controller's own step time and two pendulum time constants 1 / omega, in
-   * which a captured capture point is back inside and a falling one has grown
-   * e^2 times, a step's settling and the capture dwell (`judge`) with it; a
-   * sustained push takes no step.
-   */
-  export function capOf(subject: ISubject, name: Outcome): number {
-    const omega: number = omegaOf(subject);
-    const seconds: number =
-      (name === "sustained" ? 0 : timing(subject)) +
-      (name === "recover" ? 3 : 2) / omega;
-    return (
-      Math.ceil((PUSH_END + seconds * RATE) / CHECKPOINT) * CHECKPOINT
-    );
   }
 
   /** The standing pendulum's rate, sqrt(g / h), per second. */
@@ -821,99 +761,6 @@ export namespace PhysicalDisturbance {
         );
     }
     return failures;
-  }
-
-  /**
-   * Run one push in checkpoint-aligned chunks, each resuming the last from its
-   * checkpoint, and once unbroken to the same length, and compare the two
-   * runs' frames bit for bit: every segment's transform at every step. A
-   * controller state kept outside the checkpoint shows as a resumed run that
-   * parts from the unbroken one at a chunk's boundary.
-   */
-  export async function resume(
-    subject: ISubject,
-    axis: Axis,
-    impulse: number,
-    seconds: number,
-  ): Promise<string[]> {
-    const full: IAutoMoviePhysicalSimulationInput.IBody = subject.body();
-    const last: number = Math.round(seconds * RATE);
-    const digest = (run: IAutoMoviePhysicalSimulation): string =>
-      createHash("sha256")
-        .update(
-          new Uint8Array(
-            Float64Array.from(
-              run.cache.frames.flatMap((frame): number[] =>
-                Object.values(frame.bodies[full.id]!).flatMap(
-                  (transform: IAutoMovieRigidTransform): number[] => [
-                    transform.position.x,
-                    transform.position.y,
-                    transform.position.z,
-                    transform.rotation.x,
-                    transform.rotation.y,
-                    transform.rotation.z,
-                    transform.rotation.w,
-                  ],
-                ),
-              ),
-            ).buffer,
-          ),
-        )
-        .digest("hex");
-    let chunked: IAutoMoviePhysicalSimulation =
-      await AutoMoviePhysicalSimulation.compute(
-        inputOf(subject, full, axis, impulse, PREFIX),
-      );
-    for (let steps: number = PREFIX + CHECKPOINT; steps <= last; steps += CHECKPOINT)
-      chunked = await AutoMoviePhysicalSimulation.compute(
-        inputOf(subject, full, axis, impulse, steps),
-        chunked,
-      );
-    const unbroken: IAutoMoviePhysicalSimulation =
-      await AutoMoviePhysicalSimulation.compute(
-        inputOf(subject, full, axis, impulse, last),
-      );
-    return digest(chunked) === digest(unbroken)
-      ? []
-      : [
-          `${subject.profile.id}/${axis} ${impulse.toFixed(1)} N s: the run resumed every ${CHECKPOINT} steps parts from the unbroken one by ${seconds} s`,
-        ];
-  }
-
-  /**
-   * The simulation input of one push run to a step: the body's targets cut
-   * there, the push a rectangular force through the standing centre of mass at
-   * the root over the steps the run reaches. Every run states the same step
-   * budget, checkpoint interval and floor, so a longer run's settings match the
-   * last and it resumes from its checkpoint.
-   */
-  function inputOf(
-    subject: ISubject,
-    full: IAutoMoviePhysicalSimulationInput.IBody,
-    axis: Axis,
-    impulse: number,
-    steps: number,
-  ): IAutoMoviePhysicalSimulationInput.IInput {
-    const input: IAutoMoviePhysicalSimulationInput.IInput =
-      createPhysicalBalanceInput(subject.profile, "internal", 0, steps / RATE, {
-        ...full,
-        targets: full.targets.slice(0, steps + 1),
-      });
-    input.checkpointEvery = CHECKPOINT;
-    input.maximumSteps = BUDGET;
-    const template = input.impulses[0]!;
-    input.impulses = Array.from({ length: PUSH_STEPS }, (_, index: number) => ({
-      ...structuredClone(template),
-      step: PUSH_STEP + index,
-      impulse: {
-        x: axis === "x" ? impulse / PUSH_STEPS : 0,
-        y: 0,
-        z: axis === "z" ? impulse / PUSH_STEPS : 0,
-      },
-      bone: rootOf(subject.profile),
-      point: centerOf(subject.profile, subject.targets),
-    })).filter((push): boolean => impulse !== 0 && push.step <= steps);
-    return input;
   }
 
   /** The body's support limbs. */
