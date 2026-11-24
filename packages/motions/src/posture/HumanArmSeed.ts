@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import { HumanArmConnect } from "./HumanArmConnect";
 import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
@@ -13,6 +14,18 @@ import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+
+/** The record of `IInstantAt`'s site. */
+type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
+
+/** The record of `IProblemArmsItem`'s site. */
+type IProblemArmsItem = {
+  /**
+   * The arm the goal's own solution gives at the hold's start, the first start
+   * of its inverse kinematics.
+   */
+  guess?: IAutoMovieMotionHumanArmClearance.IArm;
+};
 
 /**
  * The seed of an arms' trajectory, as MoveIt seeds a trajectory optimiser: a
@@ -45,13 +58,8 @@ export namespace HumanArmSeed {
   /** What the seed reads. */
   export interface IProblem extends HumanArmTrajectoryContext.IProblem {
     /** The arms, each with the arm its inverse kinematics starts from first. */
-    arms: readonly (HumanArmTrajectoryContext.IProblem["arms"][number] & {
-      /**
-       * The arm the goal's own solution gives at the hold's start, the first
-       * start of its inverse kinematics.
-       */
-      guess?: IAutoMovieMotionHumanArmClearance.IArm;
-    })[];
+    arms: readonly (HumanArmTrajectoryContext.IProblem["arms"][number] &
+      IProblemArmsItem)[];
     /**
      * The share of the reach made at a second of the reach, and of the return
      * left at a second of the return, 0 at rest and 1 on the hold.
@@ -136,6 +144,12 @@ export namespace HumanArmSeed {
             false,
             q[dims]! >= 1,
           ).value <= M.TOLERANCE,
+        // The time coordinate runs from 0 to 1 over the passes' seconds.
+        seconds: Math.abs(
+          times[passes[passes.length - 1]!]! - times[passes[0]!]!,
+        ),
+        // The arms' joint velocity limits, the published human rates.
+        velocities: from.flatMap((): readonly number[] => RATES),
       });
 
       // The sampling planner seeds the optimiser, as MoveIt's optimiser
@@ -340,8 +354,7 @@ export namespace HumanArmSeed {
       const candidate: number[][][] = frame(point, q);
       if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
         return candidate.map((arm: number[][]): number[] => arm[1]!);
-      const at: { x: number[][][]; evaluation: M.IEvaluation } =
-        HumanArmOptimiser.optimise(point, candidate);
+      const at: IInstantAt = HumanArmOptimiser.optimise(point, candidate);
       if (at.evaluation.worst.value <= M.TOLERANCE)
         return at.x.map((arm: number[][]): number[] => arm[1]!);
       if (

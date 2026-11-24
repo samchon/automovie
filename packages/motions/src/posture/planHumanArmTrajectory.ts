@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanSide,
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanArmTrajectory,
 } from "@automovie/interface";
@@ -80,7 +81,7 @@ export function planHumanArmTrajectory(
     HumanArmTrajectoryContext.prepare(
       problem.body,
       problem.arms.map(
-        (arm: HumanArmTrajectory.IArm): "left" | "right" => arm.side,
+        (arm: HumanArmTrajectory.IArm): AutoMovieHumanSide => arm.side,
       ),
     );
   const fine: M.IContext = course?.read.context ?? contextOf(reading(grid));
@@ -266,7 +267,23 @@ export function planHumanArmTrajectory(
       : Stretch.optimise(
           whole,
           initial,
-          HumanArmSeed.seed(problem, initial.context),
+          HumanArmSeed.seed(
+            problem,
+            initial.context,
+            // The hold's inverse kinematics is seeded with the planned
+            // course's state at that instant, as MoveIt seeds `setFromIK`
+            // with the state's own joint values (`ik_seed_state`,
+            // moveit_core/robot_state/src/robot_state.cpp, `setFromIK`, at
+            // commit fdb79acafb24efd9e138b0d309fb2463186d4ab2,
+            // BSD-3-Clause); with no course, the law's goal arm.
+            course === undefined
+              ? undefined
+              : HumanArmSeed.held(
+                  problem,
+                  initial.context,
+                  Pace.coursed(initial.context, course.trajectories),
+                ),
+          ),
         ); // The path a refusal for time was reached at is the replan's start
   // (`Stretch.refused` tells it): over the span the refusal names, the same
   // path moves within the bound (Hollerbach 1984).

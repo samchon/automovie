@@ -21,9 +21,8 @@ import { HumanRandomSeeds } from "./HumanRandomSeeds";
  * grown toward a uniform sample, the other connected toward the state it added.
  * The space is OMPL's `CompoundStateSpace` of a `RealVectorStateSpace` and a
  * `TimeStateSpace`, each weighted 1: its distance the sum of the joint
- * coordinates' Euclidean distance and the time's, its extent the sum of theirs,
- * a tree's step a fifth of it (`SelfConfig::configurePlannerRange`,
- * `MAX_MOTION_LENGTH_AS_SPACE_EXTENT_FRACTION`), and a motion checked by
+ * coordinates' Euclidean distance in radians and the time's in seconds, a
+ * tree's step EXOTica's default range (`RANGE`), and a motion checked by
  * `DiscreteMotionValidator::checkMotion`, the end state first, then the
  * midpoints of a queue of intervals, at a hundredth of each component's extent
  * (`longestValidSegmentFraction_`). The planner stops when OMPL's iteration
@@ -54,6 +53,15 @@ export namespace HumanArmConnect {
 
     /** Whether a configuration is valid at the time it carries. */
     valid: (q: readonly number[]) => boolean;
+
+    /** The seconds one unit of the time coordinate spans. */
+    seconds: number;
+
+    /**
+     * Each joint coordinate's velocity limit, coordinate units per second
+     * (`GetVelocityLimits`).
+     */
+    velocities: readonly number[];
   }
 
   /**
@@ -103,12 +111,12 @@ export namespace HumanArmConnect {
       // Grow toward a uniform sample, then connect the other tree toward the
       // state added.
       const sample: number[] = space.sample(sampling);
-      const grown: IGrowth = grow(tree, sample, space);
+      const grown: IGrowth = grow(tree, sample, space, false);
       if (grown.state === "trapped") continue;
-      const target: number[] = tree.nodes[grown.added]!;
+      const target: number[] = [...tree.nodes[grown.added]!];
       let connected: IGrowth = { state: "advanced", added: -1 };
       while (!Simplify.fired(ptc) && connected.state === "advanced")
-        connected = grow(other, target, space);
+        connected = grow(other, target, space, true);
       if (connected.state !== "reached") continue;
 
       // The path: the start tree's branch, then the goal tree's, the joined
@@ -179,9 +187,11 @@ export namespace HumanArmConnect {
       a: readonly number[],
       b: readonly number[],
     ): number =>
-      Math.hypot(
-        ...a.slice(0, dims).map((v: number, i: number): number => v - b[i]!),
-      ) + Math.abs(a[dims]! - b[dims]!);
+      RADIANS *
+        Math.hypot(
+          ...a.slice(0, dims).map((v: number, i: number): number => v - b[i]!),
+        ) +
+      query.seconds * Math.abs(a[dims]! - b[dims]!);
 
     // `CompoundStateSpace::validSegmentCount`: the larger of the components'
     // counts, each its distance over a hundredth of its extent.
@@ -228,9 +238,12 @@ export namespace HumanArmConnect {
         ),
         MT.uniformReal(rng, time[0], time[1]),
       ],
-      range: STEP * (joints + span),
+      range: RANGE,
       time,
       dims,
+      velocities: query.velocities.map(
+        (v: number): number => v * query.seconds,
+      ),
     };
   }
 
@@ -238,11 +251,15 @@ export namespace HumanArmConnect {
    * EXOTica's `growTree`: the tree's nearest state that the time order admits,
    * the sample's time corrected (`correctTime`), a step of the tree's range
    * toward it, kept where its motion is valid.
+   *
+   * @param check EXOTica's `reverse_check_`: while the other tree connects, a
+   *   sample too near in time is refused rather than moved.
    */
   function grow(
     tree: ITree,
-    sample: readonly number[],
+    sample: number[],
     space: ISpace,
+    check: boolean,
   ): IGrowth {
     // The nearest by the time-ordered distance: a state the time order
     // refuses is 1e10 away (`reverseTimeDistance`, `forwardTimeDistance`).
@@ -260,14 +277,30 @@ export namespace HumanArmConnect {
     });
     const from: readonly number[] = tree.nodes[near]!;
 
-    // correctTime: with no joint velocity limit the least time step is none,
-    // so only the time's bounds refuse.
+    // correctTime (time_indexed_rrt_connect.h): the least time between the
+    // two states is the slowest coordinate's, its change over its velocity
+    // limit; a sample nearer in time is moved to it, forward from the start
+    // tree and backward from the goal tree, in place, or refused while the
+    // other tree connects; a time outside the query's is refused.
+    let shortest: number = 0;
+    for (let i: number = 0; i < space.dims; ++i)
+      shortest = Math.max(
+        shortest,
+        Math.abs(sample[i]! - from[i]!) / space.velocities[i]!,
+      );
+    let changed: boolean = false;
+    if (Math.abs(sample[space.dims]! - from[space.dims]!) < shortest) {
+      if (check) return { state: "trapped", added: -1 };
+      sample[space.dims] =
+        from[space.dims]! + (tree.forward ? shortest : -shortest);
+      changed = true;
+    }
     if (
       sample[space.dims]! < space.time[0] ||
       sample[space.dims]! > space.time[1]
     )
       return { state: "trapped", added: -1 };
-    let reach: boolean = true;
+    let reach: boolean = !changed;
     let state: number[] = [...sample];
     const d: number = space.distance(from, sample);
     if (d > space.range) {
@@ -336,6 +369,12 @@ export namespace HumanArmConnect {
 
     /** The joint coordinates' count; the time coordinate's index. */
     dims: number;
+
+    /**
+     * Each joint coordinate's velocity limit, coordinate units per unit of the
+     * time coordinate.
+     */
+    velocities: number[];
   }
 
   /** A tree: its states and each one's parent, -1 at its root. */
@@ -370,11 +409,17 @@ export namespace HumanArmConnect {
 }
 
 /**
- * A tree's step, a share of the space's extent: OMPL's
- * `MAX_MOTION_LENGTH_AS_SPACE_EXTENT_FRACTION` (src/ompl/tools/config/
- * MagicConstants.h at the same commit).
+ * A tree's step (`maxDistance_`): EXOTica's default `Range` "1"
+ * (exotations/solvers/exotica_time_indexed_rrt_connect_solver/init/time_indexed_rrt_connect.in
+ * at the same commit), which the solver sets before the planner's setup
+ * (time_indexed_rrt_connect.cpp line 127), so OMPL's automatic range
+ * (`SelfConfig::configurePlannerRange`) keeps it. The metric is EXOTica's,
+ * joint radians plus time seconds.
  */
-const STEP: number = 0.2;
+const RANGE: number = 1;
+
+/** A coordinate's unit in radians: the arms' coordinates are near a degree. */
+const RADIANS: number = Math.PI / 180;
 
 /**
  * A motion's check spacing, a share of each component's extent: OMPL's
