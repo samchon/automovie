@@ -8,8 +8,10 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. The hull has the N contacts as its vertices; with two, the segment.
  * 2. Without the first limb the hull loses that vertex.
- * 3. With the capture point inside the support the capture region is the whole
- *    reachable region, nonempty.
+ * 3. The capture region on the support left by the first limb: with the
+ *    capture point inside, the reach disc about the first limb's lift-off;
+ *    just past it, a region inside every disc; with the only disc out of
+ *    reach, none.
  * 4. The weight's shares at the centroid are 1/N each; at any pivot they sum to
  *    one, their weighted mean of the contacts is the pivot and none is
  *    negative, with N = 6's pivot 0.01 m inside an edge.
@@ -34,18 +36,46 @@ export function test_physical_support_span_contacts(): void {
       Contacts.remaining(contacts, "limb0").length,
       n - 1,
     );
-    if (n >= 3)
-      TestValidator.predicate(
-        `${n}: capture region`,
+    if (n >= 3) {
+      const polygon = Contacts.remaining(contacts, "limb0");
+      const lift = Contacts.hull([contacts[0]!])[0]!;
+      const region = (
+        capture: { x: number; y: number },
+        reach: Contacts.IReach[],
+      ) =>
         Contacts.captureRegion({
-          polygon: Contacts.hull(contacts),
-          capture: { x: 0, y: 0 },
-          swing: { x: 0, y: 0.3 },
+          polygon: n === 3 ? Contacts.hull(contacts) : polygon,
+          capture,
           omega: 3.3,
-          remaining: 0.3,
-          range: 0.6,
-        }).length >= 3,
+          remaining: 0.1,
+          reach,
+        });
+      const disc: Contacts.IReach = { center: lift, radius: 0.6 };
+      TestValidator.predicate(
+        `${n}: capture region inside the support`,
+        region({ x: 0, y: 0 }, [disc]).length >= 3,
       );
+      const beyond = region({ x: lift.x * 1.05, y: lift.y * 1.05 }, [
+        disc,
+        { center: { x: 0, y: 0 }, radius: 1.0 },
+      ]);
+      TestValidator.predicate(
+        `${n}: capture region within every disc`,
+        beyond.length >= 3 &&
+          beyond.every(
+            (p) =>
+              Math.hypot(p.x - lift.x, p.y - lift.y) <= 0.6 + 1e-9 &&
+              Math.hypot(p.x, p.y) <= 1.0 + 1e-9,
+          ),
+      );
+      TestValidator.equals(
+        `${n}: no capture region out of reach`,
+        region({ x: lift.x * 1.2, y: lift.y * 1.2 }, [
+          { center: { x: -lift.x * 10, y: -lift.y * 10 }, radius: 0.1 },
+        ]).length,
+        0,
+      );
+    }
     const even: number[] = Contacts.loads(contacts, { x: 0, z: 0 }).map(
       (load: Contacts.ILoad): number => load.share,
     );

@@ -47,7 +47,29 @@ export function physicalOneStepCaptureRegion(input: {
     input.footWidth,
     input.range,
   );
+  const raw: Polygon.IPoint[] | undefined = physicalOneStepCaptureRegion.raw(
+    input,
+  );
+  if (raw === undefined) return reachable;
+  if (raw.length === 0) return [];
 
+  // 3. The raw region intersected with the reachable region (l.220-231).
+  return Polygon.intersect(raw, reachable);
+}
+
+/**
+ * Steps 1 and 2: the raw region before the reachable cut, the hull of the
+ * predicted capture points and the far circle's points; undefined when the
+ * capture point lies inside the support (l.165-175), empty when a ray misses
+ * the circle.
+ */
+function rawRegion(input: {
+  remaining: number;
+  capture: Polygon.IPoint;
+  omega: number;
+  foot: readonly Polygon.IPoint[];
+  range: number;
+}): Polygon.IPoint[] | undefined {
   // 1. The capture point inside the support foot: the whole reachable region
   // (l.165-175).
   const remaining: number = Math.max(0, input.remaining);
@@ -56,7 +78,7 @@ export function physicalOneStepCaptureRegion(input: {
     input.foot,
     input.capture,
   );
-  if (!extremes) return reachable;
+  if (!extremes) return undefined;
 
   // 2. Each extreme's predicted capture point and its ray's point on the
   // far circle (l.177-209; CaptureRegionMathTools l.17-71).
@@ -115,8 +137,7 @@ export function physicalOneStepCaptureRegion(input: {
     });
   }
 
-  // 3. The raw region intersected with the reachable region (l.220-231).
-  return Polygon.intersect(Polygon.hull(raw), reachable);
+  return Polygon.hull(raw);
 }
 
 /** The capture region's reachable region and constants. */
@@ -132,6 +153,28 @@ export namespace physicalOneStepCaptureRegion {
 
   /** The reachable fan's angle over pi (l.29). */
   export const REACHABLE_REGION_CUTOFF_ANGLE: number = 1.0;
+
+  /**
+   * The capture region before the reachable cut (l.165-218): the hull of each
+   * visible support vertex's predicted capture point and its ray's point on
+   * the far circle, with the circle's points between the first and last rays.
+   *
+   * @param input The swing time left, seconds, the capture point, the
+   *   pendulum's rate, per second, the support's clockwise outline, and the
+   *   step range, metres, for the far circle.
+   * @returns The raw region; undefined when the capture point lies inside the
+   *   support, so every reachable point captures; empty when a ray misses the
+   *   circle.
+   */
+  export function raw(input: {
+    remaining: number;
+    capture: Polygon.IPoint;
+    omega: number;
+    foot: readonly Polygon.IPoint[];
+    range: number;
+  }): Polygon.IPoint[] | undefined {
+    return rawRegion(input);
+  }
 
   /**
    * The region a swing foot can reach from a support foot (l.102-123): a fan of

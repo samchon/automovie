@@ -71,54 +71,67 @@ export namespace physicalSupportSpanContacts {
     );
   }
 
+  /** A disc the swinging limb can reach, in the frame of {@link WORLD}. */
+  export interface IReach {
+    /** Its centre. */
+    center: Polygon.IPoint;
+
+    /** Its radius, metres. */
+    radius: number;
+  }
+
   /**
-   * IHMC's one-step capture region (`physicalOneStepCaptureRegion`,
-   * `OneStepCaptureRegionCalculator.calculateCaptureRegion`, which takes any
-   * convex support polygon) on the support left while a limb swings. The
-   * reachable fan opens toward the swing side
-   * (`OneStepCaptureRegionCalculator.calculateReachableRegions`, `swingSide`):
-   * the side of the remaining support's centroid the swinging limb stands on,
-   * across the frame's lateral axis, and the foot width is the polygon's
-   * extent along that axis. The region is computed in the frame of
-   * {@link WORLD} moved to that centroid, as IHMC's is in the support sole's
-   * frame, and moved back.
+   * IHMC's one-step capture region on the support left while a limb swings,
+   * one rule for every body: the raw region of the remaining polygon
+   * (`physicalOneStepCaptureRegion.raw`,
+   * `OneStepCaptureRegionCalculator.calculateCaptureRegion` l.165-218, which
+   * takes any convex support polygon) cut by every reach disc in place of the
+   * biped's side fan (l.220-231), as the quadruped's step adjustment bounds an
+   * adjusted step about its nominal one
+   * (`QuadrupedStepAdjustmentController.computeStepAdjustment` l.143-150,
+   * `physicalQuadrupedStepAdjustment`). Each disc is the polygon of its
+   * circle's `MAX_CAPTURE_REGION_POLYGON_POINTS - 1` points, as the reference
+   * samples its reachable fan (l.102-123). With the capture point inside the
+   * support the region is the discs' intersection alone.
    *
-   * @param input The remaining support polygon, the capture point and the
-   *   swinging limb's point, all in the frame of {@link WORLD}, the pendulum's
-   *   rate, per second, the swing time left, seconds, and the step range,
-   *   metres.
+   * @param input The remaining support polygon and the capture point, in the
+   *   frame of {@link WORLD}, the pendulum's rate, per second, the swing time
+   *   left, seconds, and the discs the swinging limb can reach.
    * @returns The region, in the frame of {@link WORLD}; empty when there is
    *   none.
    */
   export function captureRegion(input: {
     polygon: readonly Polygon.IPoint[];
     capture: Polygon.IPoint;
-    swing: Polygon.IPoint;
     omega: number;
     remaining: number;
-    range: number;
+    reach: readonly IReach[];
   }): Polygon.IPoint[] {
-    const centroid: Polygon.IPoint = Polygon.centroid(input.polygon);
-    const moved = (p: Polygon.IPoint): Polygon.IPoint => ({
-      x: p.x - centroid.x,
-      y: p.y - centroid.y,
-    });
-    const ys: number[] = input.polygon.map((p: Polygon.IPoint): number => p.y);
-    return physicalOneStepCaptureRegion({
-      // The fan opens away from the support side, toward the swing side.
-      support: input.swing.y > centroid.y ? "right" : "left",
-      remaining: input.remaining,
-      capture: moved(input.capture),
-      omega: input.omega,
-      foot: input.polygon.map(moved),
-      footWidth: Math.max(...ys) - Math.min(...ys),
-      range: input.range,
-    }).map(
-      (p: Polygon.IPoint): Polygon.IPoint => ({
-        x: p.x + centroid.x,
-        y: p.y + centroid.y,
-      }),
+    if (input.reach.length === 0) return [];
+    const count: number =
+      physicalOneStepCaptureRegion.MAX_CAPTURE_REGION_POLYGON_POINTS - 1;
+    const discs: Polygon.IPoint[][] = input.reach.map(
+      (disc: IReach): Polygon.IPoint[] =>
+        Polygon.hull(
+          Array.from({ length: count }, (_, i: number): Polygon.IPoint => ({
+            x: disc.center.x + disc.radius * Math.cos((2 * Math.PI * i) / count),
+            y: disc.center.y + disc.radius * Math.sin((2 * Math.PI * i) / count),
+          })),
+        ),
     );
+    const raw: Polygon.IPoint[] | undefined = physicalOneStepCaptureRegion.raw({
+      remaining: input.remaining,
+      capture: input.capture,
+      omega: input.omega,
+      foot: input.polygon,
+      range: Math.max(...input.reach.map((disc: IReach): number => disc.radius)),
+    });
+    let region: Polygon.IPoint[] = raw ?? discs[0]!;
+    for (const disc of raw === undefined ? discs.slice(1) : discs) {
+      if (region.length === 0) return [];
+      region = Polygon.intersect(region, disc);
+    }
+    return region;
   }
 
   /**
