@@ -51,7 +51,7 @@ Correct a texture's baked light and shadow only where it shows wrong in the rend
 
 ### Reduction
 
-Reduce the mesh for its closest required view, keeping the [detail levels](crafting/construction.md#detail-levels) that view resolves. Merge duplicate vertices without losing texture seams. Reduce before rigging so weights bind to the final vertices.
+Reduce the mesh for its closest required view, keeping the [form tiers](crafting/construction.md#form-tiers) that view resolves. Merge duplicate vertices without losing texture seams. Reduce before rigging so weights bind to the final vertices.
 
 Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 
@@ -82,9 +82,7 @@ Hand a change of bone lengths to [motion](../motion/SKILL.md). The generating de
 
 A few fixed variants need no parameter: generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.
 
-### Band ends
-
-Let the params fix every dimension a band varies, because a band's ends are where a part most often detaches or stops moving. Build the form at its middle and at both ends of each band, one dimension at a time. Fix every end where the form fails admission, a part loses its area or detaches, or nothing changes that the dimension should change. A dimension that moves no rest geometry by design, such as an articulation's limit or a mass property, is recorded with its reason.
+Test a form that varies through bands at their ends, as [construction tests](crafting/construction.md#tests) set.
 
 ## Final check
 

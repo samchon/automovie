@@ -1,6 +1,6 @@
 # Finishing
 
-Before [assembly](../production/assembly.md), repair, upscale, conform and match each accepted take in order. Keep derivatives beside the original under [media records](../production/media-records.md#records). Follow [film sound](../audio/film-sound.md) for sound.
+Before [assembly](../production/assembly.md), repair, upscale, conform and match each accepted take in the order of the finishing steps. Composite clean renders as compositing sets. Keep derivatives beside the original under [media records](../production/media-records.md#records). Follow [film sound](../audio/film-sound.md) for sound.
 
 ## Finishing steps
 
@@ -16,12 +16,6 @@ Repair a take that is right except for a local flaw, such as a hand or a failed 
 A dubbing model regenerates the head and body around the mouth, follows the take's camera only approximately and often returns a lower resolution, so recheck identity and contacts after it; [video models](diffusion/models.md#other-roles) shows examples.
 
 Compare untouched frames at matched times and step through the repair boundaries. Re-encoding can affect both.
-
-Composite legible text, signs, screens and logos in post from their own clean render, because models garble lettering. For surface graphics, flat lettering included, that render is the `graphics` pass, which `pnpm run render --subject <film> --passes graphics` writes as RGBA frames into `videos/controls/`. Its straight alpha is the surface graphics' coverage, with everything in front of them held out, and a see-through blended glass only by its opacity. Raised lettering is ordinary geometry and stays out of that pass; lift it from the beauty pass through its node's mask region.
-
-Unlike the structural passes, which show only the shot a frame shows most of, the plate goes through a transition as the picture does: a dissolve mixes the two shots' plates by their weights, and a fade dips the plate's coverage to 0 at its midpoint. Composite it over the delivered film frame for frame, without cutting it at the transition.
-
-To composite whole 3D subjects over a generated take, render the film with `pnpm run render --subject <film> --background transparent`, which writes a straight-alpha `film.mov` with no audio into `media/automovie/<film>/transparent/`. Use either render only under the [render report check](../production/media-records.md#render-reports) of its folder.
 
 ### Upscaling
 
@@ -42,6 +36,16 @@ Generate at the model's frame rate, and conform each take to the delivery profil
 Read take color tags. Record one working color space in project context and assign each take's input space before grading. Preserve tags across encoding and account for SDR clipping.
 
 Match neighboring takes in color and exposure by grading, never by regenerating. A shared grain or texture over the film hides their differing sharpness.
+
+## Compositing
+
+Composite a clean render's graphics over the assembled film. Composite whole 3D subjects over their take, before assembly.
+
+Composite legible text, signs, screens and logos in post from their own clean render, because models garble lettering. For surface graphics, flat lettering included, that render is the `graphics` guide pass of the README render command's `--passes` option. Composite it by the alpha convention its `record.json` names. Raised lettering is ordinary geometry and stays out of that pass, so lift it from the beauty pass through its node's mask region.
+
+The `graphics` pass goes through a transition as the picture does, so composite it frame for frame, without cutting it at the transition.
+
+To composite whole 3D subjects over a generated take, render the film with the README render command's `--background transparent` option. Use either render only under the [render report check](../production/media-records.md#render-reports) of its folder.
 
 ## Provenance and disclosure
 

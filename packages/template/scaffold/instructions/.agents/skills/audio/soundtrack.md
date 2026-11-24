@@ -8,26 +8,14 @@ Write a generated score's request under [music prompts](diffusion/prompts.md#mus
 
 ## Sound list
 
-Declare a direct 3D film's adopted sound as its production's `sound` member (`IAutoMovieFilmSound`), and leave `delivery.audio.path` unset; `pnpm run render` refuses a film that declares both. The list holds:
+Declare a direct 3D film's adopted lines, cues, speaker-to-actor bindings and any score ducking as its production's `sound` member, an `IAutoMovieFilmSound` whose JSDoc defines each field. The README render command mixes it into the soundtrack it encodes. Adopt each line's file and receipt under [take adoption](acquisition.md#take-adoption). Leave `delivery.audio.path` unset, because the render refuses a film that declares both. The film's [sound list](../contracts/development/films.md#sound-list) item checks the list against the screenplay.
 
-- each spoken line's id, text, language, speaker, start frame, WAVE file and receipt;
-- each cue placed on the film clock with its trim, gain, fades, bus and WAVE file;
-- the binding of each speaker to the actor whose mouth moves;
-- the score ducking under dialogue, when the film wants it;
-- room-tone beds (`roomTone`) for a dialogue scene with no ambience recording, each with its frame interval, RMS level in dBFS, spectral tilt in dB per octave and seed.
+Give a dialogue scene without an ambience recording seeded `roomTone` beds. A bed at −50 dBFS or louder keeps the pauses between lines out of the delivery's silence check, and beds that meet on one frame crossfade.
 
-Paths are relative to the production root. Line ids and cue ids are each unique within the film. A line plays at its own length from its start frame, so leave room before the next line and the film's end.
+A line plays at its own length from its start frame, so leave room before the next line and the film's end.
 
-`pnpm run render` admits every receipt against its bytes, mixes the list into the soundtrack it encodes and writes the soundtrack's digest and each line's PCM digest to `render-report.json`. A missing file or a receipt that does not match its line is refused by path or field.
+## Loudness record
 
-## Adopted line receipts
+Write the delivery profile's [loudness](film-sound.md#loudness) targets in the delivery intent's `loudness` record, with a separate dialogue target when dialogue sits at its own level. Without the record, the render applies EBU R 128: −23 LUFS, 0.5 LU and −1 dBTP. The film's [delivery profile](../contracts/development/films.md#delivery-profile) item checks the record against the profile.
 
-Store each generated line as a mono 32-bit float WAVE file at the model's own rate, with a version 7 receipt (`IAutoMovieProductionTtsReceipt`) beside it. The receipt records:
-
-- the line id and the exact text sent to the generator, which match the sound list;
-- the model, its immutable revision, the voice name or reference digest, and every inference argument;
-- the sample rate, the sample count and the SHA-256 of the samples;
-- the cache key over the text, model, revision, conditioning and inference arguments, as the type's documentation defines it;
-- the phoneme chunks on the model's sample clock, when the model returns them.
-
-Generate the file once and keep the bytes; record a line again rather than editing its file or receipt.
+The render levels each adopted line to the dialogue target and refuses a line that needs more than 12 dB either way, so regenerate such a line nearer the target. `IAutoMovieLoudnessIntent` sets how the render brings the mix to the targets, and the README names the loudness failures that block publication.

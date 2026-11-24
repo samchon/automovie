@@ -12,4 +12,4 @@ description: Finishes a motion hint as a direct 3D or generated film.
 | [Video diffusion](diffusion/SKILL.md) | Choose a video model, how it takes the hint, continuity or prompting |
 | [Requests](requests.md) | Plan generation intervals and their inputs |
 | [Generation](generation.md) | Submit, inspect and adopt takes |
-| [Finishing](finishing.md) | Repair, upscale, conform and match accepted takes |
+| [Finishing](finishing.md) | Repair, upscale, conform and match accepted takes, and composite over takes or the assembled film |

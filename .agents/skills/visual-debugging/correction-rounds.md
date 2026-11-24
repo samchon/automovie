@@ -20,6 +20,8 @@ Fix all causes at their owners in one change. Judge the assembled subject. Coord
 
 Repeat the round and check defects and regressions across parts, views, times, identities, resolutions and states. Account for all findings. Keep the round open while any new or unexplained defect remains.
 
-When a fix is tried over several rounds, keep a round only if nothing got worse than in the best earlier round, and record every remaining failure with its numbers. For findings a checker records, capture the round with `compare` set to the best earlier round and read the comparison's finding outcome: a `worse` outcome rejects the round, and an `unmatched` error needs a capture that checks its times before the round can count as better. Defects only the stills show stay with a person under [comparison](comparison.md).
+When a fix is tried over several rounds, keep a round only if nothing got worse than in the best earlier round, and record every remaining failure with its numbers.
+
+The inspection findings a capture records are the defects its checks report on the drawn stills. Capture the round with `compare` set to the best earlier round, and read whether they got worse from the comparison's finding outcome, as `IAutoMovieCaptureFindingDiff` defines it. A `worse` outcome rejects the round. An `unmatched` error keeps the round from counting as better until a capture checks that error's times. Judge defects that only the stills show by eye under [comparison](comparison.md).
 
 Open the current capture before accepting it.

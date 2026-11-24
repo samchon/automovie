@@ -9,8 +9,8 @@ import { SKILLS_ROOT } from "./internal/SKILLS_ROOT";
  * population. Every exported source declaration and test answers the common
  * checklist, except scenes, films and catalog cases under `src/composition/`,
  * which realize a screenplay rather than serve callers and document that
- * realization under their own composition contract; exported types,
- * interfaces and classes also answer the design
+ * realization under their own composition, films and catalog contracts;
+ * exported types, interfaces and classes also answer the design
  * checklist, exported functions and class methods the implementation checklist,
  * and exported test functions the testing checklist. The paths are read from
  * the skills tree at `skills`, by default the production's own

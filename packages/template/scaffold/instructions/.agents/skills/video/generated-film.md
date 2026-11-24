@@ -22,3 +22,4 @@ The model's accepted inputs and output limits determine how scenes become reques
 6. Write each request's [prompt](diffusion/prompts.md).
 7. With the prerequisites met, submit, inspect and adopt takes under [generation](generation.md).
 8. Repair, upscale, conform and match the accepted takes under [finishing](finishing.md).
+9. Composite clean renders under [compositing](finishing.md#compositing).
