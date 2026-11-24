@@ -57,3 +57,33 @@ Existing h.carry stores each hand's numerical source relation once until forget.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The local getter borrows its parent's raw operation key until this call ends; canonical body FK owns O(K) successful dependency rows under that weak key. Holds keep only numerical carry frames/reference until forget. Returned arrays/tuples/goals/vectors are fresh, reference stays borrowed, and none retains the getter or key.
+
+# src/perform/HumanSegmentCarry.ts#HumanSegmentCarry.decide
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the port, the point, the region's centre, the tolerance and the refusal.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+MoveIt's `PositionConstraint::decide` (moveit/moveit@fdb79acafb24efd9e138b0d309fb2463186d4ab2, BSD-3-Clause, moveit_core/kinematic_constraints/src/kinematic_constraint.cpp): the link's point on the state, `state.getGlobalLinkTransform(link_model_) * offset_`, tested inside the constraint region placed on the same state by its frame, `state.getFrameTransform(constraint_frame_id_) * constraint_region_pose_`. Here the link's point is the hand joint the fit placed, the region a ball about the carried goal on its frame bone of the same pose, its radius the request's tolerance: the goal tolerance the arm's plan is solved to (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre). A state past it is refused, as a planner rejects a state its path constraint rejects.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One FK of the two bones, one distance, one refusal.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No tolerance of its own: the plan's goal tolerance; no clamp or retry of the hand.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+The frame bone and the hand only (`poseBones` with the two bones requested), borrowing the evaluation's exact FK where given.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each fit's pose is checked once, where it is placed.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Retains nothing.

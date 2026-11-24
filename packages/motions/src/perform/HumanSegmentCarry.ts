@@ -1,5 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanSegment,
@@ -10,6 +11,8 @@ import type {
 } from "@automovie/interface";
 
 import { courseArmGoal } from "../compose/courseArmGoal";
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -142,6 +145,67 @@ export namespace HumanSegmentCarry {
     );
   }
 
+  /**
+   * Whether the arm a fit placed holds its carried goal: MoveIt's
+   * `PositionConstraint::decide` (moveit/moveit@fdb79acafb24, BSD-3-Clause,
+   * moveit_core/kinematic_constraints/src/kinematic_constraint.cpp: the link's
+   * point, `state.getGlobalLinkTransform(link_model_) * offset_`, inside the
+   * region placed on the same state, `state.getFrameTransform(
+   * constraint_frame_id_) * constraint_region_pose_`), with the hand joint as
+   * the link's point, the goal on its frame bone of the same pose as the
+   * region's centre, and the request's tolerance the goal tolerance the arm's
+   * plan is solved to (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre).
+   * Refused past it, as a planner refuses a state its path constraint rejects.
+   *
+   * @param person The person.
+   * @param side The carrying hand.
+   * @param goal The carried goal, on its frame bone (`on`).
+   * @param pose The pose the fit placed the arm in.
+   * @param resolution Optional exact FK reader from the same evaluation.
+   * @throws {HumanRefusal} When the hand lies past the tolerance from its goal.
+   */
+  export function decide(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    side: AutoMovieHumanSide,
+    goal: IAutoMovieHumanLimbGoal,
+    pose: IAutoMoviePose,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+  ): void {
+    const frame: AutoMovieHumanoidBone = goal.on ?? "hips";
+    const hand: AutoMovieHumanoidBone = `${side}Hand`;
+    const read: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+      resolution === undefined
+        ? undefined
+        : prepareHumanPoseResolution(resolution);
+    const map: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = bones(
+      person,
+      pose,
+      read,
+      new Set<AutoMovieHumanoidBone>([frame, hand]),
+    );
+    const anchor: IAutoMovieResolvedBone = map.get(frame)!;
+    const centre: IAutoMovieVector3 = Vector3.add(
+      anchor.worldPosition,
+      Quaternion.rotateVector(anchor.worldRotation, goal.point),
+    );
+    const miss: number =
+      Vector3.distance(map.get(hand)!.worldPosition, centre) * 1000;
+    if (miss > HumanArmTrajectoryTerms.TOLERANCE)
+      throw new HumanRefusal({
+        kind: "reach",
+        axis: "carry",
+        value: miss,
+        feasible: {
+          kind: "range",
+          minimum: 0,
+          maximum: HumanArmTrajectoryTerms.TOLERANCE,
+          unit: "mm",
+        },
+        reason: `the ${side} hand carrying its prop lies ${miss.toFixed(1)} mm off its carried place on the ${frame}, past the ${HumanArmTrajectoryTerms.TOLERANCE} mm the arm's plan is solved to (MoveIt's PositionConstraint::decide)`,
+        fix: "carry the prop where the arm can hold it through the later action, or let a later action take the hand",
+      });
+  }
+
   /** Fresh world bones, optionally borrowing the current operation's exact FK. */
   function bones(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -169,7 +233,7 @@ export namespace HumanSegmentCarry {
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMovieMotionHumanSegment.ICarry {
     const at: number = Math.max(held.from, held.source.end);
-    const pose: IAutoMoviePose = HumanSegmentPose.of(
+    const pose: IAutoMoviePose = HumanSegmentPose(
       person,
       held.source,
       at,
