@@ -19,9 +19,10 @@ import * as path from "node:path";
  *    supply a different pass, mixed view audit or a two-frame interval.
  * 2. A real adjacent frame and bounded diagnostic coverage complete the interval.
  *    An unmatched error still calls for comparable observations.
- * 3. The published bytes and required control digest must match the report.
- *    Replaced bytes or old controls are stale and a newer blocked attempt
- *    cannot approve the previous film left beside its report.
+ * 3. The report retains the staging path and identifies the promoted movie and
+ *    required controls by digest. A malformed output path or audit digest
+ *    leaves the result unobserved. Replaced bytes or old controls are stale and
+ *    a newer blocked attempt leaves the previous output available for repair.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the selected scope, artifact identity and preserved blocked-attempt behavior.
  * @evidence contracts/development/testing.md#behavioral-verification Reads retained capture and delivery inputs through the shared evaluator used by the CLI.
@@ -190,31 +191,45 @@ export async function test_cli_verification_records(): Promise<void> {
       subject: "walk",
       status: "published",
       video: "film.mp4",
-      source: { file: "film.mp4", sha256: filmSha256 },
+      source: { file: ".render-DbXdf0/film.mp4", sha256: filmSha256 },
     };
     assert.equal((await verify(delivery)).state, "not-run");
     await fs.writeFile(film, "film");
-    await fs.writeFile(report, JSON.stringify(published));
     const controls: string = path.join(root, "controls", "record.json");
     await fs.mkdir(path.dirname(controls));
+    const validControls = {
+      film: "walk",
+      filmSha256,
+      channels: [{ pass: "depth" }],
+    };
+    await fs.writeFile(controls, JSON.stringify(validControls));
+    await fs.writeFile(report, JSON.stringify(published));
+    assert.equal((await verify(delivery)).state, "passed");
+
     await fs.writeFile(
-      controls,
+      report,
+      JSON.stringify({ ...published, video: "./film.mp4" }),
+    );
+    assert.equal((await verify(delivery)).state, "unobserved");
+    await fs.writeFile(
+      report,
       JSON.stringify({
-        film: "walk",
-        filmSha256,
-        channels: [{ pass: "depth" }],
+        ...published,
+        source: { ...published.source, sha256: "" },
       }),
     );
-    assert.equal((await verify(delivery)).state, "passed");
+    assert.equal((await verify(delivery)).state, "unobserved");
+    await fs.writeFile(report, JSON.stringify(published));
+
     await fs.writeFile(
       controls,
       JSON.stringify({
-        film: "walk",
+        ...validControls,
         filmSha256: "0".repeat(64),
-        channels: [{ pass: "depth" }],
       }),
     );
     assert.equal((await verify(delivery)).state, "stale");
+    await fs.writeFile(controls, JSON.stringify(validControls));
     await fs.writeFile(film, "new film");
     assert.equal((await verify(delivery)).state, "stale");
     await fs.writeFile(

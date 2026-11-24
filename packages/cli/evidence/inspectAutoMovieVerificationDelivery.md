@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the file, render-attempt and optional control association, with blocked and failed attempts distinct.
+Explains how the audited staging digest binds the promoted file and its controls, with blocked and failed attempts distinct.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The existing published report asserts the file digest. Reading actual bytes independently and requiring the same digest in the control receipt binds those artifacts to the current published output.
+The published report names the promoted file beside the report and retains the staged source path and its audit digest. Streaming the promoted bytes and requiring the same digest in the control receipt binds those artifacts to the publication.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

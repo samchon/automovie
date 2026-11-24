@@ -15,9 +15,9 @@ interface IRenderReport {
 }
 
 /**
- * Verify that a published report and requested controls name the actual current
- * movie. Blocked and failed reports never establish current delivery, even when
- * a previous movie is still present beside them.
+ * Verify the promoted movie beside its report using the digest of the staged
+ * bytes audited before publication. Required controls carry the same digest. A
+ * blocked or failed attempt reports any previous movie separately.
  *
  * @param check The production's delivery criterion.
  * @param root The directory holding the production and its outputs.
@@ -69,13 +69,17 @@ export async function inspectAutoMovieVerificationDelivery(
       evidence,
     };
   }
+  const auditedHash: string | undefined = report.source?.sha256;
   if (
     report.status !== "published" ||
     typeof report.video !== "string" ||
     report.video.length === 0 ||
     report.video !== path.basename(report.video) ||
-    report.source?.file !== report.video ||
-    !/^[a-f\d]{64}$/u.test(report.source.sha256)
+    typeof report.source?.file !== "string" ||
+    !report.source.file.trim() ||
+    typeof auditedHash !== "string" ||
+    auditedHash.length !== 64 ||
+    /[^a-f\d]/u.test(auditedHash)
   )
     return {
       state: "unobserved",
@@ -86,7 +90,7 @@ export async function inspectAutoMovieVerificationDelivery(
   const file: string = path.join(directory, report.video);
   try {
     const hash: string = await hashAutoMovieFile(file);
-    if (hash !== report.source.sha256)
+    if (hash !== auditedHash)
       return {
         state: "stale",
         message: `The bytes of ${report.video} differ from its published report.`,
