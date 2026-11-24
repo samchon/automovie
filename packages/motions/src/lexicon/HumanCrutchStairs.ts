@@ -369,22 +369,15 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       knee: HELD.knee,
       read: (seconds: number): IAutoMovieMotionHumanPosture =>
         plan.posture(seconds),
-      // The held foot is held above the tread the sound foot stands on: the
-      // floor a body reads under it until that foot sets down on the next
-      // (`bear<i>`), easing onto the next tread over the set-down's settle
-      // (a third of the half-step move, `supportStep`) so the held leg
-      // never snaps as the tread under it changes.
-      floor: (seconds: number): number =>
-        bears.reduce(
-          (height: number, at: number): number =>
-            height +
-            climb.sign *
-              climb.riser *
-              minimumJerk.share(
-                Math.min(1, Math.max(0, (seconds - at) / settle)),
-              ),
-          ground,
+      stairs: {
+        origin: Vector3.add(
+          floor,
+          Vector3.scale(forward, 0.25 * body.measure.footLength),
         ),
+        forward,
+        steps: crutchStairsFlight.profile(climb, ground),
+      },
+      knots: bears.flatMap((at: number): number[] => [at, at + settle]),
     });
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
       seconds,
