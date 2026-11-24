@@ -19,25 +19,40 @@ import type { FamilyConicMpfbSubdivision as Subdivision } from "./FamilyConicMpf
 export namespace FamilyConicMpfbParentFit {
   /** A section observation at one physical parent rail point. */
   export interface IRailRow {
+    /** Accepted parent outlet point in anatomical world millimetres. */
     position: Point;
+    /** Height above the torso course base, millimetres. */
     station: number;
+    /** Directed polar angle in the torso section plane, radians. */
     clock: number;
+    /**
+     * All positive source radii observed at this station and clock,
+     * millimetres.
+     */
     measured?: { radii?: number[] };
+    /** Gap to the upper observation in mm and the rail normal's up component. */
     vertical?: { gap: number; normalUp: number };
   }
 
   /** World position, normal and local support of an admitted fitted point. */
   export interface IChartPoint {
+    /** Reconstructed world point in anatomical millimetres. */
     position: Point;
+    /** Outward unit normal derived from the fitted chart. */
     normal: Point;
+    /** Outward unit limit normal of the independent source observation. */
     observedNormal: Point;
+    /** Positive projection of the observed normal along the chart ray. */
     conditioning: number;
+    /** Compact coverage weight of the fitted tiles, from zero to one. */
     support: number;
   }
 
   /** Body course and the held-out seam from the independently generated parent. */
   export interface IInput {
+    /** Generated torso course and its stationary section coordinate frame. */
     support: IAutoMovieHumanConicLoft.IFamily;
+    /** Analytic parent outlet samples held out of the chart interpolation. */
     stockRail: { rows: IRailRow[] };
   }
 

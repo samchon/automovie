@@ -21,16 +21,21 @@ export namespace FamilyConicFormMeasurements {
     IAutoMovieConstructionRealization.IRealization,
     "body"
   > & {
+    /** Indexed retained skin in metres. */
     mesh: Surface.Mesh & { indices: number[] };
+    /** Retained analytic charts in millimetres, listed or indexed by name. */
     surfaces:
       | IAutoMovieConstructionRealization.IRealization["surfaces"]
       | ReadonlyMap<string, IAutoMovieSolidSurface>;
+    /** Original named triangle index spans supplied by the skin producer. */
     triangleGroups?: IAutoMovieHumanBodySurface.IOutput["mesh"]["groups"];
+    /** Previously measured welded components of this unchanged skin. */
     pieces?: IAutoMovieMeshPiece[];
   };
 
   /** One measured opening or the family rule's reason it could not be sampled. */
   type Probe = AutoMovieHumanEmptyProbes.IProbe & {
+    /** Winding evaluation for a successfully placed opening. */
     reading?: IAutoMovieMeshWinding;
   };
 

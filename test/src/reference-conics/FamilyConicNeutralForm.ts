@@ -17,10 +17,12 @@ export namespace FamilyConicNeutralForm {
    */
   const MAX_CONTACT_GAP_MM: number = 0.01;
 
+  /** Retained per-case data required by the neutral form inspection. */
   type Capture = Pick<
     ReturnType<typeof buildHumanNeutralCapture.inspect>,
     "mesh" | "pieces" | "solidSurfaces" | "triangleGroups" | "nailClipping"
   > & {
+    /** Original loft chains and published face chart boundaries. */
     calibration: Pick<
       ReturnType<typeof buildHumanNeutralCapture.inspect>["calibration"],
       "chains" | "bodies"

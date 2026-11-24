@@ -11,14 +11,21 @@ type Slice = (u: number) => (v: number) => Jet;
 
 /** Compact tensor charts on a single, locally resolvable source sheet. */
 export namespace FamilyConicMpfbScalarAtlas {
+  /** One independent ray reading on a directed component of the source. */
   export interface IObservation {
+    /** Height or radius in physical millimetres, according to the chart. */
     value: number;
+    /** Edge-connected source component that owns this observation. */
     component: number;
   }
 
+  /** Bounds of a projected source edge used to trim complete chart tiles. */
   export interface IBoundary {
+    /** Edge-connected source component that owns this boundary. */
     component: number;
+    /** Increasing first-coordinate extent in millimetres. */
     u: Plane;
+    /** Increasing second-coordinate extent in millimetres. */
     v: Plane;
   }
 
