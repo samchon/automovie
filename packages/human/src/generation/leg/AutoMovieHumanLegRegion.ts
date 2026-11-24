@@ -5,9 +5,13 @@ import type {
 
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
 
-/** Bounded ankle-region contact capability directly from shared local controls, without a complete leg. */
+/**
+ * Bounded ankle-region contact capability directly from shared local controls,
+ * without a complete leg.
+ */
 export function AutoMovieHumanLegRegion(
   prepared: IAutoMovieHumanSiteControls.IOutput,
+  field?: IAutoMovieHumanSiteControls.IField,
 ): IAutoMovieHumanFootSource.IRegion {
   const controls: IAutoMovieHumanSiteControls.IControls | null =
     prepared.controls;
@@ -17,7 +21,7 @@ export function AutoMovieHumanLegRegion(
         JSON.stringify(prepared.diagnostics),
     );
   const original: IAutoMovieHumanFootSource.ISource =
-    AutoMovieHumanFootSource.fromControls(prepared);
+    AutoMovieHumanFootSource.fromControls(prepared, field);
   const domain: readonly [number, number] = [
     controls.scalars.stations[0]!,
     controls.scalars.stations.at(-1)!,

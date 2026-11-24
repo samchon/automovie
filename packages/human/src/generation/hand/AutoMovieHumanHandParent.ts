@@ -2,14 +2,23 @@ import { AutoMovieLoftViewSource, AutoMovieViewAxis } from "@automovie/engine";
 import type {
   IAutoMovieHumanArmWalk,
   IAutoMovieHumanHandParent,
+  IAutoMovieHumanSiteControls,
   IAutoMovieHumanSourceDefinition,
   IAutoMovieLoftViewSource,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/** Common hand-region scalar/frame controls and the explicit legacy part adapter. */
+import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
+
+/**
+ * Common hand-region scalar/frame controls and the explicit legacy part
+ * adapter.
+ */
 export namespace AutoMovieHumanHandParent {
-  /** Prepare the final normalized parent once; failed originals never become substitutes. */
+  /**
+   * Prepare the final normalized parent once; failed originals never become
+   * substitutes.
+   */
   export function prepare(
     definition: IAutoMovieHumanSourceDefinition,
   ): IAutoMovieHumanHandParent.IOutput {
@@ -58,6 +67,7 @@ export namespace AutoMovieHumanHandParent {
    */
   export function fromControls(
     prepared: IAutoMovieHumanArmWalk.IPrepared,
+    field?: IAutoMovieHumanSiteControls.IField,
   ): IAutoMovieHumanHandParent.IOutput {
     const controls: IAutoMovieHumanArmWalk.IPrepared["controls"] =
       prepared.controls;
@@ -74,7 +84,11 @@ export namespace AutoMovieHumanHandParent {
     return {
       part: { name: controls.input.name, axis, pole: controls.scalars.pole },
       domain: controls.hand.domain,
-      source: controls.field(),
+      source: AutoMovieHumanSiteControls.native(
+        controls.input.name,
+        controls.scalars,
+        field,
+      ).source,
       coordinates: {
         length: "calibration-mm",
         phase: "radians",

@@ -131,7 +131,10 @@ export namespace AutoMovieHumanArmSources {
         ),
       );
     const handParent: () => IAutoMovieHumanHandParent.IOutput = () =>
-      AutoMovieHumanHandAttachment.fromControls(shared.hand);
+      AutoMovieHumanHandAttachment.fromControls(
+        shared.hand,
+        shared.field ?? undefined,
+      );
     const branch: (
       parent: IAutoMovieHumanHandParent.IOutput,
       walk: IAutoMovieHumanDigitWalk.IInput,

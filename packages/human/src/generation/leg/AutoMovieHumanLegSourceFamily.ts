@@ -52,6 +52,7 @@ export namespace AutoMovieHumanLegSourceFamily {
       AutoMovieHumanSiteRegionControls.create(chart.input, "calf");
     const distal: IAutoMovieHumanFootSource.IRegion = AutoMovieHumanLegRegion(
       controls.local,
+      controls.field ?? undefined,
     );
     const ankleStation: number = chart.station(2, 1);
     const current: IAutoMovieHumanLegSourceFamily.IOutput["current"] =

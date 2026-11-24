@@ -11,6 +11,8 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
+import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
+
 /**
  * A retained original view and its full native section owner, before lofting.
  *
@@ -30,6 +32,7 @@ export namespace AutoMovieHumanFootSource {
    */
   export function fromControls(
     prepared: IAutoMovieHumanSiteControls.IOutput,
+    field?: IAutoMovieHumanSiteControls.IField,
   ): IAutoMovieHumanFootSource.ISource {
     const controls: IAutoMovieHumanSiteControls.IControls | null =
       prepared.controls;
@@ -42,7 +45,11 @@ export namespace AutoMovieHumanFootSource {
       part: { name: controls.input.name, axis: controls.axis },
       name: controls.input.name,
       axis: controls.axis,
-      field: controls.field(),
+      field: AutoMovieHumanSiteControls.native(
+        controls.input.name,
+        controls.scalars,
+        field,
+      ).source,
     };
   }
 

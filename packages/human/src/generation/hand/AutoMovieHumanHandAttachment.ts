@@ -5,6 +5,7 @@ import type {
   IAutoMovieHumanDigitWalk,
   IAutoMovieHumanHandAttachment,
   IAutoMovieHumanHandParent,
+  IAutoMovieHumanSiteControls,
   IAutoMovieHumanSourceDefinition,
   IAutoMovieViewPart,
 } from "@automovie/interface";
@@ -64,8 +65,9 @@ export namespace AutoMovieHumanHandAttachment {
    */
   export function fromControls(
     prepared: IAutoMovieHumanArmWalk.IPrepared,
+    field?: IAutoMovieHumanSiteControls.IField,
   ): IAutoMovieHumanHandParent.IOutput {
-    return AutoMovieHumanHandParent.fromControls(prepared);
+    return AutoMovieHumanHandParent.fromControls(prepared, field);
   }
 
   /**
