@@ -451,7 +451,7 @@ export namespace AutoMovieHumanMammaryJoin {
         throw new Error(
           `mammary: the host section at ${s} is outside its level chart`,
         );
-      if (jet != null) return jet;
+      if (jet !== null && jet !== undefined) return jet;
       const straight: V = add(foot.origin, scale(up, s - bottom));
       if (!(Math.hypot(...sub(frame.origin, straight)) <= 1e-6))
         throw new Error(
