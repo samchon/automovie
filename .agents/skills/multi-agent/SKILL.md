@@ -27,4 +27,4 @@ A Claude Code subagent stops with a message like this:
 
 > My context is nearly full. I'll stop here; a fresh agent can pick this up from my notes.
 
-Its context compacts on its own. Resume the same subagent with a firm order to continue; a mild request does not hold.
+When the context window fills, Claude Code summarizes the earlier turns and the subagent continues from that summary, so nothing is lost by going on. Resume the same subagent with a firm order to continue; a mild request does not hold.
