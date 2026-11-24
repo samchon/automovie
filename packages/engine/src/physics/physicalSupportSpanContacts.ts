@@ -126,7 +126,8 @@ export namespace physicalSupportSpanContacts {
       foot: input.polygon,
       range: Math.max(...input.reach.map((disc: IReach): number => disc.radius)),
     });
-    let region: Polygon.IPoint[] = raw ?? discs[0]!;
+    const first: Polygon.IPoint[] = discs[0]!;
+    let region: Polygon.IPoint[] = raw ?? first;
     for (const disc of raw === undefined ? discs.slice(1) : discs) {
       if (region.length === 0) return [];
       region = Polygon.intersect(region, disc);
