@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the page runs, which configuration serves it, where it listens and why a development server is used, what the return holds, and the refusals.
+States what the page runs, how the host's optional capture prefix reaches it, which configuration serves it, where it listens, what the return holds, and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -14,7 +14,7 @@ Write the page, find a port, start the server; the inspector and the subjects ar
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The production's own page and configuration file are left untouched, and a taken port fails the start instead of moving to another.
+The production's existing page and configuration file are left untouched. The generated page receives the capture prefix as data. A taken port fails the start.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

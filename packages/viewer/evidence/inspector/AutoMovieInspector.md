@@ -10,7 +10,7 @@ React owns layout and dispatch only: `useReducer` holds the request, `useEffect`
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One component composes seven panels, each a function of the request and a dispatch, six of them in collapsible sections of the platform's `details` element; every request change is the reducer's and every scene change the mount's.
+One component composes its panels and passes the host's optional command prefix through to the request panel. The reducer owns request changes and the mount owns scene changes.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
