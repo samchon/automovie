@@ -3,7 +3,6 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
-import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * The fixtures replayed: one biped's and one quadruped's recovery, the
@@ -30,8 +29,8 @@ const FIXTURES: readonly string[] = ["human_recover_z.json", "quad_recover_z.jso
  * Scenarios:
  *
  * 1. The canonical Human's and the four-support primitive's recovery fixtures,
- *    renamed, three key frames (quiet stance, the step, the landing) with their
- *    substeps' root records.
+ *    renamed: three key frames (quiet stance, the step, the landing) and the
+ *    root tracker's record of the first.
  * 2. Each `advance` record's result, state and actuation equal the original's,
  *    renamed, as JSON with keys in any order.
  * 3. Each `root` record's task, integral, wrenches and actuation equal the
@@ -48,12 +47,13 @@ export function test_physical_disturbance_anatomy(): void {
   for (const file of FIXTURES) {
     const fixture: PhysicalBalanceReplay.IFixture =
       PhysicalBalanceReplay.load(file);
+    // The biped's profile as its fixture stores it, digest-checked; the
+    // primitive's is built in closed form.
     const built: IAutoMoviePhysicalProfile =
       fixture.subject === "human"
-        ? motionHumanBody("m-average").profile
+        ? PhysicalBalanceReplay.stored(fixture)
         : PhysicalModelFixtures.quadrupod();
-    // One record of each key frame the recording kept, with the root
-    // record of its substep: every phase the controller passes through.
+    // The first record of each key-frame kind the recording kept.
     const reasons: Set<string> = new Set();
     const firsts: number[] = [];
     fixture.records.forEach((record, index: number): void => {
@@ -61,16 +61,15 @@ export function test_physical_disturbance_anatomy(): void {
       reasons.add(record.reason ?? "");
       firsts.push(index);
     });
-    // The first, middle and last kinds: quiet stance, the step, the landing.
-    const kept: Set<number> = new Set();
-    for (const index of [
+    // The first, middle and last kinds: quiet stance, the step, the landing;
+    // the root tracker's record of the first, the one every substep runs.
+    const kept: Set<number> = new Set([
       firsts[0]!,
       firsts[Math.floor(firsts.length / 2)]!,
       firsts.at(-1)!,
-    ]) {
-      kept.add(index);
-      if (fixture.records[index + 1]?.kind === "root") kept.add(index + 1);
-    }
+    ]);
+    if (fixture.records[firsts[0]! + 1]?.kind === "root")
+      kept.add(firsts[0]! + 1);
     const names: Map<string, string> = new Map(
       [...built.segments.map((segment) => segment.bone)]
         .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
@@ -107,12 +106,19 @@ export function test_physical_disturbance_anatomy(): void {
         ]),
       );
     };
-    const renamed: PhysicalBalanceReplay.IFixture = rename(fixture);
+    // Only what the kept calls read is renamed: the body, the settings and
+    // the kept records.
+    const renamed: PhysicalBalanceReplay.IFixture = {
+      ...fixture,
+      body: rename(fixture.body),
+      settings: rename(fixture.settings),
+      records: [],
+    };
     const profile: IAutoMoviePhysicalProfile = rename(built);
     fixture.records.forEach(
       (record: PhysicalBalanceReplay.IRecord, index: number): void => {
         if (!kept.has(index)) return;
-        const twin: PhysicalBalanceReplay.IRecord = renamed.records[index]!;
+        const twin: PhysicalBalanceReplay.IRecord = rename(record);
         const original: Record<string, unknown> = rename(
           record.kind === "advance"
             ? PhysicalBalanceReplay.advance(fixture, record, built)

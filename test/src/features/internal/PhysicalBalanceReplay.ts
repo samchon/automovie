@@ -41,6 +41,8 @@ import { repositoryRoot } from "./repositoryRoot";
  * - `body`: the simulated body without its targets, its profile named by
  *   `profileDigest`, the FNV-1a digest of its JSON, which the replay checks
  *   against the subject it rebuilds.
+ * - `profile`, optional: that profile itself, which `stored` reads and checks
+ *   against the digest, so a replay builds no figure.
  * - `records`: in time order, pairs of an `advance` record (`reason`: the key
  *   frame, `input`: the controller's input with each segment's state, `output`:
  *   its result, the state after and the actuation it accumulated) and the
@@ -115,6 +117,11 @@ export namespace PhysicalBalanceReplay {
     settings: Record<string, any>;
     /** The simulated body without its profile, which its digest names. */
     body: Record<string, any> & { id: string; profileDigest: string };
+    /**
+     * The profile the digest names, when the fixture stores it, so a replay
+     * needs no figure built (`stored`).
+     */
+    profile?: IAutoMoviePhysicalProfile;
     /** The kept calls, in time order. */
     records: IRecord[];
   }
@@ -235,6 +242,21 @@ export namespace PhysicalBalanceReplay {
         ? PhysicalDisturbance.standing(motionHumanBody("m-average"))
         : PhysicalDisturbance.planted(PhysicalModelFixtures.quadrupod())
     ).profile;
+  }
+
+  /**
+   * The case's profile as the fixture stores it, checked against the digest
+   * the recording took of it; rebuilt as the recording built it when the
+   * fixture stores none.
+   */
+  export function stored(fixture: IFixture): IAutoMoviePhysicalProfile {
+    if (fixture.profile === undefined) return profile(fixture.subject);
+    const found: string = digest(JSON.stringify(fixture.profile));
+    if (found !== fixture.body.profileDigest)
+      throw new Error(
+        `${fixture.case}: the stored profile's digest is ${found}, recorded ${fixture.body.profileDigest}`,
+      );
+    return fixture.profile;
   }
 
   /** FNV-1a over a string, as hex. */
