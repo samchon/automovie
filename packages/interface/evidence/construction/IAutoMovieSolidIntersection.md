@@ -68,7 +68,7 @@ Finite samples do not certify a global intersection, exact arc length or every i
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States periodic shifts, source identities and the reader's local corrected result.
+States periodic shifts, source identities, traversal order and the reader's local corrected result. Native traces are uniform and a supplied curve can explicitly declare unequal sample spacing.
 
 # src/construction/IAutoMovieSolidIntersection.ts#IAutoMovieSolidIntersection.IInput
 

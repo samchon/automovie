@@ -6,7 +6,7 @@ Retains the original two neighbouring columns, after/before point reads, centre 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One observation owner returns a closed rails/unfolded-blend failure to Join's existing diagnostic path. Failed-only local encoders describe the already read vectors and rail preimages, without another source model.
+One observation owner returns a rails or unfolded-blend failure to Join. The comparison describes the already read operands, and a missing neighbour reports its requested address.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

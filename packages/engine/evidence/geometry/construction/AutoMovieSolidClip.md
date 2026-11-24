@@ -36,11 +36,11 @@ Names atlas-to-body index mapping, column count, rail order, mutation and crossi
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-C columns and B face changes use O(C) output plus up to 40 rail queries per change, with linear owner-name lookup for inserted points; rail solving/cache costs belong to that caller as well.
+C columns and B face changes use O(C+B) output. Each change has a bounded outer bisection and up to two bounded side refinements when the new rail leaves both faces. Owner lookup remains linear for inserted points.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses published column charts/across directions and the join's rail cache for bisection queries; each returned crossing has one mesh vertex for both incident faces.
+Uses the actual rails already solved at blend columns to start face-change brackets. Interior reads remain independent and the end of the full turn gets its own chart branch. Each returned crossing has one mesh vertex for both incident faces.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

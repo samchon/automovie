@@ -98,7 +98,7 @@ export namespace IAutoMovieSolidIntersection {
     /** The parameter it is traced by. */
     parameter: IAutoMovieSolidIntersection.Parameter;
 
-    /** Mutable points at uniform t from the seed over one 2pi turn, without a repeated start. The at closure retains this same array, so readers must not mutate it. */
+    /** Original points in traversal order over one 2pi turn, without a repeated start. Tracers use uniform t from the seed; a supplied curve may declare unequal spacing. Treat the published points as immutable. */
     points: IAutoMovieSolidIntersection.IPoint[];
 
     /** Whole turns the host's `v` makes over one turn of `t`; 0 for a loop that encloses a region of the host's chart. */

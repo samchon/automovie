@@ -1,14 +1,17 @@
 /**
- * Scan a join's host rail, as an ordered chart polygon, for a strict proper crossing between two of its nonadjacent edges.
+ * Scan a join's host rail, as an ordered chart polygon, for a strict proper
+ * crossing between two of its nonadjacent edges.
  *
  * @param points The rail's chart points in traversal order.
- * @param closed Whether the polygon's closing edge is included; a rail that winds round the chart's period omits it.
- * @returns The first crossing's description, or null; collinear overlap and touching edges do not count as crossings.
+ * @param closed Whether the polygon's closing edge is included; a rail that
+ *   winds round the chart's period omits it.
+ * @returns The start indices of the first crossing's edges, or null; collinear
+ *   overlap and touching edges do not count as crossings.
  */
 export function AutoMovieSolidJoinCrossing(
   points: readonly [number, number][],
   closed: boolean,
-): string | null {
+): [number, number] | null {
   const n: number = points.length;
   const edges: number = closed ? n : n - 1;
 
@@ -33,7 +36,7 @@ export function AutoMovieSolidJoinCrossing(
         turn(a, b, c) * turn(a, b, d) < 0 &&
         turn(c, d, a) * turn(c, d, b) < 0
       )
-        return `between edges ${i} and ${j}`;
+        return [i, j];
     }
   }
   return null;

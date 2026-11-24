@@ -125,9 +125,8 @@ export namespace IAutoMovieSolidJoin {
 
       /**
        * Positive finite chord in millimetres at trace parameter t in radians.
-       * The retained callback is read repeatedly and must remain stable;
-       * exceptions propagate. Rail results may be cached while widths reads
-       * this law again, so changing the law invalidates the join's consistency.
+       * The same stable law supplies prepared trace columns, independent rail
+       * reads and declared widths. Callback exceptions propagate.
        *
        */
       host(t: number): number;

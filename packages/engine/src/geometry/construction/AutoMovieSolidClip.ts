@@ -114,8 +114,10 @@ export namespace AutoMovieSolidClip {
       // The crossing: the last parameter on this face and the first on the next.
       let lo: number = blend.seed + (2 * Math.PI * k) / count;
       let hi: number = blend.seed + (2 * Math.PI * (k + 1)) / count;
-      let low: IAutoMovieSolidRail.IRail | null = join.rail(lo);
-      let high: IAutoMovieSolidRail.IRail | null = join.rail(hi);
+      let low: IAutoMovieSolidRail.IRail | null = blend.rails?.[k] ?? join.rail(lo);
+      // A full turn can land on a different atlas chart branch than its seed.
+      let high: IAutoMovieSolidRail.IRail | null =
+        (k + 1 < count ? blend.rails?.[k + 1] : undefined) ?? join.rail(hi);
       for (
         let i: number = 0;
         i < BISECTIONS && low !== null && high !== null;
@@ -135,8 +137,7 @@ export namespace AutoMovieSolidClip {
           // world point within `CROSSING` mm, or when both lie on the faces'
           // shared boundary as closely as the boundary's two readings do (the
           // sliver between them is the stretch, long where the rail runs along
-          // the boundary at a grazing angle: on f1's ear, 0.036 mm along the
-          // rail with both ends 0.006 mm off a seam whose sagitta is 0.007).
+          // the boundary at a grazing angle).
           let dead: [number, number] = [m, m];
           for (let j: number = 0; j < BISECTIONS; j++) {
             const a: number = (lo + dead[0]) / 2;

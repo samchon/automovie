@@ -5,6 +5,7 @@ import type {
   IAutoMovieLoftSurfaceJet,
   IAutoMovieSolidBlendChain,
   IAutoMovieSolidJoin,
+  IAutoMovieSolidRail,
 } from "@automovie/interface";
 
 import { AutoMovieLoftJet } from "./AutoMovieLoftJet";
@@ -89,6 +90,10 @@ export namespace AutoMovieSolidBlendChain {
       strip(name, columns, r0.outward);
     if (published === null) return null;
     const { chain, length: L } = published;
+    const widths: ReturnType<IAutoMovieSolidJoin.IJoin["widths"]>[] = columns.map(
+      (_, k: number): ReturnType<IAutoMovieSolidJoin.IJoin["widths"]> =>
+        join.widths(seed + (2 * Math.PI * k) / count),
+    );
 
     // A part's rail that does not wind round its phase encloses a region of
     // its chart; the part keeps the side its rail stands toward from the
@@ -123,6 +128,9 @@ export namespace AutoMovieSolidBlendChain {
       chain,
       length: L,
       seed,
+      rails: columns.map(
+        (c: IAutoMovieSolidJoin.IColumn): IAutoMovieSolidRail.IRail => c.rail,
+      ),
       host: {
         kind:
           join.curve.winding === 0
@@ -160,14 +168,8 @@ export namespace AutoMovieSolidBlendChain {
         ],
       ),
       widths: {
-        host: columns.map(
-          (_: IAutoMovieSolidJoin.IColumn, k: number): number =>
-            join.widths(seed + (2 * Math.PI * k) / count).host,
-        ),
-        part: columns.map(
-          (_: IAutoMovieSolidJoin.IColumn, k: number): number | null =>
-            join.widths(seed + (2 * Math.PI * k) / count).part,
-        ),
+        host: widths.map((width): number => width.host),
+        part: widths.map((width): number | null => width.part),
       },
       parameter: join.curve.parameter.kind,
       sigma: r0.rail.sigma > 0 ? 1 : -1,

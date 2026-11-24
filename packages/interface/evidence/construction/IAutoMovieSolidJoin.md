@@ -6,15 +6,15 @@ The original trace and positive millimetre chord laws determine paired rails and
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-SolidJoin owns rail caching and column readers consumed by blend publication and body clipping.
+SolidJoin owns the prepared trace columns and the independent rail or ribbon readers consumed by blend publication and body clipping.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Sampled admission does not certify continuous unfolding; sources, width laws and exposed cached records must remain stable.
+Sampled admission leaves continuous unfolding unresolved. Sources, width laws and published column records must remain stable.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names retained input ownership, rail cache lifetime and the scope of geometric admission.
+Names the source and column ownership, the independent query parameters and the scope of geometric admission.
 
 # src/construction/IAutoMovieSolidJoin.ts#IAutoMovieSolidJoin.IJoin
 
@@ -24,7 +24,7 @@ The curve, keep side and analytic boundary readers describe one composed contact
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-One result separates its captured curve and four readers from later blend publication.
+One result separates the original curve and its readers from later blend publication.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -32,7 +32,7 @@ The G2 literal declares boundary matching; the record proves no continuous unfol
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Readers distinguish rail failure, fresh column data, borrowed chart loops and live chord laws.
+Readers distinguish rail failure, declared column data, borrowed chart loops and stable chord laws.
 
 # src/construction/IAutoMovieSolidJoin.ts#IAutoMovieSolidJoin.IColumn
 

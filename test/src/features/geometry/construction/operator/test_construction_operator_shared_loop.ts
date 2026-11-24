@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieConstructionSharedLoop,
+  AutoMovieSolidBlendChain,
   AutoMovieSolidIntersection,
   AutoMovieSolidJoin,
 } from "@automovie/engine";
@@ -34,12 +35,13 @@ type V3 = [number, number, number];
  * 2. Sense -1, the same circle run the other way round, with a search seed, whose start is found on a grid: the same chords and rails
  *    at each world point of the loop, so the host's outside does not depend on the loop's direction.
  * 3. Refusals: a record without a loop and a loop whose phase semi-axis reaches pi (`shared loop`); a `station` width (`width`).
+ * 4. Nonuniform points on the same loop preserve each exact column. Uniform blend publication borrows its actual rails and preserves shape.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieConstructionSharedLoop.create` on made records and surfaces and composes `AutoMovieSolidJoin.create` from what it returns, then reads the width laws and the rails. It catches a loop read in the wrong units or on the wrong chart axis, a host rail placed inside a clockwise loop, a chord not converted from metres, a start that depends on the seed's kind, and a refusal under the wrong name.
  * @evidence contracts/development/testing.md#independent-expectations The circle, the turn `atan(tau)`, the ball's tangent length `R tan(beta / 2)` and the wedge's chord point are closed forms of the made surfaces; none is read from the kernel. Positions are compared to 1e-8 mm, above the solvers' 1e-12 relative stop.
- * @evidence contracts/development/testing.md#distinguishing-cases Positive: both senses and both seed kinds. Negative: the three refusals. The contact's own refusals, the run-out, the frames and the body belong to `test_construction_operator_mixed_join`.
+ * @evidence contracts/development/testing.md#distinguishing-cases Both senses, both seed kinds, three refusals and nonuniform stored addresses. A shifted address has the same exact rail/ribbon and should require no second solve.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_operator_shared_loop`; it builds closed-form surfaces in process and starts no host, browser or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation States the made chart, the record's units and the three numbered scenarios with the behavior each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation States the made chart, the record's units and the scope of the four scenarios.
  */
 export function test_construction_operator_shared_loop(): void {
   const failures: string[] = [];
@@ -149,6 +151,54 @@ export function test_construction_operator_shared_loop(): void {
       if (host > 1e-8) failures.push(`${label}: the host rail at clock ${t} stands ${host} mm from the circle enlarged by its chord`);
       if (part > 1e-8) failures.push(`${label}: the part rail at clock ${t} stands ${part} mm from the wedge's point at its chord`);
     }
+
+    // Move alternate samples by three quarters of the original phase step
+    // so rounding on the old uniform grid selects their neighbours.
+    const original = made.join.curve;
+    const points = original.points.map((p, i) =>
+      i % 2 === 0 ? p : original.at(p.t + (3 * Math.PI) / 128)!,
+    );
+    let widthReads: number = 0;
+    const nonuniform = AutoMovieSolidJoin.create({
+      ...prepared.join,
+      part: mound,
+      host: wall,
+      curve: { ...original, points },
+      width: {
+        ...prepared.join.width,
+        host(t: number): number {
+          widthReads++;
+          return prepared.join.width.host(t);
+        },
+      },
+    }, "outside");
+    if (nonuniform.join === null) {
+      failures.push(`${label}: nonuniform trace refused: ${JSON.stringify(nonuniform.diagnostics)}`);
+      continue;
+    }
+    const preparedReads: number = widthReads;
+    for (const p of points) {
+      const expected = made.join.column(p.t);
+      const actual = nonuniform.join.column(p.t);
+      if (expected === null || actual === null || JSON.stringify(expected) !== JSON.stringify(actual))
+        failures.push(`${label}: the nonuniform column changed at ${p.t}`);
+    }
+    const repeated: number = widthReads - preparedReads;
+    if (repeated !== 0)
+      failures.push(`${label}: ${repeated} declared columns were solved again`);
+    const outside: number = original.points[1]!.t;
+    const first = nonuniform.join.rail(outside);
+    const second = nonuniform.join.rail(outside);
+    if (first === null || second === null || JSON.stringify(first) !== JSON.stringify(second) || widthReads - preparedReads - repeated !== 2)
+      failures.push(`${label}: an independent rail request reused or changed its result`);
+    const expected = AutoMovieSolidBlendChain.of("test.blend", made.join, 64);
+    const actual = AutoMovieSolidBlendChain.of("test.blend", nonuniform.join, 64);
+    if (
+      expected === null ||
+      actual?.rails?.length !== 64 ||
+      JSON.stringify(actual) !== JSON.stringify(expected)
+    )
+      failures.push(`${label}: blend publication changed the uniform rails, chords or strip`);
   }
 
   // 3. Refusals.

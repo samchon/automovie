@@ -40,11 +40,11 @@ Evaluates count columns, interpolates a fixed number of O(count) fields, then re
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-One local column array supplies layers, trim charts and the sign anchor; the returned join's existing rail cache handles repeated rail requests.
+One column array supplies layers, trim charts, rail records and the sign anchor. Both published width arrays use one law reading per column.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Local columns are released after publication; the caller owns the O(count) chain and trim arrays, with no additional retained cache here.
+Ribbon column records are released after publication. The caller owns the O(count) chain, trim arrays and input rails used by clipping.
 
 # src/geometry/construction/AutoMovieSolidBlendChain.ts#AutoMovieSolidBlendChain.strip
 

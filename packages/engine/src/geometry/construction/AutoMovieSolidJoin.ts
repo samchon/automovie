@@ -8,34 +8,41 @@ import type {
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
+import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidJoinCrossing } from "./AutoMovieSolidJoinCrossing";
 import { AutoMovieSolidJoinNormalCheck } from "./AutoMovieSolidJoinNormalCheck";
-import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidRail } from "./AutoMovieSolidRail";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** Shared vector operations preserve the existing arithmetic and allocation owners. */
-const { combine, cross, norm, sub }: Pick<
-  typeof AutoMovieSolidVector,
-  "combine" | "cross" | "norm" | "sub"
-> = AutoMovieSolidVector;
+/**
+ * Shared vector operations preserve the existing arithmetic and allocation
+ * owners.
+ */
+const {
+  combine,
+  cross,
+  norm,
+  sub,
+}: Pick<typeof AutoMovieSolidVector, "combine" | "cross" | "norm" | "sub"> =
+  AutoMovieSolidVector;
 
 /**
  * Compose merge or diff from an intersection, kept-side rails and analytic
  * ribbons. At parameter t in radians, the host ribbon starts a column at w=0
  * and the part ribbon ends it at w=1; their cross speeds use the rail chord.
  *
- * Admission reads sampled rails/domains, strict proper chart crossings only
- * on a single host face, and nine fold shares per column. These observations
- * do not certify continuous unfolding, simple multi-face rails or final mesh
+ * Admission reads sampled rails/domains, strict proper chart crossings only on
+ * a single host face, and nine fold shares per column. These observations do
+ * not certify continuous unfolding, simple multi-face rails or final mesh
  * topology. A supplied curve skips tracing and its diagnostics; its provenance
  * and prior admission remain unresolved at the pretracing caller.
  *
- * A supplied curve may be a declared loop both surfaces share (`AutoMovieSolidSharedCurve`),
- * tangential over part of its turn. Its `toward` reader then names each rail's side at
- * every point, which the normals cannot where they are parallel; the rails, the ribbons
- * and every check here are otherwise the traced join's own.
+ * A supplied curve may be a declared loop both surfaces share
+ * (`AutoMovieSolidSharedCurve`), tangential over part of its turn. Its `toward`
+ * reader then names each rail's side at every point, which the normals cannot
+ * where they are parallel; the rails, the ribbons and every check here are
+ * otherwise the traced join's own.
  */
 export namespace AutoMovieSolidJoin {
   /** Shares of each column read by the fold check. */
@@ -45,8 +52,9 @@ export namespace AutoMovieSolidJoin {
    * Compose a join.
    *
    * @param input Borrowed surfaces, seed, trace limits and live width laws.
-   * @param keep outside for a merge, inside for a diff.
-   * @returns The contact or null with observed diagnostics; callback exceptions propagate.
+   * @param keep Outside for a merge, inside for a diff.
+   * @returns The contact or null with observed diagnostics; callback exceptions
+   *   propagate.
    */ export function create(
     input: IAutoMovieSolidJoin.IInput,
     keep: IAutoMovieSolidRail.Keep,
@@ -63,7 +71,10 @@ export namespace AutoMovieSolidJoin {
       input.host,
     );
 
-    /** Append this failed premise without claiming rollback of any caller-owned body. */
+    /**
+     * Append this failed premise without claiming rollback of any caller-owned
+     * body.
+     */
     const fail: (
       contract: string,
       detail: string,
@@ -84,38 +95,62 @@ export namespace AutoMovieSolidJoin {
         ? "station"
         : "square";
 
-    // Rails by parameter, solved once: the join's checks, the blend's columns and the clip ask for the same
-    // parameters (the traced points' and the columns', bitwise the same values), and callers only read them.
-    const rails: Map<number, IAutoMovieSolidRail.IRail | null> = new Map();
+    // Admission follows the curve's traversal. Its exact request addresses
+    // can have nonuniform spacing and need not match the returned phase.
+    const columns: IAutoMovieSolidJoin.IColumn[] = [];
+    const addresses: number[] = curve.points
+      .map((_, i: number): number => i)
+      .sort((i: number, j: number): number => curve.points[i]!.t - curve.points[j]!.t);
 
-    /** Map numeric-key equality reuses a rail or null failure for this join's lifetime. */
-    const rail: IAutoMovieSolidJoin.IJoin["rail"] = (
+    /** Resolve the exact predeclared trace column at t, if it is one. */
+    const tracedColumn = (
+      t: number,
+    ): IAutoMovieSolidJoin.IColumn | undefined => {
+      let low: number = 0;
+      let high: number = addresses.length;
+      while (low < high) {
+        const middle: number = (low + high) >>> 1;
+        if (curve.points[addresses[middle]!]!.t < t) low = middle + 1;
+        else high = middle;
+      }
+      const index: number | undefined = addresses[low];
+      return index !== undefined && curve.points[index]!.t === t
+        ? columns[index]
+        : undefined;
+    };
+
+    /** Solve one rail against the actual surfaces and the prepared laws. */
+    const readRail: IAutoMovieSolidJoin.IJoin["rail"] = (
       t: number,
     ): IAutoMovieSolidRail.IRail | null => {
-      const known: IAutoMovieSolidRail.IRail | null | undefined = rails.get(t);
-      if (known !== undefined) return known;
       const p: IAutoMovieSolidIntersection.IPoint | null = curve.at(t);
 
       // A declared loop's sides where it supplies them; a point at which it cannot name them has no rail.
-      const sides: IAutoMovieSolidRail.IToward | null | undefined = p === null ? null : input.toward?.(p);
-      const solved: IAutoMovieSolidRail.IRail | null =
-        p === null || sides === null
-          ? null
-          : AutoMovieSolidRail.at(
-              input.part,
-              host,
-              p,
-              keep,
-              typeof input.width.part === "function"
-                ? input.width.part(t)
-                : input.width.part,
-              input.width.host(t),
-              mode,
-              sides,
-            );
-      rails.set(t, solved);
-      return solved;
+      const sides: IAutoMovieSolidRail.IToward | null | undefined =
+        p === null ? null : input.toward?.(p);
+      return p === null || sides === null
+        ? null
+        : AutoMovieSolidRail.at(
+            input.part,
+            host,
+            p,
+            keep,
+            typeof input.width.part === "function"
+              ? input.width.part(t)
+              : input.width.part,
+            input.width.host(t),
+            mode,
+            sides,
+          );
     };
+
+    /**
+     * Read the rail at an authored trace column or solve the requested
+     * parameter.
+     */
+    const rail: IAutoMovieSolidJoin.IJoin["rail"] = (
+      t: number,
+    ): IAutoMovieSolidRail.IRail | null => tracedColumn(t)?.rail ?? readRail(t);
 
     /** The same solve as `rail`, explained. */
     const explain: IAutoMovieSolidJoin.IJoin["explain"] = (
@@ -138,7 +173,10 @@ export namespace AutoMovieSolidJoin {
           );
     };
 
-    /** Why the column at t is missing: the rail's failed premise and its quantities, or the ribbons when the rail solved. */
+    /**
+     * Why the column at t is missing: the rail's failed premise and its
+     * quantities, or the ribbons when the rail solved.
+     */
     const missing = (t: number): string => {
       const read: IAutoMovieSolidRail.IExplanation | null = explain(t);
       if (read === null) return "the curve has no point there";
@@ -153,15 +191,20 @@ export namespace AutoMovieSolidJoin {
         : `${read.refusal} (${numbers})`;
     };
 
-    /** Rebuild both surface ribbons at the cached rail; columns themselves are not cached. */
-    const column: IAutoMovieSolidJoin.IJoin["column"] = (
+    /** Prepare both actual surface ribbons at one parameter. */
+    const readColumn: IAutoMovieSolidJoin.IJoin["column"] = (
       t: number,
     ): IAutoMovieSolidJoin.IColumn | null => {
-      const r: IAutoMovieSolidRail.IRail | null = rail(t);
+      const r: IAutoMovieSolidRail.IRail | null = readRail(t);
       return r === null
         ? null
         : ribbons(input.part, host.faces[r.hostFace]!, r);
     };
+
+    /** Each late query borrows a declared column or reads only its own ribbons. */
+    const column: IAutoMovieSolidJoin.IJoin["column"] = (
+      t: number,
+    ): IAutoMovieSolidJoin.IColumn | null => tracedColumn(t) ?? readColumn(t);
 
     /** Read the host rail loop at uniform curve parameters from the seed. */
     const loop: IAutoMovieSolidJoin.IJoin["loop"] = (
@@ -179,9 +222,8 @@ export namespace AutoMovieSolidJoin {
     };
 
     // Every traced point carries both rails.
-    const columns: IAutoMovieSolidJoin.IColumn[] = [];
     for (const p of curve.points) {
-      const c: IAutoMovieSolidJoin.IColumn | null = column(p.t);
+      const c: IAutoMovieSolidJoin.IColumn | null = readColumn(p.t);
       if (c === null)
         return fail(
           "rails",
@@ -204,24 +246,35 @@ export namespace AutoMovieSolidJoin {
       (c: IAutoMovieSolidJoin.IColumn): boolean =>
         c.rail.hostFace === columns[0]!.rail.hostFace,
     );
-    const crossing: string | null = !single
+    const crossing: [number, number] | null = !single
       ? null
       : AutoMovieSolidJoinCrossing(
-          columns.map((c: IAutoMovieSolidJoin.IColumn): [number, number] => c.rail.host),
+          columns.map(
+            (c: IAutoMovieSolidJoin.IColumn): [number, number] => c.rail.host,
+          ),
           curve.winding === 0,
         );
-    if (crossing !== null)
+    if (crossing !== null) {
+      const edges: string = crossing
+        .map((i: number): string => {
+          const a: IAutoMovieSolidJoin.IColumn = columns[i]!;
+          const b: IAutoMovieSolidJoin.IColumn =
+            columns[(i + 1) % columns.length]!;
+          return `${i}=[${a.rail.host}]-[${b.rail.host}], contact=[${a.rail.curve.y},${a.rail.curve.theta}]-[${b.rail.curve.y},${b.rail.curve.theta}]`;
+        })
+        .join("; ");
       return fail(
         "simple rail",
-        `the host's rail crosses itself ${crossing}; a width passes the rail's radius of curvature`,
+        `the host's rail crosses itself between edges ${crossing[0]} and ${crossing[1]} (${edges})`,
       );
+    }
 
     // Preserve the sampled predicate while reporting its already read operands.
     const normalCheck: ReturnType<typeof AutoMovieSolidJoinNormalCheck> =
       AutoMovieSolidJoinNormalCheck(
         columns,
         column,
-      missing,
+        missing,
         period,
         curve,
         FOLD_SHARES,
@@ -231,7 +284,10 @@ export namespace AutoMovieSolidJoin {
     if (normalCheck !== null)
       return fail(normalCheck.contract, normalCheck.detail);
 
-    /** Read the original chord laws; a fixed-station part has no varying part chord. */
+    /**
+     * Read the original chord laws; a fixed-station part has no varying part
+     * chord.
+     */
     const widths: IAutoMovieSolidJoin.IJoin["widths"] = (
       t: number,
     ): { host: number; part: number | null } => ({

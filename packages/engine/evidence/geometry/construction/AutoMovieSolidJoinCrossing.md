@@ -26,4 +26,4 @@ A pure scan of one polygon coordinates no repeated work.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Borrows the points for the call and returns one string or null.
+Borrows the points for the call and returns the two crossed edge indices or null.
