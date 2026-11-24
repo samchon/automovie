@@ -4,6 +4,8 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { isAutoMovieFloat32Point } from "./inspection/isAutoMovieFloat32Point.js";
+
 /**
  * Use a ring of the Three.js tube at each distinct adjoining particle. The
  * input is an unindexed one-wide surface in world metres.
@@ -31,6 +33,10 @@ export function softPropCordSurface(
       positions,
       offset,
     );
+    if (!isAutoMovieFloat32Point(point))
+      throw new Error(
+        `Soft prop domain "${surface.domain}" has an unrepresentable cord particle.`,
+      );
     const previous: THREE.Vector3 | undefined = points[points.length - 1];
     if (previous === undefined || !point.equals(previous)) points.push(point);
   }

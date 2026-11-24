@@ -62,7 +62,7 @@ export function analyzeRecoveryMultiBoundarySurface(
         const p: Readonly<AutoMovieVector3Tuple> = vertices[from]!,
           q: Readonly<AutoMovieVector3Tuple> = vertices[to]!,
           length: number = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
-        if (!(length > 0))
+        if (!(length > 0) || length === Infinity)
           fail("an edge length is collapsed or unrepresentable");
         adjacency[from]!.set(to, length);
         adjacency[to]!.set(from, length);

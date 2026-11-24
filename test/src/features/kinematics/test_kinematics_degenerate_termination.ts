@@ -14,7 +14,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { throwsError } from "../internal/throwsError";
 
 /**
  * The kinematic searches whose loops end on a computed value end on every

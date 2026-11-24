@@ -18,13 +18,13 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * held prop (`HumanPerformanceHoldKit`) reads this course and never the
  * holder's live posture.
  *
- * The frame is carried as three points a hand length apart: the socket, and
- * the socket moved along the frame's `+X` and `+Z` by the holder's hand length.
+ * The frame is carried as three points a hand length apart: the socket, and the
+ * socket moved along the frame's `+X` and `+Z` by the holder's hand length.
  * Their nine coordinates are knotted by AutoKnots (Vitenti et al. 2024,
  * arXiv:2412.13423; `prepareHumanAdaptiveKnots`) to the arm solver's own
  * millimetre (`HumanArmTrajectoryTerms.TOLERANCE`), no finer than the frame
- * grid (`AutoMovieMotionHumanArmCourse.STEP`); a read takes the socket and
- * the frame the two axes span, orthonormalized (Gram-Schmidt).
+ * grid (`AutoMovieMotionHumanArmCourse.STEP`); a read takes the socket and the
+ * frame the two axes span, orthonormalized (Gram-Schmidt).
  *
  * @param self The performance, its actions prepared.
  * @param grip The hand span.
@@ -36,8 +36,8 @@ export function prepareHumanGripHand(
 ): (seconds: number) => IAutoMovieRigidTransform {
   const from: number = grip.from;
   const to: number = Math.min(grip.to, self.duration);
-  const length: number =
-    self.people.get(grip.subject)!.performer.body.measure.hand;
+  const length: number = self.people.get(grip.subject)!.performer.body.measure
+    .hand;
   const read = (seconds: number): IAutoMovieRigidTransform =>
     HumanPerformanceRead.hand(self, grip.subject, grip.side, seconds);
   if (!(to > from)) return (): IAutoMovieRigidTransform => read(from);

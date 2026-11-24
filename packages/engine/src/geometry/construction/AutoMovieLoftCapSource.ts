@@ -100,49 +100,9 @@ function binding(layer: IAutoMovieLoftChain.ILayer): string {
   ]);
 }
 
-/**
- * What a cap source was last checked against: the chain, its end layer and the
- * pole's point, by identity and value.
- */
-interface IChecked {
-  /** The chain the source was checked on. */
-  chain: IAutoMovieLoftChain;
-
-  /** That chain's end layer at the time. */
-  layer: IAutoMovieLoftChain.ILayer;
-
-  /** The pole record it was checked with. */
-  pole: Pole;
-}
-
-/** The last passed check of each cap source, released with it. */
-const CHECKED: WeakMap<IAutoMovieLoftCapSource.ISource, IChecked> =
-  new WeakMap();
-
-/**
- * Reject stale ownership before any actual geometry callback is evaluated.
- *
- * The full check serialises the end layer and the section data to compare them
- * with the source's bindings. It ran for every station read outside the
- * principal rows, a sixth of a capped body's realization. Chains, layers and
- * sources are immutable while they are read, so a source that passed against
- * the same chain, end layer and pole objects is not serialised again; any of
- * them replaced is checked in full.
- */
+/** Reject stale ownership before any actual geometry callback is evaluated. */
 function validate(chain: IAutoMovieLoftChain, pole: Pole): void {
-  const source: IAutoMovieLoftCapSource.ISource = pole.source!;
-  const end: IAutoMovieLoftChain.ILayer | undefined =
-    chain.layers[pole.end === "bottom" ? 0 : chain.layers.length - 1];
-  const passed: IChecked | undefined = CHECKED.get(source);
-  if (
-    passed !== undefined &&
-    passed.chain === chain &&
-    passed.layer === end &&
-    passed.pole === pole
-  )
-    return;
   check(chain, pole);
-  CHECKED.set(source, { chain, layer: end!, pole });
 }
 
 /** The full check of a cap source against its chain's end. */

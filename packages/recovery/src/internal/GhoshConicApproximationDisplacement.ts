@@ -61,17 +61,18 @@ export function GhoshConicApproximationDisplacement(
     }
   }
   // A vanishing leading coefficient leaves no root to divide out.
-  const valid: number[] = roots.filter((t: number): boolean =>
-    t !== Infinity &&
-    t !== -Infinity &&
-    l.every((value: number, index: number): boolean => {
-      const displacement: number =
-        t * (index === 0 ? m0 : index === 1 ? m1 : m2);
-      return (
-        value + displacement >=
-        -roundoff * (1 + Math.abs(value) + Math.abs(displacement))
-      );
-    }),
+  const valid: number[] = roots.filter(
+    (t: number): boolean =>
+      t !== Infinity &&
+      t !== -Infinity &&
+      l.every((value: number, index: number): boolean => {
+        const displacement: number =
+          t * (index === 0 ? m0 : index === 1 ? m1 : m2);
+        return (
+          value + displacement >=
+          -roundoff * (1 + Math.abs(value) + Math.abs(displacement))
+        );
+      }),
   );
   if (valid.length === 2 && valid[0] === valid[1]) valid.pop();
   return valid.length === 1 ? valid[0]! * length : undefined;

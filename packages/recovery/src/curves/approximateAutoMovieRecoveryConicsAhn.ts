@@ -285,11 +285,16 @@ export function approximateAutoMovieRecoveryConicsAhn(
       p0[0] + startScale * first[0],
       p0[1] + startScale * first[1],
     ];
-    if (p1.some((value: number): boolean => value === Infinity || value === -Infinity))
+    if (
+      p1.some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      )
+    )
       return straight();
     const side: Readonly<AutoMovieVector2Tuple> = minus(p1, p0);
     const area: number = C.cross(side, chord);
-    if (area === 0 || area === Infinity || area === -Infinity) return straight();
+    if (area === 0 || area === Infinity || area === -Infinity)
+      return straight();
     const samples: Radial[] = [];
     let previousU: number = 0;
     for (let i: number = 1; i < 32; ++i) {

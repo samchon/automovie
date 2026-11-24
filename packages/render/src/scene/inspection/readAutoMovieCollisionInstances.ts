@@ -10,6 +10,7 @@ import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTa
 import { formationCyclePosition } from "../formationCyclePosition.js";
 import { sampleFormationCycleMatrix } from "../sampleFormationCycleMatrix.js";
 import { AutoMovieCollisionSource } from "./AutoMovieCollisionSource.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
@@ -227,6 +228,11 @@ function cycleBounds(
         result.union(
           box.clone().applyMatrix4(exactSample(take, cycle, part, sample)),
         );
+    if (
+      !isAutoMovieFloat32Point(result.min) ||
+      !isAutoMovieFloat32Point(result.max)
+    )
+      result = null;
   }
   return result;
 }
@@ -255,7 +261,4 @@ function exactSample(
     read(2, 3),
     0,
     0,
-    0,
-    1,
-  );
-}
+   

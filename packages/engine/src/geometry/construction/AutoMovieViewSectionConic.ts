@@ -60,7 +60,6 @@ export namespace AutoMovieViewSectionConic {
   ): number {
     if (section.conics.failure !== null) return NaN;
     if (
-      !Array.isArray(axisScale) ||
       axisScale.length !== 2 ||
       !axisScale.every((value: number): boolean => value !== 0) ||
       !(tolerance > 0)

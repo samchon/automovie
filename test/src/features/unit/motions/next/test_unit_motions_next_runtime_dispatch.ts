@@ -16,14 +16,8 @@ import { motionHumanLedger } from "../../../internal/motionHumanLedger";
  *
  * 1. Compare the authored list, installed keys and actual law names.
  * 2. Check the bound owners for stance, travel, transfer and flight.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents which action keys, declared names and implementation identities the runtime must expose.
- * @evidence contracts/development/testing.md#behavioral-verification The vocabulary ledger supplies the expected public names. Separately verify direct law identities across stance, travel, transfer and flight.
- * @evidence contracts/development/testing.md#independent-expectations The authored ledger and public standalone action laws are independent of the runtime registration object.
- * @evidence contracts/development/testing.md#distinguishing-cases Checks omitted or additional registrations, repeated names under different keys and incorrect handler bindings.
- * @evidence contracts/development/testing.md#execution-ownership One in-memory comparison, no scene or physical evaluation.
  */
-export async function test_motion_mechanism_root_runtime_dispatch(): Promise<void> {
+export async function test_unit_motions_next_runtime_dispatch(): Promise<void> {
   const ledger: motionHumanLedger.ILedger = await motionHumanLedger();
   const order = (a: string, b: string): number => a.localeCompare(b);
   TestValidator.equals(

@@ -58,6 +58,15 @@ export namespace punchReach {
     moved: boolean;
   }
 
+  /** What `same` compares of a reach: its advance and its solved joints. */
+  export interface ISame extends Pick<IReach, "advance"> {
+    /** The solved elbow and wrist. */
+    solved: Pick<
+      IAutoMovieMotionHumanStrikingReach.ISolution,
+      "end" | "middle"
+    >;
+  }
+
   /**
    * Whether two reaches put the arm in the same place: the same step, wrist and
    * elbow, compared exactly.
@@ -66,7 +75,7 @@ export namespace punchReach {
    * @param b The other.
    * @returns True when nothing differs.
    */
-  export function same(a: IReach, b: IReach): boolean {
+  export function same(a: ISame, b: ISame): boolean {
     const equal = (u: IAutoMovieVector3, v: IAutoMovieVector3): boolean =>
       u.x === v.x && u.y === v.y && u.z === v.z;
     return (

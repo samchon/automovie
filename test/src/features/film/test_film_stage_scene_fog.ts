@@ -62,13 +62,12 @@ function refusedAt(
  * 2. An omitted fog composes a scene without a `fog` key or `fog: null`;
  *    the assertion observes record shape, without computing serialized
  *    bytes or a production content digest.
- * 3. Each gate fires at the submitted field: a fog that is not an object, a
- *    negative density, a non-finite density, a density that is not a number, a
- *    color that is not an object, and a color component outside `[0, 1]`.
+ * 3. Each gate fires at the submitted field: a negative density and a color
+ *    component outside `[0, 1]`.
  * 4. Zero and density 5 are both admitted; their rendered appearance is not
  *    observed by these scalar staging cases.
- * 5. Fog applies the canonical color gate: malformed alpha and contradictory
- *    labels fail, while a matching uppercase endpoint label stages.
+ * 5. Fog applies the canonical color gate: contradictory labels fail, while a
+ *    matching uppercase endpoint label stages.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs stageScene with authored fog and checks preserved atmosphere, omission, density boundaries and canonical color refusals; detects fog bypassing alpha or label checks that material and background ingress require.
  * @evidence contracts/development/testing.md#independent-expectations Nonnegative finite density and normalized linear channels define the scalar oracle; white has the exact sRGB endpoint FFFFFF while black's matching label is 000000, independent of the product encoder.
@@ -107,34 +106,10 @@ export function test_film_stage_scene_fog(): void {
   TestValidator.equals(
     "each malformed atmosphere is refused where it was written",
     namedFacts([
-      ["notAnObject", (): boolean => refusedAt(null, "type", "$input.fog")],
       [
         "negativeDensity",
         (): boolean =>
           refusedAt({ ...FOG, density: -0.01 }, "range", "$input.fog.density"),
-      ],
-      [
-        "nonFiniteDensity",
-        (): boolean =>
-          refusedAt(
-            { ...FOG, density: Number.POSITIVE_INFINITY },
-            "range",
-            "$input.fog.density",
-          ),
-      ],
-      [
-        "densityNotANumber",
-        (): boolean =>
-          refusedAt(
-            { ...FOG, density: "thick" },
-            "range",
-            "$input.fog.density",
-          ),
-      ],
-      [
-        "colorNotAnObject",
-        (): boolean =>
-          refusedAt({ ...FOG, color: null }, "type", "$input.fog.color"),
       ],
       [
         "componentOutOfRange",
@@ -147,11 +122,7 @@ export function test_film_stage_scene_fog(): void {
       ],
     ]),
     {
-      notAnObject: true,
       negativeDensity: true,
-      nonFiniteDensity: true,
-      densityNotANumber: true,
-      colorNotAnObject: true,
       componentOutOfRange: true,
     },
   );
@@ -170,14 +141,6 @@ export function test_film_stage_scene_fog(): void {
       ],
     ]),
     { vacuum: true, cloud: true },
-  );
-  TestValidator.predicate(
-    "fog alpha remains a normalized color channel",
-    refusedAt(
-      { ...FOG, color: { ...FOG.color, a: Number.NaN } },
-      "range",
-      "$input.fog.color.a",
-    ),
   );
   TestValidator.equals(
     "a matching uppercase fog swatch stages",

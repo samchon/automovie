@@ -116,7 +116,12 @@ export function critical(
         u[2]! * v[0]! - u[0]! * v[2]!,
         u[0]! * v[1]! - u[1]! * v[0]!,
       );
-      if (new Set(t).size !== 3 || faces.has(id) || !(area > 0))
+      if (
+        new Set(t).size !== 3 ||
+        faces.has(id) ||
+        !(area > 0) ||
+        area === Infinity
+      )
         for (const vertex of t) invalidStars.add(vertex);
       faces.add(id);
       // Count source uses before Set-based links can erase duplicate or collapsed incidence.

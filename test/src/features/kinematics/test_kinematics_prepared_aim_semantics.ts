@@ -50,15 +50,14 @@ export function test_kinematics_prepared_aim_semantics(): void {
         { x: target.x / magnitude, y: target.y / magnitude, z: target.z / magnitude }, 1e-12),
     );
   }
-  let reads: number = 0;
   const fixed: IAutoMovieVector3 = {
     /** Count only the owned unchanged source coordinate's actual admission work. */
-    get x(): number { reads++; return 2; }, y: 0, z: 0,
+    get x(): number { return 2; }, y: 0, z: 0,
   };
   const aim: ReturnType<typeof aimRotation.prepare> = aimRotation.prepare(fixed);
   const first: IAutoMovieQuaternion = aim({ x: 0, y: 1, z: 0 });
   TestValidator.predicate("a valid target succeeds",
-    reads >= 0 && qclose(first, turn(Math.PI / 2), 1e-12),
+    qclose(first, turn(Math.PI / 2), 1e-12),
   );
   TestValidator.predicate("changed valid target still produces its actual turn",
     qclose(aim({ x: -1, y: 0, z: 0 }), turn(Math.PI), 1e-12),

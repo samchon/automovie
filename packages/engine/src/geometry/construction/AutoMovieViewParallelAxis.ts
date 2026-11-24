@@ -18,20 +18,6 @@ import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
  * source-coordinate curves, independent of the origin course's tangent.
  */
 export namespace AutoMovieViewParallelAxis {
-  /**
-   * Original declarations keyed weakly by their actual prepared source axis.
-   *
-   * The weak identity lookup reuses the authored record without searching,
-   * sampling or rebuilding an interpolation. It contains only axes actually
-   * prepared from their declarations. Each live factory axis retains one copied
-   * declaration; a dead weak key releases that metadata. Public from/source own
-   * this serialization contract.
-   */
-  const DECLARATIONS: WeakMap<
-    IAutoMovieViewAxis.IAxis,
-    IAutoMovieConstructionParallelAxis
-  > = new WeakMap();
-
   /** Admit fixed planes and their original coordinate curves. */
   export function create(
     origin: IAutoMovieViewParallelAxis.IOrigin,
@@ -133,8 +119,7 @@ export namespace AutoMovieViewParallelAxis {
       [original.u.x, original.u.y, original.u.z],
       [original.v.x, original.v.y, original.v.z],
     );
-    if (typeof axis !== "string") DECLARATIONS.set(axis, original);
-    return axis;
+    return typeof axis === "string" ? axis : { ...axis, parallel: original };
   }
 
   /**
@@ -144,9 +129,7 @@ export namespace AutoMovieViewParallelAxis {
   export function source(
     axis: IAutoMovieViewAxis.IAxis,
   ): IAutoMovieConstructionParallelAxis | null {
-    const original: IAutoMovieConstructionParallelAxis | undefined =
-      DECLARATIONS.get(axis);
-    return original === undefined ? null : copy(original);
+    return axis.parallel === undefined ? null : copy(axis.parallel);
   }
 
   /**

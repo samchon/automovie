@@ -6,27 +6,22 @@ import type {
 import { AutoMovieMotionHumanStageFight } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../../internal/nclose";
+import { nclose } from "../../../internal/nclose";
 
 /**
- * Read editing cues from an in-memory film schedule with three staged
- * exchanges and an unrelated action.
+ * Read editing cues from an in-memory film schedule with three staged exchanges
+ * and an unrelated action.
  *
  * Scenarios:
- * 1. The first opening and block meet at 2.25 seconds. Keep their order on
- *    that tie and read the reply's start at 2.5, before its own contact.
- * 2. The second opening is cut before contact, but the block's stroke is
- *    exactly at its own cut. Keep the block at 4.5 with no reply.
- * 3. The last opening is cut before contact and its block is cut before
- *    the stroke. Return an empty track. Refuse a different, absent cue id.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the fixture's exact film times and distinguishes a cut encounter from a missing cue.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public cue reader; prefix matches, wrong event sources, dropped cut endpoints and cues after a cut change its observable track.
- * @evidence contracts/development/testing.md#independent-expectations The schedule fixture assigns the stages, cuts and instants. Assertions use those stated film seconds, rather than timing measured from the implementation or a pose.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a chronological tie, a distinct reply onset and contact, optional reply absence, an event at and after a cut, an unrelated anchor and a missing cue.
- * @evidence contracts/development/testing.md#execution-ownership Portable logic unit spec. The in-memory schedule contains no geometry, arm plan, host or capture.
+ * 1. The first opening and block meet at 2.25 seconds. Keep their order on that
+ *    tie and read the reply's start at 2.5, before its own contact.
+ * 2. The second opening is cut before contact, but the block's stroke is exactly
+ *    at its own cut. Keep the block at 4.5 with no reply.
+ * 3. The last opening is cut before contact and its block is cut before the
+ *    stroke. Return an empty track. Refuse a different, absent cue id.
  */
-export function test_motion_stage_fight_blade_exchange_cues(): void {
+export function test_unit_motions_next_stage_fight_exchange_cues(): void {
   const entry = (
     index: number,
     anchor: string,
@@ -82,9 +77,9 @@ export function test_motion_stage_fight_blade_exchange_cues(): void {
   };
   const first: IAutoMovieScheduleCue[] =
     AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(
-    schedule,
-    "first",
-  );
+      schedule,
+      "first",
+    );
   TestValidator.equals(
     "the full exchange reads its own phases",
     first.map((mark: IAutoMovieScheduleCue): string => mark.name),
@@ -99,9 +94,9 @@ export function test_motion_stage_fight_blade_exchange_cues(): void {
   );
   const atCut: IAutoMovieScheduleCue[] =
     AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(
-    schedule,
-    "second",
-  );
+      schedule,
+      "second",
+    );
   TestValidator.predicate(
     "a stroke on the retained boundary is still cued",
     (): boolean =>
@@ -111,10 +106,7 @@ export function test_motion_stage_fight_blade_exchange_cues(): void {
   );
   TestValidator.equals(
     "the empty track represents an exchange edited before its cues",
-    AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(
-      schedule,
-      "last",
-    ),
+    AutoMovieMotionHumanStageFight.readHumanBladeExchangeCues(schedule, "last"),
     [],
   );
   TestValidator.error("an unrelated anchor is not an exchange", (): void => {

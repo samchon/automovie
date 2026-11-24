@@ -101,13 +101,10 @@ export function generateAutoMovieContourLoft64(
     IAutoMovieContourLoft64.IResult["stripObservations"]
   > = [];
   const vertexMap: Map<string, number> = new Map();
-  const owners: WeakMap<V3, Ring> = new WeakMap();
-  const keys: WeakMap<V3, string> = new WeakMap();
-  const phases: WeakMap<
-    Readonly<AutoMovieVector3Tuple>,
-    number
-  > = new WeakMap();
-  const leaves: WeakMap<V3, IAutoMovieContourLoftCurves64.Leaf> = new WeakMap();
+  const owners: Map<V3, Ring> = new Map();
+  const keys: Map<V3, string> = new Map();
+  const phases: Map<Readonly<AutoMovieVector3Tuple>, number> = new Map();
+  const leaves: Map<V3, IAutoMovieContourLoftCurves64.Leaf> = new Map();
   const register: (
     ring: Ring,
     knot: IAutoMovieContourLoftCurves64.Knot,

@@ -97,6 +97,8 @@ export namespace cutExact {
         const known: number | undefined = distances.get(i);
         if (known !== undefined) return known;
         const value: number = heights[i]! - level;
+        if (value === Infinity || value === -Infinity)
+          throw new Error("Exact section signed distances are unresolved");
         distances.set(i, value);
         return value;
       };

@@ -96,7 +96,8 @@ export function RecoveryFeatureChartCutsTopology(
       const p: Readonly<AutoMovieVector3Tuple> = vertices[row.a]!,
         q: Readonly<AutoMovieVector3Tuple> = vertices[row.b]!,
         length: number = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
-      if (!(length > 0)) fail("an edge length is collapsed or unrepresentable");
+      if (!(length > 0) || length === Infinity)
+        fail("an edge length is collapsed or unrepresentable");
       if (rows.length === 1) {
         if (next.has(row.a) || incoming.has(row.b))
           fail("boundary arcs branch at one occurrence");

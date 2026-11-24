@@ -100,7 +100,7 @@ export function RecoveryDiskChart(
       u[0]! * v[1]! - u[1]! * v[0]!,
     ];
     const length: number = Math.hypot(...n);
-    if (!(length > 0))
+    if (!(length > 0) || length === Infinity)
       fail("a private triangle is degenerate or its normal is unrepresentable");
     return [n[0] / length, n[1] / length, n[2] / length];
   };
@@ -268,6 +268,9 @@ export function RecoveryDiskChart(
         fraction * (input.verticesMm[last]![k]! - input.verticesMm[first]![k]!),
     ) as [number, number, number];
     if (
+      point.some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      ) ||
       [first, last].some((id: number): boolean =>
         point.every(
           (x: number, k: number): boolean => x === input.verticesMm[id]![k],

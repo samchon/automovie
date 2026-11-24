@@ -2,6 +2,7 @@ import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /**
  * Read the drawn triangle list of a resident geometry from its current buffers.
@@ -92,6 +93,8 @@ export namespace readAutoMovieCollisionTopology {
     matrix: THREE.Matrix4,
   ): IAutoMovieSubjectBox | null {
     const box: THREE.Box3 = local.clone().applyMatrix4(matrix);
+    if (!isAutoMovieFloat32Point(box.min) || !isAutoMovieFloat32Point(box.max))
+      return null;
     return {
       min: { x: box.min.x, y: box.min.y, z: box.min.z },
       max: { x: box.max.x, y: box.max.y, z: box.max.z },

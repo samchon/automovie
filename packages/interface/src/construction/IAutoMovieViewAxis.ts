@@ -1,5 +1,6 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieConstructionOutlineParameter } from "./IAutoMovieConstructionOutlineParameter";
+import type { IAutoMovieConstructionParallelAxis } from "./IAutoMovieConstructionParallelAxis";
 import type { IAutoMovieLoftSectionFrame } from "./IAutoMovieLoftSectionFrame";
 import type { IAutoMovieViewAxisJet } from "./IAutoMovieViewAxisJet";
 
@@ -24,6 +25,12 @@ export namespace IAutoMovieViewAxis {
       station: number,
       parameter?: IAutoMovieConstructionOutlineParameter,
     ): IAutoMovieViewAxisJet.IJet | null;
+
+    /**
+     * The original declaration of an axis prepared from one, carried by the
+     * axis itself; absent on every other axis.
+     */
+    readonly parallel?: IAutoMovieConstructionParallelAxis;
   }
 
   /** One source point of a curved axis in world mm. */

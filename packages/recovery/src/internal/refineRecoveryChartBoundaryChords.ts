@@ -73,6 +73,9 @@ export function refineRecoveryChartBoundaryChords(
           a[2] + (b[2] - a[2]) / 2,
         ];
       if (
+        point.some(
+          (value: number): boolean => value === Infinity || value === -Infinity,
+        ) ||
         point.every((value: number, k: number): boolean => value === a[k]) ||
         point.every((value: number, k: number): boolean => value === b[k])
       )

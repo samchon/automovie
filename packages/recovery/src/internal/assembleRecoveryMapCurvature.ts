@@ -86,7 +86,8 @@ export function assembleRecoveryMapCurvature(
         policy.maximumReprojectionErrorPx;
       const robust: number =
         (inverse / policy.lossScalePx / policy.lossScalePx) * inverse * inverse;
-      if (h === Infinity || disk === Infinity || robust === Infinity) return null;
+      if (h === Infinity || disk === Infinity || robust === Infinity)
+        return null;
       for (let axis: number = 0; axis < count + 3; axis++)
         for (let other: number = axis; other < count + 3; other++) {
           let value: number = 0,

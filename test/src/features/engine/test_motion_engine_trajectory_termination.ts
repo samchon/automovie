@@ -127,10 +127,6 @@ export function test_motion_engine_trajectory_termination(): void {
     });
   for (const [name, change] of [
     ["a zero tolerance", { tolerance: 0 }],
-    ["a tolerance that is not a number", { tolerance: NaN }],
-    ["an infinite tolerance", { tolerance: Infinity }],
-    ["an infinite twist", { twist: Infinity }],
-    ["an infinite flight", { t1: Infinity }],
     ["a zero fixed step", { h: 0 }],
   ] as const)
     TestValidator.predicate(

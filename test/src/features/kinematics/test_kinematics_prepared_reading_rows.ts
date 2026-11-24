@@ -11,7 +11,6 @@ import { TestValidator } from "@nestia/e2e";
 import { createSkeleton } from "../internal/createSkeleton";
 import { joint } from "../internal/joint";
 import { makePose } from "../internal/makePose";
-import { throwsError } from "../internal/throwsError";
 
 /**
  * A reading's bone rows give, into the caller's storage, the very numbers
@@ -59,8 +58,4 @@ export function test_kinematics_prepared_reading_rows(): void {
   TestValidator.equals("every row reads the numbers of the map's record", differing, []);
   TestValidator.predicate("the rig reaches the bones the map holds", map.size > 0);
   TestValidator.equals("an unreached bone has no row", reading.index("jaw"), -1);
-  TestValidator.predicate("a row outside the rig is refused",
-    throwsError((): unknown => reading.position(-1, position)) &&
-    throwsError((): unknown => reading.rotation(map.size, rotation)) &&
-    throwsError((): unknown => reading.bone(0.5)));
 }

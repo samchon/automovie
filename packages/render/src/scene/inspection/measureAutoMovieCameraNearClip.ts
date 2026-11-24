@@ -15,6 +15,7 @@ import {
 } from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
@@ -93,7 +94,12 @@ export function measureAutoMovieCameraNearClip(
     const { min, max } = props.bounds;
     world.min.set(min.x, min.y, min.z);
     world.max.set(max.x, max.y, max.z);
-    if (!world.isEmpty() && excluded(world))
+    if (
+      isAutoMovieFloat32Point(world.min) &&
+      isAutoMovieFloat32Point(world.max) &&
+      !world.isEmpty() &&
+      excluded(world)
+    )
       return { status: "clear", triangles: 0 };
   }
   if (meshes === undefined)
@@ -162,6 +168,11 @@ export function measureAutoMovieCameraNearClip(
           mesh
             .getVertexPosition(vertex, corners[k]!)
             .applyMatrix4(mesh.matrixWorld);
+          if (!isAutoMovieFloat32Point(corners[k]!))
+            return {
+              status: "unmeasured",
+              reason: "A drawn subject vertex is not finite.",
+            };
         }
         let count: number = 3;
         for (let k: number = 0; k < 3; ++k) polygon[k]!.copy(corners[k]!);

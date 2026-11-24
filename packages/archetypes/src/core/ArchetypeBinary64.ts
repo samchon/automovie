@@ -32,6 +32,8 @@ export function ArchetypeBinary64(
    * read.
    */
   return (value: number): IDyadic => {
+    if (value === Infinity || value === -Infinity)
+      throw new Error("Binary64 decomposition needs a finite value");
     view.setFloat64(0, value, false);
     const bits: bigint = view.getBigUint64(0, false);
     const exponent: number = Number((bits >> 52n) & 2047n);

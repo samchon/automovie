@@ -91,12 +91,7 @@ export function triangulateRecoveryCameraPoint(
   );
   const norm1: number = Math.hypot(...ray1);
   const norm2: number = Math.hypot(...backRay);
-  if (
-    !(norm1 > 0) ||
-    !(norm2 > 0) ||
-    norm1 === Infinity ||
-    norm2 === Infinity
-  )
+  if (!(norm1 > 0) || !(norm2 > 0) || norm1 === Infinity || norm2 === Infinity)
     return null;
   const unit1: IAutoMovieVector3 = {
     x: ray1[0] / norm1,

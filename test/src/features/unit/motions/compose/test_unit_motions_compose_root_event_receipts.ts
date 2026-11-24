@@ -18,14 +18,8 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Two event names resolve to one quarter of the take and a third to three
  *    quarters.
  * 2. Only the explicitly requested optional contact appears on the plan.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Documents how coincident clock events are exposed and when the optional contact appears.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the composed action's public event shares and optional contact instant.
- * @evidence contracts/development/testing.md#independent-expectations A second in an action lasting four seconds is share one quarter, and the separate release at three seconds is share three quarters.
- * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes coincident names, the clock's resolved seconds and an absent optional contact.
- * @evidence contracts/development/testing.md#execution-ownership One fixed posture and one clock, without any body solve.
  */
-export function test_motion_catalogue_root_public_event_receipts(): void {
+export function test_unit_motions_compose_root_event_receipts(): void {
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
     { name: "release", seconds: 3 },
     { name: "depart", seconds: 1 },

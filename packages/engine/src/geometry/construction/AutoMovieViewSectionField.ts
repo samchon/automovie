@@ -26,8 +26,6 @@ export namespace AutoMovieViewSectionField {
     shoulders: readonly IAutoMovieViewSectionField.IStationJet[],
   ): IAutoMovieViewSectionField.IPrepared | IAutoMovieConicArcField.IFailure {
     if (
-      !Array.isArray(extents) ||
-      !Array.isArray(shoulders) ||
       extents.length !== 4 ||
       shoulders.length !== 4 ||
       !extents.every(
@@ -103,8 +101,6 @@ function failure(detail: string): IAutoMovieConicArcField.IFailure {
 }
 
 /** Actual regular station jets contain three finite scalars. */
-function stationJet(
-  value: unknown,
-): value is IAutoMovieViewSectionField.IStationJet {
-  return Array.isArray(value) && value.length === 3;
+function stationJet(value: readonly number[]): boolean {
+  return value.length === 3;
 }

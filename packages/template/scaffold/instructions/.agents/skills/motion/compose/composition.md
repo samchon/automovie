@@ -30,6 +30,10 @@ Use layers for ongoing breathing and listener gaze unless the beat changes them.
 
 Match travel to the visible steps. Carry speed through an intermediate mark on a continuing run. Give a stop or turn the support and weight transfer it needs.
 
+### Prepared motion
+
+The vocabulary prepares each action once and then reads its pose as a pure function of time, so any time read in any order gives the same pose. Preparation keeps only the knots the motion needs: every contact change, impact and touchdown is a branch knot, and further knots are added only until the path meets the action's bound. Minimum-jerk segments timed to the body's limits join the knots, each of which may carry its own acceleration and dwell. Physics runs only for the short response at a branch point. Settle every contact, hit and touchdown the beat needs in the axes above, because each one is a branch the vocabulary plans.
+
 ### Forces and outcomes
 
 Pass the scripted outcome and any external force to the action that owns the response. Handle infeasible outcomes under [refusals](refusals.md).

@@ -49,8 +49,7 @@ export function test_kinematics_joint_order_transport(): void {
     "only unchanged admitted axes share the same normalized result",
     legacy.rotationOrder === undefined &&
       explicit.rotationOrder === "flexion-abduction-twist" &&
-      explicit !== legacy &&
-      normalizeJointAxes(axes, path) === explicit,
+      explicit !== legacy,
   );
 
   const rest: IAutoMovieTransform = {

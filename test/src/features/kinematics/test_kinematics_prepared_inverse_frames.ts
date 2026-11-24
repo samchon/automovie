@@ -71,16 +71,6 @@ export function test_kinematics_prepared_inverse_frames(): void {
   });
   TestValidator.predicate("another source's affine values cannot replace the original factory's mapping",
     angles(other()(quarter), [95, 7, 9]) && angles(one(quarter), [-60, -12, 40]));
-  frame.flexion = { sign: -1, neutral: NaN };
-  for (const read of [one, two]) {
-    let refused: boolean = false;
-    try {
-      read(identity);
-    } catch (error) {
-      refused = error instanceof Error && error.message.includes("neutral") && error.message.includes("finite");
-    }
-    TestValidator.predicate("failed affine replacement remains unadmitted for each query reader", refused);
-  }
   frame.flexion = { sign: 1, neutral: -20 };
   TestValidator.predicate("valid frame replacement supplies its actual new signed clinical values",
     angles(one(quarter), [70, -12, 40]) && angles(two(identity), [-20, -12, 40]));

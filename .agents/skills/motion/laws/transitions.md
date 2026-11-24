@@ -2,9 +2,19 @@
 
 ## Pose by time
 
-Prepare the path, events, active constraints and required physical response once. Carry resolved entry state through cuts and layers. Sample poses as a light `f(plan, t)` in any order: evaluate only what the caller reads at that instant, from time curves, carrier-relative transforms and any direct fit needed there. Pass an evaluated pose to its consumers; never cache or memoize samples. Move the time-independent work of a slow sample into preparation.
+Build every law, primitive and transition as a preparation that runs once from bound inputs, and a pose function `f(plan, t)`.
 
-Use closed-form paths and fits where they satisfy the constraints. Limit coupled search to the interval and degrees of freedom that need it and resolve it during preparation. Retain event states, curves or solver trajectories that preserve the checked result between events.
+### Preparation
+
+Compute only the knots and branch points the motion needs. Make every contact change, impact and touchdown a branch knot. Place the other knots adaptively until the path stays within a tolerance taken from the requirement bound at the call site (AutoKnots, Vitenti et al. 2024). Locate a one-dimensional extremum with Brent's method (Brent 1973), not on a sampling grid.
+
+Each knot carries its position and velocity, and may carry its own acceleration and dwell. Join neighboring knots with a minimum-jerk segment that matches both knots' position, velocity and acceleration (Flash and Hogan 1985). Time the segments with TOPP-RA against the velocity and acceleration limits (Pham and Pham 2018).
+
+Run physics only at a branch point, for the short response there, and resolve it during preparation. Use closed-form paths and fits where they satisfy the constraints. Limit coupled search to the interval and degrees of freedom that need it. Retain event states, curves or solver trajectories that preserve the checked result between events. Carry resolved entry state through cuts and layers.
+
+### Sampling
+
+Keep `f(plan, t)` pure, so any `t` in any order gives the same pose. Evaluate only what the caller reads at that instant, from the prepared segments, carrier-relative transforms and closed-form limb solutions. Run no search, re-solve or fit, and keep no cache or memo. Pass the evaluated pose to its consumers. When a sample seems to need a memo, move its time-independent work into preparation.
 
 ## Transitions
 

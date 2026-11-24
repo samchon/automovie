@@ -15,14 +15,8 @@ import { nclose } from "../../../internal/nclose";
  * 2. Check analytic progress velocity at an interior point and the constant
  *    exterior.
  * 3. Equal endpoints switch to the closed state at their shared instant.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies time units, endpoint convention and easing.
- * @evidence contracts/development/testing.md#behavioral-verification Queries prepared public clock intervals and differences their progress.
- * @evidence contracts/development/testing.md#independent-expectations Integrating the minimum-jerk law gives the fifth-degree curve and its derivative.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers interior, repeated, reversed-order, exterior and zero-duration queries.
- * @evidence contracts/development/testing.md#execution-ownership Uses a clock with named instants and no performers.
  */
-export function test_motion_catalogue_time_law(): void {
+export function test_unit_motions_compose_clock_time_law(): void {
   const open: number = 2;
   const close: number = 6;
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock(8, [

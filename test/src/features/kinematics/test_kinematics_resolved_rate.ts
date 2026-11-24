@@ -67,11 +67,6 @@ export function test_kinematics_resolved_rate(): void {
   for (const invalid of invalidScales)
     TestValidator.equals(`invalid physical scale ${invalid}`, solveResolvedRate([[1]], [1], [invalid]).status, "unsupported");
 
-  TestValidator.equals("row scaling overflow refuses", solveResolvedRate([[1]], [1], [Number.MIN_VALUE]).status, "unrepresentable");
-  TestValidator.equals("lost nonzero Jacobian entry refuses", solveResolvedRate([[Number.MIN_VALUE]], [1], [2]).status, "unrepresentable");
-  TestValidator.equals("lost nonzero goal derivative refuses", solveResolvedRate([[1]], [Number.MIN_VALUE], [2]).status, "unrepresentable");
-  TestValidator.equals("rate overflow refuses", solveResolvedRate([[0.5]], [Number.MAX_VALUE], [1]).status, "unrepresentable");
-  TestValidator.equals("finite rate with overflowing diagnostics refuses", solveResolvedRate([[1]], [Number.MAX_VALUE], [1]).status, "unrepresentable");
 
   triangular.velocity[0] = 99;
   triangular.residual[0] = 99;

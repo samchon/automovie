@@ -5,41 +5,35 @@ import {
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { motionComplaints } from "../../internal/motionComplaints";
-import { motionVariationSource } from "../../internal/motionVariationSource";
+import { motionComplaints } from "../../../internal/motionComplaints";
+import { motionVariationSource } from "../../../internal/motionVariationSource";
 
 /**
  * The draws and bound rules of the seeded variation
- * (`AutoMovieMotionHumanVariationDraw`) have the distributions and bounds
- * their documents state.
+ * (`AutoMovieMotionHumanVariationDraw`) have the distributions and bounds their
+ * documents state.
  *
- * A normal truncated at 2 spreads has mean 0 and variance `1 - 2 * 2
- * phi(2) / (Phi(2) - Phi(-2)) = 0.7737`, a standard deviation of 0.8796. A
- * standard normal disc cut at radius 2 puts `(1 - e^-0.5) / (1 - e^-2) =
- * 0.455` of its points within radius 1. The cell rule gives `MARGIN` (0.8)
- * of the distance to the nearer midpoint: on names 0, 1 and 3, a value of
- * 0.2 keeps 0.8 * 0.3 = 0.24, 0.6 keeps 0.8 * 0.1 = 0.08, 2.5 keeps 0.8 * 0.5
- * = 0.4 (the open side mirrors the inner one), and 0.5 or 5 keep nothing.
+ * A normal truncated at 2 spreads has mean 0 and variance `1 - 2 * 2 phi(2) /
+ * (Phi(2) - Phi(-2)) = 0.7737`, a standard deviation of 0.8796. A standard
+ * normal disc cut at radius 2 puts `(1 - e^-0.5) / (1 - e^-2) = 0.455` of its
+ * points within radius 1. The cell rule gives `MARGIN` (0.8) of the distance to
+ * the nearer midpoint: on names 0, 1 and 3, a value of 0.2 keeps 0.8 * 0.3 =
+ * 0.24, 0.6 keeps 0.8 * 0.1 = 0.08, 2.5 keeps 0.8 * 0.5 = 0.4 (the open side
+ * mirrors the inner one), and 0.5 or 5 keep nothing.
  *
  * Scenarios:
- * 1. Over 400 repeats, `normals` stays within [-2, 2] with mean 0 and
- *    standard deviation 0.8796, each within 0.05.
- * 2. Over 400 repeats, `disc` stays within radius 2 and puts 0.455 +- 0.04
- *    of its points within radius 1.
- * 3. `cell` gives the five values above, and 0 on an axis of one name.
- * 4. `basis` is a right-handed orthonormal frame along its direction,
- *    including a vertical one, and along +Z for a zero direction.
- * 5. `quantity` lies between the spread's two ends and narrows from a novice
- *    to an elite; `scalar` never exceeds its bound, and gives 0 without
- *    room.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Draws from real seeded series and reads each rule; a draw past its truncation, a biased or mis-scaled distribution, a wrong cell edge, a degenerate basis or an offset past its bound fails.
- * @evidence contracts/development/testing.md#independent-expectations The moments and the disc share are worked out from the normal distribution in the comment; the cell values are worked out by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases 400 repeats per draw, five cell values including a tie and an open side, three directions, two skills and three bounds.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation States the worked moments, share and cells and the 5 scenarios.
+ * 1. Over 400 repeats, `normals` stays within [-2, 2] with mean 0 and standard
+ *    deviation 0.8796, each within 0.05.
+ * 2. Over 400 repeats, `disc` stays within radius 2 and puts 0.455 +- 0.04 of its
+ *    points within radius 1.
+ * 3. `cell` gives the five values above, and 0 on an axis of one name.
+ * 4. `basis` is a right-handed orthonormal frame along its direction, including a
+ *    vertical one, and along +Z for a zero direction.
+ * 5. `quantity` lies between the spread's two ends and narrows from a novice to an
+ *    elite; `scalar` never exceeds its bound, and gives 0 without room.
  */
-export function test_motion_manner_variation_draw(): void {
+export function test_unit_motions_compose_variation_draw(): void {
   const sample = (seed: string, key: string): number =>
     AutoMovieMotionHumanVariationDraw.normals(
       motionVariationSource({ seed }).series(key),

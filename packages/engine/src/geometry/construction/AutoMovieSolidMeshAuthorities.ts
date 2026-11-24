@@ -62,8 +62,6 @@ export namespace AutoMovieSolidMeshAuthorities {
   ): IAutoMovieSolidMeshConstraints.ISegment[] | string {
     const declared: IAutoMovieSolidMesh.ILoop[] | undefined = input.domainLoops;
     if (declared === undefined) return [];
-    if (!Array.isArray(declared))
-      return "face domain authorities must be an array, or omitted";
     const loops: readonly IAutoMovieSolidMesh.ILoop[] = declared;
     if (loops.length === 0) return [];
     const segments: IAutoMovieSolidMeshConstraints.ISegment[] | string =

@@ -1,6 +1,7 @@
 import { Box3, BufferAttribute, Matrix4, Mesh, Plane, Vector3 } from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
@@ -120,6 +121,11 @@ export function measureAutoMovieCameraFrameEdgeSurface(
           mesh
             .getVertexPosition(vertex, corners[k]!)
             .applyMatrix4(mesh.matrixWorld);
+          if (!isAutoMovieFloat32Point(corners[k]!))
+            return {
+              status: "unmeasured",
+              reason: "A drawn subject vertex is not finite.",
+            };
         }
         const count: number = clip(corners, 3, near, polygon);
         if (count < 3) continue;

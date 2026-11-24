@@ -9,6 +9,7 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { autoMovieSemanticMaskOf } from "../semanticMask/autoMovieSemanticMaskOf.js";
 import { maskRoots } from "../semanticMask/maskRoots.js";
 import { nearest } from "../semanticMask/nearest.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { renderAutoMovieCameraOcclusionMasks } from "./renderAutoMovieCameraOcclusionMasks.js";
 
 /** One full audit of an original placed Draw frame. */
@@ -385,6 +386,7 @@ function projectRange(
         clip.set(x, y, z, 1).applyMatrix4(projection);
         if (!(clip.w > 0)) return undefined;
         point.set(clip.x / clip.w, clip.y / clip.w, clip.z / clip.w);
+        if (!isAutoMovieFloat32Point(point)) return undefined;
         min.min(point);
         max.max(point);
       }

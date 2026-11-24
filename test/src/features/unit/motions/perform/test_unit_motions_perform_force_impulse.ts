@@ -11,15 +11,10 @@ import { nclose } from "../../../internal/nclose";
  * Catching a juggling ball transfers its lost momentum to the catcher.
  *
  * Scenarios:
- * 1. Evaluate the operation at the interior and the limiting case.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Catching a juggling ball transfers its lost momentum to the catcher.
- * @evidence contracts/development/testing.md#independent-expectations Impulses on the two participants sum to zero; reversing the incoming velocity reverses the transfer.
- * @evidence contracts/development/testing.md#distinguishing-cases The boundary outcome distinguishes physical change from normalization.
- * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
+ * 1. Evaluate the operation at the interior and the limiting case.
  */
-export function test_motion_contact_contact_impulse(): void {
+export function test_unit_motions_perform_force_impulse(): void {
   const receiver: IAutoMovieMotionHumanForce.IReceiver = {
     mass: 60,
     velocity: { x: 0, y: 0, z: 0 },

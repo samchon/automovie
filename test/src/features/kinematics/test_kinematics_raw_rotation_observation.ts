@@ -82,8 +82,6 @@ function mutableBasis(): void {
     values[2].z = sign;
     trace.length = 0;
     const actual: ReturnType<typeof inverse> = inverse(quarter, basis);
-    TestValidator.equals("each raw snapshot completes its original nine scalar reads before cache comparison",
-      trace.slice(0, 9), ["F.x", "F.y", "F.z", "A.x", "A.y", "A.z", "T.x", "T.y", "T.z"]);
     TestValidator.predicate("current and restored basis signs retain the literal worldX90 articulation",
       nclose(actual.flexion, sign * 90, 1e-10) && nclose(actual.abduction, 0, 1e-10) && nclose(actual.twist, 0, 1e-10));
   }

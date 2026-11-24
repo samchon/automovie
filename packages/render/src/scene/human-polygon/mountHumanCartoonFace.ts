@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { isAutoMovieFloat32Point } from "../inspection/isAutoMovieFloat32Point.js";
 import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 
@@ -53,7 +54,10 @@ export function mountHumanCartoonFace(
         }
       }
       const mountedX: number = x + positions.getX(i) - head.max[0];
-
+      if (!isAutoMovieFloat32Point(new THREE.Vector3(mountedX, y, z)))
+        throw new Error(
+          "Cartoon attachment exceeds finite Float32 coordinates",
+        );
       positions.setXYZ(i, mountedX, y, z);
     }
     positions.needsUpdate = true;

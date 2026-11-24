@@ -28,10 +28,8 @@ export function AutoMovieLoftViewWorldJet(
   station: number,
   phase: number,
 ): IAutoMovieSolidSurface.IJet | string {
-  if (axis === null || typeof axis !== "object")
-    return "Original view world2 has no actual axis owner.";
   const readAxis: IAutoMovieAxis["jet"] = axis.jet;
-  if (typeof readAxis !== "function")
+  if (readAxis === undefined)
     return "Original view world2 requires actual axis2, not frame values alone.";
   const inputs: IAutoMovieLoftViewRead.IJets | string =
     AutoMovieLoftViewRead.jets(source, station);

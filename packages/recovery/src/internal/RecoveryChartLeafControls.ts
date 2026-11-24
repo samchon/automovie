@@ -204,6 +204,8 @@ export function RecoveryChartLeafControls(
     const combined: Map<number, number> = new Map();
     for (let k: number = 0; k < 4; k++) {
       const value: number = (combined.get(source[k]!) ?? 0) + row[k]!;
+      if (value === Infinity || value === -Infinity)
+        throw new Error("A restricted edge coefficient became nonfinite");
       if (value === 0) combined.delete(source[k]!);
       else combined.set(source[k]!, value);
     }

@@ -12,23 +12,27 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A motion case's trail, targets and drift samples become inspection marks of three kinds the `marks` key selects, in the case's own colours, with drift beyond its limit flagged.
+ * A motion case's trail, targets and drift samples become inspection marks of
+ * three kinds the `marks` key selects, in the case's own colours, with drift
+ * beyond its limit flagged.
  *
  * Scenarios:
  *
- * 1. A case with one red trail, one green target and drift samples of 2 mm and 9 mm against a 5 mm limit gives a polyline, a point and two drift marks: the 9 mm sample flagged, the 2 mm one not.
- * 2. The kinds are `case/d04040`, `case/40a040` and `case/drift`, labelled `trail d04040`, `target 40a040` and `drift`, and the inspection's colour law accepts them in one picture.
- * 3. A capture planned with `marks=case` against a subject supplying these kinds is accepted, and so is `marks=case/drift`; `marks=trail` is refused, since the case's marks are not the inspection's own trails.
- * 4. A trail and a target sharing red make one kind labelled `trail and target d04040`, so the colour law still holds.
- * 5. An empty trail and an empty drift set give no mark, and a one-point trail is drawn as a point.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the harness's mapping and feeds its marks to the inspection's colour resolver and the capture planner, the two consumers that decide whether they draw; a mapping that lost a mark, flagged within the limit, merged two colours into one kind or split one colour into two kinds fails.
- * @evidence contracts/development/testing.md#independent-expectations Geometry and colours are the case data written here; the flag follows the case's own limit, a sample beyond it being the defect `.agents/skills/motion/laws/verification.md` asks to see; the colour law is the inspection core's documented rule that one colour stands for one kind.
- * @evidence contracts/development/testing.md#distinguishing-cases Within against beyond the limit, distinct colours against a shared one, empty and one-point overlays, an accepted against a refused `marks` pattern. Drawing them in a browser is the capture host's real run.
- * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_motion_catalogue_capture_annotation`; it maps plain data and starts no browser.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * 1. A case with one red trail, one green target and drift samples of 2 mm and 9
+ *    mm against a 5 mm limit gives a polyline, a point and two drift marks: the
+ *    9 mm sample flagged, the 2 mm one not.
+ * 2. The kinds are `case/d04040`, `case/40a040` and `case/drift`, labelled `trail
+ *    d04040`, `target 40a040` and `drift`, and the inspection's colour law
+ *    accepts them in one picture.
+ * 3. A capture planned with `marks=case` against a subject supplying these kinds
+ *    is accepted, and so is `marks=case/drift`; `marks=trail` is refused, since
+ *    the case's marks are not the inspection's own trails.
+ * 4. A trail and a target sharing red make one kind labelled `trail and target
+ *    d04040`, so the colour law still holds.
+ * 5. An empty trail and an empty drift set give no mark, and a one-point trail is
+ *    drawn as a point.
  */
-export function test_motion_catalogue_capture_annotation(): void {
+export function test_unit_motions_executable_capture_annotation(): void {
   const at: (x: number, y: number, z: number) => IAutoMovieVector3 = (
     x: number,
     y: number,

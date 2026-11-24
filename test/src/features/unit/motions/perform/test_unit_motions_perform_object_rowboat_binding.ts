@@ -4,20 +4,16 @@ import { HumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A rowboat's explicitly bound hull and articulated contacts share its film clock.
+ * A rowboat's explicitly bound hull and articulated contacts share its film
+ * clock.
  *
  * Scenarios:
+ *
  * 1. Still water has holds through departure and strictly after course completion.
  * 2. A swell continues beyond course completion.
  * 3. A wrapped socket callback cannot inherit the source's stationary domain.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the owned callbacks and both actual stationary boundaries.
- * @evidence contracts/development/testing.md#behavioral-verification Passes the actual readers to the prop adapter and observes the domains available to the ride.
- * @evidence contracts/development/testing.md#independent-expectations The supplied start and public course duration determine the expected film boundaries independently of the binding.
- * @evidence contracts/development/testing.md#distinguishing-cases Tests both sides of the stopped boundaries, the exact endpoints, moving waves and one opaque wrapper.
- * @evidence contracts/development/testing.md#execution-ownership Builds two small courses and three props in memory.
  */
-export function test_motion_ride_rowboat_native_binding(): void {
+export function test_unit_motions_perform_object_rowboat_binding(): void {
   const boat: ReturnType<typeof createBoat> = createBoat(
     { kind: "rowboat" },
     2,

@@ -3,6 +3,7 @@ import { Box3, Camera, Frustum, Matrix4, Mesh, Plane, Vector3 } from "three";
 
 import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
 import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { measureAutoMovieCameraFrameEdgeSurface } from "./measureAutoMovieCameraFrameEdgeSurface.js";
 
 /** The delivery camera and a required subject's bounds and admitted meshes. */
@@ -200,7 +201,11 @@ function toBox(input: IAutoMovieSubjectBox): Box3 | undefined {
     new Vector3(input.min.x, input.min.y, input.min.z),
     new Vector3(input.max.x, input.max.y, input.max.z),
   );
-  return !box.isEmpty() ? box : undefined;
+  return !box.isEmpty() &&
+    isAutoMovieFloat32Point(box.min) &&
+    isAutoMovieFloat32Point(box.max)
+    ? box
+    : undefined;
 }
 
 /**

@@ -311,8 +311,8 @@ export namespace IAutoMovieMotionHumanPerformanceState {
 
     /**
      * A hand span's hand frame at a film second, from the course the
-     * performance prepares once every action is placed: what the prop is
-     * read on, so no read of the prop evaluates the holder's live posture.
+     * performance prepares once every action is placed: what the prop is read
+     * on, so no read of the prop evaluates the holder's live posture.
      *
      * @param seconds Film seconds within the span.
      * @returns The hand's grip socket frame.

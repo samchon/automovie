@@ -7,7 +7,7 @@ Test each isolated action's own goal with bounded assertions in unit tests or ca
 - slip of every planted or held contact;
 - range-of-motion overshoot;
 - balance for a staged physical outcome or on request, using extrapolated center of mass against the support (Hof 2005);
-- continuity of every displayed channel and of its velocity at every cut and at each end of a simulated window.
+- continuity of every displayed channel and of its velocity at every cut and at both joins of each prepared physical response.
 
 ## Checks that can fail
 
@@ -15,13 +15,13 @@ A check states the bound it tests and tests exactly that bound. A value reported
 
 Measure the displayed result, never the plan's own output. A check that compares two outputs of the same plan, or reads back the target the plan reached, cannot catch the plan being wrong.
 
-Check phase boundaries, the shortest contact and between-frame extrema. Use a supported swept query where a fast crossing can slip through discrete checks. State the resolution and any unproven interval.
+Check phase boundaries, the shortest contact and between-frame extrema, locating each extremum with Brent's method. Use a supported swept query where a fast crossing can slip through discrete checks. State the resolution and any unproven interval.
 
 Take every bound from the requirement or its study, never widening one until a case passes.
 
-Cover statures, proportions, partners and props with independent expectations and relations such as symmetry or body scaling. Check branch boundaries, cuts within declared windows and moving tracked targets. Compare sequential, repeated and out-of-order samples at the same times when evaluation changes.
+Cover statures, proportions, partners and props with independent expectations and relations such as symmetry or body scaling. Check branch boundaries, cuts within declared windows and moving tracked targets.
 
-When changing cost, compare preparation and new-time sampling separately on the same bodies, events and output times. Report the complete measured workload, including simulated duration, cases, actors and sampled poses. Keep playback, capture and encoding costs separate from planning and sampling.
+Verify evaluation by its structure rather than a timed workload: preparation runs once, `f(plan, t)` is pure, and no sample recomputes prepared work. Compare sequential, repeated and out-of-order samples at the same times.
 
 ## Frame review
 

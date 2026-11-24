@@ -298,7 +298,14 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
         for (const id of owner.controlIds) {
           const point: (typeof domain.geometry.controls)[number] | undefined =
             domain.geometry.controls[id];
-          if (point) points.push([point.x, point.y, point.z]);
+          if (
+            point &&
+            ![point.x, point.y, point.z].some(
+              (value: number): boolean =>
+                value === Infinity || value === -Infinity,
+            )
+          )
+            points.push([point.x, point.y, point.z]);
         }
         if (points.length === 4)
           result.construction.push({

@@ -32,14 +32,8 @@ import { nclose } from "../../../internal/nclose";
  *    both normal return and an inner owned exception.
  * 4. A failed outer write publishes no partial result to the next query. A reader
  *    retained by a throwing prepare also leaves no active scope.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the declared arithmetic, separate top-level preparation queries, nested prefix sharing, observational counters and evaluation lifetime boundaries.
- * @evidence contracts/development/testing.md#behavioral-verification Calls only public composition, prepare/write callbacks and posture readers; duplicate prefixes inside a query, preparation-wide sharing, cross-call retention, lost enclosing scope or swallowed/retained failure fails counts or numeric outputs.
- * @evidence contracts/development/testing.md#independent-expectations The base defines 10t, the trunk adds one, and two equal prefix reads give 20t+2. Preparation explicitly requests four independent t queries and one nearby query, including two trunk prefixes. Within a public or nested query each required prefix is computed once; counts observe this scope contract rather than heap bytes or a cache's contents.
- * @evidence contracts/development/testing.md#distinguishing-cases Independent preparation queries, nested exact prefixes, adjacent exact times, reverse primitive order, retained readers, normal and throwing nested public queries, outer-write failure and prepare failure.
- * @evidence contracts/development/testing.md#execution-ownership One synchronous mechanism unit owns deterministic public extension callbacks and counters, as compose_action does; no body producer, foreign function, global or runtime is replaced.
  */
-export function test_motion_catalogue_composition_operator(): void {
+export function test_unit_motions_compose_composition_operator(): void {
   const failures: string[] = [];
   const reads: Map<number, number> = new Map();
   const writes: Map<number, number> = new Map();

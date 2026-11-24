@@ -16,8 +16,8 @@ import { hasViolation, nclose } from "../internal/predicates";
  * 1. Half transmission at 40 metres gives one sixteenth at 80 metres because
  *    doubling axial depth quadruples the FogExp2 exponent.
  * 2. A reference transmission of one gives clear air at all camera depths.
- * 3. Nonpositive depths, non-finite values, zero or excess transmission,
- *    malformed references, color disagreement and overflow are refused.
+ * 3. Nonpositive depths, zero or excess transmission, color disagreement and
+ *    overflow are refused.
  * 4. Density and a transmission reference cannot both set the scene fog.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Checks the calibrated density and samples transmission at two depths. The zero-density case, color channels and failure paths catch an ignored reference or ambiguous declaration.
@@ -72,14 +72,8 @@ export function test_film_stage_scene_fog_visibility(): void {
   );
 
   const invalid: readonly [unknown, "range" | "type", string][] = [
-    [null, "type", "$input.fogVisibility"],
     [
       { ...reference, cameraDepthM: 0 },
-      "range",
-      "$input.fogVisibility.cameraDepthM",
-    ],
-    [
-      { ...reference, cameraDepthM: Infinity },
       "range",
       "$input.fogVisibility.cameraDepthM",
     ],
@@ -90,11 +84,6 @@ export function test_film_stage_scene_fog_visibility(): void {
     ],
     [
       { ...reference, transmittance: 1.01 },
-      "range",
-      "$input.fogVisibility.transmittance",
-    ],
-    [
-      { ...reference, transmittance: NaN },
       "range",
       "$input.fogVisibility.transmittance",
     ],

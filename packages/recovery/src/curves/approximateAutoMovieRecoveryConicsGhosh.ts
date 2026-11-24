@@ -238,9 +238,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     const v: Readonly<AutoMovieVector2Tuple> = point(a, 1, "right");
     const z: Readonly<AutoMovieVector2Tuple> = point(b, 1, "left");
     const determinant: number = C.cross(v, z);
-    if (
-      Math.abs(determinant) <= roundoff * Math.hypot(...v) * Math.hypot(...z)
-    )
+    if (Math.abs(determinant) <= roundoff * Math.hypot(...v) * Math.hypot(...z))
       return undefined;
     const factor: number = C.cross(subtract(q, p), z) / determinant;
     const corner: Readonly<AutoMovieVector2Tuple> = [

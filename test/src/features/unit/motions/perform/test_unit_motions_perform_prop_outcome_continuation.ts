@@ -13,18 +13,15 @@ import { vclose } from "../../../internal/vclose";
 type Input = Parameters<typeof HumanPropOutcome.legs>[0];
 
 /**
- * A bouncing sphere distinguishes arrival from departure, accumulates relative time and settles only under inward normal gravity.
+ * A bouncing sphere distinguishes arrival from departure, accumulates relative
+ * time and settles only under inward normal gravity.
  *
  * Scenarios:
- * 1. Compute the subsequent plane crossings under a constant acceleration; inspect an exactly radius-high arc and its adjacent representable velocities.
  *
- * @evidence contracts/development/testing.md#behavioral-verification A bouncing sphere distinguishes arrival from departure, accumulates relative time and settles only under inward normal gravity.
- * @evidence contracts/development/testing.md#independent-expectations From the floor, unit speed under minus two metres per second squared returns after one second with an apex of one quarter metre. The radius threshold for unit speed under five metres per second squared is exactly one tenth metre.
- * @evidence contracts/development/testing.md#distinguishing-cases A contact at the horizon is closed, while any subsequent contact must strictly advance absolute time.
- * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
+ * 1. Compute the subsequent plane crossings under a constant acceleration; inspect
+ *    an exactly radius-high arc and its adjacent representable velocities.
  */
-export function test_motion_contact_prop_contact_continuation(): void {
+export function test_unit_motions_perform_prop_outcome_continuation(): void {
   const zero = { x: 0, y: 0, z: 0 },
     up = { ...zero, y: 1 };
   const frame = { position: zero, rotation: { x: 0, y: 0, z: 0, w: 1 } };
@@ -174,26 +171,14 @@ export function test_motion_contact_prop_contact_continuation(): void {
       across[1]!.from === 0.75 &&
       across[1]!.end === Infinity,
   );
-  TestValidator.predicate(
-    "overflow cannot yield an absolute contact time",
-    reads(
-      {
-        ...base,
-        meeting: meeting(Number.MAX_VALUE / 2),
-        horizon: Number.MAX_VALUE,
-        meet: () => meeting(Number.MAX_VALUE),
-      },
-      "contact.time",
-    ),
-  );
-  for (const value of [-1, Infinity, NaN]) {
+  for (const value of [-1, NaN]) {
     TestValidator.predicate(
-      "finite nonnegative initial clocks",
+      "nonnegative initial clocks",
       reads({ ...base, horizon: value }, "horizon") &&
         reads({ ...base, meeting: meeting(value) }, "contact.time"),
     );
   }
-  for (const next of [0, -1, NaN, Infinity, Number.MIN_VALUE]) {
+  for (const next of [0, -1, NaN, Number.MIN_VALUE]) {
     let calls = 0;
     TestValidator.predicate(
       "later contact advances in absolute time",

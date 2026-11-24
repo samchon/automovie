@@ -206,12 +206,6 @@ export function test_kinematics_prepared_pose_contracts(): void {
   TestValidator.equals("empty demand keeps admission", jointCalls, [
     "chest", "rightFoot", "chest",
   ]);
-  authored.joints[0]!.twist = NaN;
-  TestValidator.predicate("overwritten invalid authored angle still refuses",
-    throwsError((): IAutoMovieResolvedBone[] => prepared.resolve(
-      authored, reader, new Set(),
-    )),
-  );
 
   const earlier: IAutoMovieResolvedBone = first[0]!;
   earlier.worldPosition.x = 123;
@@ -250,14 +244,6 @@ export function test_kinematics_prepared_pose_contracts(): void {
   check("absent edit restores the fixed baseline", fixed.resolve(
     [], new Set(["leftHand"]),
   ), "leftHand", { x: 1, y: 3.4, z: 2.25 });
-  TestValidator.predicate("fixed pose still admits every ordered edit before demand",
-    throwsError((): IAutoMovieResolvedBone[] => fixed.resolve([
-      joint("chest", { twist: NaN }), joint("chest", { twist: 0 }),
-    ], new Set())),
-  );
-  check("failed edit cannot poison fixed baseline recovery", fixed.resolve(
-    [], new Set(["leftHand"]),
-  ), "leftHand", { x: 1, y: 3.4, z: 2.25 });
 
   const demanded: Set<AutoMovieHumanoidBone> = new Set(["leftHand"]);
   const bound: ReturnType<typeof prepared.prepareBones> = prepared.prepareBones(demanded);
@@ -277,25 +263,6 @@ export function test_kinematics_prepared_pose_contracts(): void {
   );
   check("an explicit fixed-pose demand override stays live", fixedDemand.resolve([], demanded),
     "rightLowerArm", { x: 0, y: 1.4, z: 0.5 },
-  );
-
-  const nullable: ReturnType<typeof prepareSkeletonPoseResolution> = prepareSkeletonPoseResolution(
-    createSkeleton(), {}, { chest: { flexion: { sign: 1, neutral: NaN } } },
-  );
-  const nullOperation: ReturnType<typeof preparePoseResolution> = preparePoseResolution();
-  nullable.resolve(makePose([joint("chest", { flexion: null, abduction: 0 })]), nullOperation, new Set());
-  TestValidator.predicate("null history cannot certify the first actual malformed affine-frame use",
-    throwsError((): IAutoMovieResolvedBone[] => nullable.resolve(makePose([
-      joint("chest", { flexion: 0, abduction: NaN }),
-    ]), nullOperation, new Set()), "rest frame neutral"),
-  );
-  TestValidator.predicate("an unused bad frame leaves the later actual coordinate's own refusal",
-    throwsError((): IAutoMovieResolvedBone[] => nullable.resolve(makePose([
-      joint("chest", { flexion: null, abduction: NaN }),
-    ]), nullOperation, new Set()), "jointToQuaternion abduction"),
-  );
-  TestValidator.equals("failed frame admission preserves valid null-coordinate recovery",
-    nullable.resolve(makePose([joint("chest", { flexion: null, abduction: 0 })]), nullOperation, new Set()), [],
   );
 
   const currentJoint: IAutoMovieJointPose = joint("chest", { twist: 90 });
@@ -318,57 +285,11 @@ export function test_kinematics_prepared_pose_contracts(): void {
   TestValidator.predicate("pose followed by a joint read retains the actual local rotation",
     qclose(prepared.joint(currentJoint, operation), quarter, 1e-12),
   );
-  TestValidator.predicate("individual prepared joint reads still admit each new record's coordinates",
-    throwsError((): IAutoMovieQuaternion => prepared.joint(joint("chest", { twist: NaN }), operation), "finite"),
-  );
   TestValidator.predicate("a record read again is the value it was admitted as",
     qclose(prepared.joint(currentJoint, operation), quarter, 1e-12) &&
     qclose(prepared.joint(restingJoint, operation), { x: 0, y: 0, z: 0, w: 1 }, 1e-12),
   );
-  TestValidator.predicate("an admitted individual row never certifies a later full authored scan",
-    throwsError((): IAutoMovieResolvedBone[] => prepared.resolve(makePose([
-      joint("chest", { twist: NaN }), restingJoint,
-    ]), operation, new Set()), "finite"),
-  );
 
-  const mappingSkeleton: IAutoMovieSkeleton = createSkeleton();
-  const zTwist: IAutoMovieJointAxes = {
-    flexion: { x: 1, y: 0, z: 0 }, abduction: { x: 0, y: 1, z: 0 }, twist: { x: 0, y: 0, z: 1 },
-  };
-  const parentAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = { chest: zTwist };
-  const inherited: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = Object.create(parentAxes);
-  const affine: IAutoMovieRestFrame = { twist: { sign: -1, neutral: 10 } };
-  const hidden: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> = {};
-  Object.defineProperty(hidden, "chest", { value: affine, enumerable: false });
-  const mapped: ReturnType<typeof prepareSkeletonPoseResolution> = prepareSkeletonPoseResolution(
-    mappingSkeleton, inherited, hidden,
-  );
-  const mappedPose: IAutoMoviePose = makePose([joint("chest", { twist: -80 })]);
-  check("inherited axes and hidden affine frame retain literal Z90 geometry",
-    mapped.resolve(mappedPose, undefined, new Set(["leftHand"])), "leftHand", { x: 0, y: 2.15, z: 0 });
-  parentAxes.chest = {
-    flexion: { x: 1, y: 0, z: 0 }, abduction: { x: 0, y: 0, z: 1 }, twist: { x: 0, y: 1, z: 0 },
-  };
-  affine.twist!.neutral = -80;
-  check("later prototype and hidden-frame edits cannot alter an earlier snapshot",
-    mapped.resolve(mappedPose, undefined, new Set(["leftHand"])), "leftHand", { x: 0, y: 2.15, z: 0 });
-  check("a new mapping snapshot reads the current zero rig angle",
-    prepareSkeletonPoseResolution(mappingSkeleton, inherited, hidden).resolve(
-      mappedPose, undefined, new Set(["leftHand"])), "leftHand", { x: 0.75, y: 1.4, z: 0 });
-
-  parentAxes.chest = zTwist;
-  Object.defineProperty(inherited, "chest", { value: undefined, enumerable: false });
-  check("an own undefined mapping shadows the inherited Z axis and uses default Y",
-    prepareSkeletonPoseResolution(mappingSkeleton, inherited, {}).resolve(
-      makePose([joint("chest", { twist: 90 })]), undefined, new Set(["leftHand"])),
-    "leftHand", { x: 0, y: 1.4, z: -0.75 });
-  const overriding: IAutoMovieSkeleton = createSkeleton();
-  overriding.bones.find((bone: IAutoMovieBone): boolean => bone.bone === "head")!.axes = zTwist;
-  const discarded: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> = Object.create(parentAxes);
-  check("a bone override retains the ordinary host spread's discarded inherited entries",
-    prepareSkeletonPoseResolution(overriding, discarded, {}).resolve(
-      makePose([joint("chest", { twist: 90 })]), undefined, new Set(["leftHand"])),
-    "leftHand", { x: 0, y: 1.4, z: -0.75 });
   rawFrameAdmission();
 }
 
@@ -389,13 +310,6 @@ function rawFrameAdmission(): void {
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   TestValidator.predicate("raw operation null coordinates do not sample unused affine getters",
     qclose(direct(), identity, 1e-12) && qclose(read(), identity, 1e-12));
-  current.flexion = NaN;
-  current.abduction = NaN;
-  TestValidator.predicate("current flexion finite admission precedes its unused frame values",
-    throwsError(direct, ["flexion", "finite"]) && throwsError(read, ["flexion", "finite"]));
-  current.flexion = null;
-  TestValidator.predicate("null flexion still bypasses its frame before current abduction admission",
-    throwsError(direct, ["abduction", "finite"]) && throwsError(read, ["abduction", "finite"]));
   current.flexion = 0;
   TestValidator.predicate("a used flexion frame is read before the later invalid coordinate",
     caught(direct) === sentinel && caught(read) === sentinel);

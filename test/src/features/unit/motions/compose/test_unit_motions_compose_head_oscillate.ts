@@ -9,7 +9,7 @@ import {
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../../internal/nclose";
+import { nclose } from "../../../internal/nclose";
 
 /**
  * Observe one complete oscillation with half-height quarter-cycle ramps from an
@@ -19,14 +19,8 @@ import { nclose } from "../../internal/nclose";
  *
  * 1. Sample signed excursion and the neutral endpoints on the authored clock.
  * 2. Check the other two axes and the supporting root at each sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Specifies the angular excursion in degrees relative to the held neck and head.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the cervical rotations and supporting root produced by the public primitive.
- * @evidence contracts/development/testing.md#independent-expectations The tabulated excursions are the supplied amplitude at the indicated extrema or its midpoint fraction on a symmetric ramp.
- * @evidence contracts/development/testing.md#distinguishing-cases Unequal held angles expose replacing the entry or applying rotation on another axis.
- * @evidence contracts/development/testing.md#execution-ownership Evaluates one primitive in memory at the named fractions of a second.
  */
-export function test_motion_gaze_primitive_head_oscillate(): void {
+export function test_unit_motions_compose_head_oscillate(): void {
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
     { name: "apex", seconds: 0.25 },
     { name: "release", seconds: 0.75 },

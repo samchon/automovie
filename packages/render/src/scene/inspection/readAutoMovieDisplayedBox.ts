@@ -8,6 +8,7 @@ import * as THREE from "three";
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { createDualQuaternionSkinningShaderPatch } from "../dualQuaternionSkinning/createDualQuaternionSkinningShaderPatch.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /** Program identity from the owned dual-quaternion shader builder. */
 const DUAL_QUATERNION_KEY: string =
@@ -53,7 +54,12 @@ function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   )
     return null;
   const box: THREE.Box3 = new THREE.Box3().setFromBufferAttribute(points);
-  if (AXES.some((axis) => box.min[axis] >= box.max[axis])) return null;
+  if (
+    !isAutoMovieFloat32Point(box.min) ||
+    !isAutoMovieFloat32Point(box.max) ||
+    AXES.some((axis) => box.min[axis] >= box.max[axis])
+  )
+    return null;
   const codes: number[] = [];
   for (let i: number = 0; i < points.count; ++i) {
     const point: number[] = [points.getX(i), points.getY(i), points.getZ(i)];
@@ -105,6 +111,7 @@ function placeBox(
   const center: THREE.Vector3 = box
     .getCenter(new THREE.Vector3())
     .applyMatrix4(matrix);
+  if (!isAutoMovieFloat32Point(center)) return null;
   const shapeBase = { id, material: "displayed", transform: IDENTITY };
   let shape: IAutoMoviePhysicalShape;
   if ([e[1], e[2], e[4], e[6], e[8], e[9]].every((x) => x === 0)) {
@@ -114,7 +121,11 @@ function placeBox(
     halfExtents.multiply(
       new THREE.Vector3(Math.abs(e[0]!), Math.abs(e[5]!), Math.abs(e[10]!)),
     );
-    if (AXES.some((key) => Math.fround(halfExtents[key]) <= 0)) return null;
+    if (
+      !isAutoMovieFloat32Point(halfExtents) ||
+      AXES.some((key) => Math.fround(halfExtents[key]) <= 0)
+    )
+      return null;
     shape = { ...shapeBase, kind: "box", halfExtents };
   } else {
     const points: THREE.Vector3[] = [];
@@ -124,6 +135,7 @@ function placeBox(
           points.push(
             new THREE.Vector3(x, y, z).applyMatrix4(matrix).sub(center),
           );
+    if (!points.every(isAutoMovieFloat32Point)) return null;
     shape = { ...shapeBase, kind: "hull", points };
   }
   return {

@@ -11,8 +11,8 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanPropFlight } from "./HumanPropFlight";
-import { prepareHumanGripHand } from "./prepareHumanGripHand";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
+import { prepareHumanGripHand } from "./prepareHumanGripHand";
 import { prepareHumanPerformanceOrder } from "./prepareHumanPerformanceOrder";
 import { prepareHumanSegment } from "./prepareHumanSegment";
 
@@ -33,20 +33,23 @@ import { prepareHumanSegment } from "./prepareHumanSegment";
  * 4. Each action's display record (`prepareHumanSegment`) and the carries of the
  *    holds it ends, in the depth-first order of the people's reads
  *    (`prepareHumanPerformanceOrder`);
- * 5. Each hand span's hand course (`prepareHumanGripHand`), which a held prop
- *    is read on from then on;
+ * 5. Each hand span's hand course (`prepareHumanGripHand`), which a held prop is
+ *    read on from then on;
  * 6. The hit record (`HumanPerformanceHits.solve`) and each soft prop's lattice
  *    (`HumanPerformanceSoft.prepare`).
  *
  * No display read recurses through a held prop by dependency, not by a guard:
  * once prepared, a held prop's frame reads its span's hand course (step 5),
  * which evaluates no posture. The hand course itself is solved on the holder's
- * prepared display, which reads the held prop only where a law's display reads
- * the prop its own hand holds at that second; no law's does: every law that
- * reads a held prop (`AutoMovieMotionHumanHeld.of`, `context.prop(...).frame`)
- * reads it while it plans, on the performance as placed before it, and its
- * display posture writes the hand from that plan (the audit greps
- * `prop\(`...`\)\.frame\(` inside each plan's `posture` and `write`).
+ * prepared display, which would recurse only if a law's display (its plan's
+ * `posture` or a primitive's `write`) read the prop its own hand holds. None
+ * does: scanning every plan `posture` and `write` in the laws for a prop's
+ * frame read (`.prop(...).frame(`, a reader's `.frame(` at the second) finds
+ * ten, in sitCarried, HumanFloatBeside, HumanHoldHandles, HumanLanceCouch,
+ * HumanLeadHorse, HumanLunge (two), HumanMounted, HumanSabre and
+ * HumanTendHorse, and each reads the support the performer rides or sits on
+ * (`params.on`, the carrier), which no hand of theirs holds; a law reads a held
+ * prop (`AutoMovieMotionHumanHeld.of`) only while it plans.
  *
  * @param self The resolved performance, every action placed.
  */

@@ -154,8 +154,7 @@ export function RecoveryChartPhysicalJet(
       (d: (typeof directions)[number]): boolean =>
         (d.du === 0 && d.dv === 0) ||
         [d.du, d.dv, ...d.targetMm].some(
-          (value: number): boolean =>
-            value === Infinity || value === -Infinity,
+          (value: number): boolean => value === Infinity || value === -Infinity,
         ),
     )
   )

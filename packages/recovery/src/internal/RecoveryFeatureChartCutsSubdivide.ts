@@ -106,6 +106,9 @@ export function RecoveryFeatureChartCutsSubdivide(
           ),
       ) as [number, number, number];
     if (
+      point.some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      ) ||
       [a, b].some((id: number): boolean =>
         point.every((x: number, k: number): boolean => x === vertices[id]![k]),
       )

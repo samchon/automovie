@@ -10,15 +10,11 @@ import { TestValidator } from "@nestia/e2e";
  * A spherical prop's contact material determines its ground continuation.
  *
  * Scenarios:
- * 1. Read ground outcomes for absent material, static and kinetic friction, restitution bounds and explicit rolling resistance.
  *
- * @evidence contracts/development/testing.md#behavioral-verification A spherical prop's contact material determines its ground continuation.
- * @evidence contracts/development/testing.md#independent-expectations An elastic bounce preserves the prescribed restitution; a material with zero restitution dissipates its normal speed.
- * @evidence contracts/development/testing.md#distinguishing-cases Unavailable collision geometry has no material continuation, while a supplied but invalid restitution is refused.
- * @evidence contracts/development/testing.md#execution-ownership Reads the public operation directly in memory.
- * @evidence contracts/development/common.md#meaningful-documentation States the quantities observed and their relation.
+ * 1. Read ground outcomes for absent material, static and kinetic friction,
+ *    restitution bounds and explicit rolling resistance.
  */
-export function test_motion_contact_prop_contact_material(): void {
+export function test_unit_motions_perform_prop_outcome_material(): void {
   const frame = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },

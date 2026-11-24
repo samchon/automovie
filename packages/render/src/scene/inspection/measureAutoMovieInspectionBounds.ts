@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /**
  * Measure the world-space box of what a scene draws now, so a view can be
@@ -30,7 +31,7 @@ export function measureAutoMovieInspectionBounds(
     matrix: THREE.Matrix4,
   ): void => {
     point.applyMatrix4(matrix);
-    box.expandByPoint(point);
+    if (isAutoMovieFloat32Point(point)) box.expandByPoint(point);
   };
 
   root.traverseVisible((object: THREE.Object3D): void => {
@@ -66,7 +67,7 @@ export function measureAutoMovieInspectionBounds(
       const local: THREE.Box3 = new THREE.Box3();
       for (let i: number = 0; i < count; i++) {
         object.getVertexPosition(i, point);
-        local.expandByPoint(point);
+        if (isAutoMovieFloat32Point(point)) local.expandByPoint(point);
       }
       if (local.isEmpty()) return;
       const placement: THREE.Matrix4 = new THREE.Matrix4();

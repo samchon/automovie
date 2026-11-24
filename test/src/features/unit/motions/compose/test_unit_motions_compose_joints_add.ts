@@ -11,16 +11,11 @@ import { throwsError } from "../../../internal/throwsError";
  * A joint writer adds clinical angles on its reserved bones.
  *
  * Scenarios:
+ *
  * 1. Write a different delta on each axis and start an absent neck at zero.
  * 2. An unreserved spine write fails. The held posture remains available.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the coordinate system and channel ownership.
- * @evidence contracts/development/testing.md#behavioral-verification Observes public writes and out-of-channel refusal.
- * @evidence contracts/development/testing.md#independent-expectations The expected head tuple is the componentwise sum of the input triples.
- * @evidence contracts/development/testing.md#distinguishing-cases Held, absent, untouched and forbidden bones exercise distinct cases.
- * @evidence contracts/development/testing.md#execution-ownership Runs one primitive against a literal posture with no scene.
  */
-export function test_motion_posture_primitive_joints_add(): void {
+export function test_unit_motions_compose_joints_add(): void {
   const pose: IAutoMovieMotionHumanPosture = {
     root: { x: 0, y: 0, z: 0 },
     yaw: 0,

@@ -6,7 +6,7 @@ Author the performance with the installed vocabulary's [supports, contacts and f
 
 ### When to simulate
 
-Use an analytic result when available, such as free flight with specified initial conditions. Simulate only the bodies, degrees of freedom and interval whose physical response the beat requires and the composed performance cannot supply.
+Use an analytic result when available, such as free flight with specified initial conditions. Simulate only at a branch point, such as a contact change, impact or touchdown, and only the bodies, degrees of freedom and short response the beat requires and the composed performance cannot supply.
 
 In the scene's composition comment, name the required response, why it needs simulation, and the bodies and interval it affects. State any departure from the solved result.
 
@@ -22,7 +22,7 @@ Check the window's promised contacts, misses, falls and timing on the contacts t
 
 ### Preparing simulation
 
-Run the interval before frame sampling. Choose integration steps for stability and accuracy independently of display refresh. Keep the events and trajectory needed to reproduce the checked response. Prefix reuse requires matching inputs and a live solver checkpoint with its controller state. Precompute an adopted response with the README physics command and sample its archive as the README describes.
+Run the interval before frame sampling. Choose integration steps for stability and accuracy independently of display refresh. Keep the events and trajectory needed to reproduce the checked response. Precompute an adopted response with the README physics command and sample its archive as the README describes.
 
 Keep dimensions, mass or material assumptions, initial state, time sampling, transforms and constraints explicit where the chosen API needs them. Keep simple collision or control representations separate from display tessellation.
 

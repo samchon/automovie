@@ -143,10 +143,30 @@ function positive(key: string, text: string | null | undefined): number | null {
   return value;
 }
 
-/** The number a text spells, NaN for blank or malformed text. */
+/**
+ * A numeric literal as `Number` reads one: decimal with an optional exponent,
+ * or a binary, octal or hexadecimal integer.
+ */
+const NUMERIC: RegExp =
+  /^\s*(?:[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*$/iu;
+
+/**
+ * The finite number a text spells, NaN for blank, malformed or overflowing
+ * text.
+ */
 function finite(text: string): number {
-  const value: number = text.trim() === "" ? Number.NaN : Number(text);
-  return value;
+  if (!NUMERIC.test(text)) return Number.NaN;
+  const value: number = Number(text);
+  return value === Infinity || value === -Infinity ? Number.NaN : value;
+}
+
+/** Whether a text spells a finite number. */
+function numeric(text: string): boolean {
+  return (
+    NUMERIC.test(text) &&
+    Number(text) !== Infinity &&
+    Number(text) !== -Infinity
+  );
 }
 
 /** The cut a text spells, in either of its two forms. */
@@ -167,6 +187,7 @@ function section(
     halves[0]!.trim(),
   );
   if (axis !== null) {
+    if (!numeric(halves[1]!)) return refuse();
     const offset: number = finite(halves[1]!);
     const sign: number = axis[1] === "-" ? -1 : 1;
     return {
@@ -188,6 +209,7 @@ function section(
     half.split(",").map(finite),
   );
   if (
+    halves.some((half: string): boolean => !half.split(",").every(numeric)) ||
     point!.length !== 3 ||
     normal!.length !== 3 ||
     normal!.every((component: number): boolean => component === 0)

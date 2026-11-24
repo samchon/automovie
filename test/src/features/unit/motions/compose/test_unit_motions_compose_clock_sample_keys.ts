@@ -18,16 +18,11 @@ import { nclose } from "../../../internal/nclose";
  * Sampling selects the enclosing pair of authored keys in clip seconds.
  *
  * Scenarios:
+ *
  * 1. A triangular elbow ramp rises for one second and falls for three.
  * 2. The same clock after the clip ends holds or wraps with its loop flag.
- *
- * @evidence contracts/development/testing.md#behavioral-verification Reads the elbow angle from the sampled pose.
- * @evidence contracts/development/testing.md#independent-expectations The first segment rises at 60 degrees per second and the second falls at 20.
- * @evidence contracts/development/testing.md#distinguishing-cases At five seconds the held elbow rests while the looping elbow reaches its peak.
- * @evidence contracts/development/testing.md#execution-ownership Calls the public sampler with an in-memory clip.
- * @evidence contracts/development/common.md#meaningful-documentation Gives the shape and the clock boundary.
  */
-export function test_motion_dynamics_sample_keys(): void {
+export function test_unit_motions_compose_clock_sample_keys(): void {
   const clip: IAutoMovieMotion = makeMotion(
     [
       keyframe(0, makePose([joint("leftLowerArm", { flexion: 0 })])),
@@ -61,7 +56,7 @@ export function test_motion_dynamics_sample_keys(): void {
   );
   nativeReplacements();
 }
-/** A prepared interval forwards later replacements on its own native clock. */
+/** A prepared interval resolves its instants once, when it is prepared. */
 function nativeReplacements(): void {
   const clock: IAutoMovieMotionClock = C(8, [
     { name: "open", seconds: 2 },
@@ -92,45 +87,4 @@ function nativeReplacements(): void {
       nclose(envelope(3), 0.5, 0),
   );
 
-  clock.linear = function (
-    this: IAutoMovieMotionClock,
-    from: string,
-    to: string,
-    seconds: number,
-  ): number {
-    TestValidator.predicate(
-      "replacement linear receives its factory clock and window",
-      this === clock && from === "open" && to === "close" && seconds === 3,
-    );
-    return 0.75;
-  };
-  clock.envelope = function (
-    this: IAutoMovieMotionClock,
-    up: readonly [string, string],
-    down: readonly [string, string],
-    seconds: number,
-  ): number {
-    TestValidator.predicate(
-      "replacement envelope receives its factory clock and windows",
-      this === clock &&
-        up[0] === "open" &&
-        up[1] === "peak" &&
-        down[0] === "peak" &&
-        down[1] === "close" &&
-        seconds === 3,
-    );
-    return 0.25;
-  };
-  TestValidator.predicate(
-    "each sample follows its own callback after native intervals are resolved",
-    nclose(interval.linear(3), 0.75, 0) &&
-      nclose(interval.progress(3), 53 / 512, 0) &&
-      nclose(envelope(3), 0.25, 0),
-  );
-  clock.progress = (): number => 0.5;
-  clock.linear = originalLinear;
-  TestValidator.predicate(
-    "restored linear and replaced progress each follow the current callback",
-    nclose(interval.linear(3), 0.25, 0) && nclose(interval.progress(3), 0.5, 0),
-  );
 }

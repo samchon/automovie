@@ -32,19 +32,9 @@ export namespace AutoMovieViewSectionReading {
       return "The section field has no explicit source and numeric preparation.";
     const source: IAutoMovieViewConic.ICurve<Source> = prepared.source;
     const geometry: IAutoMovieViewConic.ICurve = prepared.geometry;
-    if (
-      (source.failure !== null && typeof source.failure !== "string") ||
-      (geometry.failure !== null && typeof geometry.failure !== "string")
-    )
-      return "The section field has a malformed admission-state discriminator.";
     if (source.failure !== null || geometry.failure !== null)
       return source.failure ?? geometry.failure;
-    if (
-      !Array.isArray(source.quarters) ||
-      !Array.isArray(geometry.quarters) ||
-      source.quarters.length !== 4 ||
-      geometry.quarters.length !== 4
-    )
+    if (source.quarters.length !== 4 || geometry.quarters.length !== 4)
       return "The section field requires four explicit source and numeric quarters.";
     for (let q: number = 0; q < 4; q++) {
       const a: IAutoMovieViewConic.IQuarter<Source> | undefined =
@@ -55,8 +45,6 @@ export namespace AutoMovieViewSectionReading {
         b === undefined ||
         a === null ||
         b === null ||
-        !Array.isArray(a.extents) ||
-        !Array.isArray(b.extents) ||
         a.extents.length !== 2 ||
         b.extents.length !== 2 ||
         !same(a.extents[0], b.extents[0]) ||
@@ -68,12 +56,8 @@ export namespace AutoMovieViewSectionReading {
           b.shoulder > 0 &&
           b.shoulder < 1
         ) ||
-        !Array.isArray(a.guides) ||
-        !Array.isArray(b.guides) ||
         a.guides.length !== 2 ||
         b.guides.length !== 2 ||
-        !Array.isArray(a.curvatures) ||
-        !Array.isArray(b.curvatures) ||
         a.curvatures.length !== 2 ||
         b.curvatures.length !== 2 ||
         !same(a.guides[0], b.guides[0]) ||
@@ -103,16 +87,9 @@ export namespace AutoMovieViewSectionReading {
       ray.quarter < 0 ||
       ray.quarter >= 4 ||
       (ray.kind !== "conic" && ray.kind !== "start" && ray.kind !== "end") ||
-      !Array.isArray(ray.point) ||
       ray.point.length !== 2 ||
-      !Array.isArray(ray.tangent) ||
       ray.tangent.length !== 2 ||
-      !Array.isArray(ray.radial) ||
       ray.radial.length !== 3 ||
-      typeof ray.reverse !== "boolean" ||
-      (ray.position !== "first" &&
-        ray.position !== "interior" &&
-        ray.position !== "last") ||
       (ray.kind === "conic" && ray.native === null) ||
       (ray.kind !== "conic" &&
         ray.position === "interior" &&
@@ -173,12 +150,8 @@ function patchMatches(
     !same(a.height, b.height) ||
     !same(a.native, b.native) ||
     !same(a.curvature, b.curvature) ||
-    !Array.isArray(a.points) ||
-    !Array.isArray(b.points) ||
     a.points.length !== 4 ||
     b.points.length !== 4 ||
-    !Array.isArray(a.weights) ||
-    !Array.isArray(b.weights) ||
     a.weights.length !== 4 ||
     b.weights.length !== 4
   )
@@ -187,8 +160,8 @@ function patchMatches(
     const point: readonly [Source, Source] | undefined = a.points[i];
     const numeric: readonly [number, number] | undefined = b.points[i];
     if (
-      !Array.isArray(point) ||
-      !Array.isArray(numeric) ||
+      point === undefined ||
+      numeric === undefined ||
       point.length !== 2 ||
       numeric.length !== 2 ||
       !same(point[0], numeric[0]) ||

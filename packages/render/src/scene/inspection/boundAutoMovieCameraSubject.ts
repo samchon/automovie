@@ -1,6 +1,7 @@
 import { Box3, Mesh } from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /**
  * Enclose the current world geometry of a required subject's admitted meshes.
@@ -38,5 +39,9 @@ export function boundAutoMovieCameraSubject(
 
 /** Rejects empty, inverted and non-finite bounds, while allowing flat bounds. */
 function isFiniteBox(box: Box3): boolean {
-  return !box.isEmpty();
+  return (
+    !box.isEmpty() &&
+    isAutoMovieFloat32Point(box.min) &&
+    isAutoMovieFloat32Point(box.max)
+  );
 }

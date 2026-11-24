@@ -94,4 +94,4 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
 
 const finiteOrNull: (value: number) => number | null = (
   value: number,
-): number | null => value;
+): number | null => (value !== Infinity && value !== -Infinity ? value : null);
