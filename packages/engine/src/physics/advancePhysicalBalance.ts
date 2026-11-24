@@ -12,6 +12,7 @@ import type {
   IAutoMoviePhysicalSupportPatch,
   IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalRecoveryGoal,
+  IAutoMovieStepPlanner,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -25,6 +26,7 @@ import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
 import { physicalCaptureBand } from "./physicalCaptureBand";
+import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalStanceSeat } from "./physicalStanceSeat";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
@@ -116,11 +118,19 @@ export function advancePhysicalBalance(input: {
       ),
     );
   }
-  if (state.swing && input.unavailable?.includes(state.swing.bone)) {
+  if (
+    physicalRecoverySwing(state).some(
+      (step: IAutoMovieStepPlanner.IStep): boolean =>
+        input.unavailable?.includes(step.bone) ?? false,
+    )
+  ) {
     // Authored motion now owns this endpoint. A recovery request cannot keep
-    // replacing an authored limb action or scheduled swing, nor count its cancellation as a fall.
-    resolveSwing("cancelled");
+    // replacing an authored limb action or scheduled swing, nor count its
+    // cancellation as a fall; a diagonal pair is withdrawn whole.
+    for (const step of physicalRecoverySwing(state))
+      resolveStep(step.bone, "cancelled");
     delete state.cleared;
+    delete state.pair;
     state.swing = undefined;
     state.outsideSince = undefined;
     state.failedLanding = undefined;
@@ -145,53 +155,62 @@ export function advancePhysicalBalance(input: {
   // left within the contact skin: until then its load is the floor it never
   // left, and a null step would land where it stood (design-4017-verdicts,
   // C17).
-  if (
-    state.swing &&
-    !state.seating?.[state.swing.bone] &&
-    !physicalSupportFootprint.grounded(
-      input.profile,
-      input.segments,
-      input.policy.pattern.limbs.find(
-        (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
-          limb.bone === state.swing!.bone,
-      )!,
-      input.floor,
+  // Each foot of a diagonal pair lands by its own contact, its own clearance
+  // and touchdown kept on the pair's record as the swing's are on the state;
+  // the partner is taken first, so the swing's landing can leave it the
+  // swing (Chen et al. 2022, Section 2.1, Example 1).
+  for (const { step: swing, flags } of [
+    ...(state.swing && state.pair
+      ? [{ step: state.pair.step, flags: state.pair }]
+      : []),
+    ...(state.swing ? [{ step: state.swing, flags: state }] : []),
+  ] as {
+    step: IAutoMovieStepPlanner.IStep;
+    flags: { cleared?: boolean; touchdown?: number };
+  }[]) {
+    if (
+      !state.seating?.[swing.bone] &&
+      !physicalSupportFootprint.grounded(
+        input.profile,
+        input.segments,
+        input.policy.pattern.limbs.find(
+          (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
+            limb.bone === swing.bone,
+        )!,
+        input.floor,
+      )
     )
-  )
-    state.cleared = true;
-  let early: boolean = false;
-  if (
-    state.swing &&
-    !state.seating?.[state.swing.bone] &&
-    input.seconds - state.swing.start <
-      MINIMUM_PHASE * (state.swing.end - state.swing.start)
-  ) {
-    const touch: { since?: number; landed: boolean } =
-      physicalStanceBalance.touchdown({
-        load: measuredLoad(state.swing.bone),
-        weight: input.profile.mass * input.gravity,
-        cleared: state.cleared === true,
-        // Coming down: the foot's endpoint not rising (Stephens 2011,
-        // Figure 4.6: a scuff while it rises is not a touchdown).
-        descending:
-          input.segments
-            .get(state.swing.bone)!
-            .velocityAtPoint(actual(state.swing.bone)).y <= 0,
-        since: state.touchdown,
-        seconds: input.seconds,
-        dt: input.dt,
-      });
-    if (touch.since === undefined) delete state.touchdown;
-    else state.touchdown = touch.since;
-    early = touch.landed;
-  } else delete state.touchdown;
-  if (
-    state.swing &&
-    (early ||
-      input.seconds - state.swing.start >=
-        MINIMUM_PHASE * (state.swing.end - state.swing.start))
-  ) {
-    const bone: string = state.swing.bone;
+      flags.cleared = true;
+    let early: boolean = false;
+    if (
+      !state.seating?.[swing.bone] &&
+      input.seconds - swing.start < MINIMUM_PHASE * (swing.end - swing.start)
+    ) {
+      const touch: { since?: number; landed: boolean } =
+        physicalStanceBalance.touchdown({
+          load: measuredLoad(swing.bone),
+          weight: input.profile.mass * input.gravity,
+          cleared: flags.cleared === true,
+          // Coming down: the foot's endpoint not rising (Stephens 2011,
+          // Figure 4.6: a scuff while it rises is not a touchdown).
+          descending:
+            input.segments
+              .get(swing.bone)!
+              .velocityAtPoint(actual(swing.bone)).y <= 0,
+          since: flags.touchdown,
+          seconds: input.seconds,
+          dt: input.dt,
+        });
+      if (touch.since === undefined) delete flags.touchdown;
+      else flags.touchdown = touch.since;
+      early = touch.landed;
+    } else delete flags.touchdown;
+    if (
+      !early &&
+      input.seconds - swing.start < MINIMUM_PHASE * (swing.end - swing.start)
+    )
+      continue;
+    const bone: string = swing.bone;
     const position: IAutoMovieVector3 = actual(bone);
     if (
       !state.failedLanding &&
@@ -249,21 +268,35 @@ export function advancePhysicalBalance(input: {
         relief: soleSpread(bone),
         anchor: latch(limb),
       };
-      resolveSwing("landed");
-      delete state.cleared;
+      resolveStep(bone, "landed");
+      // The first foot of a pair to land leaves the other the swing.
+      if (swing === state.pair?.step) delete state.pair;
+      else if (state.pair) {
+        state.swing = state.pair.step;
+        if (state.pair.cleared === undefined) delete state.cleared;
+        else state.cleared = state.pair.cleared;
+        if (state.pair.touchdown === undefined) delete state.touchdown;
+        else state.touchdown = state.pair.touchdown;
+        delete state.pair;
+      } else {
+        delete state.cleared;
+        state.swing = undefined;
+      }
       state.outsideSince = undefined;
-      state.swing = undefined;
       state.revision = (state.revision ?? 0) + 1;
     } else if (
       input.seconds >
-      state.swing.end + (input.policy.landingTimeout ?? input.policy.duration)
+      swing.end + (input.policy.landingTimeout ?? input.policy.duration)
     ) {
-      resolveSwing("failed");
+      for (const step of physicalRecoverySwing(state))
+        resolveStep(step.bone, "failed");
       delete state.cleared;
+      delete state.pair;
       state.failedLanding = true;
       state.swing = undefined;
       state.outsideSince = input.seconds;
       state.revision = (state.revision ?? 0) + 1;
+      break;
     }
   }
   // Each stance foot's seating (`physicalStanceSeat`): its sole's seating,
@@ -286,14 +319,12 @@ export function advancePhysicalBalance(input: {
       .map((limb: (typeof input.policy.pattern.limbs)[number]): string => limb.bone),
   );
   for (const limb of input.policy.pattern.limbs) {
-    if (limb.bone === state.swing?.bone) {
+    if (physicalRecoverySwing.of(state, limb.bone)) {
       // A limb asked to step gives up its share over the fade window, its
       // force bound ramping to zero with it (`trackPhysicalRoot`), and lifts
-      // once the floor measurably carries it no more
-      // (`physicalStanceBalance.release`). The step is committed at its
-      // lift-off and recorded then; until it, the request is planned again
-      // each frame (Pratt et al., M2V2, Section VII-A; Herzog et al. 2016,
-      // Section 5.3; Feng et al. 2015, Figure 2).
+      // once the floor measurably carries it no more (below). Until it, the
+      // request is planned again each frame (Pratt et al., M2V2, Section
+      // VII-A; Herzog et al. 2016, Section 5.3; Feng et al. 2015, Figure 2).
       const seat = state.seating?.[limb.bone];
       if (seat) {
         seat.bearing = Math.max(
@@ -305,21 +336,6 @@ export function advancePhysicalBalance(input: {
           measuredLoad(limb.bone),
           input.dt,
         );
-        if (
-          physicalStanceBalance.release({
-            bearing: seat.bearing,
-            load: seat.load,
-            weight,
-          })
-        ) {
-          delete state.seating![limb.bone];
-          state.swing.end =
-            input.seconds + (state.swing.end - state.swing.start);
-          state.swing.start = input.seconds;
-          state.cleared = false;
-          state.steps.push(structuredClone(state.swing));
-          state.revision = (state.revision ?? 0) + 1;
-        }
       }
       continue;
     }
@@ -365,6 +381,37 @@ export function advancePhysicalBalance(input: {
     )
       seat.anchor = latch(limb);
   }
+  // A step lifts once the floor measurably carries its limb no more
+  // (`physicalStanceBalance.release`), and is committed and recorded then.
+  // A diagonal pair lifts together, once both its feet are released, so the
+  // pair is one swing phase (Chen et al. 2022, Section 2.1, Example 1).
+  const leaving: IAutoMovieStepPlanner.IStep[] = physicalRecoverySwing(state);
+  if (
+    leaving.length > 0 &&
+    leaving.every((step: IAutoMovieStepPlanner.IStep): boolean => {
+      const seat = state.seating?.[step.bone];
+      return (
+        !!seat &&
+        physicalStanceBalance.release({
+          bearing: seat.bearing ?? 1,
+          load: seat.load ?? 0,
+          weight,
+        })
+      );
+    })
+  ) {
+    for (const step of leaving) {
+      delete state.seating![step.bone];
+      step.end = input.seconds + (step.end - step.start);
+      step.start = input.seconds;
+      state.steps.push(structuredClone(step));
+    }
+    state.cleared = false;
+    if (state.pair) state.pair.cleared = false;
+    state.revision = (state.revision ?? 0) + 1;
+  }
+  // The limbs the recovery's swing has lifted, a diagonal pair's both.
+  const lifted: string[] = physicalRecoverySwing.lifted(state);
   // Support is what the controller has planted, not what touches this step:
   // every planted limb, a limb asked to step among them until it lifts,
   // bounds where the centre of pressure can return by its own outline,
@@ -373,7 +420,7 @@ export function advancePhysicalBalance(input: {
   const planted: IAutoMoviePhysicalSupportPatch[] = input.policy.pattern.limbs
     .filter(
       (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
-        limb.bone !== state.swing?.bone || !!state.seating?.[limb.bone],
+        !lifted.includes(limb.bone),
     )
     .map(
       (
@@ -489,7 +536,8 @@ export function advancePhysicalBalance(input: {
       const anchor = state.seating?.[limb.bone]?.anchor;
       const goal: IAutoMovieRigidTransform | undefined =
         input.targets[limb.bone];
-      if (!anchor || !goal || limb.bone === state.swing?.bone) continue;
+      if (!anchor || !goal || physicalRecoverySwing.of(state, limb.bone))
+        continue;
       sum = Vector3.add(
         sum,
         Quaternion.rotateVector(
@@ -516,15 +564,12 @@ export function advancePhysicalBalance(input: {
       ? { ramp: physicalStanceBalance.FADE, acceleration: peak, height: 0 }
       : undefined;
   const command: { x: number; z: number } | undefined = state.pressure?.command;
-  const lifted: string | undefined =
-    state.swing && !state.seating?.[state.swing.bone]
-      ? state.swing.bone
-      : undefined;
   const ask = (
     supports: IAutoMoviePhysicalSupportPatch[],
     unavailable: readonly string[],
     forced: boolean,
     swing: IAutoMoviePhysicalBalance.IAssessInput["swing"],
+    pair?: readonly [string, string],
   ): IAutoMoviePhysicalBalance.IResult =>
     Balance.assess({
       center,
@@ -550,12 +595,13 @@ export function advancePhysicalBalance(input: {
         : {}),
       ...(command ? { pressure: { x: command.x, y: plane, z: command.z } } : {}),
       unavailable,
+      ...(pair ? { pair } : {}),
     });
   // A limb asked to step stays a candidate until it lifts, so its request
   // is planned again each frame; a lifted one is no longer support.
   const assessment: IAutoMoviePhysicalBalance.IResult = ask(
     planted,
-    [...(input.unavailable ?? []), ...(lifted !== undefined ? [lifted] : [])],
+    [...(input.unavailable ?? []), ...lifted],
     tipping,
     timing,
   );
@@ -569,7 +615,7 @@ export function advancePhysicalBalance(input: {
   const stance: (typeof input.policy.pattern.limbs)[number][] =
     input.policy.pattern.limbs.filter(
       (limb: (typeof input.policy.pattern.limbs)[number]): boolean =>
-        limb.bone !== state.swing?.bone || !!state.seating?.[limb.bone],
+        !lifted.includes(limb.bone),
     );
   const past: boolean =
     assessment.state !== "supported" &&
@@ -601,8 +647,8 @@ export function advancePhysicalBalance(input: {
   if (Number.isFinite(assessment.outside)) state.excess = assessment.outside;
   else delete state.excess;
   // A capture point parked past the shrunken support, neither captured nor
-  // past the support itself, steps once it has not shrunk over 1 / omega
-  // (`physicalCaptureBand`).
+  // past the support itself, steps once it has not shrunk over 1 / omega and
+  // the step it would take captures (`physicalCaptureBand`).
   const band: ReturnType<typeof physicalCaptureBand> = state.swing
     ? { due: false }
     : physicalCaptureBand({
@@ -614,6 +660,7 @@ export function advancePhysicalBalance(input: {
         margin: input.policy.margin,
         seconds: input.seconds,
         omega,
+        viable: assessment.step?.viable === true,
       });
   if (band.band) state.band = band.band;
   else delete state.band;
@@ -651,25 +698,32 @@ export function advancePhysicalBalance(input: {
     request(assessment.step);
     state.failedLanding = undefined;
     state.revision = (state.revision ?? 0) + 1;
-  } else if (state.swing && lifted === undefined) {
+  } else if (state.swing && lifted.length === 0) {
     // A request is planned again each frame until its limb lifts: its
     // place and time follow the capture point, it moves to another limb
     // only when that one's step captures and its own does not and its own
     // has not begun unloading (`Balance.retarget`), and it is withdrawn once
     // the capture point is back inside (Feng et al. 2015, Figure 2: lift-off
-    // delayed, double support kept).
+    // delayed, double support kept). A diagonal pair is planned again as
+    // that pair, and kept as it is while its feet unload when the best step
+    // is another.
+    const bone: string = state.swing.bone;
+    const partner: string | undefined = state.pair?.step.bone;
+    const same = (
+      step: NonNullable<IAutoMoviePhysicalBalance.IResult["step"]>,
+    ): boolean => step.bone === bone && step.pair?.bone === partner;
     if (assessment.state === "supported") {
       state.swing = undefined;
+      delete state.pair;
       state.revision = (state.revision ?? 0) + 1;
-    } else if (!assessment.step) {
-      state.swing.end = input.seconds + (state.swing.end - state.swing.start);
-      state.swing.start = input.seconds;
-    } else {
-      const bone: string = state.swing.bone;
-      const own: IAutoMoviePhysicalBalance.IResult["step"] =
-        assessment.step.bone === bone
-          ? assessment.step
-          : ask(
+    } else if (!assessment.step) retime();
+    else {
+      const own: IAutoMoviePhysicalBalance.IResult["step"] = same(
+        assessment.step,
+      )
+        ? assessment.step
+        : partner === undefined
+          ? ask(
               planted,
               [
                 ...(input.unavailable ?? []),
@@ -682,32 +736,36 @@ export function advancePhysicalBalance(input: {
               ],
               true,
               timing,
-            ).step;
+            ).step
+          : undefined;
       const chosen: IAutoMoviePhysicalBalance.IResult["step"] =
         Balance.retarget({
-          unloading: (state.seating?.[bone]?.bearing ?? 1) < 1,
+          unloading: physicalRecoverySwing(state).some(
+            (step: IAutoMovieStepPlanner.IStep): boolean =>
+              (state.seating?.[step.bone]?.bearing ?? 1) < 1,
+          ),
           ...(own ? { own } : {}),
           best: assessment.step,
         });
-      if (chosen === undefined) {
-        state.swing.end = input.seconds + (state.swing.end - state.swing.start);
-        state.swing.start = input.seconds;
-      } else {
-        if (chosen.bone !== bone) {
+      if (chosen === undefined) retime();
+      else {
+        if (!same(chosen)) {
           state.revision = (state.revision ?? 0) + 1;
         }
         request(chosen);
       }
     }
   }
-  if (state.swing && lifted === undefined)
-    goals[state.swing.bone] = actual(state.swing.bone);
+  if (state.swing && lifted.length === 0)
+    for (const step of physicalRecoverySwing(state))
+      goals[step.bone] = actual(step.bone);
   let path: IAutoMovieAdvancePhysicalBalance.IResult["swing"];
-  if (state.swing && lifted !== undefined) {
-    const limb: (typeof input.policy.pattern.limbs)[number] =
+  if (state.swing && lifted.length > 0) {
+    const flying: IAutoMovieStepPlanner.IStep[] = physicalRecoverySwing(state);
+    const limbOf = (bone: string): (typeof input.policy.pattern.limbs)[number] =>
       input.policy.pattern.limbs.find(
         (candidate: (typeof input.policy.pattern.limbs)[number]): boolean =>
-          candidate.bone === state.swing!.bone,
+          candidate.bone === bone,
       )!;
     // The landing is re-predicted every step of the swing's first half from
     // the present capture point and the swing time left (Yin et al. 2007,
@@ -716,20 +774,26 @@ export function advancePhysicalBalance(input: {
     // the foot's centre on the capture point at landing, on its own side and
     // inside the new support (`AutoMoviePhysicalBalance.assess`), its time
     // that of the distance from where it lifted (Khadiv et al. 2017, Section
-    // III-B). Past half the swing the target and time are held, so the limb
-    // settles onto one place (Pratt et al., M2V2, Section VII-C1).
+    // III-B); a diagonal pair as that pair, both feet moved by one
+    // displacement. Past half the swing the target and time are held, so the
+    // limb settles onto one place (Pratt et al., M2V2, Section VII-C1).
     const settling: boolean =
       input.seconds - state.swing.start >=
       (state.swing.end - state.swing.start) / 2;
     if (!settling && timing && center.y - plane > 0) {
-      const from: IAutoMovieVector3 = {
-        x: state.swing.from.point[0],
-        y: 0,
-        z: state.swing.from.point[1],
-      };
-      const patch: IAutoMoviePhysicalSupportPatch = footprint(limb, from);
+      const froms: IAutoMovieVector3[] = flying.map(
+        (step: IAutoMovieStepPlanner.IStep): IAutoMovieVector3 => ({
+          x: step.from.point[0],
+          y: 0,
+          z: step.from.point[1],
+        }),
+      );
+      const patches: IAutoMoviePhysicalSupportPatch[] = flying.map(
+        (step: IAutoMovieStepPlanner.IStep, index: number) =>
+          footprint(limbOf(step.bone), froms[index]!),
+      );
       const flight: IAutoMoviePhysicalBalance.IResult = ask(
-        [...planted, patch],
+        [...planted, ...patches],
         [
           ...(input.unavailable ?? []),
           ...input.policy.pattern.limbs
@@ -737,26 +801,46 @@ export function advancePhysicalBalance(input: {
               (other: (typeof input.policy.pattern.limbs)[number]): string =>
                 other.bone,
             )
-            .filter((other: string): boolean => other !== limb.bone),
+            .filter(
+              (other: string): boolean =>
+                !flying.some(
+                  (step: IAutoMovieStepPlanner.IStep): boolean =>
+                    step.bone === other,
+                ),
+            ),
         ],
         true,
         { ...timing, ramp: 0, elapsed: input.seconds - state.swing.start },
+        flying.length === 2 ? [flying[0]!.bone, flying[1]!.bone] : undefined,
       );
-      if (flight.step) {
-        state.swing.to.point = [
-          flight.step.target.x - (patch.position.x - from.x),
-          flight.step.target.z - (patch.position.z - from.z),
-        ];
-        state.swing.end =
-          state.swing.start + (flight.step.seconds ?? input.policy.duration);
-        const step: (typeof state.steps)[number] | undefined = record();
-        if (step) {
-          step.to.point = [...state.swing.to.point];
-          step.end = state.swing.end;
-        }
-      }
+      const planned: IAutoMoviePhysicalBalance.IResult["step"] = flight.step;
+      if (planned)
+        flying.forEach(
+          (step: IAutoMovieStepPlanner.IStep, index: number): void => {
+            const target: IAutoMovieVector3 | undefined =
+              index === 0 ? planned.target : planned.pair?.target;
+            if (!target) return;
+            step.to.point = [
+              target.x - (patches[index]!.position.x - froms[index]!.x),
+              target.z - (patches[index]!.position.z - froms[index]!.z),
+            ];
+            step.end = step.start + (planned.seconds ?? input.policy.duration);
+            const recorded: (typeof state.steps)[number] | undefined = record(
+              step.bone,
+            );
+            if (recorded) {
+              recorded.to.point = [...step.to.point];
+              recorded.end = step.end;
+            }
+          },
+        );
     }
-    const rigid: AutoMovieXpbdBody = input.segments.get(state.swing.bone)!;
+    const paths: { height: number; hang: number }[] = [];
+    for (const swing of flying) {
+    const limb: (typeof input.policy.pattern.limbs)[number] = limbOf(
+      swing.bone,
+    );
+    const rigid: AutoMovieXpbdBody = input.segments.get(swing.bone)!;
     // The swinging limb's effective mass at its endpoint: the reaction its
     // path's acceleration asks of the stance (`physicalStanceBalance`
     // `.swingMass`).
@@ -765,7 +849,7 @@ export function advancePhysicalBalance(input: {
       input.segments,
       limb,
     );
-    const time: number = state.swing.end - state.swing.start;
+    const time: number = swing.end - swing.start;
     // A recovery swing's clearance is lowered to what the stance can carry
     // at its peak in the swing's time (`physicalStanceBalance.clearance`).
     const rise: number = physicalStanceBalance.clearance(
@@ -777,9 +861,9 @@ export function advancePhysicalBalance(input: {
     );
     const motion: IAutoMovieSamplePhysicalRecoveryGoal.IResult =
       samplePhysicalRecoveryGoal({
-        swing: state.swing,
-        point: authored(state.swing.bone),
-        velocity: input.velocities?.[state.swing.bone] ?? { x: 0, y: 0, z: 0 },
+        swing,
+        point: authored(swing.bone),
+        velocity: input.velocities?.[swing.bone] ?? { x: 0, y: 0, z: 0 },
         height: rise,
         seconds: input.seconds,
       });
@@ -792,11 +876,11 @@ export function advancePhysicalBalance(input: {
       ...motion.point,
       y: motion.point.y + lowered,
     };
-    goals[state.swing.bone] = point;
+    goals[swing.bone] = point;
     // The joints' reference is fit to this same path (`trackPhysicalBalance`
     // `Targets`), so the swing is one reference in joint space.
-    path = { height: rise, hang: lowered };
-    const position: IAutoMovieVector3 = actual(state.swing.bone);
+    paths.push({ height: rise, hang: lowered });
+    const position: IAutoMovieVector3 = actual(swing.bone);
     // The swing's joints track that reference with their own servos, within
     // their caps; the drive adds only the path's feed-forward through J^T
     // (`physicalStanceBalance.swingForce`).
@@ -805,14 +889,16 @@ export function advancePhysicalBalance(input: {
       gravity: input.gravity,
       acceleration: motion.acceleration,
     });
-    drive(state.swing.bone, rigid, position, force);
+    drive(swing.bone, rigid, position, force);
+    }
+    path = { ...paths[0]!, ...(paths[1] ? { pair: paths[1] } : {}) };
   }
   // A landed foot is held by the floor and its leg's joints alone: no
   // endpoint servo pulls it toward its goal outside the support solve, which
   // already holds it (Feng et al. 2013, Section III-D: no orientation
   // tracking on a loaded foot). Its goal is its landed place.
   for (const [bone, offset] of Object.entries(state.offsets))
-    if (state.swing?.bone !== bone)
+    if (!physicalRecoverySwing.of(state, bone))
       goals[bone] = Vector3.add(authored(bone), offset);
   const exhaustion: IAutoMoviePhysicalBalanceExhaustion.IResult =
     physicalBalanceExhaustion({
@@ -926,29 +1012,47 @@ export function advancePhysicalBalance(input: {
   }
 
   /**
-   * Ask for a step: the swing request of its limb from where the limb's
-   * endpoint stands now, timed from now, aimed at the step's target less the
-   * planted footprint's middle's offset from the endpoint. Its start keeps
-   * moving while the limb unloads; it is recorded at lift-off.
+   * Ask for a step: the swing request of its limb, and of a diagonal pair's
+   * partner, each from where the limb's endpoint stands now, timed from now
+   * over the step's time, aimed at its target less the planted footprint's
+   * middle's offset from the endpoint. Its start keeps moving while the limbs
+   * unload; each is recorded at lift-off.
    */
   function request(
     step: NonNullable<IAutoMoviePhysicalBalance.IResult["step"]>,
   ): void {
-    const from: IAutoMovieVector3 = actual(step.bone);
-    const shift: IAutoMovieVector3 = inset(step.bone);
-    state.swing = {
-      bone: step.bone,
-      kind: "swing",
-      start: input.seconds,
-      end: input.seconds + (step.seconds ?? input.policy.duration),
-      from: { point: [from.x, from.z], yaw: 0, pitch: 0, clearance: 0 },
-      to: {
-        point: [step.target.x - shift.x, step.target.z - shift.z],
-        yaw: 0,
-        pitch: 0,
-        clearance: 0,
-      },
+    const plan = (
+      bone: string,
+      target: IAutoMovieVector3,
+    ): IAutoMovieStepPlanner.IStep => {
+      const from: IAutoMovieVector3 = actual(bone);
+      const shift: IAutoMovieVector3 = inset(bone);
+      return {
+        bone,
+        kind: "swing",
+        start: input.seconds,
+        end: input.seconds + (step.seconds ?? input.policy.duration),
+        from: { point: [from.x, from.z], yaw: 0, pitch: 0, clearance: 0 },
+        to: {
+          point: [target.x - shift.x, target.z - shift.z],
+          yaw: 0,
+          pitch: 0,
+          clearance: 0,
+        },
+      };
     };
+    state.swing = plan(step.bone, step.target);
+    if (step.pair)
+      state.pair = { step: plan(step.pair.bone, step.pair.target) };
+    else delete state.pair;
+  }
+
+  /** Time a request not yet lifted from now again, a pair's both steps alike. */
+  function retime(): void {
+    for (const step of physicalRecoverySwing(state)) {
+      step.end = input.seconds + (step.end - step.start);
+      step.start = input.seconds;
+    }
   }
 
   /**
@@ -1031,18 +1135,21 @@ export function advancePhysicalBalance(input: {
   }
 
   /** Preserve actual controller ownership intervals for replay, audio and support audits. */
-  function resolveSwing(status: "landed" | "cancelled" | "failed"): void {
-    const step: (typeof state.steps)[number] | undefined = record();
+  function resolveStep(
+    bone: string,
+    status: "landed" | "cancelled" | "failed",
+  ): void {
+    const step: (typeof state.steps)[number] | undefined = record(bone);
     if (step) step.resolved = { seconds: input.seconds, status };
   }
 
-  /** The recorded request of the present swing: its limb's latest unresolved step. */
-  function record(): (typeof state.steps)[number] | undefined {
+  /** The recorded request of a step under way: its limb's latest unresolved step. */
+  function record(bone: string): (typeof state.steps)[number] | undefined {
     return [...state.steps]
       .reverse()
       .find(
         (candidate: (typeof state.steps)[number]): boolean =>
-          candidate.bone === state.swing!.bone && !candidate.resolved,
+          candidate.bone === bone && !candidate.resolved,
       );
   }
 

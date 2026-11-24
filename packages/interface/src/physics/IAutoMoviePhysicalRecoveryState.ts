@@ -7,6 +7,17 @@ import type { IAutoMovieStepPlanner } from "./IAutoMovieStepPlanner";
 export interface IAutoMoviePhysicalRecoveryState {
   /** Last physical assessment. */ last: IAutoMoviePhysicalBalance.IResult["state"];
   /** Active support swing, if any. */ swing?: IAutoMovieStepPlanner.IStep;
+  /**
+   * The diagonal partner of a four-support body's pair swing, if any: its
+   * step, which shares the swing's start and end and lifts with it, and its
+   * own `cleared` and `touchdown`, as the state's are the swing's. Each foot
+   * of the pair lands by its own contact; the first to land leaves the other
+   * the swing (Chen et al. 2022, Section 2.1, Example 1).
+   */ pair?: {
+    step: IAutoMovieStepPlanner.IStep;
+    cleared?: boolean;
+    touchdown?: number;
+  };
   /** Actual requests and measured ownership resolution, in time order. */ steps: (IAutoMovieStepPlanner.IStep & {
     /**
      * Absent while unresolved; written on the matching historical request at

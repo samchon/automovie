@@ -104,6 +104,7 @@ export * from "./physicalPointProjection";
 export * from "./physicalInertiaTensor";
 export * from "./physicalPrincipalAxes";
 export * from "./physicalRecoverySupportGoals";
+export * from "./physicalRecoverySwing";
 export * from "./physicalShapeBounds";
 export * from "./physicalShapeNearest";
 export * from "./physicalShapeNormal";

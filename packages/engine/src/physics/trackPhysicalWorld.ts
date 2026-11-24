@@ -11,6 +11,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
+  IAutoMovieStepPlanner,
   IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -28,6 +29,7 @@ import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalGravityTorques } from "./physicalGravityTorques";
 import { physicalJointEffort } from "./physicalJointEffort";
+import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { physicalStanceJointTarget } from "./physicalStanceJointTarget";
 import { physicalSwingReference } from "./physicalSwingReference";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -296,7 +298,9 @@ export function trackPhysicalWorld(
           planted: balanceSupports
             .filter(
               (support: (typeof supports)[number]): boolean =>
-                support.bone !== lifted(assessment.state),
+                !physicalRecoverySwing
+                  .lifted(assessment.state)
+                  .includes(support.bone),
             )
             .map((support: (typeof supports)[number]): string => support.bone),
           state: assessment.state,
@@ -323,7 +327,7 @@ export function trackPhysicalWorld(
       goals: endpointGoals,
       segments: bound.segments.get(body.id)!,
       dt,
-      recoveryBone: lifted(recovery[body.id]),
+      recoveryBones: physicalRecoverySwing.lifted(recovery[body.id]),
       actuation,
       constrained: new Set(
         endpointSupports.map(
@@ -386,10 +390,8 @@ export function trackPhysicalWorld(
       gravity: gravity.root,
       actuation,
       supports,
-      recoveryBone: lifted(recovery[body.id]),
-      ...(requested(recovery[body.id]) !== undefined
-        ? { requested: requested(recovery[body.id]) }
-        : {}),
+      recoveryBones: physicalRecoverySwing.lifted(recovery[body.id]),
+      requested: physicalRecoverySwing.requested(recovery[body.id]),
       step,
       seconds,
       dt,
@@ -448,7 +450,9 @@ export function trackPhysicalWorld(
       // holds the trunk at its intended world orientation over the actual
       // thigh (Yin, Loken and van de Panne 2007, Section 3.2); the rest keep
       // the goal posture refit to the present footholds.
-      const swinging: string | undefined = lifted(recovery[body.id]);
+      const swinging: readonly string[] = physicalRecoverySwing.lifted(
+        recovery[body.id],
+      );
       const stance:
         | IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number]
         | undefined = actuation
@@ -456,7 +460,7 @@ export function trackPhysicalWorld(
             (
               limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
             ): boolean =>
-              swinging !== limb.bone &&
+              !swinging.includes(limb.bone) &&
               (limb.chain.includes(joint.child) ||
                 (limb.contacts?.includes(joint.child) ?? false)),
           )
@@ -470,12 +474,11 @@ export function trackPhysicalWorld(
       // (Pratt et al., M2V2, Section VII-D1).
       const level: boolean =
         !!actuation &&
-        swinging !== undefined &&
         (body.balance?.pattern.limbs.some(
           (
             limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
           ): boolean =>
-            limb.bone === swinging &&
+            swinging.includes(limb.bone) &&
             (limb.bone === joint.child ||
               (limb.contacts?.includes(joint.child) ?? false)),
         ) ??
@@ -530,29 +533,32 @@ export function trackPhysicalWorld(
       // reference left at the path's first, near rest, would have the joints'
       // damping hold back a leg the advancing pelvis is turning, pressing the
       // lifted foot back into the floor.
-      const targetVelocity: IAutoMovieVector3 =
-        swinging !== undefined &&
-        (body.balance?.pattern.limbs.some(
+      const own: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number] | undefined =
+        body.balance?.pattern.limbs.find(
           (
             limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
           ): boolean =>
-            limb.bone === swinging &&
+            swinging.includes(limb.bone) &&
             (limb.chain.includes(joint.child) ||
               (limb.contacts?.includes(joint.child) ?? false)),
-        ) ??
-          false)
-          ? physicalSwingReference.rate({
-              actual: rate,
-              path: reference.velocity,
-              elapsed: seconds - recovery[body.id]!.swing!.start,
-            })
-          : reference.velocity;
+        );
+      const swing: IAutoMovieStepPlanner.IStep | undefined = own
+        ? physicalRecoverySwing.of(recovery[body.id], own.bone)
+        : undefined;
+      const targetVelocity: IAutoMovieVector3 = swing
+        ? physicalSwingReference.rate({
+            actual: rate,
+            path: reference.velocity,
+            elapsed: seconds - swing.start,
+          })
+        : reference.velocity;
       const moving: boolean =
         body.balance?.pattern.limbs.some(
           (
             limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
           ): boolean =>
-            (recovery[body.id]?.swing?.bone === limb.bone ||
+            (physicalRecoverySwing.of(recovery[body.id], limb.bone) !==
+              undefined ||
               recovery[body.id]?.offsets[limb.bone] !== undefined) &&
             limb.chain.includes(joint.child),
         ) ?? false;
@@ -624,25 +630,3 @@ function plantedPoses(
 /** No balance posture is excluded when that controller is inactive. */
 const NO_POSTURE: ReadonlySet<string> = new Set();
 
-/**
- * The limb a recovery swing has lifted: none while it still gives up its
- * share of the stance (`advancePhysicalBalance`), which the stance and
- * support tracking then still carry.
- */
-function lifted(
-  state: IAutoMoviePhysicalRecoveryState | undefined,
-): string | undefined {
-  const bone: string | undefined = state?.swing?.bone;
-  return bone !== undefined && !state?.seating?.[bone] ? bone : undefined;
-}
-
-/**
- * The limb asked to step that has not lifted yet: it is still support,
- * giving up its share (`advancePhysicalBalance`).
- */
-function requested(
-  state: IAutoMoviePhysicalRecoveryState | undefined,
-): string | undefined {
-  const bone: string | undefined = state?.swing?.bone;
-  return bone !== undefined && state?.seating?.[bone] ? bone : undefined;
-}

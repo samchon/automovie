@@ -8,12 +8,17 @@
  * is due (design-4017-edge, E3: step when the excursion is not shrinking).
  * A window that ends with the excursion smaller than it began restarts from
  * there, so a capture point converging inward through the band never steps;
- * the window closes once the capture point is back within the margin.
+ * the window closes once the capture point is back within the margin. The
+ * step is due only when the step it would take captures: inside the support
+ * the body is held in place, and a step that does not capture leaves it worse
+ * off than holding (Koolen et al., Corollary 3); the window stays open, so a
+ * capturing step is due as soon as there is one.
  *
  * @param input The window so far, if one is open: when it began, local
  *   seconds, and the excursion it began at, metres; the present excursion
  *   past the shrunken support, metres; the margin, metres; the present local
- *   seconds; and the pendulum's frequency, per second.
+ *   seconds; the pendulum's frequency, per second; and whether the step the
+ *   assessment chose captures.
  * @returns The window to keep, if any, and whether a step is due.
  */
 export function physicalCaptureBand(input: {
@@ -22,6 +27,7 @@ export function physicalCaptureBand(input: {
   margin: number;
   seconds: number;
   omega: number;
+  viable: boolean;
 }): { band?: { since: number; excess: number }; due: boolean } {
   if (!(input.excess > input.margin) || !(input.omega > 0)) return { due: false };
   const open: { since: number; excess: number } | undefined = input.band;
@@ -31,5 +37,5 @@ export function physicalCaptureBand(input: {
     return { band: open, due: false };
   if (input.excess < open.excess)
     return { band: { since: input.seconds, excess: input.excess }, due: false };
-  return { band: open, due: true };
+  return { band: open, due: input.viable };
 }

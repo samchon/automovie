@@ -11,6 +11,7 @@ import { fitHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulation,
   IAutoMoviePhysicalSimulationInput,
@@ -357,6 +358,54 @@ export namespace PhysicalDisturbance {
       step: largest((impulse) => run(impulse).trigger - rest <= reach * decay),
       any: mass * omega * (high + (reach * decay) / (1 - decay) - from),
     };
+  }
+
+  /**
+   * A recovery's swing phases in time order: the steps sharing one start, a
+   * diagonal pair's two feet lifting together as one contact switch of the
+   * gait (Chen et al. 2022, Section 2.1, Example 1).
+   */
+  export function phases(
+    steps: IAutoMoviePhysicalRecoveryState["steps"],
+  ): IAutoMoviePhysicalRecoveryState["steps"][] {
+    const out: IAutoMoviePhysicalRecoveryState["steps"][] = [];
+    for (const step of [...steps].sort((a, b) => a.start - b.start)) {
+      const last: IAutoMoviePhysicalRecoveryState["steps"] | undefined =
+        out.at(-1);
+      if (last && Math.abs(last[0]!.start - step.start) <= 1e-9)
+        last.push(step);
+      else out.push([step]);
+    }
+    return out;
+  }
+
+  /**
+   * The swing phases armed before the one ahead of them had resolved: one
+   * swing phase at a time, so none is ever armed during another.
+   */
+  export function overlaps(
+    steps: IAutoMoviePhysicalRecoveryState["steps"],
+  ): number[] {
+    const ordered: IAutoMoviePhysicalRecoveryState["steps"][] = phases(steps);
+    return ordered.flatMap((phase, index: number): number[] =>
+      index > 0 &&
+      !ordered[index - 1]!.every(
+        (step): boolean =>
+          step.resolved !== undefined &&
+          step.resolved.seconds <= phase[0]!.start + 1e-9,
+      )
+        ? [index]
+        : [],
+    );
+  }
+
+  /** How many swing phases landed: a phase lands when any of its feet does. */
+  export function landed(
+    steps: IAutoMoviePhysicalRecoveryState["steps"],
+  ): number {
+    return phases(steps).filter((phase): boolean =>
+      phase.some((step): boolean => step.resolved?.status === "landed"),
+    ).length;
   }
 
   /**
@@ -725,24 +774,15 @@ export namespace PhysicalDisturbance {
         : lift(last);
     const weight: number = subject.profile.mass * 9.81;
     const load: number = floorLoad(run, id, run.cache.duration - WINDOW);
-    // One swing at a time: a step starts only once the one before it
-    // resolved, so no two are ever armed together.
-    const steps = [...(recovery?.steps ?? [])].sort(
-      (a, b) => a.start - b.start,
-    );
-    for (let i: number = 1; i < steps.length; i++)
-      if (
-        !(
-          steps[i - 1]!.resolved &&
-          steps[i - 1]!.resolved!.seconds <= steps[i]!.start + 1e-9
-        )
-      )
-        failures.push(
-          `: step ${i} armed at ${steps[i]!.start} before step ${i - 1} resolved`,
-        );
-    const landed: number = (recovery?.steps ?? []).filter(
-      (step): boolean => step.resolved?.status === "landed",
-    ).length;
+    // One swing phase at a time: a phase starts only once the one before it
+    // resolved, so no two are ever armed together; a diagonal pair's feet
+    // lift together as one phase.
+    const ordered = phases(recovery?.steps ?? []);
+    for (const index of overlaps(recovery?.steps ?? []))
+      failures.push(
+        `: swing phase ${index} armed at ${ordered[index]![0]!.start} before phase ${index - 1} resolved`,
+      );
+    const landed: number = PhysicalDisturbance.landed(recovery?.steps ?? []);
     if (
       recovery?.last !== "supported" ||
       tilt > TIPPED ||

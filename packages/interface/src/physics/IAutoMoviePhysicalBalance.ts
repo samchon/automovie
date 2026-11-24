@@ -53,6 +53,21 @@ export namespace IAutoMoviePhysicalBalance {
        * Absent without a `swing` timing.
        */
       viable?: boolean;
+
+      /**
+       * The diagonal partner a four-support body steps with this limb when no
+       * single limb's step both captures and can be unloaded at once: both
+       * feet move by the same displacement while the other diagonal holds the
+       * centre of pressure (Chen et al. 2022, Section 2.1, Example 1). Absent
+       * for a single step.
+       */
+      pair?: {
+        /** The partner's supported endpoint. */
+        bone: string;
+
+        /** Its proposed support-point position, world metres on the floor plane. */
+        target: IAutoMovieVector3;
+      };
     };
   }
 
@@ -177,5 +192,11 @@ export namespace IAutoMoviePhysicalBalance {
      * the trunk is about to tip past its range.
      */
     force?: boolean;
+
+    /**
+     * A diagonal pair under way, its lead's endpoint first: only that pair is
+     * planned again, by the rules it was chosen with.
+     */
+    pair?: readonly [string, string];
   };
 }

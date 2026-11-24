@@ -63,7 +63,10 @@ export namespace AutoMoviePhysicalBalance {
    * it can land, clamped to the reach. Young adults recover a lateral push
    * mostly by a single side step of the limb the push loaded (Mille et al.
    * 2005, Clinical Biomechanics), which the controller unloads over a short
-   * ramp before lifting (`advancePhysicalBalance`).
+   * ramp before lifting (`advancePhysicalBalance`). A four-support body none
+   * of whose capturing steps can be unloaded at once steps the chosen limb
+   * with its diagonal, when that pair captures (Chen et al. 2022, Section
+   * 2.1, Example 1).
    */
   export function assess(
     input: IAutoMoviePhysicalBalance.IAssessInput,
@@ -155,6 +158,141 @@ export namespace AutoMoviePhysicalBalance {
         : (input.swingSeconds ?? 0);
     // A swing under way lands its elapsed time sooner than a fresh one.
     const spent: number = Math.max(0, timing?.elapsed ?? 0);
+    // A diagonal pair, both feet moved by one displacement while the other
+    // diagonal holds the centre of pressure on its hull (Chen et al. 2022,
+    // Section 2.1, Example 1; MIT Cheetah-Software, trotting): its place and
+    // time are chosen together as a single step's are, the lead's middle on
+    // the capture point at landing within reach, else the shortest
+    // displacement toward it that captures, and it captures when the capture
+    // point then lies inside the new support.
+    const pair = (
+      lead: IAutoMoviePhysicalSupportPatch,
+      partner: IAutoMoviePhysicalSupportPatch,
+    ): {
+      travel: IAutoMovieVector3;
+      distance: number;
+      seconds: number;
+      viable: boolean;
+    } => {
+      const rest: IAutoMovieVector3[] = input.supports
+        .filter(
+          (other: (typeof input.supports)[number]): boolean =>
+            other !== lead && other !== partner,
+        )
+        .flatMap(
+          (other: (typeof input.supports)[number]): IAutoMovieVector3[] =>
+            other.points,
+        );
+      const holding: IAutoMovieVector3[] = held(convexHull2D(rest));
+      const moved = (
+        support: IAutoMoviePhysicalSupportPatch,
+        d: IAutoMovieVector3,
+      ): IAutoMovieVector3[] =>
+        support.points.map(
+          (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+            x: p.x + d.x,
+            y: p.y,
+            z: p.z + d.z,
+          }),
+        );
+      const after = (d: IAutoMovieVector3): IAutoMovieVector3[] =>
+        held(
+          convexHull2D([...rest, ...moved(lead, d), ...moved(partner, d)]),
+        );
+      const still: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+      const place = (xi: IAutoMovieVector3): IAutoMovieVector3 => {
+        if (excess(after(still), xi) <= 0) return still;
+        const aim: IAutoMovieVector3 = {
+          x: xi.x - lead.position.x,
+          y: 0,
+          z: xi.z - lead.position.z,
+        };
+        const gap: number = Math.hypot(aim.x, aim.z);
+        if (gap <= input.maximumStep && excess(after(aim), xi) <= 0) return aim;
+        const toward: IAutoMovieVector3 =
+          gap > 0 ? { x: aim.x / gap, y: 0, z: aim.z / gap } : { x: 0, y: 0, z: 1 };
+        const step = (d: number): IAutoMovieVector3 => Vector3.scale(toward, d);
+        let near: number = 0;
+        let far: number = input.maximumStep;
+        if (excess(after(step(far)), xi) > 0) return step(far);
+        while (far - near > SETTLED) {
+          const middle: number = (near + far) / 2;
+          if (excess(after(step(middle)), xi) <= 0) far = middle;
+          else near = middle;
+        }
+        return step(far);
+      };
+      let distance: number = Math.min(
+        input.maximumStep,
+        Math.hypot(
+          capturePoint.x - lead.position.x,
+          capturePoint.z - lead.position.z,
+        ),
+      );
+      let travel: IAutoMovieVector3 = still;
+      let landing: IAutoMovieVector3 = { ...capturePoint };
+      for (let pass: number = 0; pass < PASSES; pass++) {
+        const before: IAutoMovieVector3 = travel;
+        landing = AutoMoviePhysicalBalance.diverge(
+          capturePoint,
+          holding,
+          omega * Math.max(0, (timing?.ramp ?? 0) + swing(distance) - spent),
+        );
+        travel = place(landing);
+        distance = Math.hypot(travel.x, travel.z);
+        if (Math.hypot(travel.x - before.x, travel.z - before.z) <= SETTLED)
+          break;
+      }
+      return {
+        travel,
+        distance,
+        seconds: swing(distance),
+        viable: excess(after(travel), landing) <= SETTLED,
+      };
+    };
+    const paired = (
+      lead: IAutoMoviePhysicalSupportPatch,
+      partner: IAutoMoviePhysicalSupportPatch,
+      planned: ReturnType<typeof pair>,
+    ): IAutoMoviePhysicalBalance.IResult => ({
+      ...result,
+      state: "recovery",
+      step: {
+        bone: lead.bone,
+        target: {
+          x: lead.position.x + planned.travel.x,
+          y: input.floor,
+          z: lead.position.z + planned.travel.z,
+        },
+        ...(timing
+          ? { seconds: planned.seconds, viable: planned.viable }
+          : {}),
+        pair: {
+          bone: partner.bone,
+          target: {
+            x: partner.position.x + planned.travel.x,
+            y: input.floor,
+            z: partner.position.z + planned.travel.z,
+          },
+        },
+      },
+    });
+    // A pair under way is planned again as that pair.
+    if (input.pair) {
+      const lead: IAutoMoviePhysicalSupportPatch | undefined =
+        input.supports.find(
+          (support: (typeof input.supports)[number]): boolean =>
+            support.bone === input.pair![0],
+        );
+      const partner: IAutoMoviePhysicalSupportPatch | undefined =
+        input.supports.find(
+          (support: (typeof input.supports)[number]): boolean =>
+            support.bone === input.pair![1],
+        );
+      return lead && partner && lead !== partner
+        ? paired(lead, partner, pair(lead, partner))
+        : result;
+    }
     const candidates: {
       support: IAutoMoviePhysicalSupportPatch;
       phase: number;
@@ -407,6 +545,58 @@ export namespace AutoMoviePhysicalBalance {
     const chosen: (typeof candidates)[number] | undefined = candidates[0];
     if (!chosen || input.supports.length - 1 < input.pattern.minimumSupports)
       return result;
+    // A four-support body whose every capturing step still bears the
+    // commanded centre of pressure steps the chosen limb with its diagonal
+    // instead, when that pair captures: the limb across the supports'
+    // centroid from it, so the other diagonal is left holding (Chen et al.
+    // 2022, Section 2.1, Example 1; design-4017-pair). Without a commanded
+    // centre of pressure no limb is known to bear it, and a biped has no
+    // pair.
+    if (
+      timing &&
+      input.pressure !== undefined &&
+      input.supports.length === 4 &&
+      input.supports.length - 2 >= input.pattern.minimumSupports &&
+      !candidates.some(
+        (candidate: (typeof candidates)[number]): boolean =>
+          candidate.viable && candidate.unloadable,
+      )
+    ) {
+      const across = (
+        other: IAutoMoviePhysicalSupportPatch,
+      ): number => {
+        const a: IAutoMovieVector3 = Vector3.subtract(
+          chosen.support.position,
+          centroid,
+        );
+        const b: IAutoMovieVector3 = Vector3.subtract(other.position, centroid);
+        const lengths: number = Math.hypot(a.x, a.z) * Math.hypot(b.x, b.z);
+        return lengths > 0 ? (a.x * b.x + a.z * b.z) / lengths : 1;
+      };
+      const partner: IAutoMoviePhysicalSupportPatch | undefined = input.supports
+        .filter(
+          (other: (typeof input.supports)[number]): boolean =>
+            other !== chosen.support &&
+            !input.unavailable.includes(other.bone) &&
+            input.pattern.limbs.some(
+              (limb: (typeof input.pattern.limbs)[number]): boolean =>
+                limb.bone === other.bone,
+            ),
+        )
+        .sort(
+          (
+            a: IAutoMoviePhysicalSupportPatch,
+            b: IAutoMoviePhysicalSupportPatch,
+          ): number => across(a) - across(b),
+        )[0];
+      const planned: ReturnType<typeof pair> | undefined = partner
+        ? pair(chosen.support, partner)
+        : undefined;
+      if (partner && planned?.viable)
+        return planned.distance < (input.inset ?? 0)
+          ? { ...result, state: "supported" }
+          : paired(chosen.support, partner, planned);
+    }
     // A capturing step shorter than the margin is no step: the margin is the
     // centre-of-pressure law's buffer, so the body holds in double support
     // (Pratt et al., M2V2, Section VII-E1: stop in double support).

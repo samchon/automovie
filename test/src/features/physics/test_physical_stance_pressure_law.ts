@@ -1,6 +1,7 @@
 import {
   AutoMoviePhysicalBalance,
   physicalStanceBalance,
+  trackPhysicalRoot,
 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -14,17 +15,24 @@ import { TestValidator } from "@nestia/e2e";
  *    trunk second, convergence last (Lee and Goswami 2012): along one axis of
  *    a shrunken extent [-0.10, 0.38] within a support reaching 0.40, a
  *    capture point at 0.29 with the trunk asking 0.05 m of offset gives p =
- *    0.38 and u = 0.33; at 0.36, the same; at 0.39 with -0.02, p = 0.40 and u
- *    = 0.42; and p never falls behind xi. Past the support p sits at its
- *    edge and the pivot takes the hip strategy's offset, or the trunk's
- *    without one.
+ *    0.38 and u = 0.33; at 0.31, 7 cm inside the shrunken edge as the
+ *    quadruped's 0.75x push stands, and at 0.36, the same; and p never falls
+ *    behind xi. Past the support p sits at its edge and the pivot takes the
+ *    hip strategy's offset, or the trunk's without one. In the band past the
+ *    shrunken edge convergence comes first: at 0.39 with -0.02, p = 0.40 and
+ *    u = u_law; with u_law inside the support the trunk's offset is trimmed to
+ *    the room left.
+ * 1d. In single support the stance bears the trunk's roll and pitch and the
+ *    swinging hip's torque, the hip's whole (Yin, Loken and van de Panne
+ *    2007, Section 3.2): on one sole the offset is served on the centre of
+ *    pressure within the sole's room and through the pivot beyond it.
  * 2. A square shrunk by the margin keeps its centre and loses the margin on every
  *    side.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each law and its closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.law`, `allocate` and `shrink` and reads their values.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.law`, `allocate` and `shrink` and `trackPhysicalRoot.moment` and reads their values.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated formulas and the research note's allocation cases evaluated by hand for a strip and a square.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a command with room from a trimmed one, the shrunken edge from the support's own, inside from past the support, a hip strategy spinning up from one braking and none, and a bias from none.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a command with room from a trimmed one, the shrunken edge from the support's own, inside from past the support, the band from inside the shrunken polygon, a hip strategy spinning up from one braking and none, a bias from none, and a single-support trunk within the sole's room from one past it.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_stance_pressure_law(): void {
@@ -79,10 +87,11 @@ export function test_physical_stance_pressure_law(): void {
   const cases: [string, ReturnType<typeof allocate>, number, number][] = [
     // The trunk is served and the braking trimmed.
     ["trunk served", allocate(0.29, 0.05), 0.38, 0.33],
+    // The quadruped's 0.75x push: xi 7 cm inside the shrunken edge keeps
+    // the trunk before convergence.
+    ["inside the band", allocate(0.31, 0.05), 0.38, 0.33],
     // Capture holds: the centre of pressure is not behind the capture point.
     ["capture held", allocate(0.36, 0.05), 0.38, 0.33],
-    // Past the shrunken edge the support's own edge, the pivot outside.
-    ["true edge", allocate(0.39, -0.02), 0.4, 0.42],
     // A large backward offset still keeps the centre of pressure at xi.
     ["never behind", allocate(0.2, -0.3), 0.2, 0.5],
     // Past the support: the hip strategy's offset out, then back, and the
@@ -102,6 +111,79 @@ export function test_physical_stance_pressure_law(): void {
   near("free u", free.pivot.z, 0.05 * (1 + k));
   near("free p", free.pressure.z, 0.05 * (1 + k) + 0.02);
   if (free.clamped) failures.push("a command with room was trimmed");
+  // 1c. In the band, past the shrunken edge and inside the support,
+  // convergence comes before the trunk: the pivot keeps the law's command
+  // and the centre of pressure takes the trunk's offset only to the support's
+  // edge. At 0.39 with -0.02 the support's edge, the pivot at u_law.
+  const band = allocate(0.39, -0.02);
+  near("band p", band.pressure.z, 0.4);
+  near("band u", band.pivot.z, 0.39 * (1 + k));
+  if (band.clamped) failures.push("the band trimmed the law's command");
+  // With the reference at the shrunken edge, u_law = 0.385 + k 0.005 lies
+  // inside the support and the trunk's 0.03 is trimmed to the 0.011 left.
+  const trimmed = physicalStanceBalance.allocate({
+    capture: { x: 0, y: 0, z: 0.385 },
+    reference: { x: 0, y: 0, z: 0.38 },
+    command: { x: 0, y: 0, z: 0.385 + k * 0.005 },
+    offset: { x: 0, y: 0, z: 0.03 },
+    shrunken: strip(-0.1, 0.38),
+    support: strip(-0.12, 0.4),
+  });
+  near("band trimmed p", trimmed.pressure.z, 0.4);
+  near("band trimmed u", trimmed.pivot.z, 0.385 + k * 0.005);
+  near(
+    "band trunk left",
+    trimmed.pressure.z - trimmed.pivot.z,
+    0.4 - (0.385 + k * 0.005),
+  );
+
+  // 1d. Single support: the trunk's servo moment, its roll and pitch
+  // included, and the swinging hip's torque on its thigh are the stance's
+  // moment together, the hip's carried whole (Yin, Loken and van de Panne
+  // 2007, Section 3.2: tau_stance = -tau_torso - tau_swing). On one sole,
+  // shrunken to x in [-0.03, 0.03], z in [-0.03, 0.18], it is borne as the
+  // centre of pressure's offset from the pivot, (M_z, -M_x) / F_y, kept on the
+  // sole.
+  const hip: IAutoMovieVector3 = { x: 3, y: 0, z: 0 };
+  const sole = (back: number, front: number, side: number) => [
+    { x: -side, y: 0, z: back },
+    { x: side, y: 0, z: back },
+    { x: side, y: 0, z: front },
+    { x: -side, y: 0, z: front },
+  ];
+  const lift: number = 700;
+  const single = (trunk: IAutoMovieVector3) => {
+    const moment: IAutoMovieVector3 = trackPhysicalRoot.moment({
+      trunk,
+      swings: [hip],
+    });
+    return {
+      moment,
+      allocated: physicalStanceBalance.allocate({
+        capture: { x: 0, y: 0, z: 0.05 },
+        reference: { x: 0, y: 0, z: 0.05 },
+        command: { x: 0, y: 0, z: 0.05 },
+        offset: { x: moment.z / lift, y: 0, z: -moment.x / lift },
+        shrunken: sole(-0.03, 0.18, 0.03),
+        support: sole(-0.05, 0.2, 0.05),
+      }),
+    };
+  };
+  const held = single({ x: -7, y: 2, z: 14 });
+  near("single moment x", held.moment.x, -7 + 3);
+  near("single moment z", held.moment.z, 14);
+  near("single moment y", held.moment.y, 2);
+  near("single served p.x", held.allocated.pressure.x, 14 / lift);
+  near("single served p.z", held.allocated.pressure.z, 0.05 + 4 / lift);
+  near("single served u.x", held.allocated.pivot.x, 0);
+  near("single served u.z", held.allocated.pivot.z, 0.05);
+  // A trunk asking 5 cm of roll room gets the sole's 3 cm on the centre of
+  // pressure, the rest through the pivot; the swing hip's torque is still
+  // carried whole.
+  const large = single({ x: -3, y: 0, z: 35 });
+  near("single room p.x", large.allocated.pressure.x, 0.03);
+  near("single room u.x", large.allocated.pivot.x, 0.03 - 35 / lift);
+  near("single hip whole", large.moment.x - -3, hip.x);
 
   // 2. The shrunken square.
   const shrunk: IAutoMovieVector3[] = physicalStanceBalance.shrink(

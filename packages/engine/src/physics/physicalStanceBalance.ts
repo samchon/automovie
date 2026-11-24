@@ -325,7 +325,8 @@ export namespace physicalStanceBalance {
     );
     // The torso's moment asks the centre of pressure to lie (tau_z, -tau_x) /
     // F_y from the pivot; the support is shared between capture, that moment
-    // and convergence in that order (`allocate`), and the moment borne is
+    // and convergence in that order, convergence before the moment in the
+    // band past the shrunken edge (`allocate`), and the moment borne is
     // what the two points' offset carries. Its yaw is borne as asked: the
     // feet turn the body only by their friction about the vertical, which the
     // support cascade's torsional rows carry within their levers' cones
@@ -1095,6 +1096,14 @@ export namespace physicalStanceBalance {
    * 3. Convergence: u_law = xi + k (xi - xi_ref) takes what is left, the term
    *    that is trimmed.
    *
+   * 2b. In the band, xi_eff past the shrunken edge but inside the support,
+   *    where capture is at risk, convergence comes before the trunk, linear
+   *    momentum kept before angular as Lee and Goswami order them: u = u_law,
+   *    and p, nearest u_law + delta on the support, takes the trunk's offset
+   *    only as far as the room allows, the term that is trimmed. The pivot
+   *    then may leave the support, which turns the trunk instead of letting
+   *    the trunk's servo hold the pivot inside the capture point.
+   *
    * Past the support's edge, p sits at the edge nearest xi_eff. A body with a
    * hip strategy toward it (`hip`) sets the pivot's offset past p instead of
    * the trunk's servo: out along the excess while its trunk spins up, back
@@ -1156,11 +1165,10 @@ export namespace physicalStanceBalance {
       input.shrunken,
       capture,
     );
+    const sheltered: boolean =
+      Math.hypot(capture.x - inner.x, capture.z - inner.z) <= 1e-9;
     const room: readonly IAutoMovieVector3[] =
-      input.shrunken.length >= 3 &&
-      Math.hypot(capture.x - inner.x, capture.z - inner.z) <= 1e-9
-        ? input.shrunken
-        : input.support;
+      input.shrunken.length >= 3 && sheltered ? input.shrunken : input.support;
     const away: IAutoMovieVector3 = Vector3.subtract(capture, input.reference);
     const length: number = Math.hypot(away.x, away.z);
     const admissible: IAutoMovieVector3[] =
@@ -1172,6 +1180,10 @@ export namespace physicalStanceBalance {
       admissible.length > 0 ? admissible : room,
       wanted,
     );
+    // In the band, past the shrunken edge and inside the support, capture is
+    // at risk: convergence goes before the trunk, the pivot keeping the law's
+    // command and the trunk's offset trimmed to the room left (rule 2b).
+    if (!sheltered) return result(pressure, command);
     return result(pressure, Vector3.subtract(pressure, offset));
   }
 

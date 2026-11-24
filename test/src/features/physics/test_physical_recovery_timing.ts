@@ -37,12 +37,14 @@ import { TestValidator } from "@nestia/e2e";
  * 7. Band: a capture point parked 1.5 cm past the shrunken support, past a
  *    0.5 cm margin, steps 1 / omega after it entered; one converging inward
  *    as e^(-omega t) through the band never steps, nor one within the margin
- *    (Koolen et al., Corollary 3; design-4017-edge, E3).
+ *    (Koolen et al., Corollary 3; design-4017-edge, E3). A parked one whose
+ *    step would not capture holds, and steps as soon as a capturing step
+ *    appears.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.release`, `touchdown`, `ready`, `tipping`, `saturate` and `swingForce` and reads their values.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated thresholds and the closed-form rate, angle and force evaluated by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a loaded from an unloaded limb, a long-waiting loaded one from an unloaded one, a held load from a single substep's, a cleared foot's load from one that never left the floor, a rising foot's scrape from a descending foot's touchdown, a ramping landing from a settled one, horizontal from vertical momentum, a small error from a saturated one, a resting swing from an accelerating one, and a parked capture point from a converging one.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a loaded from an unloaded limb, a long-waiting loaded one from an unloaded one, a held load from a single substep's, a cleared foot's load from one that never left the floor, a rising foot's scrape from a descending foot's touchdown, a ramping landing from a settled one, horizontal from vertical momentum, a small error from a saturated one, a resting swing from an accelerating one, a parked capture point from a converging one, and a capturing step from one that does not capture.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_recovery_timing(): void {
@@ -213,6 +215,7 @@ export function test_physical_recovery_timing(): void {
   const band = (
     excess: (t: number) => number,
     seconds: number,
+    viable: (t: number) => boolean = (): boolean => true,
   ): number | undefined => {
     let open: { since: number; excess: number } | undefined = undefined;
     for (let t: number = 0; t <= seconds + 1e-12; t += dt) {
@@ -223,6 +226,7 @@ export function test_physical_recovery_timing(): void {
           margin: 0.005,
           seconds: t,
           omega,
+          viable: viable(t),
         });
       if (step.due) return t;
       open = step.band;
@@ -240,6 +244,22 @@ export function test_physical_recovery_timing(): void {
     failures.push(`a converging capture point steps at ${converging}`);
   if (band(() => 0.004, 2) !== undefined)
     failures.push("a capture point within the margin steps");
+  // A parked capture point whose step would not capture holds instead, and
+  // steps at once when a capturing step appears.
+  const hopeless: number | undefined = band(
+    () => 0.015,
+    2,
+    (): boolean => false,
+  );
+  if (hopeless !== undefined)
+    failures.push(`a parked capture point steps without a capturing step at ${hopeless}`);
+  const later: number | undefined = band(
+    () => 0.015,
+    2,
+    (t: number): boolean => t >= 1,
+  );
+  if (later === undefined || Math.abs(later - 1) > dt + 1e-9)
+    failures.push(`a capturing step appearing at 1 s is taken at ${later}`);
 
   TestValidator.equals("recovery timing", failures, []);
 }

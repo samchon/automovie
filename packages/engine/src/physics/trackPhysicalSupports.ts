@@ -74,7 +74,7 @@ export function trackPhysicalSupports(
         : 0);
     if (
       strength === 0 ||
-      limb.bone === input.recoveryBone ||
+      (input.recoveryBones?.includes(limb.bone) ?? false) ||
       (input.dynamic && !input.dynamic.has(limb.bone))
     )
       continue;
@@ -234,8 +234,8 @@ export namespace trackPhysicalSupports {
     /** The solver substep, seconds. */
     dt: number;
 
-    /** The limb an active recovery swing drives itself; it gets no force here. */
-    recoveryBone?: string;
+    /** The limbs an active recovery swing drives itself, a diagonal pair's both; they get no force here. */
+    recoveryBones?: readonly string[];
 
     /** Joint torques by joint, N m, that internal actuation accumulates into; absent, forces act on the carriers directly. */
     actuation?: Map<string, IAutoMovieVector3>;

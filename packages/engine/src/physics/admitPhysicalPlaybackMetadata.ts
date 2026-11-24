@@ -210,6 +210,17 @@ export function admitPhysicalPlaybackMetadata(
       (state.failedLanding !== undefined &&
         typeof state.failedLanding !== "boolean") ||
       (state.cleared !== undefined && typeof state.cleared !== "boolean") ||
+      (state.touchdown !== undefined && !Number.isFinite(state.touchdown)) ||
+      // A diagonal pair's partner swings only with the swing it pairs.
+      (state.pair !== undefined &&
+        (!state.swing ||
+          typeof state.pair !== "object" ||
+          !state.pair.step ||
+          state.pair.step.bone === state.swing.bone ||
+          (state.pair.cleared !== undefined &&
+            typeof state.pair.cleared !== "boolean") ||
+          (state.pair.touchdown !== undefined &&
+            !Number.isFinite(state.pair.touchdown)))) ||
       (state.excess !== undefined &&
         !(Number.isFinite(state.excess) && state.excess >= 0)) ||
       (state.band !== undefined &&
@@ -273,6 +284,7 @@ export function admitPhysicalPlaybackMetadata(
     for (const step of [
       ...state.steps,
       ...(state.swing ? [state.swing] : []),
+      ...(state.pair ? [state.pair.step] : []),
     ]) {
       if (
         !step ||

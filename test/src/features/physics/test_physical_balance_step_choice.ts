@@ -2,10 +2,13 @@ import { AutoMoviePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalBalance,
+  IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSupportPatch,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { PhysicalDisturbance } from "../internal/PhysicalDisturbance";
 
 /** Gravity, metres per second squared. */
 const G: number = 9.81;
@@ -73,11 +76,18 @@ const REACH: number = 0.5;
  *    another limb's step captures and its own does not, and is kept as it is
  *    when its own limb has no step; before unloading it moves to the capturing
  *    step (design-4017-landing, decision 2: commit at the trigger).
+ * 9. A four-support body none of whose capturing steps can be unloaded at once
+ *    steps the chosen front foot with the rear foot across from it, both moved
+ *    by one displacement (Chen et al. 2022, Section 2.1, Example 1); a single
+ *    step that captures and can be unloaded wins over the pair, and a pair
+ *    under way is planned again as that pair.
+ * 10. A pair's two steps share a start and count as one landed swing phase; a
+ *    step armed before the phase ahead of it resolved overlaps it.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMoviePhysicalBalance.assess` on rectangular foot patches and reads its state, step target and timing.
  * @evidence contracts/development/testing.md#independent-expectations The capture point at landing follows the closed form with the remaining foot's shrunken rectangle clamped by hand, and the new support is a hand-built convex hull, not the implementation's polygon routines.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a trigger on the full outline from one on the shrunken outline, a crossover step from one on its own side, a landing that leaves the capture point outside the new support from one that captures it, an unclamped step from a clamped one, a repeated front foot from the other, and an unloading request from one not yet unloading.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates a trigger on the full outline from one on the shrunken outline, a crossover step from one on its own side, a landing that leaves the capture point outside the new support from one that captures it, an unclamped step from a clamped one, a repeated front foot from the other, an unloading request from one not yet unloading, a pair from an unloadable single step, and a pair's shared start from an overlapping step.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_physical_balance_step_choice(): void {
@@ -452,6 +462,129 @@ export function test_physical_balance_step_choice(): void {
       ?.bone !== better.bone
   )
     failures.push("a request not yet unloading kept a step that does not capture");
+
+  // 9. A diagonal pair: under a forward push a little to the left with the
+  // centre of pressure on the front edge, both front feet capture but bear
+  // it, and the rear feet cannot capture, so the front foot a single step
+  // would take steps with the rear foot across from it, both moved by one
+  // displacement, the other diagonal holding. With the capture point left of
+  // the centre, the right front foot's step is the shorter: the supports it
+  // leaves hold the capture point nearer.
+  const forward = (
+    pressure: IAutoMovieVector3,
+    extra?: Partial<IAutoMoviePhysicalBalance.IAssessInput>,
+  ): IAutoMoviePhysicalBalance.IResult["step"] =>
+    AutoMoviePhysicalBalance.assess({
+      center: { x: 0.02, y: HEIGHT, z: 0.45 },
+      velocity: { x: 0, y: 0, z: 0 },
+      gravity: G,
+      floor: 0,
+      supports: four,
+      pattern: pattern(four.map((support) => support.bone)),
+      maximumStep: REACH,
+      margin: MARGIN,
+      unavailable: [],
+      swing: SWING,
+      inset: INSET,
+      heading: { x: 0, y: 0, z: 1 },
+      pressure,
+      ...extra,
+    }).step;
+  const displacement = (
+    bone: string,
+    target: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
+    const support = four.find((candidate) => candidate.bone === bone)!;
+    return {
+      x: target.x - support.position.x,
+      y: 0,
+      z: target.z - support.position.z,
+    };
+  };
+  const paired = forward({ x: 0, y: 0, z: 0.38 });
+  if (
+    paired?.bone !== "frontRight" ||
+    paired.pair?.bone !== "backLeft" ||
+    paired.viable !== true
+  )
+    failures.push(
+      `a forward push bearing on the front edge stepped ${paired?.bone}+${paired?.pair?.bone} (viable ${paired?.viable}), not frontRight+backLeft`,
+    );
+  else {
+    const lead: IAutoMovieVector3 = displacement(paired.bone, paired.target);
+    const partner: IAutoMovieVector3 = displacement(
+      paired.pair!.bone,
+      paired.pair!.target,
+    );
+    if (
+      !(Math.hypot(lead.x - partner.x, lead.z - partner.z) < 1e-12) ||
+      !(lead.z > 0)
+    )
+      failures.push(
+        `the pair's feet move by ${JSON.stringify(lead)} and ${JSON.stringify(partner)}, not one forward displacement`,
+      );
+  }
+  // A single step that both captures and can be unloaded at once wins: the
+  // centre of pressure inside the three feet the front-left foot leaves.
+  const single = forward({ x: -0.1, y: 0, z: 0.1 });
+  if (single?.bone !== "frontLeft" || single.pair !== undefined)
+    failures.push(
+      `with the centre of pressure off the front-left foot, ${single?.bone}+${single?.pair?.bone} stepped, not frontLeft alone`,
+    );
+  // A pair under way is planned again as that pair, even where a single
+  // step could now be unloaded.
+  const flying = forward(
+    { x: -0.1, y: 0, z: 0.1 },
+    {
+      pair: ["frontLeft", "backRight"],
+      unavailable: ["frontRight", "backLeft"],
+      swing: { ...SWING, ramp: 0, elapsed: 0.1 },
+      force: true,
+    },
+  );
+  if (flying?.bone !== "frontLeft" || flying.pair?.bone !== "backRight")
+    failures.push(
+      `a pair under way was planned again as ${flying?.bone}+${flying?.pair?.bone}`,
+    );
+
+  // 10. Swing phases: the two feet of a pair share one start and count as
+  // one landed phase; a step armed before the phase ahead of it resolved
+  // overlaps it, as one starting apart from it does.
+  const swung = (
+    bone: string,
+    start: number,
+    resolved?: number,
+  ): IAutoMoviePhysicalRecoveryState["steps"][number] => ({
+    bone,
+    kind: "swing",
+    start,
+    end: start + 0.3,
+    from: { point: [0, 0], yaw: 0, pitch: 0, clearance: 0 },
+    to: { point: [0, 0.3], yaw: 0, pitch: 0, clearance: 0 },
+    ...(resolved !== undefined
+      ? { resolved: { seconds: resolved, status: "landed" as const } }
+      : {}),
+  });
+  const pair = [swung("frontLeft", 1, 1.3), swung("backRight", 1, 1.35)];
+  if (
+    PhysicalDisturbance.phases(pair).length !== 1 ||
+    PhysicalDisturbance.landed(pair) !== 1 ||
+    PhysicalDisturbance.overlaps(pair).length !== 0
+  )
+    failures.push("a diagonal pair did not count as one landed swing phase");
+  const early = [...pair, swung("frontRight", 1.32, 1.6)];
+  if (
+    PhysicalDisturbance.overlaps(early).join() !== "1" ||
+    PhysicalDisturbance.landed(early) !== 2
+  )
+    failures.push(
+      "a step armed before the pair ahead of it resolved was not an overlap",
+    );
+  if (
+    PhysicalDisturbance.overlaps([...pair, swung("frontRight", 1.35, 1.6)])
+      .length !== 0
+  )
+    failures.push("a step armed once the pair ahead resolved overlapped it");
 
   TestValidator.equals("recovery step choice", failures, []);
 }

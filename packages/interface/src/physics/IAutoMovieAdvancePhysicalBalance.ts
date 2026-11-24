@@ -26,8 +26,13 @@ export namespace IAutoMovieAdvancePhysicalBalance {
      * A lifted swing's path as its drive takes it, metres: the clearance its
      * stance can carry and how much further its lowest point hangs below its
      * endpoint than when planted, so the joints' reference is fit to the same
-     * path. Absent while no limb swings.
+     * path. Absent while no limb swings. A diagonal pair's partner has its
+     * own, as `pair`.
      */
-    swing?: { height: number; hang: number };
+    swing?: {
+      height: number;
+      hang: number;
+      pair?: { height: number; hang: number };
+    };
   };
 }

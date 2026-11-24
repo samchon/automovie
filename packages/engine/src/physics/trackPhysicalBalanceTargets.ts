@@ -8,6 +8,7 @@ import type {
   IAutoMoviePlanPhysicalSupportTargets,
   IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
+  IAutoMovieStepPlanner,
   IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -19,6 +20,7 @@ import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { choosePhysicalSupportFit } from "./choosePhysicalSupportFit";
 import { physicalBalanceReference } from "./physicalBalanceReference";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
+import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalSwingReference } from "./physicalSwingReference";
 import { planPhysicalBalanceTargets } from "./planPhysicalBalanceTargets";
@@ -42,9 +44,10 @@ export function trackPhysicalBalanceTargets(input: {
   /** Current declared ownership and effort. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
   /** Measured stance owners. */ planted: readonly string[];
   /** Causal recovery trajectory and accepted placements; revisions invalidate an in-interval plan. */ state: IAutoMoviePhysicalRecoveryState;
-  /** A lifted swing's path as its drive takes it (`advancePhysicalBalance`). */ path?: {
+  /** A lifted swing's path as its drive takes it, and a diagonal pair's partner's (`advancePhysicalBalance`). */ path?: {
     height: number;
     hang: number;
+    pair?: { height: number; hang: number };
   };
 }): IAutoMovieTrackPhysicalBalanceTargets.IResult {
   const { body, bound, goals }: typeof input = input;
@@ -126,8 +129,13 @@ export function trackPhysicalBalanceTargets(input: {
     // alone, never restarted from the authored pose, whose solution, when
     // neither fit meets the tolerance, can win on residual one frame and
     // lose the next and throw the leg between two branches.
-    const lifting: boolean =
-      !!input.state.swing && !input.state.seating?.[input.state.swing.bone];
+    const swings: IAutoMovieStepPlanner.IStep[] = physicalRecoverySwing(
+      input.state,
+    ).filter(
+      (step: IAutoMovieStepPlanner.IStep): boolean =>
+        !input.state.seating?.[step.bone],
+    );
+    const lifting: boolean = swings.length > 0;
     const warm: Record<string, IAutoMovieRigidTransform> | undefined = reference
       ? warmPhysicalSupportTargets({
           order: bound.order.get(body.id)!,
@@ -160,71 +168,80 @@ export function trackPhysicalBalanceTargets(input: {
             ): joint is IAutoMoviePhysicalJoint => !!joint,
           ),
       });
-    // The lifted swing's chain is fitted to its foot's full pose, the path's
+    // Each lifted swing's chain is fitted to its foot's full pose, the path's
     // endpoint and the planned level attitude, from the previous reference
-    // (`physicalSwingReference.pose`).
-    const liftedLimb: (typeof policy.pattern.limbs)[number] | undefined =
-      lifting && warm
-        ? policy.pattern.limbs.find(
-            (candidate: (typeof policy.pattern.limbs)[number]): boolean =>
-              candidate.bone === input.state.swing!.bone,
-          )
-        : undefined;
-    const liftedJoint: IAutoMoviePhysicalJoint | undefined = liftedLimb
-      ? body.profile.joints.find(
+    // (`physicalSwingReference.pose`), a diagonal pair's both alike.
+    const liftedLimbs: (typeof policy.pattern.limbs)[number][] = warm
+      ? policy.pattern.limbs.filter(
+          (candidate: (typeof policy.pattern.limbs)[number]): boolean =>
+            swings.some(
+              (step: IAutoMovieStepPlanner.IStep): boolean =>
+                step.bone === candidate.bone,
+            ),
+        )
+      : [];
+    for (const liftedLimb of liftedLimbs) {
+      const liftedJoint: IAutoMoviePhysicalJoint | undefined =
+        body.profile.joints.find(
           (joint: IAutoMoviePhysicalJoint): boolean =>
             joint.child === liftedLimb.chain[0],
-        )
-      : undefined;
-    if (
-      liftedLimb &&
-      liftedJoint &&
-      warm &&
-      result.targets[liftedJoint.parent] &&
-      endpoints[liftedLimb.bone] &&
-      targets[liftedLimb.bone]
-    )
-      Object.assign(
-        result.targets,
-        physicalSwingReference.pose({
-          profile: body.profile,
-          chain: liftedLimb.chain,
-          base: result.targets[liftedJoint.parent]!,
-          seed: warm,
-          authored: targets,
-          goal: endpoints[liftedLimb.bone]!,
-          ...(liftedLimb.localPoint ? { localPoint: liftedLimb.localPoint } : {}),
-          rotation: targets[liftedLimb.bone]!.rotation,
-          iterations: policy.iterations ?? 24,
-          tolerance,
-        }).targets,
-      );
+        );
+      if (
+        liftedJoint &&
+        warm &&
+        result.targets[liftedJoint.parent] &&
+        endpoints[liftedLimb.bone] &&
+        targets[liftedLimb.bone]
+      )
+        Object.assign(
+          result.targets,
+          physicalSwingReference.pose({
+            profile: body.profile,
+            chain: liftedLimb.chain,
+            base: result.targets[liftedJoint.parent]!,
+            seed: warm,
+            authored: targets,
+            goal: endpoints[liftedLimb.bone]!,
+            ...(liftedLimb.localPoint
+              ? { localPoint: liftedLimb.localPoint }
+              : {}),
+            rotation: targets[liftedLimb.bone]!.rotation,
+            iterations: policy.iterations ?? 24,
+            tolerance,
+          }).targets,
+        );
+    }
     // A lifted swing's chain starts its references where its joints stand at
     // lift-off and is drawn toward the fit over the fade
-    // (`physicalSwingReference`), so its joints' references do not jump.
-    const swing: IAutoMoviePhysicalRecoveryState["swing"] = input.state.swing;
-    const limb: (typeof policy.pattern.limbs)[number] | undefined =
-      swing && !input.state.seating?.[swing.bone]
-        ? policy.pattern.limbs.find(
-            (candidate: (typeof policy.pattern.limbs)[number]): boolean =>
-              candidate.bone === swing.bone,
-          )
-        : undefined;
-    // The limb's whole subtree from its first joint, parent before child.
-    const chain: IAutoMoviePhysicalJoint[] = [];
-    const subtree: Set<string> = new Set(limb ? [limb.chain[0]!] : []);
-    for (const joint of limb ? body.profile.joints : [])
-      if (subtree.has(joint.child) || subtree.has(joint.parent)) {
-        subtree.add(joint.child);
-        chain.push(joint);
-      }
-    const share: number =
-      swing && chain.length > 0
-        ? (input.step / input.settings.rate - swing.start) /
-          physicalStanceBalance.FADE
-        : 1;
-    const actual: Record<string, IAutoMovieRigidTransform> = {};
-    if (share < 1) {
+    // (`physicalSwingReference`), so its joints' references do not jump; a
+    // diagonal pair's chains each alike.
+    let fitted: Record<string, IAutoMovieRigidTransform> = result.targets;
+    const fading: {
+      swing: IAutoMovieStepPlanner.IStep;
+      chain: IAutoMoviePhysicalJoint[];
+      actual: Record<string, IAutoMovieRigidTransform>;
+    }[] = [];
+    for (const swing of swings) {
+      const limb: (typeof policy.pattern.limbs)[number] | undefined =
+        policy.pattern.limbs.find(
+          (candidate: (typeof policy.pattern.limbs)[number]): boolean =>
+            candidate.bone === swing.bone,
+        );
+      // The limb's whole subtree from its first joint, parent before child.
+      const chain: IAutoMoviePhysicalJoint[] = [];
+      const subtree: Set<string> = new Set(limb ? [limb.chain[0]!] : []);
+      for (const joint of limb ? body.profile.joints : [])
+        if (subtree.has(joint.child) || subtree.has(joint.parent)) {
+          subtree.add(joint.child);
+          chain.push(joint);
+        }
+      const share: number =
+        chain.length > 0
+          ? (input.step / input.settings.rate - swing.start) /
+            physicalStanceBalance.FADE
+          : 1;
+      if (!(share < 1) || !result.targets[chain[0]!.parent]) continue;
+      const actual: Record<string, IAutoMovieRigidTransform> = {};
       const segments: ReadonlyMap<string, AutoMovieXpbdBody> =
         bound.segments.get(body.id)!;
       for (const bone of [chain[0]!.parent, ...chain.map((j) => j.child)]) {
@@ -234,20 +251,18 @@ export function trackPhysicalBalanceTargets(input: {
           rotation: rigid.rotation(),
         };
       }
+      fitted = {
+        ...fitted,
+        ...physicalSwingReference({
+          joints: chain,
+          base: result.targets[chain[0]!.parent]!,
+          actual,
+          fit: result.targets,
+          share,
+        }),
+      };
+      fading.push({ swing, chain, actual });
     }
-    const fitted: Record<string, IAutoMovieRigidTransform> =
-      share < 1 && result.targets[chain[0]!.parent]
-        ? {
-            ...result.targets,
-            ...physicalSwingReference({
-              joints: chain,
-              base: result.targets[chain[0]!.parent]!,
-              actual,
-              fit: result.targets,
-              share,
-            }),
-          }
-        : result.targets;
     const interval: IAutoMoviePhysicalTargetInterval.IPlan = Interval.plan({
       step: input.step,
       revision,
@@ -262,22 +277,21 @@ export function trackPhysicalBalanceTargets(input: {
       ),
       targets: fitted,
     });
-    if (
-      share < 1 &&
-      swing &&
-      Math.abs(input.seconds - swing.start) < 0.5 / nativeRate &&
-      interval.from[chain[0]!.parent]
-    )
-      interval.from = {
-        ...interval.from,
-        ...physicalSwingReference({
-          joints: chain,
-          base: interval.from[chain[0]!.parent]!,
-          actual,
-          fit: actual,
-          share: 0,
-        }),
-      };
+    for (const { swing, chain, actual } of fading)
+      if (
+        Math.abs(input.seconds - swing.start) < 0.5 / nativeRate &&
+        interval.from[chain[0]!.parent]
+      )
+        interval.from = {
+          ...interval.from,
+          ...physicalSwingReference({
+            joints: chain,
+            base: interval.from[chain[0]!.parent]!,
+            actual,
+            fit: actual,
+            share: 0,
+          }),
+        };
     planned = {
       ...interval,
       rootDrop: result.rootDrop,

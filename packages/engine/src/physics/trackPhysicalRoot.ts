@@ -54,9 +54,10 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     gravity,
     actuation,
     supports,
-    recoveryBone,
     dt,
   }: trackPhysicalRoot.IInput = input;
+  // The limbs a recovery swing has lifted, the swing's first.
+  const swinging: readonly string[] = input.recoveryBones ?? [];
   const rootStrength: number = target.strength;
   const rootGoal: IAutoMovieVector3 = Vector3.add(
     rootIntent.pose.position,
@@ -101,7 +102,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
   // 1, rule 2: the stance yaw reference latched at touchdown).
   const intended: IAutoMovieQuaternion = actuation
     ? Quaternion.multiply(
-        latchedHeading(body, seating, planted, recoveryBone),
+        latchedHeading(body, seating, planted, swinging),
         rootIntent.pose.rotation,
       )
     : rootIntent.pose.rotation;
@@ -154,7 +155,7 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
           IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
         >["pattern"]["limbs"][number],
       ): boolean =>
-        limb.bone !== recoveryBone &&
+        !swinging.includes(limb.bone) &&
         !target.unavailableSupports?.includes(limb.bone) &&
         (target.supportStrength?.[limb.bone] ?? 1) > 0,
     );
@@ -251,32 +252,32 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
             ...(landed ? { landed } : {}),
             spin: shift,
             velocity: rootIntent.velocity,
-            // The swinging hip's reaction and, in double support, the trunk's
-            // orientation servo, served after capture and before convergence
-            // with the centre of pressure kept on the support
-            // (`physicalStanceBalance.allocate`). With its feet held, a body has
-            // few joint motions beyond what its momentum fixes, a
-            // four-support body none, so the trunk turns back only through
-            // the ground's moment; the stance hips and the root's spin row
-            // hold it where the legs leave freedom
-            // (`physicalStanceJointTarget`). In single support the trunk is
-            // left to those, ranked with the swing (Khadiv et al. 2017,
-            // Table I). Its heading is the ground's in any support: no joint
-            // motion turns the whole body about the vertical, so its yaw servo
-            // is the feet's torsional friction (design-4017-qp3, Section 1,
-            // rule 2; `AutoMovieXpbdSupportRows`).
-            torque: Vector3.add(
-              swingHip(body, segments, recoveryBone, actuation),
-              recoveryBone === undefined
-                ? orientation
-                : { x: 0, y: orientation.y, z: 0 },
-            ),
+            // Each swinging hip's reaction and the trunk's orientation servo,
+            // in single support as in double, served after capture with the
+            // centre of pressure kept on the support
+            // (`physicalStanceBalance.allocate`; `trackPhysicalRoot.moment`).
+            // With its feet held, a body has few joint motions beyond what
+            // its momentum fixes, a four-support body none, so the trunk
+            // turns back through the ground's moment, which the stance leg
+            // realizes while the swing keeps its own task; the stance hips
+            // and the root's spin row hold it where the legs leave freedom
+            // (`physicalStanceJointTarget`). Its heading is the ground's in
+            // any support: no joint motion turns the whole body about the
+            // vertical, so its yaw servo is the feet's torsional friction
+            // (design-4017-qp3, Section 1, rule 2; `AutoMovieXpbdSupportRows`).
+            torque: trackPhysicalRoot.moment({
+              trunk: orientation,
+              swings: swinging.map(
+                (bone: string): IAutoMovieVector3 =>
+                  swingHip(body, segments, bone, actuation),
+              ),
+            }),
             origin,
             // The trunk's intended attitude, which its hip strategy's angle
             // is measured from (`physicalStanceBalance.hip`): the strategy
             // that holds the body instead of a step, so none while a limb
             // swings, whose landing captures it (Stephens 2011, Table 4.1).
-            ...(recoveryBone === undefined
+            ...(swinging.length === 0
               ? { intended: rootIntent.pose.rotation }
               : {}),
             strength: rootStrength,
@@ -323,6 +324,9 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
     // solver's summed contact wrench), not from the centre of mass's
     // acceleration (Stephens 2011, Eq. 5.31).
     if (integral) {
+      // The limbs swinging, as one key: a change resets the bias.
+      const swung: string | undefined =
+        swinging.length > 0 ? swinging.join("+") : undefined;
       let weight: number = 0;
       let realized: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const support of supports)
@@ -340,16 +344,16 @@ export function trackPhysicalRoot(input: trackPhysicalRoot.IInput): void {
         frozen:
           stance.clamped ||
           !!pushed ||
-          recoveryBone !== undefined ||
+          swinging.length > 0 ||
           !(weight > 0) ||
           limbs.some(
             (limb): boolean =>
               feet[limb.bone]!.flat < 1 || feet[limb.bone]!.bearing < 1,
           ),
-        reset: integral.swing !== recoveryBone,
+        reset: integral.swing !== swung,
         ...(weight > 0 ? { real: Vector3.scale(realized, 1 / weight) } : {}),
       });
-      integral.swing = recoveryBone;
+      integral.swing = swung;
       // The command is kept for the step choice: a limb whose remaining
       // supports hold it can be unloaded at once (`AutoMoviePhysicalBalance`
       // `.assess`).
@@ -492,12 +496,13 @@ function submit(
   });
 }
 /**
- * The support transitions a root task carries: the limb asked to step keeps
+ * The support transitions a root task carries: each limb asked to step keeps
  * its contacts held while its bearing share of the vertical force bounds
  * their total, ramping to zero before it lifts (Herzog et al. 2016, Section
- * 5.3); the lifted limb's contacts are released to the contact passes, so
- * its swing moves it off the floor; every stance limb's carriers stay the
- * task's stance whatever their load, so their legs keep their posture rows.
+ * 5.3), both feet of a diagonal pair alike; the lifted limbs' contacts are
+ * released to the contact passes, so their swings move them off the floor;
+ * every stance limb's carriers stay the task's stance whatever their load, so
+ * their legs keep their posture rows.
  */
 function transitions(
   input: trackPhysicalRoot.IInput,
@@ -525,22 +530,36 @@ function transitions(
         )
       : [];
   };
-  const leaving: AutoMovieXpbdBody[] = carriers(input.requested);
-  const lifted: AutoMovieXpbdBody[] = carriers(input.recoveryBone);
+  const requested: readonly string[] = input.requested ?? [];
+  const leaving: AutoMovieXpbdWorld.IBound[] = requested.flatMap(
+    (bone: string): AutoMovieXpbdWorld.IBound[] => {
+      const bodies: AutoMovieXpbdBody[] = carriers(bone);
+      return bodies.length > 0
+        ? [
+            {
+              bodies,
+              force:
+                Math.max(0, Math.min(1, input.seating?.[bone]?.bearing ?? 1)) *
+                force,
+            },
+          ]
+        : [];
+    },
+  );
+  const lifted: AutoMovieXpbdBody[] = (input.recoveryBones ?? []).flatMap(
+    (bone: string): AutoMovieXpbdBody[] => carriers(bone),
+  );
   const stance: AutoMovieXpbdBody[] = limbs.flatMap(
     (limb: IAutoMovieFootfallPattern["limbs"][number]): AutoMovieXpbdBody[] =>
       carriers(limb.bone),
   );
-  const share: number = input.requested
-    ? Math.max(0, Math.min(1, input.seating?.[input.requested]?.bearing ?? 1))
-    : 1;
   // A foot entering the holds, landed or touching again after it left them,
   // has its force bound ramp in with the lesser of its bearing and entry
   // shares, mirrored at lift-off (design-4017-qp3, Section 3, rule 3;
   // Herzog et al. 2016, Section 5.3).
   const entering: AutoMovieXpbdWorld.IBound[] = limbs.flatMap(
     (limb: IAutoMovieFootfallPattern["limbs"][number]): AutoMovieXpbdWorld.IBound[] => {
-      if (limb.bone === input.requested) return [];
+      if (requested.includes(limb.bone)) return [];
       const seat: NonNullable<trackPhysicalRoot.IInput["seating"]>[string] | undefined =
         input.seating?.[limb.bone];
       const ramp: number = Math.max(
@@ -553,10 +572,7 @@ function transitions(
         : [];
     },
   );
-  const bounds: AutoMovieXpbdWorld.IBound[] = [
-    ...(leaving.length > 0 ? [{ bodies: leaving, force: share * force }] : []),
-    ...entering,
-  ];
+  const bounds: AutoMovieXpbdWorld.IBound[] = [...leaving, ...entering];
   return {
     ...(bounds.length > 0 ? { bounds } : {}),
     ...(lifted.length > 0 ? { released: new Set(lifted) } : {}),
@@ -575,7 +591,7 @@ function latchedHeading(
   body: IAutoMoviePhysicalSimulationInput.IBody,
   seating: trackPhysicalRoot.IInput["seating"],
   planted: trackPhysicalRoot.IInput["planted"],
-  swing: string | undefined,
+  swinging: readonly string[],
 ): IAutoMovieQuaternion {
   let sum: number = 0;
   let count: number = 0;
@@ -584,7 +600,7 @@ function latchedHeading(
     const anchor: { rotation: IAutoMovieQuaternion } | undefined =
       seating?.[limb.bone]?.anchor;
     const goal: IAutoMovieRigidTransform | undefined = planted?.[limb.bone];
-    if (limb.bone === swing || !anchor || !goal) continue;
+    if (swinging.includes(limb.bone) || !anchor || !goal) continue;
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       Quaternion.multiply(anchor.rotation, Quaternion.inverse(goal.rotation)),
       { x: 0, y: 0, z: 1 },
@@ -607,6 +623,33 @@ function latchedHeading(
  * @evidence contracts/development/design.md#prohibited-design-shortcuts Scanning the declaration finds no `any`, no `unknown`, no index signature and no cast; it duplicates no type that another owner declares as far as a name search shows.
  */
 export namespace trackPhysicalRoot {
+  /**
+   * The moment the stance's supports are asked to bear about the body, world
+   * N m: the trunk's orientation servo in every support, single as double,
+   * and each swinging hip's torque on its thigh, whose reaction the stance
+   * holds. The stance hips hold the trunk in the world frame and take the
+   * swing's reaction, tau_stance = -tau_torso - tau_swing (Yin, Loken and van
+   * de Panne 2007, Section 3.2; Pratt et al., M2V2, Sections VII-D2 and
+   * VII-E4); the centre of pressure's room bounds what is borne
+   * (`physicalStanceBalance.allocate`). A swing hip's own demand is carried
+   * whole and never trimmed to make room for the trunk: the swing keeps its
+   * own task.
+   *
+   * @param input The trunk's servo moment and each swinging hip's torque on
+   *   its thigh, world N m.
+   * @returns Their sum, world N m.
+   */
+  export function moment(input: {
+    trunk: IAutoMovieVector3;
+    swings: readonly IAutoMovieVector3[];
+  }): IAutoMovieVector3 {
+    return input.swings.reduce(
+      (sum: IAutoMovieVector3, hip: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.add(sum, hip),
+      input.trunk,
+    );
+  }
+
   /** The same pre-integration state used by endpoint and joint controllers. */
   export interface IInput {
     /** Admitted global physical settings. */ settings: IAutoMoviePhysicalSimulationInput.IInput;
@@ -645,8 +688,8 @@ export namespace trackPhysicalRoot {
       IAutoMovieVector3
     >;
     /** Actual solved floor witnesses with their measured impulses and centres of pressure. */ supports: IAutoMovieCollectPhysicalSupports.ISupport[];
-    /** Endpoint currently owned by recovery: a lifted swing limb. */ recoveryBone?: string;
-    /** A limb asked to step that has not lifted yet: its share of the stance ramps out. */ requested?: string;
+    /** Endpoints currently owned by recovery: the lifted swing limbs, a diagonal pair's both. */ recoveryBones?: readonly string[];
+    /** Limbs asked to step that have not lifted yet: each one's share of the stance ramps out. */ requested?: readonly string[];
     /** Enclosing cache interval. */ step: number;
     /** Exact declared native tick time. */ seconds: number;
     /** Native integration duration. */ dt: number;
