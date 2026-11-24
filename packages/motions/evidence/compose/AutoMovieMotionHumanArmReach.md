@@ -68,58 +68,58 @@ None.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the result and the refusal.
+States the partial orientation constraint, the two free coordinates, F and its terms, the constrained problem and its solver, the units, the start and the kept branch, the limit check after it, the refusal with its joint, axis and degrees, and that the choice is made once where the law plans.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Each candidate is fitted by the rig's own arm fit within its ranges and its hand's attitude miss read off the fitted pose; a turn counts as met only where the fit's swivel lies on an arc that admits it (`IAutoMovieSwivelSeed.admitted`), an arc narrower than the swivel's resolution being none (`distalEndSwivelAdmitted`), so the course that continues the fit keeps it; the first met turn in order of size is taken (Tolani et al. 2000, section 3.2.4), and a met arc narrower than the scan is found by golden-section search on the miss (Kiefer 1953).
+Tolani, Goswami and Badler 2000, Graphical Models 62:353, section 3.3 "Partial Orientation Constraints", "Joint limits" (pp. 374-376) and Table 3 (p. 379): with a free turn psi about the end effector's axis and the swivel phi, the pair minimising F = sum over every angle but the elbow's hinge of (theta_i - theta_i*)^2, theta_i* the middle of each range, subject to every angle within its range (a two-variable problem with nonlinear inequality constraints; the unconstrained minimum, Table 2, may leave a joint past its range, as section 3.3 states). It is solved by the trajopt sequential convex optimiser (`HumanSequentialConvex`, the port of `sco::BasicTrustRegionSQP`, github.com/joschu/trajopt at 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause; Schulman et al. 2014) with its own parameters, the cost and the constraint read through the port of trajopt's CostFromFunc and ConstraintFromFunc (`HumanSequentialConvexFunctions`), in radians, the units sco's parameters are stated in. Where the minimum is interior it is the unconstrained one. The start is the arm's fit of the asked attitude, whose swivel is the feasible one nearest the hint's (sections 3.2.2 and 3.2.4), and its branch is kept. The angles are the shoulder's and the wrist's read before the range applies (`HumanLimbAt.free`), the wrist read as one spherical joint whose twist the rig takes in the forearm, so the twist's range is the forearm's. The angles at the solution are checked by the rig's own clamp (`clampJointToSkeleton`, coupled limits included) within `ROM_TOLERANCE`, and a joint past it is refused with its name, axis and degrees.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One scan over the turns, one choice, one refusal.
+One private choice (`resolve`) read by `attitude`, which refuses, and `met`, which answers none; the angles come from the limb's owner (`HumanLimbAt.free`, `fitHingedChainAt.free`), the ranges from the rig's (`getConstraint`, `clampJointToSkeleton`) and the solve from the one constrained optimiser's owner (`HumanSequentialConvex`).
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-An unmet attitude is refused with its least miss; nothing is clamped or widened.
+No scan, step or tuned value: the former 15 degree scan, golden-section refinement and admitted-arc test, which had no source, are gone. The objective and the constraints are the reference's, the optimiser's parameters sco's own defaults in sco's units, and the tolerance the rig's.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most 360 / STEP + 1 scanned fits and 2 REFINE + 1 refining ones per call, made once per plan by its callers, never per frame; the scan stops at the first met turn.
+One fit for the start, then one closed-form reading of the free angles per evaluation of F or the constraint (no placement, clamp or projection), as many as the SQP's convexifications and trust-region trials ask for two variables, once where the law plans.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-A pure reading of its request.
+Each call solves its own request.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Retains nothing.
+Retains nothing after returning.
 
 # src/compose/AutoMovieMotionHumanArmReach.ts#AutoMovieMotionHumanArmReach.met
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what it answers and who uses it.
+States that it is `attitude`'s choice answering none where `attitude` refuses.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The same search as `attitude` (the rig's own fit per candidate turn, a turn met only on an admitted arc, the nearest met in order of size), answering none where `attitude` refuses, so a law that chooses a hand's place by whether its attitude is met reads the one search without catching a refusal.
+The same section 3.3 choice and limit check as `attitude`.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One call of the shared search.
+Reads the one private choice `attitude` reads.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No relaxed test: the answer is `attitude`'s own.
+No catch: a joint past its range is the choice's own answer, and every other failure propagates.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-The search's bound per call, made at plan time by its callers.
+As `attitude`.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-A pure reading of its request.
+Each call solves its own request.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Retains nothing.
+Retains nothing after returning.

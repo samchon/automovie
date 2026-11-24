@@ -1,6 +1,8 @@
 import type {
+  IAutoMovieBone,
   IAutoMovieFitChainToTargetProps,
   IAutoMovieHingedArmSwivel,
+  IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
   IAutoMovieSeededChainFit,
@@ -11,6 +13,8 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { getConstraint } from "../rom/getConstraint";
+import { basisOf } from "./basisOf";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
@@ -33,6 +37,9 @@ import { prepareHingedChainAt } from "./prepareHingedChainAt";
  * clamp, and a requested effector rotation is laid by the fit's own final
  * orientation (`orientChainEffector`: the distal twist split and the end
  * joint's range projection), the tail of the hinged fit for one candidate.
+ *
+ * The same swivel's joint angles before the range of motion applies are
+ * `fitHingedChainAt.free`'s, read without placing the chain.
  *
  * @param props The fit request: source pose, chain, rig tables and target; an
  *   optional effector rotation.
@@ -59,28 +66,10 @@ export function fitHingedChainAt(
   const stop: IAutoMovieHingedArmSwivel.IStop = at.branches[index]!;
   const posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
     hingedArmSwivel.pose(at.chain, stop.theta)(swivel);
-  const free: readonly [IAutoMovieJointPose, IAutoMovieJointPose] = [
-    {
-      bone: props.chain.upper,
-      ...decomposeJointRotationOnBasis(
-        posed.upper,
-        at.upperBasis,
-        props.restFrames?.[props.chain.upper],
-        at.prepared.upperDomain,
-      ),
-    },
-    {
-      bone: props.chain.lower,
-      ...decomposeJointRotationOnBasis(
-        posed.lower,
-        at.lowerBasis,
-        props.restFrames?.[props.chain.lower],
-        at.prepared.lowerDomain,
-      ),
-    },
-  ];
-  const upper: IAutoMovieJointPose = at.workspace.clamp(free[0]);
-  const lower: IAutoMovieJointPose = at.workspace.clamp(free[1]);
+  const unclamped: readonly [IAutoMovieJointPose, IAutoMovieJointPose] =
+    decomposed(props, at, posed);
+  const upper: IAutoMovieJointPose = at.workspace.clamp(unclamped[0]);
+  const lower: IAutoMovieJointPose = at.workspace.clamp(unclamped[1]);
   // Whether the range of motion moved either joint off the swivel's own
   // pose, which moves the end joint off the target.
   const moved = (a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean =>
@@ -121,8 +110,88 @@ export function fitHingedChainAt(
     ),
     seed: { swivel, branch: index },
     shortfall: stop.shortfall,
-    clamped: moved(free[0], upper) || moved(free[1], lower),
+    clamped: moved(unclamped[0], upper) || moved(unclamped[1], lower),
     blocked,
+  };
+}
+
+/**
+ * The root's and the mid joint's clinical angles of a swivel's pose before the
+ * range of motion applies, each decomposed on its prepared basis in its own
+ * domain.
+ */
+function decomposed(
+  props: IAutoMovieFitChainToTargetProps,
+  at: prepareHingedChainAt.IPrepared,
+  posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>>,
+): readonly [IAutoMovieJointPose, IAutoMovieJointPose] {
+  return [
+    {
+      bone: props.chain.upper,
+      ...decomposeJointRotationOnBasis(
+        posed.upper,
+        at.upperBasis,
+        props.restFrames?.[props.chain.upper],
+        at.prepared.upperDomain,
+      ),
+    },
+    {
+      bone: props.chain.lower,
+      ...decomposeJointRotationOnBasis(
+        posed.lower,
+        at.lowerBasis,
+        props.restFrames?.[props.chain.lower],
+        at.prepared.lowerDomain,
+      ),
+    },
+  ];
+}
+
+/**
+ * The end joint's angles at the swivel before its range applies: the requested
+ * effector rotation relative to the mid bone posed by the hinge alone (no
+ * distal twist), decomposed on the end joint's clinical basis in its own
+ * domain, as `orientChainEffector` reads the same rotation before it splits the
+ * twist and projects; null without a requested rotation.
+ */
+function freeEffector(
+  props: IAutoMovieFitChainToTargetProps,
+  at: prepareHingedChainAt.IPrepared,
+  posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>>,
+): IAutoMovieJointPose | null {
+  if (props.effectorRotation === undefined) return null;
+  const effector: IAutoMovieFitChainToTargetProps["chain"]["effector"] =
+    props.chain.effector;
+  const lower: IAutoMovieQuaternion = Quaternion.multiply(
+    Quaternion.multiply(
+      Quaternion.multiply(at.prepared.upper.worldRotation, posed.upper),
+      at.prepared.lowerRotation,
+    ),
+    posed.lower,
+  );
+  const local: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      Quaternion.inverse(at.prepared.effectorBaseRotation),
+      Quaternion.multiply(Quaternion.inverse(lower), props.effectorRotation),
+    ),
+  );
+  const basis: IAutoMovieJointAxes =
+    at.workspace.rig?.basis(effector, "decomposeJointRotation axes") ??
+    basisOf(props.jointAxes?.[effector]);
+  const bone: IAutoMovieBone | undefined = props.skeleton.bones.find(
+    (b: IAutoMovieBone): boolean => b.bone === effector,
+  );
+  return {
+    bone: effector,
+    ...decomposeJointRotationOnBasis(
+      local,
+      basis,
+      props.restFrames?.[effector],
+      {
+        bone: effector,
+        constraint: getConstraint(effector, bone?.constraint ?? null),
+      },
+    ),
   };
 }
 
@@ -142,5 +211,68 @@ export namespace fitHingedChainAt {
      * where the chain passes through what the fit keeps clear of.
      */
     blocked: number;
+  }
+
+  /**
+   * A hinged chain's joint angles at a swivel and bend branch before the range
+   * of motion applies, with no placement, clamp or projection: the root's and
+   * the mid joint's decomposition of the swivel's pose, as `fitHingedChainAt`
+   * decomposes them before its clamp, and, for a requested effector rotation,
+   * the end joint's rotation relative to the hinge-only mid bone decomposed on
+   * the end joint's clinical basis, as `orientChainEffector` reads that
+   * rotation before it splits the twist and projects. These are the angles
+   * theta_1 to theta_7 of Tolani, Goswami and Badler 2000 (Graphical Models
+   * 62:353, sections 3.2.3 and 3.2.4) at the swivel, the elbow a pure hinge
+   * (theta_4) and the wrist's three angles read as one spherical joint, which a
+   * caller choosing the swivel and a free turn of the end rotation compares
+   * with the joints' ranges (section 3.3, "Joint limits").
+   *
+   * @param props The fit request: source pose, chain, rig tables and target; an
+   *   optional effector rotation.
+   * @param swivel The swivel, degrees, in the frame `IAutoMovieSwivelNear` and
+   *   the fit's seeds use.
+   * @param branch The bend branch, 0 or 1; clamped to the branches the target
+   *   has.
+   * @returns The angles, clinical degrees; null when the chain is not a hinged
+   *   two-bone chain or is degenerate.
+   */
+  export function free(
+    props: IAutoMovieFitChainToTargetProps,
+    swivel: number,
+    branch: number,
+  ): IFree | null {
+    const at: prepareHingedChainAt.IPrepared | null =
+      prepareHingedChainAt(props);
+    if (at === null) return null;
+    const index: number = Math.min(
+      Math.max(0, Math.round(branch)),
+      at.branches.length - 1,
+    );
+    const posed: ReturnType<ReturnType<typeof hingedArmSwivel.pose>> =
+      hingedArmSwivel.pose(at.chain, at.branches[index]!.theta)(swivel);
+    const [upper, lower]: readonly [IAutoMovieJointPose, IAutoMovieJointPose] =
+      decomposed(props, at, posed);
+    return { upper, lower, effector: freeEffector(props, at, posed) };
+  }
+
+  /**
+   * A chain's joint angles at a swivel before the range of motion applies:
+   * Tolani, Goswami and Badler's theta_1 to theta_7 (2000, sections 3.2.3 and
+   * 3.2.4), clinical degrees, the end joint's three read as one spherical joint
+   * on its own basis.
+   */
+  export interface IFree {
+    /** The root joint (theta_1 to theta_3). */
+    upper: IAutoMovieJointPose;
+
+    /** The mid joint, its hinge only (theta_4). */
+    lower: IAutoMovieJointPose;
+
+    /**
+     * The end joint relative to the hinge-only mid bone (theta_5 to theta_7),
+     * its twist the distal twist the mid bone takes on a limb that twists
+     * distally; null without a requested effector rotation.
+     */
+    effector: IAutoMovieJointPose | null;
   }
 }

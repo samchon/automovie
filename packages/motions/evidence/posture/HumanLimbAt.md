@@ -57,3 +57,33 @@ Each call reads its own pose.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
+
+# src/posture/HumanLimbAt.ts#HumanLimbAt.free
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is read, that nothing is placed, the mirror-image frame of a left limb and the ranges it is read against, each parameter and the null answer.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The engine's angles at a swivel (`fitHingedChainAt.free`, Tolani, Goswami and Badler 2000, sections 3.2.3-3.3) on the same request `at` builds: the chain's records, a left limb's mirrored, the goal carried into the world.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+`at` and `free` share one builder of the mirrored request (`mirrored`), so the two read the limb identically.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+No constant or tolerance.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One view of the chain's records and one engine reading per call, with no placement or merge.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each call reads its own request.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Retains nothing after returning.

@@ -60,42 +60,57 @@ export namespace HumanLimbAt {
   ): (IAutoMovieSeededChainFit & { shortfall: number }) | null {
     // The chain is posed on the records it reads (`HumanLimbView`), a left
     // limb's in their mirror image, and the posed records are merged back.
-    const view: HumanLimbView.IView = HumanLimbView.of(
-      body,
-      pose,
-      limb,
-      goal,
-      [],
-    );
-    const left: boolean = limb.startsWith("left");
-    const image: IAutoMoviePose = left
-      ? HumanLimbMirror.pose(view.pose)
-      : view.pose;
-    const chain: AutoMovieHumanLimb = left ? HumanLimbMirror.limb(limb) : limb;
-    const carried: IAutoMovieHumanLimbGoal = HumanLimbFit.world(
-      body,
-      image,
-      chain,
-      left ? HumanLimbMirror.goal(goal) : goal,
-    );
-    HumanLimbView.admitted(body, pose);
+    const read: IRead = mirrored(body, pose, limb, goal);
     const posed: (IAutoMovieSeededChainFit & { shortfall: number }) | null =
-      fitHingedChainAt(request(body, image, chain, carried), swivel, branch);
+      fitHingedChainAt(read.request, swivel, branch);
     return posed === null
       ? null
       : {
           ...posed,
           pose: HumanLimbView.merged(
             pose,
-            view,
-            image.joints,
+            read.view,
+            read.image.joints,
             posed.pose.joints,
             null,
-            left
+            read.left
               ? HumanLimbMirror.joint
               : (joint: IAutoMovieJointPose): IAutoMovieJointPose => joint,
           ),
         };
+  }
+
+  /**
+   * The limb's joint angles at a swivel and branch before the range of motion
+   * applies (`fitHingedChainAt.free`: Tolani, Goswami and Badler's theta_1 to
+   * theta_7), with no placement: the request is `at`'s own. A left limb is read
+   * as the right limb of its mirror image, so its angles are that right limb's,
+   * read against the right bone's range (the ranges are mirror images).
+   *
+   * @param body The performer's body.
+   * @param pose The pose before the limb is placed.
+   * @param limb The limb.
+   * @param goal Its goal, attached or not; its point is the end joint's target
+   *   and its rotation, if any, the end joint's.
+   * @param swivel The swivel, degrees, in the fit's seed frame (a left limb's
+   *   in its mirror image).
+   * @param branch The bend branch, 0 or 1.
+   * @returns The angles, clinical degrees, in the fit's frame; null for a chain
+   *   that is not hinged or is degenerate.
+   */
+  export function free(
+    body: IAutoMovieMotionHumanBody,
+    pose: IAutoMoviePose,
+    limb: AutoMovieHumanLimb,
+    goal: IAutoMovieHumanLimbGoal,
+    swivel: number,
+    branch: number,
+  ): fitHingedChainAt.IFree | null {
+    return fitHingedChainAt.free(
+      mirrored(body, pose, limb, goal).request,
+      swivel,
+      branch,
+    );
   }
 
   /**
@@ -165,6 +180,54 @@ const NOWHERE: IAutoMovieHumanLimbGoal = {
   point: { x: 0, y: 0, z: 0 },
   bend: { x: 0, y: 0, z: 0 },
 };
+
+/**
+ * A limb's request as the fit reads it: on the records the chain reads
+ * (`HumanLimbView`), a left limb's in their mirror image, its goal carried into
+ * the world; the whole pose admitted first.
+ */
+interface IRead {
+  /** The records the chain reads. */
+  view: HumanLimbView.IView;
+
+  /** Whether the limb is a left one, read in its mirror image. */
+  left: boolean;
+
+  /** The records the chain is posed on, mirrored for a left limb. */
+  image: IAutoMoviePose;
+
+  /** The fit's request toward the carried goal. */
+  request: IAutoMovieFitChainToTargetProps;
+}
+
+/** A limb's request as the fit reads it (`IRead`). */
+function mirrored(
+  body: IAutoMovieMotionHumanBody,
+  pose: IAutoMoviePose,
+  limb: AutoMovieHumanLimb,
+  goal: IAutoMovieHumanLimbGoal,
+): IRead {
+  const view: HumanLimbView.IView = HumanLimbView.of(
+    body,
+    pose,
+    limb,
+    goal,
+    [],
+  );
+  const left: boolean = limb.startsWith("left");
+  const image: IAutoMoviePose = left
+    ? HumanLimbMirror.pose(view.pose)
+    : view.pose;
+  const chain: AutoMovieHumanLimb = left ? HumanLimbMirror.limb(limb) : limb;
+  const carried: IAutoMovieHumanLimbGoal = HumanLimbFit.world(
+    body,
+    image,
+    chain,
+    left ? HumanLimbMirror.goal(goal) : goal,
+  );
+  HumanLimbView.admitted(body, pose);
+  return { view, left, image, request: request(body, image, chain, carried) };
+}
 
 /** The fit's own request for a limb toward a world goal. */
 function request(
