@@ -9,6 +9,7 @@ import type {
   IAutoMovieMotionHumanTouch,
   IAutoMovieMotionHumanTouchEffector,
   IAutoMovieMotionHumanTouchForm,
+  IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
@@ -24,11 +25,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
-/** The record of `ISelfCasesHands2`'s site. */
-type ISelfCasesHands2 = { region: AutoMovieHumanoidRegion };
-
-/** The record of `ISelfCasesHands`'s site. */
-type ISelfCasesHands = { region: AutoMovieHumanoidRegion };
 
 /**
  * Capture cases of the self-directed body actions on one polygon man standing
@@ -139,16 +135,17 @@ export function selfCases(
       const verdicts: IMotionCaptureCase.IVerdict[] = [
         ...everydayVerdicts.standard(performance, "a", body),
       ];
+      const target: IAutoMovieMotionTarget = params.target;
+      const other: IAutoMovieMotionTarget | undefined = params.other;
+      if (target.kind !== "self") continue;
       const hands: [AutoMovieHumanSide, AutoMovieHumanoidRegion][] = [
-        ["right", (params.target as ISelfCasesHands).region],
-        ...(params.other === undefined
-          ? []
-          : [
-              ["left", (params.other as ISelfCasesHands2).region] as [
-                AutoMovieHumanSide,
-                AutoMovieHumanoidRegion,
-              ],
-            ]),
+        ["right", target.region],
+        ...(other?.kind === "self"
+          ? [["left", other.region] satisfies [
+              AutoMovieHumanSide,
+              AutoMovieHumanoidRegion,
+            ]]
+          : []),
       ];
       for (const [side, region] of hands) {
         const pad: number = AutoMovieMotionHumanTouchEffector.pad(
@@ -248,7 +245,7 @@ export function selfCases(
       "fistPump",
       "neckRoll",
       "shoulderRoll",
-    ] as IAutoMovieMotionHumanSelfAction.Kind[]) {
+    ] satisfies IAutoMovieMotionHumanSelfAction.Kind[]) {
       const name: string = `self-${kind}${suffix}`;
       const performance: IAutoMovieMotionHumanPerformance | null = attempt(
         out,

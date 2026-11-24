@@ -5,7 +5,6 @@ import {
   Quaternion,
   physicalStanceBalance,
   solveXpbdArticulationContacts,
-  solveXpbdContacts,
   solveXpbdSupportCascade,
 } from "@automovie/engine";
 import type {
@@ -275,9 +274,7 @@ function program(
   const mass: number = 10 / centres.length;
   const inertia: IAutoMovieVector3 = { x: 1, y: 2, z: 1 };
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  const contact: solveXpbdContacts.IContact =
-    {} as unknown as solveXpbdContacts.IContact;
-  const rows: solveXpbdArticulationContacts.IRow[] = [];
+  const rows: solveXpbdSupportCascade.IRow[] = [];
   const patches: solveXpbdArticulationContacts.IPatch[] = [];
   const normals: number[][] = [];
   const torsions: number[] = [];
@@ -295,13 +292,12 @@ function program(
         direction: up,
         lower: 0,
         velocity: descent,
-        contact,
       });
     const centre: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
     rows.push(
-      { state, point: centre, direction: { x: 1, y: 0, z: 0 }, velocity: 0, contact },
-      { state, point: centre, direction: { x: 0, y: 0, z: 1 }, velocity: 0, contact },
-      { state, point: centre, direction: up, moment: true, velocity: 0, contact },
+      { state, point: centre, direction: { x: 1, y: 0, z: 0 }, velocity: 0 },
+      { state, point: centre, direction: { x: 0, y: 0, z: 1 }, velocity: 0 },
+      { state, point: centre, direction: up, moment: true, velocity: 0 },
     );
     normals.push([first, first + 1, first + 2, first + 3]);
     torsions.push(first + 6);
@@ -335,7 +331,7 @@ function program(
     rates: [],
   });
   const responses: AutoMovieXpbdArticulation.IResponse[] = rows.map(
-    (row: solveXpbdArticulationContacts.IRow): AutoMovieXpbdArticulation.IResponse =>
+    (row: solveXpbdSupportCascade.IRow): AutoMovieXpbdArticulation.IResponse =>
       respond(AutoMovieXpbdSupportRows.impulse(row), row.state),
   );
   const free: AutoMovieXpbdArticulation.IResponse = {
@@ -351,16 +347,16 @@ function program(
   };
   return {
     input: {
-      k: rows.map((row: solveXpbdArticulationContacts.IRow): number[] =>
+      k: rows.map((row: solveXpbdSupportCascade.IRow): number[] =>
         responses.map((response: AutoMovieXpbdArticulation.IResponse): number =>
           AutoMovieXpbdSupportRows.along(row, response),
         ),
       ),
-      u: rows.map((row: solveXpbdArticulationContacts.IRow): number =>
+      u: rows.map((row: solveXpbdSupportCascade.IRow): number =>
         AutoMovieXpbdSupportRows.along(row, free),
       ),
       // The wrench about the body's centre: each sole's rows at its place.
-      columns: rows.map((row: solveXpbdArticulationContacts.IRow): number[] => {
+      columns: rows.map((row: solveXpbdSupportCascade.IRow): number[] => {
         const impulse: number[] = AutoMovieXpbdSupportRows.impulse({
           ...row,
           point: {

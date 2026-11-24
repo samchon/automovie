@@ -45,20 +45,17 @@ export function test_physical_support_objective(): void {
       bodies: [counted],
     },
   };
-  const row = (
-    direction: { x: number; y: number; z: number },
-    x: number,
-  ): solveXpbdArticulationContacts.IRow =>
-    ({
-      state: 0,
-      point: { x, y: 0, z: 0.2 },
-      direction,
-      velocity: 0,
-    }) as unknown as solveXpbdArticulationContacts.IRow;
+  const row = (direction: {
+    x: number;
+    y: number;
+    z: number;
+  }): Pick<solveXpbdArticulationContacts.IRow, "direction"> => ({
+    direction,
+  });
 
   // 1. The rows.
   const normal: number[] = solveXpbdArticulationContacts.objectiveRow(
-    row({ x: 0, y: 1, z: 0 }, 0.1),
+    row({ x: 0, y: 1, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     counted,
     objective,
@@ -71,7 +68,7 @@ export function test_physical_support_objective(): void {
   )
     failures.push(`normal row ${JSON.stringify(normal)}`);
   const tangent: number[] = solveXpbdArticulationContacts.objectiveRow(
-    row({ x: 1, y: 0, z: 0 }, 0.1),
+    row({ x: 1, y: 0, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     counted,
     objective,
@@ -84,7 +81,7 @@ export function test_physical_support_objective(): void {
   )
     failures.push(`tangential row ${JSON.stringify(tangent)}`);
   const elsewhere: number[] = solveXpbdArticulationContacts.objectiveRow(
-    row({ x: 0, y: 1, z: 0 }, 0.1),
+    row({ x: 0, y: 1, z: 0 }),
     { x: 0.1, y: 0, z: 0.2 },
     other,
     objective,
@@ -111,14 +108,13 @@ export function test_physical_support_objective(): void {
       force: { x: 0.5, y: 0.02, z: 0.5 },
       pressure: { point: { x: cop.x, y: 0, z: cop.z }, weight: 15 },
     };
-    const rows: solveXpbdArticulationContacts.IRow[] = feet.map(
-      (foot: { x: number; z: number }): solveXpbdArticulationContacts.IRow =>
-        ({
-          state: 0,
-          point: { x: foot.x, y: 0, z: foot.z },
-          direction: { x: 0, y: 1, z: 0 },
-          velocity: 0,
-        }) as unknown as solveXpbdArticulationContacts.IRow,
+    const rows: solveXpbdSupportCascade.IRow[] = feet.map(
+      (foot: { x: number; z: number }): solveXpbdSupportCascade.IRow => ({
+        state: 0,
+        point: { x: foot.x, y: 0, z: foot.z },
+        direction: { x: 0, y: 1, z: 0 },
+        velocity: 0,
+      }),
     );
     const x: number[] | null = solveXpbdSupportCascade({
       k: feet.map((_, i: number): number[] =>
@@ -126,7 +122,7 @@ export function test_physical_support_objective(): void {
       ),
       u: feet.map((): number => 0),
       columns: rows.map(
-        (entry: solveXpbdArticulationContacts.IRow, i: number): number[] =>
+        (entry: solveXpbdSupportCascade.IRow, i: number): number[] =>
           solveXpbdArticulationContacts.objectiveRow(
             entry,
             { x: feet[i]!.x, y: 0, z: feet[i]!.z },

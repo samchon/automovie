@@ -5,7 +5,11 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -146,54 +150,74 @@ export function test_physical_hip_strategy(): void {
 
   // 3. The capacity of a pelvis on two hips 0.2 m apart, its mass 0.3 m above
   // them. Only the fields the capacity reads are given.
-  const identity = { x: 0, y: 0, z: 0, w: 1 };
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const rigid = (
-    position: IAutoMovieVector3,
-    center: IAutoMovieVector3,
-  ): AutoMovieXpbdBody =>
-    ({
-      translation: () => position,
-      rotation: () => identity,
-      worldCom: () => center,
-      angvel: () => zero,
-    }) as unknown as AutoMovieXpbdBody;
-  const segments: ReadonlyMap<string, AutoMovieXpbdBody> = new Map([
+  type Rigid = Pick<
+    AutoMovieXpbdBody,
+    "translation" | "rotation" | "worldCom" | "angvel"
+  >;
+  const rigid = (position: IAutoMovieVector3, center: IAutoMovieVector3): Rigid => ({
+    translation: (): IAutoMovieVector3 => position,
+    rotation: (): IAutoMovieQuaternion => identity,
+    worldCom: (): IAutoMovieVector3 => center,
+    angvel: (): IAutoMovieVector3 => zero,
+  });
+  const segments: ReadonlyMap<string, Rigid> = new Map([
     ["pelvis", rigid({ x: 0, y: 1, z: 0 }, { x: 0, y: 1.3, z: 0 })],
     ["leftUpperLeg", rigid({ x: 0.1, y: 1, z: 0 }, { x: 0.1, y: 0.8, z: 0 })],
     ["rightUpperLeg", rigid({ x: -0.1, y: 1, z: 0 }, { x: -0.1, y: 0.8, z: 0 })],
   ]);
-  const hipJoint = (side: string, x: number) => ({
+  const axis = (
+    name: "x" | "z",
+    maximumTorque: number,
+    reverseTorque: number,
+  ): IAutoMoviePhysicalJointAxis => ({
+    axis: name,
+    minimum: -Math.PI,
+    maximum: Math.PI,
+    stiffness: 0,
+    damping: 0,
+    maximumTorque,
+    reverseTorque,
+    channel: name === "x" ? "flexion" : "abduction",
+  });
+  const hipJoint = (side: string, x: number): IAutoMoviePhysicalJoint => ({
     id: `${side}Hip`,
     parent: "pelvis",
     child: `${side}UpperLeg`,
     parentFrame: { position: { x, y: 0, z: 0 }, rotation: identity },
     childFrame: { position: zero, rotation: identity },
-    axes: [
-      { axis: "x", maximumTorque: 160, reverseTorque: 180 },
-      { axis: "z", maximumTorque: 100, reverseTorque: 85 },
-    ],
+    axes: [axis("x", 160, 180), axis("z", 100, 85)],
   });
-  const segment = (bone: string, mass: number) => ({
+  const segment = (bone: string, mass: number): IAutoMoviePhysicalSegment => ({
     bone,
+    neutral: { position: zero, rotation: identity },
     mass,
     centerOfMass: zero,
     inertia: { x: 1, y: 1, z: 1 },
     inertiaRotation: identity,
+    shapes: [],
   });
-  const profile = {
-    mass: 66,
+  const profile: Pick<IAutoMoviePhysicalProfile, "joints" | "segments"> = {
     segments: [
       segment("pelvis", 50),
       segment("leftUpperLeg", 8),
       segment("rightUpperLeg", 8),
     ],
     joints: [hipJoint("left", 0.1), hipJoint("right", -0.1)],
-  } as unknown as IAutoMoviePhysicalProfile;
-  const limbs = [
-    { bone: "leftUpperLeg", chain: ["leftUpperLeg"] },
-    { bone: "rightUpperLeg", chain: ["rightUpperLeg"] },
-  ] as unknown as IAutoMovieFootfallPattern["limbs"];
+  };
+  const limb = (bone: string): IAutoMovieFootfallPattern["limbs"][number] => ({
+    bone,
+    chain: [bone],
+    phase: 0,
+    duty: 0.5,
+    offset: { forward: 0, left: 0 },
+    stride: [{ speed: 0, length: 0 }],
+  });
+  const limbs: IAutoMovieFootfallPattern["limbs"] = [
+    limb("leftUpperLeg"),
+    limb("rightUpperLeg"),
+  ];
   const capacity = (
     stance: IAutoMovieFootfallPattern["limbs"],
     direction: IAutoMovieVector3,

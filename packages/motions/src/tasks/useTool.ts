@@ -473,6 +473,10 @@ export namespace useTool {
         );
       },
       tool: { offset: face.point, on, kind },
+      offers: {
+        family: "useTool",
+        tool: { offset: face.point, on, kind },
+      },
     };
 
     if (context.carrier === undefined)

@@ -223,17 +223,24 @@ export function handlingCases(
         y: 0.06,
         z: 0,
       });
-      const gaps: number[] = ["Thumb", "Index", "Middle", "Ring", "Little"].map(
-        (digit: string): number =>
+      const digits: readonly IAutoMovieMotionHumanGrip.Digit[] = [
+        "Thumb",
+        "Index",
+        "Middle",
+        "Ring",
+        "Little",
+      ];
+      const gaps: number[] = digits.map(
+        (digit: IAutoMovieMotionHumanGrip.Digit): number =>
           Math.min(
             ...HumanGrip.bones(
               "right",
-              digit as IAutoMovieMotionHumanGrip.Digit,
+              digit,
             ).map((bone: AutoMovieHumanoidBone): number => {
               const c = HumanGrip.chain(
                 body,
                 "right",
-                digit as IAutoMovieMotionHumanGrip.Digit,
+                digit,
               );
               const r: IAutoMovieResolvedBone = bones.get(bone)!;
               const shape = body.profile.segments

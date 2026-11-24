@@ -1,8 +1,8 @@
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
-  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanOperateInsert,
+  IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
@@ -21,8 +21,15 @@ import type { operateLongInsertCourse } from "./operateLongInsertCourse";
  *   or bar with a length.
  */
 export function operateLongInsertStaff(
-  context: IAutoMovieMotionHumanActionContext<object>,
-  mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
+  context: {
+    prop: (subject: string) => {
+      prop: Pick<IAutoMovieMotionHumanProp, "affordances">;
+    };
+  },
+  mechanism: Pick<
+    IAutoMovieMotionHumanOperateInsert.IMechanism,
+    "prop" | "tip"
+  >,
 ): operateLongInsertStaff.IRun {
   const sites: readonly IAutoMovieAffordance[] =
     context.prop(mechanism.prop).prop.affordances ?? [];

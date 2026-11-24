@@ -1,4 +1,7 @@
-import type { AutoMovieRecoveryCurveData } from "@automovie/interface";
+import type {
+  AutoMovieRecoveryCurveData,
+  IAutoMovieRecoveryCurveBundle,
+} from "@automovie/interface";
 
 import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
 
@@ -11,8 +14,8 @@ import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecove
  * @param input The saved artifact, in either basis.
  * @returns The artifact in the Bernstein basis.
  */
-export function restoreRecoveryCurveBasis<T>(
-  input: T,
-): AutoMovieRecoveryCurveData<T, "bezier"> {
+export function restoreRecoveryCurveBasis<
+  T extends IAutoMovieRecoveryCurveBundle,
+>(input: T): AutoMovieRecoveryCurveData<T, "bezier"> {
   return convertAutoMovieRecoveryCurves(input, "bezier");
 }

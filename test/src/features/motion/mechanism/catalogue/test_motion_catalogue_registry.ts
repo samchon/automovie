@@ -65,12 +65,10 @@ export function test_motion_catalogue_registry(): void {
     appended(chain.stageCatch({ partner: "pass", ball: "ball" }).node),
     "stageCatch",
   );
-  for (const [category, spaces] of Object.entries(HUMAN_LEXICON_FAMILIES)) {
+  for (const [category, laws] of Object.entries(HUMAN_LEXICON_FAMILIES)) {
     const rows: readonly IAutoMovieMotionHumanActionLaw<never>[] =
       HUMAN_LEXICON[category]!;
-    const exports: Set<unknown> = new Set(
-      spaces.flatMap((space: object) => Object.values(space)),
-    );
+    const exports: Set<unknown> = new Set(Object.values(laws));
     for (const row of rows) {
       TestValidator.predicate(row.name + " named export", exports.has(row));
       TestValidator.predicate(
@@ -79,12 +77,11 @@ export function test_motion_catalogue_registry(): void {
       );
       names.add(row.name);
     }
-    for (const value of exports)
-      if (typeof value === "object" && value !== null && "plan" in value)
-        TestValidator.predicate(
-          category + " exported law registration",
-          rows.some((row) => row === value),
-        );
+    TestValidator.equals(
+      category + " registers every law its record names",
+      rows.length,
+      exports.size,
+    );
   }
   for (const rows of Object.values(HUMAN_LEXICON))
     for (const row of rows) {

@@ -206,7 +206,9 @@ export namespace AutoMovieXpbdSupportRows {
    * @param row The row.
    * @returns The spatial impulse, moment then force, about the tree origin.
    */
-  export function impulse(row: Contacts.IRow): number[] {
+  export function impulse(
+    row: Pick<Contacts.IRow, "moment" | "direction" | "point">,
+  ): number[] {
     return row.moment === true
       ? [row.direction.x, row.direction.y, row.direction.z, 0, 0, 0]
       : AutoMovieXpbdArticulation.spatialImpulse(row.point, row.direction);
@@ -221,7 +223,7 @@ export namespace AutoMovieXpbdSupportRows {
    * @returns Metres per second, or radians per second for a torsional row.
    */
   export function along(
-    row: Contacts.IRow,
+    row: Pick<Contacts.IRow, "state" | "moment" | "direction" | "point">,
     response: AutoMovieXpbdArticulation.IResponse,
   ): number {
     const change: number[] = response.change[row.state]!;

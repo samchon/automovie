@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanToolWork,
   IAutoMovieMotionHumanUseTool,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -90,12 +91,15 @@ export function toolCases(
             .act("useTool", params).node,
           props,
         );
-      const plan: IAutoMovieMotionHumanUseTool.IPlan = performance
-        .segments("a")
-        .find(
-          (s: IAutoMovieMotionHumanSegment): boolean => s.name === "useTool",
-        )!.plan as IAutoMovieMotionHumanUseTool.IPlan;
-      const at: IAutoMovieVector3 = plan.tool.on;
+      const offer: IAutoMovieMotionHumanActionPlan.IOffer | undefined =
+        performance
+          .segments("a")
+          .find(
+            (s: IAutoMovieMotionHumanSegment): boolean => s.name === "useTool",
+          )!.plan.offers;
+      if (offer?.family !== "useTool")
+        throw new Error("The tool's plan offers no tool");
+      const at: IAutoMovieVector3 = offer.tool.on;
       const tip = (t: number): IAutoMovieVector3 => {
         const bones: ReturnType<IAutoMovieMotionHumanPerformance["bones"]> =
           performance.bones("a", t);
@@ -109,7 +113,7 @@ export function toolCases(
           grip,
           Quaternion.rotateVector(
             bones.get("rightHand")!.worldRotation,
-            plan.tool.offset,
+            offer.tool.offset,
           ),
         );
       };

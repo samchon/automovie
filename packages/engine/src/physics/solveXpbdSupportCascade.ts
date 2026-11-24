@@ -148,11 +148,11 @@ function cascade(
     // two-axis legs or a Human's foot and toes, and its equalities would lose
     // full rank; the row carries the moment the task asks of the ground.
     if (patch.torsion !== undefined) {
-      const pivot: Contacts.IRow = set.rows[patch.torsion]!;
-      const first: Contacts.IRow = set.rows[patch.tangents[0]!]!;
-      const second: Contacts.IRow = set.rows[patch.tangents[1]!]!;
+      const pivot: solveXpbdSupportCascade.IRow = set.rows[patch.torsion]!;
+      const first: solveXpbdSupportCascade.IRow = set.rows[patch.tangents[0]!]!;
+      const second: solveXpbdSupportCascade.IRow = set.rows[patch.tangents[1]!]!;
       const levers: number[] = patch.normals.map((r: number): number => {
-        const point: Contacts.IRow = set.rows[r]!;
+        const point: solveXpbdSupportCascade.IRow = set.rows[r]!;
         const dx: number = point.point.x - pivot.point.x;
         const dy: number = point.point.y - pivot.point.y;
         const dz: number = point.point.z - pivot.point.z;
@@ -289,6 +289,21 @@ function cascade(
 
 /** The input and the warm store of solveXpbdSupportCascade. */
 export namespace solveXpbdSupportCascade {
+  /** What the cascade reads of one support row. */
+  export type IRow = Pick<
+    Contacts.IRow,
+    "state" | "point" | "direction" | "velocity" | "lower" | "moment"
+  >;
+
+  /** What the cascade reads of the support set. */
+  export interface ISet {
+    /** Every row. */
+    rows: readonly IRow[];
+
+    /** Every patch. */
+    patches: readonly Contacts.IPatch[];
+  }
+
   /** One tree's program. */
   export interface IInput {
     /**
@@ -317,7 +332,7 @@ export namespace solveXpbdSupportCascade {
     weights?: readonly number[];
 
     /** The support rows and patches. */
-    set: Contacts.ISet;
+    set: ISet;
 
     /** The actuated axes, in the unknowns' order after the rows. */
     actuators: readonly Contacts.IActuator[];
@@ -442,12 +457,12 @@ function level(
  * the ones kept; the others hold with them, and leaving them out keeps the
  * program's equality rows of full rank.
  */
-function independent(set: Contacts.ISet): Set<number> {
+function independent(set: solveXpbdSupportCascade.ISet): Set<number> {
   const result: Set<number> = new Set();
   for (const patch of set.patches) {
     const basis: number[][] = [];
     for (const r of [...patch.normals, ...patch.tangents]) {
-      const row: Contacts.IRow = set.rows[r]!;
+      const row: solveXpbdSupportCascade.IRow = set.rows[r]!;
       const functional: number[] = Rows.impulse(row);
       let rest: number[] = functional;
       for (const unit of basis) {

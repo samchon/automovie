@@ -450,17 +450,20 @@ export namespace catchObject {
         primitives: sides.map(hand),
       }),
     );
+    // The object's centre at a second, read on the composed posture there.
+    const path = (seconds: number): IAutoMovieVector3 => {
+      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+        prepareHumanPoseResolution();
+      return object(
+        seconds,
+        composed.posture(seconds, undefined, resolution),
+        resolution,
+      );
+    };
     return {
       ...composed,
-      object: (seconds: number): IAutoMovieVector3 => {
-        const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution();
-        return object(
-          seconds,
-          composed.posture(seconds, undefined, resolution),
-          resolution,
-        );
-      },
+      object: path,
+      offers: { family: "catchObject", object: path },
     };
   }
 }

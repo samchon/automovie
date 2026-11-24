@@ -179,10 +179,10 @@ export namespace RuledCompactInput {
       path.join(observation, "hermite-curves.json"),
       recipe.curves,
     );
-    let original: unknown = JSON.parse(bytes.toString("utf8"));
+    let original: Bundle | undefined = JSON.parse(bytes.toString("utf8"));
     bytes = Buffer.alloc(0);
     const bundle: Bundle = convertAutoMovieRecoveryCurves(
-      original,
+      original!,
       "bezier",
     ) as Bundle;
     original = undefined;

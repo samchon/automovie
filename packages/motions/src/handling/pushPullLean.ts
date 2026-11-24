@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieMotionHumanBody,
+  IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanPushPullLean,
 } from "@automovie/interface";
 
@@ -23,7 +23,9 @@ type EntryEntryEntry = "waist" | "shoulder";
  *   negative leaning back.
  */
 export function pushPullLean(
-  body: IAutoMovieMotionHumanBody,
+  body: {
+    measure: Pick<IAutoMovieBodyMeasure, "waistHeight" | "shoulderHeight">;
+  },
   way: OfWay,
   load: IAutoMovieMotionHumanPushPullLean.Load,
   height: number,

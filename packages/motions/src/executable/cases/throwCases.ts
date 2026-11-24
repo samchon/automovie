@@ -7,7 +7,7 @@ import type {
   AutoMovieHumanoidSocket,
   IAutoMovieComposition,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanCatchObject,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanThrowObjectForm,
@@ -145,10 +145,12 @@ export function throwCases(
       const shown: number = Vector3.length(velocity);
 
       // The catching palms against the object's surface.
+      const offer: IAutoMovieMotionHumanActionPlan.IOffer | undefined =
+        caught.plan.offers;
+      if (offer?.family !== "catchObject")
+        throw new Error("The catch's plan offers no object path");
       const object = (seconds: number): IAutoMovieVector3 =>
-        (caught.plan as IAutoMovieMotionHumanCatchObject.IPlan).object(
-          seconds - caught.start,
-        );
+        offer.object(seconds - caught.start);
       const palmGap = (seconds: number): number =>
         Math.max(
           ...(["palmLeft", "palmRight"] as const).map((name) =>

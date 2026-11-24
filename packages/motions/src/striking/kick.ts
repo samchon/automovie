@@ -315,7 +315,7 @@ export namespace kick {
         : {}),
       record: (): IAutoMovieMotionHumanStrikingRecord.IRecord =>
         geometry().record,
-      continues: {
+      offers: {
         family: "kick",
         source: {
           timing,
@@ -345,8 +345,8 @@ export namespace kick {
 
     // A kick's plan offers its geometry, spread copies included, so its
     // source is the kick it continues.
-    const continued: IAutoMovieMotionHumanActionPlan.IContinued | undefined =
-      from.plan.continues;
+    const continued: IAutoMovieMotionHumanActionPlan.IOffer | undefined =
+      from.plan.offers;
     if (continued?.family !== "kick") return undefined;
     const source: IAutoMovieMotionHumanKickGeometry.ISource = continued.source;
     if (from.share * source.timing.duration > source.timing.chamber + 1e-9)

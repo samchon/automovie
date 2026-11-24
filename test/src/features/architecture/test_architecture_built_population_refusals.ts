@@ -112,6 +112,6 @@ const refuses: (
 export function test_architecture_built_population_refusals(): void {
   assertArchitectureBuiltPopulationRefusalsPart1(population, work, refuses);
   assertArchitectureBuiltPopulationRefusalsPart2(population, refuses);
-  assertArchitectureBuiltPopulationRefusalsPart3(population, work, refuses);
+  assertArchitectureBuiltPopulationRefusalsPart3(population, refuses);
   assertArchitectureBuiltPopulationRefusalsPart4(population, work, refuses);
 }

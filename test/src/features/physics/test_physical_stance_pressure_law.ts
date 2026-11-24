@@ -5,7 +5,10 @@ import {
   trackPhysicalRoot,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalJoint,
+  IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalProfile,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -184,30 +187,44 @@ export function test_physical_stance_pressure_law(): void {
   // f (p - o) x n . x = -0.1 f, which its motor holds forward, leaving 100 -
   // 30 = 70 N m of the 100 about x (tau = J^T f; Herzog et al. 2016, Section
   // 2.1). A trunk asking 0.5 m of pivot offset under 600 N gets 140 / 600 m.
-  const identity = { x: 0, y: 0, z: 0, w: 1 };
-  const body = (position: IAutoMovieVector3) =>
-    ({
-      translation: () => position,
-      rotation: () => identity,
-    }) as unknown as AutoMovieXpbdBody;
-  const hipJoint = (child: string, at: IAutoMovieVector3) => ({
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  const body = (
+    position: IAutoMovieVector3,
+  ): Pick<AutoMovieXpbdBody, "translation" | "rotation"> => ({
+    translation: (): IAutoMovieVector3 => position,
+    rotation: (): IAutoMovieQuaternion => identity,
+  });
+  const axis = (name: "x" | "z"): IAutoMoviePhysicalJointAxis => ({
+    axis: name,
+    minimum: -Math.PI,
+    maximum: Math.PI,
+    stiffness: 0,
+    damping: 0,
+    maximumTorque: 100,
+    reverseTorque: 100,
+    channel: name === "x" ? "flexion" : "abduction",
+  });
+  const hipJoint = (
+    child: string,
+    at: IAutoMovieVector3,
+  ): IAutoMoviePhysicalJoint => ({
     id: child,
     parent: "trunk",
     child,
     parentFrame: { position: at, rotation: identity },
     childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
-    axes: [
-      { axis: "x", maximumTorque: 100, reverseTorque: 100 },
-      { axis: "z", maximumTorque: 100, reverseTorque: 100 },
-    ],
+    axes: [axis("x"), axis("z")],
   });
-  const quad = {
+  const quad: Pick<IAutoMoviePhysicalProfile, "joints"> = {
     joints: [
       hipJoint("frontLeft", { x: 0.35, y: 0, z: 0.3 }),
       hipJoint("backRight", { x: -0.35, y: 0, z: -0.3 }),
     ],
-  } as unknown as IAutoMoviePhysicalProfile;
-  const trunk: ReadonlyMap<string, AutoMovieXpbdBody> = new Map([
+  };
+  const trunk: ReadonlyMap<
+    string,
+    Pick<AutoMovieXpbdBody, "translation" | "rotation">
+  > = new Map([
     ["trunk", body({ x: 0, y: 0.5, z: 0 })],
   ]);
   const diagonal = (force: number) =>

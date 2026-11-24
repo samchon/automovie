@@ -69,7 +69,7 @@ export namespace solveXpbdArticulationContacts {
    *   pressure's two moments if any.
    */
   export function objectiveRow(
-    row: IRow,
+    row: Pick<IRow, "direction" | "moment">,
     point: IAutoMovieVector3,
     body: AutoMovieXpbdBody,
     objective: AutoMovieXpbdWorld.IObjective,

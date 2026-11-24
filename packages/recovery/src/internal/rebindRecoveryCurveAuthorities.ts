@@ -2,373 +2,228 @@ import { AutoMovieCurveMath64 as M } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
-  IAutoMovieRecoveryAuthorityRecord,
-  IAutoMovieRecoveryHermiteCurve,
+  IAutoMovieBicubicAtlasGeometry,
+  IAutoMovieRecoveryCurveBundle,
   IAutoMovieRecoveryHermiteSpan,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 
 /**
- * Reissue explicitly bound surface controls from the converted curve authority.
- * The generic converter calls this only after admitting and copying plain data.
- * Original bindings must match exactly before a new basis can supply a control.
- * A Hermite publication owns the Bernstein coefficients obtained from its saved
- * endpoints, derivatives and original phase widths; finite round trips can
- * differ from a previous Bernstein publication. Shared control IDs must agree
- * exactly. Reissued bound point records and per-geometry control lists prevent
- * unrelated metadata aliases from propagating coordinate writes.
+ * Reissue explicitly bound surface controls from the converted curve
+ * authority. The generic converter calls this after copying the record.
+ * Original bindings must match exactly before a new basis can supply a
+ * control. A Hermite publication owns the Bernstein coefficients obtained from
+ * its saved endpoints, derivatives and original phase widths; finite round
+ * trips can differ from a previous Bernstein publication. Shared control IDs
+ * must agree exactly. The converted geometry receives a fresh control list, so
+ * the original record never sees the write.
+ *
+ * A record is a publication when it carries tensor families or analytic
+ * domains together with its curves: a loft and reports, or curve overrides
+ * alone (a standalone extension, whose unchanged external curves stay the
+ * original bundle's authority).
+ *
+ * @param original The record as saved.
+ * @param converted Its converted copy, whose bound controls are rewritten.
+ * @throws {Error} When names are not unique, a binding names no saved curve or
+ *   span, a binding's cardinality differs from its curve, or an original
+ *   control disagrees with its curve authority.
  */
 export function rebindRecoveryCurveAuthorities(
-  source: unknown,
-  copy: unknown,
+  original: IAutoMovieRecoveryCurveBundle,
+  converted: IAutoMovieRecoveryCurveBundle,
 ): void {
-  // This one call's walk: the records already visited, so a shared record is
-  // walked once, and each curve record's Bernstein spans, worked once.
-  const visited: Set<object> = new Set();
-  const pending: Map<
-    IAutoMovieRecoveryAuthorityRecord,
-    Map<number, Readonly<AutoMovieVector3Tuple>>
-  > = new Map();
-  const curveCache: Map<object, readonly AutoMovieCubicBezierControls3[]> =
+  const bound: boolean =
+    original.tensorFamilies !== undefined ||
+    original.analyticDomains !== undefined;
+  const curved: boolean =
+    (original.loft !== undefined && original.reports !== undefined) ||
+    original.curveOverrides !== undefined;
+  if (!bound || !curved) return;
+  const external: boolean =
+    original.loft === undefined && original.reports === undefined;
+
+  // Each named curve owner, as saved and as converted, in the same order.
+  const before: Map<string, readonly AutoMovieCubicBezierControls3[]> =
+    named(original, external);
+  const after: Map<string, readonly AutoMovieCubicBezierControls3[]> = named(
+    converted,
+    external,
+  );
+
+  // The controls each converted geometry receives, by control id.
+  const pending: Map<IAutoMovieBicubicAtlasGeometry, Map<number, AutoMovieVector3Tuple>> =
     new Map();
-  const record: (
-    value: unknown,
-  ) => IAutoMovieRecoveryAuthorityRecord | undefined = (
-    value: unknown,
-  ): IAutoMovieRecoveryAuthorityRecord | undefined =>
-    value !== null && typeof value === "object"
-      ? (value as IAutoMovieRecoveryAuthorityRecord)
-      : undefined;
-  const required: (value: unknown) => IAutoMovieRecoveryAuthorityRecord = (
-    value: unknown,
-  ): IAutoMovieRecoveryAuthorityRecord => {
-    const row: IAutoMovieRecoveryAuthorityRecord | undefined = record(value);
-    if (!row)
-      throw new Error("A bound curve publication requires plain records");
-    return row;
+  const spans = (
+    name: string,
+  ): readonly [
+    readonly AutoMovieCubicBezierControls3[],
+    readonly AutoMovieCubicBezierControls3[],
+  ] => {
+    const first: readonly AutoMovieCubicBezierControls3[] | undefined =
+      before.get(name);
+    const second: readonly AutoMovieCubicBezierControls3[] | undefined =
+      after.get(name);
+    if (first === undefined || second === undefined)
+      throw new Error("A surface binding names no unique saved curve");
+    return [first, second];
   };
-  const array: (value: unknown) => readonly unknown[] = (
-    value: unknown,
-  ): readonly unknown[] => {
-    if (!Array.isArray(value))
-      throw new Error("A bound curve publication requires explicit arrays");
-    return value;
-  };
-  const canonical: (
-    value: unknown,
-  ) => readonly AutoMovieCubicBezierControls3[] = (
-    value: unknown,
-  ): readonly AutoMovieCubicBezierControls3[] => {
-    const row: IAutoMovieRecoveryAuthorityRecord = required(value);
-    const previous: readonly AutoMovieCubicBezierControls3[] | undefined =
-      curveCache.get(row);
-    if (previous) return previous;
-    if (row.type === "cubicBezier") {
-      const spans: readonly AutoMovieCubicBezierControls3[] = array(
-        row.spans,
-      ) as readonly AutoMovieCubicBezierControls3[];
-      curveCache.set(row, spans);
-      return spans;
-    }
-    if (row.type !== "cubicHermite")
-      throw new Error(
-        "A bound surface requires an explicit cubic curve authority",
-      );
-    const curve: IAutoMovieRecoveryHermiteCurve =
-      value as IAutoMovieRecoveryHermiteCurve;
-    const spans: readonly AutoMovieCubicBezierControls3[] = curve.spans.map(
-      (
-        span: IAutoMovieRecoveryHermiteSpan,
-        index: number,
-      ): AutoMovieCubicBezierControls3 =>
-        M.hermite(
-          M.clone(span.start),
-          M.clone(span.end),
-          M.clone(span.startDerivative),
-          M.clone(span.endDerivative),
-          curve.phaseIntervals[index]!,
-        ),
-    );
-    curveCache.set(row, spans);
-    return spans;
-  };
-  const bind: (
-    originalGeometry: unknown,
-    convertedGeometry: unknown,
-    id: unknown,
-    original: Readonly<AutoMovieVector3Tuple>,
-    converted: Readonly<AutoMovieVector3Tuple>,
-  ) => void = (
-    originalGeometry: unknown,
-    convertedGeometry: unknown,
-    id: unknown,
-    original: Readonly<AutoMovieVector3Tuple>,
-    converted: Readonly<AutoMovieVector3Tuple>,
+  const bind = (
+    source: IAutoMovieBicubicAtlasGeometry,
+    target: IAutoMovieBicubicAtlasGeometry,
+    id: number,
+    was: Readonly<AutoMovieVector3Tuple>,
+    now: Readonly<AutoMovieVector3Tuple>,
   ): void => {
-    const geometry: IAutoMovieRecoveryAuthorityRecord =
-      required(originalGeometry);
-    const target: IAutoMovieRecoveryAuthorityRecord =
-      required(convertedGeometry);
-    if (typeof id !== "number" || id < 0)
-      throw new Error(
-        "A curve binding requires an in-range integer control ID",
-      );
-    const point: IAutoMovieRecoveryAuthorityRecord = required(
-      array(geometry.controls)[id],
-    );
-    const targetPoint: IAutoMovieRecoveryAuthorityRecord = required(
-      array(target.controls)[id],
-    );
+    const point: IAutoMovieVector3 | undefined = source.controls[id];
+    if (point === undefined || target.controls[id] === undefined || id < 0)
+      throw new Error("A curve binding requires an in-range control ID");
     if (
-      original[0] * 0.001 !== point.x ||
-      original[1] * 0.001 !== point.y ||
-      original[2] * 0.001 !== point.z
+      was[0] * 0.001 !== point.x ||
+      was[1] * 0.001 !== point.y ||
+      was[2] * 0.001 !== point.z
     )
       throw new Error(
         "Original surface controls do not share their declared curve authority",
       );
-    const next: Readonly<AutoMovieVector3Tuple> = [
-      converted[0] * 0.001,
-      converted[1] * 0.001,
-      converted[2] * 0.001,
+    const next: AutoMovieVector3Tuple = [
+      now[0] * 0.001,
+      now[1] * 0.001,
+      now[2] * 0.001,
     ];
-    let owners: Map<number, Readonly<AutoMovieVector3Tuple>> | undefined =
+    let owners: Map<number, AutoMovieVector3Tuple> | undefined =
       pending.get(target);
-    if (!owners) {
+    if (owners === undefined) {
       owners = new Map();
       pending.set(target, owners);
     }
-    const previous: Readonly<AutoMovieVector3Tuple> | undefined =
-      owners.get(id);
+    const previous: AutoMovieVector3Tuple | undefined = owners.get(id);
     if (
-      previous &&
+      previous !== undefined &&
       previous.some((x: number, axis: number): boolean => x !== next[axis])
     )
       throw new Error(
         "Converted curves require conflicting values for one declared control authority",
       );
-    if (
-      ![targetPoint.x, targetPoint.y, targetPoint.z].every(
-        (x: unknown): boolean => typeof x === "number",
-      )
-    )
-      throw new Error("A converted surface control must be a finite position");
     owners.set(id, next);
   };
-  const publication: (
-    original: IAutoMovieRecoveryAuthorityRecord,
-    converted: IAutoMovieRecoveryAuthorityRecord,
-  ) => void = (
-    original: IAutoMovieRecoveryAuthorityRecord,
-    converted: IAutoMovieRecoveryAuthorityRecord,
-  ): void => {
-    const originals: Map<string, unknown> = new Map();
-    const targets: Map<string, unknown> = new Map();
-    const register: (a: unknown, b: unknown) => void = (
-      a: unknown,
-      b: unknown,
-    ): void => {
-      const curve: IAutoMovieRecoveryAuthorityRecord = required(a);
-      const target: IAutoMovieRecoveryAuthorityRecord = required(b);
+
+  // Tensor families: each boundary's spans bind four controls each.
+  (original.tensorFamilies ?? []).forEach((family, index: number): void => {
+    const target: IAutoMovieBicubicAtlasGeometry =
+      converted.tensorFamilies![index]!.geometry;
+    for (const boundary of family.boundaries) {
+      const [was, now] = spans(boundary.curveName);
       if (
-        typeof curve.name !== "string" ||
-        !curve.name ||
-        target.name !== curve.name ||
-        originals.has(curve.name)
+        was.length !== boundary.controlIds.length ||
+        now.length !== boundary.controlIds.length
       )
         throw new Error(
-          "A bound publication needs one unique named curve owner",
+          "Tensor binding cardinality differs from its curve authority",
         );
-      originals.set(curve.name, a);
-      targets.set(curve.name, b);
-    };
-    const externalCurves: boolean =
-      original.loft === undefined && original.reports === undefined;
-    if (externalCurves) {
-      const overrides: readonly unknown[] = array(original.curveOverrides);
-      const targetOverrides: readonly unknown[] = array(
-        converted.curveOverrides,
-      );
-      for (let i: number = 0; i < overrides.length; i++)
-        register(
-          required(overrides[i]).curve,
-          required(targetOverrides[i]).curve,
-        );
-    } else {
-      const sections: readonly unknown[] = array(
-        required(original.loft).sections,
-      );
-      const convertedSections: readonly unknown[] = array(
-        required(converted.loft).sections,
-      );
-      for (let i: number = 0; i < sections.length; i++) {
-        const loops: readonly unknown[] = array(required(sections[i]).loops);
-        const targetLoops: readonly unknown[] = array(
-          required(convertedSections[i]).loops,
-        );
-        for (let j: number = 0; j < loops.length; j++)
-          register(required(loops[j]).curve, required(targetLoops[j]).curve);
-      }
-      const reports: readonly unknown[] = array(original.reports);
-      const convertedReports: readonly unknown[] = array(converted.reports);
-      for (let i: number = 0; i < reports.length; i++) {
-        const arcs: readonly unknown[] = array(required(reports[i]).open);
-        const targetArcs: readonly unknown[] = array(
-          required(convertedReports[i]).open,
-        );
-        for (let j: number = 0; j < arcs.length; j++)
-          register(required(arcs[j]).curve, required(targetArcs[j]).curve);
-      }
+      boundary.controlIds.forEach((controls: readonly number[], span: number): void => {
+        if (controls.length !== 4)
+          throw new Error("A tensor boundary span requires four controls");
+        for (let k: number = 0; k < 4; k++)
+          bind(family.geometry, target, controls[k]!, was[span]![k]!, now[span]![k]!);
+      });
     }
-    const spans: (
-      name: unknown,
-    ) => readonly [
-      readonly AutoMovieCubicBezierControls3[],
-      readonly AutoMovieCubicBezierControls3[],
-    ] = (
-      name: unknown,
-    ): readonly [
-      readonly AutoMovieCubicBezierControls3[],
-      readonly AutoMovieCubicBezierControls3[],
-    ] => {
-      if (
-        typeof name !== "string" ||
-        !originals.has(name) ||
-        !targets.has(name)
-      )
-        throw new Error("A surface binding names no unique saved curve");
-      return [canonical(originals.get(name)), canonical(targets.get(name))];
-    };
-    if (original.tensorFamilies !== undefined) {
-      const families: readonly unknown[] = array(original.tensorFamilies);
-      const targetFamilies: readonly unknown[] = array(
-        converted.tensorFamilies,
-      );
-      for (let i: number = 0; i < families.length; i++) {
-        const family: IAutoMovieRecoveryAuthorityRecord = required(families[i]);
-        const targetFamily: IAutoMovieRecoveryAuthorityRecord = required(
-          targetFamilies[i],
+  });
+
+  // Analytic domains: each binding's span binds its authority's four controls.
+  (original.analyticDomains ?? []).forEach((domain, index: number): void => {
+    const target: IAutoMovieBicubicAtlasGeometry =
+      converted.analyticDomains![index]!.geometry;
+    const owners: Map<string, readonly number[]> = new Map();
+    for (const owner of domain.geometry.boundaryAuthorities ?? []) {
+      if (owners.has(owner.id))
+        throw new Error("A native boundary authority must be unique");
+      owners.set(owner.id, owner.controlIds);
+    }
+    for (const binding of domain.curveBindings) {
+      // A standalone extension owns only its overrides; its unchanged external
+      // curves remain the original bundle's authority, checked on apply.
+      if (external && !before.has(binding.curveName)) continue;
+      const [was, now] = spans(binding.curveName);
+      if (was[binding.span] === undefined || now[binding.span] === undefined)
+        throw new Error("A native binding requires a declared curve span");
+      const ids: readonly number[] | undefined = owners.get(binding.authority);
+      if (ids === undefined)
+        throw new Error("A native binding names no boundary authority");
+      for (let k: number = 0; k < 4; k++)
+        bind(
+          domain.geometry,
+          target,
+          ids[k]!,
+          was[binding.span]![k]!,
+          now[binding.span]![k]!,
         );
-        for (const value of array(family.boundaries)) {
-          const boundary: IAutoMovieRecoveryAuthorityRecord = required(value);
-          const [before, after]: readonly [
-            readonly AutoMovieCubicBezierControls3[],
-            readonly AutoMovieCubicBezierControls3[],
-          ] = spans(boundary.curveName);
-          const ids: readonly unknown[] = array(boundary.controlIds);
-          if (before.length !== ids.length || after.length !== ids.length)
-            throw new Error(
-              "Tensor binding cardinality differs from its curve authority",
-            );
-          for (let span: number = 0; span < ids.length; span++) {
-            const controls: readonly unknown[] = array(ids[span]);
-            if (controls.length !== 4)
-              throw new Error("A tensor boundary span requires four controls");
-            for (let k: number = 0; k < 4; k++)
-              bind(
-                family.geometry,
-                targetFamily.geometry,
-                controls[k],
-                before[span]![k]!,
-                after[span]![k]!,
-              );
-          }
-        }
-      }
     }
-    if (original.analyticDomains !== undefined) {
-      const domains: readonly unknown[] = array(original.analyticDomains);
-      const targetDomains: readonly unknown[] = array(
-        converted.analyticDomains,
-      );
-      for (let i: number = 0; i < domains.length; i++) {
-        const domain: IAutoMovieRecoveryAuthorityRecord = required(domains[i]);
-        const targetDomain: IAutoMovieRecoveryAuthorityRecord = required(
-          targetDomains[i],
-        );
-        const owners: Map<unknown, IAutoMovieRecoveryAuthorityRecord> =
-          new Map();
-        for (const value of array(
-          required(domain.geometry).boundaryAuthorities,
-        )) {
-          const owner: IAutoMovieRecoveryAuthorityRecord = required(value);
-          if (owners.has(owner.id))
-            throw new Error("A native boundary authority must be unique");
-          owners.set(owner.id, owner);
-        }
-        for (const value of array(domain.curveBindings)) {
-          const binding: IAutoMovieRecoveryAuthorityRecord = required(value);
-          // A standalone extension owns only its overrides. Unchanged external
-          // curves remain the original bundle's authority and are checked on apply.
-          if (
-            externalCurves &&
-            typeof binding.curveName === "string" &&
-            !originals.has(binding.curveName)
-          )
-            continue;
-          const [before, after]: readonly [
-            readonly AutoMovieCubicBezierControls3[],
-            readonly AutoMovieCubicBezierControls3[],
-          ] = spans(binding.curveName);
-          if (
-            typeof binding.span !== "number" ||
-            binding.span < 0 ||
-            !before[binding.span] ||
-            !after[binding.span]
-          )
-            throw new Error("A native binding requires a declared curve span");
-          const owner: IAutoMovieRecoveryAuthorityRecord = required(
-            owners.get(binding.authority),
-          );
-          const ids: readonly unknown[] = array(owner.controlIds);
-          if (ids.length !== 4)
-            throw new Error("A native authority requires four controls");
-          for (let k: number = 0; k < 4; k++)
-            bind(
-              domain.geometry,
-              targetDomain.geometry,
-              ids[k],
-              before[binding.span]![k]!,
-              after[binding.span]![k]!,
-            );
-        }
-      }
-    }
-  };
-  const visit: (original: unknown, converted: unknown) => void = (
-    original: unknown,
-    converted: unknown,
-  ): void => {
-    if (
-      original === null ||
-      typeof original !== "object" ||
-      visited.has(original)
-    )
-      return;
-    visited.add(original);
-    const row: IAutoMovieRecoveryAuthorityRecord = required(original);
-    const target: IAutoMovieRecoveryAuthorityRecord = required(converted);
-    if (
-      (row.tensorFamilies !== undefined || row.analyticDomains !== undefined) &&
-      ((row.loft !== undefined && row.reports !== undefined) ||
-        row.curveOverrides !== undefined)
-    )
-      publication(row, target);
-    for (const key of Object.keys(row)) {
-      if (
-        key === "spans" &&
-        (row.type === "cubicBezier" || row.type === "cubicHermite")
-      )
-        continue;
-      visit(row[key], target[key]);
-    }
-  };
-  visit(source, copy);
+  });
+
   for (const [geometry, owners] of pending) {
-    const controls: unknown[] = [...array(geometry.controls)];
-    for (const [id, value] of owners) {
-      const point: IAutoMovieRecoveryAuthorityRecord = required(controls[id]);
-      controls[id] = { ...point, x: value[0], y: value[1], z: value[2] };
-    }
+    const controls: IAutoMovieVector3[] = [...geometry.controls];
+    for (const [id, value] of owners)
+      controls[id] = { ...controls[id]!, x: value[0], y: value[1], z: value[2] };
     geometry.controls = controls;
   }
+}
+
+/**
+ * A record's named curves as Bernstein spans: from its curve overrides for an
+ * external extension, otherwise from its loft loops and report arcs. Names
+ * must be unique.
+ */
+function named(
+  record: IAutoMovieRecoveryCurveBundle,
+  external: boolean,
+): Map<string, readonly AutoMovieCubicBezierControls3[]> {
+  const curves: IAutoMovieRecoveryCurveBundle.Curve[] = external
+    ? (record.curveOverrides ?? []).map(
+        (override: { curve: IAutoMovieRecoveryCurveBundle.Curve }) =>
+          override.curve,
+      )
+    : [
+        ...(record.loft?.sections ?? []).flatMap(
+          (section: IAutoMovieRecoveryCurveBundle.ISection) =>
+            section.loops.map(
+              (loop: { curve: IAutoMovieRecoveryCurveBundle.Curve }) =>
+                loop.curve,
+            ),
+        ),
+        ...(record.reports ?? []).flatMap(
+          (report: { open: readonly { curve: IAutoMovieRecoveryCurveBundle.Curve }[] }) =>
+            report.open.map(
+              (arc: { curve: IAutoMovieRecoveryCurveBundle.Curve }) => arc.curve,
+            ),
+        ),
+      ];
+  const map: Map<string, readonly AutoMovieCubicBezierControls3[]> = new Map();
+  for (const curve of curves) {
+    if (map.has(curve.name))
+      throw new Error("A bound publication needs one unique named curve owner");
+    map.set(curve.name, bernstein(curve));
+  }
+  return map;
+}
+
+/** A cubic's Bernstein spans, converting saved Hermite jets. */
+function bernstein(
+  curve: IAutoMovieRecoveryCurveBundle.Curve,
+): readonly AutoMovieCubicBezierControls3[] {
+  return curve.type === "cubicBezier"
+    ? curve.spans
+    : curve.spans.map(
+        (
+          span: IAutoMovieRecoveryHermiteSpan,
+          index: number,
+        ): AutoMovieCubicBezierControls3 =>
+          M.hermite(
+            M.clone(span.start),
+            M.clone(span.end),
+            M.clone(span.startDerivative),
+            M.clone(span.endDerivative),
+            curve.phaseIntervals[index]!,
+          ),
+      );
 }

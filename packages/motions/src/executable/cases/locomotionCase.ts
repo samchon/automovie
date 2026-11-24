@@ -71,8 +71,7 @@ export function locomotionCase(
   const {
     who,
     names,
-    law,
-    pace,
+    gait,
     froude: fr,
     label,
     to,
@@ -85,15 +84,15 @@ export function locomotionCase(
   let chain: IAutoMovieMotionHumanChain | undefined;
   names.forEach((_, i: number): void => {
     const one: IAutoMovieMotionHumanChain =
-      law === "walk"
+      gait.law === "walk"
         ? HumanChain.subject(`w${i}`).walk({
             to: goals[i]!,
-            pace: pace as LocomotionCaseOne,
+            pace: gait.pace,
             ...extra,
           })
         : HumanChain.subject(`w${i}`).run({
             to: goals[i]!,
-            pace: pace as LocomotionCaseOne2,
+            pace: gait.pace,
             ...extra,
           });
     chain = chain === undefined ? one : chain.with(one);
@@ -363,7 +362,7 @@ export function locomotionCase(
     }
   });
   return {
-    name: `${law}-${label}-${who}`,
+    name: `${gait.law}-${label}-${who}`,
     times: locomotionCaseInstants(performance, end),
     performers: names.map(
       (_, i: number): IMotionCaptureCase.IPerformer => ({
@@ -469,11 +468,8 @@ export namespace locomotionCase {
     /** The performers' body names, one per lane. */
     names: readonly string[];
 
-    /** The law the row performs. */
-    law: Law;
-
-    /** The pace name. */
-    pace: string;
+    /** The law the row performs and its pace. */
+    gait: IGait;
 
     /** The pace's Froude number. */
     froude: number;
@@ -495,5 +491,10 @@ export namespace locomotionCase {
   }
 
   /** The locomotion laws the sweep runs. */
-  export type Law = "walk" | "run";
+  export type Law = IGait["law"];
+
+  /** A row's law and its pace, the pace one of that law's own. */
+  export type IGait =
+    | { law: "walk"; pace: LocomotionCaseOne }
+    | { law: "run"; pace: LocomotionCaseOne2 };
 }

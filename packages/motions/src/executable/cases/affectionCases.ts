@@ -22,8 +22,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
-/** The record of `IAffectionCasesRegion`'s site. */
-type IAffectionCasesRegion = { region: AutoMovieHumanoidRegion };
 
 /**
  * Capture cases of affectionate and social touch between two polygon men of the
@@ -119,10 +117,11 @@ export function affectionCases(
       const kind: IAutoMovieMotionHumanTouchForm.Kind = params.kind ?? "pat";
       const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
         touch.EFFECTORS[params.effector ?? "palm"];
+      if (params.target.kind !== "person") continue;
       const region: TouchVerdicts.IRegion = {
         subject: "b",
         body,
-        region: (params.target as IAffectionCasesRegion).region,
+        region: params.target.region,
       };
       const pad: number = AutoMovieMotionHumanTouchEffector.pad(
         body,

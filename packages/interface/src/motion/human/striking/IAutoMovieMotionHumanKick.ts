@@ -90,6 +90,6 @@ export namespace IAutoMovieMotionHumanKick {
   /** A kick's plan: a strike's plan that another kick may continue from. */
   export interface IPlan extends IAutoMovieMotionHumanStrikingRecord.IPlan {
     /** What a redirect continues. */
-    continues: IAutoMovieMotionHumanActionPlan.IKicked;
+    offers: IAutoMovieMotionHumanActionPlan.IKicked;
   }
 }

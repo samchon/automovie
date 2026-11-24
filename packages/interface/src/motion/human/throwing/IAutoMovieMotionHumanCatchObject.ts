@@ -87,6 +87,9 @@ export namespace IAutoMovieMotionHumanCatchObject {
      * @returns World metres.
      */
     object(seconds: number): IAutoMovieVector3;
+
+    /** The same path, offered by the catch's family. */
+    offers: IAutoMovieMotionHumanActionPlan.ICaught;
   }
 
   /**

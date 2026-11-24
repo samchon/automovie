@@ -1,90 +1,91 @@
-import { AutoMovieCurveMath64 as M } from "@automovie/engine";
 import type {
-  AutoMovieCubicBezierControls3,
   AutoMovieRecoveryCurveData,
   AutoMovieRecoveryCurveFormat,
-  IAutoMovieCubicBezierCurve64,
-  IAutoMovieRecoveryHermiteCurve,
-  IAutoMovieRecoveryHermiteSpan,
+  IAutoMovieRecoveryCurveBundle,
 } from "@automovie/interface";
 
 import { rebindRecoveryCurveAuthorities } from "../internal/rebindRecoveryCurveAuthorities";
+import { convertAutoMovieRecoveryCurve } from "./convertAutoMovieRecoveryCurve";
 
 /**
- * Copy a plain saved recovery artifact into the selected cubic coefficient
- * basis. Every nested cubic occurrence is converted, including open arcs and
- * overrides. Original phase widths, directions, names and metadata survive
- * unchanged. Endpoint derivatives are 3(B1-B0)/h and 3(B3-B2)/h; inverse
- * handles multiply by h/3. This is an algebraic basis change in real
- * arithmetic, with binary64 rounding, not fitting or a bitwise round-trip
- * guarantee. Rational curves requested as Hermite refuse conversion, and a
- * cubic needs as many positive phase widths as spans. Surface nets retain their
- * own representation.
+ * Copy a saved recovery record into the selected cubic coefficient basis.
+ * Every cubic at the record's declared curve places is converted by
+ * `convertAutoMovieRecoveryCurve`: a fit's or override's curve, each closed
+ * loop of its loft or sections, each open arc of its reports, and each curve
+ * override. Original phase widths, directions, names and metadata survive
+ * unchanged, and the returned record is a copy that shares nothing with the
+ * input. Surface nets keep their own representation; their controls bound to a
+ * converted curve are reissued from it (`rebindRecoveryCurveAuthorities`).
+ *
+ * @param input The saved record.
+ * @param format The basis to express its cubics in.
+ * @returns The record with every cubic in that basis.
+ * @throws {Error} When a cubic lacks one positive phase width per span, or a
+ *   bound surface control disagrees with its curve authority.
  */
 export function convertAutoMovieRecoveryCurves<
-  T,
+  T extends IAutoMovieRecoveryCurveBundle,
   Format extends AutoMovieRecoveryCurveFormat,
 >(input: T, format: Format): AutoMovieRecoveryCurveData<T, Format> {
-  const visit: (value: unknown) => unknown = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(visit);
-    if (value === null || typeof value !== "object") return value;
-    const result: { [key: string]: unknown } = {};
-    for (const [key, entry] of Object.entries(value))
-      result[key] = visit(entry);
-    if (
-      format === "hermite" &&
-      (result.type === "bernstein" || result.type === "analyticOval")
-    )
-      throw new Error(
-        "Only cubic polynomial curves support this basis selection",
-      );
-    if (result.type !== "cubicBezier" && result.type !== "cubicHermite")
-      return result;
-    const curve: IAutoMovieCubicBezierCurve64 | IAutoMovieRecoveryHermiteCurve =
-      result as unknown as
-        | IAutoMovieCubicBezierCurve64
-        | IAutoMovieRecoveryHermiteCurve;
-    if (
-      curve.spans.length === 0 ||
-      curve.phaseIntervals.length !== curve.spans.length ||
-      !curve.phaseIntervals.every((width: number): boolean => width > 0)
-    )
-      throw new Error(
-        "Cubic spans and their original positive phase widths are required",
-      );
-    const spans: (
-      | AutoMovieCubicBezierControls3
-      | IAutoMovieRecoveryHermiteSpan
-    )[] = curve.spans.map(
+  const owned: T = structuredClone(input);
+  const curve = (
+    value: IAutoMovieRecoveryCurveBundle.Curve,
+  ): IAutoMovieRecoveryCurveBundle.Curve =>
+    convertAutoMovieRecoveryCurve(value, format);
+  const sections = (
+    list: readonly IAutoMovieRecoveryCurveBundle.ISection[],
+  ): IAutoMovieRecoveryCurveBundle.ISection[] =>
+    list.map(
       (
-        span: AutoMovieCubicBezierControls3 | IAutoMovieRecoveryHermiteSpan,
-        index: number,
-      ): AutoMovieCubicBezierControls3 | IAutoMovieRecoveryHermiteSpan => {
-        const width: number = curve.phaseIntervals[index]!;
-        let endpoints: IAutoMovieRecoveryHermiteSpan;
-        if (curve.type === "cubicBezier") {
-          if (format === "bezier") return span as AutoMovieCubicBezierControls3;
-          endpoints = M.toHermite(span as AutoMovieCubicBezierControls3, width);
-        } else endpoints = span as IAutoMovieRecoveryHermiteSpan;
-        if (format === "hermite") return endpoints;
-        return M.hermite(
-          M.clone(endpoints.start),
-          M.clone(endpoints.end),
-          M.clone(endpoints.startDerivative),
-          M.clone(endpoints.endDerivative),
-          width,
-        );
-      },
+        section: IAutoMovieRecoveryCurveBundle.ISection,
+      ): IAutoMovieRecoveryCurveBundle.ISection => ({
+        ...section,
+        loops: section.loops.map(
+          (loop: { curve: IAutoMovieRecoveryCurveBundle.Curve }) => ({
+            ...loop,
+            curve: curve(loop.curve),
+          }),
+        ),
+      }),
     );
-    return {
-      ...result,
-      type: format === "hermite" ? "cubicHermite" : "cubicBezier",
-      spans,
-    };
+  const result: IAutoMovieRecoveryCurveBundle = {
+    ...owned,
+    ...(owned.curve === undefined ? {} : { curve: curve(owned.curve) }),
+    ...(owned.loft === undefined
+      ? {}
+      : { loft: { ...owned.loft, sections: sections(owned.loft.sections) } }),
+    ...(owned.sections === undefined
+      ? {}
+      : { sections: sections(owned.sections) }),
+    ...(owned.reports === undefined
+      ? {}
+      : {
+          reports: owned.reports.map(
+            (report: { open: readonly { curve: IAutoMovieRecoveryCurveBundle.Curve }[] }) => ({
+              ...report,
+              open: report.open.map(
+                (arc: { curve: IAutoMovieRecoveryCurveBundle.Curve }) => ({
+                  ...arc,
+                  curve: curve(arc.curve),
+                }),
+              ),
+            }),
+          ),
+        }),
+    ...(owned.curveOverrides === undefined
+      ? {}
+      : {
+          curveOverrides: owned.curveOverrides.map(
+            (override: { curve: IAutoMovieRecoveryCurveBundle.Curve }) => ({
+              ...override,
+              curve: curve(override.curve),
+            }),
+          ),
+        }),
   };
-  const result: AutoMovieRecoveryCurveData<T, Format> = visit(
-    input,
-  ) as AutoMovieRecoveryCurveData<T, Format>;
   rebindRecoveryCurveAuthorities(input, result);
-  return result;
+
+  // The result is the input's record with each declared curve place in the
+  // requested basis, which is what the mapped type states.
+  return result as AutoMovieRecoveryCurveData<T, Format>;
 }

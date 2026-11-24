@@ -21,9 +21,14 @@ import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
  * share one path; else the policy's clearance.
  */
 export function physicalRecoverySupportGoals(
-  body: IAutoMoviePhysicalSimulationInput.IBody,
-  target: IAutoMoviePhysicalSimulationInput.ITarget,
-  pattern: IAutoMovieFootfallPattern,
+  body: {
+    readonly balance?: Pick<
+      NonNullable<IAutoMoviePhysicalSimulationInput.IBody["balance"]>,
+      "pattern" | "height"
+    >;
+  },
+  target: Pick<IAutoMoviePhysicalSimulationInput.ITarget, "segments">,
+  pattern: Pick<IAutoMovieFootfallPattern, "limbs">,
   state: IAutoMoviePhysicalRecoveryState | undefined,
   seconds: number,
   path?: {

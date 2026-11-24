@@ -2,6 +2,7 @@ import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSeated,
   IAutoMovieVector3,
@@ -56,10 +57,10 @@ export namespace sitPlace {
    * @throws {Error} When the range table gives the knee no flexion limit.
    */
   export function band(
-    body: IAutoMovieMotionHumanBody,
+    body: { measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank"> },
     side: AutoMovieHumanSide,
   ): readonly [number, number] {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: Pick<IAutoMovieBodyMeasure, "thigh" | "shank"> = body.measure;
     const limit: number | null = AutoMovieMotionHumanRange.limit(
       `${side}LowerLeg`,
       "flexion",

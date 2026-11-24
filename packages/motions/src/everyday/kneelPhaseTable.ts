@@ -1,5 +1,5 @@
 import type {
-  IAutoMovieMotionHumanBody,
+  IAutoMovieBodyMeasure,
   IAutoMovieMotionHumanKneel,
 } from "@automovie/interface";
 
@@ -22,7 +22,7 @@ import { kneel } from "./kneel";
  * @returns The phases in order.
  */
 export function kneelPhaseTable(
-  m: IAutoMovieMotionHumanBody["measure"],
+  m: Pick<IAutoMovieBodyMeasure, "hipHeight">,
   keys: number,
   kind: IAutoMovieMotionHumanKneel.Kind,
   marks: readonly string[],

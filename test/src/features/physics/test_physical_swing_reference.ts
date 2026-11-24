@@ -74,18 +74,22 @@ export async function test_physical_swing_reference(): Promise<void> {
   // 1. A thigh hinged 0.1 m beside the pelvis and a shin 0.4 m below it.
   const joints: IAutoMoviePhysicalJoint[] = [
     {
+      id: "hip",
       parent: "pelvis",
       child: "thigh",
       parentFrame: { position: { x: 0.1, y: 0, z: 0 }, rotation: identity },
       childFrame: { position: { x: 0, y: 0.2, z: 0 }, rotation: identity },
+      axes: [],
     },
     {
+      id: "knee",
       parent: "thigh",
       child: "shin",
       parentFrame: { position: { x: 0, y: -0.2, z: 0 }, rotation: identity },
       childFrame: { position: { x: 0, y: 0.2, z: 0 }, rotation: identity },
+      axes: [],
     },
-  ] as unknown as IAutoMoviePhysicalJoint[];
+  ];
   const chain = (
     pelvis: IAutoMovieQuaternion,
     hip: number,
@@ -160,26 +164,35 @@ export async function test_physical_swing_reference(): Promise<void> {
     end: 0.4,
     from: { ...step, point: [0, 0] },
     to: { ...step, point: [0, 0.3] },
-  } as unknown as NonNullable<IAutoMoviePhysicalRecoveryState["swing"]>;
-  const pattern = {
+  };
+  const pattern: Pick<IAutoMovieFootfallPattern, "limbs"> = {
     limbs: [
-      { bone: "foot", chain: ["foot"], localPoint: { x: 0, y: 0, z: 0 } },
+      {
+        bone: "foot",
+        chain: ["foot"],
+        localPoint: { x: 0, y: 0, z: 0 },
+        phase: 0,
+        duty: 0.5,
+        offset: { forward: 0, left: 0 },
+        stride: [{ speed: 0, length: 0 }],
+      },
     ],
   };
-  const body = {
-    balance: { pattern, height: 0.1 },
-  } as unknown as IAutoMoviePhysicalSimulationInput.IBody;
-  const target = {
+  const body: {
+    balance: { pattern: Pick<IAutoMovieFootfallPattern, "limbs">; height: number };
+  } = { balance: { pattern, height: 0.1 } };
+  const target: Pick<IAutoMoviePhysicalSimulationInput.ITarget, "segments"> = {
     segments: {
       foot: { position: { x: 0, y: 0.05, z: 0 }, rotation: identity },
     },
-  } as unknown as IAutoMoviePhysicalSimulationInput.ITarget;
-  const state = {
+  };
+  const state: IAutoMoviePhysicalRecoveryState = {
+    last: "supported",
     swing,
     seating: {},
     offsets: {},
     steps: [],
-  } as unknown as IAutoMoviePhysicalRecoveryState;
+  };
   const path: { height: number; hang: number } = { height: 0.06, hang: 0.02 };
   for (const seconds of [0, 0.2, 0.4]) {
     const goal: IAutoMovieVector3 = physicalRecoverySupportGoals(
@@ -242,7 +255,7 @@ export async function test_physical_swing_reference(): Promise<void> {
 
   // 4. The hang at the planned attitude: a 0.2 by 0.1 by 0.08 m foot box
   // planted level with its endpoint 0.04 m above its centre.
-  const box: IAutoMoviePhysicalProfile = {
+  const box: Pick<IAutoMoviePhysicalProfile, "segments" | "joints"> = {
     segments: [
       {
         bone: "foot",
@@ -261,7 +274,7 @@ export async function test_physical_swing_reference(): Promise<void> {
       },
     ],
     joints: [],
-  } as unknown as IAutoMoviePhysicalProfile;
+  };
   const plantedFoot: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0.04, z: 0 },
     rotation: identity,

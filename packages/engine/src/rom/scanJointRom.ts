@@ -1,7 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
-  IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieJointRotationFrame,

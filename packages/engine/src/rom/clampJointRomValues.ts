@@ -1,7 +1,6 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
-  IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieJointRotationFrame,
@@ -10,7 +9,6 @@ import type {
 } from "@automovie/interface";
 
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { abductionRange } from "./abductionRange";
@@ -143,16 +141,12 @@ function project(
       constraint,
       range,
     );
-    const read: IAutoMovieResolvedJointAngles =
-      basis === undefined
-        ? decomposeJointRotation(projected, range.axes, range.frame, {
-            bone,
-            constraint,
-          })
-        : decomposeJointRotationOnBasis(projected, basis, range.frame, {
-            bone,
-            constraint,
-          });
+    const read: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+      projected,
+      range.axes,
+      range.frame,
+      { bone, constraint },
+    );
     return {
       bone,
       flexion: read.flexion,

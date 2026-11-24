@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
+  IAutoMovieBodyMeasure,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
@@ -51,6 +52,15 @@ type RootHeading = "yaw" | "pitch" | "roll";
  * where the thigh's underside meets a level seat.
  */
 export namespace seated {
+  /** What the popliteal height reads of a body. */
+  export interface IPopliteal {
+    /** The ankle height, the shank and the thigh's radius, metres. */
+    measure: Pick<
+      IAutoMovieBodyMeasure,
+      "ankleHeight" | "shank" | "thighRadius"
+    >;
+  }
+
   /**
    * Seat heights as shares of the popliteal height that are sat on with both
    * feet on the floor. Below the band a seat is refused; above it the seat is a
@@ -121,8 +131,8 @@ export namespace seated {
    * @returns Whether the seat is above the band.
    */
   export function high(
-    body: IAutoMovieMotionHumanBody,
-    seat: IAutoMovieMotionHumanSeated.ISeat,
+    body: seated.IPopliteal,
+    seat: Pick<IAutoMovieMotionHumanSeated.ISeat, "at">,
     under: number = 0,
   ): boolean {
     return ratio(body, seat, under) > RATIO[1];
@@ -139,8 +149,8 @@ export namespace seated {
    * @returns The ratio.
    */
   export function ratio(
-    body: IAutoMovieMotionHumanBody,
-    seat: IAutoMovieMotionHumanSeated.ISeat,
+    body: seated.IPopliteal,
+    seat: Pick<IAutoMovieMotionHumanSeated.ISeat, "at">,
     under: number = 0,
   ): number {
     return (seat.at.y - under) / popliteal(body);
@@ -428,7 +438,7 @@ export namespace seated {
    * @param body The body.
    * @returns Metres.
    */
-  export function popliteal(body: IAutoMovieMotionHumanBody): number {
+  export function popliteal(body: seated.IPopliteal): number {
     return (
       body.measure.ankleHeight + body.measure.shank - body.measure.thighRadius
     );

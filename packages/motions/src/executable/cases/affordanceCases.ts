@@ -23,12 +23,6 @@ import { everydayVerdicts } from "./everydayVerdicts";
 /** The record of `IAffordanceCasesWorst`'s site. */
 type IAffordanceCasesWorst = { value: number; at: number };
 
-/** The record of `IAffordanceCasesHinge`'s site. */
-type IAffordanceCasesHinge = { at: IAutoMovieVector3 };
-
-/** The record of `IAffordanceCasesRest`'s site. */
-type IAffordanceCasesRest = { at: IAutoMovieVector3 };
-
 /** The record of `IAffordanceCasesMechanismsItem`'s site. */
 type IAffordanceCasesMechanismsItem = { kind: "insert" };
 
@@ -106,13 +100,14 @@ export function affordanceCases(
       const start: number = FamilyCaseKit.event(performance, "strokeStart");
       const end: number = FamilyCaseKit.event(performance, "strokeEnd");
       const relax: number = FamilyCaseKit.event(performance, "relax");
+      if (mechanism.at.kind !== "point") continue;
       const rest = {
-        point: (mechanism.at as IAffordanceCasesRest).at,
+        point: mechanism.at.at,
         normal: towardPerformer,
       };
       const hinge: IAutoMovieMotionHumanOperateDrive.IHinge | undefined =
-        mechanism.kind === "hinge"
-          ? { point: (mechanism.hinge as IAffordanceCasesHinge).at }
+        mechanism.kind === "hinge" && mechanism.hinge?.kind === "point"
+          ? { point: mechanism.hinge.at }
           : undefined;
       const progress = (t: number): number =>
         t <= start ? 0 : t >= end ? 1 : (t - start) / (end - start);

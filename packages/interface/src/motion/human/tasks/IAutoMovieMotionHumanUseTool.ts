@@ -90,5 +90,8 @@ export namespace IAutoMovieMotionHumanUseTool {
       /** The work. */
       kind: IAutoMovieMotionHumanToolWork.Kind;
     };
+
+    /** The same tool, offered by the tool's family. */
+    offers: IAutoMovieMotionHumanActionPlan.ITooled;
   }
 }

@@ -357,7 +357,7 @@ export namespace physicalSwingReference {
    * @returns The hang, metres.
    */
   export function hang(input: {
-    profile: IAutoMoviePhysicalProfile;
+    profile: Pick<IAutoMoviePhysicalProfile, "segments" | "joints">;
     carriers: readonly string[];
     planned: (bone: string) => IAutoMovieRigidTransform | undefined;
     endpoint: IAutoMovieVector3;

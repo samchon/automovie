@@ -1,5 +1,4 @@
 import type {
-  IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPopulation,
   IAutoMovieInstanceSetDesign,
 } from "@automovie/interface";
@@ -27,9 +26,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart3(
     space?: string,
     prototypeBounds?: IAutoMovieBuiltPopulation["prototypeBounds"],
   ) => IAutoMovieBuiltPopulation,
-  work: (
-    populations: IAutoMovieBuiltPopulation[],
-  ) => IAutoMovieBuiltEnvironment,
   refuses: (
     populations: IAutoMovieBuiltPopulation[],
     path: string,

@@ -5,6 +5,7 @@ import type {
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
+  IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
@@ -29,10 +30,10 @@ import { writeWith } from "../handling/writeWith";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
+import type { HumanKnot } from "../posture/HumanKnot";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 
-/** The film rate the backup reads the line's grip at, frames per second. */
-const FRAME: number = 24;
 
 /** Both hands. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
@@ -75,13 +76,15 @@ export function hoseBackup(
   const ready: number = clock.at("strokeStart");
   const done: number = clock.at("strokeEnd");
   // Where the line's grip is at a second of this action, as its carrier
-  // holds it, and how the run there is turned: solved once per film frame
-  // when the performance is placed (`prepare`) and interpolated between,
-  // since each read resolves the carrier's pose; a read before reads the
-  // frame itself.
-  let frames: readonly IAutoMovieRigidTransform[] | undefined;
-  const solve = (k: number): IAutoMovieRigidTransform => {
-    const at: number = context.start + Math.min(clock.duration, k / FRAME);
+  // holds it, and how the run there is turned. Its place is solved at the
+  // clock's instants and the centres between when the performance is placed
+  // (`prepare`) and joined by the minimum-jerk knot course (Flash and Hogan
+  // 1985, `prepareHumanKnotCourse`), since each read resolves the carrier's
+  // pose; a read before reads the frame itself.
+  let course: prepareHumanKnotCourse.ICourse | undefined;
+  const solve = (seconds: number): IAutoMovieRigidTransform => {
+    const at: number =
+      context.start + Math.min(clock.duration, Math.max(0, seconds));
     const reader: IAutoMovieMotionHumanPropReader = context.prop(p.prop);
     const frame: IAutoMovieRigidTransform = reader.frame(at);
     // The grip where the line's bends put it: through each joint it rides,
@@ -118,21 +121,16 @@ export function hoseBackup(
       ),
     };
   };
-  const frameAt = (k: number): IAutoMovieRigidTransform =>
-    frames?.[k] ?? solve(k);
-  const at: (seconds: number) => IAutoMovieVector3 = (
-    seconds: number,
-  ): IAutoMovieVector3 => {
-    const s: number = Math.min(clock.duration, Math.max(0, seconds)) * FRAME;
-    const k: number = Math.floor(s);
-    return Vector3.lerp(frameAt(k).position, frameAt(k + 1).position, s - k);
+  const at = (seconds: number): IAutoMovieVector3 => {
+    if (course === undefined) return solve(seconds).position;
+    const [x, y, z]: number[] = course.position(
+      Math.min(clock.duration, Math.max(0, seconds)),
+    );
+    return { x: x!, y: y!, z: z! };
   };
   // The grip as the stream opens: each hand wraps the line (its `+X`) as a
   // power grip takes any handle, from the grip's `-Y` and then rolled.
-  const set: IAutoMovieRigidTransform = {
-    position: at(ready),
-    rotation: frameAt(Math.round(ready * FRAME)).rotation,
-  };
+  const set: IAutoMovieRigidTransform = solve(ready);
   const approach: IAutoMovieVector3 = Quaternion.rotateVector(set.rotation, {
     x: 0,
     y: -1,
@@ -231,12 +229,28 @@ export function hoseBackup(
     });
   return {
     ...composed,
-    // The line's frames first, so the arms' courses are solved on the line
+    // The line's course first, so the arms' courses are solved on the line
     // as the display reads it.
     prepare: (): void => {
-      frames = Array.from(
-        { length: Math.floor(clock.duration * FRAME) + 2 },
-        (_: unknown, k: number): IAutoMovieRigidTransform => solve(k),
+      const edges: number[] = [
+        ...new Set<number>([
+          0,
+          ...clock.instants.map(
+            (instant: IAutoMovieMotionClockInstant): number => instant.seconds,
+          ),
+          clock.duration,
+        ]),
+      ].sort((a: number, b: number): number => a - b);
+      const times: number[] = edges.flatMap(
+        (t: number, i: number): number[] =>
+          i === 0 ? [t] : [(edges[i - 1]! + t) / 2, t],
+      );
+      course = prepareHumanKnotCourse(
+        times.map((t: number): HumanKnot.IKnot => {
+          const p: IAutoMovieVector3 = solve(t).position;
+          return { position: [p.x, p.y, p.z], dwell: 0 };
+        }),
+        { kind: "fixed", times },
       );
       composed.prepare?.();
     },

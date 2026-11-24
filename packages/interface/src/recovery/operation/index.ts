@@ -3,6 +3,7 @@ export type { AutoMovieRecoveryCurveFormat } from "./AutoMovieRecoveryCurveForma
 export type { AutoMovieRecoveryOperator } from "./AutoMovieRecoveryOperator";
 export type { IAutoMovieRecoveryAnalyticPublication } from "./IAutoMovieRecoveryAnalyticPublication";
 export type { IAutoMovieRecoveryCompleted } from "./IAutoMovieRecoveryCompleted";
+export type { IAutoMovieRecoveryCurveBundle } from "./IAutoMovieRecoveryCurveBundle";
 export type { IAutoMovieRecoveryDefaultObservationOptions } from "./IAutoMovieRecoveryDefaultObservationOptions";
 export type { IAutoMovieRecoveryInputHashes } from "./IAutoMovieRecoveryInputHashes";
 export type { IAutoMovieRecoveryObservationOptions } from "./IAutoMovieRecoveryObservationOptions";

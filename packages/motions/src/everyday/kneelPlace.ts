@@ -1,6 +1,6 @@
 import { Vector3 } from "@automovie/engine";
 import type {
-  IAutoMovieMotionHumanBody,
+  IAutoMovieBodyMeasure,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -59,7 +59,7 @@ export namespace kneelPlace {
   /** What the placement reads. */
   export interface IInput {
     /** The performer. */
-    body: IAutoMovieMotionHumanBody;
+    body: { measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank"> };
 
     /** The kneeling leg's standing hip joint, world metres. */
     hip: IAutoMovieVector3;

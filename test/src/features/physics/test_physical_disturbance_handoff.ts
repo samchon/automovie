@@ -28,7 +28,8 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory transforms; no world, simulation, viewer or file host.
  */
 export function test_physical_disturbance_handoff(): void {
-  const knee = {
+  const knee: IAutoMoviePhysicalJoint = {
+    id: "knee",
     parent: "thigh",
     child: "shank",
     parentFrame: {
@@ -39,7 +40,8 @@ export function test_physical_disturbance_handoff(): void {
       position: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
     },
-  } as unknown as IAutoMoviePhysicalJoint;
+    axes: [],
+  };
   const pose = (
     x: number,
     y: number,

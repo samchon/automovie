@@ -100,16 +100,14 @@ export function* locomotionCases(
     };
     const all: ILocomotionCasesAllItem[] = [
       ...(["slow", "normal", "fast"] as const).map((pace) => ({
-        law: "walk" as const,
-        pace,
+        gait: { law: "walk", pace } satisfies locomotionCase.IGait,
         froude: walk.FROUDE[pace],
         label: pace,
         to: { x: 0, y: 0, z: 4 },
         extra: {},
       })),
       ...(["jog", "run", "sprint"] as const).map((pace) => ({
-        law: "run" as const,
-        pace,
+        gait: { law: "run", pace } satisfies locomotionCase.IGait,
         froude: run.GAITS[pace].froude,
         label: pace,
         to: { x: 0, y: 0, z: 10 },
@@ -118,8 +116,7 @@ export function* locomotionCases(
       ...(who === "m-average"
         ? [
             {
-              law: "walk" as const,
-              pace: "normal",
+              gait: { law: "walk", pace: "normal" } satisfies locomotionCase.IGait,
               froude: walk.FROUDE.normal,
               label: "path",
               to: { x: 1.5, y: 0, z: 4 },
@@ -134,15 +131,14 @@ export function* locomotionCases(
           ]
         : []),
     ];
-    for (const { law, pace, froude: fr, label, to, extra } of all) {
-      if (law !== kind) continue;
-      if (only !== undefined && !only(`${law}-${label}-${who}`)) continue;
+    for (const { gait, froude: fr, label, to, extra } of all) {
+      if (gait.law !== kind) continue;
+      if (only !== undefined && !only(`${gait.law}-${label}-${who}`)) continue;
       const { men, bodies } = prepare();
       yield locomotionCase({
         who,
         names,
-        law,
-        pace,
+        gait,
         froude: fr,
         label,
         to,

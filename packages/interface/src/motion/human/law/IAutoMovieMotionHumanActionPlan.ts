@@ -8,7 +8,9 @@ import type { IAutoMovieMotionHumanEvaluation } from "../compose/IAutoMovieMotio
 import type { IAutoMovieMotionHumanPlayback } from "../perform/IAutoMovieMotionHumanPlayback";
 import type { IAutoMovieHumanPostureRotation } from "../posture/IAutoMovieHumanPostureRotation";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanKickGeometry } from "../striking/IAutoMovieMotionHumanKickGeometry";
+import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionHumanStrikingRecord } from "../striking/IAutoMovieMotionHumanStrikingRecord";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
@@ -147,11 +149,12 @@ export interface IAutoMovieMotionHumanActionPlan {
   record?(): IAutoMovieMotionHumanStrikingRecord.IRecord;
 
   /**
-   * What an action cut from this plan may continue, by the plan's family: a
-   * kick's geometry, which a redirect keeps the clock and the chamber of.
-   * Absent on a plan nothing continues.
+   * What this plan offers a reader that knows its family, discriminated by the
+   * family: a kick's geometry, which a redirect keeps the clock and the chamber
+   * of; a catch's object path; a used tool's work. Absent on a plan that offers
+   * nothing.
    */
-  continues?: IAutoMovieMotionHumanActionPlan.IContinued;
+  offers?: IAutoMovieMotionHumanActionPlan.IOffer;
 
   /**
    * The posture at a second of the action.
@@ -323,10 +326,33 @@ export namespace IAutoMovieMotionHumanActionPlan {
   }
 
   /**
-   * What a plan offers the action cut from it, discriminated by the plan's
-   * family so the reader narrows it without a cast.
+   * What a plan offers its readers, discriminated by the plan's family so a
+   * reader narrows it without a cast.
    */
-  export type IContinued = IKicked;
+  export type IOffer = IKicked | ICaught | ITooled;
+
+  /** A catch's offer: the caught object's path. */
+  export interface ICaught {
+    /** The family. */
+    family: "catchObject";
+
+    /**
+     * The object's centre at a second of the action.
+     *
+     * @param seconds Seconds since the action's start.
+     * @returns World metres.
+     */
+    object(seconds: number): IAutoMovieVector3;
+  }
+
+  /** A used tool's offer: the tool's work. */
+  export interface ITooled {
+    /** The family. */
+    family: "useTool";
+
+    /** The tool. */
+    tool: IAutoMovieMotionHumanUseTool.IPlan["tool"];
+  }
 
   /** A kick's offer: the geometry a round-kick redirect continues. */
   export interface IKicked {
