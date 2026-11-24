@@ -102,12 +102,17 @@ export namespace PhysicalPerformanceFixtures {
    * floor at y = 0, such as its fitted Stand; its forward direction is read
    * from that stance's heel-to-toe line. Other bodies start from their
    * neutral pose lowered until their lowest support point meets the floor.
+   *
+   * `frames`, when given, names the steps whose targets are planned, from the
+   * planner; every other step keeps the tracked body's default target. Every
+   * step is planned when it is absent.
    */
   export function walk(
     profile: P,
     duration: number,
     peakPitch: number = 0,
     stance?: Readonly<Record<string, IAutoMovieRigidTransform>>,
+    frames?: (planner: IAutoMovieStepPlanner) => ReadonlySet<number>,
   ): {
     body: IAutoMoviePhysicalSimulationInput.IBody;
     planner: IAutoMovieStepPlanner;
@@ -201,6 +206,7 @@ export namespace PhysicalPerformanceFixtures {
       pitchLever: 0,
       alternationWindow: 0.5,
     });
+    const planned: ReadonlySet<number> | undefined = frames?.(planner);
     const body: IAutoMoviePhysicalSimulationInput.IBody = trackedBody(
       profile,
       duration,
@@ -214,9 +220,10 @@ export namespace PhysicalPerformanceFixtures {
     };
     body.targets = body.targets.map(
       (
-        _: IAutoMoviePhysicalSimulationInput.ITarget,
+        target: IAutoMoviePhysicalSimulationInput.ITarget,
         step: number,
       ): IAutoMoviePhysicalSimulationInput.ITarget => {
+        if (planned !== undefined && !planned.has(step)) return target;
         const seconds: number = step / 120;
         const targets: Record<string, IAutoMovieRigidTransform> =
           Object.fromEntries(
