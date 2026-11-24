@@ -6,7 +6,7 @@ States the port, its source lines, the velocity, threshold and filter, the toe p
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A port of orangeduck/Motion-Matching `resources/generate_database.py` at 346e8baa90e724b26c65ebfdf49729ebecb06b15 (MIT, "Copyright (c) 2021 Daniel Holden"), lines 135-176: the toe velocity by central difference at 60 samples a second with the source's end extrapolation, contact below 0.15 m/s, then `ndimage.median_filter(size=6, mode='nearest')` per toe, read as scipy computes it (rank `size // 2` over the window `size // 2` before to `(size - 1) // 2` after, edges repeated). The toe is the metatarsophalangeal joint (`Toes` bone origin), read in the support's frame (contacts.md, "Measure slip ... in its frame"). The law's declared bearing windows keep the intent (kind, support, region, load); the path times them. Each foot's contact is then locked as the same repository's controller locks it: `controller.cpp` `contact_update` (lock where a contact begins, let go where it ends or the animated toe leaves the lock by `ik_unlock_radius` 0.2 m) with `spring.h`'s `inertialize_transition`, `inertialize_update` and `decay_spring_damper_implicit` at `ik_blending_halflife` 0.1 s and `common.h`'s `fast_negexpf`, `LN2f` and the finite difference's `eps`, run at the step 1/60 s from `contact_reset`. The source projects the lock onto its flat ground at its foot height; the plan's toe stands on its own support when a contact begins, so the lock keeps that toe's height.
+A port of orangeduck/Motion-Matching `resources/generate_database.py` at 346e8baa90e724b26c65ebfdf49729ebecb06b15 (MIT, "Copyright (c) 2021 Daniel Holden"), lines 135-176: the toe velocity by central difference at 60 samples a second with the source's end extrapolation, contact below 0.15 m/s, then `ndimage.median_filter(size=6, mode='nearest')` per toe, read as scipy computes it (rank `size // 2` over the window `size // 2` before to `(size - 1) // 2` after, edges repeated). The toe is the metatarsophalangeal joint (`Toes` bone origin), read in the support's frame (contacts.md, "Measure slip ... in its frame"). The law's declared bearing windows keep the intent (kind, support, region, load); the path times them. Each foot's contact is then locked as the same repository's controller locks it: `controller.cpp` `contact_update` (lock where a contact begins, let go where it ends or the animated toe leaves the lock by `ik_unlock_radius` 0.2 m) with `spring.h`'s `inertialize_transition`, `inertialize_update` and `decay_spring_damper_implicit` at `ik_blending_halflife` 0.1 s and `common.h`'s `fast_negexpf`, `LN2f` and the finite difference's `eps`, run at the step 1/60 s from `contact_reset`. The source projects the lock onto its flat ground at its foot height; the plan's toe stands on its own support when a contact begins, so the lock keeps that toe's height. The shown contact is then held at least at the floor beneath it, the source's `contact_position_clamp.y = maxf(contact_position_clamp.y, ik_foot_height)` over the plan's supports (`IPath.floor`: the support's height there plus the toe joint's height above its sole), the lock's own state left unclamped as in the source.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -94,6 +94,36 @@ Each caller's own read.
 
 Each caller's own.
 
+# src/law/HumanContactWindow.ts#HumanContactWindow.IPath.floor
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the foot and point it takes, the least toe-joint height it returns, its unit and frame, and what its absence means.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The source's IK floor clamp (orangeduck/Motion-Matching controller.cpp, MIT: contact_position_clamp.y = maxf(contact_position_clamp.y, ik_foot_height)) over the plan's own supports: the support's height beneath the point plus the toe joint's height above its sole, where the source has one flat ground and one foot height.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One height per point, the law's own support model.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The law's own supports and body measure, no constant of the source's character.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Called once per sample.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Each caller's own read.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+Each caller's own.
+
 # src/law/HumanContactWindow.ts#HumanContactWindow.Toes
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -146,7 +176,7 @@ One offset read and one goal shift per foot.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A leg with no world goal is left as the law gives it, not refitted. Not ported, and stated as the remaining gap: the source's clamp of the IK target above its one flat ground at its foot height (`contact_position_clamp.y` at least `ik_foot_height`); the plan's supports are no single flat ground, and the lock keeps the toe's own height where its contact began instead.
+A leg with no world goal is left as the law gives it, not refitted. The source's clamp of the IK target above its floor (`contact_position_clamp.y` at least `ik_foot_height`) is applied by `fromPath` over the floor the plan gives (`IPath.floor`), so a locked foot is never shown through its support.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

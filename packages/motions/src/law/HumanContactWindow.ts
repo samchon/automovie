@@ -151,7 +151,8 @@ export namespace HumanContactWindow {
    * stands on its own support when its contact begins, so the lock keeps the
    * shown toe's height there. The lock's offset from the animated toe at each
    * sample is what `locked` lays on the plan's leg goals, read linearly between
-   * samples.
+   * samples. Where the plan gives a floor (`IPath.floor`), the shown contact is
+   * held at least at it, as the source clamps its IK target above its ground.
    *
    * @param props The declared windows, the plan's length and its toe path.
    * @returns The windows, the feet's timed by their path, and the locks'
@@ -222,10 +223,17 @@ export namespace HumanContactWindow {
         leftFoot: locks(
           sampled.map((toes: Toes): IAutoMovieVector3 => toes.leftFoot),
           states.leftFoot,
+          props.floor === undefined
+            ? undefined
+            : (toe: IAutoMovieVector3): number => props.floor!("leftFoot", toe),
         ),
         rightFoot: locks(
           sampled.map((toes: Toes): IAutoMovieVector3 => toes.rightFoot),
           states.rightFoot,
+          props.floor === undefined
+            ? undefined
+            : (toe: IAutoMovieVector3): number =>
+                props.floor!("rightFoot", toe),
         ),
       },
     };
@@ -292,6 +300,15 @@ export namespace HumanContactWindow {
      * support it bears on, metres.
      */
     toes: (seconds: number) => Toes;
+
+    /**
+     * The least height a foot's toe joint may be shown at over the support
+     * beneath a point of its frame, metres: that support's height there plus
+     * the toe joint's height above its sole, the source's `ik_foot_height`
+     * clamp (`controller.cpp`) over the plan's own supports. Absent, no lock is
+     * clamped.
+     */
+    floor?: (foot: Foot, toe: IAutoMovieVector3) => number;
   }
 
   /** Both feet's toe joints, metres. */
@@ -378,11 +395,13 @@ export namespace HumanContactWindow {
    * One foot's lock offsets over its samples: the source's `contact_update` run
    * at the step `1 / RATE` from `contact_reset`, its blends by
    * `inertialize_transition` and `inertialize_update`, the offset of the shown
-   * contact from the animated toe after each update.
+   * contact from the animated toe after each update, held above the floor
+   * beneath it where one is given.
    */
   function locks(
     points: readonly IAutoMovieVector3[],
     states: readonly boolean[],
+    floor?: (toe: IAutoMovieVector3) => number,
   ): IAutoMovieVector3[] {
     const dt: number = 1 / RATE;
     const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -432,7 +451,16 @@ export namespace HumanContactWindow {
         offsetV = Vector3.subtract(offsetV, inputVelocity);
       }
       state = inputState;
-      out.push(Vector3.subtract(position, input));
+
+      // The shown contact never passes through the support beneath it: its
+      // height is held at least the floor's there (`controller.cpp`,
+      // `contact_position_clamp.y = maxf(contact_position_clamp.y,
+      // ik_foot_height)`), the lock's own state left unclamped as there.
+      const shown: IAutoMovieVector3 =
+        floor === undefined
+          ? position
+          : { ...position, y: Math.max(position.y, floor(position)) };
+      out.push(Vector3.subtract(shown, input));
     });
     return out;
   }

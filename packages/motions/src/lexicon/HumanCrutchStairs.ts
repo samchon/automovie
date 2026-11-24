@@ -360,6 +360,16 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       .map((e: IAutoMovieMotionEvent): number => e.share * plan.duration)
       .sort((a: number, b: number): number => a - b);
     const settle: number = climb.step / 2 / 3;
+    // The flight's profile along its climb, which the held leg clears and
+    // each foot's lock stands on.
+    const flight: crutchHeldLeg.IStairs = {
+      origin: Vector3.add(
+        floor,
+        Vector3.scale(forward, 0.25 * body.measure.footLength),
+      ),
+      forward,
+      steps: crutchStairsFlight.profile(climb, ground),
+    };
     const hold: ReturnType<typeof crutchHeldLeg> = crutchHeldLeg({
       body,
       side: injured,
@@ -369,14 +379,7 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
       knee: HELD.knee,
       read: (seconds: number): IAutoMovieMotionHumanPosture =>
         plan.posture(seconds),
-      stairs: {
-        origin: Vector3.add(
-          floor,
-          Vector3.scale(forward, 0.25 * body.measure.footLength),
-        ),
-        forward,
-        steps: crutchStairsFlight.profile(climb, ground),
-      },
+      stairs: flight,
       knots: bears.flatMap((at: number): number[] => [at, at + settle]),
     });
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
@@ -431,6 +434,18 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
     const feet: HumanContactWindow.IContacts = HumanContactWindow.fromPath({
       windows: declared,
       duration: plan.duration,
+      // A toe joint stands at least its height above its sole over the
+      // flight's level beneath it (`HumanContactWindow.IPath.floor`).
+      floor: (_: HumanContactWindow.Foot, toe: IAutoMovieVector3): number => {
+        const ahead: number = Vector3.dot(
+          Vector3.subtract(toe, flight.origin),
+          flight.forward,
+        );
+        let height: number = ground;
+        for (const step of flight.steps)
+          if (ahead >= step.from) height = step.height;
+        return height + joint;
+      },
       toes: (seconds: number): HumanContactWindow.Toes => {
         const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           poseBones(

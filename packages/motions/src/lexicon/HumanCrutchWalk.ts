@@ -476,9 +476,21 @@ export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
     // (`HumanContactWindow.fromPath`), on the support each stance names.
     const toes: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>(["leftToes", "rightToes"]);
+    // Each toe joint stands at least as high as it bears on the floor at
+    // entry (`HumanContactWindow.IPath.floor`): the floor's height plus the
+    // joint's height above its sole.
+    const bears = (side: AutoMovieHumanSide): number =>
+      supportContact.points(body, entry, [
+        { contact: { part: `${side}Foot`, kind: "bear" }, at: null },
+      ])[0]!.y;
+    const floors: Readonly<Record<HumanContactWindow.Foot, number>> = {
+      leftFoot: bears("left"),
+      rightFoot: bears("right"),
+    };
     const bearing: HumanContactWindow.IContacts = HumanContactWindow.fromPath({
       windows: plan.contacts,
       duration: plan.duration,
+      floor: (foot: HumanContactWindow.Foot): number => floors[foot],
       toes: (seconds: number): HumanContactWindow.Toes => {
         const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
           poseBones(
