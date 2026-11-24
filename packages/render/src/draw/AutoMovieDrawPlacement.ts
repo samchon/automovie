@@ -15,7 +15,7 @@ import { markAutoMovieInspectionTrails } from "../scene/inspection/markAutoMovie
 import { planAutoMovieInspectionTrailTimes } from "../scene/inspection/planAutoMovieInspectionTrailTimes.js";
 import { sampleAutoMovieInspectionTrails } from "../scene/inspection/sampleAutoMovieInspectionTrails.js";
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
-import { AutoMovieDialogueMouthRecorder } from "./AutoMovieDialogueMouthRecorder.js";
+import { AutoMovieDialogueMouthStage } from "./AutoMovieDialogueMouthStage.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./placeAutoMovieDrawLayer.js";
 import { planAutoMovieDrawPicture } from "./planAutoMovieDrawPicture.js";
@@ -43,9 +43,11 @@ import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection
  * once per view text, selection and span of seconds. `restore` ends the current
  * inspection before the host places the scene itself.
  *
- * `speak` hands a subject with `speak` the film's dialogue mouths through an
- * `AutoMovieDialogueMouthRecorder`, whose record is cleared right before the
- * drawn second is placed, so `mouths` are what the subject read for that
+ * `speak` takes the film's dialogue mouths into an
+ * `AutoMovieDialogueMouthStage`. `voice` shows them on the speaking actors'
+ * figures right after a placement, and the page calls it after every placement
+ * it draws, this class's own included. Its record is cleared right before the
+ * drawn second is placed, so `mouths` are what the figures showed for that
  * second.
  */
 export class AutoMovieDrawPlacement {
@@ -58,8 +60,8 @@ export class AutoMovieDrawPlacement {
     IAutoMovieViewerSubjectBounds | null
   > = new Map();
 
-  /** The dialogue mouths handed to the subject, which record what it reads. */
-  private spoken_: AutoMovieDialogueMouthRecorder | null = null;
+  /** The film's dialogue mouths, which record what the figures show. */
+  private spoken_: AutoMovieDialogueMouthStage | null = null;
 
   /**
    * Hold the subject, its name, which a refused plan names, and the renderer
@@ -71,14 +73,20 @@ export class AutoMovieDrawPlacement {
     private readonly renderer: THREE.WebGLRenderer,
   ) {}
 
-  /** Hand a subject with `speak` the mouths of `track`. */
+  /** Take the film's dialogue mouths, shown from the next placement on. */
   public speak(track: IAutoMovieDialogueMouthTrack): void {
-    if (this.scene.speak === undefined) return;
-    this.spoken_ = new AutoMovieDialogueMouthRecorder(track);
-    this.scene.speak(this.spoken_.mouths);
+    this.spoken_ = new AutoMovieDialogueMouthStage(track);
   }
 
-  /** The mouths read for the drawn second, or undefined without `speak`. */
+  /**
+   * Show the dialogue mouths at a film second on the scene as just placed; a
+   * subject handed no mouths shows none.
+   */
+  public voice(seconds: number): void {
+    this.spoken_?.show(this.scene.scene, seconds);
+  }
+
+  /** The mouths shown for the drawn second, or undefined without `speak`. */
   public mouths(): IAutoMovieDrawnMouth[] | undefined {
     return this.spoken_?.drawn();
   }
@@ -157,8 +165,12 @@ export class AutoMovieDrawPlacement {
     const scene: IAutoMovieDrawScene = this.scene;
     const placed: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null =
       planAutoMovieDrawPicture(this.name, scene, seconds).placed;
-    const seek: (at: number) => Promise<void> = (at: number): Promise<void> =>
-      placeAutoMovieDrawLayer(this.name, scene, placed, at);
+    const seek: (at: number) => Promise<void> = async (
+      at: number,
+    ): Promise<void> => {
+      await placeAutoMovieDrawLayer(this.name, scene, placed, at);
+      this.voice(at);
+    };
     const trails: IAutoMovieInspectionTrail[] = [];
     if (request.trail.length !== 0) {
       const times: number[] = planAutoMovieInspectionTrailTimes({
@@ -177,7 +189,7 @@ export class AutoMovieDrawPlacement {
         );
     }
 
-    // The mouths read from here on are the ones placed at the drawn second.
+    // The mouths shown from here on are the ones placed at the drawn second.
     this.spoken_?.clear();
     await seek(seconds);
     onPlaced?.();

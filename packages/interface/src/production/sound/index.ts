@@ -6,7 +6,6 @@ export type { IAutoMovieDeriveSoundPropagation } from "./IAutoMovieDeriveSoundPr
 export type { IAutoMovieDialogueExpressionLayers } from "./IAutoMovieDialogueExpressionLayers";
 export type { IAutoMovieDialogueMouth } from "./IAutoMovieDialogueMouth";
 export type { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRange";
-export type { IAutoMovieDialogueMouths } from "./IAutoMovieDialogueMouths";
 export type { IAutoMovieDialogueMouthTrack } from "./IAutoMovieDialogueMouthTrack";
 export type { IAutoMovieDialogueSpeakerBinding } from "./IAutoMovieDialogueSpeakerBinding";
 export type { IAutoMovieDialogueVisemeCompilation } from "./IAutoMovieDialogueVisemeCompilation";

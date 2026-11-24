@@ -98,8 +98,11 @@ const SUPERSAMPLE = 2 as const;
  * framing second is refused like any picture inside a transition, which refuses
  * the fitted view's every cell.
  *
- * `speak` hands a subject with `speak` the film's dialogue mouths; each
- * result's `mouths` are what the subject read for the drawn second.
+ * `speak` takes the film's dialogue mouths. After every placement, a layer's,
+ * a sample's, a trail's and the drawn second's own, the page shows each
+ * speaking actor's mouth on the figures bound under the actor's scene node
+ * (`AutoMovieDrawPlacement.voice`), and each result's `mouths` are what those
+ * figures showed for the drawn second.
  *
  * ```ts
  * import { installAutoMovieDraw } from "@automovie/render";
@@ -286,6 +289,7 @@ async function drawCall(
     camera: cameraAt,
     prepare,
     restore: (): void => placement.restore(),
+    voice: (at: number): void => placement.voice(at),
   });
   await picture.prepare();
 

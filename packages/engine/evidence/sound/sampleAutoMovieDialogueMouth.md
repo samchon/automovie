@@ -14,7 +14,7 @@ The track is render's plan; the jaw law's maximum and the blend are this package
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No actor or line is special-cased. The frame tolerance is far below any shutter offset and far above the double-precision rounding of `f / fps × fps`, so it only keeps whole-frame seconds on their own frame.
+No actor or line is special-cased. The speaking line and its whole frame come from `speakingAutoMovieDialogueLine`, which owns the frame tolerance, so the draw page and this sampler agree on when a line speaks.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

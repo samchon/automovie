@@ -26,7 +26,7 @@ Use the representation's supported face, expressions and mouth shapes for script
 
 Take accepted speech from [audio acquisition](../audio/acquisition.md). Record the speech model's IPA phoneme chunks in the line's [receipt](../audio/acquisition.md#take-adoption), or, for finer timing, a forced aligner's one-phoneme chunks with the aligner named.
 
-Give the film a `speak` member that keeps the mouths the capture and the render hand it. In `seek` and `seekShot`, layer each speaking actor's mouth over the authored expression in the form its representation takes:
+Place each speaking actor's figure under the scene node its speaker binding names, and drive a VRM or imported model with `AutoMoviePlayer` and the polygon man with `createAutoMovieHumanPolygonFigure` from `@automovie/render`, or bind any other figure, such as the Human, with `bindAutoMovieDialogueMouth`. After each placement, the capture and the render layer the actor's mouth over the authored expression in the form its representation takes:
 
 | Representation | What moves its mouth |
 | --- | --- |
@@ -37,11 +37,11 @@ The inspector reads no sound and shows the authored mouth.
 
 On stills, check that each shape the installed face performs lands on the frames of its sound, with the mouth closed where the line closes the lips.
 
-`render-report.json` measures the lip-sync lag of each viseme-driven line: a line with phoneme chunks whose actor the film moved by `visemes`. A line whose sound leads its mouth by more than 45 ms or trails it by more than 125 ms blocks the render, so correct its phoneme chunks or start frame. The report lists every other line as unmeasured, and none of these blocks:
+`render-report.json` measures the lip-sync lag of each viseme-driven line: a line with phoneme chunks whose actor's figure showed `visemes`. A line whose sound leads its mouth by more than 45 ms or trails it by more than 125 ms blocks the render, so correct its phoneme chunks or start frame. The report lists every other line as unmeasured, and none of these blocks:
 
 - `envelope-jaw`, a line without phoneme chunks, or a line of an actor moved by `jaw`, whose mouth follows its loudness;
 - `speaker-not-bound`, a line whose speaker binds to no single actor, so no mouth moves;
-- `mouth-not-drawn`, a bound line whose actor's mouth the film never read during the line.
+- `mouth-not-drawn`, a bound line whose actor no bound figure showed during the line.
 
 Ask the user to watch and listen to the sync as a whole, because neither stills nor the lag show whether a line is bound to the right actor.
 

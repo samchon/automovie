@@ -205,6 +205,7 @@ async function drawn(film: boolean, seconds: number): Promise<string[]> {
     camera: (): THREE.Camera => camera,
     prepare: (): void => {},
     restore: (): void => {},
+    voice: (): void => {},
   });
   await picture.prepare();
   picture.draw(camera);

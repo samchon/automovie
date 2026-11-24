@@ -36,11 +36,12 @@ import { planAutoMovieDrawPicture } from "./planAutoMovieDrawPicture.js";
  * subject with optics then accumulates the shown layer's shutter and lens
  * samples, each placed on that layer's own entry clock, so a frame at a hard
  * cut integrates only the incoming shot. Each placement, a layer's or a
- * sample's, runs the subject's `beforeDraw` right after it, before any render
- * mode applies, and the canvas's clear alpha is set before any sample is drawn.
- * A layer of weight 0, the live entry on a dissolve's first frame or at a
- * fade's midpoint, is neither sampled nor drawn; when it is the shown layer,
- * the host still places it for the frame's records.
+ * sample's, shows the dialogue mouths at its second through `voice` and then
+ * runs the subject's `beforeDraw`, before any render mode applies, and the
+ * canvas's clear alpha is set before any sample is drawn. A layer of weight 0,
+ * the live entry on a dissolve's first frame or at a fade's midpoint, is
+ * neither sampled nor drawn; when it is the shown layer, the host still places
+ * it for the frame's records.
  *
  * `draw`, once the host has placed the shown layer, draws it through the given
  * camera with the samples `prepare` accumulated and, for a transition, holds it
@@ -209,6 +210,7 @@ export class AutoMovieDrawFilm {
     const props: AutoMovieDrawFilm.IProps = this.props;
     return async (at: number): Promise<void> => {
       await placeAutoMovieDrawLayer(props.name, props.scene, layer, at);
+      props.voice(at);
       props.scene.beforeDraw?.(props.renderer, at);
     };
   }
@@ -303,5 +305,11 @@ export namespace AutoMovieDrawFilm {
 
     /** End the current inspection before the picture places the subject. */
     restore: () => void;
+
+    /**
+     * Show the speaking actors' dialogue mouths at a film second right after a
+     * placement, before its render-target work.
+     */
+    voice: (seconds: number) => void;
   }
 }

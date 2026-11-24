@@ -23,3 +23,4 @@ export * from "./resolveProductionLoudness";
 export * from "./sampleAutoMovieDialogueExpression";
 export * from "./sampleAutoMovieDialogueMouth";
 export * from "./sampleAutoMovieDialogueVisemeWeights";
+export * from "./speakingAutoMovieDialogueLine";

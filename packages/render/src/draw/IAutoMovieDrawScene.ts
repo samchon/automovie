@@ -1,6 +1,5 @@
 import type {
   IAutoMovieDeliveryContentAudit,
-  IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
   IAutoMovieFilmShading,
   IAutoMovieFilmSound,
@@ -27,8 +26,12 @@ import type * as THREE from "three";
  * and is asked right after that placement; its `seconds` is the output second
  * drawn. After `seekShot` it describes the placed shot at its own shot-local
  * time, so a transition's outgoing tail takes its own exposure, white balance,
- * focus and feeds, not the live entry's. Only what the subject reads on the
- * output clock, such as the dialogue mouths, follows `seconds`.
+ * focus and feeds, not the live entry's. Only what follows the output clock,
+ * such as the dialogue mouths, follows `seconds`: after each placement the draw
+ * page shows each speaking actor's mouth at that second on the figures bound
+ * under the actor's scene node, the object named by the speaker binding's
+ * `actor` (`bindAutoMovieDialogueMouth`), so the subject writes no mouth code
+ * of its own.
  */
 export interface IAutoMovieDrawScene {
   /** The scene drawn, owned by the subject until `dispose`. */
@@ -170,20 +173,6 @@ export interface IAutoMovieDrawScene {
    * renderer's render target as it found it.
    */
   beforeDraw?: (renderer: THREE.WebGLRenderer, seconds: number) => void;
-
-  /**
-   * Take the film's dialogue mouths, handed once before the first picture by a
-   * host that admitted the subject's sound list: the capture and the delivery
-   * render. The subject reads each speaking actor's mouth in `seek`, `place`
-   * and `seekShot` for the output second it places, in the form the actor's
-   * figure takes, and layers it over the authored expression. Absent, no mouth
-   * follows the sound and the delivery render lists each bound phoneme-driven
-   * line as `mouth-not-drawn`.
-   *
-   * The interactive inspector hands no mouths, because it reads no sound file;
-   * it shows the authored mouth until the viewer gains a file host.
-   */
-  speak?(mouths: IAutoMovieDialogueMouths): void;
 
   /**
    * Put every object and the delivery camera at a second; objects may be

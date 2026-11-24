@@ -90,6 +90,8 @@ export * from "./IAutoMovieRenderModeHandle.js";
 export * from "./applyRenderMode.js";
 export * from "./mixAutoMovieStraightAlpha.js";
 export * from "./AUTOMOVIE_DISPLAY_COMPOSITE_SHADERS.js";
+export * from "./IAutoMovieDialogueMouthFigure.js";
+export * from "./bindAutoMovieDialogueMouth.js";
 export * from "./maskColor.js";
 export * from "./DEPTH_NORMALIZATION_RANGE.js";
 export * from "./EDGE_WIDTH.js";

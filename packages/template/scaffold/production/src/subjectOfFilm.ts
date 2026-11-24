@@ -1,6 +1,5 @@
 import { preparePhysicalGeometry } from "@automovie/engine";
 import type {
-  IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
   IAutoMovieFilmShading,
   IAutoMovieInspectionDiagnostics,
@@ -34,8 +33,8 @@ import { markFilmProduction } from "./markFilmProduction";
  * report, and its sequence, whose transitions every film picture draws through
  * the film's `seekShot`: the shot and its shot-local time pass through
  * unclamped, a sample's handle before the trim included, and the film second is
- * clamped. A film with `speak` takes the dialogue mouths the capture and the
- * render hand the subject, and reads them in its own placements.
+ * clamped. A film with `sound` carries it as the subject's sound list, and the
+ * capture and the render show its dialogue mouths on the film's bound figures.
  *
  * @param name The film's registered name, which the subject is drawn under.
  * @param film The registered film.
@@ -69,12 +68,6 @@ export function subjectOfFilm(
           ? {}
           : { delivery: production.delivery }),
         ...(production.sound === undefined ? {} : { sound: production.sound }),
-        ...(production.speak === undefined
-          ? {}
-          : {
-              speak: (mouths: IAutoMovieDialogueMouths): void =>
-                production.speak!(mouths),
-            }),
         ...(production.playback === undefined
           ? {}
           : {

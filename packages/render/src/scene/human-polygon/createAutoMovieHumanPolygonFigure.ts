@@ -1,6 +1,11 @@
-import type { IAutoMovieHumanSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieDialogueMouth,
+  IAutoMovieHumanSkeleton,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
+import type { IAutoMovieDialogueMouthFigure } from "../IAutoMovieDialogueMouthFigure.js";
+import { bindAutoMovieDialogueMouth } from "../bindAutoMovieDialogueMouth.js";
 import type { AutoMovieHumanCartoon } from "./AutoMovieHumanCartoon.js";
 import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 import { buildHumanCartoonFace } from "./buildHumanCartoonFace.js";
@@ -14,24 +19,34 @@ import { buildHumanPolygon } from "./buildHumanPolygon.js";
  * `place` applies an evaluated pose to the existing groups and rebuilds the
  * face only when the head pose or expression changes by value, disposing the
  * previous face, so a held expression costs no geometry. The evaluator is a
- * structural function (a Human skeleton evaluator fits); the Viewer imports
- * no figure generator.
+ * structural function (a Human skeleton evaluator fits); the Viewer imports no
+ * figure generator.
  *
- * The figure stays deliberately simple: a fix corrects a wrong value within
- * the same primitives, never adds geometry, detail or realism, because its job
- * is a cheap, deterministic silhouette for motion checks and diffusion hints.
+ * The figure's root is bound as a dialogue-mouth figure
+ * (`bindAutoMovieDialogueMouth`) that takes the jaw opening: under a speaking
+ * actor's scene node, the draw page opens the cartoon face's jaw to the actor's
+ * envelope jaw over the head pose last placed, and restores that pose when the
+ * actor stops speaking. The face has no viseme shapes until #3185, so it shows
+ * the jaw alone.
+ *
+ * The figure stays deliberately simple: a fix corrects a wrong value within the
+ * same primitives, never adds geometry, detail or realism, because its job is a
+ * cheap, deterministic silhouette for motion checks and diffusion hints.
  *
  * @returns The figure's root object, its drawing, the pose port and disposal.
- * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose (A posed polygon figure with its cartoon face: the original polygon drawing () built once from the evaluator's neutral output, and a face () on its actual head front) and documents the returned value as stated in this comment.
- * @evidence contracts/development/implementation.md#principled-implementation Implements the documented behavior (A posed polygon figure with its cartoon face: the original polygon drawing () built once from the evaluator's neutral output, and a face () on its actual head front) directly over its typed inputs (`input`) as a fixed number of statements with no loop or recursion in the body, delegating to `buildHumanPolygon`, `input.evaluate`, `drawing.setPose`, `JSON.stringify`, `buildHumanCartoonFace`; the premises are the units, frames and ranges stated in its parameter documentation, enforced only where the body throws (1 throw site). Apart from structural 0, 1 and 2 the body uses no numeric literal.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One operation of 45 lines and 6 top-level statements that reuses `buildHumanPolygon`, `input.evaluate`, `drawing.setPose`, `JSON.stringify`, `buildHumanCartoonFace` from their owners instead of copying them; it adds no option, layer or abstraction beyond its documented parameters.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Scanning the body finds no `any`, type assertion, non-null assertion, suppression directive or TODO, and no branch keyed on a consumer, fixture or expected answer; values come from its parameters.
- * @evidence contracts/development/implementation.md#efficient-algorithms Cost is driven by the sizes of `input`; the dominant cost is a fixed number of statements with no loop or recursion in the body, performed once per call with 7 allocation sites (literals and constructed values). No speedup is claimed and none is measured.
- * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
- * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The function acquires no handle, timer, listener or task and keeps no state between calls; its 7 allocation sites become the returned value or die with the call, so nothing grows.
+ * @evidence contracts/development/common.md#meaningful-documentation Gives the purpose, when `place` rebuilds the face, how a dialogue mouth reaches the face and what it shows, and documents the returned value.
+ * @evidence contracts/development/implementation.md#principled-implementation Builds the drawing once from the neutral evaluation and keys the face by the value of its head pose and expression, so equal inputs reuse the built face. A dialogue mouth replaces only the head pose's jaw opening, in millimetres at the incisors as `IAutoMovieHumanJawPose.opening` measures it, and keeps the authored eyes, protrusion, lateral excursion and expression; one throw site refuses a disposed figure.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One factory that reuses `buildHumanPolygon` and `buildHumanCartoonFace` from their owners; `place` and the bound mouth share one face rebuild, so the authored and the speaking face are built the same way.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No branch is keyed on a consumer or fixture; a mouth before the first placement shows nothing rather than an invented head pose.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Building the drawing is linear in the evaluated bones; each `place` or mouth costs one stringified key and, when the key changes, one face rebuild, so a speaking actor rebuilds the face on each frame whose jaw differs. No speedup is claimed and none is measured.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The only reuse is the built face, kept while its key is unchanged, which is decided by value.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The figure holds one drawing and at most one face; a rebuild disposes the face it replaces, and `dispose` releases both once. The mouth binding is a weak entry keyed by the drawing's root, so it adds nothing that outlives the figure.
  */
 export function createAutoMovieHumanPolygonFigure(input: {
-  /** Evaluate a pose to rest bones and placements; called once with the neutral pose. */ evaluate: (
+  /**
+   * Evaluate a pose to rest bones and placements; called once with the neutral
+   * pose.
+   */ evaluate: (
     pose: Readonly<Record<string, never>>,
   ) => Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">;
   /** RGB overrides by emitted bone. */ partColors?: Readonly<
@@ -45,6 +60,31 @@ export function createAutoMovieHumanPolygonFigure(input: {
   let face: ReturnType<typeof buildHumanCartoonFace> | null = null;
   let key: string | null = null;
   let disposed: boolean = false;
+
+  // The authored face as last placed, which a dialogue mouth layers over.
+  let placed: boolean = false;
+  let authoredHead: AutoMovieHumanCartoon.IHeadPose | undefined;
+  let authoredExpression: AutoMovieHumanCartoon.IExpression | undefined;
+  const showFace: (
+    head: AutoMovieHumanCartoon.IHeadPose | undefined,
+    expression: AutoMovieHumanCartoon.IExpression | undefined,
+  ) => void = (
+    head: AutoMovieHumanCartoon.IHeadPose | undefined,
+    expression: AutoMovieHumanCartoon.IExpression | undefined,
+  ): void => {
+    const next: string = JSON.stringify([head ?? null, expression ?? null]);
+    if (next === key) return;
+    const built: ReturnType<typeof buildHumanCartoonFace> =
+      buildHumanCartoonFace(drawing.head, expression, head);
+    if (face !== null) {
+      drawing.head.object.remove(face.object);
+      face.dispose();
+    }
+    face = built;
+    key = next;
+    drawing.head.object.add(built.object);
+    figure.unsupported = built.unsupported;
+  };
   const figure: createAutoMovieHumanPolygonFigure.IFigure = {
     object: drawing.object,
     drawing,
@@ -59,18 +99,10 @@ export function createAutoMovieHumanPolygonFigure(input: {
     ): void => {
       if (disposed) throw new Error("The polygon figure is disposed");
       drawing.setPose(output);
-      const next: string = JSON.stringify([head ?? null, expression ?? null]);
-      if (next === key) return;
-      const built: ReturnType<typeof buildHumanCartoonFace> =
-        buildHumanCartoonFace(drawing.head, expression, head);
-      if (face !== null) {
-        drawing.head.object.remove(face.object);
-        face.dispose();
-      }
-      face = built;
-      key = next;
-      drawing.head.object.add(built.object);
-      figure.unsupported = built.unsupported;
+      placed = true;
+      authoredHead = head;
+      authoredExpression = expression;
+      showFace(head, expression);
     },
     dispose: (): void => {
       if (disposed) return;
@@ -83,6 +115,28 @@ export function createAutoMovieHumanPolygonFigure(input: {
       drawing.dispose();
     },
   };
+
+  // The dialogue mouth opens the jaw over the authored face; the cartoon face
+  // has no viseme shapes, so the polygon man takes the jaw alone (#3185).
+  bindAutoMovieDialogueMouth(drawing.object, {
+    show: (
+      mouth: IAutoMovieDialogueMouth | null,
+    ): IAutoMovieDialogueMouthFigure.IShown | null => {
+      if (disposed || !placed) return null;
+      if (mouth === null) {
+        showFace(authoredHead, authoredExpression);
+        return null;
+      }
+      showFace(
+        {
+          ...authoredHead,
+          jaw: { ...authoredHead?.jaw, opening: mouth.jaw },
+        },
+        authoredExpression,
+      );
+      return { jaw: mouth.jaw };
+    },
+  });
   return figure;
 }
 /**
@@ -102,7 +156,10 @@ export namespace createAutoMovieHumanPolygonFigure {
     /** The underlying drawing, for colours, bone groups and attachments. */
     readonly drawing: AutoMovieHumanPolygon.IDrawing;
 
-    /** Requested face fields outside the cartoon's supported subset, after the latest rebuild. */
+    /**
+     * Requested face fields outside the cartoon's supported subset, after the
+     * latest rebuild.
+     */
     unsupported: readonly string[];
 
     /**
