@@ -1,5 +1,8 @@
-import { AutoMovieXpbdWorld, Quaternion } from "@automovie/engine";
-import type { AutoMovieXpbdBody } from "@automovie/engine";
+import {
+  type AutoMovieXpbdBody,
+  AutoMovieXpbdWorld,
+  Quaternion,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 

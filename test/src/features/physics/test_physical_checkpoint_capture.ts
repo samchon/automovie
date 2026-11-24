@@ -1,10 +1,10 @@
 import {
   AutoMoviePhysicsCache,
   AutoMovieXpbdWorld,
+  type IAutoMoviePhysicalBinding,
   capturePhysicalSimulationCheckpoint,
   restorePhysicalSimulationCheckpoint,
 } from "@automovie/engine";
-import type { IAutoMoviePhysicalBinding } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalControllerCheckpoint,
