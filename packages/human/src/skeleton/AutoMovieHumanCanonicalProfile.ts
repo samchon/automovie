@@ -74,7 +74,8 @@ import { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
  * and wrist flexion and extension; the hip's abduction, adduction and
  * rotations take McNabb et al.'s (2024) per-kilogram means instead. The axes
  * neither measured keep an unsourced placeholder, 50 N m per downstream
- * kilogram, still open.
+ * kilogram, still open. Every drive is critically damped on the moment of
+ * inertia of the subtree it turns about its axis, kd = 2 sqrt(kp I).
  * Self-contact is excluded between joint neighbours, among the palm and
  * digits of one hand, between the abdomen and each upper arm and between the
  * two thighs. The last two are body pairs that overlap in the reference pose:
@@ -235,6 +236,7 @@ export namespace AutoMovieHumanCanonicalProfile {
         b("Foot"),
         0,
         person,
+        (): number => 0,
       ).find(
         (axis: IAutoMoviePhysicalJointAxis): boolean =>
           axis.channel === `${b("Foot")}.flexion`,
@@ -311,6 +313,52 @@ export namespace AutoMovieHumanCanonicalProfile {
         (sum: number, c: AutoMovieHumanoidBone): number => sum + downstream(c),
         0,
       );
+    // The moment of inertia of a joint's subtree about one of its axes through
+    // its pivot, at the T-pose the axes are read on: each segment's principal
+    // moments projected onto the axis, plus its mass at its centre's distance
+    // from the axis (the parallel-axis theorem).
+    const inertiaAbout = (
+      child: AutoMovieHumanoidBone,
+      letter: IAutoMoviePhysicalJointAxis["axis"],
+    ): number => {
+      const pivot: IAutoMovieVector3 = origin(child);
+      const axis: IAutoMovieVector3 = {
+        x: letter === "x" ? 1 : 0,
+        y: letter === "y" ? 1 : 0,
+        z: letter === "z" ? 1 : 0,
+      };
+      const of = (bone: AutoMovieHumanoidBone): number => {
+        const s: IAutoMoviePhysicalSegment = segments.find(
+          (candidate: IAutoMoviePhysicalSegment): boolean =>
+            candidate.bone === bone,
+        )!;
+        const principal: IAutoMovieVector3 = Quaternion.rotateVector(
+          Quaternion.inverse(
+            Quaternion.multiply(s.neutral.rotation, s.inertiaRotation),
+          ),
+          axis,
+        );
+        const arm: IAutoMovieVector3 = Vector3.subtract(
+          Vector3.add(
+            s.neutral.position,
+            Quaternion.rotateVector(s.neutral.rotation, s.centerOfMass),
+          ),
+          pivot,
+        );
+        const along: number = Vector3.dot(arm, axis);
+        return (
+          s.inertia.x * principal.x * principal.x +
+          s.inertia.y * principal.y * principal.y +
+          s.inertia.z * principal.z * principal.z +
+          s.mass * (Vector3.dot(arm, arm) - along * along) +
+          children(bone).reduce(
+            (sum: number, c: AutoMovieHumanoidBone): number => sum + of(c),
+            0,
+          )
+        );
+      };
+      return of(child);
+    };
     const links: IAutoMoviePhysicalJoint[] = (
       Object.keys(parentOf) as AutoMovieHumanoidBone[]
     ).map((child: AutoMovieHumanoidBone): IAutoMoviePhysicalJoint => {
@@ -324,7 +372,9 @@ export namespace AutoMovieHumanCanonicalProfile {
           rotation: identity,
         },
         childFrame: { position: { x: 0, y: 0, z: 0 }, rotation: identity },
-        axes: axesOf(child, 50 * downstream(child), person),
+        axes: axesOf(child, 50 * downstream(child), person, (letter) =>
+          inertiaAbout(child, letter),
+        ),
         ...orderOf(child),
       };
     });
@@ -653,11 +703,15 @@ function orderOf(bone: AutoMovieHumanoidBone): Pick<IAutoMoviePhysicalJoint, "or
   return new Set(order).size === 3 ? { order } : {};
 }
 
-/** The physical axes of one joint from its clinical ranges, read onto the T-pose rig. */
+/**
+ * The physical axes of one joint from its clinical ranges, read onto the
+ * T-pose rig, each drive critically damped on the subtree it turns.
+ */
 function axesOf(
   bone: AutoMovieHumanoidBone,
   torque: number,
   person: AutoMovieHumanJointStrength.IPerson,
+  inertia: (letter: IAutoMoviePhysicalJointAxis["axis"]) => number,
 ): IAutoMoviePhysicalJointAxis[] {
   const rom = DEFAULT_HUMANOID_ROM[bone];
   const axes: IAutoMovieJointAxes =
@@ -681,9 +735,12 @@ function axesOf(
     );
     const coordinateSign: 1 | -1 = (sign * (frame?.sign ?? 1)) as 1 | -1;
     // A measured motion's peak torque drives toward that end of the axis;
-    // the drive's stiffness is their mean, its damping a tenth of that
-    // (SIMBICON: torque limited to kp, kd = 0.1 kp; Yin, Loken and van de
-    // Panne 2007, Section 7).
+    // the drive's stiffness is their mean (SIMBICON: torque limited to kp;
+    // Yin, Loken and van de Panne 2007, Section 7), and its damping the
+    // critical one on the subtree's moment of inertia I about the axis,
+    // kd = 2 sqrt(kp I), so the joint's second-order response has damping
+    // ratio one and tracks without overshoot (Ogata, Modern Control
+    // Engineering, Section 5-3).
     const measured = AutoMovieHumanJointStrength.of(person, bone, clinical);
     const up: number = measured
       ? coordinateSign > 0
@@ -701,7 +758,7 @@ function axesOf(
       minimum: Math.max(-Math.PI, ends[0]!),
       maximum: Math.min(Math.PI, ends[1]!),
       stiffness,
-      damping: stiffness / 10,
+      damping: 2 * Math.sqrt(stiffness * inertia(letter)),
       maximumTorque: up,
       ...(down !== up ? { reverseTorque: down } : {}),
       channel: `${bone}.${clinical}`,

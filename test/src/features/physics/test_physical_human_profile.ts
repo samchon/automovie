@@ -33,8 +33,9 @@ import { preparePhysicalHumanArmSwing } from "../internal/preparePhysicalHumanAr
  *    inequality, a malformed joint frame and an out-of-domain axis each
  *    report their own admission path on the same Human profile.
  * 3. A gravity-free shoulder ramp brings the elbow within two degrees of its
- *    eight-degree target by the end of the hold, preserving arm length with
- *    at most one degree of overshoot throughout the ramp and hold. No motor
+ *    eight-degree target by the end of the hold, preserving arm length and
+ *    leading the target by no more than the peak lead of a critically damped
+ *    second-order drive on the arm's moment of inertia. No motor
  *    demand exceeds its torque cap, and the native shoulder ends within two
  *    degrees of its authored rotation.
  * 4. The same native body and clock retain the neutral elbow when they receive
@@ -193,6 +194,48 @@ export async function test_physical_human_profile(): Promise<void> {
   const lengthError: number = Math.abs(
     Math.hypot(end.x, end.y, end.z) - armLength,
   );
+  // The shoulder's drive about the swing's axis is a second-order joint, I
+  // e'' + kd e' + kp e = I r'', on the arm's moment of inertia I about that
+  // axis through the shoulder. A critically damped one (omega = sqrt(kp /
+  // I)) following a ramp of rate W held after T leads the target by at most
+  // W (1 - a) / omega exp(-1 - omega T a / (1 - a)), a = e^(-omega T): the
+  // ramp's response less the same response delayed by T, at its peak.
+  const arm: Set<string> = new Set(["leftUpperArm"]);
+  for (const joint of profile.joints)
+    if (arm.has(joint.parent)) arm.add(joint.child);
+  const pivot: IAutoMovieVector3 = neutral.leftUpperArm!.position;
+  let inertia: number = 0;
+  for (const segment of profile.segments) {
+    if (!arm.has(segment.bone)) continue;
+    const pose: IAutoMovieRigidTransform = neutral[segment.bone]!;
+    const principal: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(
+        Quaternion.multiply(pose.rotation, segment.inertiaRotation),
+      ),
+      { x: 0, y: 0, z: 1 },
+    );
+    const centre: IAutoMovieVector3 = Quaternion.rotateVector(
+      pose.rotation,
+      segment.centerOfMass,
+    );
+    inertia +=
+      segment.inertia.x * principal.x ** 2 +
+      segment.inertia.y * principal.y ** 2 +
+      segment.inertia.z * principal.z ** 2 +
+      segment.mass *
+        ((pose.position.x + centre.x - pivot.x) ** 2 +
+          (pose.position.y + centre.y - pivot.y) ** 2);
+  }
+  const drive: IAutoMoviePhysicalJoint = profile.joints.find(
+    (joint: IAutoMoviePhysicalJoint): boolean => joint.child === "leftUpperArm",
+  )!;
+  const omega: number = Math.sqrt(
+    drive.axes.find((axis): boolean => axis.axis === "z")!.stiffness / inertia,
+  );
+  const decay: number = Math.exp(-omega * ramp);
+  const leadLimit: number =
+    ((degrees / ramp) * (1 - decay) * Math.exp(-1 - (omega * ramp * decay) / (1 - decay))) /
+    omega;
   const findings: string[] = [];
   const targetLimit: number =
     2 * arcRadius * Math.sin(radian) + anchorTolerance;
@@ -206,9 +249,9 @@ export async function test_physical_human_profile(): Promise<void> {
     findings.push(
       `matched neutral elbow drifts ${neutralError} m, limit ${neutralLimit} m`,
     );
-  if (!(leadingAngle <= 1))
+  if (!(leadingAngle <= leadLimit))
     findings.push(
-      `active elbow leads its target by ${leadingAngle} degrees at ${leadingTime} s`,
+      `active elbow leads its target by ${leadingAngle} degrees at ${leadingTime} s, limit ${leadLimit} degrees`,
     );
   if (!(lengthError <= anchorTolerance))
     findings.push(`upper-arm length changes by ${lengthError} m`);
