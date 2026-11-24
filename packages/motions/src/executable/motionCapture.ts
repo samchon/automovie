@@ -128,7 +128,8 @@ export async function motionCapture(): Promise<void> {
   const ffmpeg: string | null = video
     ? resolveAutoMovieFfmpeg({
         env: process.env,
-        load: (id: string): unknown => loadAutoMovieProductionModule(ROOT, id),
+        load: (id: "ffmpeg-static"): string | null =>
+          loadAutoMovieProductionModule<string | null>(ROOT, id),
       })
     : null;
   const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({

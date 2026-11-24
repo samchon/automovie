@@ -8,6 +8,7 @@ import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
 import { renderAutoMovieVideo } from "./renderAutoMovieVideo";
 import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
+import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
 
 /**
  * Run `automovie render` in a production: draw one subject of a module's draw
@@ -71,7 +72,8 @@ export async function renderAutoMovie(props: {
         );
   const ffmpeg: string = resolveAutoMovieFfmpeg({
     env: props.env,
-    load: (id: string): unknown => loadAutoMovieProductionModule(root, id),
+    load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
+      loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
   });
 
   const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({

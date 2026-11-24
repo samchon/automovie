@@ -16,6 +16,7 @@ import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { readAutoMovieVideoProbe } from "./readAutoMovieVideoProbe";
 import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
+import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
 
 /**
  * Run `automovie capture` in a production: read the options through the request
@@ -67,7 +68,8 @@ export async function captureAutoMovie(props: {
     // A video file: probe it, then capture its own frames.
     const ffmpeg: string = resolveAutoMovieFfmpeg({
       env: props.env,
-      load: (id: string): unknown => loadAutoMovieProductionModule(root, id),
+      load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
+        loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
     });
     const file: string = path.resolve(root, options.file);
     const probe: ReturnType<typeof readAutoMovieVideoProbe> =
