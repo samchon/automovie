@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States both surface lists, the model-backed checks, the feed camera rule against the live camera, the all-or-nothing copy on any finding and that absent inputs stay absent.
+States both surface lists, the model-backed checks, the feed camera rule against the live camera, the all-or-nothing copy on any finding and that absent inputs stay absent. An omitted font stays omitted for render.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

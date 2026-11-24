@@ -10,7 +10,7 @@ The face covers the whole surface so the mask pass paints it whatever the layers
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One key's group; the preparer owns tracks, frames, images and time.
+Builds one key's group. It passes an explicit font id to the preparer's resolver and rasterizes omitted-font layers with the system UI font. The preparer owns tracks, frames, images and time.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -26,4 +26,4 @@ Each key is built once at preparation; the applier only toggles visibility.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Every geometry and material is pushed to the caller's owned list as it is made, so a later failure still releases it.
+Every geometry, material and system-font texture is pushed to the caller's owned list as it is made, so a later failure still releases it.

@@ -49,13 +49,14 @@ const LIFT: number = 0.0005;
  *
  * The shot's font sources decode here first, all of them, so a source the
  * decoder refuses rejects with its diagnostic before anything is built; a text
- * layer then sets its glyphs from the decoded font it names. Images decode here
- * too, once per distinct image: an id the node's model carries decodes from its
- * PNG bytes, any other id loads through `loadImage`. Every texture is decoded
- * as sRGB and sampled with the first image row at the face's top. A node
- * without a mounted object, a surface that is not a sized `surface` affordance
- * of its model, or an image that resolves nowhere rejects naming the track,
- * after releasing everything already made.
+ * layer then sets its glyphs from the decoded font it names. If a text layer
+ * omits its font, the key builder draws it with the system UI font. Images
+ * decode here too, once per distinct image: an id the node's model carries
+ * decodes from its PNG bytes, any other id loads through `loadImage`. Every
+ * texture is decoded as sRGB and sampled with the first image row at the face's
+ * top. A node without a mounted object, a surface that is not a sized `surface`
+ * affordance of its model, or an image that resolves nowhere rejects naming the
+ * track, after releasing everything already made.
  */
 export async function prepareAutoMovieSurfaceGraphics(
   props: IPrepareAutoMovieSurfaceGraphicsProps,
