@@ -108,9 +108,9 @@ type IPrepareSupportIntervalFixed = {
  * lifted by what they still sink: with a foot planted, a hip the blend carries
  * lower folds the knee toward the floor. That lift is planned on the interval's
  * share at knots AutoKnots places, no finer than the frame grid, and read
- * between them (`prepareSupportLiftCourse`). A held knee or trunk contact has no two-bone
- * chain ending at it and stays held only through the root pin and the floor
- * bound.
+ * between them (`prepareSupportLiftCourse`). A held knee or trunk contact has
+ * no two-bone chain ending at it and stays held only through the root pin and
+ * the floor bound.
  *
  * @param body The unchanged body.
  * @param a The fixed key before the interval.
@@ -333,7 +333,6 @@ function placed(
   const fused:
     | ReturnType<ReturnType<typeof prepareSupportPinFloor>>
     | undefined =
-    prepareHumanPoseResolution.isNativeSource(read) &&
     project === posed.body.projection
       ? pinned.fixed.pinFloor(blended, read, project)
       : undefined;

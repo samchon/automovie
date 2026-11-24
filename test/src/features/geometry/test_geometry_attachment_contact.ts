@@ -17,8 +17,9 @@ import { throwsError } from "../internal/throwsError";
 
 /**
  * A root contact qualifies only its original support manifold; a second host
- * piercing the same fan remains unproved even though its minimum includes root0.
- * Scenarios:
+ * piercing the same fan remains unproved even though its minimum includes
+ * root0. Scenarios:
+ *
  * 1. A registered barycentric plane-root fan has positive corner gaps and a tiny
  *    bounded registration cap in source and actual Float32 coordinate frames.
  * 2. Moving the root or supplying unrelated supports cannot expand attachment.

@@ -268,9 +268,7 @@ function planHumanTendHorse(
             undefined,
             undefined,
             reader,
-            prepareHumanPoseResolution.isNativeSource(resolution)
-              ? requested
-              : undefined,
+            requested,
             projection,
           );
         const actual: IAutoMovieResolvedBone = poseBones(

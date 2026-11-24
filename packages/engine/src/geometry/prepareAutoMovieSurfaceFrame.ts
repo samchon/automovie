@@ -14,8 +14,8 @@ import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame
  * Their centroid is the origin, point 0 to point 1 is forward, and the ordered
  * edge cross product supplies the normal. Optional referenceNormal chooses its
  * sign; a zero, nonfinite or exactly perpendicular reference refuses. It does
- * not tilt the triangle. The result owns its coordinates independently
- * of subsequent input edits. Finite inputs whose differences or coordinates
+ * not tilt the triangle. The result owns its coordinates independently of
+ * subsequent input edits. Finite inputs whose differences or coordinates
  * overflow refuse; near-collinearity remains a binary64 conditioning limit.
  */
 export function prepareAutoMovieSurfaceFrame(

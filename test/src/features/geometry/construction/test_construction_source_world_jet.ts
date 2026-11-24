@@ -39,9 +39,9 @@ type AxisJet = NonNullable<
  *    SolidChain.surface. Its regular world jets agree without manufacturing a
  *    chain or sampling a replacement frame. Fresh outputs and unchanged
  *    original scalar records preserve ownership.
- * 3. Missing/null axis2, a singular source pole, invalid
- *    query coordinates and world overflow produce explicit failures. Finite
- *    source values are not promoted into missing derivatives.
+ * 3. Missing/null axis2, a singular source pole, invalid query coordinates and
+ *    world overflow produce explicit failures. Finite source values are not
+ *    promoted into missing derivatives.
  * 4. The actual axis callback and a returned value getter throw their original
  *    Error object through the public query; numerical admission does not
  *    swallow foreign exceptions.

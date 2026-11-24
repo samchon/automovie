@@ -44,7 +44,11 @@ interface ILookup {
   ): IAutoMovieJointConstraint | null;
 
   /** Canonical frame metadata, requested only after the hinge branch. */
-  frame(body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone): IFrame;
+  frame(
+    body: IAutoMovieMotionHumanBody,
+    bone: AutoMovieHumanoidBone,
+    constraint: IAutoMovieJointConstraint | null,
+  ): IFrame;
 }
 
 /**
@@ -60,23 +64,33 @@ const COLD: ILookup = {
   frame: (
     body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
+    constraint: IAutoMovieJointConstraint | null,
   ): IFrame =>
-    frameOf(bone, skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]),
+    frameOf(
+      bone,
+      skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone],
+      constraint,
+    ),
 };
 
 /** One joint's raw axes with their normalized basis and swing-twist chart. */
 function frameOf(
   bone: AutoMovieHumanoidBone,
   axes: IAutoMovieJointAxes | undefined,
+  constraint: IAutoMovieJointConstraint | null,
 ): IFrame {
-  const raw: IAutoMovieJointAxes = axes === undefined ? DEFAULT_JOINT_AXES : axes;
+  const raw: IAutoMovieJointAxes =
+    axes === undefined ? DEFAULT_JOINT_AXES : axes;
   return {
     axes,
     basis: normalizeJointAxes(raw, "jointToQuaternion axes"),
     joint:
       axes === undefined
         ? undefined
-        : swingTwistRange.prepare({ axes, frame: HUMANOID_REST_FRAME[bone] }),
+        : swingTwistRange.prepare(
+            swingTwistRange.fromAxes(bone, axes)!,
+            constraint ?? undefined,
+          ),
   };
 }
 
@@ -228,11 +242,12 @@ export namespace blendHumanJoint {
       frame: (
         current: IAutoMovieMotionHumanBody,
         name: AutoMovieHumanoidBone,
+        constraint: IAutoMovieJointConstraint | null,
       ): IFrame => {
         let frame: IFrame | undefined = frames.get(name);
         if (frame === undefined) {
           axes ??= skeletonJointAxes(current.skeleton, HUMANOID_JOINT_AXES);
-          frame = frameOf(name, axes[name]);
+          frame = frameOf(name, axes[name], constraint);
           frames.set(name, frame);
         }
         return frame;
@@ -278,7 +293,7 @@ function blend(
       from[1] + (to[1] - from[1]) * s,
       from[2] + (to[2] - from[2]) * s,
     ];
-  const rig: IFrame = lookup.frame(body, bone);
+  const rig: IFrame = lookup.frame(body, bone, constraint);
   const axes: IAutoMovieJointAxes | undefined = rig.axes;
   const gated: boolean =
     constraint !== null &&
@@ -322,7 +337,7 @@ function pair(
       from[1] + (to[1] - from[1]) * at,
       from[2] + (to[2] - from[2]) * at,
     ];
-  const rig: IFrame = lookup.frame(body, bone);
+  const rig: IFrame = lookup.frame(body, bone, constraint);
   const gated: boolean =
     constraint !== null &&
     constraint.swingTwist !== undefined &&

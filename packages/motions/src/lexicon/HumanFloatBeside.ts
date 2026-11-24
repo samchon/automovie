@@ -368,9 +368,7 @@ function planHumanFloatBeside(
           undefined,
           undefined,
           read,
-          prepareHumanPoseResolution.isNativeSource(resolution)
-            ? requested
-            : undefined,
+          requested,
           projection,
         );
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =

@@ -15,7 +15,10 @@ import type { IFilmCameraClearanceAdapterResult } from "./IFilmCameraClearanceAd
 import type { IFilmCameraClearanceDeformationInputs } from "./IFilmCameraClearanceDeformationInputs";
 import { createModel, createSkeleton } from "./fixtures";
 
-/** Run the original articulated reach, unsupported deformation and motion boundary assertions. */
+/**
+ * Run the original articulated reach, unsupported deformation and motion
+ * boundary assertions.
+ */
 export function assertFilmCameraClearanceDeformation(
   input: IFilmCameraClearanceDeformationInputs,
 ): IAutoMovieClip {

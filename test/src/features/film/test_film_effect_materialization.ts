@@ -27,12 +27,17 @@ import {
 } from "./filmEffectRuntimeFixtures";
 
 /**
- * Film cue materialization enforces current identity, rational clock and exclusive zone ownership.
+ * Film cue materialization enforces current identity, rational clock and
+ * exclusive zone ownership.
  *
  * Scenarios:
- * 1. Check canonical ordering, identity, frames, rational seconds, protocol seeds/digests and reader acceptance.
- * 2. Refuse an invalid fingerprint/rate, duplicate world ids, malformed intervals/cues and missing zone/recipe.
- * 3. Distinguish same-zone overlap from touching intervals or different zones, and preserve only declared runtime fields.
+ *
+ * 1. Check canonical ordering, identity, frames, rational seconds, protocol
+ *    seeds/digests and reader acceptance.
+ * 2. Refuse an invalid fingerprint/rate, duplicate world ids, malformed
+ *    intervals/cues and missing zone/recipe.
+ * 3. Distinguish same-zone overlap from touching intervals or different zones, and
+ *    preserve only declared runtime fields.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs materializeProductionFilmEffects and the population verifier, checking observable fields and named refusal classes; overlapping cues must name their common frames and invalid input must not become a partial runtime set.
  * @evidence contracts/development/testing.md#independent-expectations Authored half-open frame intervals and rational rates independently determine seconds and ownership; filmEffectValuesClose checks numerical leaves within 1e-12 with exact key sets/order. Protocol records and Node SHA-256 determine seeds/digests. The shared canonicalizer limits independence to hashing, and reader acceptance is a producer/consumer consistency check.
@@ -264,11 +269,7 @@ export function test_film_effect_materialization(): void {
   };
   TestValidator.equals(
     "a malformed shot interval is refused and a valid one accepted",
-    [
-      { startFrame: -1 },
-      { endFrame: 30 },
-      {},
-    ].map(
+    [{ startFrame: -1 }, { endFrame: 30 }, {}].map(
       (
         patch:
           | {

@@ -28,6 +28,7 @@ import { prepareDanceBeats } from "../exercise/prepareDanceBeats";
 import { writeWith } from "../handling/writeWith";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { conductTip } from "./conductTip";
 
 /**
  * Each meter's ictus points, `[in, up]` in shares of the figure's half width
@@ -177,21 +178,12 @@ function plan(
     attack: last - first,
     retract: beats.period,
   });
-  const tip: (seconds: number) => IAutoMovieVector3 = (
-    seconds: number,
-  ): IAutoMovieVector3 => {
-    if (seconds <= first) return arc(top, ictus[0]!, seconds / first);
-    if (seconds >= last) return ictus[ictus.length - 1]!;
-    const k: number = Math.min(
-      beats.count - 1,
-      Math.max(1, Math.floor((seconds - first) / beats.period) + 1),
-    );
-    return arc(
-      ictus[k - 1]!,
-      ictus[k]!,
-      (seconds - beats.at(k)) / (beats.at(k + 1) - beats.at(k)),
-    );
-  };
+  const tip: (seconds: number) => IAutoMovieVector3 = conductTip(
+    ictus,
+    top,
+    beats,
+    REBOUND * HALF,
+  );
   const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
     context.body,
     posture,
@@ -263,14 +255,3 @@ type PostureRest =
   ]
     ? R
     : never;
-
-/** The tip between two ictuses: their line lifted by the rebound arc. */
-function arc(
-  from: IAutoMovieVector3,
-  to: IAutoMovieVector3,
-  u: number,
-): IAutoMovieVector3 {
-  const s: number = Math.min(1, Math.max(0, u));
-  const line: IAutoMovieVector3 = Vector3.lerp(from, to, s);
-  return { ...line, y: line.y + REBOUND * HALF * Math.sin(Math.PI * s) };
-}

@@ -65,7 +65,12 @@ export function createAutoMovieClosedSphereGeometry(
   for (let vertex: number = 0; vertex < position.count; vertex++) {
     origin.fromBufferAttribute(position, vertex);
     firstEdge.fromBufferAttribute(normal, vertex);
-    if (firstEdge.lengthSq() === 0) {
+    if (
+      [origin.x, origin.y, origin.z].some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      ) ||
+      firstEdge.lengthSq() === 0
+    ) {
       geometry.dispose();
       throw new Error(
         "A closed sphere requires finite positions and nonzero finite normals at stored precision",

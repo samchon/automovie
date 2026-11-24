@@ -2,16 +2,17 @@ import { bracketedBisection } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A bracketed bisection returns the end of its final bracket where a
- * yes-or-no condition fails, within the tolerance of the boundary, in the
- * halvings the bracket's width allows and without reading its ends.
+ * A bracketed bisection returns the end of its final bracket where a yes-or-no
+ * condition fails, within the tolerance of the boundary, in the halvings the
+ * bracket's width allows and without reading its ends.
  *
  * Scenarios:
- * 1. `x * x < 2` on [0, 2] to 1e-12 returns the square root of two from
- *    above, within the tolerance, in exactly 41 readings, the halvings of a
- *    width of 2 down to 1e-12, none of them at an end.
- * 2. The same condition's mirror, `x * x < 2` holding at 0 and failing at
- *    -2, returns minus the square root of two: the bracket may run backwards.
+ *
+ * 1. `x * x < 2` on [0, 2] to 1e-12 returns the square root of two from above,
+ *    within the tolerance, in exactly 41 readings, the halvings of a width of 2
+ *    down to 1e-12, none of them at an end.
+ * 2. The same condition's mirror, `x * x < 2` holding at 0 and failing at -2,
+ *    returns minus the square root of two: the bracket may run backwards.
  * 3. A step condition, `x < 0.3`, whose boundary has no value to interpolate,
  *    returns a point in [0.3, 0.3 + 1e-9].
  * 4. A bracket already no wider than the tolerance returns `high` without a

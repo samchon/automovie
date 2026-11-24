@@ -384,10 +384,7 @@ export namespace sit {
         return spans.legs(
           sitHands(
             body,
-            seatedKey !== undefined &&
-              settled(t) &&
-              resolution !== undefined &&
-              prepareHumanPoseResolution.isNativeSource(resolution)
+            seatedKey !== undefined && settled(t) && resolution !== undefined
               ? structuredClone(seatedKey)
               : lowered(t, travel(t), resolution),
             (side: AutoMovieHumanSide): number => spans.hand(side, t),

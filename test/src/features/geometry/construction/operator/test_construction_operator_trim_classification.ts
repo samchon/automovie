@@ -28,8 +28,7 @@ type Loop = IAutoMovieSolidMesh.ILoop;
  * 1. Rectangular holes/islands in stretched and sheared planes, with margins just
  *    below, exactly at and above independently derived distances.
  * 2. Winding cycles that turn back, seam aliases, half-period ties, degenerate
- *    charts/metrics values, compared with the original
- *    arithmetic.
+ *    charts/metrics values, compared with the original arithmetic.
  * 3. A unit-cylinder face trimmed at u=1: exact shared ring, two retained grid
  *    rows, outward triangles, paired interior edges and the sole open top
  *    ring.
@@ -373,7 +372,6 @@ function legacy(
   }
   return least >= margin;
 }
-
 
 /**
  * The real face consumer on a cylinder with independent topology/coordinate

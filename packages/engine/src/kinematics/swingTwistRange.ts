@@ -49,36 +49,30 @@ type IChart = ReturnType<typeof swingTwistRange.chart>;
  * The humanoid tables' own frame of every bone whose default constraint gates
  * it by swing and twist, prepared once with its region.
  */
-const HUMANOID_RANGES: ReadonlyMap<string, IAutoMovieJointRotationFrame> =
-  new Map(
-    Object.entries(DEFAULT_HUMANOID_ROM).flatMap(
-      ([bone, constraint]: [
-        string,
-        IAutoMovieJointConstraint | undefined,
-      ]): [string, IAutoMovieJointRotationFrame][] => {
-        const axes: IAutoMovieJointAxes | undefined = new Map(
-          Object.entries(HUMANOID_JOINT_AXES),
-        ).get(bone);
-        const frame: IAutoMovieRestFrame | undefined = new Map(
-          Object.entries(HUMANOID_REST_FRAME),
-        ).get(bone);
-        if (
-          axes === undefined ||
-          constraint === undefined ||
-          constraint.swingTwist === undefined ||
-          constraint.swingTwist === null
-        )
-          return [];
-        const joint: IAutoMoviePlainJointRotationFrame = { axes, frame };
-        return [
-          [
-            bone,
-            { ...joint, region: swingTwistRegion.prepare(constraint, joint) },
-          ],
-        ];
-      },
-    ),
-  );
+const HUMANOID_RANGES: readonly IAutoMovieJointRotationFrame[] = Object.entries(
+  DEFAULT_HUMANOID_ROM,
+).flatMap(
+  ([bone, constraint]: [
+    string,
+    IAutoMovieJointConstraint | undefined,
+  ]): IAutoMovieJointRotationFrame[] => {
+    const axes: IAutoMovieJointAxes | undefined = new Map(
+      Object.entries(HUMANOID_JOINT_AXES),
+    ).get(bone);
+    const frame: IAutoMovieRestFrame | undefined = new Map(
+      Object.entries(HUMANOID_REST_FRAME),
+    ).get(bone);
+    if (
+      axes === undefined ||
+      constraint === undefined ||
+      constraint.swingTwist === undefined ||
+      constraint.swingTwist === null
+    )
+      return [];
+    const joint: IAutoMoviePlainJointRotationFrame = { axes, frame };
+    return [{ ...joint, region: swingTwistRegion.prepare(constraint, joint) }];
+  },
+);
 
 /**
  * The range of a ball joint read by swing and twist: where the limb's long axis
@@ -144,11 +138,8 @@ export namespace swingTwistRange {
     bone: AutoMovieHumanoidBone,
     axes: IAutoMovieJointAxes | undefined,
   ): IAutoMovieJointRotationFrame | undefined {
-    if (axes === undefined) return undefined;
-    const shared: IAutoMovieJointRotationFrame | undefined =
-      HUMANOID_RANGES.get(bone);
-    return shared !== undefined && shared.axes === axes
-      ? shared
+    return axes === undefined
+      ? undefined
       : { axes, frame: HUMANOID_REST_FRAME[bone] };
   }
 
@@ -165,10 +156,17 @@ export namespace swingTwistRange {
     joint: IAutoMovieJointRotationFrame,
     constraint?: IAutoMovieJointConstraint,
   ): IAutoMovieJointRotationFrame {
-    return constraint === undefined ||
-      joint.region?.constraint === constraint
-      ? joint
-      : { ...joint, region: swingTwistRegion.prepare(constraint, joint) };
+    if (constraint === undefined) return joint;
+    // The humanoid table's own prepared frame serves its default constraint;
+    // any other constraint gets its region built here, once.
+    return (
+      HUMANOID_RANGES.find(
+        (shared: IAutoMovieJointRotationFrame): boolean =>
+          shared.axes === joint.axes &&
+          shared.frame === joint.frame &&
+          shared.region?.constraint === constraint,
+      ) ?? { ...joint, region: swingTwistRegion.prepare(constraint, joint) }
+    );
   }
 
   /**

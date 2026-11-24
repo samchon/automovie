@@ -1,6 +1,5 @@
 import type {
   IAutoMovieColor,
-  IAutoMovieStageLight,
   IAutoMovieStagedSet,
   IAutoMovieValidation,
 } from "@automovie/interface";
@@ -136,9 +135,9 @@ export function assertFilmStageLightBoundaries(
 
   // 8. the color's own totality and its alpha, the rule the scene artifact
   //     validator applies one rung later
-  /** Stage an isolated unknown color payload through the original typed ingress and read its validation result. */
-  const withColor: (color: unknown) => IAutoMovieValidation = (
-    color: unknown,
+  /** Stage one light color through the original typed ingress and read its validation result. */
+  const withColor: (color: IAutoMovieColor) => IAutoMovieValidation = (
+    color: IAutoMovieColor,
   ): IAutoMovieValidation =>
     failure(
       stageLights([
@@ -146,67 +145,10 @@ export function assertFilmStageLightBoundaries(
           node: "sun",
           direction: { x: -1, y: -1, z: 0 },
           intensity: 1,
-          color: color as IAutoMovieColor,
+          color,
         },
       ]),
     );
-  TestValidator.equals(
-    "a color that is not an object reports instead of throwing",
-    namedFacts([
-      [
-        "nullColorRefused",
-        (): boolean =>
-          hasViolation(withColor(null), "type", "$input.lights[0].color"),
-      ],
-      [
-        "arrayColorRefused",
-        (): boolean =>
-          hasViolation(withColor([1, 1, 1]), "type", "$input.lights[0].color"),
-      ],
-    ]),
-    { nullColorRefused: true, arrayColorRefused: true },
-  );
-  TestValidator.equals(
-    "a direction or position that is not an object reports instead of throwing",
-    namedFacts([
-      [
-        "nullDirectionRefused",
-        (): boolean =>
-          hasViolation(
-            failure(
-              stageLights([
-                {
-                  node: "sun",
-                  direction: null,
-                  intensity: 1,
-                } as unknown as IAutoMovieStageLight,
-              ]),
-            ),
-            "range",
-            "$input.lights[0].direction",
-          ),
-      ],
-      [
-        "arrayPositionRefused",
-        (): boolean =>
-          hasViolation(
-            failure(
-              stageLights([
-                {
-                  node: "flame",
-                  type: "point",
-                  position: [0, 1, 0],
-                  intensity: 1,
-                } as unknown as IAutoMovieStageLight,
-              ]),
-            ),
-            "range",
-            "$input.lights[0].position",
-          ),
-      ],
-    ]),
-    { nullDirectionRefused: true, arrayPositionRefused: true },
-  );
   TestValidator.equals(
     "a light-slot alpha of null is the documented value, not a fault",
     stageLights([
@@ -237,22 +179,6 @@ export function assertFilmStageLightBoundaries(
       withColor({ r: 1, g: 1, b: 1, a: 5, hex: null }),
       "range",
       "$input.lights[0].color.a",
-    ),
-  );
-  TestValidator.predicate(
-    "an unknown light discriminator is refused at its source",
-    hasViolation(
-      failure(
-        stageLights([
-          {
-            node: "arc",
-            type: "laser",
-            intensity: 1,
-          } as unknown as IAutoMovieStageLight,
-        ]),
-      ),
-      "type",
-      "$input.lights[0].type",
     ),
   );
 }

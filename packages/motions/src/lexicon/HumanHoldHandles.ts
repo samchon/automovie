@@ -45,9 +45,7 @@ function planHumanHoldHandles(
     duration: seconds,
     transition,
   } = context.params;
-  if (
-    !(transition > 0 && 2 * transition < seconds)
-  )
+  if (!(transition > 0 && 2 * transition < seconds))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "transition",
@@ -191,9 +189,7 @@ function planHumanHoldHandles(
             undefined,
             undefined,
             read,
-            prepareHumanPoseResolution.isNativeSource(resolution)
-              ? requested
-              : undefined,
+            requested,
             projection,
           );
         const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =

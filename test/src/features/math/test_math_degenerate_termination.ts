@@ -10,23 +10,24 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/throwsError";
 
 /**
- * The math searches whose loops end on a computed value end on every
- * finite input, including the degenerate ones that once never ended.
+ * The math searches whose loops end on a computed value end on every finite
+ * input, including the degenerate ones that once never ended.
  *
  * Scenarios:
- * 1. Bisection of `x < 1 + 2^-52` between the adjacent doubles 1 and
- *    `1 + 2^-52` to a tolerance of 1e-30, below their spacing, returns
- *    `1 + 2^-52` without a reading: no double lies between the ends.
- * 2. Bisection of `x * x < 2` on [0, 2] to 1e-300 stops at the adjacent
- *    doubles around the square root of two: the result squares to at least
- *    2, lies within one spacing (2^-52) of it, and the readings stay within
- *    the 2099 halvings the double range allows (about 52 here).
- * 3. Bisection of `x < 1.5e308` on [1e308, 1.7e308], whose ends' sum
- *    overflows, to 1e292 returns a point within 1e292 above 1.5e308.
+ *
+ * 1. Bisection of `x < 1 + 2^-52` between the adjacent doubles 1 and `1 + 2^-52`
+ *    to a tolerance of 1e-30, below their spacing, returns `1 + 2^-52` without
+ *    a reading: no double lies between the ends.
+ * 2. Bisection of `x * x < 2` on [0, 2] to 1e-300 stops at the adjacent doubles
+ *    around the square root of two: the result squares to at least 2, lies
+ *    within one spacing (2^-52) of it, and the readings stay within the 2099
+ *    halvings the double range allows (about 52 here).
+ * 3. Bisection of `x < 1.5e308` on [1e308, 1.7e308], whose ends' sum overflows, to
+ *    1e292 returns a point within 1e292 above 1.5e308.
  * 4. The ordinary bisection of scenario 2 to 1e-12 keeps its 41 readings.
- * 5. Two rows `[-1e308, 1e308]`, finite but with reduced costs that
- *    overflow binary64, are refused with the overflow error; the table
- *    `[[4, 1], [2, 3]]` still assigns row 0 to column 1 and row 1 to 0.
+ * 5. Two rows `[-1e308, 1e308]`, finite but with reduced costs that overflow
+ *    binary64, are refused with the overflow error; the table `[[4, 1], [2,
+ *    3]]` still assigns row 0 to column 1 and row 1 to 0.
  * 6. Polishing with a zero budget still returns the native primal unaccepted.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public bisection, assignment and polishing entries on inputs whose loops did not end before the termination fixes (adjacent ends, a sub-ulp tolerance, an overflowing midpoint, overflowing potentials) and asserts their returned values or refusals; a search that stalls never returns, and one that returns a wrong end or an assignment off the optimum fails.

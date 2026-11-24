@@ -2,7 +2,6 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
   type ISelectAutoMoviePlacedChecks,
   observeAutoMoviePlacedScene,
-  reduceAutoMovieInspectionEpisodes,
   selectAutoMoviePlacedChecks,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";

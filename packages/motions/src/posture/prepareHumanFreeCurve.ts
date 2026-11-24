@@ -92,8 +92,7 @@ export function prepareHumanFreeCurve(
       !(share > 0 && share < 1) ||
       share === prepared.pivot ||
       share < prepared.shares[0]! ||
-      share > prepared.shares[prepared.shares.length - 1]! ||
-      !prepareHumanPoseResolution.isNativeSource(resolution)
+      share > prepared.shares[prepared.shares.length - 1]!
     )
       return cold(share, resolution, projection);
     const corrected: HumanFreeCurveFit.ICorrection = correct(

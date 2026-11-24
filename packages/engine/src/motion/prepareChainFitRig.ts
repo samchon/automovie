@@ -4,7 +4,6 @@ import type {
   IAutoMovieJointPose,
   IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
@@ -66,7 +65,6 @@ export function prepareChainFitRig(
     ),
   );
   const heldInverse: IAutoMovieQuaternion = Quaternion.inverse(heldRotation);
-  let swing: IAutoMovieVector3 | undefined;
   const hingeGeometry: hingedArmSwivel.IPrepared | null =
     prepared === null
       ? null
@@ -101,10 +99,6 @@ export function prepareChainFitRig(
     reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null =>
       reference.rotation(bone, rig),
     referenceWeight: reference.weight,
-    posedSwing: (read: () => IAutoMovieVector3): IAutoMovieVector3 => {
-      if (swing === undefined) swing = read();
-      return swing;
-    },
     hingedGeometry: (): hingedArmSwivel.IPrepared | null => hingeGeometry,
   };
   return rig;

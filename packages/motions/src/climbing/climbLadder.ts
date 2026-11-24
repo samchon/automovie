@@ -466,11 +466,7 @@ export namespace climbLadder {
           from,
           to,
           sample: (t, channels, resolution, projection) => {
-            if (
-              !prepareHumanPoseResolution.isNativeSource(resolution) ||
-              channels !== undefined
-            )
-              return undefined;
+            if (channels !== undefined) return undefined;
             if (t === from || t === to)
               return { posture: exact(t, channels, resolution, projection) };
             const lowered: IAutoMovieMotionHumanPosture = mergeLegs(

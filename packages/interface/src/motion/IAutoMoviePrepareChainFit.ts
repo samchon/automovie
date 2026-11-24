@@ -1,5 +1,4 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
-import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { AutoMovieClinicalAxis } from "../pose/AutoMovieClinicalAxis";
 import type { IAutoMovieHingedArmSwivel } from "../pose/IAutoMovieHingedArmSwivel";
 import type { IAutoMovieJointPose } from "../pose/IAutoMovieJointPose";
@@ -137,12 +136,6 @@ export namespace IAutoMoviePrepareChainFit {
      * region prepared once with the rig; undefined for an ungated joint.
      */
     readonly upperRange: IAutoMovieJointRotationFrame | undefined;
-
-    /**
-     * Original no-hint source-hinge displacement, read only at that branch's
-     * first use.
-     */
-    posedSwing(read: () => IAutoMovieVector3): IAutoMovieVector3;
 
     /**
      * Lazy hinge-span/source-frame geometry; null only when chain preparation

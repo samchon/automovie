@@ -380,16 +380,13 @@ export namespace brace {
           {
             from: heldFrom,
             to: duration,
-            sample: (seconds, _channels, resolution) =>
-              prepareHumanPoseResolution.isNativeSource(resolution)
-                ? {
-                    posture: gestureHands.written(
-                      structuredClone(held),
-                      arms,
-                      seconds,
-                    ),
-                  }
-                : undefined,
+            sample: (seconds) => ({
+              posture: gestureHands.written(
+                structuredClone(held),
+                arms,
+                seconds,
+              ),
+            }),
           },
         ],
       });

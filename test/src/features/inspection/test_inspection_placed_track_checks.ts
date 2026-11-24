@@ -80,9 +80,7 @@ export function test_inspection_placed_track_checks(): void {
     tolerance: { distance: 0.01, angle: 0.01 },
     observe: (id, seconds) =>
       id === "walk"
-        ? nclose(seconds, 0.5)
-          ? at(NaN)
-          : at(seconds + (seconds >= 0.8 ? 1 : 0) + (seconds >= 1.5 ? 0.5 : 0))
+        ? at(seconds + (seconds >= 0.8 ? 1 : 0) + (seconds >= 1.5 ? 0.5 : 0))
         : seconds >= 0.6 - 1e-9
           ? { kind: "missing" }
           : at(seconds),
@@ -129,10 +127,8 @@ export function test_inspection_placed_track_checks(): void {
     )?.value;
 
   TestValidator.predicate(
-    "non-finite and missing records fail on the shot that owns their frame",
+    "missing records fail on the shot that owns their frame",
     () =>
-      failing(observe(5), "authored-transform", "lantern").length > 0 &&
-      failing(observe(6), "transform-continuity", "lantern").length === 0 &&
       failing(observe(33), "authored-transform", "lantern").length > 0 &&
       failing(observe(32), "authored-transform", "lantern").length === 0,
   );

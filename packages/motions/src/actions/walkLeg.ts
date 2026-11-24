@@ -53,6 +53,12 @@ export namespace walkLeg {
    */
   export const prepareLean: typeof prepareWalkLegLean = prepareWalkLegLean;
 
+  /** What the leg's angles read of a body: its thigh's and shank's lengths. */
+  export interface ILegs {
+    /** The body's measure. */
+    measure: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank">;
+  }
+
   /**
    * Prepare the fixed lengths of a knee's thigh-to-reach angle.
    *
@@ -61,7 +67,7 @@ export namespace walkLeg {
    *   reach in metres.
    */
   export function prepareBehind(
-    body: IAutoMovieMotionHumanBody,
+    body: walkLeg.ILegs,
   ): (reach: number) => number {
     const a: number = body.measure.thigh;
     const b: number = body.measure.shank;
@@ -94,7 +100,7 @@ export namespace walkLeg {
    * @returns Degrees, positive trailing.
    */
   export function trailing(
-    body: IAutoMovieMotionHumanBody,
+    body: walkLeg.ILegs,
     hip: IAutoMovieVector3,
     ankle: IAutoMovieVector3,
     yaw: number,
@@ -111,7 +117,7 @@ export namespace walkLeg {
    *   world-metre hip and ankle.
    */
   export function prepareTrailing(
-    body: IAutoMovieMotionHumanBody,
+    body: walkLeg.ILegs,
     yaw: number,
   ): (hip: IAutoMovieVector3, ankle: IAutoMovieVector3) => number {
     const forward: IAutoMovieVector3 = HumanFrame.point(
@@ -306,12 +312,7 @@ export namespace walkLeg {
         true,
         (degrees: number): boolean => Vector3.distance(at(degrees), hip) > span,
         (low: number, high: number): number | undefined =>
-          entry(
-            hip,
-            low,
-            high,
-            walkLegRise.REACHED,
-          ),
+          entry(hip, low, high, walkLegRise.REACHED),
       );
   }
 

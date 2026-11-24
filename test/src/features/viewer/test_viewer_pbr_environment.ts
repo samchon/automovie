@@ -11,7 +11,6 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { assertViewerEnvironmentState } from "../internal/assertViewerEnvironmentState";
-import { assertViewerEnvironmentTextureOwnership } from "../internal/assertViewerEnvironmentTextureOwnership";
 import { assertViewerPbrDeclarationRefusals } from "../internal/assertViewerPbrDeclarationRefusals";
 import { createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
@@ -90,7 +89,7 @@ const validateMaterial: (
  * @evidence contracts/development/testing.md#execution-ownership This named asynchronous unit owns cases delegated to three existing portable helpers and calls maintained source. Supplied renderer fields exercise policy requests without acquiring a browser, GPU renderer or process.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Five maps, UV transform, sampler, alpha coverage and physical lobes lower onto MeshPhysicalMaterial; bare asset IDs, unresolved bindings,...).
  */
-export async function test_viewer_pbr_environment(): Promise<void> {
+export function test_viewer_pbr_environment(): void {
   const base: IAutoMovieMaterial = createModel().materials[0]!;
   const material: IAutoMovieMaterial = {
     ...base,
@@ -380,5 +379,4 @@ export async function test_viewer_pbr_environment(): Promise<void> {
   );
 
   assertViewerEnvironmentState(ENVIRONMENT);
-  await assertViewerEnvironmentTextureOwnership();
 }

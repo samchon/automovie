@@ -54,7 +54,7 @@ export namespace HumanForceTrunk {
    * @returns Degrees.
    */
   export function range(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "bones">,
     side: AutoMovieHumanSide,
   ): number {
     let sum: number = 0;

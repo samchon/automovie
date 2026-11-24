@@ -89,15 +89,10 @@ export namespace resolveHumanPosture {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    const native: boolean =
-      prepareHumanPoseResolution.isNativeSource(resolution);
-
     // The owned route assembles fresh records from the raw demands and fits
-    // them in place; a reader lends only exact FK, so a native one (this
-    // owner's factory or the engine's) can alias no record of the result.
-    const owned: boolean =
-      base === undefined && (resolution === undefined || native);
-    return owned
+    // them in place; a reader lends only exact FK, so it can alias no record
+    // of the result.
+    return base === undefined
       ? resolveHumanPostureSource.owned(
           body,
           posture,

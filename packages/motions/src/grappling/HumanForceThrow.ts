@@ -311,7 +311,7 @@ export namespace HumanForceThrow {
    * @returns World metres.
    */
   export function site(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "surfaces">,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     at: AutoMovieHumanForceSite,
   ): IAutoMovieVector3 {

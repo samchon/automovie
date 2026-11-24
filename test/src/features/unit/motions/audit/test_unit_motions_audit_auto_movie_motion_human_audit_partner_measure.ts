@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+﻿import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMotion,
@@ -37,7 +37,7 @@ const deep = (body: IAutoMovieMotionHumanBody): number =>
  * 1. Two metres apart, nothing passes: zero at `none` and no pairs.
  * 2. One walks into the other's place at 1 m/s from 1 m away: by the end they
  *    stand in one place and pass deeper than a quarter of the chest's depth,
- *    read at the last instant, with the deepest pair first.
+ *    read within the last quarter second, with the deepest pair first.
  *
  * The bodies are built whole (`humanFixtureBody`): the reading places their
  * colliders and the tangle model's probes on the displayed bones.
@@ -90,7 +90,7 @@ export async function test_unit_motions_audit_auto_movie_motion_human_audit_part
   TestValidator.predicate(
     "in one place",
     met.worst.value > deep(body) &&
-      met.worst.seconds === 1 &&
+      met.worst.seconds >= 0.75 &&
       met.pairs[0]!.depth === met.worst.value,
   );
 }

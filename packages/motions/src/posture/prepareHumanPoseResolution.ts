@@ -34,18 +34,4 @@ export namespace prepareHumanPoseResolution {
     if (source === undefined) return preparePoseResolution();
     return typeof source === "function" ? source() : source;
   }
-
-  /**
-   * Whether a lent reader supplies only the engine's native reading: an absent
-   * one creates a native reader, a present one is read by the engine's own
-   * check (`preparePoseResolution.isNative`).
-   *
-   * @param source The lent reader or its getter.
-   * @returns Whether it is native.
-   */
-  export function isNativeSource(
-    _source: IAutoMoviePoseResolution.ISource | undefined,
-  ): boolean {
-    return true;
-  }
 }

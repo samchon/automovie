@@ -174,9 +174,7 @@ export namespace shift {
         from,
         to: bounds[index + 1]!,
         sample: (seconds, channels, resolution, projection) =>
-          palms !== undefined &&
-          entry.digits === undefined &&
-          prepareHumanPoseResolution.isNativeSource(resolution)
+          palms !== undefined && entry.digits === undefined
             ? {
                 posture: read(seconds, channels, resolution, projection, palms),
               }

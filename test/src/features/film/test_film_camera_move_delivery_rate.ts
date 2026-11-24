@@ -105,5 +105,4 @@ export function test_film_camera_move_delivery_rate(): void {
     times(perform({ width: 1920, height: 1080 })).length,
     49,
   );
-
 }

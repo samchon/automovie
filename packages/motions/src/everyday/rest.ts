@@ -461,8 +461,7 @@ export namespace rest {
               resolution,
               projection,
             ): HumanPreparedPlayback.ISample | undefined =>
-              !prepareHumanPoseResolution.isNativeSource(resolution) ||
-              (projection !== undefined && projection !== body.projection)
+              projection !== undefined && projection !== body.projection
                 ? undefined
                 : { posture: write(seconds, resolution, projection, prepared) },
           },

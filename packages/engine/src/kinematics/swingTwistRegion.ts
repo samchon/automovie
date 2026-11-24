@@ -78,9 +78,7 @@ export namespace swingTwistRegion {
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame & IRegional,
   ): IRegion {
-    return joint.region?.constraint === constraint
-      ? joint.region
-      : prepare(constraint, joint);
+    return joint.region ?? prepare(constraint, joint);
   }
 }
 

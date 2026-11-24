@@ -79,7 +79,7 @@ export function test_viewer_closed_sphere_geometry_signed_query(): void {
     defaults.dispose();
   }
   for (const radius of [0, -1])
-    TestValidator.error("nonpositive or nonfinite radius refuses", (): void => {
+    TestValidator.error("nonpositive radius refuses", (): void => {
       createAutoMovieClosedSphereGeometry(radius).dispose();
     });
   for (const radius of [1e200, 1e39, 1e-200, Number.MIN_VALUE, 2 ** -149])

@@ -29,8 +29,8 @@ import { turnHumanPosture } from "./turnHumanPosture";
  */
 export namespace HumanPosturePreparation {
   /**
-   * One preparation's public pose and the source it was solved from: values,
-   * as the authoring is. Neither is changed once prepared.
+   * One preparation's public pose and the source it was solved from: values, as
+   * the authoring is. Neither is changed once prepared.
    */
   export interface IPrepared {
     /**
@@ -128,24 +128,18 @@ export namespace HumanPosturePreparation {
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
     solve: typeof coldSource,
   ): IPrepared {
-    const native: boolean =
-      prepareHumanPoseResolution.isNativeSource(resolution);
-    const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = native
-      ? solve(body, posture, near, resolution, projection)
-      : resolveHumanPosture.seeded(
-          body,
-          { ...posture },
-          undefined,
-          near,
-          resolution,
-          undefined,
-          projection,
-        );
+    const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded = solve(
+      body,
+      posture,
+      near,
+      resolution,
+      projection,
+    );
     const source: ISource = {
       body,
       raw: posture,
       solved,
-      placeable: native && Raw.eligible(posture),
+      placeable: Raw.eligible(posture),
     };
     let shown: IAutoMoviePose | undefined;
     return {
@@ -214,10 +208,9 @@ export namespace HumanPosturePreparation {
       values,
       bones: fixed.body.poseResolution.resolveMap(
         fixed.solved.pose,
-        resolution !== undefined &&
-          prepareHumanPoseResolution.isNativeSource(resolution)
-          ? prepareHumanPoseResolution.read(resolution)
-          : undefined,
+        resolution === undefined
+          ? undefined
+          : prepareHumanPoseResolution.read(resolution),
         requested,
       ),
     };
@@ -225,9 +218,7 @@ export namespace HumanPosturePreparation {
 
   /** Independent observations of one canonical preparation source. */
   export interface IObservation {
-    /**
-     * Canonical bone at each flat clinical slot, in the source joint order.
-     */
+    /** Canonical bone at each flat clinical slot, in the source joint order. */
     names: readonly AutoMovieHumanoidBone[];
     /** Three exact nullable clinical-degree coordinates per ordered bone. */
     values: readonly (number | null)[];
@@ -237,8 +228,8 @@ export namespace HumanPosturePreparation {
 
   /**
    * Observe a preparation's solve through FK without exposing its pose; a
-   * foreign reader or an unplaceable source reads the authoring's ordinary
-   * cold resolution.
+   * foreign reader or an unplaceable source reads the authoring's ordinary cold
+   * resolution.
    */
   export function bones(
     prepared: IPrepared,
@@ -248,18 +239,17 @@ export namespace HumanPosturePreparation {
     const fixed: ISource = prepared.source;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(source);
-    const pose: IAutoMoviePose =
-      prepareHumanPoseResolution.isNativeSource(source) && fixed.placeable
-        ? source === undefined
-          ? fixed.solved.pose
-          : structuredClone(fixed.solved.pose)
-        : resolveHumanPosture.seeded(
-            fixed.body,
-            fixed.raw,
-            undefined,
-            undefined,
-            resolution,
-          ).pose;
+    const pose: IAutoMoviePose = fixed.placeable
+      ? source === undefined
+        ? fixed.solved.pose
+        : structuredClone(fixed.solved.pose)
+      : resolveHumanPosture.seeded(
+          fixed.body,
+          fixed.raw,
+          undefined,
+          undefined,
+          resolution,
+        ).pose;
     return poseBones(fixed.body, pose, resolution(), requested);
   }
 
@@ -273,13 +263,7 @@ export namespace HumanPosturePreparation {
   ): IPlaced {
     const com: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
       model,
-      bones(
-        prepared,
-        requested,
-        prepareHumanPoseResolution.isNativeSource(resolution)
-          ? resolution
-          : undefined,
-      ),
+      bones(prepared, requested, resolution),
     );
     const raw: IAutoMovieMotionHumanPosture = prepared.source.raw;
     return translated(prepared, {
@@ -297,10 +281,7 @@ export namespace HumanPosturePreparation {
     prepared: IPrepared,
     root: IAutoMovieVector3,
   ): IPlaced {
-    return placedAt(
-      prepared.source,
-      Raw.translated(prepared.source.raw, root),
-    );
+    return placedAt(prepared.source, Raw.translated(prepared.source.raw, root));
   }
 
   /**

@@ -33,6 +33,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
+import type { humanFootOffset } from "../posture/humanFootOffset";
 import { HumanBall } from "./HumanBall";
 
 /** The record of `ICHAMBERItem`'s site. */
@@ -112,7 +113,7 @@ export namespace kickBall {
    * @returns The placement.
    */
   export function contact(
-    body: IAutoMovieMotionHumanBody,
+    body: humanFootOffset.IBody,
     side: AutoMovieHumanSide,
     centre: IAutoMovieVector3,
     radius: number,

@@ -64,9 +64,7 @@ export function HumanMountRiderFreeHands(
         undefined,
         undefined,
         read,
-        prepareHumanPoseResolution.isNativeSource(resolution)
-          ? rest
-          : undefined,
+        rest,
         projection,
       ).pose,
       read(),

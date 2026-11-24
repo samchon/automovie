@@ -6,8 +6,9 @@ import { TestValidator } from "@nestia/e2e";
  * crosses zero inside its bracket, in far fewer evaluations than bisection.
  *
  * Scenarios:
- * 1. `x² - 2` on [0, 2] returns √2 within the tolerance, with the bracket
- *    given in either order.
+ *
+ * 1. `x² - 2` on [0, 2] returns √2 within the tolerance, with the bracket given in
+ *    either order.
  * 2. `cos x - x` on [0, 1] returns the Dottie number 0.7390851332151607.
  * 3. A function that is zero at an end returns that end without a search.
  * 4. `x³ - 2x - 5` on [2, 3] to 1e-12 takes fewer than 20 evaluations, where

@@ -23,11 +23,19 @@ export function readAutoMovieVideoSceneCuts(
   const close: () => void = (): void => {
     if (frame === null) return;
     const header: RegExpExecArray | null = /pts_time:(\S+)/u.exec(frame.header);
-    const seconds: number = Number(
-      frame.values.get("lavfi.scd.time") ?? header?.[1],
-    );
-    const score: number = Number(frame.values.get("lavfi.scd.score"));
-    cuts.push({ seconds, score });
+    const time: string | undefined =
+      frame.values.get("lavfi.scd.time") ?? header?.[1];
+    const scored: string | undefined = frame.values.get("lavfi.scd.score");
+    if (
+      time === undefined ||
+      scored === undefined ||
+      !DECIMAL.test(time) ||
+      !DECIMAL.test(scored)
+    )
+      throw new Error(
+        `The scene-cut report's frame "${frame.header}" has no readable time and score`,
+      );
+    cuts.push({ seconds: Number(time), score: Number(scored) });
   };
   for (const line of report.split(/\r?\n/u)) {
     const text: string = line.trim();
@@ -43,3 +51,6 @@ export function readAutoMovieVideoSceneCuts(
   close();
   return cuts;
 }
+
+/** A decimal number as the `metadata` filter prints one. */
+const DECIMAL: RegExp = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/iu;

@@ -252,8 +252,7 @@ export namespace HumanAirborneShape {
         assembly !== undefined &&
         still === shaped &&
         still.digits === undefined &&
-        Object.keys(limbs).length === 0 &&
-        prepareHumanPoseResolution.isNativeSource(reader)
+        Object.keys(limbs).length === 0
           ? resolveHumanPostureSource.assemble(
               context.body,
               still,

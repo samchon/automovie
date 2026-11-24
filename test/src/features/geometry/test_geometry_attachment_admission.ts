@@ -12,11 +12,12 @@ import { throwsError } from "../internal/throwsError";
 /**
  * Canonical contact metadata never grants a malformed or unrelated support.
  * Scenarios:
+ *
  * 1. A source plane's dense original barycentric fan is admitted unchanged.
  * 2. Wrong fan arity, fractional triangle identity, absent weight/support arrays,
  *    missing primary support and sparse/noninteger supports refuse by name.
- * 3. A second coplanar incident face remains legal when both original supports
- *    of the sampled edge are supplied.
+ * 3. A second coplanar incident face remains legal when both original supports of
+ *    the sampled edge are supplied.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the separation query with registered plane-root fans, asserting certification for valid support metadata and named refusals for malformed metadata or an incomplete fan; an adjacent two-face support remains legal.
  * @evidence contracts/development/testing.md#independent-expectations Triangle ordinal zero and barycentric weights identify the authored root, and the edge fan requires both incident triangle ordinals. These admission facts follow the supplied mesh and support contract, not a recorded query result; certification here does not prove a general embedded surface or rendered contact.

@@ -177,9 +177,7 @@ export namespace HumanLungeHands {
         undefined,
         undefined,
         read,
-        prepareHumanPoseResolution.isNativeSource(resolution)
-          ? requested
-          : undefined,
+        requested,
         projection,
       );
     const actual: IAutoMovieResolvedBone = poseBones(

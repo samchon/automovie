@@ -36,7 +36,13 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   const top: number = input.principalPointPx[1] * input.pixelPitchMeters;
   const bottom: number =
     (input.principalPointPx[1] - input.height) * input.pixelPitchMeters;
-  if (!(left < right) || !(bottom < top))
+  if (
+    [left, right, top, bottom].some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    ) ||
+    !(left < right) ||
+    !(bottom < top)
+  )
     throw new Error(
       "Metric orthographic frustum exceeds finite representable chart limits",
     );
@@ -57,7 +63,17 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   camera.rotation.y = -input.azimuthRadians;
   camera.updateMatrixWorld(true);
   camera.updateProjectionMatrix();
-  if (camera.projectionMatrix.determinant() === 0)
+  if (
+    [
+      ...camera.projectionMatrix.elements,
+      ...camera.matrixWorld.elements,
+      ...camera.matrixWorldInverse.elements,
+      ...camera.projectionMatrixInverse.elements,
+    ].some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    ) ||
+    camera.projectionMatrix.determinant() === 0
+  )
     throw new Error(
       "Metric orthographic native projection or inverse is nonfinite or singular",
     );

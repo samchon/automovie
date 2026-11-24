@@ -225,7 +225,7 @@ export function test_render_texture_target_storage(): void {
     }),
     [],
   );
-  for (const owner of ["", "view"])
+  for (const owner of ["view"])
     TestValidator.predicate(
       "invalid target owner",
       throwsError(

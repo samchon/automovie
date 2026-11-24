@@ -100,12 +100,6 @@ export namespace AutoMovieMotionHumanHand {
       written(fixed, joints, curl, weight);
     };
   }
-  /** The record of `IShapeFixed`'s site. */
-  type IShapeFixed = {
-    shape: IAutoMovieMotionHumanHand.Shape;
-    write: ReturnType<typeof prepareFingerWriter>;
-  };
-
   /**
    * A hand shaped by a weight.
    *
@@ -115,10 +109,12 @@ export namespace AutoMovieMotionHumanHand {
   export function shape(
     props: IAutoMovieMotionHumanHand.IShape,
   ): IAutoMovieMotionHumanPrimitive {
-    // Compiled at the first write, so a shape the hand owner refuses is
-    // refused there, and again when the props name another shape: the props
-    // are read on every write, as the weight is.
-    let fixed: IShapeFixed | undefined;
+    // Compiled here, so a shape the hand owner refuses is refused when the
+    // primitive is made.
+    const write: ReturnType<typeof prepareFingerWriter> = prepareFingerWriter(
+      props.side,
+      props.shape,
+    );
     return {
       channels: [`${props.side}Hand`],
       reads: [`${props.side}Hand`],
@@ -133,12 +129,7 @@ export namespace AutoMovieMotionHumanHand {
           joints: { ...posture.joints },
         };
         const weight: number = Math.min(1, Math.max(0, props.weight(seconds)));
-        if (fixed === undefined || fixed.shape !== props.shape)
-          fixed = {
-            shape: props.shape,
-            write: prepareFingerWriter(props.side, props.shape),
-          };
-        fixed.write(out.joints, props.curl ?? 0, weight);
+        write(out.joints, props.curl ?? 0, weight);
         return out;
       },
     };

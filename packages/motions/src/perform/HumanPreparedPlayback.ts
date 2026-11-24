@@ -143,12 +143,7 @@ export namespace HumanPreparedPlayback {
       return undefined;
     const placed: boolean = reader === binding.located;
     if (binding.source.mode === "fitted") {
-      if (
-        !bare ||
-        (!placed && reader !== binding.original) ||
-        !full ||
-        !prepareHumanPoseResolution.isNativeSource(args[2])
-      )
+      if (!bare || (!placed && reader !== binding.original) || !full)
         return undefined;
     } else if (!placed || (binding.source.mode === "bare-posture" && !bare))
       return undefined;

@@ -346,7 +346,6 @@ export function planBendStrategy(
           region !== undefined &&
           contactBones !== undefined &&
           readContact !== undefined &&
-          prepareHumanPoseResolution.isNativeSource(source) &&
           (projection === undefined || projection === body.projection)
         ) {
           const read: ReturnType<typeof prepareHumanPoseResolution> =

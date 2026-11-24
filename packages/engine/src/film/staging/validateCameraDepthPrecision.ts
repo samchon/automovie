@@ -23,7 +23,7 @@ export function validateCameraDepthPrecision(
   out: IAutoMovieViolationCollector,
 ): void {
   const bits: number = value.minimumDepthBits;
-  if (bits <= 0)
+  if (bits <= 0 || bits > 53)
     out.push(
       "range",
       `${path}.minimumDepthBits`,

@@ -187,7 +187,7 @@ export function test_film_polygon_body_cues(): void {
       .sort((a: string, b: string): number => a.localeCompare(b)),
     [
       "$input.polygonBodyCues[0].subject",
-      "$input.polygonBodyCues[2].bone",
+      "$input.polygonBodyCues[1].bone",
     ],
   );
 }

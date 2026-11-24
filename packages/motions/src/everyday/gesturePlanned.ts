@@ -266,15 +266,12 @@ export function gesturePlanned(
     phases: bounds.slice(0, -1).map((from, index) => ({
       from,
       to: bounds[index + 1]!,
-      sample: (t, channels, resolution, projection) =>
-        prepareHumanPoseResolution.isNativeSource(resolution)
-          ? {
-              posture:
-                t === 0 || t === duration
-                  ? exact(t, channels, resolution, projection)
-                  : interior(t, resolution, projection),
-            }
-          : undefined,
+      sample: (t, channels, resolution, projection) => ({
+        posture:
+          t === 0 || t === duration
+            ? exact(t, channels, resolution, projection)
+            : interior(t, resolution, projection),
+      }),
     })),
   };
   HumanPreparedPlayback.attach(planned, body, sourcePlayback);

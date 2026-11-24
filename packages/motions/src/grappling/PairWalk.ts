@@ -45,7 +45,7 @@ export namespace PairWalk {
    * @returns The steps in order.
    */
   export function steps(
-    entry: IAutoMovieMotionHumanEntryState,
+    entry: Pick<IAutoMovieMotionHumanEntryState, "feet">,
     travel: IAutoMovieVector3,
     from: number,
     to: number,
@@ -87,7 +87,7 @@ export namespace PairWalk {
    * @returns The two leg goals.
    */
   export function legs(
-    entry: IAutoMovieMotionHumanEntryState,
+    entry: Pick<IAutoMovieMotionHumanEntryState, "feet">,
     steps: readonly IStep[],
     seconds: number,
     knee: (ankle: IAutoMovieVector3) => IAutoMovieVector3,

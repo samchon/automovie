@@ -8,6 +8,7 @@ import { nclose } from "../internal/nclose";
 /**
  * Actual atlas corner parameters survive shared vertices and local omissions.
  * Scenarios:
+ *
  * 1. Adjacent affine squares share position indices while local edge u is 1/0.
  * 2. Omitting retention allocates no parameter output and preserves geometry.
  * 3. A vertex budget, empty atlas and zero-area omission retain aligned buffers.

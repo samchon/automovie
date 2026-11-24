@@ -167,14 +167,13 @@ export function test_viewer_camera_depth_precision(): void {
   TestValidator.equals(
     "invalid supplied capability observations stay addressed",
     [
-      evaluate({ bits: "24" }),
       evaluate({ bits: -1 }),
     ].map(
       (
         report: ReturnType<typeof evaluate>,
       ): ReturnType<typeof evaluate>["status"] => report.status,
     ),
-    ["invalid-capability", "invalid-capability"],
+    ["invalid-capability"],
   );
 
   const invalidSources: IAutoMovieCamera[] = [

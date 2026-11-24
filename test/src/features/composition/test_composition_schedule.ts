@@ -24,16 +24,25 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Intents compose immutably, resolve on the film clock with the production's laws, and are read, judged and measured without rewriting.
+/**
+ * Intents compose immutably, resolve on the film clock with the production's
+ * laws, and are read, judged and measured without rewriting.
  *
  * Scenarios:
- * 1. `next` and `with` return new chains of the caller's class and leave the original unchanged; a trailing sequence flattens.
- * 2. A sequence places parts end to start, a parallel group ends with its longest part, and `at` starts an answer at its anchor's contact plus the offset.
- * 3. Outcome and state laws read the entries placed before them; a missing anchor and a duplicate anchor are refused.
- * 4. Evaluation is pure and seekable: active entries with their phase, and each subject's latest ended state.
+ *
+ * 1. `next` and `with` return new chains of the caller's class and leave the
+ *    original unchanged; a trailing sequence flattens.
+ * 2. A sequence places parts end to start, a parallel group ends with its longest
+ *    part, and `at` starts an answer at its anchor's contact plus the offset.
+ * 3. Outcome and state laws read the entries placed before them; a missing anchor
+ *    and a duplicate anchor are refused.
+ * 4. Evaluation is pure and seekable: active entries with their phase, and each
+ *    subject's latest ended state.
  * 5. The first matching outcome rule decides, else the default.
- * 6. An audit reports a missing, a weak and a forbidden contact, and nothing for a measured one.
- * 7. Legality reports every rule violation by entry; measurement counts actions per minute, combinations, lateral share and idle time.
+ * 6. An audit reports a missing, a weak and a forbidden contact, and nothing for a
+ *    measured one.
+ * 7. Legality reports every rule violation by entry; measurement counts actions
+ *    per minute, combinations, lateral share and idle time.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMovieChain`, `AutoMovieComposition`, `IAutoMovieIntent`, `IAutoMovieSchedule` on in-memory inputs and asserts the returned observations through 4x TestValidator.predicate, 5x TestValidator.equals; 7 numbered scenarios (first: `next` and `with` return new chains of the caller's class and leave the original unchanged; a trailing...; last: Legality reports every rule violation by entry; measurement counts actions per minute, combinations, lateral...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (7 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.

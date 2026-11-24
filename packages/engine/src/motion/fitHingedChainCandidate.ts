@@ -30,8 +30,6 @@ import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { hingedSwivelAhead } from "../kinematics/hingedSwivelAhead";
 import { hingedSwivelFeasible } from "../kinematics/hingedSwivelFeasible";
 import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
-import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { readsSwingTwistFrame } from "../kinematics/readsSwingTwistFrame";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { swivelArcs } from "../kinematics/swivelArcs";
@@ -39,8 +37,6 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { getConstraint } from "../rom/getConstraint";
-import { scanJointRom } from "../rom/scanJointRom";
-import { basisOf } from "./basisOf";
 import { distalTwistRange } from "./distalTwistRange";
 import { fitHingedClosedRoots } from "./fitHingedClosedRoots";
 import { fitHingedRotationError } from "./fitHingedRotationError";
@@ -51,7 +47,6 @@ import { hingedTwistStart } from "./hingedTwistStart";
 import { posedHingeSwing } from "./posedHingeSwing";
 import type { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
-import { solveDistalTwist } from "./solveDistalTwist";
 
 /**
  * The hinged chain's candidate: `hingedArmArticulation`'s swivel sweep with
@@ -139,9 +134,9 @@ import { solveDistalTwist } from "./solveDistalTwist";
  * @param rotation A requested effector rotation, ranked before the hint's side
  *   when given.
  * @param rig The rig of the same unchanged source workspace, carrying the upper
- *   joint's prepared swing region;
- *   source-only basis, reference, hinge range and posed swing may be shared,
- *   while every candidate score and callback remains target-local.
+ *   joint's prepared swing region; source-only basis, reference, hinge range
+ *   and posed swing may be shared, while every candidate score and callback
+ *   remains target-local.
  * @returns The candidate, or null for a degenerate chain.
  */
 export function fitHingedChainCandidate(
@@ -201,14 +196,7 @@ export function fitHingedChainCandidate(
   };
   const hint: IAutoMovieVector3 = across(
     props.bend ??
-      Vector3.subtract(
-        root,
-        rig === undefined
-          ? posedHingeSwing(props, prepared, axes)
-          : rig.posedSwing(
-              (): IAutoMovieVector3 => posedHingeSwing(props, prepared, axes),
-            ),
-      ),
+      Vector3.subtract(root, posedHingeSwing(props, prepared, axes)),
   );
   const side: IAutoMovieVector3 | null =
     Vector3.length(hint) < 1e-9 ? null : Vector3.normalize(hint);
@@ -231,12 +219,14 @@ export function fitHingedChainCandidate(
       );
   // Each basis is admitted and normalized once for the whole sweep; the
   // candidates differ only in their rotation.
-  const upperBasis: IAutoMovieJointAxes =
-    rig?.basis(props.chain.upper, "decomposeJointRotation axes") ??
-    basisOf(props.jointAxes?.[props.chain.upper]);
-  const lowerBasis: IAutoMovieJointAxes =
-    rig?.basis(props.chain.lower, "decomposeJointRotation axes") ??
-    basisOf(axes);
+  const upperBasis: IAutoMovieJointAxes = rig.basis(
+    props.chain.upper,
+    "decomposeJointRotation axes",
+  );
+  const lowerBasis: IAutoMovieJointAxes = rig.basis(
+    props.chain.lower,
+    "decomposeJointRotation axes",
+  );
   // The overshoot the decomposition's chart choice scored for the angles it
   // returned (`decomposeJointRotationOnBasis.scored`), the root's gate sum
   // where its constraint is ungated.
@@ -259,53 +249,23 @@ export function fitHingedChainCandidate(
       twist: read.twist,
     };
   };
-  const previous = (bone: string): IAutoMovieQuaternion | null => {
-    const joint: IAutoMovieJointPose | undefined =
-      props.referencePose?.joints.find(
-        (j: IAutoMovieJointPose): boolean => j.bone === bone,
-      );
-    return joint === undefined
-      ? null
-      : Quaternion.normalize(
-          jointToQuaternion(
-            joint,
-            bone === props.chain.lower
-              ? axes
-              : props.jointAxes?.[props.chain.upper],
-            props.restFrames?.[joint.bone],
-          ),
-        );
-  };
   const before: [IAutoMovieQuaternion | null, IAutoMovieQuaternion | null] = [
-    rig === undefined
-      ? previous(props.chain.upper)
-      : rig.reference(props.chain.upper),
-    rig === undefined
-      ? previous(props.chain.lower)
-      : rig.reference(props.chain.lower),
+    rig.reference(props.chain.upper),
+    rig.reference(props.chain.lower),
   ];
-  const anchor: number = rig?.referenceWeight() ?? props.referenceWeight ?? 1;
-  if (rig === undefined && anchor < 0)
-    throw new Error(
-      `fitChainToTarget referenceWeight must be finite and non-negative, but was ${anchor}`,
-    );
+  const anchor: number = rig.referenceWeight();
   const apart = (
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion | null,
   ): number =>
     b === null ? 0 : (Quaternion.angleAfterNormalize(a, b) * 180) / Math.PI;
 
-  // The gate reads canonical scoring frames when no rig is supplied. Their
-  // axes, clinical frame and constraint are fixed for every swivel here.
+  // The gate's axes, clinical frame and constraint are fixed for every swivel
+  // here.
   const upperOvershoot: (
     joint: IAutoMovieJointPose,
     rotation?: IAutoMovieQuaternion,
-  ) => number =
-    rig?.overshoot(props.chain.upper) ??
-    jointRomOvershoot.prepare(
-      props.chain.upper,
-      prepared.upperDomain.constraint,
-    );
+  ) => number = rig.overshoot(props.chain.upper);
 
   // A root gated by swing and twist reads its range on the candidate's own
   // rotation where the angles are decomposed on the range's own basis and
@@ -337,15 +297,10 @@ export function fitHingedChainCandidate(
   const rotatedOvershoot: ((rotation: IAutoMovieQuaternion) => number) | null =
     !upperRotated || props.strain === undefined
       ? null
-      : rig === undefined
-        ? scanJointRom.prepareRotated(props.chain.upper, upperConstraint)
-        : rig.rotatedOvershoot(props.chain.upper);
-  const lowerOvershoot: (joint: IAutoMovieJointPose) => number =
-    rig?.overshoot(props.chain.lower) ??
-    jointRomOvershoot.prepare(
-      props.chain.lower,
-      prepared.lowerDomain.constraint,
-    );
+      : rig.rotatedOvershoot(props.chain.upper);
+  const lowerOvershoot: (joint: IAutoMovieJointPose) => number = rig.overshoot(
+    props.chain.lower,
+  );
   // A sweep's candidates on one bend branch share one mid rotation, the
   // same record, and differ only in the swivel of the root. What depends on
   // the mid rotation alone is read once per record: the same values, read
@@ -378,12 +333,10 @@ export function fitHingedChainCandidate(
     };
     return mid;
   };
-  const range: { min: number; max: number } | null =
-    rig === undefined
-      ? readHingeRange(props, prepared, axes, lowerBasis)
-      : rig.hingeRange((): { min: number; max: number } | null =>
-          readHingeRange(props, prepared, axes, lowerBasis),
-        );
+  const range: { min: number; max: number } | null = rig.hingeRange(
+    (): { min: number; max: number } | null =>
+      readHingeRange(props, prepared, axes, lowerBasis),
+  );
   // The root angles of the last two candidates decomposed, kept for the
   // answer.
   // answer, each with the overshoot its chart choice scored.
@@ -403,9 +356,8 @@ export function fitHingedChainCandidate(
   // same constraint the root's scorer reads, so that sum is its overshoot.
   const scoredByChart: boolean =
     !upperRotated &&
-    (rig === undefined ||
-      rig.domain(props.chain.upper).constraint ===
-        prepared.upperDomain.constraint);
+    rig.domain(props.chain.upper).constraint ===
+      prepared.upperDomain.constraint;
 
   // What a candidate reads besides the hint's side: its root's angles, its
   // mid joint's place, its overshoot, effort and turn from the reference.
@@ -532,7 +484,7 @@ export function fitHingedChainCandidate(
   const pointing = (
     posed: ReturnType<typeof hingedArmSwivel.pose>,
   ): distalEndSwivelReadings.IProps => {
-    const end: IEnd = (ended ??= endOf(props, prepared, rig));
+    const end: IEnd = (ended ??= endOf(props, rig));
     const back: IAutoMovieQuaternion = Quaternion.inverse(
       Quaternion.normalize(rotation!),
     );
@@ -586,7 +538,7 @@ export function fitHingedChainCandidate(
   const immobileRoots = (
     posed: ReturnType<typeof hingedArmSwivel.pose>,
   ): number[] | null => {
-    const end: IEnd = (ended ??= endOf(props, prepared, rig));
+    const end: IEnd = (ended ??= endOf(props, rig));
     return immobileAxisSwivels({
       basis: end.basis,
       frame: end.frame,
@@ -650,20 +602,14 @@ export function fitHingedChainCandidate(
     let known: { range: distalTwistSwivelRange.IRange | null } | undefined =
       twists.get(posed);
     if (known === undefined) {
-      const end: IEnd = (ended ??= endOf(props, prepared, rig));
+      const end: IEnd = (ended ??= endOf(props, rig));
       known = {
         range: distalTwistRange({
           prepared,
           axis: lowerBasis.twist,
           frame: props.restFrames?.[props.chain.lower]?.twist,
           flexion: end.basis.flexion,
-          fixed:
-            rig?.distalTwist() ??
-            solveDistalTwist.prepare({
-              effectorRest: prepared.effectorBaseRotation,
-              effectorBasis: end.basis,
-              effectorFrame: end.frame,
-            }),
+          fixed: rig.distalTwist(),
           posed,
           rotation: rotation!,
         }),
@@ -924,13 +870,7 @@ export function fitHingedChainCandidate(
       hinge: axes.flexion,
       target: props.target,
       ...(range === null ? {} : { range }),
-      ...(rig === undefined
-        ? {}
-        : {
-            prepared: rig
-              .hingedGeometry()
-              ?.target(props.target, range ?? undefined),
-          }),
+      prepared: rig.hingedGeometry()?.target(props.target, range ?? undefined),
       // A fit of a nearby target continued from its seed refines that seed
       // alone (`IAutoMovieSwivelNear`).
       ...(props.near === undefined ? {} : { near: props.near }),
@@ -1288,7 +1228,7 @@ export function fitHingedChainCandidate(
     lowerBasis.twistPlacement !== "distal"
   ) {
     const geometry: hingedArmSwivel.IPreparedTarget | undefined = rig
-      ?.hingedGeometry()
+      .hingedGeometry()
       ?.target(props.target, range ?? undefined);
     const rooted: fitHingedClosedRoots.ISolved | null =
       geometry === undefined
@@ -1298,7 +1238,7 @@ export function fitHingedChainCandidate(
             geometry,
             near: props.near,
             rotation,
-            end: (ended ??= endOf(props, prepared, rig)),
+            end: (ended ??= endOf(props, rig)),
             score: (
               upper: IAutoMovieQuaternion,
               lower: IAutoMovieQuaternion,
@@ -1401,25 +1341,15 @@ interface IEnd {
  */
 function endOf(
   props: IAutoMovieFitChainToTargetProps,
-  prepared: NonNullable<IAutoMoviePreparedChainPlant | null>,
-  rig: prepareChainFit.IRig | undefined,
+  rig: prepareChainFit.IRig,
 ): IEnd {
   const effector: AutoMovieHumanoidBone = props.chain.effector;
-  const bone: IAutoMovieBone | undefined =
-    rig === undefined
-      ? props.skeleton.bones.find(
-          (b: IAutoMovieBone): boolean => b.bone === effector,
-        )
-      : rig.bone(effector);
+  const bone: IAutoMovieBone | undefined = rig.bone(effector);
   return {
-    basis:
-      rig?.basis(effector, "decomposeJointRotation axes") ??
-      basisOf(bone?.axes ?? props.jointAxes?.[effector]),
+    basis: rig.basis(effector, "decomposeJointRotation axes"),
     frame: props.restFrames?.[effector],
     constraint: getConstraint(effector, bone?.constraint ?? null),
-    restInverse:
-      rig?.effectorRestInverse() ??
-      Quaternion.inverse(prepared.effectorBaseRotation),
+    restInverse: rig.effectorRestInverse(),
   };
 }
 

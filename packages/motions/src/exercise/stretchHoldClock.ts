@@ -64,8 +64,7 @@ export namespace stretchHoldClock {
     const compact: Plan = build(compressed, true);
     const actual: Reader = original.posture;
     const hold: Reader = (seconds, channels, resolution, projection) =>
-      !prepareHumanPoseResolution.isNativeSource(resolution) ||
-      (projection !== undefined && projection !== context.body.projection)
+      projection !== undefined && projection !== context.body.projection
         ? actual(seconds, channels, resolution, projection)
         : compact.posture(local(seconds), channels, resolution, projection);
 
