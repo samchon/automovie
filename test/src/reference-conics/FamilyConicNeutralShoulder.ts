@@ -15,7 +15,7 @@ import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 
 /** Matched anatomical views of the actual neutral shoulder and public skin. */
-export async function captureNeutralShoulders(
+async function captureNeutralShoulders(
   out: string,
   asset?: string,
   meridianFile?: string,
