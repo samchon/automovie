@@ -11,11 +11,9 @@ import type { IAutoMovieSubjectReviewObservation } from "./IAutoMovieSubjectRevi
  * (`productionId`, `target`, `revision`, `compileFingerprint`, `planIdentity`)
  * carry one type in both.
  *
- * The engine does not trust the type: `foldAutoMovieSubjectReviewCoverage`
- * receives `unknown` records and counts one only after a structural guard finds
- * the `subject-view` kind, non-blank identities, `pose` and `runtimeIdentity`
- * objects, `verdict: "passed"`, `deliveryEvidence: false` and a target naming
- * the same subject.
+ * `foldAutoMovieSubjectReviewCoverage` receives these typed records and counts
+ * one only when its identities are non-blank and its target names the same
+ * subject; the compiler owns the record's shape.
  */
 export type IAutoMovieCurrentSubjectReviewObservation =
   IAutoMovieSubjectReviewObservation & IAutoMovieSubjectReviewCurrentContext;
