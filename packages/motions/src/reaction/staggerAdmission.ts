@@ -115,7 +115,10 @@ export function staggerAdmission(
   // whose capsules meet are posed by the posture's own fit and read as the
   // tangle audit reads them. The premise is the fit's knee lying in the
   // plane of its hint, which the fit's own hint asks of it.
-  let clearance: walkLegCapsules.IPrepared | undefined;
+  // Only a crossed double support needs the leg collision geometry.
+  const clearance: walkLegCapsules.IPrepared | undefined = crossing
+    ? walkLegClearance.prepare(body)
+    : undefined;
   const segment: (
     p: IAutoMovieVector3,
     q: IAutoMovieVector3,
@@ -314,9 +317,7 @@ export function staggerAdmission(
 
     // Crossed feet: the two planted legs as the posture's fit poses them,
     // their knees toward the hints the posture gives them.
-    if (crossing && planted.length === 2) {
-      // Only a crossed double support needs the leg collision geometry.
-      clearance ??= walkLegClearance.prepare(body);
+    if (clearance !== undefined && planted.length === 2) {
       if (apart(ground, clearance.capsules)) continue;
       const pelvis: IAutoMovieQuaternion =
         ground.pelvis ??

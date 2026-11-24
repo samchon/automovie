@@ -1,4 +1,3 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -10,8 +9,6 @@ import type {
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanShiftStandingWeight,
-  IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -25,12 +22,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalance } from "./HumanBalance";
+import { shiftStandingWeightSteps } from "./shiftStandingWeightSteps";
 
-/** Maximum ankle drift from the displayed plant at a fit witness, metres. */
-const PLANT_DISTANCE: number = 0.003;
-
-/** Minimum absolute unit-quaternion dot product for 0.5 degrees of foot turn. */
-const PLANT_TURN: number = Math.cos(Math.PI / 720);
 
 /**
  * An intentional lateral pelvis shift with both feet planted on the ground.
@@ -131,8 +124,8 @@ function plan(
     );
     if (
       HumanBalance.margin(context.body, posture) >= 0 &&
-      keepsPlant(bones.get("leftFoot")!, entry.feet.left) &&
-      keepsPlant(bones.get("rightFoot")!, entry.feet.right)
+      shiftStandingWeightSteps.plants(bones.get("leftFoot")!, entry.feet.left) &&
+      shiftStandingWeightSteps.plants(bones.get("rightFoot")!, entry.feet.right)
     )
       continue;
     throw new HumanRefusal({
@@ -145,14 +138,8 @@ function plan(
     });
   }
 
-  const instants: IAutoMovieMotionClockInstant[] = [
-    { name: "shifted", seconds },
-  ];
-  if (returnSeconds !== undefined)
-    instants.push(
-      { name: "release", seconds: seconds + hold },
-      { name: "returned", seconds: duration },
-    );
+  const instants: IAutoMovieMotionClockInstant[] =
+    shiftStandingWeightSteps.instants(seconds, hold, returnSeconds);
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, instants);
   return composeAutoMovieMotionHumanAction({
     clock,
@@ -172,18 +159,4 @@ function plan(
           ),
     ],
   });
-}
-
-/** Whether the solved ankle and foot rotation stay within the plant tolerance. */
-function keepsPlant(
-  bone: IAutoMovieResolvedBone,
-  entry: IAutoMovieMotionHumanEntryState.IFoot,
-): boolean {
-  const a: IAutoMovieQuaternion = bone.worldRotation;
-  const b: IAutoMovieQuaternion = entry.rotation;
-  return (
-    Vector3.length(Vector3.subtract(bone.worldPosition, entry.ankle)) <=
-      PLANT_DISTANCE &&
-    Math.abs(a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w) >= PLANT_TURN
-  );
 }

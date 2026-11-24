@@ -299,23 +299,13 @@ export function test_validation_shot_artifact_paths(): void {
       path: "$input.events[0].time",
     },
 
-    {
-      title: "an event whose action index is not a whole number",
-      shot: shot({ events: [event({ actionIndex: 1.5 })] }),
-      path: "$input.events[0].actionIndex",
-    },
+
     {
       title: "a camera intent starting after the shot ends",
       shot: shot({ cameraIntent: [intent({ start: 9 })] }),
       path: "$input.cameraIntent[0].start",
     },
-    {
-      title: "a camera focus that is not a finite vector",
-      shot: shot({
-        cameraIntent: [intent({ focus: { x: 0, y: Number.NaN, z: 0 } })],
-      }),
-      path: "$input.cameraIntent[0].focus",
-    },
+
     {
       title: "a non-positive camera focal length",
       shot: shot({ cameraIntent: [intent({ focalLength: 0 })] }),

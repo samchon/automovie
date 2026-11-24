@@ -29,6 +29,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
+import { crouchAngles } from "./crouchAngles";
 import { braceOnThigh } from "./braceOnThigh";
 import { crouchLegs } from "./crouchLegs";
 import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
@@ -216,31 +217,10 @@ export namespace crouch {
 
     // The leg's angles: the shank tilts by the crouching ankle plus the heel
     // lift, the thigh takes the rest of the knee flexion.
-    const dorsiflexion: number = Math.min(
-      ANKLE,
-      AutoMovieMotionHumanRange.limit("leftFoot", "flexion") ?? 0,
-    );
-    const hipRange: number =
-      AutoMovieMotionHumanRange.limit("leftUpperLeg", "flexion") ?? 0;
     const heel: number = heels === "up" ? HEEL : 0;
-    const shankTilt: number = dorsiflexion + heel;
     const knee: number = KNEE[depth];
-    const thighTilt: number = knee - shankTilt;
-    if (thighTilt >= hipRange)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "depth",
-        value: depth,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: hipRange + shankTilt,
-          unit: "degrees",
-          open: "maximum",
-        },
-        reason: `a ${depth} crouch with the heels ${heels} needs ${thighTilt.toFixed(0)} degrees of hip flexion before the trunk inclines, past the ${hipRange} degree range; with these heels the knee flexion must stay under ${(hipRange + shankTilt).toFixed(0)} degrees${heels === "flat" ? ", or raise the heels" : ""}`,
-        fix: `choose a shallower depth${heels === "flat" ? ", or raise the heels" : ""}`,
-      });
+    const { dorsiflexion, shankTilt, thighTilt }: crouchAngles.IAngles =
+      crouchAngles(knee, ANKLE, heel, depth, heels);
 
     // The clock: descent, hold, rise.
     const down: number =

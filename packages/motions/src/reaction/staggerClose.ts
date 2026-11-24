@@ -175,13 +175,19 @@ export function staggerClose(
   let x: IAutoMovieVector3 = pendulum.s;
   let e: IAutoMovieVector3 = begin;
   let rested: boolean = false;
-  let jump: IAutoMovieVector3 | undefined;
   const longest: number = righting + 20 / w;
   const grow: number = Math.exp(w * STEP);
   const halfGrowth: number = grow / 2;
   const decay: number = 1 / grow;
   const rate: number = righting * w;
   const travel: IAutoMovieVector3 = Vector3.subtract(rest, begin);
+  // The landing's offset from the first aimed point, which the loading
+  // carries off: the first step's aim, from the drift's start, where it
+  // tracks nothing yet.
+  const jump: IAutoMovieVector3 = Vector3.subtract(
+    landed,
+    nearest(Vector3.subtract(begin, Vector3.scale(travel, minimumJerk(0).ds / rate))),
+  );
   for (let i: number = 1; i * STEP <= longest; i++) {
     const reference: IAutoMovieMinimumJerk.IProfile = minimumJerk(
       ((i - 1) * STEP) / righting,
@@ -193,7 +199,6 @@ export function staggerClose(
         Vector3.scale(Vector3.subtract(e, towards), TRACKING),
       ),
     );
-    jump ??= Vector3.subtract(landed, aimed);
     const p: IAutoMovieVector3 = nearest(
       Vector3.add(
         aimed,

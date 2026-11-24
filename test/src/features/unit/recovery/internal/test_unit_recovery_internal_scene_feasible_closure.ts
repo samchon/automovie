@@ -118,7 +118,7 @@ export function test_unit_recovery_internal_scene_feasible_closure(): void {
     jointIterationAttempts: 0,
     linearWork: 0,
   };
-  let firstCompleted: IAutoMovieRecoveryMapJointFit | null = null;
+  const completed: IAutoMovieRecoveryMapJointFit[] = [];
   let lastCount: number = 0;
   let returned: ReturnType<typeof completeRecoverySceneCheckpoint> | null =
     null;
@@ -139,8 +139,8 @@ export function test_unit_recovery_internal_scene_feasible_closure(): void {
         report: IAutoMovieRecoveryMapJointFit | null,
       ): void => {
         lastCount = count;
-        if (report !== null && firstCompleted === null)
-          firstCompleted = structuredClone(report);
+        if (report !== null && completed.length === 0)
+          completed.push(structuredClone(report));
       },
       undefined,
       {
@@ -157,7 +157,7 @@ export function test_unit_recovery_internal_scene_feasible_closure(): void {
     caught = error;
   }
   const diagnostic: string = JSON.stringify({
-    firstCompleted,
+    completed[0],
     lastCount,
     work,
     returned:
@@ -190,36 +190,36 @@ export function test_unit_recovery_internal_scene_feasible_closure(): void {
   );
   TestValidator.predicate(
     `the first admitted population completes its original physical normal: ${diagnostic}`,
-    firstCompleted !== null &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).converged &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).termination ===
+    completed.length !== 0 &&
+      completed[0]!.converged &&
+      completed[0]!.termination ===
         "pixel-kkt" &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).observationCount === 23,
+      completed[0]!.observationCount === 23,
   );
   TestValidator.predicate(
     `the explicit accepted-agreement owner supports selected increments: ${diagnostic}`,
-    firstCompleted !== null &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).acceptedSteps! > 0 &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization !==
+    completed.length !== 0 &&
+      completed[0]!.acceptedSteps! > 0 &&
+      completed[0]!.regularization !==
         undefined &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
+      completed[0]!.regularization!
         .initialDamping === 0.001 &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
+      completed[0]!.regularization!
         .finalDamping > 0 &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
+      completed[0]!.regularization!
         .supportedUpdates > 0 &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
+      completed[0]!.regularization!
         .supportedUpdates +
-        (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
+        completed[0]!.regularization!
           .unsupportedUpdates ===
-        (firstCompleted as IAutoMovieRecoveryMapJointFit).acceptedSteps &&
-      (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
+        completed[0]!.acceptedSteps &&
+      completed[0]!.regularization!
         .lastUpdate !== null,
   );
   const first: IAutoMovieRecoveryMapJointFit =
-    firstCompleted as unknown as IAutoMovieRecoveryMapJointFit;
+    completed[0]!;
   const coherent: IAutoMovieRecoveryMapJointFit["feasible"] = first.feasible;
-  const paths: unknown[] =
+  const paths: number[] =
     coherent === undefined
       ? []
       : [
@@ -229,7 +229,7 @@ export function test_unit_recovery_internal_scene_feasible_closure(): void {
           coherent.trials.corrected,
           coherent.trials.half,
         ];
-  const outcomes: unknown[] =
+  const outcomes: number[] =
     coherent === undefined
       ? []
       : [
@@ -238,14 +238,10 @@ export function test_unit_recovery_internal_scene_feasible_closure(): void {
           coherent.trials.nondecreasing,
           coherent.trials.armijo,
         ];
-  const total: (values: readonly unknown[]) => number = (
-    values: readonly unknown[],
+  const total: (values: readonly number[]) => number = (
+    values: readonly number[],
   ): number =>
-    values.reduce<number>(
-      (sum: number, value: unknown): number =>
-        typeof value === "number" && value >= 0 ? sum + value : NaN,
-      0,
-    );
+    values.reduce((sum: number, value: number): number => sum + value, 0);
   TestValidator.predicate(
     `completed diagnostics preserve normal and separate nonzero trial marginals: ${diagnostic}`,
     coherent?.normalKktQualified === true &&

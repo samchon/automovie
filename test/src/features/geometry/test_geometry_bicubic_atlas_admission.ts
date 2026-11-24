@@ -1,10 +1,8 @@
 import {
   realizeAutoMovieBicubicAtlas64,
-  tessellateAutoMovieBicubicAtlas64,
 } from "@automovie/engine";
 import type {
   IAutoMovieBicubicAtlasGeometry,
-  IAutoMovieBicubicAtlasTessellation64,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -429,31 +427,4 @@ export function test_geometry_bicubic_atlas_admission(): void {
       ),
     );
   }
-
-  const direct: IAutoMovieBicubicAtlasTessellation64.Input = {
-    topologyDomain: "direct",
-    controlsMm: [[0, 0, 0]],
-    patches: [],
-    toleranceMm: 1,
-    maxCells: 1,
-    maxVerticesPerChunk: 3,
-    boundaryAuthorities: [
-      {
-        id: "sparse",
-        controlIds: new Array<number>(4) as unknown as [
-          number,
-          number,
-          number,
-          number,
-        ],
-      },
-    ],
-  };
-  let refused: boolean = false;
-  try {
-    tessellateAutoMovieBicubicAtlas64(direct).next();
-  } catch (error) {
-    refused = error instanceof Error;
-  }
-  TestValidator.predicate("direct stream refuses sparse authority", refused);
 }

@@ -15,6 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -191,8 +192,8 @@ export namespace knockdown {
     // The heading that faces the blow, so the back falls away from it: the
     // blow is read at the look before the start, solved once the performance
     // is placed (`prepare`); a read before reads it there.
-    let prepared: number | undefined;
-    const solve = (): number => {
+    const solved: AutoMovieMotionPrepared.IValue<number> = AutoMovieMotionPrepared(
+      (): number => {
       const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
         ReactionSource.at(
           context,
@@ -205,8 +206,9 @@ export namespace knockdown {
         entry.yaw,
       );
       return (Math.atan2(-away.x, -away.z) * 180) / Math.PI;
-    };
-    const heading: () => number = (): number => prepared ?? solve();
+      },
+    );
+    const heading: () => number = (): number => solved.read();
 
     const flat: (yaw: number, forward: number) => IAutoMovieVector3 = (
       yaw: number,
@@ -248,9 +250,7 @@ export namespace knockdown {
               },
             ],
           ),
-          prepare: (): void => {
-            prepared = solve();
-          },
+          prepare: (): void => void solved.prepare(),
         },
         clock,
         primitives: [

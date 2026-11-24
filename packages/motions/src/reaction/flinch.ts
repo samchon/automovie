@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -162,8 +163,8 @@ export namespace flinch {
     // Away from the threat in the performer's floor frame: `x` left, `z`
     // forward. The threat is read at the look before the start, solved once
     // the performance is placed (`prepare`); a read before reads it there.
-    let prepared: IAutoMovieVector3 | undefined;
-    const solve = (): IAutoMovieVector3 =>
+    const solved: AutoMovieMotionPrepared.IValue<IAutoMovieVector3> =
+      AutoMovieMotionPrepared((): IAutoMovieVector3 =>
       HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
         AutoMovieMotionHumanTarget.away(
@@ -179,9 +180,10 @@ export namespace flinch {
           )!.worldPosition,
           entry.yaw,
         ),
+      ),
       );
     const away: () => IAutoMovieVector3 = (): IAutoMovieVector3 =>
-      prepared ?? solve();
+      solved.read();
 
     // A glove before the face on the trunk the action has placed so far.
     const faceBones: ReadonlySet<AutoMovieHumanoidBone> =
@@ -291,9 +293,7 @@ export namespace flinch {
           entry,
           AutoMovieMotionHumanBase.plants(),
         ),
-        prepare: (): void => {
-          prepared = solve();
-        },
+        prepare: (): void => void solved.prepare(),
       },
       clock,
       primitives: [

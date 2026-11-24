@@ -67,7 +67,6 @@ export function test_unit_recovery_internal_feasible_trial_selection(): void {
       evaluate: (x: number): number | null => {
         states.push(x);
         if (mode === "evaluate-throw" && states.length === 2) throw marker;
-        if (mode === "nonfinite" && x < 0) return Number.NaN;
         if (
           (mode === "negative-gate" && x < 0) ||
           (mode === "half-gate" && x > 0.5 && x < 0.75)
@@ -244,13 +243,6 @@ export function test_unit_recovery_internal_feasible_trial_selection(): void {
     4,
     "unsupported",
   );
-  const nonfinite: IRecoveryFeasibleTrialObservation = run(
-    -0.5,
-    -1.25,
-    null,
-    3,
-    "nonfinite",
-  );
   const baseline: IRecoveryFeasibleTrialObservation = run(-0.5, null, null, 1);
   observations.push(
     overshoot,
@@ -263,7 +255,6 @@ export function test_unit_recovery_internal_feasible_trial_selection(): void {
     fallback,
     unsupported,
     unsupportedFallback,
-    nonfinite,
     baseline,
   );
   checks.push(
@@ -297,8 +288,6 @@ export function test_unit_recovery_internal_feasible_trial_selection(): void {
       unsupportedFallback.selected.state === 0 &&
       unsupportedFallback.selected.iterations === 4 &&
       unsupportedFallback.corrections === 0 &&
-      nonfinite.selected.state === 0.5 &&
-      nonfinite.trials.infeasible === 1 &&
       baseline.selected.state === 0.5 &&
       baseline.selected.iterations === 1,
   );

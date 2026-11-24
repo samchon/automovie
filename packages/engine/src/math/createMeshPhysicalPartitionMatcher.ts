@@ -39,7 +39,7 @@ export function createMeshPhysicalPartitionMatcher(
     degenerate: number[];
   } => {
     if (input.positions.length % 3 !== 0)
-      throw new Error("A mesh physical partition needs complete XYZ tuples.");
+      throw new Error("A mesh physical partition needs positions in whole xyz triples.");
     const indices: number[] = triangleIndicesOf(
       input,
       "mesh physical partition",

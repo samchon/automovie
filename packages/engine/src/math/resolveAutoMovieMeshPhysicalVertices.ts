@@ -36,7 +36,8 @@ export function resolveAutoMovieMeshPhysicalVertices(
     refuse("needs one source reference or null per render vertex");
   const keys: string[] = [];
   for (const source of metadata.sources) {
-    if (source.id < 0) refuse("sources need nonnegative IDs");
+    if (source.id < 0 || source.id > Number.MAX_SAFE_INTEGER)
+      refuse("sources need nonnegative safe integer IDs");
     keys.push(`source:${JSON.stringify([source.domain, source.id])}`);
   }
   const coordinates: { labels: string[]; vertices: number[] } =

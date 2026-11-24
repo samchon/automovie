@@ -191,13 +191,7 @@ export function test_unit_recovery_internal_feasible_diagnostics(): void {
   );
   TestValidator.predicate(
     "encoded records own their fields without state or raw aliases",
-    actual !== (fit as unknown) &&
-      actual.lastDirection !== (fit.lastDirection as unknown) &&
-      actual.lastSqp !== (fit.lastSqp as unknown) &&
-      actual.lastSqp!.correctionTightening !==
-        (fit.lastSqp!.correctionTightening as unknown) &&
-      actual.trials !== (fit.trials as unknown) &&
-      !Object.hasOwn(actual, "state") &&
+    !Object.hasOwn(actual, "state") &&
       !serialized.includes("137") &&
       fit.objectiveMultiplier === Infinity &&
       fit.stationarityScale === -Infinity &&

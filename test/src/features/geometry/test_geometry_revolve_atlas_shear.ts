@@ -102,14 +102,13 @@ const stretchOf: (mesh: IAutoMovieMesh, triangle: number) => IStretch | null = (
 };
 
 /**
- * The worst finite anisotropy over nondegenerate frames; NaN rejects an empty
- * frame population or a nonfinite measurement instead of silently reporting
- * zero.
+ * The worst anisotropy over nondegenerate frames; NaN rejects an empty frame
+ * population instead of silently reporting zero.
  */
 const worstAnisotropy: (mesh: IAutoMovieMesh) => number = (
   mesh: IAutoMovieMesh,
 ): number => {
-  let worst: number = NaN;
+  let worst: number = -Infinity;
   for (
     let triangle: number = 0;
     triangle * 3 < mesh.indices!.length;
@@ -119,7 +118,7 @@ const worstAnisotropy: (mesh: IAutoMovieMesh) => number = (
     if (stretch === null) continue;
     worst = Math.max(worst, stretch.anisotropy);
   }
-  return worst;
+  return worst === -Infinity ? NaN : worst;
 };
 
 /** A meridian one metre long leaning `degrees` away from the axis. */

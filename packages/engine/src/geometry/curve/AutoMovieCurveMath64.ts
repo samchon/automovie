@@ -150,16 +150,16 @@ export namespace AutoMovieCurveMath64 {
     endpoint: 0 | 1,
     dy: number,
   ): AutoMovieVector3Tuple {
-    // The ordinary formula weights every control by up to 24 / dy in total;
-    // past that bound an inactive term can overflow, so the endpoint
-    // difference is read directly instead.
+    // The ordinary formula differences the controls and weights them by up to
+    // 24 / dy in total; past either bound an inactive term can overflow, so
+    // the endpoint difference is read directly instead.
     const largest: number = Math.max(
       ...span.map((control: AutoMovieVector3Tuple): number =>
         Math.max(...control.map(Math.abs)),
       ),
     );
     const ordinary: AutoMovieVector3Tuple | null =
-      largest < (Number.MAX_VALUE / 24) * dy
+      largest < Number.MAX_VALUE / 24 && largest / dy < Number.MAX_VALUE / 24
         ? derivative(span, endpoint, dy)
         : null;
     const a: AutoMovieVector3Tuple = span[endpoint === 0 ? 0 : 2]!,

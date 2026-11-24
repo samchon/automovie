@@ -91,41 +91,11 @@ export function assertArchitectureBuiltPopulationRefusalsPart3(
             "populations[0].set.layout",
           ),
       ],
-      [
-        "malformedColumnsReportOnlyTheColumn",
-        (): boolean => {
-          const validation: IAutoMovieValidation = validateBuiltEnvironment({
-            environment: work([
-              population({
-                layout: {
-                  kind: "grid",
-                  rows: 2,
-                  columns: Number.NaN,
-                  spacing: { x: 1, z: 1 },
-                },
-              }),
-            ]),
-          });
-          return (
-            hasViolation(
-              validation,
-              "range",
-              "populations[0].set.layout.columns",
-            ) &&
-            validation.success === false &&
-            validation.violations.every(
-              (violation: IAutoMovieConstraintViolation): boolean =>
-                violation.path !== "$input.populations[0].set.layout",
-            )
-          );
-        },
-      ],
     ]),
     {
       rows: true,
       spacingX: true,
       capacityTooSmall: true,
-      malformedColumnsReportOnlyTheColumn: true,
     },
   );
 

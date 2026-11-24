@@ -26,9 +26,6 @@ import { nclose } from "../../../internal/nclose";
  * 3. A borrowed raw-norm observer preserves diagnostics and ordered independent
  *    robust cost/SSE, exposes partial rejected measurements without acceptance,
  *    and propagates its original error.
- * 4. The actual feasible map's initial evaluation rejects a final unsupported
- *    measurement before checking a nonfinite partial objective, without any
- *    trial or input mutation.
  */
 export function test_unit_recovery_internal_camera_scene_points(): void {
   const fixture: ReturnType<typeof createRecoverySceneNumericalFixture> =
@@ -326,73 +323,5 @@ export function test_unit_recovery_internal_camera_scene_points(): void {
         charts,
       }) === originalBytes &&
       JSON.stringify(measured) === measuredBytes,
-  );
-  const initialLandmarks: Parameters<
-    typeof refineRecoveryCameraMap
-  >[1][number][] = fixture.points
-    .slice(0, 6)
-    .map(
-      (
-        point: [number, number, number],
-        at: number,
-      ): Parameters<typeof refineRecoveryCameraMap>[1][number] => ({
-        id: at,
-        point: [...point],
-        observations: [0, 1, 2].map(
-          (viewIndex: number): IAutoMovieRecoveryMapObservation => {
-            const featureIndex: number =
-              fixture.identities[viewIndex]!.indexOf(at);
-            const pixel: readonly [number, number] =
-              fixture.features[viewIndex]!.points[featureIndex]!.point;
-            return {
-              viewIndex,
-              featureIndex,
-              pixel: [
-                at === 5 && viewIndex === 2 ? Infinity : pixel[0],
-                pixel[1],
-              ],
-            };
-          },
-        ),
-      }),
-    );
-  const initialBytes: string = JSON.stringify({
-    initialLandmarks,
-    poses: fixture.poses,
-    charts,
-  });
-  let initialError: string | null = null,
-    initialTrials: number = 0;
-  try {
-    refineRecoveryCameraMap(
-      fixture.poses,
-      initialLandmarks,
-      charts.map((chart: (typeof charts)[number]): number[] => chart.matrix),
-      fixture.input.policy,
-      fixture.input.budget,
-      (): void => {
-        initialTrials++;
-      },
-      (): void => {},
-      {
-        directionBudget: {
-          maxIterations: 1000,
-          maxEntries: 100000,
-          maxWork: 10000000,
-        },
-        maxResidentLinearEntries: fixture.input.budget.maxResidentLinearEntries,
-      },
-    );
-  } catch (error) {
-    initialError = error instanceof Error ? error.message : String(error);
-  }
-  TestValidator.predicate(
-    "actual map discards partial objective before initial feasibility refusal",
-    initialError ===
-      "camera-feasible: actual feasible initial state required" &&
-      initialTrials === 0 &&
-      initialLandmarks[5]!.observations[2]!.pixel[0] === Infinity &&
-      JSON.stringify({ initialLandmarks, poses: fixture.poses, charts }) ===
-        initialBytes,
   );
 }

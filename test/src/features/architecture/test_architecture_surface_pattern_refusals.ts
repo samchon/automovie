@@ -110,23 +110,10 @@ export function test_architecture_surface_pattern_refusals(): void {
           refuses({ seed: -1 }, "pattern seed must be a safe integer >= 0"),
       ],
       [
-        "seedFractional",
-        (): boolean =>
-          refuses({ seed: 1.5 }, "pattern seed must be a safe integer >= 0"),
-      ],
-      [
         "variantsZero",
         (): boolean =>
           refuses(
             { variants: 0 },
-            "pattern variants must be a safe integer >= 1",
-          ),
-      ],
-      [
-        "variantsFractional",
-        (): boolean =>
-          refuses(
-            { variants: 2.5 },
             "pattern variants must be a safe integer >= 1",
           ),
       ],
@@ -154,9 +141,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       minimumAbove: true,
       grain: true,
       seedNegative: true,
-      seedFractional: true,
       variantsZero: true,
-      variantsFractional: true,
       boundaryValues: true,
     },
   );

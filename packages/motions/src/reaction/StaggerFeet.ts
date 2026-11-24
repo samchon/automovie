@@ -73,9 +73,9 @@ type IStaggerFeetSwingsEntry = {
  * legs' admission (`staggerAdmission`) already read this same pelvis at every
  * step's mid-swing and landing.
  *
- * The instance prepares body-only swing reach once. Declared step endpoints,
- * swing readers and bows are lazy and bounded by the fixed recovery's steps; no
- * arbitrary-time result is retained.
+ * The instance prepares body-only swing reach once, and every step's endpoints,
+ * swing reader and bow on construction and again under each shift the plan
+ * gives (`shifted`); no arbitrary-time result is retained.
  */
 export class StaggerFeet {
   /** The feet as the entry stands them. */
@@ -86,9 +86,6 @@ export class StaggerFeet {
 
   /** The share of a swing a foot rises in (`staggerKnots.risingOf`). */
   private readonly rising: number;
-
-  /** Each foot's stance at a step's start or landing, by side and second. */
-  private readonly ends: Map<string, walkFoot.IEnd> = new Map();
 
   /** Each step's bow around the standing foot. */
   private readonly bows: Map<staggerRecover.IStep, number> = new Map();
@@ -122,9 +119,8 @@ export class StaggerFeet {
   private shift: ((seconds: number) => IAutoMovieVector3) | undefined;
 
   /**
-   * Take the plan's level shift of the root, under which every step's ends are
-   * settled from here on, and forget the ends, swings and bows settled under
-   * the one before.
+   * Take the plan's level shift of the root, and prepare every step's ends,
+   * swing and bow under it in place of those prepared under the one before.
    *
    * A swing runs between its foot's stance at the step's start and at its
    * landing, and those two stances are the ones the pose shows at those seconds
@@ -139,15 +135,12 @@ export class StaggerFeet {
    */
   public shifted(shift: (seconds: number) => IAutoMovieVector3): void {
     this.shift = shift;
-    this.ends.clear();
-    this.swings.clear();
-    this.bows.clear();
+    this.prepareSteps();
   }
 
   /**
    * Keep one plan's body, entry posture and recovery, and prepare each side's
-   * body-only swing reach; endpoint, swing and bow work remains lazy and
-   * bounded by the plan's declared steps.
+   * body-only swing reach and every step's endpoints, swing and bow.
    *
    * @param body The body.
    * @param entry The context's entry.
@@ -169,6 +162,7 @@ export class StaggerFeet {
       left: walkReach.prepareSwing(body, "left"),
       right: walkReach.prepareSwing(body, "right"),
     };
+    this.prepareSteps();
   }
 
   /**
@@ -329,27 +323,6 @@ export class StaggerFeet {
   }
 
   /**
-   * Settle a declared step endpoint once under the plan's shift, as the pose
-   * settles it. Only immutable step start/landing seconds form these
-   * side/second keys, and `shifted` clears them.
-   */
-  private end(side: AutoMovieHumanSide, seconds: number): walkFoot.IEnd {
-    const key: string = `${side}:${seconds}`;
-    let out: walkFoot.IEnd | undefined = this.ends.get(key);
-    if (out === undefined) {
-      out = this.settle(
-        seconds,
-        this.standing(seconds),
-        undefined,
-        undefined,
-        this.shift?.(seconds),
-      ).feet[side];
-      this.ends.set(key, out);
-    }
-    return out;
-  }
-
-  /**
    * The first matching open swing's linear share at action-local seconds, zero
    * outside every swing.
    */
@@ -423,63 +396,76 @@ export class StaggerFeet {
   }
 
   /**
-   * Prepare one immutable step's settled endpoints, raised-start walking swing
-   * curve and nonzero-travel normal.
+   * Prepare every recovery step's settled endpoints, raised-start walking
+   * swing curve, nonzero-travel normal and bow under the plan's current shift,
+   * each endpoint settled as the pose settles it.
    */
-  private swingOf(step: staggerRecover.IStep): ISwingOfResult {
-    const known: ReturnType<StaggerFeet["swingOf"]> | undefined =
-      this.swings.get(step);
-    if (known !== undefined) return known;
-    const from: walkFoot.IEnd = this.end(step.side, step.start);
-    const to: walkFoot.IEnd = this.end(step.side, step.land);
-    const raised: walkFoot.IEnd = {
-      ...from,
-      ankle: { ...from.ankle, y: from.ankle.y + staggerBounds.CLEARANCE },
-    };
-    const travel: IAutoMovieVector3 = {
-      x: to.ankle.x - from.ankle.x,
-      y: 0,
-      z: to.ankle.z - from.ankle.z,
-    };
-    const size: number = Vector3.length(travel);
-    const out: ReturnType<StaggerFeet["swingOf"]> = {
-      from,
-      normal:
-        size > 1e-9
-          ? { x: -travel.z / size, y: 0, z: travel.x / size }
-          : undefined,
-      at: walkFoot.prepareSwing(this.body, step.side, {
-        from: raised,
-        velocity: { x: 0, y: 0, z: 0 },
-        to,
-        seconds: (1 - this.rising) * (step.land - step.start),
-        lift: staggerBounds.LIFT,
-      }),
-    };
-    this.swings.set(step, out);
-    return out;
+  private prepareSteps(): void {
+    this.swings.clear();
+    this.bows.clear();
+    const end = (side: AutoMovieHumanSide, seconds: number): walkFoot.IEnd =>
+      this.settle(
+        seconds,
+        this.standing(seconds),
+        undefined,
+        undefined,
+        this.shift?.(seconds),
+      ).feet[side];
+    for (const step of this.recovery.steps) {
+      const from: walkFoot.IEnd = end(step.side, step.start);
+      const to: walkFoot.IEnd = end(step.side, step.land);
+      const raised: walkFoot.IEnd = {
+        ...from,
+        ankle: { ...from.ankle, y: from.ankle.y + staggerBounds.CLEARANCE },
+      };
+      const travel: IAutoMovieVector3 = {
+        x: to.ankle.x - from.ankle.x,
+        y: 0,
+        z: to.ankle.z - from.ankle.z,
+      };
+      const size: number = Vector3.length(travel);
+      this.swings.set(step, {
+        from,
+        normal:
+          size > 1e-9
+            ? { x: -travel.z / size, y: 0, z: travel.x / size }
+            : undefined,
+        at: walkFoot.prepareSwing(this.body, step.side, {
+          from: raised,
+          velocity: { x: 0, y: 0, z: 0 },
+          to,
+          seconds: (1 - this.rising) * (step.land - step.start),
+          lift: staggerBounds.LIFT,
+        }),
+      });
+
+      // The step's closed-form bow around the foot standing through its swing
+      // (`staggerSwingBow`).
+      const stance: AutoMovieHumanSide = step.side === "left" ? "right" : "left";
+      this.bows.set(
+        step,
+        staggerSwingBow(
+          this.body,
+          step,
+          this.standing(step.start)[stance].placement,
+          this.normalOf(step),
+          (
+            seconds: number,
+            lateral: number,
+          ): IAutoMovieMotionHumanWalkFoot.IScheduled =>
+            this.swungAt(step, seconds, lateral),
+        ),
+      );
+    }
   }
 
-  /**
-   * One step's closed-form bow around the foot standing through its swing
-   * (`staggerSwingBow`), kept for the step.
-   */
+  /** A step's prepared swing (`prepareSteps`). */
+  private swingOf(step: staggerRecover.IStep): ISwingOfResult {
+    return this.swings.get(step)!;
+  }
+
+  /** A step's prepared bow (`prepareSteps`). */
   private bowOf(step: staggerRecover.IStep): number {
-    const known: number | undefined = this.bows.get(step);
-    if (known !== undefined) return known;
-    const stance: AutoMovieHumanSide = step.side === "left" ? "right" : "left";
-    const bow: number = staggerSwingBow(
-      this.body,
-      step,
-      this.standing(step.start)[stance].placement,
-      this.normalOf(step),
-      (
-        seconds: number,
-        lateral: number,
-      ): IAutoMovieMotionHumanWalkFoot.IScheduled =>
-        this.swungAt(step, seconds, lateral),
-    );
-    this.bows.set(step, bow);
-    return bow;
+    return this.bows.get(step)!;
   }
 }

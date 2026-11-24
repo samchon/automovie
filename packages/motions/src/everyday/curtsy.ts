@@ -28,6 +28,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { curtsyCross } from "./curtsyCross";
 
 /** Positional tolerance for a solved ankle or sole, in metres. */
 const FIT: number = 0.006;
@@ -145,27 +146,19 @@ function plan(
   const rearZ: number[] = rearSole.map(
     (point: IAutoMovieVector3): number => HumanFrame.local(frame, point).z,
   );
-  const rearToe: number = Math.max(...rearZ);
-  const length: number = rearToe - Math.min(...rearZ);
-  const crossed: IAutoMovieMotionHumanFoot.IPlacement = {
-    ankle: HumanFrame.point(frame, {
-      x: frontLocal.x + leadSign * 0.1 * length,
-      y: rearLocal.y,
-      z: rearLocal.z + Math.min(...frontZ) - rearToe - 0.15 * length,
-    }),
-    rotation: rearEntry.rotation,
-  };
-
-  // Shift the pelvis to the lead foot before lifting the other foot.
-  const transfer: IAutoMovieVector3 = {
-    x: frontLocal.x,
-    y: 0,
-    z: 0.75 * Math.min(...frontZ) + 0.25 * Math.max(...frontZ),
-  };
-  const approach: IAutoMovieVector3 = {
-    ...transfer,
-    z: transfer.z - 0.2 * length,
-  };
+  // The crossed rear foot, and the pelvis shifted to the lead foot before the
+  // other foot lifts (`curtsyCross`).
+  const cross: curtsyCross.ICross = curtsyCross(
+    frame,
+    { front: frontLocal, rear: rearLocal },
+    { front: frontZ, rear: rearZ },
+    lead,
+    rearEntry.rotation,
+  );
+  const length: number = cross.length;
+  const crossed: IAutoMovieMotionHumanFoot.IPlacement = cross.crossed;
+  const transfer: IAutoMovieVector3 = cross.transfer;
+  const approach: IAutoMovieVector3 = cross.approach;
 
   // Fit the shifted standing height separately from the landing height so
   // the pelvis lowers for the rear footprint only once the foot leaves.

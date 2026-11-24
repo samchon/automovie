@@ -66,9 +66,9 @@ export function test_unit_recovery_fitting_image_loft(): void {
       fitted.value.counts.spans === 1 &&
       fitted.value.counts.freeScalars === 16,
   );
-  const recipe: IAutoMovieRecoveryImageLoft = JSON.parse(
-    JSON.stringify(fitted.value.recipe),
-  ) as IAutoMovieRecoveryImageLoft;
+  const recipe: IAutoMovieRecoveryImageLoft = structuredClone(
+    fitted.value.recipe,
+  );
   TestValidator.predicate(
     "generation document stays compact",
     JSON.stringify(recipe).length < 3000,

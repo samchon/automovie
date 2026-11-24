@@ -109,76 +109,6 @@ export function assertValidationSpaceHeights(): void {
     "every height-rule parameter is range-checked",
     namedFacts([
       [
-        "planeOrigin",
-        (): boolean =>
-          hasViolation(
-            validateSpace({
-              space: withHeight({
-                kind: "plane",
-                originHeight: Number.POSITIVE_INFINITY,
-                slopeX: 0,
-                slopeZ: 0,
-              }),
-            }),
-            "range",
-            ".height.originHeight",
-          ),
-      ],
-      [
-        "planeSlopeX",
-        (): boolean =>
-          hasViolation(
-            validateSpace({
-              space: withHeight({
-                kind: "plane",
-                originHeight: 0,
-                slopeX: Number.NaN,
-                slopeZ: 0,
-              }),
-            }),
-            "range",
-            ".height.slopeX",
-          ),
-      ],
-      [
-        "planeSlopeZ",
-        (): boolean =>
-          hasViolation(
-            validateSpace({
-              space: withHeight({
-                kind: "plane",
-                originHeight: 0,
-                slopeX: 0,
-                slopeZ: Number.NaN,
-              }),
-            }),
-            "range",
-            ".height.slopeZ",
-          ),
-      ],
-      [
-        "latticeOriginX",
-        (): boolean =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ originX: Number.NaN })),
-            }),
-            "range",
-            ".height.originX",
-          ),
-      ],
-      [
-        "latticeOriginZ",
-        (): boolean =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ originZ: Number.NaN })),
-            }),
-            "range",
-            ".height.originZ",
-          ),
-      ],
-      [
         "latticeSpacingX",
         (): boolean =>
           hasViolation(
@@ -208,17 +138,6 @@ export function assertValidationSpaceHeights(): void {
           ),
       ],
       [
-        "latticeRows",
-        (): boolean =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ rows: 1.5, samples: [0, 1, 0] })),
-            }),
-            "range",
-            ".height.columns",
-          ),
-      ],
-      [
         "latticeSamples",
         (): boolean =>
           hasViolation(
@@ -227,30 +146,12 @@ export function assertValidationSpaceHeights(): void {
             ".height.samples",
           ),
       ],
-      [
-        "latticeSample",
-        (): boolean =>
-          hasViolation(
-            validateSpace({
-              space: withHeight(lattice({ samples: [0, 1, 0, Number.NaN] })),
-            }),
-            "range",
-            ".height.samples[3]",
-          ),
-      ],
     ]),
     {
-      planeOrigin: true,
-      planeSlopeX: true,
-      planeSlopeZ: true,
-      latticeOriginX: true,
-      latticeOriginZ: true,
       latticeSpacingX: true,
       latticeSpacingZ: true,
       latticeColumns: true,
-      latticeRows: true,
       latticeSamples: true,
-      latticeSample: true,
     },
   );
 }

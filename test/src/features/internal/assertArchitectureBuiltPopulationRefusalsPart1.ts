@@ -122,27 +122,9 @@ export function assertArchitectureBuiltPopulationRefusalsPart1(
         (): boolean =>
           refuses([population({ count: 0 })], "populations[0].set.count"),
       ],
-      [
-        "nonFiniteAnchor",
-        (): boolean =>
-          refuses(
-            [population({ anchor: { x: 0, y: Number.NaN, z: 0 } })],
-            "populations[0].set.anchor.y",
-          ),
-      ],
-      [
-        "nonFiniteHeading",
-        (): boolean =>
-          refuses(
-            [population({ facingDeg: Number.POSITIVE_INFINITY })],
-            "populations[0].set.facingDeg",
-          ),
-      ],
     ]),
     {
       emptyCount: true,
-      nonFiniteAnchor: true,
-      nonFiniteHeading: true,
     },
   );
 

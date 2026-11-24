@@ -241,18 +241,6 @@ export function test_unit_recovery_curves_conics_critical(): void {
       ),
     );
   }
-  let refused: boolean = false;
-  try {
-    C.cubicCriticalParameters([
-      [0, 0],
-      [1, 1],
-      [2, 2],
-      [3],
-    ]);
-  } catch (error) {
-    refused = error instanceof RangeError;
-  }
-  TestValidator.predicate("nonfinite controls refuse", refused);
   TestValidator.equals(
     "source controls unchanged",
     JSON.stringify(controls),

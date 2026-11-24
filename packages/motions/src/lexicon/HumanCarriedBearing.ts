@@ -127,7 +127,18 @@ export namespace HumanCarriedBearing {
       coupled === null
         ? undefined
         : new Set<AutoMovieHumanoidBone>([coupled.anchor]);
-    let gripStance: IAutoMovieMotionHumanPosture | undefined;
+    // The stance the coupled grips are placed on: the carrier's at the hold,
+    // or the coupling's key stance.
+    const gripStance: IAutoMovieMotionHumanPosture | undefined =
+      coupled === null || coupling === undefined
+        ? undefined
+        : (context.carrier?.posture(clock.at("held")) ??
+          HumanCarriedCouplingPose.stance(
+            body,
+            role === coupling.bearer
+              ? coupling.key.stance
+              : { incline: 0, depth: 0 },
+          ));
     let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
     (["left", "right"] as const).forEach(
       (side: AutoMovieHumanSide, index: number): void => {
@@ -137,18 +148,11 @@ export namespace HumanCarriedBearing {
         const local: IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null =
           coupled?.places[index] ?? null;
         const tangent: IAutoMovieVector3 | undefined =
-          coupled === null || local === null || coupling === undefined
+          coupled === null || local === null || gripStance === undefined
             ? undefined
             : HumanCarriedGrip(
                 body,
-                (gripStance ??=
-                  context.carrier?.posture(clock.at("held")) ??
-                  HumanCarriedCouplingPose.stance(
-                    body,
-                    role === coupling.bearer
-                      ? coupling.key.stance
-                      : { incline: 0, depth: 0 },
-                  )),
+                gripStance,
                 side,
                 coupled.anchor,
                 local,

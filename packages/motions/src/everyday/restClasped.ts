@@ -14,6 +14,7 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { HumanTrunk } from "./HumanTrunk";
+import { restForearm } from "./restForearm";
 
 /** The record of `IFrontGoalsPlace`'s site. */
 type IFrontGoalsPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
@@ -305,49 +306,6 @@ function segment(
   );
 }
 
-/** A vector's unit component across a unit normal. */
-function across(
-  normal: IAutoMovieVector3,
-  vector: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return Vector3.normalize(
-    Vector3.subtract(
-      vector,
-      Vector3.scale(normal, Vector3.dot(vector, normal)),
-    ),
-  );
-}
-
-/**
- * The unit direction of a forearm, from the elbow to the wrist: the elbow lies
- * on the circle the arm's two segments allow about the line from the shoulder
- * to the wrist, on the side of the bend hint.
- */
-function forearm(
-  upper: number,
-  lower: number,
-  shoulder: IAutoMovieVector3,
-  wrist: IAutoMovieVector3,
-  hint: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  const span: IAutoMovieVector3 = Vector3.subtract(wrist, shoulder);
-  const axis: IAutoMovieVector3 = Vector3.normalize(span);
-  const reach: number = Math.min(
-    upper + lower,
-    Math.max(Math.abs(upper - lower), Vector3.length(span), 1e-9),
-  );
-  const along: number =
-    (upper * upper - lower * lower + reach * reach) / (2 * reach);
-  const off: number = Math.sqrt(Math.max(0, upper * upper - along * along));
-  const elbow: IAutoMovieVector3 = Vector3.addScaled(
-    Vector3.addScaled(shoulder, axis, along),
-    across(axis, Vector3.subtract(hint, shoulder)),
-    off,
-  );
-  return Vector3.normalize(
-    Vector3.subtract(Vector3.addScaled(shoulder, axis, reach), elbow),
-  );
-}
 /** The record of `IPrepareLaidFixed`'s site. */
 type IPrepareLaidFixed = {
   upper: number;
@@ -361,8 +319,8 @@ type IPrepareLaidFixed = {
  * surface's outward normal exactly, and the fingers along the forearm as far as
  * that allows. The wrist depends on the fingers and the forearm on the wrist,
  * so the direction starts at the line from the shoulder to the point and is
- * substituted three times. Fixed hand and arm geometry is prepared lazily after
- * the first actual surface query and shared across heights.
+ * substituted three times. The fixed hand and arm geometry is prepared with the
+ * lay and shared across heights.
  */
 function prepareLaid(
   body: IAutoMovieMotionHumanBody,
@@ -372,42 +330,37 @@ function prepareLaid(
   elbow: IAutoMovieVector3,
   shape: IAutoMovieMotionHumanHand.Shape,
 ): Lay {
-  let fixed: IPrepareLaidFixed | undefined;
+  const upper: number = segment(body, side, "UpperArm", "LowerArm");
+  const lower: number = segment(body, side, "LowerArm", "Hand");
+  const local: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
+    body,
+    side,
+    surface,
+  );
+  const hand: IPrepareLaidFixed = {
+    upper,
+    lower,
+    local,
+    align: HumanHand.prepareAlignment({
+      normal: local.normal,
+      forward: { x: side === "left" ? 1 : -1, y: 0, z: 0 },
+    }),
+  };
   return (
     point: IAutoMovieVector3,
     normal: IAutoMovieVector3,
   ): IAutoMovieMotionHumanRest.IGoal => {
-    // Keep the original first ray/stacked-surface query ahead of hand preparation.
-    if (fixed === undefined) {
-      const upper: number = segment(body, side, "UpperArm", "LowerArm");
-      const lower: number = segment(body, side, "LowerArm", "Hand");
-      const local: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
-        body,
-        side,
-        surface,
-      );
-      fixed = {
-        upper,
-        lower,
-        local,
-        align: HumanHand.prepareAlignment({
-          normal: local.normal,
-          forward: { x: side === "left" ? 1 : -1, y: 0, z: 0 },
-        }),
-      };
-    }
-    const hand: NonNullable<typeof fixed> = fixed;
     const into: IAutoMovieVector3 = Vector3.scale(normal, -1);
     let rotation: IAutoMovieQuaternion = hand.align({
       normal: into,
-      forward: across(into, Vector3.subtract(point, shoulder)),
+      forward: restForearm.across(into, Vector3.subtract(point, shoulder)),
     });
     for (let i: number = 0; i < 3; i++)
       rotation = hand.align({
         normal: into,
-        forward: across(
+        forward: restForearm.across(
           into,
-          forearm(
+          restForearm.direction(
             hand.upper,
             hand.lower,
             shoulder,

@@ -135,7 +135,7 @@ export function test_unit_recovery_fitting_image_support_loft(): void {
             Math.abs(Math.max(...projections) - row.upperMm) <= 0.5,
         );
       }
-    saved = JSON.parse(JSON.stringify(recipe)) as IAutoMovieRecoverySupportLoft;
+    saved = structuredClone(recipe);
   }
   if (!saved || !observation)
     throw new Error("Expected saved support coefficients");

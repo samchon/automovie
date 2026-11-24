@@ -1,4 +1,5 @@
 import type { IAutoMovieIntegrateRadialField } from "@automovie/interface";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Integrate a strongest-site equal-radius compact radial field over a convex
@@ -27,36 +28,14 @@ export function integrateAutoMovieRadialField(
 ): IAutoMovieIntegrateRadialField.IOutput {
   if (
     props.radius <= 0 ||
-    (props.power !== 2 && props.power !== 3) ||
-    !Array.isArray(props.polygon) ||
-    !Array.isArray(props.sites) ||
     props.sites.length > 512
   )
     throw new Error(
-      "Radial footprint needs finite planar inputs and at most 512 sites",
+      "Radial footprint needs a positive radius and at most 512 sites",
     );
-  for (let i: number = 0; i < props.polygon.length; i++) {
-    const point: readonly [number, number] | undefined = props.polygon[i];
-    if (
-      !Object.hasOwn(props.polygon, i) ||
-      !Array.isArray(point) ||
-      point.length !== 2 ||
-      !Object.hasOwn(point, 0) ||
-      !Object.hasOwn(point, 1)
-    )
-      throw new Error("A radial footprint needs dense finite planar pairs");
-  }
-  for (let i: number = 0; i < props.sites.length; i++) {
-    const site: Site | undefined = props.sites[i];
-    if (
-      !Object.hasOwn(props.sites, i) ||
-      site === null ||
-      typeof site !== "object"
-    )
-      throw new Error("A radial field needs dense finite site coordinates");
-  }
   const radiusSquared: number = props.radius * props.radius;
-  if (radiusSquared === 0)
+  // A finite radius can underflow or overflow its square.
+  if (radiusSquared === 0 || overflowsBinary64(radiusSquared))
     throw new Error(
       "Radial support radius exceeds the squared-coordinate range",
     );
@@ -64,6 +43,8 @@ export function integrateAutoMovieRadialField(
     (p: readonly [number, number]): Point => [...p],
   );
   const signed: number = area(polygon);
+  if (overflowsBinary64(signed))
+    throw new Error("Radial footprint area exceeds finite arithmetic");
   if (signed < 0) polygon.reverse();
   const extent: number = Math.abs(signed);
   if (extent === 0 || polygon.length < 3 || props.sites.length === 0)
@@ -84,6 +65,8 @@ export function integrateAutoMovieRadialField(
         site.x * site.x -
         site.y * site.y -
         site.z * site.z;
+      if ([...normal, constant].some(overflowsBinary64))
+        throw new Error("Radial site partition exceeds finite arithmetic");
       if (normal[0] === 0 && normal[1] === 0 && constant === 0) {
         if (j < i) cell = [];
         continue;
@@ -100,6 +83,8 @@ export function integrateAutoMovieRadialField(
     gradient[0] += result.gradient[0];
     gradient[1] += result.gradient[1];
   }
+  if ([integral, ...gradient].some(overflowsBinary64))
+    throw new Error("Radial footprint integration exceeded finite arithmetic");
   return {
     integral: Math.max(0, Math.min(extent, integral)),
     gradient,

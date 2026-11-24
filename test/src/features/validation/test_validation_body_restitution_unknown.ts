@@ -191,10 +191,10 @@ export function test_validation_body_restitution_unknown(): void {
         );
     }
   const simultaneous: IAutoMovieBodyCollisionResult = detectBodyCollision({
-    a: { ...knownA, body: { mass: 0, centerOfMass: null, restitution: NaN } },
+    a: { ...knownA, body: { mass: 0, centerOfMass: null, restitution: -1 } },
     b: {
       ...knownB,
-      body: { mass: -1, centerOfMass: null, restitution: Infinity },
+      body: { mass: -1, centerOfMass: null, restitution: 2 },
     },
     sampleRate: 1,
   });

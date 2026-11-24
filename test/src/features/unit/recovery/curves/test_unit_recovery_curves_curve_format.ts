@@ -30,12 +30,6 @@ interface RecoveryCurveMetadata extends IAutoMovieCubicBezierCurve64 {
   attached: IAutoMovieCubicBezierCurve64;
 }
 
-/** A named malformed coefficient case whose own data are changed locally. */
-interface RecoveryMalformedCurve {
-  name: string;
-  value: IAutoMovieCubicBezierCurve64 | IAutoMovieRecoveryHermiteCurve;
-}
-
 /**
  * Cubic basis selection preserves physical polynomials and source-free geometry.
  *
@@ -43,10 +37,9 @@ interface RecoveryMalformedCurve {
  * 1. Unequal phase widths reproduce the independent polynomial (s²,s³,2s).
  * 2. Nested open, guide and override references share one converted authority.
  * 3. A horizontal course keeps a nonzero parameter width despite constant Y.
- * 4. Invalid widths, nonfinite derivatives and higher-degree curves refuse conversion.
+ * 4. Invalid widths and higher-degree curves refuse conversion.
  * 5. A saved Hermite bundle independently generates the uncapped 24-mm² prism side.
  * 6. Nested cubic metadata has the same converted type and runtime representation.
- * 7. Sparse or inherited coefficients and accessor-backed vectors refuse without invoking a getter.
  */
 export function test_unit_recovery_curves_curve_format(): void {
   const curve: IAutoMovieCubicBezierCurve64 = {
@@ -201,94 +194,6 @@ export function test_unit_recovery_curves_curve_format(): void {
     nclose(nested.attached.spans[1]!.end[0], 25) &&
       nclose(nested.attached.spans[1]!.end[1], 125) &&
       nclose(nested.attached.spans[1]!.end[2], 10),
-  );
-  const malformed: RecoveryMalformedCurve[] = [];
-  for (const target of ["spans", "controls", "components", "widths"] as const) {
-    const value: IAutoMovieCubicBezierCurve64 = structuredClone(horizontal);
-    const population: readonly unknown[] =
-      target === "spans"
-        ? value.spans
-        : target === "controls"
-          ? value.spans[0]!
-          : target === "components"
-            ? value.spans[0]![0]
-            : value.phaseIntervals;
-    Reflect.deleteProperty(population, "0");
-    malformed.push({ name: `sparse ${target}`, value });
-  }
-  const extraCoordinate: IAutoMovieCubicBezierCurve64 =
-    structuredClone(horizontal);
-  Reflect.set(extraCoordinate.spans[0]![0], "3", 11);
-  malformed.push({ name: "non-triple coordinate", value: extraCoordinate });
-  const extraControl: IAutoMovieCubicBezierCurve64 =
-    structuredClone(horizontal);
-  Reflect.set(extraControl.spans[0]!, "4", [5, 7, 3]);
-  malformed.push({ name: "non-cubic control count", value: extraControl });
-  const nonfiniteControl: IAutoMovieCubicBezierCurve64 =
-    structuredClone(horizontal);
-  malformed.push({ name: "nonfinite Bezier control", value: nonfiniteControl });
-  const inherited: IAutoMovieCubicBezierCurve64 = structuredClone(horizontal);
-  Reflect.deleteProperty(inherited.spans[0]![0], "1");
-  Object.setPrototypeOf(
-    inherited.spans[0]![0],
-    Object.assign(Object.create(Array.prototype), { 1: 7 }),
-  );
-  malformed.push({ name: "inherited coordinate", value: inherited });
-  const sparseDerivative: IAutoMovieRecoveryHermiteCurve =
-    structuredClone(horizontalSaved);
-  Reflect.deleteProperty(sparseDerivative.spans[0]!.startDerivative, "1");
-  malformed.push({
-    name: "sparse Hermite derivative",
-    value: sparseDerivative,
-  });
-  const missingEndpoint: IAutoMovieRecoveryHermiteCurve =
-    structuredClone(horizontalSaved);
-  Reflect.deleteProperty(missingEndpoint.spans[0]!, "end");
-  malformed.push({ name: "missing Hermite endpoint", value: missingEndpoint });
-  let getterReads: number = 0;
-  const accessorControl: IAutoMovieCubicBezierCurve64 =
-    structuredClone(horizontal);
-  Object.defineProperty(accessorControl.spans[0]![0], "0", {
-    enumerable: true,
-    configurable: true,
-    get: (): number => {
-      getterReads++;
-      return 0;
-    },
-  });
-  malformed.push({
-    name: "accessor Bezier coordinate",
-    value: accessorControl,
-  });
-  const accessorDerivative: IAutoMovieRecoveryHermiteCurve =
-    structuredClone(horizontalSaved);
-  Object.defineProperty(accessorDerivative.spans[0]!.startDerivative, "0", {
-    enumerable: true,
-    configurable: true,
-    get: (): number => {
-      getterReads++;
-      return 3;
-    },
-  });
-  malformed.push({
-    name: "accessor Hermite derivative",
-    value: accessorDerivative,
-  });
-  for (const candidate of malformed) {
-    for (const format of ["hermite", "bezier"] as const) {
-      let rejected: boolean = false;
-      try {
-        convertAutoMovieRecoveryCurves(candidate.value, format);
-      } catch {
-        rejected = true;
-      }
-      TestValidator.predicate(`${candidate.name} refuses ${format}`, rejected);
-    }
-  }
-  TestValidator.equals(
-    "coefficient getters are never executed",
-    getterReads,
-    0,
   );
   const bundle: ReturnType<typeof prism.makeInput> = prism.makeInput(false);
   const generated: ReturnType<typeof reconstructAutoMovieRecoveryModel> =

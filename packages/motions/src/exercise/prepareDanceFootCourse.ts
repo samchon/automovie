@@ -25,8 +25,8 @@ interface IInterval {
     IAutoMovieMotionHumanFoot.IPlacement,
   ];
 
-  /** Native fixed geometry, acquired only when placement is actually observed. */
-  arc?: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>;
+  /** The swing's arc between the two placements, prepared with the course. */
+  arc: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>;
 }
 
 /** A current interval selection; it is released with this one observation. */
@@ -90,11 +90,18 @@ export function prepareDanceFootCourse(
   const pair: (from: IOffset, at: IOffset) => IInterval = (
     from: IOffset,
     at: IOffset,
-  ): IInterval => ({
-    from,
-    at,
-    placements: [placements.get(from)!, placements.get(at)!],
-  });
+  ): IInterval => {
+    const ends: IInterval["placements"] = [
+      placements.get(from)!,
+      placements.get(at)!,
+    ];
+    return {
+      from,
+      at,
+      placements: ends,
+      arc: AutoMovieMotionHumanLeg.prepareArc(ends[0], ends[1], clearance),
+    };
+  };
   const held: IInterval[] = offsets.map(
     (at: IOffset): IInterval => pair(at, at),
   );
@@ -129,13 +136,7 @@ export function prepareDanceFootCourse(
     },
     placed: (seconds: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const current: IReading = read(seconds);
-      const interval: IInterval = current.interval;
-      interval.arc ??= AutoMovieMotionHumanLeg.prepareArc(
-        interval.placements[0],
-        interval.placements[1],
-        clearance,
-      );
-      return interval.arc(current.swing);
+      return current.interval.arc(current.swing);
     },
     planted: (seconds: number): boolean => read(seconds).swing >= 1,
   };

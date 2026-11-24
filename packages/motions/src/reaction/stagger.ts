@@ -9,7 +9,6 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanEvaluation,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanStagger,
@@ -33,24 +32,6 @@ import { staggerRecovery } from "./staggerRecovery";
 import { staggerResolved } from "./staggerResolved";
 import { staggerRocking } from "./staggerRocking";
 import { staggerShift } from "./staggerShift";
-
-/**
- * A settled sample one stagger plan lends its own legs' writer for one
- * evaluation (`IAutoMovieMotionHumanEvaluation.loan`), honoured only at its own
- * second.
- */
-class StaggerLoan implements IAutoMovieMotionHumanEvaluation.ILoan {
-  /**
-   * @param owner The lending plan's token.
-   * @param seconds Action seconds the sample was solved at.
-   * @param solved The foot, pelvis and trunk result at that instant.
-   */
-  public constructor(
-    public readonly owner: object,
-    public readonly seconds: number,
-    public readonly solved: ReturnType<StaggerFeet["solve"]>,
-  ) {}
-}
 
 /**
  * A stagger: a blow pushes the centre of mass past the base of support and
@@ -266,13 +247,6 @@ export namespace stagger {
         ? { x: 0, y: 0, z: 0 }
         : Vector3.lerp(a, b, at - k);
     };
-    // The token this plan's loans carry as their owner.
-    const owner: object = {};
-
-    // The loan this plan has out for the read in progress (`lend`): its legs'
-    // writer honours that one alone, known by identity, and only during that
-    // synchronous read.
-    let lent: StaggerLoan | undefined;
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -283,7 +257,6 @@ export namespace stagger {
         _before?: IAutoMovieMotionHumanPrimitive.Reader,
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         _projection?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[4],
-        evaluation?: Parameters<IAutoMovieMotionHumanPrimitive["write"]>[5],
       ): IAutoMovieMotionHumanPosture => {
         if (seconds <= 0) return entry;
         // The root carries the plan-time residual of the displayed centre of
@@ -295,12 +268,11 @@ export namespace stagger {
           shiftAt(seconds),
           reacting,
         );
-        const loan: IAutoMovieMotionHumanEvaluation.ILoan | undefined =
-          evaluation?.loan;
-        const solved: ReturnType<StaggerFeet["solve"]> =
-          lent !== undefined && loan === lent && lent.seconds === seconds
-            ? lent.solved
-            : feet.solve(seconds, resolution, shift);
+        const solved: ReturnType<StaggerFeet["solve"]> = feet.solve(
+          seconds,
+          resolution,
+          shift,
+        );
         const settled: ReturnType<StaggerFeet["solve"]>["settled"] =
           solved.settled;
         const root: IAutoMovieVector3 =
@@ -354,48 +326,10 @@ export namespace stagger {
       (_: unknown, i: number): number => Math.min(duration, i / KNOTS),
     );
 
-    // Each sample's feet and pelvis with no balance shift, solved once and
-    // lent to the legs' writer while the plan is read there before any shift
-    // exists: the arms' carriage and the first balance pass each settled
-    // that same pelvis again.
-    const unshifted: ReturnType<StaggerFeet["solve"]>[] = samples.map(
-      (seconds: number): ReturnType<StaggerFeet["solve"]> =>
-        feet.solve(seconds),
-    );
-    const lend: <T>(
-      i: number,
-      read: (evaluation: IAutoMovieMotionHumanEvaluation | undefined) => T,
-    ) => T = <T>(
-      i: number,
-      read: (evaluation: IAutoMovieMotionHumanEvaluation | undefined) => T,
-    ): T => {
-      if (balanced.length !== 0) return read(undefined);
-      lent = new StaggerLoan(owner, samples[i]!, unshifted[i]!);
-      try {
-        return read({ loan: lent });
-      } finally {
-        lent = undefined;
-      }
-    };
     const resolved: staggerResolved.IReader = staggerResolved(body);
     const needs: Record<AutoMovieHumanSide, number>[] = samples.map(
       (seconds: number, i: number): Record<AutoMovieHumanSide, number> =>
-        lend(
-          i,
-          (
-            evaluation: IAutoMovieMotionHumanEvaluation | undefined,
-          ): Record<AutoMovieHumanSide, number> =>
-            resolved.carriage(
-              i,
-              composed.posture(
-                seconds,
-                undefined,
-                undefined,
-                undefined,
-                evaluation,
-              ),
-            ),
-        ),
+        resolved.carriage(i, composed.posture(seconds)),
     );
     const envelope: (side: AutoMovieHumanSide) => number[] = (
       side: AutoMovieHumanSide,
@@ -420,21 +354,9 @@ export namespace stagger {
     // (`staggerShift`).
     const residuals: () => IAutoMovieVector3[] = (): IAutoMovieVector3[] =>
       samples.map((seconds: number, i: number): IAutoMovieVector3 => {
-        const shown: IAutoMovieVector3 = lend(
+        const shown: IAutoMovieVector3 = resolved.centre(
           i,
-          (
-            evaluation: IAutoMovieMotionHumanEvaluation | undefined,
-          ): IAutoMovieVector3 =>
-            resolved.centre(
-              i,
-              composed.posture(
-                seconds,
-                undefined,
-                undefined,
-                undefined,
-                evaluation,
-              ),
-            ),
+          composed.posture(seconds),
         );
         const travel: IAutoMovieVector3 = recovery.course(seconds);
         return {

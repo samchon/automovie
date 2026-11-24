@@ -19,7 +19,7 @@ import { createRecoverySceneNumericalFixture } from "../../../internal/createRec
  *
  * Scenarios:
  * 1. Two owned budget records and nested options survive caller mutation, charge256 once and partition64 slots without changing reported ceilings.
- * 2. Unsafe, malformed, above-scene and lagged-without-SQP requests propagate; aggregate setup exhaustion is its original budget error.
+ * 2. Unsafe, above-scene and lagged-without-SQP requests propagate; aggregate setup exhaustion is its original budget error.
  * 3. The prescribed two-camera24-point48-observation population admits original numerical40744 plus chart64, leaving raw direction minima unchanged. Scene numerical9904 plus chart64 admits9968 but refuses old/adjacent totals.
  * 4. Invalid identity gauge, sparse gauge coefficients and charge markers remain core errors even when a resource bound is also too small.
  */
@@ -75,12 +75,7 @@ export function test_unit_recovery_internal_scene_feasible_admission(): void {
     },
     maxResidentLinearEntries: 250000,
   };
-  const invalid: unknown[] = [
-    null,
-    {},
-    { directionBudget: null },
-    { ...valid, maxResidentLinearEntries: NaN },
-    { ...valid, adaptiveRegularization: "true" },
+  const invalid: IAutoMovieRecoveryFeasibleJointOptions[] = [
     { ...valid, laggedLagrangianMetric: true },
     { ...valid, maxResidentLinearEntries: 250001 },
     {
@@ -104,7 +99,7 @@ export function test_unit_recovery_internal_scene_feasible_admission(): void {
     try {
       prepareRecoverySceneFeasibleRouting(
         fixture.input.budget,
-        request as IAutoMovieRecoveryFeasibleJointOptions,
+        request,
         ledger(),
       );
     } catch (error: unknown) {

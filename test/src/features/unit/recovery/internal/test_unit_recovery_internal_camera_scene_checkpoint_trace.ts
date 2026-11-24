@@ -129,30 +129,11 @@ export function test_unit_recovery_internal_camera_scene_checkpoint_trace(): voi
         if (event.joint) event.joint.finalCost = 1e10;
       },
     );
-  const equivalent: (first: unknown, second: unknown) => boolean = (
-    first: unknown,
-    second: unknown,
-  ): boolean => {
-    if (typeof first === "number" && typeof second === "number")
-      return nclose(first, second, 0);
-    if (
-      first === null ||
-      second === null ||
-      typeof first !== "object" ||
-      typeof second !== "object"
-    )
-      return first === second;
-    const a: Record<string, unknown> = first as Record<string, unknown>;
-    const b: Record<string, unknown> = second as Record<string, unknown>;
-    const keys: string[] = Object.keys(a);
-    return (
-      keys.length === Object.keys(b).length &&
-      keys.every(
-        (key: string): boolean =>
-          Object.hasOwn(b, key) && equivalent(a[key], b[key]),
-      )
-    );
-  };
+  // Plain data records compare by their JSON text: same keys, same values.
+  const equivalent: (first: object, second: object) => boolean = (
+    first: object,
+    second: object,
+  ): boolean => JSON.stringify(first) === JSON.stringify(second);
   TestValidator.predicate(
     "observer preserves every result and consumed work",
     equivalent(ordinary, observed) && equivalent(ordinaryWork, observedWork),
