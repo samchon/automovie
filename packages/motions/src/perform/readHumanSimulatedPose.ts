@@ -59,12 +59,12 @@ import type {
  * lines 365-372 at eabb9a63d4bc70cd87e50d6af152f841ea549972, MIT, "Copyright
  * (c) 2014-present Godot Engine contributors"): the welded bones meet the
  * kinematic pose at both ends of the window with no step, and inside it they
- * may differ from the colliders the solver welded at the window's first pose by
- * the articulation the plan gives them since. Positions follow the rotations
- * through the rig's rest translations; the solver's joint drift, within its
- * contact tolerance, is not displayed, so a displayed distal end may lie off
- * its solved collider by the drift the reduced readout drops. A pose with no
- * owned bone is returned as given.
+ * may differ from the colliders the solver welded at the neutral pose by the
+ * articulation the plan gives them. Positions follow the rotations through the
+ * rig's rest translations; the solver's joint drift, within its contact
+ * tolerance, is not displayed, so a displayed distal end may lie off its solved
+ * collider by the drift the reduced readout drops. A pose with no owned bone is
+ * returned as given.
  *
  * @param body The performer's body, the rig the pose articulates.
  * @param codec The rig's joint codec, built with the body's joint axes and the
