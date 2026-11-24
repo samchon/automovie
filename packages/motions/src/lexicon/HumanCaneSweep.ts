@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionPropHold,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -29,19 +30,36 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
 
-/** How far beyond the body's widest part the tip touches, metres: about an inch (Kim, Wall Emerson and Naghshineh 2017, the arc about one inch beyond the widest part of the body). */
+/**
+ * How far beyond the body's widest part the tip touches, metres: about an inch
+ * (Kim, Wall Emerson and Naghshineh 2017, the arc about one inch beyond the
+ * widest part of the body).
+ */
 const BEYOND: number = 0.025;
 
-/** The most the tip rises between touches, metres: no more than an inch above the ground (APH, Orientation and mobility, the two-point touch). */
+/**
+ * The most the tip rises between touches, metres: no more than an inch above
+ * the ground (APH, Orientation and mobility, the two-point touch).
+ */
 const LIFT: number = 0.025;
 
-/** How far ahead of the hips the cane hand is held, as a share of the forearm (provisional: the arm reached forward at the midline, the elbow a little bent). */
+/**
+ * How far ahead of the hips the cane hand is held, as a share of the forearm
+ * (provisional: the arm reached forward at the midline, the elbow a little
+ * bent).
+ */
 const AHEAD: number = 0.8;
 
-/** The rate the walk's steps are read at, per second: two 60 Hz frames resolve a landing. */
+/**
+ * The rate the walk's steps are read at, per second: two 60 Hz frames resolve a
+ * landing.
+ */
 const RATE: number = 60;
 
-/** How far before its span ends the arm leaves the cane pose, seconds (provisional: a short return). */
+/**
+ * How far before its span ends the arm leaves the cane pose, seconds
+ * (provisional: a short return).
+ */
 const RETURN: number = 0.3;
 
 /** How long the arm takes to the cane pose, seconds (provisional: a reach). */
@@ -57,27 +75,28 @@ interface ITouch {
 }
 
 /**
- * Sweep a long cane while walking, performed over the walk. The
- * cane hand is held at the midline, `AHEAD` of the forearm before the hips
- * at the waist's height (the hand's place in the walker's moving frame).
- * The walk's own steps are read from its posture at `RATE`: each instant a
- * leg's goal becomes planted while the hand holds the cane pose (after the
- * `REACH` to it and before the `RETURN` from it) is a landing, and at each
- * landing the tip
- * touches the floor on the opposite side, `BEYOND` outside the body's
- * widest part (the shoulder and the upper arm), as the two-point touch
- * places it. Between two touches the tip crosses on a minimum-jerk share,
- * lifted at most `LIFT` (two-point) or sliding on the floor (constant
- * contact); before the first touch and after the last it rests on that
- * touch's place. At every second the tip's reach ahead is solved so the
- * cane's grip-to-tip length spans from the hand to the tip, and the cane's
- * shaft points from the tip to the hand; the hand that holds it is placed
- * for that frame (`HumanWornItem.holding`) and laid as one course
- * (`courseArmGoal`), under a grip window on the cane that keeps it in the
- * hand and a hold that leaves it there. Events: `touch<n>`. A cane too short to reach the
- * floor ahead, or a walk with no landing in the span, is refused.
+ * Sweep a long cane while walking, performed over the walk. The cane hand is
+ * held at the midline, `AHEAD` of the forearm before the hips at the waist's
+ * height (the hand's place in the walker's moving frame). The walk's own steps
+ * are read from its posture at `RATE`: each instant a leg's goal becomes
+ * planted while the hand holds the cane pose (after the `REACH` to it and
+ * before the `RETURN` from it) is a landing, and at each landing the tip
+ * touches the floor on the opposite side, `BEYOND` outside the body's widest
+ * part (the shoulder and the upper arm), as the two-point touch places it.
+ * Between two touches the tip crosses on a minimum-jerk share, lifted at most
+ * `LIFT` (two-point) or sliding on the floor (constant contact); before the
+ * first touch and after the last it rests on that touch's place. At every
+ * second the tip's reach ahead is solved so the cane's grip-to-tip length spans
+ * from the hand to the tip, and the cane's shaft points from the tip to the
+ * hand; the hand that holds it is placed for that frame
+ * (`HumanWornItem.holding`) and laid as one course (`courseArmGoal`), under a
+ * grip window on the cane that keeps it in the hand and a hold that leaves it
+ * there; the hand it drives keeps that hold's grip, the fingers it held the
+ * cane with as the sweep was entered. Each touch is a waypoint of the arm's
+ * course (`courseArmGoal.knotted`). Events: `touch<n>`. A cane too short to
+ * reach the floor ahead, or a walk with no landing in the span, is refused.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the hand's place, how steps are read, the touch rule, the crossing, the cane's frame, the course, the events and the refusals.
+ * @evidence contracts/development/common.md#meaningful-documentation States the hand's place, how steps are read, the touch rule, the crossing, the cane's frame, the course with its touch waypoints, the hold's grip the driven hand keeps, the events and the refusals.
  * @evidence contracts/development/design.md#principled-representation The cane's rigid frame between the midline hand and the tip's touch place is the plan; the hand follows from it.
  * @evidence contracts/development/design.md#minimal-and-owned-surface Adds the touch schedule and the cane's frame; the walk, the held offset and the course are their owners'.
  * @evidence contracts/development/design.md#prohibited-design-shortcuts The steps are the walk's own; the widths are the body's measure.
@@ -225,12 +244,25 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
 
       const duration: number = p.duration;
       const limb: courseArmGoal.Limb = side === "left" ? "leftArm" : "rightArm";
+
       const channels: readonly AutoMovieMotionHumanChannel[] = [
         limb,
         side === "left" ? "leftHand" : "rightHand",
       ];
       const under: IAutoMovieMotionHumanActionPlan =
         AutoMovieMotionHumanBase.under(context, duration);
+
+      // The sweep takes the hold of the cane over for its span, so the hand
+      // it drives shows that hold's grip, the fingers the hand held the cane
+      // with as the sweep was entered: a held object's hand keeps its grip
+      // across actions (contacts.md, "Held objects"), as the violin's bow
+      // hand writes its hold's fingers (`bowViolin`). The carrier's own
+      // fingers would open the grip as the overlay comes in.
+      const hold: IAutoMovieMotionPropHold = AutoMovieMotionHumanHeld.hold(
+        context,
+        held,
+      );
+      const grip: IAutoMovieMotionHumanPosture["joints"] = hold.fingers ?? {};
 
       // The held hand is driven only under a grip on its prop, which keeps
       // the cane in it through the sweep and leaves it held after.
@@ -243,7 +275,7 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
           }),
         ),
         contacts: [...under.contacts, AutoMovieMotionHumanHeld.grip(held)],
-        holds: [AutoMovieMotionHumanHeld.hold(context, held)],
+        holds: [hold],
         channels,
         enteredChannels: channels,
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
@@ -258,6 +290,7 @@ export const HumanCaneSweep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
             );
           return {
             ...base,
+            joints: { ...base.joints, ...grip },
             limbs: {
               ...base.limbs,
               [limb]: {
