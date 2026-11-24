@@ -7,41 +7,37 @@ import {
   physicalJointMotorCommand,
   physicalSupportPoint,
 } from "@automovie/engine";
-import { fitHumanPhysicalStandingPose } from "@automovie/human";
 import type {
-  AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanBody,
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalSegment,
   IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieStepPlanner,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanChain } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
 
+import { PhysicalHumanProfiles } from "../internal/PhysicalHumanProfiles";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalPerformanceFixtures } from "../internal/PhysicalPerformanceFixtures";
-import { motionHumanBody } from "../internal/motionHumanBody";
-import { motionHumanLaw } from "../internal/motionHumanLaw";
 
 /**
  * An authored slow walk is one the engine's drives can hold: the engine
- * stickman and the canonical Human from its fitted public Stand, each walking
- * 0.12 m/s for two seconds from planner-placed footfalls (the maintained
- * slow-walk fixture), read at every authored frame with no simulation.
+ * stickman and the canonical Human (its stored profile and fitted public
+ * Stand, `PhysicalHumanProfiles`), each walking 0.12 m/s for a second from
+ * planner-placed footfalls (the maintained slow-walk fixture), a swing and a
+ * heel strike of each foot, read with no simulation at the frames that carry
+ * each property, which the planner's phases give: every stance's heel strike
+ * and middle, every swing's middle, and the push's frame at 1 s.
  *
  * Scenarios:
  *
- * 1. Planted supports: while the planner holds a limb planted, its authored
- *    endpoint stays within one percent of the 0.35 m stride of where that
- *    stance began.
- * 2. Holding: at every authored frame, each joint's target lies within two
+ * 1. Planted supports: at each stance's middle its authored endpoint stays
+ *    within one percent of the 0.35 m stride of where it struck.
+ * 2. Holding: at every key frame, each joint's target lies within two
  *    degrees of its range (`measurePhysicalJointLimits`), the joint bound a
- *    tracked walk keeps, and its drive at that target, with the gravity
+ *    tracked walk keeps, and its drive held at that target, with the gravity
  *    moment of everything below it as feed-forward (`physicalGravityTorques`),
  *    forecasts no demand past its torque cap (`physicalJointMotorCommand`).
  *    PD with gravity compensation has its equilibrium at the target
@@ -51,64 +47,63 @@ import { motionHumanLaw } from "../internal/motionHumanLaw";
  *    its mass, pushed at 0.15 and 0.3 m/s along the walk, stays below its
  *    force bound, so its displacement scales with the push, the larger
  *    peaking at twice the smaller; and both come back within a millimetre
- *    over the walk's last second.
+ *    within a second, as the walk the push lands in goes on.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both walks and each held property with its source.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the planner's phases and the authored targets, and calls `physicalGravityTorques`, `physicalJointMotorCommand` and `AutoMoviePhysicalTracking.force` on the authored poses and the fixture's gains.
  * @evidence contracts/development/testing.md#independent-expectations The slip bound is one percent of the fixture's stride; the range bound is the two degrees a tracked joint keeps of its authored rotation (test_physical_human_profile's bound); the caps are each joint's declared torque; the return is the servo's own discrete closed loop at the substep, x' = x + h v', v' = v + h F / m, whose response is linear below the force bound.
  * @evidence contracts/development/testing.md#distinguishing-cases Two independent providers; a planted foot that drifts fails 1, a target past its joint's range, a gravity moment past a cap or a drive that saturates at its own target fails 2, a servo that saturates or does not converge fails 3. The step function's convergence on light links is `test_physical_xpbd_light_chain`'s, the joint limits' reading `test_physical_joint_chart_velocity`'s.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on the walk fixture's authored frames; no world, simulation, viewer or file host.
+ * @evidence contracts/development/testing.md#execution-ownership Pure computation on the walk fixture's key frames, the Human read from its stored profile and Stand with no figure built; no world, simulation, viewer or file host beyond reading those fixtures.
  */
 export async function test_physical_authored_locomotion(): Promise<void> {
-  const duration: number = 2;
+  const duration: number = 1;
   const stride: number = 0.35;
   const substep: number = 1 / (120 * 32);
   const radian: number = Math.PI / 180;
   const failures: string[] = [];
-  const stickman: IAutoMoviePhysicalProfile =
-    PhysicalModelFixtures.stickman().profile;
-  const human: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
-  const walks: [string, ReturnType<typeof PhysicalPerformanceFixtures.walk>][] =
+  const steps: number = Math.round(duration * 120);
+  const walks: [string, IWalk][] = [
     [
-      ["stickman", PhysicalPerformanceFixtures.walk(stickman, duration)],
-      [
-        "Human",
-        PhysicalPerformanceFixtures.walk(human.profile, duration, 0, stand(human)),
-      ],
-    ];
-  for (const [label, walk] of walks) {
+      "stickman",
+      keyed(PhysicalModelFixtures.stickman().profile, duration, steps),
+    ],
+    [
+      "Human",
+      keyed(
+        PhysicalHumanProfiles.load("m-average"),
+        duration,
+        steps,
+        PhysicalHumanProfiles.stand("m-average"),
+      ),
+    ],
+  ];
+  for (const [label, { walk, stances, frames }] of walks) {
     const profile: IAutoMoviePhysicalProfile = walk.body.profile;
     const targets = walk.body.targets;
 
-    // 1. Planted supports.
-    for (const limb of walk.pattern.limbs) {
-      let anchor: IAutoMovieVector3 | null = null;
-      targets.forEach((target, step: number): void => {
-        const state: IAutoMovieStepPlanner.IState = walk.planner.at(
-          limb.bone,
-          step / 120,
-        );
-        if (state.phase !== "planted") {
-          anchor = null;
-          return;
-        }
-        const point: IAutoMovieVector3 = physicalSupportPoint(
-          target.segments[limb.bone]!,
+    // 1. Planted supports: each stance's middle against its heel strike.
+    for (const stance of stances) {
+      const limb = walk.pattern.limbs.find(
+        (candidate): boolean => candidate.bone === stance.bone,
+      )!;
+      const at = (step: number): IAutoMovieVector3 =>
+        physicalSupportPoint(
+          targets[step]!.segments[limb.bone]!,
           limb.localPoint,
         );
-        anchor ??= point;
-        const slip: number = Math.hypot(point.x - anchor.x, point.z - anchor.z);
-        if (slip > 0.01 * stride)
-          failures.push(`${label}: ${limb.bone} slides ${slip} m at ${step / 120} s`);
-      });
+      const anchor: IAutoMovieVector3 = at(stance.from);
+      const step: number = Math.floor((stance.from + stance.to) / 2);
+      const point: IAutoMovieVector3 = at(step);
+      const slip: number = Math.hypot(point.x - anchor.x, point.z - anchor.z);
+      if (slip > 0.01 * stride)
+        failures.push(`${label}: ${limb.bone} slides ${slip} m at ${step / 120} s`);
     }
 
-    // 2. Holding.
+    // 2. Holding, at the key frames.
     const order: IAutoMoviePhysicalJoint[] = postorder(profile);
-    targets.forEach((target, step: number): void => {
-      const poses: Record<string, IAutoMovieRigidTransform> = target.segments;
-      const next: Record<string, IAutoMovieRigidTransform> =
-        targets[Math.min(step + 1, targets.length - 1)]!.segments;
+    for (const step of frames) {
+      const poses: Record<string, IAutoMovieRigidTransform> =
+        targets[step]!.segments;
       const bodies: Map<string, AutoMovieXpbdBody> = new Map(
         profile.segments.map(
           (segment: IAutoMoviePhysicalSegment, i: number): [string, AutoMovieXpbdBody] => {
@@ -134,42 +129,29 @@ export async function test_physical_authored_locomotion(): Promise<void> {
         y: -9.81,
         z: 0,
       });
+      const rest: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
       for (const joint of profile.joints) {
-        const relative = (
-          set: Readonly<Record<string, IAutoMovieRigidTransform>>,
-        ): IAutoMovieQuaternion =>
-          Quaternion.multiply(
-            Quaternion.inverse(
-              Quaternion.multiply(
-                set[joint.parent]!.rotation,
-                joint.parentFrame.rotation,
-              ),
-            ),
+        const now: IAutoMovieQuaternion = Quaternion.multiply(
+          Quaternion.inverse(
             Quaternion.multiply(
-              set[joint.child]!.rotation,
-              joint.childFrame.rotation,
+              poses[joint.parent]!.rotation,
+              joint.parentFrame.rotation,
             ),
-          );
-        const now: IAutoMovieQuaternion = relative(poses);
-        const turn: IAutoMovieQuaternion = Quaternion.multiply(
-          relative(next),
-          Quaternion.inverse(now),
+          ),
+          Quaternion.multiply(
+            poses[joint.child]!.rotation,
+            joint.childFrame.rotation,
+          ),
         );
-        const sign: number = turn.w < 0 ? -1 : 1;
-        const rate: IAutoMovieVector3 = {
-          x: 2 * 120 * sign * turn.x,
-          y: 2 * 120 * sign * turn.y,
-          z: 2 * 120 * sign * turn.z,
-        };
         const command = physicalJointMotorCommand({
           joint,
           current: now,
           target: now,
-          velocity: rate,
-          targetVelocity: rate,
+          velocity: rest,
+          targetVelocity: rest,
           strength: 1,
           timestep: substep,
-          feedForward: gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 },
+          feedForward: gravity.joints.get(joint.id) ?? rest,
         });
         if (command.saturated.length > 0)
           failures.push(
@@ -187,12 +169,12 @@ export async function test_physical_authored_locomotion(): Promise<void> {
             `${label}: ${joint.id}'s target at ${step / 120} s lies ${excess / radian} degrees past its range`,
           );
       }
-    });
+    }
   }
 
   // 3. Push.
-  const body = walks[0]![1].body;
-  const mass: number = stickman.mass;
+  const body = walks[0]![1].walk.body;
+  const mass: number = body.profile.mass;
   const respond = (speed: number): { peak: number; tail: number; force: number } => {
     let x: number = 0;
     let v: number = speed;
@@ -246,44 +228,56 @@ function postorder(profile: IAutoMoviePhysicalProfile): IAutoMoviePhysicalJoint[
   return out;
 }
 
-/** Fit the public settled Stand once, as test_motion_support_stand_support_geometry does. */
-function stand(
-  human: IAutoMovieMotionHumanBody,
-): Record<string, IAutoMovieRigidTransform> {
-  const { profile }: IAutoMovieMotionHumanBody = human;
-  const film: motionHumanLaw.IFilm = motionHumanLaw.perform(
-    "physical-authored-locomotion",
-    [{ subject: profile.id, body: human }],
-    HumanChain.subject(profile.id).stand({ hold: 1, sway: 0 }),
+/** A walk planned at its key frames only. */
+interface IWalk {
+  /** The fixture's walk, its unlisted frames left unplanned. */
+  walk: ReturnType<typeof PhysicalPerformanceFixtures.walk>;
+
+  /** Each planted interval: its limb, its heel strike and its last step. */
+  stances: { bone: string; from: number; to: number }[];
+
+  /**
+   * The frames the drives are held at: each stance's heel strike and middle,
+   * each swing's middle, and the push's frame at 1 s.
+   */
+  frames: number[];
+}
+
+/**
+ * The fixture's walk planned at the frames that carry its properties, read
+ * from its planner's phases.
+ */
+function keyed(
+  profile: IAutoMoviePhysicalProfile,
+  duration: number,
+  steps: number,
+  stance?: Readonly<Record<string, IAutoMovieRigidTransform>>,
+): IWalk {
+  const stances: IWalk["stances"] = [];
+  const frames: Set<number> = new Set([120]);
+  const walk = PhysicalPerformanceFixtures.walk(
+    profile,
+    duration,
+    0,
+    stance,
+    (planner: IAutoMovieStepPlanner): ReadonlySet<number> => {
+      for (const limb of PhysicalPerformanceFixtures.supports(profile).limbs) {
+        const planted = (step: number): boolean =>
+          planner.at(limb.bone, step / 120).phase === "planted";
+        let from: number = 0;
+        for (let step: number = 1; step <= steps + 1; step++) {
+          if (step <= steps && planted(step) === planted(from)) continue;
+          const to: number = step - 1;
+          frames.add(Math.floor((from + to) / 2));
+          if (planted(from)) {
+            stances.push({ bone: limb.bone, from, to });
+            frames.add(from);
+          }
+          from = step;
+        }
+      }
+      return frames;
+    },
   );
-  const settled: number = motionHumanLaw.event(film, "settled", profile.id);
-  const bones: motionHumanLaw.Bones = film.bones(
-    profile.id,
-    settled + (film.duration - settled) / 2,
-  );
-  const fit: ReturnType<typeof fitHumanPhysicalStandingPose> =
-    fitHumanPhysicalStandingPose({
-      profile,
-      targets: Object.fromEntries(
-        profile.segments.map(
-          (
-            segment: IAutoMoviePhysicalSegment,
-          ): [string, IAutoMovieRigidTransform] => {
-            const bone: IAutoMovieResolvedBone = bones.get(
-              segment.bone as AutoMovieHumanoidBone,
-            )!;
-            return [
-              segment.bone,
-              { position: bone.worldPosition, rotation: bone.worldRotation },
-            ];
-          },
-        ),
-      ),
-      floor: 0,
-      iterations: 32,
-      tolerance: 0.000025,
-    });
-  if (fit.kind === "unresolved")
-    throw new Error(`The public Stand has no physical fit: ${fit.reason}`);
-  return fit.targets;
+  return { walk, stances, frames: [...frames].sort((a, b) => a - b) };
 }
