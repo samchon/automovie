@@ -6,7 +6,7 @@ Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid a
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Owns one model graph plus semantic bone/part registries, one skeleton per ordered joint list, material variants by definition id with vertex-color/relief/skinning-method flags and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
+Owns one model graph plus semantic bone/part registries, one skeleton per ordered joint list, material variants by definition id with vertex-color/relief/skinning-method flags (a worn definition takes one material per part, since its edge texture belongs to that geometry) and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -26,4 +26,4 @@ Shares skeletons only inside this build when ordered joint identifiers match, be
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Registers created geometry/material/shadow material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.
+Registers created geometry/material/shadow material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. A worn part's edge texture is read only through its own material's program, so it is released by that material's `dispose` event. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.

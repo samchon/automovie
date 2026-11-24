@@ -14,4 +14,4 @@ No subject kind or host is named; that the raster is whole and positive and `fra
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the producers, the transport, and each member's unit and meaning.
+States the producers, the transport, and each member's unit and meaning, including the transparent background, how a subject's optics, glare, medium and fades keep its alpha, and the passes it is refused for.

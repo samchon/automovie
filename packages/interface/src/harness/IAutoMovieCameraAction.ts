@@ -10,7 +10,8 @@ import type { IAutoMovieActionTarget } from "./IAutoMovieActionTarget";
  * `performShot` requires the `actor` to be exactly one staged camera and allows
  * one live camera per shot. Its moves may not share a start or overlap; an
  * `"auto"` duration runs until the next move starts, or to the shot end. The
- * `on` target and any `focus` must resolve to a point (node, live bone, point, or group), with formation groups allowed for lens targets.
+ * `on` target and any `focus` must resolve to a point (node, live bone, point,
+ * or group), with formation groups allowed for lens targets.
  * `compileCameraMove` owns the path each `move` takes.
  */
 export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
@@ -24,11 +25,11 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
   move: "static" | "follow" | "orbit" | "push-in" | "truck" | "whip";
 
   /**
-   * Finite nonnegative seconds of aim lookahead for a `"follow"` move.
-   * At a camera key, translation follows the subject's current position and
-   * rotation aims at the subject this far ahead, capped at the shot end.
-   * Omission or zero aims at the current position. The frame action gate
-   * rejects this field on other moves.
+   * Finite nonnegative seconds of aim lookahead for a `"follow"` move. At a
+   * camera key, translation follows the subject's current position and rotation
+   * aims at the subject this far ahead, capped at the shot end. Omission or
+   * zero aims at the current position. The frame action gate rejects this field
+   * on other moves.
    *
    * @see https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineRotationComposer.html
    */
@@ -46,8 +47,8 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
 
   /**
    * Timed focus pull from the explicit `focus` subject to another lens subject.
-   * The frame action's interval contains both marks. A downstream host can
-   * read these lens marks independently of the camera path.
+   * The frame action's interval contains both marks. A downstream host can read
+   * these lens marks independently of the camera path.
    */
   focusPull?: {
     /** Finite seconds from the frame action's start, at least zero. */
@@ -64,8 +65,18 @@ export interface IAutoMovieCameraAction extends IAutoMovieActionBase {
    * Lens intent in millimetres, full-frame equivalent (24 wide, 50 normal, 85
    * portrait), finite and `> 0`. Structural intent only: it is copied into
    * `shot.cameraIntent`, while the scene camera's `fovY` stays the geometric
-   * truth and the solve never reads it. Omit when the lens is not a
-   * directorial choice.
+   * truth and the solve never reads it. Omit when the lens is not a directorial
+   * choice.
    */
   focalLength?: number;
+
+  /**
+   * The lens stop, the f-number, finite and `> 0`: how a cinematographer states
+   * how much falls out of focus. Copied into `shot.cameraIntent`, where
+   * `resolveAutoMovieLensAt` turns it and the lens subject into the depth of
+   * field a directly rendered film draws. The blur's aperture is the camera's
+   * actual field of view's full-frame focal length divided by this stop, not
+   * `focalLength`. Omit for a frame drawn sharp at every depth.
+   */
+  fNumber?: number;
 }

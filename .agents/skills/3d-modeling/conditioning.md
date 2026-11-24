@@ -51,7 +51,7 @@ Correct a texture's baked light and shadow only where it shows wrong in the rend
 
 ### Reduction
 
-Reduce the mesh for its closest required view. Merge duplicate vertices without losing texture seams. Reduce before rigging so weights bind to the final vertices.
+Reduce the mesh for its closest required view, keeping the [detail levels](crafting/construction.md#detail-levels) that view resolves. Merge duplicate vertices without losing texture seams. Reduce before rigging so weights bind to the final vertices.
 
 Reduce any other cost only when [measurement](../visual-debugging/rendering-cost.md) shows it limits the render:
 
@@ -81,6 +81,8 @@ What the parameter changes decides whether the mesh can stay:
 Hand a change of bone lengths to [motion](../motion/SKILL.md). The generating definition comes from [Crafting](crafting/SKILL.md), or from [mesh recovery](crafting/recovery.md) with the mesh as its source.
 
 A few fixed variants need no parameter: generate or fetch each as its own frozen source, accepting that their shared features will not match exactly.
+
+Test a form that varies through bands at their ends, as [construction tests](crafting/construction.md#tests) set.
 
 ## Final check
 

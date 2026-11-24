@@ -14,14 +14,27 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
 import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
- * Gate every action of a beat's performance against the staged world and sort the list into the plan the later stages of `performShot` read.
+ * Gate every action of a beat's performance against the staged world and sort
+ * the list into the plan the later stages of `performShot` read.
  *
  * Each action, at `<base>[i]`, is checked for:
  *
- * - its actor: a non-blank id or a non-empty list of distinct ids, each a staged node or camera, and a camera only for a `frame` action;
- * - its timing: a start inside `[0, duration]`, a positive finite duration or `"auto"`, a span inside the shot, an `"auto"` span that is not empty because it starts at the shot's end, and a positive integer `repeat`.
+ * - Its actor: a non-blank id or a non-empty list of distinct ids, each a staged
+ *   node or camera, and a camera only for a `frame` action;
+ * - Its timing: a start inside `[0, duration]`, a positive finite duration or
+ *   `"auto"`, a span inside the shot, an `"auto"` span that is not empty
+ *   because it starts at the shot's end, and a positive integer `repeat`.
  *
- * A `frame` action must also state a usable framing and move, name exactly one staged camera, and frame a subject that resolves. Only a follow move admits finite nonnegative aim lookahead seconds. Ordinary focus and focal length are gated as lens intents. Timed focus pulls resolve after object motion is available. The first camera a `frame` action names becomes the live camera, and a second camera is refused, because a take has one live camera. Every other action joins the stage list and is gated by {@link gatePerformShotStageAction}. Violations go into the context's collector; the plan can still contain actions with violations. performShot consumes it only after the collector is clean.
+ * A `frame` action must also state a usable framing and move, name exactly one
+ * staged camera, and frame a subject that resolves. Only a follow move admits
+ * finite nonnegative aim lookahead seconds. Ordinary focus and focal length are
+ * gated as lens intents. Timed focus pulls resolve after object motion is
+ * available. The first camera a `frame` action names becomes the live camera,
+ * and a second camera is refused, because a take has one live camera. Every
+ * other action joins the stage list and is gated by
+ * {@link gatePerformShotStageAction}. Violations go into the context's
+ * collector; the plan can still contain actions with violations. performShot
+ * consumes it only after the collector is clean.
  *
  * @param context The shot's staged tables and collector.
  * @param actions The performing action list, the revise pass's when present.
@@ -97,6 +110,16 @@ export function gatePerformShotActions(
         `${path}.focalLength`,
         `a focal length must be a finite number > 0 mm, but was ${describeInvalidValue(action.focalLength)}`,
         action.focalLength,
+      );
+    if (
+      action.fNumber !== undefined &&
+      (!Number.isFinite(action.fNumber) || !(action.fNumber > 0))
+    )
+      context.out.push(
+        "range",
+        `${path}.fNumber`,
+        `a lens stop must be a finite f-number > 0, but was ${describeInvalidValue(action.fNumber)}`,
+        action.fNumber,
       );
     if (typeof action.actor !== "string")
       context.out.push(

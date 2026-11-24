@@ -38,9 +38,13 @@ pnpm exec automovie capture --file media/automovie/<film>/videos/film.mp4 --from
 
 ## Render and playback
 
-`pnpm run render --subject <film>` runs `automovie render --module src/subjects.ts`, and `--subject` may be omitted while only one film exists. It draws every frame in the browser `pnpm run review:setup` installs, through the capture's draw function, and encodes them once, picture only, with no server running. `CHROME_PATH` selects another browser and `FFMPEG_PATH` another FFmpeg.
+`pnpm run render --subject <film>` runs `automovie render --module src/subjects.ts`, and `--subject` may be omitted while only one film exists. It draws every frame in the browser `pnpm run review:setup` installs, through the capture's draw function, and encodes them once with no server running. When the production declares a film's [`sound`]({{skills}}/audio/soundtrack.md#sound-list), the render mixes its lines and cues into the film's soundtrack and encodes it with the picture. A soundtrack supplied as `delivery.audio.path` is encoded as given. `CHROME_PATH` selects another browser and `FFMPEG_PATH` another FFmpeg.
 
-The render writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it. Export requires a whole number of frames. The report's hashes describe the drawn frames, and [delivery review]({{skills}}/review/delivery-review.md) judges the film.
+The render writes `media/automovie/<film>/videos/film.mp4`, or into `--out <dir>`, with `render-report.json` beside it. Export requires a whole number of frames. The report's hashes describe the drawn frames and any mixed soundtrack, with each line's PCM digest. [Delivery review]({{skills}}/review/delivery-review.md) judges the film.
+
+`--background transparent` instead draws the beauty pass over a transparent background and wraps the straight-alpha PNG frames, unencoded, into `media/automovie/<film>/transparent/film.mov` with no audio, for compositing in post. It cannot be combined with `--passes`. A film with `optics` keeps its camera response, and its haze adds its own opacity to the layer.
+
+`--passes depth,mask` also draws those guide passes at every frame through the film's camera and writes them, never encoded, into `controls/` beside the film, with `record.json` naming each pass's convention and every frame file's SHA-256. It takes the guide passes other than `beauty`, each once. A blocked or failed render keeps the previous film and `controls/`, so use them only under the [render report check]({{skills}}/production/media-records.md#render-reports).
 
 ## Production diagnostics
 
@@ -61,7 +65,7 @@ A finding has a stable check, key, code and entity paths, a confidence, and a wi
 
 - **Inspector.** A confirmed error draws a red cube at its witness under the `beauty` shade, a possible one an amber cube, and goes to the console once per incident: at its first visit and when its span closes. A span over consecutive frames is frame-exact. A span over uninterrupted playback names only the painted samples, and the film between them is unchecked, so step the frames before trusting its extent. The Diagnostics section lists the incidents. Its buttons pause, move to the first or worst witness and label the finding's drawn entities, so the address and the capture command reproduce it. Unticking "show witnesses" hides the cubes and the status line only. The status line names checks the preview deferred.
 - **Capture.** `record.json` holds the episodes and coverage of the drawn stills.
-- **Render.** `render-report.json` holds the episodes and coverage of every frame. The render also decodes `film.mp4` and compares its black, frozen and silent intervals with the drawn frames and the padded soundtrack it encoded. An interval the encode introduced blocks publication. One the film itself drew blocks only when the film declares `delivery` intent and none of its `allowances` covers it. A confirmed error, or a required check still deferred or unsupported, blocks publication: the command exits non-zero naming the first cursor, keeps the report and leaves the previous `film.mp4` in place.
+- **Render.** `render-report.json` holds the episodes and coverage of every frame. The render also decodes `film.mp4` and compares its black, frozen and silent intervals with the drawn frames and the padded soundtrack it encoded. An interval the encode introduced blocks publication. One the film itself drew blocks only when the film declares `delivery` intent and none of its `allowances` covers it. A decoded soundtrack outside its loudness targets, a file off its declared picture or AAC profile, and a phoneme-driven line outside its [lip-sync limits]({{skills}}/video/direct-film.md#faces-and-speech) also block publication. A confirmed error, or a required check still deferred or unsupported, blocks publication: the command exits non-zero naming the first cursor, keeps the report and leaves the previous `film.mp4` in place.
 
 Repair a blocking finding at the source that placed it, then render again.
 
@@ -115,7 +119,7 @@ Version 1 reconstructs authored Human performance, including its supported prop,
 | `pnpm run build` | Bundle the inspector page |
 | `pnpm run physics <input-module.ts> <output.amphys> [maximum-bytes]` | Precompute an adopted physical performance outside the browser |
 | `pnpm run motion:take save`, `open` or `branch` | Persist, verify or branch a registered Human take |
-| `pnpm run render --subject <film>` | Export one film as a picture-only video |
+| `pnpm run render --subject <film>` | Export one film as a video, with its soundtrack when it has one |
 | `pnpm run review --url <address> --seconds <s>` | Record real-time playback of the running inspector page |
 | `pnpm run capture --subject <film> [request]` | Stills, sheets and a record of a film, with views, passes, marks and round comparison |
 | `pnpm exec automovie capture --file <video> [request]` | Stills of an encoded file's own frames, around its cuts |

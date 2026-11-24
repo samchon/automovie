@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Maps admitted linear PBR coefficients/alpha policy and the glTF anisotropy, sheen, specular and volume parameters (degrees to radians, a declared sheen at intensity one) into MeshPhysicalMaterial and resolves binding-private textures with explicit color-space roles; glTF combined metallic-roughness uses one shared binding, while subsurface/detail/overlay shader features follow their actual producer conventions rather than claiming a measured full spectral material model.
+Maps admitted linear PBR coefficients/alpha policy and the glTF anisotropy, sheen, specular and volume parameters (degrees to radians, a declared sheen at intensity one) into MeshPhysicalMaterial and resolves binding-private textures with explicit color-space roles; glTF combined metallic-roughness uses one shared binding, while subsurface/procedural/detail/overlay shader features follow their actual producer conventions rather than claiming a measured full spectral material model.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

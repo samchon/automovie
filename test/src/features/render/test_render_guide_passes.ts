@@ -14,18 +14,26 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Guide passes make one deterministic frame schedule yield several diffusion-conditioning outputs: the beauty pass keeps the plain frame name so a single-pass render stays byte-compatible with every existing plan, and any other pass tags the filename before the extension, so pass outputs coexist in one frame directory and compose unchanged with chunking (#609).
+ * Guide passes make one deterministic frame schedule yield several
+ * diffusion-conditioning outputs: the beauty pass keeps the plain frame name so
+ * a single-pass render stays byte-compatible with every existing plan, and any
+ * other pass tags the filename before the extension, so pass outputs coexist in
+ * one frame directory and compose unchanged with chunking (#609).
  *
  * Scenarios:
  *
- * 1. The runtime pass list matches the closed union and `isGuidePass` accepts exactly its members.
- * 2. `guidePassFrameName` keeps `beauty` untagged and tags `depth` before the extension; custom extension and padding override the defaults.
+ * 1. The runtime pass list matches the closed union and `isGuidePass` accepts
+ *    exactly its members.
+ * 2. `guidePassFrameName` keeps `beauty` untagged and tags `depth` before the
+ *    extension; custom extension and padding override the defaults.
  * 3. `guidePassFramePattern` mirrors the naming for ffmpeg input patterns.
- * 4. `planGuidePassOutputs` emits per-pass first/last/pattern paths, folding duplicates while preserving first-occurrence order.
- * 5. An unknown pass name and a non-positive frame count are caller bugs and throw.
+ * 4. `planGuidePassOutputs` emits per-pass first/last/pattern paths, folding
+ *    duplicates while preserving first-occurrence order.
+ * 5. An unknown pass name and a non-positive frame count are caller bugs and
+ *    throw.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises runtime pass admission, naming, encoder patterns and output planning, checking recognized modes, first-occurrence deduplication and explicit unknown-name/count refusal.
- * @evidence contracts/development/testing.md#independent-expectations The six declared guide modes and fixed five-digit PNG naming convention determine literal outputs independently of the formatter; beauty remains untagged and guide names precede the media extension. No image rendering or encoder pattern expansion occurs.
+ * @evidence contracts/development/testing.md#independent-expectations The eight declared guide modes and fixed five-digit PNG naming convention determine literal outputs independently of the formatter; beauty remains untagged and guide names precede the media extension. No image rendering or encoder pattern expansion occurs.
  * @evidence contracts/development/testing.md#distinguishing-cases Plain beauty, tagged depth/pose, custom padding/extensions, duplicates, empty requests, unknown modes and zero/fractional counts cover the owned branches; actual capture belongs to the headless adapter tests.
  * @evidence contracts/development/testing.md#execution-ownership The exported test_render_guide_passes owns its cases. Portable value and filename planning with no capture host or dynamic case registry.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The runtime pass list matches the closed union and `isGuidePass` accepts exactly its members.).
@@ -34,7 +42,16 @@ export function test_render_guide_passes(): void {
   TestValidator.equals(
     "closed pass list",
     [...AUTOMOVIE_GUIDE_PASSES],
-    ["beauty", "depth", "mask", "normal", "outline", "pose"],
+    [
+      "beauty",
+      "depth",
+      "mask",
+      "normal",
+      "outline",
+      "pose",
+      "albedo",
+      "graphics",
+    ],
   );
   TestValidator.equals("known pass accepted", isGuidePass("depth"), true);
   TestValidator.equals("unknown pass rejected", isGuidePass("sketch"), false);

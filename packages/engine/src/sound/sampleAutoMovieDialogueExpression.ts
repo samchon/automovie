@@ -1,29 +1,23 @@
 import type {
   IAutoMovieDialogueExpressionLayers,
-  IAutoMovieDialogueMouthRange,
   IAutoMovieSampleDialogueExpression,
 } from "@automovie/interface";
 
+import { sampleAutoMovieDialogueVisemeWeights } from "./sampleAutoMovieDialogueVisemeWeights";
+
 /**
- * Sample one joined emission-clock mouth range beside the unchanged authored expression.
+ * Sample a speaker's coarticulated viseme weights at one frame beside the
+ * unchanged authored expression.
+ *
+ * @param props The joined timeline, the frame, the film rate and the authored
+ *   expression.
+ * @returns The authored layer and the mouth layer's viseme weights.
  */
 export const sampleAutoMovieDialogueExpression: (
   props: IAutoMovieSampleDialogueExpression.IProps,
 ) => IAutoMovieDialogueExpressionLayers = (
   props: IAutoMovieSampleDialogueExpression.IProps,
-): IAutoMovieDialogueExpressionLayers => {
-  if (!Number.isSafeInteger(props.frame) || props.frame < 0)
-    throw new Error("dialogue expression frame must be a non-negative integer");
-  const viseme: IAutoMovieDialogueMouthRange["viseme"] | undefined =
-    props.timeline.ranges.find(
-      (range: IAutoMovieDialogueMouthRange): boolean =>
-        props.frame >= range.startFrame && props.frame < range.endFrame,
-    )?.viseme;
-  return {
-    authored: props.authored,
-    mouth:
-      viseme === undefined || viseme === "rest"
-        ? { preset: "neutral", intensity: 0 }
-        : { preset: viseme, intensity: 1 },
-  };
-};
+): IAutoMovieDialogueExpressionLayers => ({
+  authored: props.authored,
+  mouth: { visemes: sampleAutoMovieDialogueVisemeWeights(props) },
+});

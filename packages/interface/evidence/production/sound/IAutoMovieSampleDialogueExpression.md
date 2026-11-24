@@ -2,34 +2,34 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Sample one joined emission-clock mouth range beside the unchanged authored expression. Member documentation states the supplied records, units and absence meanings used by sampleAutoMovieDialogueExpression.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Authored emotion and receipt-derived mouth motion remain separate inputs; the sampler does not reinterpret film frame as a shot-local or propagation-arrival clock.
+Names the inputs of sampling the dialogue mouth.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-timeline supplies joined actor mouth intervals, frame is film-global and authored is the nullable expression retained beside the sampled mouth range.
+A namespace of the sampling inputs.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-interface owns IAutoMovieSampleDialogueExpression, used by sampleAutoMovieDialogueExpression. Its IProps members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+Interface owns the contract engine's samplers expose.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+No member is declared on the namespace itself.
 
 # src/production/sound/IAutoMovieSampleDialogueExpression.ts#IAutoMovieSampleDialogueExpression.IProps
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Sample one joined emission-clock mouth range beside the unchanged authored expression. Member documentation states the supplied records, units and absence meanings used by sampleAutoMovieDialogueExpression.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Authored emotion and receipt-derived mouth motion remain separate inputs; the sampler does not reinterpret film frame as a shot-local or propagation-arrival clock.
+States the blend, the retained authored expression, the refusals and that frames may be sampled in any order.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-timeline supplies joined actor mouth intervals, frame is film-global and authored is the nullable expression retained beside the sampled mouth range.
+A timeline, a possibly fractional frame and the film rate that converts the coarticulation time constant to frames.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-interface owns IAutoMovieSampleDialogueExpression.IProps, used by sampleAutoMovieDialogueExpression. Its timeline, frame, authored members carry this operation's declared inputs or results; imported domain records keep their existing definitions.
+All four members are read by `sampleAutoMovieDialogueExpression`; the weight sampler reads three.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+No cursor or history is kept, so seeking needs no state.

@@ -1,6 +1,6 @@
 # Finishing
 
-Before [assembly](../production/assembly.md), repair, upscale, conform and match each accepted take in order. Keep derivatives beside the original under [media records](../production/media-records.md#records). Follow [film sound](../audio/film-sound.md) for sound.
+Before [assembly](../production/assembly.md), repair, upscale, conform and match each accepted take in order. Then composite clean renders over the takes or the assembled film. Keep derivatives beside the original under [media records](../production/media-records.md#records). Follow [film sound](../audio/film-sound.md) for sound.
 
 ## Finishing steps
 
@@ -16,8 +16,6 @@ Repair a take that is right except for a local flaw, such as a hand or a failed 
 A dubbing model regenerates the head and body around the mouth, follows the take's camera only approximately and often returns a lower resolution, so recheck identity and contacts after it; [video models](diffusion/models.md#other-roles) shows examples.
 
 Compare untouched frames at matched times and step through the repair boundaries. Re-encoding can affect both.
-
-Composite legible text, signs and logos in post from their own clean render, because models garble lettering.
 
 ### Upscaling
 
@@ -38,6 +36,14 @@ Generate at the model's frame rate, and conform each take to the delivery profil
 Read take color tags. Record one working color space in project context and assign each take's input space before grading. Preserve tags across encoding and account for SDR clipping.
 
 Match neighboring takes in color and exposure by grading, never by regenerating. A shared grain or texture over the film hides their differing sharpness.
+
+### Compositing
+
+Composite legible text, signs, screens and logos in post from their own clean render, because models garble lettering. For surface graphics, flat lettering included, that render is the `graphics` pass of the README render command's `--passes` option. Its RGBA frames carry the graphics' coverage as straight alpha, with whatever stands in front held out. Raised lettering is ordinary geometry and stays out of that pass, so lift it from the beauty pass through its node's mask region.
+
+Unlike the structural passes, the `graphics` pass goes through a transition as the picture does, so composite it over the delivered film frame for frame without cutting it at the transition.
+
+To composite whole 3D subjects over a generated take, render the film over a transparent background with the README render command, which writes a straight-alpha `film.mov` with no audio. Use either render only under the [render report check](../production/media-records.md#render-reports) of its folder.
 
 ## Provenance and disclosure
 

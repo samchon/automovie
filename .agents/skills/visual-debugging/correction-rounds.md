@@ -20,6 +20,6 @@ Fix all causes at their owners in one change. Judge the assembled subject. Coord
 
 Repeat the round and check defects and regressions across parts, views, times, identities, resolutions and states. Account for all findings. Keep the round open while any new or unexplained defect remains.
 
-When a fix is tried over several rounds, keep a round only if nothing got worse than in the best earlier round, and record every remaining failure with its numbers.
+When a fix is tried over several rounds, keep a round only if nothing got worse than in the best earlier round, and record every remaining failure with its numbers. For checker findings, capture the round with `compare` set to the best earlier round. A `worse` finding outcome rejects the round, and an `unmatched` error keeps it from counting as better until a capture checks that error's times. Judge defects that only the stills show by eye under [comparison](comparison.md).
 
 Open the current capture before accepting it.

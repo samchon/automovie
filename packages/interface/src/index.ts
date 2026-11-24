@@ -25,4 +25,5 @@ export type * from "./scene";
 export type * from "./service";
 export type * from "./skeleton";
 export type * from "./soft";
+export type * from "./typography";
 export type * from "./validation";

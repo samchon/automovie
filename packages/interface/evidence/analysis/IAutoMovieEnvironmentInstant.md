@@ -10,8 +10,8 @@ Scalar fields hold declared sun, sky and outdoor air quantities, nullable where 
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No solar position algorithm or weather default exists; an instant without outdoor air temperature makes the envelope study return `not-run` instead of assuming a value, and the unread humidity field is stated as unread.
+The sun stays a declared vector, which `autoMovieSunDirection` computes from `solveAutoMovieSunPosition` so the instant and a staged sun light share one position; no sky model or weather default exists, and an instant without outdoor air temperature makes the envelope study return `not-run` instead of assuming a value, and the unread humidity field is stated as unread.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States why the sun is declared, the units and ranges of every quantity, the horizon rule and its reference, the null meaning of both outdoor fields, and which solver reads which field.
+States that the sun is declared and which functions derive it, that illuminance stays declared, the units and ranges of every quantity, the horizon rule and its reference, the null meaning of both outdoor fields, and which solver reads which field.

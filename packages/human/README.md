@@ -73,8 +73,19 @@ The figure is inspected with AutoMovie's shared instrument. `src/executable/subj
 | `f1/<family>/section/<k>` | The section ring at the family's `k`-th authored knot |
 | `f1/<family>/guide/<q>` | The guide rail at quarter phase `q`, 0 to 3 |
 | `f1/<family>/axis` | The line through the rings' centres |
+| `f1/probe/<name>` | One empty probe, such as `f1/probe/legs` or `f1/probe/finger.index-middle.mirror` |
 
 The construction curves are marks of the kinds `curve/section`, `curve/guide` and `curve/axis`, so `--marks curve/*` draws them over the surface and `--marks curve/* --surface 0` draws them alone, through the same views. The skin is one piece, so a family's surface cannot be drawn apart from the body; select its curves and frame them with `@focus`.
+
+The empty probes are points the skin must leave empty, listed by `AutoMovieHumanEmptyProbes` from the families and cutters: each cutter's course middle, the gap between the legs and the gaps between neighbouring fingers. Each placed probe is one point mark of the first kind that applies:
+
+| Kind | Legend | Meaning |
+| --- | --- | --- |
+| `probe/outside-hull` | probe outside hull, flagged | The probe lies outside the families' convex hull, so it tests open air and must be moved |
+| `probe/filled` | filled probe, flagged | The skin's winding number puts the probe inside the skin or on it |
+| `probe/empty` | empty probe | The skin leaves the probe empty |
+
+Select the probes with `--marks "probe/*"`, which matches whichever kinds the figure supplies; a pattern that matches no kind throws. A probe the law cannot place, such as a finger gap narrower than twice the phase spacing, has no mark and keeps its reason in the listing.
 
 ## Background
 

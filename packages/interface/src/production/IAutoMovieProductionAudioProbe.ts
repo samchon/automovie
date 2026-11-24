@@ -1,8 +1,6 @@
-import type { IAutoMovieProductionOpusDescription } from "./IAutoMovieProductionOpusDescription";
+import type { IAutoMovieProductionAacDescription } from "./IAutoMovieProductionAacDescription";
 
-/**
- * Parser-observed MP4 audio track and presentation facts.
- */
+/** Parser-observed MP4 audio track and presentation facts. */
 export interface IAutoMovieProductionAudioProbe {
   /** Parsed media class. */
   kind: "audio";
@@ -10,7 +8,7 @@ export interface IAutoMovieProductionAudioProbe {
   /** Parsed container family. */
   container: "mp4";
 
-  /** Parsed codec string. */
+  /** Parsed codec string in RFC 6381 form, such as `mp4a.40.2` for AAC-LC. */
   codec: string;
 
   /** Parsed presentation runtime. */
@@ -25,7 +23,10 @@ export interface IAutoMovieProductionAudioProbe {
   /** Parsed packet count. */
   sampleCount: number;
 
-  /** Parsed decoder priming in samples. */
+  /**
+   * Decoder priming in samples: the media time of the track's single edit, or 0
+   * without one.
+   */
   primingSamples: number;
 
   /** Raw movie and media integer clocks. */
@@ -58,6 +59,6 @@ export interface IAutoMovieProductionAudioProbe {
     }>;
   };
 
-  /** Complete parsed codec sample entry. */
-  sampleEntry: IAutoMovieProductionOpusDescription;
+  /** The sample entry's AAC configuration, as its `esds` box declares it. */
+  sampleEntry: IAutoMovieProductionAacDescription;
 }

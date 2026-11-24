@@ -1,4 +1,7 @@
-import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
+import type {
+  IAutoMovieDeliveryContentAudit,
+  IAutoMovieLoudnessMeter,
+} from "@automovie/interface";
 
 import { createAutoMovieDeliveryAudioLog } from "./createAutoMovieDeliveryAudioLog";
 import { createAutoMovieDeliveryAudioScan } from "./createAutoMovieDeliveryAudioScan";
@@ -10,14 +13,19 @@ const MAXIMUM_PENDING_PCM = 1024 * 1024;
 /**
  * Runs one FFmpeg audio decode that writes f32le PCM to stdout and an
  * `ashowinfo` frame log to stderr, and feeds both to the frame log and the
- * silence scan.
+ * silence scan, which also feeds the presented PCM to the loudness meter.
  *
  * @param binary The FFmpeg executable already resolved by the delivery host.
- * @param args Decode arguments whose PCM and frame log describe the same samples.
+ * @param args Decode arguments whose PCM and frame log describe the same
+ *   samples.
  * @param streamIndex The stream index reported with the evidence.
  * @param thresholds The audio silence threshold and minimum duration.
- * @param run The established FFmpeg process owner with separate output consumers.
- * @param presented The container's presented span, or undefined when every decoded sample is presented.
+ * @param run The established FFmpeg process owner with separate output
+ *   consumers.
+ * @param presented The container's presented span, or undefined when every
+ *   decoded sample is presented.
+ * @param meter Creates the render's loudness meter, when the presented PCM's
+ *   loudness and true peak are measured.
  * @returns Audio evidence or a reason decoded content is uncovered.
  */
 export async function decodeAutoMovieDeliveryAudio(
@@ -27,6 +35,7 @@ export async function decodeAutoMovieDeliveryAudio(
   thresholds: IAutoMovieDeliveryContentAudit.IThresholds["silence"],
   run: typeof runAutoMovieFfmpeg,
   presented: { timescale: number; duration: number } | undefined,
+  meter?: (channels: 1 | 2) => IAutoMovieLoudnessMeter,
 ): Promise<IAutoMovieDeliveryContentAudit.Stream> {
   const audioLog = createAutoMovieDeliveryAudioLog();
   let partialLine = "";
@@ -43,6 +52,7 @@ export async function decodeAutoMovieDeliveryAudio(
       format,
       thresholds,
       presented?.duration ?? Number.MAX_SAFE_INTEGER,
+      meter,
     );
     for (const chunk of pending) state.scan.push(chunk);
     pending.length = 0;

@@ -6,7 +6,7 @@ deriveProductionSoundPlan maps trimmed shot events, authored audio cues and capt
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Ordered events, cues and dialogue separate semantic occurrence synthesis, adopted source playback and generated speech; the plan contains references and normalized timing while callers own decoded buffers.
+Ordered events, cues, dialogue and optional room-tone beds separate semantic occurrence synthesis, adopted source playback, generated speech and the seeded noise floor; the plan contains references and normalized timing while callers own decoded buffers.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -14,4 +14,4 @@ Missing shot contracts, compiled source or camera refuse during planning; omitte
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines compile binding, exact frame-rate compatibility, total frame extent, fixed PCM format, optional profile absence and ordered sound populations.
+Defines compile binding, exact frame-rate compatibility, total frame extent, fixed PCM format, optional profile absence, ordered sound populations and the optional room-tone beds.

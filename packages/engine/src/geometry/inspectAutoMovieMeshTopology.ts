@@ -1,19 +1,33 @@
 import {
   IAutoMovieMesh,
   type IAutoMovieMeshTopology,
-  type IAutoMovieResolvedPhysicalVertices,
 } from "@automovie/interface";
 
-import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
-import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
 
 /**
- * Measure a mesh's triangle topology and signed volume from its actual buffers instead of assuming them.
+ * Measure a mesh's triangle topology and signed volume from its actual buffers
+ * instead of assuming them.
  *
- * Without physical source correspondence, vertices weld by position on the `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A mesh that declares physical sources instead keeps their incidence across contact: two different sources stay distinct even where they touch. A triangle whose corners collapse onto fewer than three grid cells is counted degenerate, by ordinal, and contributes no edges in either mode. A closed solid reports `watertight`; an assembly whose members share faces, or a surface meant to stay open, reports its boundary and non-manifold edge counts rather than passing. Non-finite components are counted across positions, normals, UVs, colours and relief weights. Coordinates are metres and the volume, by the divergence theorem, is cubic metres, positive for an outward-wound closed shell.
+ * Without physical source correspondence, vertices weld by position on the
+ * `MESH_WELD_GRID` lattice, so face-local corners can still form one shell. A
+ * mesh that declares physical sources instead keeps their incidence across
+ * contact: two different sources stay distinct even where they touch. A
+ * triangle whose corners collapse onto fewer than three grid cells is counted
+ * degenerate, by ordinal, and contributes no edges in either mode. A closed
+ * solid reports `watertight`; an assembly whose members share faces, or a
+ * surface meant to stay open, reports its boundary and non-manifold edge counts
+ * rather than passing. Non-finite components are counted across positions,
+ * normals, UVs, colours and relief weights. Coordinates are metres and the
+ * volume, by the divergence theorem, is cubic metres, positive for an
+ * outward-wound closed shell.
  *
- * This measures; it does not judge. `validateMeshTopology` is the verdict on the same surface, adding winding consistency and an `expectClosed` declaration, and `validateModel` runs it on every mesh a model carries. A malformed index buffer and invalid physical correspondence throw their own named refusals. The mesh is only read.
+ * This measures; it does not judge. `validateMeshTopology` is the verdict on
+ * the same surface, adding winding consistency and an `expectClosed`
+ * declaration, and `validateModel` runs it on every mesh a model carries. A
+ * malformed index buffer and invalid physical correspondence throw their own
+ * named refusals. The mesh is only read.
  *
  * @param mesh Mesh to measure.
  * @returns Counts, degenerate ordinals, closure and volume.
@@ -29,39 +43,27 @@ export const inspectAutoMovieMeshTopology: (
     countNonFinite(mesh.uvs) +
     countNonFinite(mesh.colors ?? null) +
     countNonFinite(mesh.reliefWeights ?? null);
-  const indices: number[] = triangleIndicesOf(mesh, "mesh topology");
-  const physical: IAutoMovieResolvedPhysicalVertices | undefined =
-    mesh.physicalVertices === undefined
-      ? undefined
-      : resolveAutoMovieMeshPhysicalVertices(mesh);
-  const key: (at: number) => string = (at: number): string =>
-    [0, 1, 2]
-      .map((axis: number): number =>
-        Math.round(mesh.positions[at * 3 + axis]! * MESH_WELD_GRID),
-      )
-      .join(",");
-  const edges: Map<string, number> = new Map();
-  const degenerateTriangles: number[] = [];
+  const {
+    indices,
+    corners,
+    degenerate: degenerateTriangles,
+    identities,
+  }: weldAutoMovieMeshCorners.IResult = weldAutoMovieMeshCorners(
+    mesh,
+    "mesh topology",
+  );
+  const edgeKey: (from: number, to: number) => number | string =
+    createMeshEdgeKey(identities);
+  const edges: Map<number | string, number> = new Map();
   for (let index: number = 0; index < indices.length; index += 3) {
-    const coordinateCorners: string[] = [0, 1, 2].map(
-      (corner: number): string => key(indices[index + corner]!),
-    );
-    if (new Set(coordinateCorners).size < 3) {
-      degenerateTriangles.push(index / 3);
-      continue;
-    }
-    const corners: string[] =
-      physical === undefined
-        ? coordinateCorners
-        : [0, 1, 2].map((corner: number): string =>
-            String(physical.vertices[indices[index + corner]!]),
-          );
+    if (corners[index]! < 0) continue;
     for (let edge: number = 0; edge < 3; ++edge) {
-      // The degenerate skip above leaves three distinct corner keys, so the
-      // two ends of an edge can never compare equal here.
-      const name: string = [corners[edge]!, corners[(edge + 1) % 3]!]
-        .sort((left: string, right: string): number => (left < right ? -1 : 1))
-        .join("|");
+      const from: number = corners[index + edge]!;
+      const to: number = corners[index + ((edge + 1) % 3)]!;
+      const name: number | string = edgeKey(
+        Math.min(from, to),
+        Math.max(from, to),
+      );
       edges.set(name, (edges.get(name) ?? 0) + 1);
     }
   }
@@ -94,7 +96,9 @@ export const inspectAutoMovieMeshTopology: (
 };
 
 /**
- * How many components of one optional attribute buffer are not finite numbers, counted in place so measuring a merged building never allocates a second copy of its buffers.
+ * How many components of one optional attribute buffer are not finite numbers,
+ * counted in place so measuring a merged building never allocates a second copy
+ * of its buffers.
  */
 const countNonFinite: (values: readonly number[] | null) => number = (
   values: readonly number[] | null,

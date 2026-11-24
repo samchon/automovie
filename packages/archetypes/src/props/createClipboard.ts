@@ -6,11 +6,15 @@ import { StationeryDraw } from "./StationeryDraw";
 /**
  * Clipboard with a grip on its near edge and a level writing surface.
  *
- * @param params The optional scene ID and Esselte model.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies outside its admitted recipe.
+ * The near edge lies toward model `+Z` and the clip end toward model `-Z`, so
+ * `face` reads with model `-Z` as its top.
  *
+ * @param params The optional scene ID and Esselte model.
+ * @param seed The seed for the recorded recipe. Without a seed, the draw uses
+ *   the original defaults.
+ * @returns The model with its named contact frames in model space.
+ * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
+ *   outside its admitted recipe.
  * @evidence contracts/development/common.md#meaningful-documentation Clipboard with a grip on its near edge and a level writing surface.
  * @evidence contracts/development/implementation.md#principled-implementation The selected Esselte model supplies the board dimensions and mass. The pinch and face derive from the board.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the saved recipe, then build this prop and its own contacts.
@@ -48,18 +52,17 @@ export function createClipboard(
   return builder.build(d.mass!);
 }
 
-/**
- * The contacts and dimensions of {@link createClipboard}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the contact ids and the dimensions this producer records.
- * @evidence contracts/development/design.md#principled-representation Closed unions of the ids it builds and the dimension keys its draw records; a numbered family keeps its prefix with a number.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Only this producer's own contacts and dimensions, which its callers read through AutoMovieArchetype.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No sibling's contact or dimension is admitted.
- */
+/** The contacts and dimensions of {@link createClipboard}. */
 export namespace createClipboard {
-  /** The contacts this producer builds; a numbered family's count follows its inputs. */
+  /**
+   * The contacts this producer builds; a numbered family's count follows its
+   * inputs.
+   */
   export type Affordance = "face" | "grip";
 
-  /** The dimensions this producer draws or derives, in metres unless the draw records kilograms. */
+  /**
+   * The dimensions this producer draws or derives, in metres unless the draw
+   * records kilograms.
+   */
   export type Dimension = "length" | "mass" | "thickness" | "width";
 }

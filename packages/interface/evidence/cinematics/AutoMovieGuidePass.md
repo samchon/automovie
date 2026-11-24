@@ -14,4 +14,4 @@ The union is the only structural constraint, with no wrapper alias or validator 
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names beauty as the shaded output, describes each structural projection and optional conditioning use, states depth normalization and mask fallback, and identifies the runtime list and pose-population limitation.
+Names beauty as the shaded output, describes each structural projection and optional conditioning use, states depth normalization and mask fallback, that the graphics plate goes through a transition as beauty does where the structural passes show one shot, and identifies the runtime list and pose-population limitation.

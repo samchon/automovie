@@ -146,7 +146,7 @@ The delivery and the reference use the same thresholds, so their intervals compa
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States how continuity is established, each status and the audio-only fields.
+States how continuity is established, each status and the audio-only fields, including the measured loudness and true peak of the presented samples.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -158,7 +158,7 @@ Produced by the host decode for each medium and read by the audit.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Incomplete evidence never supplies inferred ends, and codec padding beyond the presented end is excluded from the stream.
+Incomplete evidence never supplies inferred ends, and codec padding beyond the presented end is excluded from the stream and from the loudness measurement.
 
 # src/render/delivery/IAutoMovieDeliveryContentAudit.ts#IAutoMovieDeliveryContentAudit.ISource
 
@@ -182,11 +182,11 @@ The digest is of the decoded bytes, not of an earlier candidate.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names the soundtrack obligation, the allowances and the optional thresholds.
+Names the soundtrack obligation, the allowances, the optional thresholds and the optional loudness targets with how the render applies them.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Optional authored obligations: the soundtrack and whether it is required, approved ranges and detector policy.
+Optional authored obligations: the soundtrack and whether it is required, approved ranges, detector policy and the interface-owned loudness targets.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -200,7 +200,7 @@ An absent obligation is not inferred from the film.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names the source, the commissioned expectation, the thresholds, the delivered streams and the optional reference.
+Names the source, the commissioned expectation with its optional loudness targets, the thresholds, the delivered streams and the optional reference.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -236,11 +236,11 @@ Without reference evidence an interval stays unclassified instead of being calle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names both finding kinds and their members.
+Names the content, coverage, loudness and true-peak finding kinds and their members, with the measured values the loudness kinds carry.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-A union discriminated by kind separates content intervals with their outcome and clock from coverage failures with their reason.
+A union discriminated by kind separates content intervals with their outcome and clock, coverage failures with their reason, and loudness and true-peak misses with their measured and target values; the two measurement kinds always block.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

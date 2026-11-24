@@ -40,6 +40,28 @@ Let the number of emitted primitives follow the resolution setting, not the numb
 
 On a subdivision surface, place extraordinary vertices where curvature is low and keep them at valence 3 or 5 where the layout allows, because higher valences and clustered poles leave visible pinches on the limit surface.
 
+### Detail levels
+
+Plan each part at one of three levels, together with the closest distance a camera sees it from:
+
+| Level | Parts |
+| --- | --- |
+| Primary | Masses that set the silhouette |
+| Secondary | Parts that change the outline or that a person touches |
+| Tertiary | Features on the surface |
+
+Build a level only where its smallest feature, together with the gap that separates it from its neighbor, spans at least two pixels at that distance. A feature and its gap make one period of the pattern, and a period sampled fewer than two times cannot be resolved ([Shannon 1949](https://doi.org/10.1109/JRPROC.1949.232969)).
+
+At distance `d` meters, with vertical field of view `θ` and an image `H` pixels high, one meter covers `p = H / (2 d tan(θ / 2))` pixels.
+
+### Segment budget
+
+Give a crafted or lofted curved section of radius `r` the fewest segments `n` whose chords stray from the arc by at most one pixel footprint, `e = 1 / p` meters. A chord spanning the angle `2π / n` strays from the arc by its sagitta `r (1 - cos(π / n))`, so `n = ceil(π / acos(1 - e / r))`, which falls roughly as one over the square root of the distance. Hold the chords along a profile to the same tolerance `e`.
+
+For example, with `H` 1080, `θ` 50 degrees and `r` 0.25 m, the budget is 17 segments at 5 m and 9 at 20 m.
+
+This budget is the default before any cost is measured. Reduce further only by measured cost, as [conditioning](../conditioning.md#reduction) sets.
+
 ## Evaluation
 
 Precompute each section or segment's coefficients and derivatives for constant-time evaluation. Invert parameters by lookup or an analytic step. Solve dimensions on the controlled part alone.
@@ -51,6 +73,8 @@ Test each operator against an analytic oracle, including its declared continuity
 Audit invariants generically over every section and join of the finished form: each section closed and free of self-intersection, each surface continuous, and the declared continuity held across each join.
 
 Check each input on the finished form at its own definition, such as a measurement taken at its site the way it is defined, because a per-part test that recomputes the construction's formulas passes whatever the construction does.
+
+A band is the range a seeded form draws one free dimension from. Let the form's parameters fix every banded dimension, and build the form at its middle and at each end of every band, one dimension at a time, because a part most often detaches or stops moving at a band's end. Fix every end where the form fails admission, a part loses its area or detaches, or nothing changes that the dimension should change. Record with its reason a dimension that moves no rest geometry by design, such as an articulation's limit or a mass property.
 
 ## Stylization
 

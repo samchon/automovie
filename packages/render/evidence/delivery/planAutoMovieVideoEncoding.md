@@ -6,11 +6,11 @@ States the frame count rule and its bound, the raster rule and why, every argume
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A whole frame count admits the exact schedule `frameTimes` draws; mapping streams explicitly and cutting at `-t` makes the clock, not the shorter input, decide the output's length, and `apad` pads a soundtrack shorter than the picture.
+A whole frame count admits the exact schedule `frameTimes` draws; mapping streams explicitly and cutting at `-t` makes the clock, not the shorter input, decide the output's length, and `apad` pads a soundtrack shorter than the picture. Setting the movie and video track timescales to the exact rate's numerator makes each frame last the denominator in ticks, so the track and edit durations equal the media duration in one clock and the movie clock never rounds a runtime that is not a whole number of milliseconds (FFmpeg's default movie timescale is 1000).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Admit, then one argument vector around the shared `ffmpegArgs`.
+Admit, take the rate from the shared `autoMovieVideoFrameRate`, then one argument vector around the shared `ffmpegArgs`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

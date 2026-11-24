@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The compared round, the matching rule, the tolerance in bytes and one entry per cell of either capture, each either a pair with its measured difference or an unmatched cell with its cause, so nothing is silently left out.
+The compared round, the matching rule, the tolerance in bytes and one entry per cell of either capture, each either a pair with its measured difference or an unmatched cell with its cause, so nothing is silently left out, and the finding diff with its outcome, kept apart from the pixel entries because a checker and a still answer different questions.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

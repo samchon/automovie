@@ -18,7 +18,10 @@ interface IShelf {
   out: number;
 }
 
-/** An ATM's shelf, metres: its top 763 mm up, protruding 174 mm from the fascia (NCR SS32 p. 9). */
+/**
+ * An ATM's shelf, metres: its top 763 mm up, protruding 174 mm from the fascia
+ * (NCR SS32 p. 9).
+ */
 const SHELF: Readonly<IShelf> = {
   height: 763 * AutoMovieArchetypeUnits.MILLIMETRE,
   out: 174 * AutoMovieArchetypeUnits.MILLIMETRE,
@@ -42,7 +45,12 @@ interface IAtmItem {
   clock: number;
 }
 
-/** An ATM's fascia items, from NCR's guide: each one's height from the base and depth from the shelf's front (pp. 14-15), and its distance on the front elevation and clock position from the No. 5 key (pp. 17-18), in millimetres and hours; the key itself is the origin, at no distance. */
+/**
+ * An ATM's fascia items, from NCR's guide: each one's height from the base and
+ * depth from the shelf's front (pp. 14-15), and its distance on the front
+ * elevation and clock position from the No. 5 key (pp. 17-18), in millimetres
+ * and hours; the key itself is the origin, at no distance.
+ */
 const ITEMS: Readonly<Record<AtmItem, Readonly<IAtmItem>>> = {
   key5: { height: 786, depth: 89, distance: 0, clock: 0 },
   cardReader: { height: 1039, depth: 152, distance: 388, clock: 2 },
@@ -62,7 +70,13 @@ interface IScreen {
   size: number;
 }
 
-/** An ATM's 15 in touchscreen, from NCR's guide: its height from the base and depth from the shelf's front, millimetres (pp. 14-15), on the keypad's centre line as drawn. */
+/**
+ * An ATM's 15 in touchscreen, from NCR's guide: its height from the base and
+ * depth from the shelf's front, millimetres (pp. 14-15), on the keypad's centre
+ * line as drawn, and its 381 mm diagonal. The depth is the source value of the
+ * screen's recess; the model draws the screen on the cabinet's front face
+ * instead.
+ */
 const SCREEN: Readonly<IScreen> = {
   height: 1126,
   depth: 244,
@@ -73,22 +87,35 @@ const SCREEN: Readonly<IScreen> = {
 interface IEstimates {
   /** The `shelf` entry. */
   shelf: number;
+
+  /** The `aspect` entry. */
+  aspect: number;
 }
 
-/** The construction sizes no source read gives, metres, each an estimate no act reads and no band declares: `shelf`, an ATM shelf's thickness. */
-const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03 };
+/**
+ * The construction values no source read gives, each an estimate no act reads
+ * and no band declares: `shelf`, an ATM shelf's thickness in metres; `aspect`,
+ * the screen's width over its height, 4:3, the shape of a 1024 × 768 panel,
+ * since NCR's guide gives the diagonal and no aspect.
+ */
+const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03, aspect: 4 / 3 };
 
 /**
- * A cash machine with a shelf, keypad button, card, cash and receipt sockets and an exposed touchscreen.
+ * A cash machine with a shelf, keypad button, card, cash and receipt sockets
+ * and an exposed touchscreen.
  *
- * The shelf and fascia controls retain their measured NCR installation locations.
- * The cabinet rests on the floor at the origin and faces +Z.
+ * The shelf and fascia controls retain their measured NCR installation
+ * locations. The cabinet rests on the floor at the origin and faces +Z. The
+ * touchscreen keeps its read height and lies on the cabinet's front face, read
+ * with model `+Y` up: the real screen sits recessed behind the fascia, and the
+ * coarse cabinet box has no recess, so the recess is dropped.
  *
- * @param params The scene identifier and any dimensions to fix inside their bands.
+ * @param params The scene identifier and any dimensions to fix inside their
+ *   bands.
  * @param seed The seed for the draws the author leaves open.
  * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the selected profile.
- *
+ * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
+ *   selected profile.
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model, its inputs, frame and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation The shelf and fascia controls retain their measured NCR installation locations.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Build the cabinet, then record its fixture-specific parts and the common exterior faces.
@@ -109,7 +136,14 @@ export function createAtm(
 }
 
 /**
- * Build an ATM's shelf and its fascia items' contacts: the shelf across the fascia's foot, and each item at its read height and depth, across the fascia from the No. 5 key by the remaining leg of its elevation distance after its height above the key, to the side its clock position names, the key on the centre line. `key5` is the No. 5 key, a button pressed along `-Z`; `cardReader`, `cash` and `receipt` are the slots, sockets whose `+Y` points out of the fascia; `screen` the touchscreen, a surface.
+ * Build an ATM's shelf and its fascia items' contacts: the shelf across the
+ * fascia's foot, and each item at its read height and depth, across the fascia
+ * from the No. 5 key by the remaining leg of its elevation distance after its
+ * height above the key, to the side its clock position names, the key on the
+ * centre line. `key5` is the No. 5 key, a button pressed along `-Z`;
+ * `cardReader`, `cash` and `receipt` are the slots, sockets whose `+Y` points
+ * out of the fascia; `screen` the touchscreen, a surface on the cabinet's front
+ * face sized from its diagonal and {@link ESTIMATES}' aspect.
  *
  * @param builder The builder to fill.
  * @param width The fascia's width, metres.
@@ -165,27 +199,23 @@ function fascia(
           },
     );
   }
+  // The diagonal splits by the aspect: width = d·a/√(1+a²), height = d/√(1+a²).
+  const diagonal: number = Math.hypot(ESTIMATES.aspect, 1);
   builder.affordance({
     id: "screen",
     kind: "surface",
     frame: AutoMovieArchetypeFrame.facing(
-      v(0, SCREEN.height * mm, front - SCREEN.depth * mm),
+      v(0, SCREEN.height * mm, depth / 2),
       v(0, 0, 1),
       v(1, 0, 0),
     ),
     extent: null,
-    width: SCREEN.size * mm,
+    width: ((SCREEN.size * ESTIMATES.aspect) / diagonal) * mm,
+    depth: (SCREEN.size / diagonal) * mm,
   });
 }
 
-/**
- * Inputs, dimensions and contacts for {@link createAtm}.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the fixed inputs and the contact identifiers returned by the producer.
- * @evidence contracts/development/design.md#principled-representation A closed contact union and the selected profile's numeric inputs. Lengths are metres and mass is kilograms.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The parameters admit an identifier and only this producer's authored numeric overrides.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The contacts and override keys correspond to the producer's existing geometry and measured bands.
- */
+/** Inputs, dimensions and contacts for {@link createAtm}. */
 export namespace createAtm {
   /** The named contacts built by this producer. */
   export type Affordance =

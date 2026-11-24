@@ -28,9 +28,11 @@ import { archetypeCatalogCarried } from "./archetypeCatalogCarried";
 import { archetypeCatalogEveryday } from "./archetypeCatalogEveryday";
 
 /**
- * Every archetype the package produces, one row per producer and kind, each as a function of the seed: the population the contract tests sweep.
+ * Every archetype the package produces, one row per producer and kind, each as
+ * a function of the seed: the population the contract tests sweep.
  *
- * A row's name is `<producer>-<kind>`. The door's three axes (kind, hinge side, hardware) are covered pairwise, not multiplied out.
+ * A row's name is `<producer>-<kind>`. The door's three axes (kind, hinge side,
+ * hardware) are covered pairwise, not multiplied out.
  *
  * @returns The rows.
  */
@@ -47,7 +49,10 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
     ) && Object.keys(models ?? {}).length <= 1;
   const add = (
     name: string,
-    create: (seed?: number | string) => AutoMovieArchetype,
+    create: (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ) => AutoMovieArchetype,
     fixed?: boolean,
   ): void => {
     rows.push({ name, create, ...(fixed === true ? { fixed } : {}) });
@@ -55,114 +60,161 @@ export function archetypeCatalog(): archetypeCatalog.IRow[] {
   for (const kind of createDrinkware.KINDS)
     add(
       `drinkware-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createDrinkware({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createDrinkware({ kind, ...dimensions }, seed),
     );
   for (const kind of createDevice.KINDS)
     add(
       `device-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createDevice({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createDevice({ kind, ...dimensions }, seed),
     );
   for (const kind of createSmoking.KINDS)
     add(
       `smoking-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createSmoking({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createSmoking({ kind, ...dimensions }, seed),
     );
   for (const kind of createStationery.KINDS)
     add(
       `stationery-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createStationery({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createStationery({ kind, ...dimensions }, seed),
       settled(createStationery.BANDS[kind], createStationery.MODELS[kind]),
     );
   for (const kind of createCareItem.KINDS)
     add(
       `careItem-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createCareItem({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createCareItem({ kind, ...dimensions }, seed),
     );
   for (const kind of createBag.KINDS)
     add(
       `bag-${kind}`,
-      (seed?: number | string): AutoMovieArchetype => createBag({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createBag({ kind, ...dimensions }, seed),
     );
   add(
     "box",
-    (seed?: number | string): AutoMovieArchetype => createBox({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createBox({ ...dimensions }, seed),
   );
   for (const kind of createTool.KINDS)
     add(
       `tool-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createTool({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createTool({ kind, ...dimensions }, seed),
       settled(createTool.BANDS[kind], createTool.MODELS[kind]),
     );
   for (const kind of createLongTool.KINDS)
     add(
       `longTool-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createLongTool({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createLongTool({ kind, ...dimensions }, seed),
       settled(createLongTool.BANDS[kind], createLongTool.MODELS[kind]),
     );
   for (const kind of createSeat.KINDS)
     add(
       `seat-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createSeat({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createSeat({ kind, ...dimensions }, seed),
     );
   for (const kind of createBed.KINDS)
     add(
       `bed-${kind}`,
-      (seed?: number | string): AutoMovieArchetype => createBed({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createBed({ kind, ...dimensions }, seed),
     );
   for (const kind of createTable.KINDS)
     add(
       `table-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createTable({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createTable({ kind, ...dimensions }, seed),
     );
   for (const kind of createStorage.KINDS)
     add(
       `storage-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createStorage({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createStorage({ kind, ...dimensions }, seed),
     );
   for (const kind of createLoad.KINDS)
     add(
       `load-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createLoad({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createLoad({ kind, ...dimensions }, seed),
     );
   add(
     "highChair",
-    (seed?: number | string): AutoMovieArchetype => createHighChair({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createHighChair({ ...dimensions }, seed),
   );
   add(
     "lectern",
-    (seed?: number | string): AutoMovieArchetype => createLectern({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createLectern({ ...dimensions }, seed),
   );
   add(
     "console",
-    (seed?: number | string): AutoMovieArchetype => createConsole({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createConsole({ ...dimensions }, seed),
   );
   add(
     "showcase",
-    (seed?: number | string): AutoMovieArchetype => createShowcase({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createShowcase({ ...dimensions }, seed),
   );
   for (const hinge of ["left", "right"] as const)
     add(
       `safe-${hinge}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createSafe({ hinge }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createSafe({ hinge, ...dimensions }, seed),
       true,
     );
   for (const kind of createBarrel.KINDS)
     add(
       `barrel-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createBarrel({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createBarrel({ kind, ...dimensions }, seed),
     );
 
   archetypeCatalogBuilt(add);
@@ -178,21 +230,49 @@ export namespace archetypeCatalog {
     /** `<producer>-<kind>`. */
     name: string;
 
-    /** The archetype for a seed; the middle of every band when the seed is absent. */
-    create(seed?: number | string): AutoMovieArchetype;
+    /**
+     * The archetype for a seed; the middle of every band when the seed is
+     * absent.
+     *
+     * @param seed The seed, or absent for every band's middle.
+     * @param dimensions Dimensions to fix, each in its band's unit, forwarded
+     *   into the producer's params beside the row's own. A producer whose
+     *   params do not accept a dimension draws it as usual, so a caller reads
+     *   the built archetype's `dimensions` to learn whether a value took.
+     * @returns The archetype.
+     */
+    create(seed?: number | string, dimensions?: Dimensions): AutoMovieArchetype;
 
-    /** True when every band of the row's variant has zero width, as a standardised munition's read single figures do, so no seed varies it. */
+    /**
+     * True when every band of the row's variant has zero width, as a
+     * standardised munition's read single figures do, so no seed varies it.
+     */
     fixed?: boolean;
   }
 
-  /** Adds one row: its name, its archetype for a seed, and whether no seed varies it. */
+  /**
+   * Dimension values a caller fixes on a row, by dimension name, each in its
+   * band's unit.
+   */
+  export type Dimensions = Readonly<Record<string, number>>;
+
+  /**
+   * Adds one row: its name, its archetype for a seed and fixed dimensions, and
+   * whether no seed varies it.
+   */
   export type Add = (
     name: string,
-    create: (seed?: number | string) => AutoMovieArchetype,
+    create: (
+      seed?: number | string,
+      dimensions?: Dimensions,
+    ) => AutoMovieArchetype,
     fixed?: boolean,
   ) => void;
 
-  /** Whether a variant's bands are each one value and it has at most one read model to pick. */
+  /**
+   * Whether a variant's bands are each one value and it has at most one read
+   * model to pick.
+   */
   export type Settled = (
     bands: Readonly<Partial<Record<string, IAutoMovieArchetypeBand>>>,
     models?: Readonly<Partial<Record<string, unknown>>>,

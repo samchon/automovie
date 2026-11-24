@@ -9,11 +9,17 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The parade contract establishes the shared carry. Dimensions are authored for staging. */
+/**
+ * The parade contract establishes the shared carry. Dimensions are authored for
+ * staging.
+ */
 const SCENIC: string =
   "Authored set dimensions for one banner shared by two carriers, as described in the Arlington Patriots Day Parade contract (https://www.arlingtonma.gov/home/showpublisheddocument/33593/636227460660770000).";
 
-/** The panel measures and pole diameter use metres. The prop mass uses kilograms. */
+/**
+ * The panel measures and pole diameter use metres. The prop mass uses
+ * kilograms.
+ */
 type Dimension =
   | "width"
   | "panelHeight"
@@ -46,16 +52,19 @@ const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
 };
 
 /**
- * A wide parade banner carried as one rigid prop by two performers.
- * The pole bases sit at local Y zero and the panel faces +Z. Use leftGrip
- * on the negative-X pole and rightGrip on the positive-X pole as separate
- * carrier sites on the same motion prop. The face site marks the panel center.
+ * A wide parade banner carried as one rigid prop by two performers. The pole
+ * bases sit at local Y zero and the panel faces +Z. Use leftGrip on the
+ * negative-X pole and rightGrip on the positive-X pole as separate carrier
+ * sites on the same motion prop. The face site marks the panel center and spans
+ * the panel's front, read with model `+Y` up.
  *
- * @param params Fixed set dimensions in metres and kilograms, and an optional scene-unique id.
- * @param seed Draws any omitted dimensions. Without a seed, use each band's midpoint.
+ * @param params Fixed set dimensions in metres and kilograms, and an optional
+ *   scene-unique id.
+ * @param seed Draws any omitted dimensions. Without a seed, use each band's
+ *   midpoint.
  * @returns One framed panel with two pole grips and a front surface site.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its band.
- *
+ * @throws {AutoMovieArchetypeRefusal} When a fixed dimension lies outside its
+ *   band.
  * @evidence contracts/development/common.md#meaningful-documentation States the shared prop, local axes, units, seed and motion sites.
  * @evidence contracts/development/implementation.md#principled-implementation Each pole shares an axis with the corresponding panel edge and grip.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draws dimensions, builds the panel and mirrored supports, then adds the front marker.
@@ -134,23 +143,19 @@ export function createScenicParadeBanner(
       Vector3.create(1, 0, 0),
     ),
     extent: null,
+    width,
+    depth: panelHeight,
   });
   return builder.build(mass);
 }
 
 /**
- * Fixed banner dimensions in metres and prop mass in kilograms, plus an optional scene id.
- * The producer validates overrides against bands that leave an exposed grip below the panel on each pole.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Groups the optional metre and kilogram controls with the model producer.
- * @evidence contracts/development/design.md#principled-representation Optional numeric overrides cover only named dimensions and mass. The producer checks their ranges at runtime.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Exposes the shared banner inputs without creating a second geometry or grip description.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts A single width positions both poles, and the same pole diameter applies to each. Runtime bands preserve the exposed grip.
+ * Fixed banner dimensions in metres and prop mass in kilograms, plus an
+ * optional scene id. The producer validates overrides against bands that leave
+ * an exposed grip below the panel on each pole.
  */
 export namespace createScenicParadeBanner {
-  /**
-   * Optional fixed dimensions for a rectangular panel and two matching poles.
-   */
+  /** Optional fixed dimensions for a rectangular panel and two matching poles. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** Scene-unique id. The producer supplies a default when omitted. */
     id?: string;

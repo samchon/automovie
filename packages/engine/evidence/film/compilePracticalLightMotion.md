@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Sample canonical per-channel prop authority once per key, apply affine emitter placement, aim a spot's negative Z along the scaled emitter direction, and express switching as half-open STEP keys.
+Sample canonical per-channel prop authority once per key, apply affine emitter placement, aim a spot's negative Z along the scaled emitter direction, and express switching as half-open STEP keys; a flame-bound light instead takes one STEP intensity track on the flame's 1/120 s grid holding I_on · A / Ā inside `on`, so flicker and switching share one track and the inside mean is exactly I_on.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

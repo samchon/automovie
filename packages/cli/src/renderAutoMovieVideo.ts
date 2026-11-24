@@ -1,5 +1,7 @@
 import type {
+  IAutoMovieControlRecord,
   IAutoMovieDeliveryContentAudit,
+  IAutoMovieDialogueLipSync,
   IAutoMovieDrawnVideoResult,
 } from "@automovie/interface";
 import type * as Render from "@automovie/render";
@@ -9,6 +11,12 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
+import { AutoMovieRenderOutputReservation } from "./AutoMovieRenderOutputReservation";
+import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
+import { auditAutoMovieAlphaSamples } from "./auditAutoMovieAlphaSamples";
+import { auditAutoMovieDeliveryProfile } from "./auditAutoMovieDeliveryProfile";
+import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
+import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { runAutoMovieDeliveryDecode } from "./runAutoMovieDeliveryDecode";
 import { runAutoMovieDeliveryReferenceDecode } from "./runAutoMovieDeliveryReferenceDecode";
@@ -20,30 +28,95 @@ type DeliveryAudit = IAutoMovieDeliveryContentAudit.IResult;
 interface IDeliveryHost {
   render: Pick<
     typeof Render,
-    "renderAutoMovieDrawnVideo" | "auditAutoMovieDeliveryContent"
+    | "renderAutoMovieDrawnVideo"
+    | "auditAutoMovieDeliveryContent"
+    | "createAutoMovieLoudnessMeter"
+    | "AUTOMOVIE_MP4_SRGB_COLOUR"
+    | "assertProductionAacProfile"
+    | "assertProductionVideoProfile"
+    | "resolveProductionVideoProfile"
   >;
   session(
     props: Parameters<AutoMovieCaptureHost["session"]>[0],
   ): Promise<
-    Pick<Render.AutoMovieDrawSession, "backend" | "close" | "frame" | "subject">
+    Pick<
+      Render.AutoMovieDrawSession,
+      "backend" | "close" | "frame" | "speak" | "subject"
+    >
   >;
 }
 
-/** Scene and encoded evidence from a single release attempt on the output directory. */
+/**
+ * Scene and encoded evidence from a single release attempt on the output
+ * directory.
+ */
 interface IDeliveryReport {
+  /** The rendered subject's name. */
   subject: string;
+
+  /** The production's source revision, as `readAutoMovieRevision` reads it. */
   revision: ReturnType<typeof readAutoMovieRevision>;
+
+  /** The draw session's backend. */
   backend: string;
+
+  /**
+   * `published` when the film beside the report is this attempt's, `blocked`
+   * when an audit refused it, `failed` when a phase threw.
+   */
   status: "published" | "blocked" | "failed";
-  video: "film.mp4" | null;
+
+  /** The file this attempt published beside the report; null unless published. */
+  video: "film.mp4" | "film.mov" | null;
+
+  /**
+   * Present for a transparent render: its `film.mov` is a layer with straight
+   * alpha and writes no audio track, because the film it is composited into
+   * keeps the soundtrack.
+   */
+  layer?: { background: "transparent"; audio: "none" };
+
+  /** The FFmpeg arguments of the encode; empty until drawing finished. */
   args: readonly string[];
+
+  /** Each drawn frame's index, film second and pixel hash. */
   frames: Pick<
     IAutoMovieDrawnVideoResult["frames"][number],
     "index" | "seconds" | "hash"
   >[];
+
+  /** The scene inspection over every drawn frame; null until drawing finished. */
   diagnostics: IAutoMovieDrawnVideoResult["diagnostics"] | null;
+
+  /**
+   * The soundtrack mixed from the subject's sound list: its digest, each line's
+   * PCM digest and the master's measurements.
+   */
+  sound: IAutoMovieDrawnVideoResult["sound"] | null;
+  /**
+   * The film's cut, one row per sequence entry with the output frames it is
+   * live in; absent when the subject supplied no cut. It describes the
+   * `film.mp4` beside this report only when `status` is `published` and
+   * `source.sha256` is that file's digest.
+   */
+  cut?: IAutoMovieDrawnVideoResult["cut"];
+
+  /**
+   * The content audit of the decoded file against the drawn frames and the
+   * encoded soundtrack; null until the audit ran.
+   */
   delivery: DeliveryAudit | null;
+
+  /**
+   * How the encoded file differs from its video and audio profiles; empty when
+   * it conforms, null when not checked.
+   */
+  profile: IAutoMovieDeliveryProfileFinding[] | null;
+
+  /** The staged encoded file and its SHA-256; null until the audit ran. */
   source: IAutoMovieDeliveryContentAudit.ISource | null;
+
+  /** The phase that blocked or failed and its message; absent when published. */
   failure?: { phase: string; message: string };
 }
 
@@ -56,7 +129,10 @@ const SPEC: Parameters<typeof Render.renderAutoMovieDrawnVideo>[0]["spec"] = {
   crf: 18,
 };
 
-/** Defaults measure long enough intervals to distinguish them from a transient frame or sample. */
+/**
+ * Defaults measure long enough intervals to distinguish them from a transient
+ * frame or sample.
+ */
 const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
   black: {
     minimumDuration: { ticks: 1, timeBase: [1, 5] },
@@ -76,10 +152,36 @@ const THRESHOLDS: IAutoMovieDeliveryContentAudit.IThresholds = {
 /**
  * Renders one subject and publishes an approved film beside its shared report.
  * Every measurable audit runs on the drawn frames or the exact staged encoded
- * bytes. A blocked attempt replaces the report and preserves the former film.
- * A failed encode still reports the frames and scene inspection already drawn.
- * If the approved film or its report cannot be installed, the former film is
- * put back, so the film and report on disk always come from the same attempt.
+ * bytes. The decoded audio's integrated loudness and true peak, measured by the
+ * production render's BS.1770-5 meter, must meet the targets the sound-list mix
+ * applied or, for a supplied soundtrack, the declared loudness intent, and a
+ * phoneme-driven line whose lip-sync lag, measured against the mouth the
+ * subject read on each drawn frame, fails the report's verdict blocks. The
+ * encoded file must also carry its declared picture profile and, with a
+ * soundtrack, the AAC profile, or no audio track without one
+ * (`auditAutoMovieDeliveryProfile`); a mismatch blocks like a blocking audit
+ * finding and the report's `profile` records each field with its expected and
+ * observed values. A blocked attempt replaces the report and preserves the
+ * former film. A failed encode still reports the frames and scene inspection
+ * already drawn. If the approved film or its report cannot be installed, the
+ * former film is put back, so the film and report on disk always come from the
+ * same attempt.
+ *
+ * With `passes`, every frame is also drawn in those guide passes and written
+ * under `<out>/controls/` with `record.json`, whose `filmSha256` is the
+ * report's `source.sha256`; the folder is staged and installed in the same
+ * publish step as the film, so a blocked or failed attempt keeps the former
+ * `controls/` with the former film.
+ *
+ * With `background` `transparent`, the beauty pass is drawn over a transparent
+ * background and its straight-alpha PNG files are wrapped unencoded into
+ * `film.mov` in `media/automovie/<film>/transparent` by default, so a layer
+ * attempt never replaces the film's report. The layer carries no audio: the
+ * film's required soundtrack is not expected, none is passed to the wrap and
+ * the report's `layer` says so. The black check, which reads a transparent
+ * frame as black, does not block; the profile check is replaced by
+ * `auditAutoMovieAlphaSamples`, which requires one sample per drawn frame with
+ * the frame file's bytes.
  */
 export async function renderAutoMovieVideo(
   props: {
@@ -95,19 +197,46 @@ export async function renderAutoMovieVideo(
     out?: string;
     /** FFmpeg executable. */
     ffmpeg: string;
+    /**
+     * Guide passes other than `beauty` drawn at every frame into
+     * `<out>/controls/`; absent or empty draws the film alone.
+     */
+    passes?: readonly string[];
+    /**
+     * `transparent` renders a straight-alpha layer as `film.mov` with no audio,
+     * into `media/automovie/<film>/transparent` by default; absent or `scene`
+     * renders the film.
+     */
+    background?: "scene" | "transparent";
   },
   run: typeof runAutoMovieFfmpeg = runAutoMovieFfmpeg,
-): Promise<{ video: string; report: string; frames: number }> {
+): Promise<{
+  video: string;
+  report: string;
+  frames: number;
+  controls: string | null;
+}> {
   const session = await props.host.session({
     subject: props.subject,
     props: props.props,
   });
   const { name, delivery: intent } = session.subject;
+
+  // A transparent layer has its own folder, so its attempts never replace the
+  // report of the film in `videos/`.
+  const transparent: boolean = props.background === "transparent";
+  const file: "film.mp4" | "film.mov" = transparent ? "film.mov" : "film.mp4";
   const out = path.resolve(
     props.root,
-    props.out ?? path.join("media", "automovie", name, "videos"),
+    props.out ??
+      path.join(
+        "media",
+        "automovie",
+        name,
+        transparent ? "transparent" : "videos",
+      ),
   );
-  const video = path.join(out, "film.mp4");
+  const video = path.join(out, file);
   const report = path.join(out, "render-report.json");
   const reservation = path.join(out, ".render-publish");
   let reservationTicket: string | undefined;
@@ -116,8 +245,12 @@ export async function renderAutoMovieVideo(
   try {
     await fs.mkdir(out, { recursive: true });
     staging = await fs.mkdtemp(path.join(out, ".render-"));
-    reservationTicket = await reserveOutput(staging, reservation, out);
-    const candidate = path.join(staging, "film.mp4");
+    reservationTicket = await AutoMovieRenderOutputReservation.reserve(
+      staging,
+      reservation,
+      out,
+    );
+    const candidate = path.join(staging, file);
     const pendingReport = path.join(staging, "render-report.json");
     const attempt: IDeliveryReport = {
       subject: name,
@@ -128,33 +261,73 @@ export async function renderAutoMovieVideo(
       args: [],
       frames: [],
       diagnostics: null,
+      sound: null,
       delivery: null,
+      profile: null,
       source: null,
+      ...(transparent
+        ? {
+            layer: {
+              background: "transparent" as const,
+              audio: "none" as const,
+            },
+          }
+        : {}),
     };
     const writeReport = async (): Promise<void> =>
       fs.writeFile(pendingReport, JSON.stringify(attempt, null, 2) + "\n");
     let phase = "draw";
-    const soundtrack: string | null = intent?.audio?.path ?? null;
+    const soundtrack: string | null = transparent
+      ? null
+      : (intent?.audio?.path ?? null);
     try {
       const frameRoot = path.join(props.root, ".cache", "render");
       await fs.mkdir(frameRoot, { recursive: true });
       scratch = await fs.mkdtemp(path.join(frameRoot, "frames-"));
+
+      // Control frames are staged beside the film and published with it,
+      // inside the output folder whose publish lock this attempt holds.
+      const controls =
+        (props.passes ?? []).length === 0
+          ? null
+          : {
+              staged: path.join(staging, "controls"),
+              installed: path.join(out, "controls"),
+            };
+      if (controls !== null) await fs.mkdir(controls.staged);
       const result = await props.host.render.renderAutoMovieDrawnVideo({
         session,
         spec: SPEC,
         frameDir: scratch.split(path.sep).join("/"),
         outputPath: candidate,
+        ...(transparent ? { background: "transparent" as const } : {}),
+        ...(controls === null
+          ? {}
+          : {
+              controls: {
+                passes: props.passes ?? [],
+                frameDir: controls.staged.split(path.sep).join("/"),
+              },
+            }),
         audio:
           soundtrack === null ? null : path.resolve(props.root, soundtrack),
         write: (file, data) => fs.writeFile(file, data),
+        read: async (file) => fs.readFile(path.resolve(props.root, file)),
         encode: async (args, drawn) => {
           attempt.args = args;
+          // The soundtrack lives in the frame scratch, which is released, so
+          // the report names it by file name beside its digest.
+          attempt.sound =
+            drawn.sound === undefined
+              ? null
+              : { ...drawn.sound, file: path.posix.basename(drawn.sound.file) };
           attempt.frames = drawn.frames.map(({ index, seconds, hash }) => ({
             index,
             seconds,
             hash,
           }));
           attempt.diagnostics = drawn.diagnostics ?? null;
+          if (drawn.cut !== undefined) attempt.cut = drawn.cut;
           phase = "encode";
           await run(props.ffmpeg, args);
         },
@@ -167,14 +340,19 @@ export async function renderAutoMovieVideo(
         file: path.relative(out, candidate).split(path.sep).join("/"),
         sha256: hash.digest("hex"),
       };
+      // The decoded audio meets the targets the mix applied (the production's
+      // own or EBU R 128), or the production's own for a supplied soundtrack.
+      const loudness =
+        attempt.sound?.loudness.intent ?? intent?.loudness ?? undefined;
       const expected = {
         frameCount: result.frames.length,
         frameRate: result.frameRate,
-        audioRequired: intent?.audio?.required ?? false,
+        audioRequired: transparent ? false : (intent?.audio?.required ?? false),
         contentRequired: intent !== undefined,
         ...(intent?.allowances === undefined
           ? {}
           : { allowances: intent.allowances }),
+        ...(loudness === undefined ? {} : { loudness }),
       };
       const thresholds = intent?.thresholds ?? THRESHOLDS;
       const streams = await runAutoMovieDeliveryDecode(
@@ -183,6 +361,7 @@ export async function renderAutoMovieVideo(
         expected,
         thresholds,
         run,
+        props.host.render.createAutoMovieLoudnessMeter,
       );
       // The drawn frames and the soundtrack as the encoder read them, measured
       // the same way, before the frame scratch is released.
@@ -201,7 +380,46 @@ export async function renderAutoMovieVideo(
         reference,
       });
 
-      const failures = releaseFindings(attempt.diagnostics, attempt.delivery);
+      // The file must carry the picture and sound profiles its types declare;
+      // the encoder muxed a soundtrack exactly when it had a second input.
+      // A transparent layer instead holds each drawn PNG file as one sample.
+      attempt.profile = transparent
+        ? await auditAutoMovieAlphaSamples({
+            path: candidate,
+            frames: result.frames.map(({ file }) => file),
+          })
+        : await auditAutoMovieDeliveryProfile({
+            render: props.host.render,
+            path: candidate,
+            width: session.subject.width,
+            height: session.subject.height,
+            frameRate: result.frameRate,
+            audio:
+              attempt.args.indexOf("-i", attempt.args.indexOf("-i") + 2) >= 0,
+          });
+
+      const failures = [
+        ...listAutoMovieReleaseFindings(
+          attempt.diagnostics,
+          attempt.delivery,
+          transparent ? ["black"] : [],
+        ),
+        ...attempt.profile.map(
+          (finding: IAutoMovieDeliveryProfileFinding): string =>
+            `unsupported-${finding.media}-profile.${finding.field}: expected ${finding.expected}, observed ${finding.observed}`,
+        ),
+        // A phoneme-driven line whose sound and mouth part by more than the
+        // detectability window blocks; unmeasured and inconclusive lines are
+        // only reported.
+        ...(attempt.sound?.lipSync ?? []).flatMap(
+          (entry: IAutoMovieDialogueLipSync): string[] =>
+            entry.status === "measured" && entry.verdict === "fail"
+              ? [
+                  `lip-sync ${entry.line}: the sound is ${entry.lagMilliseconds.toFixed(1)} ms after the mouth, outside -45 to +125 ms`,
+                ]
+              : [],
+        ),
+      ];
       if (failures.length > 0) {
         attempt.status = "blocked";
         throw new Error(failures.join(" | "));
@@ -209,16 +427,44 @@ export async function renderAutoMovieVideo(
 
       phase = "publish";
       attempt.status = "published";
-      attempt.video = "film.mp4";
+      attempt.video = file;
       await writeReport();
-      await publish({
+      if (controls !== null)
+        await writeControlRecord(controls.staged, {
+          film: name,
+          revision: attempt.revision,
+          backend: attempt.backend,
+          clock: {
+            frameRate: result.frameRate,
+            frameCount: result.frames.length,
+            width: session.subject.width,
+            height: session.subject.height,
+          },
+          filmSha256: attempt.source.sha256,
+          channels: result.controls ?? [],
+        });
+      await publishAutoMovieRenderAttempt({
         candidate,
         video,
         pendingReport,
         report,
-        previous: path.join(staging, "previous.mp4"),
+        previous: path.join(staging, "previous-" + file),
+        ...(controls === null
+          ? {}
+          : {
+              controls: {
+                candidate: controls.staged,
+                installed: controls.installed,
+                previous: path.join(staging, "previous-controls"),
+              },
+            }),
       });
-      return { video, report, frames: result.frames.length };
+      return {
+        video,
+        report,
+        frames: result.frames.length,
+        controls: controls === null ? null : controls.installed,
+      };
     } catch (cause) {
       attempt.video = null;
       if (attempt.status !== "blocked") attempt.status = "failed";
@@ -245,193 +491,26 @@ export async function renderAutoMovieVideo(
       ...(scratch === undefined ? [] : [fs.rm(scratch, { recursive: true })]),
       ...(reservationTicket === undefined
         ? []
-        : [releaseOutput(reservation, reservationTicket)]),
+        : [
+            AutoMovieRenderOutputReservation.release(
+              reservation,
+              reservationTicket,
+            ),
+          ]),
     ]);
   }
 }
 
 /**
- * Installs the approved film and then its report. The former film waits in
- * staging until both are in place; when either step fails it returns, so the
- * published film and report always belong to the same attempt.
+ * Writes a control folder's `record.json`, the file a generation request names
+ * and a manifest digests.
  */
-async function publish(paths: {
-  candidate: string;
-  video: string;
-  pendingReport: string;
-  report: string;
-  previous: string;
-}): Promise<void> {
-  const kept = await fs
-    .rename(paths.video, paths.previous)
-    .then(() => true)
-    .catch((error: unknown): false => {
-      if (errorCode(error) !== "ENOENT") throw error;
-      return false;
-    });
-  try {
-    await fs.rename(paths.candidate, paths.video);
-    await fs.rename(paths.pendingReport, paths.report);
-  } catch (cause) {
-    try {
-      if (kept) await fs.rename(paths.previous, paths.video);
-      else await fs.rm(paths.video, { force: true });
-    } catch (restoreFailure) {
-      throw new AggregateError(
-        [cause, restoreFailure],
-        "Publishing failed and the previous film could not be restored to " +
-          paths.video,
-      );
-    }
-    throw cause;
-  }
-}
-
-/** Claims a destination with an atomically installed process ticket. */
-async function reserveOutput(
-  staging: string,
-  reservation: string,
-  out: string,
-): Promise<string> {
-  const pending = path.join(staging, "reservation");
-  const ticket = "owner-" + process.pid + "-" + path.basename(staging);
-  await fs.mkdir(pending);
-  await fs.writeFile(path.join(pending, ticket), "");
-  // Bound the number of races with another failed or completing reservation.
-  for (let pass = 0; pass < 4; pass++) {
-    try {
-      await fs.rename(pending, reservation);
-      return ticket;
-    } catch (cause) {
-      const entries = await fs
-        .readdir(reservation)
-        .catch((error: unknown): string[] => {
-          if (errorCode(error) !== "ENOENT") throw cause;
-          return [];
-        });
-      const owner = entries.length === 1 ? entries[0] : undefined;
-      const pid = Number(
-        /^owner-(\d+)-\.render-[a-z0-9]+$/iu.exec(owner ?? "")?.[1],
-      );
-      if (
-        entries.length !== 0 &&
-        (!Number.isSafeInteger(pid) || pid < 1 || processAlive(pid))
-      )
-        throw new Error("Another render has reserved " + out, { cause });
-      if (owner !== undefined) await releaseOutput(reservation, owner);
-      else await removeEmptyReservation(reservation);
-    }
-  }
-  throw new Error(
-    "Could not reserve " +
-      out +
-      " while another render changed its reservation",
-  );
-}
-
-/** Treats a process as gone only when the operating system confirms it. */
-function processAlive(pid: number): boolean {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (cause) {
-    return !(
-      cause instanceof Error &&
-      "code" in cause &&
-      cause.code === "ESRCH"
-    );
-  }
-}
-
-/** Removes the exact process ticket and only an empty reservation directory. */
-async function releaseOutput(
-  reservation: string,
-  ticket: string,
+async function writeControlRecord(
+  folder: string,
+  record: IAutoMovieControlRecord,
 ): Promise<void> {
-  await fs
-    .unlink(path.join(reservation, ticket))
-    .catch((error: unknown): void => {
-      if (errorCode(error) !== "ENOENT") throw error;
-    });
-  await removeEmptyReservation(reservation);
-}
-
-/** Reads a Node file system error's code, if the value carries one. */
-function errorCode(error: unknown): unknown {
-  return error instanceof Error && "code" in error ? error.code : undefined;
-}
-
-/** A later invocation may already have installed its own ticket. */
-async function removeEmptyReservation(reservation: string): Promise<void> {
-  await fs.rmdir(reservation).catch((error: unknown): void => {
-    const code: unknown = errorCode(error);
-    if (code !== "ENOENT" && code !== "ENOTEMPTY" && code !== "EEXIST")
-      throw error;
-  });
-}
-
-/** Selects the first usable cursor in each audit while retaining complete details in the report. */
-function releaseFindings(
-  diagnostics: IDeliveryReport["diagnostics"],
-  delivery: DeliveryAudit,
-): string[] {
-  const details: string[] = [];
-  if (diagnostics?.hasBlockingFinding) {
-    const blocking = diagnostics.episodes.find(
-      ({ worst: { finding } }) =>
-        finding.category === "error" && finding.confidence === "confirmed",
-    );
-    const first =
-      blocking?.first.finding.category === "error" &&
-      blocking.first.finding.confidence === "confirmed"
-        ? blocking.first
-        : blocking?.worst;
-    details.push(
-      first === undefined
-        ? "Scene inspection failed"
-        : first.finding.code +
-            cursor(first.time.filmSeconds, first.time.outputFrame),
-    );
-  }
-  if (diagnostics?.unresolvedRequiredCoverage) {
-    const unresolved = diagnostics.coverage.find(
-      ({ coverage }) =>
-        coverage.required &&
-        (coverage.status === "deferred" || coverage.status === "unsupported"),
-    );
-    details.push(
-      unresolved === undefined
-        ? "Required scene inspection coverage is unresolved"
-        : "Required scene " +
-            unresolved.coverage.check +
-            " coverage is unresolved" +
-            cursor(unresolved.first.filmSeconds, unresolved.first.outputFrame),
-    );
-  }
-
-  for (const finding of delivery.findings) {
-    if (!finding.blocking) continue;
-    if (finding.kind !== "content") {
-      details.push(finding.media + ": " + finding.reason);
-      continue;
-    }
-    const {
-      ticks,
-      timeBase: [numerator, denominator],
-    } = finding.start;
-    details.push(
-      finding.outcome +
-        " " +
-        finding.detector +
-        cursor((ticks * numerator) / denominator, finding.firstOutputFrame),
-    );
-  }
-  return details;
-}
-
-/** Formats the available output frame and film seconds without inventing an audio frame. */
-function cursor(seconds: number, frame?: number): string {
-  return (
-    (frame === undefined ? "" : " at frame " + frame) + " (" + seconds + " s)"
+  await fs.writeFile(
+    path.join(folder, "record.json"),
+    JSON.stringify(record, null, 2) + "\n",
   );
 }

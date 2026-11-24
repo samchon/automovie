@@ -47,19 +47,20 @@ const frame: (
  *
  * Scenarios:
  *
- * 1. `orbit` → 9 keys sweeping 45°, every position at distance `d` from the aim,
- *    the last bearing swung off the initial +Z, and the swept angle **eased**
- *    in and out (the mid-arc segments turn faster than the end ones).
- * 2. `follow` with an animated base marching down +X → 5 keys over one second (4
- *    Hz + endpoints) whose X tracks the subject.
+ * 1. `orbit` over two seconds → 49 keys, one per frame of the 24 fps default,
+ *    sweeping 45°, every position at distance `d` from the aim, the last
+ *    bearing swung off the initial +Z, and the swept angle **eased** in and out
+ *    (the mid-arc segments turn faster than the end ones).
+ * 2. `follow` with an animated base marching down +X → 25 keys over one second,
+ *    one per 24 fps frame, whose X tracks the subject.
  * 3. `follow` with a static subject (`at: null`) degenerates to one static key.
  * 4. Two moves abutting on the same instant → the later framing replaces the
  *    earlier key instead of minting a zero-width span.
  * 5. A camera staged exactly on the aim point falls back to the +Z bearing.
  * 6. No entries → no clip (`null`).
- * 7. Truck movement ends screen-left at fixed depth, keeps an animated
- *    subject's endpoint shift, and has a defined lateral fallback for a
- *    vertical staged bearing.
+ * 7. Truck movement ends screen-left at fixed depth, keeps an animated subject's
+ *    endpoint shift, and has a defined lateral fallback for a vertical staged
+ *    bearing.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls compileCameraMove for orbit, follow, truck, static, colliding start times, and empty entries, observing key counts, selected positions, orbit radius/easing, and fallback bearings.
  * @evidence contracts/development/testing.md#independent-expectations A two-metre full subject at 90-degree FOV gives the fixed 1.15 metre distance and one-metre aim. Euclidean Math.hypot and atan2 measure orbit radius and angle independently; literal follow and truck endpoints follow the authored one-metre subject translation and framing grammar.
@@ -80,9 +81,9 @@ export function test_film_camera_move_paths(): void {
       entries: [{ action: frame("orbit"), subject }],
       shotDuration: 2,
     })!;
-  TestValidator.equals("orbit keys", orbit.tracks[0]!.times.length, 9);
+  TestValidator.equals("orbit keys", orbit.tracks[0]!.times.length, 49);
   const aim: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-  for (let k: number = 0; k < 9; ++k) {
+  for (let k: number = 0; k < 49; ++k) {
     const pos: IAutoMovieVector3 = {
       x: orbit.tracks[0]!.values[k * 3]!,
       y: orbit.tracks[0]!.values[k * 3 + 1]!,
@@ -99,7 +100,7 @@ export function test_film_camera_move_paths(): void {
   }
   TestValidator.predicate(
     "orbit swings off the initial bearing",
-    Math.abs(orbit.tracks[0]!.values[24]!) > 0.5,
+    Math.abs(orbit.tracks[0]!.values[144]!) > 0.5,
   );
 
   // the swept angle eases in/out: consecutive keys turn slowly at the ends and
@@ -115,13 +116,13 @@ export function test_film_camera_move_paths(): void {
   ): number => Math.abs(ang(b) - ang(a));
   TestValidator.predicate(
     "orbit sweeps forty-five degrees",
-    nclose(step(0, 8), Math.PI / 4),
+    nclose(step(0, 48), Math.PI / 4),
   );
   TestValidator.equals(
     "orbit eases: the mid-arc turns faster than either end",
     namedFacts([
-      ["fasterThanOpening", (): boolean => step(3, 4) > step(0, 1) + 1e-6],
-      ["fasterThanClosing", (): boolean => step(3, 4) > step(7, 8) + 1e-6],
+      ["fasterThanOpening", (): boolean => step(24, 25) > step(0, 1) + 1e-6],
+      ["fasterThanClosing", (): boolean => step(24, 25) > step(47, 48) + 1e-6],
     ]),
     { fasterThanOpening: true, fasterThanClosing: true },
   );
@@ -138,12 +139,12 @@ export function test_film_camera_move_paths(): void {
       entries: [{ action: frame("follow", 0, 1), subject: marching }],
       shotDuration: 2,
     })!;
-  TestValidator.equals("follow keys", follow.tracks[0]!.times.length, 5);
-  for (let k: number = 0; k < 5; ++k)
+  TestValidator.equals("follow keys", follow.tracks[0]!.times.length, 25);
+  for (let k: number = 0; k < 25; ++k)
     TestValidator.predicate(
-      `follow key ${k} tracks the quarter-second subject position`,
-      nclose(follow.tracks[0]!.times[k]!, k / 4) &&
-        nclose(follow.tracks[0]!.values[k * 3]!, k / 4),
+      `follow key ${k} tracks the subject position at its frame`,
+      nclose(follow.tracks[0]!.times[k]!, k / 24) &&
+        nclose(follow.tracks[0]!.values[k * 3]!, k / 24),
     );
   TestValidator.predicate(
     "follow starts on the subject",
@@ -151,7 +152,7 @@ export function test_film_camera_move_paths(): void {
   );
   TestValidator.predicate(
     "follow ends on the subject",
-    nclose(follow.tracks[0]!.values[12]!, 1),
+    nclose(follow.tracks[0]!.values[72]!, 1),
   );
 
   const held: NonNullable<ReturnType<typeof compileCameraMove>> =
@@ -178,24 +179,24 @@ export function test_film_camera_move_paths(): void {
       shotDuration: 2,
     })!;
   TestValidator.equals(
-    "truck eases over 9 keys",
+    "truck keys every 24 fps frame",
     truck.tracks[0]!.times.length,
-    9,
+    49,
   );
   TestValidator.equals(
     "truck finishes screen-left while holding staged depth",
     namedFacts([
       [
         "ncloseTruckTracks",
-        (): boolean => nclose(truck.tracks[0]!.values[24]!, -1.15),
+        (): boolean => nclose(truck.tracks[0]!.values[144]!, -1.15),
       ],
       [
         "ncloseTruckTracks2",
-        (): boolean => nclose(truck.tracks[0]!.values[25]!, 1),
+        (): boolean => nclose(truck.tracks[0]!.values[145]!, 1),
       ],
       [
         "ncloseTruckTracks3",
-        (): boolean => nclose(truck.tracks[0]!.values[26]!, 1.15),
+        (): boolean => nclose(truck.tracks[0]!.values[146]!, 1.15),
       ],
     ]),
     {
@@ -213,7 +214,7 @@ export function test_film_camera_move_paths(): void {
     })!;
   TestValidator.predicate(
     "truck keeps tracking an animated subject",
-    nclose(movingTruck.tracks[0]!.values[24]!, -0.15),
+    nclose(movingTruck.tracks[0]!.values[72]!, -0.15),
   );
   const verticalTruck: NonNullable<ReturnType<typeof compileCameraMove>> =
     compileCameraMove({
@@ -233,15 +234,15 @@ export function test_film_camera_move_paths(): void {
     namedFacts([
       [
         "ncloseVerticalTruckTracks",
-        (): boolean => nclose(verticalTruck.tracks[0]!.values[24]!, -1.15),
+        (): boolean => nclose(verticalTruck.tracks[0]!.values[144]!, -1.15),
       ],
       [
         "ncloseVerticalTruckTracks2",
-        (): boolean => nclose(verticalTruck.tracks[0]!.values[25]!, 2.15),
+        (): boolean => nclose(verticalTruck.tracks[0]!.values[145]!, 2.15),
       ],
       [
         "ncloseVerticalTruckTracks3",
-        (): boolean => nclose(verticalTruck.tracks[0]!.values[26]!, 0),
+        (): boolean => nclose(verticalTruck.tracks[0]!.values[146]!, 0),
       ],
     ]),
     {

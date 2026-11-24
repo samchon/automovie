@@ -13,6 +13,7 @@ Use [entity work](../development/entities.md#coarse-first) for people and provid
 
 | Read | To |
 | --- | --- |
+| [Environments](environments.md) | Build a place: a furnished room, a terrain or an outdoor set |
 | [Coarse forms](coarse-forms.md) | Build a subject no package provides from a few primitives |
 | [Modularization](modularization.md) | Define parts, groups, placements or shared boundaries |
 | [Inspecting a form](inspection.md) | Inspect a form's measures, coverage or light |
@@ -34,3 +35,4 @@ For a commissioned [detail option](../development/entities.md#detail), use the s
 | [Conditioning](conditioning.md) | Take a found or generated mesh into the production, or vary it by a parameter |
 | [Mesh recovery](crafting/recovery.md) | Rebuild a fixed mesh as curves or surfaces |
 | [Rigging](rigging.md) | Add or change a skeleton, skin, attachment or deformation control |
+| [Materials](materials.md) | Give the form its surfaces: record materials, generated finishes and wear |

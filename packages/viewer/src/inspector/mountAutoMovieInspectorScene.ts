@@ -1,65 +1,103 @@
 import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionDiagnostics,
-  IAutoMovieInspectionView,
 } from "@automovie/interface";
 import {
-  type IApplyAutoMovieInspectionProps,
   type IAutoMovieDrawScene,
   type IAutoMovieDrawSubject,
   type IAutoMovieInspectionHandle,
-  type IAutoMovieViewerViewpoint,
-  applyAutoMovieInspection,
-  autoMovieViewerNamedViewpoints,
   createAutoMovieInspectionDiagnosticOverlay,
-  formatAutoMovieInspectionRequest,
-  listAutoMovieInspectionPaths,
   observeAutoMoviePlacedInspection,
-  parseAutoMovieInspectionView,
-  resolveAutoMovieInspectionView,
 } from "@automovie/render";
-import type * as THREE from "three";
+import * as THREE from "three";
 
+import { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
 import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog.js";
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
+import { AutoMovieInspectorTransition } from "./AutoMovieInspectorTransition.js";
+import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
+import { assertAutoMovieInspectorRaster } from "./assertAutoMovieInspectorRaster.js";
 import { changesAutoMovieObservedScene } from "./changesAutoMovieObservedScene.js";
-import { placeAutoMovieInspectorLabels } from "./placeAutoMovieInspectorLabels.js";
+import { firstAutoMovieInspectorSecond } from "./firstAutoMovieInspectorSecond.js";
+import { followAutoMovieInspectorSize } from "./followAutoMovieInspectorSize.js";
+import { inspectAutoMovieInspectorRequest } from "./inspectAutoMovieInspectorRequest.js";
+import { installAutoMovieInspectorRequest } from "./installAutoMovieInspectorRequest.js";
+import { messageOfAutoMovieInspectorError } from "./messageOfAutoMovieInspectorError.js";
 import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
-
-/** What a mount holds once its instance is ready. */
-interface ILive {
-  instance: IAutoMovieDrawScene;
-  renderer: IAutoMovieInspectorSceneHost.IRenderer;
-  inspection: IAutoMovieInspectionHandle;
-  applied: IAutoMovieCapturePlanRequest;
-  frame: number | undefined;
-  lastMs: number | undefined;
-  drawn: AutoMovieInspectorPlayhead.ISnapshot | undefined;
-  size: IAutoMovieInspectorSceneHost.ISize | undefined;
-  dirty: boolean;
-  seeking: boolean;
-  error: string | null;
-  labelled: boolean;
-}
+import { readAutoMovieInspectorFacts } from "./readAutoMovieInspectorFacts.js";
+import { readsAutoMovieInspectorPlacedScene } from "./readsAutoMovieInspectorPlacedScene.js";
+import { releaseAutoMovieInspectorSteps } from "./releaseAutoMovieInspectorSteps.js";
+import { reportAutoMovieInspectorLabels } from "./reportAutoMovieInspectorLabels.js";
+import { resolveAutoMovieInspectorCamera } from "./resolveAutoMovieInspectorCamera.js";
+import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInspection.js";
 
 /**
- * Mount a subject on the inspector's canvas: build an instance, apply the request's inspection, and draw it every animation frame at the playhead's second through the request's first view.
+ * Mount a subject on the inspector's canvas: build an instance, apply the
+ * request's inspection, and draw it every animation frame at the playhead's
+ * second through the request's first view.
  *
- * The instance is created at once and arrives later. When it arrives the mount checks its clock and raster, seeks it to the request's first second and waits until it is ready there, lists its paths and the marks of its first second, applies the inspection of the newest request (or, when the scene refuses it, of the request that asks for nothing, reported through `refused`), sets the playhead's duration and second, reports `ready` and schedules the first frame. Each frame advances a playing playhead by the wall time since the last frame, follows the host's size, and redraws when the playhead's snapshot or the request changed: seek the instance and, once its promise resolves, update the inspection with the second's marks, resolve the view and render. While a seek is pending no other is started, and the next frame seeks the newest second, so a slow subject drops intermediate seconds instead of queueing them. A drawing error pauses playback and is reported once until a frame draws again.
+ * The instance is created at once and arrives later. When it arrives the mount
+ * checks its clock and raster, seeks it to the request's first second and waits
+ * until it is ready there, lists its paths and the marks of its first second,
+ * applies the inspection of the newest request (or, when the scene refuses it,
+ * of the request that asks for nothing, reported through `refused`), sets the
+ * playhead's duration and second, reports `ready` and schedules the first
+ * frame. Each frame advances a playing playhead by the wall time since the last
+ * frame, follows the host's size, and redraws when the playhead's snapshot or
+ * the request changed: place the instance and, once it is ready, run the
+ * subject's `beforeDraw` on a WebGL renderer, as the draw host does, so its
+ * surface feeds show the second drawn with the scene's own materials, then
+ * update the inspection with the second's marks, resolve the view and render.
+ * An inspection that changes the scene's materials or layers is lifted around
+ * the seek of a subject with `beforeDraw` or `inspectPlaced` and applied again
+ * after them. Beauty pictures draw through `AutoMovieInspectorBeauty`, the
+ * subject's optics and indirect shading as delivery draws one sample. While a
+ * seek is pending no other is started, and the next frame seeks the newest
+ * second, so a slow subject drops intermediate seconds instead of queueing
+ * them. A drawing error pauses playback and is reported once until a frame
+ * draws again.
  *
- * The picture's aspect is the subject's raster, not the canvas's, so a view frames what a capture of the same subject frames; the page gives the canvas that aspect. The mount adds no listener and holds at most one pending frame, so a mount, dispose and mount again on one canvas, as React's StrictMode runs an effect, leaves one renderer and one frame loop; a mount disposed before its instance arrives or is ready disposes the instance then and creates no renderer, and a seek that resolves after dispose draws nothing.
+ * The picture's aspect is the subject's raster, not the canvas's, so a view
+ * frames what a capture of the same subject frames; the page gives the canvas
+ * that aspect. The mount adds no listener and holds at most one pending frame,
+ * so a mount, dispose and mount again on one canvas, as React's StrictMode runs
+ * an effect, leaves one renderer and one frame loop; a mount disposed before
+ * its instance arrives or is ready disposes the instance then and creates no
+ * renderer, and a seek that resolves after dispose draws nothing.
  *
- * An opted-in subject is observed at the second actually placed, before the inspection changes the scene: an inspection that changes layers, materials, mark geometry or clipping is restored before the seek and re-applied after the observation, while one that changes none of them, as the default request, stays applied and only updates its marks, as for any subject. Its findings reach the report and the diagnostic log with the playhead's playing flag and jump count, so uninterrupted playback can join painted samples into an observed span. Its witness cubes are drawn under the beauty shade unless `overlay(false)` hid them; hiding them stops no check and no report.
+ * An opted-in subject is observed at the second actually placed, before the
+ * inspection changes the scene: an inspection that changes layers, materials,
+ * mark geometry or clipping is restored before the seek and re-applied after
+ * the observation, while one that changes none of them, as the default request,
+ * stays applied and only updates its marks, as for any subject. Its findings
+ * reach the report and the diagnostic log with the playhead's playing flag and
+ * jump count, so uninterrupted playback can join painted samples into an
+ * observed span. Its witness cubes are drawn under the beauty shade unless
+ * `overlay(false)` hid them; hiding them stops no check and no report.
  *
- * The page draws the first view and the first pass of the request; the capture command draws them all. While paused, the labels the request asks for are placed by the inspection on the picture's pixels, with the stamp's font pixel at least one CSS pixel of the canvas as a capture keeps it at least one sheet pixel, and reported in CSS pixels; a named view with a focus is framed on what the focus selects.
+ * `AutoMovieInspectorTransition` places the subject, the shown shot last, so
+ * diagnostics, marks, camera and inspection pictures follow it as in the draw
+ * page; a plain beauty transition paints and holds its other layers first and
+ * composites them by their `playbackLayersAt` weights, under the witness cubes
+ * at full strength, so a dissolve and a fade match delivery.
+ *
+ * The page draws the first view and the first pass of the request; the capture
+ * command draws them all. While paused, the labels the request asks for are
+ * placed by the inspection on the picture's pixels, with the stamp's font pixel
+ * at least one CSS pixel of the canvas as a capture keeps it at least one sheet
+ * pixel, and reported in CSS pixels; a named view with a focus is framed on
+ * what the focus selects.
  */
 export function mountAutoMovieInspectorScene(props: {
   /** The subject to build. */
   subject: IAutoMovieDrawSubject;
 
-  /** The subject's name, as the request's `subject` key and the refusals name it. */
+  /**
+   * The subject's name, as the request's `subject` key and the refusals name
+   * it.
+   */
   name: string;
 
   /** The request in force when the mount starts. */
@@ -83,7 +121,7 @@ export function mountAutoMovieInspectorScene(props: {
   let disposed: boolean = false;
   let witnesses: boolean = true;
   let wanted: IAutoMovieCapturePlanRequest = props.request;
-  let live: ILive | undefined;
+  let live: IAutoMovieInspectorLive | undefined;
 
   // The instance arrives later; one that arrives after dispose is released at once.
   props.subject
@@ -93,29 +131,23 @@ export function mountAutoMovieInspectorScene(props: {
       else await arrive(instance);
     })
     .catch((error: unknown): void => {
-      if (!disposed) report.error(messageOf(error));
+      if (!disposed) report.error(messageOfAutoMovieInspectorError(error));
     });
 
-  /** Take an arrived instance into use once it is ready at its first second, releasing it if anything fails. */
+  /**
+   * Take an arrived instance into use once it is ready at its first second,
+   * releasing it if anything fails.
+   */
   async function arrive(instance: IAutoMovieDrawScene): Promise<void> {
     let seconds: number;
     try {
-      for (const [name, value] of [
-        ["duration", instance.durationSeconds],
-        ["fps", instance.fps],
-        ["width", instance.width],
-        ["height", instance.height],
-      ] as const)
-        if (!(Number.isFinite(value) && value > 0))
-          throw new Error(
-            `Subject "${props.name}" ${name} ${value} is not positive`,
-          );
+      assertAutoMovieInspectorRaster(props.name, instance);
       playhead.setDuration(instance.durationSeconds);
-      playhead.seek(firstSecond(wanted));
+      playhead.seek(firstAutoMovieInspectorSecond(wanted));
       seconds = playhead.getSnapshot().seconds;
       await instance.seek(seconds);
     } catch (error) {
-      if (!disposed) report.error(messageOf(error));
+      if (!disposed) report.error(messageOfAutoMovieInspectorError(error));
       instance.dispose();
       return;
     }
@@ -127,67 +159,47 @@ export function mountAutoMovieInspectorScene(props: {
     }
     const held: (() => void)[] = [(): void => instance.dispose()];
     try {
-      // Paths are listed before the inspection adds its own objects to the scene.
-      const marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]> =
-        instance.marks?.(seconds) ?? [];
-      const markKinds: readonly string[] = instance.markKinds ?? [];
-      const facts: IAutoMovieInspectorScene.IFacts = {
-        paths: [
-          ...listAutoMovieInspectionPaths(instance.scene).map(
-            ({ path }: { path: string }): string => path,
-          ),
-          ...marks.map(({ path }: { path: string }): string => path),
-        ],
-        marks,
-        markKinds,
-
-        views: [
-          ...Object.keys(instance.views ?? {}),
-          ...autoMovieViewerNamedViewpoints().map(
-            ({ id }: IAutoMovieViewerViewpoint): string => id,
-          ),
-        ],
-        width: instance.width,
-        height: instance.height,
-        durationSeconds: instance.durationSeconds,
-        fps: instance.fps,
-      };
+      // Facts are read before the inspection adds its own objects to the scene.
+      const facts: IAutoMovieInspectorScene.IFacts =
+        readAutoMovieInspectorFacts({ instance, seconds });
+      const { marks } = facts;
 
       const renderer: IAutoMovieInspectorSceneHost.IRenderer =
         host.createRenderer();
       held.push((): void => renderer.dispose());
-      const inspect: (
-        request: IAutoMovieCapturePlanRequest,
-      ) => IAutoMovieInspectionHandle = (
-        request: IAutoMovieCapturePlanRequest,
-      ): IAutoMovieInspectionHandle =>
-        applyAutoMovieInspection({
-          scene: instance.scene,
-          request: request.inspection,
-          renderer,
-          marks,
-          markKinds,
-        });
+      const beauty: AutoMovieInspectorBeauty = new AutoMovieInspectorBeauty();
+      held.push((): void => beauty.dispose());
+      const transition: AutoMovieInspectorTransition =
+        new AutoMovieInspectorTransition();
+      held.push((): void => transition.dispose());
 
       // The newest request, or the one that asks for nothing when the scene refuses it.
       let applied: IAutoMovieCapturePlanRequest = wanted;
       let inspection: IAutoMovieInspectionHandle;
       let refusal: string | null = null;
       try {
-        inspection = inspect(applied);
+        inspection = inspectAutoMovieInspectorRequest({
+          ...{ instance, renderer, marks },
+          request: applied,
+        });
       } catch (error) {
-        refusal = messageOf(error);
+        refusal = messageOfAutoMovieInspectorError(error);
         applied = {
           ...readAutoMovieInspectorAddress(""),
           subject: wanted.subject,
         };
-        inspection = inspect(applied);
+        inspection = inspectAutoMovieInspectorRequest({
+          ...{ instance, renderer, marks },
+          request: applied,
+        });
       }
       held.push((): void => inspection.restore());
       wanted = applied;
       live = {
         instance,
         renderer,
+        beauty,
+        transition,
         inspection,
         applied,
         frame: undefined,
@@ -205,14 +217,17 @@ export function mountAutoMovieInspectorScene(props: {
       live.frame = host.requestFrame(frame);
     } catch (error) {
       live = undefined;
-      report.error(messageOf(error));
-      release(held.reverse());
+      report.error(messageOfAutoMovieInspectorError(error));
+      releaseAutoMovieInspectorSteps(held.reverse());
     }
   }
 
-  /** One animation frame: advance, follow the size, redraw when something changed, schedule the next. */
+  /**
+   * One animation frame: advance, follow the size, redraw when something
+   * changed, schedule the next.
+   */
   function frame(nowMs: number): void {
-    const now: ILive | undefined = live;
+    const now: IAutoMovieInspectorLive | undefined = live;
     if (disposed || now === undefined) return;
     now.frame = undefined;
     const wall: number =
@@ -220,22 +235,7 @@ export function mountAutoMovieInspectorScene(props: {
     now.lastMs = nowMs;
     playhead.advance(wall);
 
-    const size: IAutoMovieInspectorSceneHost.ISize = host.size();
-    const drawable: boolean = [size.width, size.height, size.pixelRatio].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
-    );
-    if (
-      drawable &&
-      (now.size === undefined ||
-        now.size.width !== size.width ||
-        now.size.height !== size.height ||
-        now.size.pixelRatio !== size.pixelRatio)
-    ) {
-      now.renderer.setPixelRatio(size.pixelRatio);
-      now.renderer.setSize(size.width, size.height, false);
-      now.size = size;
-      now.dirty = true;
-    }
+    const drawable: boolean = followAutoMovieInspectorSize(now, host.size());
 
     const snapshot: AutoMovieInspectorPlayhead.ISnapshot =
       playhead.getSnapshot();
@@ -244,9 +244,12 @@ export function mountAutoMovieInspectorScene(props: {
     now.frame = host.requestFrame(frame);
   }
 
-  /** Seek one second and draw it once the subject is ready there; frames skip drawing while a seek is pending. */
+  /**
+   * Place one second and draw it once the subject is ready there; frames skip
+   * drawing while a placement is pending.
+   */
   function draw(
-    now: ILive,
+    now: IAutoMovieInspectorLive,
     snapshot: AutoMovieInspectorPlayhead.ISnapshot,
   ): void {
     now.dirty = false;
@@ -254,13 +257,23 @@ export function mountAutoMovieInspectorScene(props: {
     now.seeking = true;
     let ready: Promise<void>;
     try {
-      // An observation must read the scene as placed, without what the inspection changed.
+      // An observation and the subject's feeds read the scene as placed, without what the inspection changed.
       if (
-        now.instance.inspectPlaced !== undefined &&
+        readsAutoMovieInspectorPlacedScene(now.instance) &&
         changesAutoMovieObservedScene(now.applied.inspection)
       )
         now.inspection.restore();
-      ready = now.instance.seek(snapshot.seconds);
+      // A transition's other layers are placed, painted and held, and the shot the picture shows most of is placed last.
+      ready = now.transition.place({
+        name: props.name,
+        instance: now.instance,
+        request: now.applied.inspection,
+        compositor:
+          now.renderer instanceof THREE.WebGLRenderer ? now.renderer : null,
+        seconds: snapshot.seconds,
+        paint: (): void =>
+          beauty(now, filmCamera(now, snapshot.seconds), snapshot.seconds),
+      });
     } catch (error) {
       ready = Promise.reject(
         error instanceof Error ? error : new Error(String(error)),
@@ -277,54 +290,56 @@ export function mountAutoMovieInspectorScene(props: {
       });
   }
 
-  /** Draw the second the subject is now at through the applied request's first view. */
+  /**
+   * Draw the second the subject is now at through the applied request's first
+   * view.
+   */
   function paint(
-    now: ILive,
+    now: IAutoMovieInspectorLive,
     snapshot: AutoMovieInspectorPlayhead.ISnapshot,
   ): void {
     const { instance } = now;
     try {
       const diagnostics: IAutoMovieInspectionDiagnostics | undefined =
-        observeAutoMoviePlacedInspection(instance, snapshot.seconds, "viewer");
-      // Re-apply only an inspection that was restored for the observation or changed; otherwise update its marks.
+        observeAutoMoviePlacedInspection(
+          instance,
+          snapshot.seconds,
+          "viewer",
+          undefined,
+          now.transition.byShot,
+        );
+      // The subject's render-target work, such as surface feeds, runs once on the placed scene's own materials before any shade applies, as the draw host runs it; only a WebGL renderer has render targets.
+      if (now.renderer instanceof THREE.WebGLRenderer)
+        instance.beforeDraw?.(now.renderer, snapshot.seconds);
+      // Re-apply only an inspection that was restored for the scene's readers or changed; otherwise update its marks.
       if (
-        instance.inspectPlaced !== undefined &&
+        readsAutoMovieInspectorPlacedScene(instance) &&
         (changesAutoMovieObservedScene(now.applied.inspection) ||
           changesAutoMovieObservedScene(wanted.inspection) ||
-          written(wanted) !== written(now.applied))
+          writeAutoMovieInspectorInspection(wanted) !==
+            writeAutoMovieInspectorInspection(now.applied))
       ) {
         now.inspection.restore();
         if (installInspection(now, wanted, snapshot.seconds))
           now.applied = wanted;
       } else now.inspection.update(instance.marks?.(snapshot.seconds));
 
-      // The delivery camera takes the raster's aspect, as a capture of the subject does.
-      const aspect: number = instance.width / instance.height;
-      if (instance.camera.aspect !== aspect) {
-        instance.camera.aspect = aspect;
-        instance.camera.updateProjectionMatrix();
-      }
-      const text: string = now.applied.views[0]!;
-      const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(text);
-      const camera: THREE.Camera = resolveAutoMovieInspectionView({
-        view,
-        text,
-        bounds:
-          view.type === "named" ? now.inspection.bounds(view.focus) : null,
-        camera: instance.camera,
-        ...(instance.views === undefined ? {} : { views: instance.views }),
-        seconds: snapshot.seconds,
-        width: instance.width,
-        height: instance.height,
-      }).camera;
+      const camera: THREE.Camera = filmCamera(now, snapshot.seconds);
+      const shaded: boolean = now.applied.inspection.shade === "beauty";
+      const shown: () => void = (): void =>
+        beauty(now, camera, snapshot.seconds);
+      // A composited transition takes its witness cubes over the composite, at full strength.
+      const composited: boolean = shaded && now.transition.finish(shown);
       const diagnosticLegend: ReturnType<typeof witnessCubes.render> =
         witnessCubes.render({
-          scene: instance.scene,
-          diagnostics:
-            witnesses && now.applied.inspection.shade === "beauty"
-              ? diagnostics
-              : undefined,
-          render: (): void => now.renderer.render(instance.scene, camera),
+          scene: composited ? now.transition.overlay : instance.scene,
+          diagnostics: witnesses && shaded ? diagnostics : undefined,
+          render: (): void => {
+            // The beauty shade shows the delivered picture: the subject's optics, through the stage delivery draws with.
+            if (composited) now.transition.over(camera);
+            else if (shaded) shown();
+            else now.renderer.render(instance.scene, camera);
+          },
           width: now.size!.width,
           height: now.size!.height,
           stroke: now.applied.inspection.stroke,
@@ -333,21 +348,10 @@ export function mountAutoMovieInspectorScene(props: {
         diagnosticLog.observe(diagnostics, snapshot);
         report.diagnostics?.(diagnostics);
       }
-      if (!snapshot.playing) {
-        report.legend([...now.inspection.legend, ...diagnosticLegend]);
-        report.labels(
-          placeAutoMovieInspectorLabels({
-            inspection: now.inspection,
-            camera,
-            raster: instance,
-            shown: now.size!,
-          }),
-        );
-        now.labelled = true;
-      } else if (now.labelled) {
-        report.labels({ labels: [], lineHeight: 0, dropped: 0 });
-        now.labelled = false;
-      }
+      reportAutoMovieInspectorLabels({
+        ...{ now, report, camera, diagnosticLegend },
+        playing: snapshot.playing,
+      });
       if (now.error !== null) {
         now.error = null;
         report.error(null);
@@ -357,69 +361,95 @@ export function mountAutoMovieInspectorScene(props: {
     }
   }
 
-  /** Report a drawing error once until a frame draws again, and stop playback on it. */
+  /** The applied view's camera at a placed second. */
+  function filmCamera(
+    now: IAutoMovieInspectorLive,
+    seconds: number,
+  ): THREE.Camera {
+    return resolveAutoMovieInspectorCamera({
+      instance: now.instance,
+      text: now.applied.views[0]!,
+      inspection: now.inspection,
+      seconds,
+    });
+  }
+
+  /**
+   * Paint the placed scene's beauty picture through the stages delivery draws
+   * one sample with.
+   */
+  function beauty(
+    now: IAutoMovieInspectorLive,
+    camera: THREE.Camera,
+    seconds: number,
+  ): void {
+    now.beauty.draw({
+      renderer: now.renderer,
+      instance: now.instance,
+      camera,
+      seconds,
+      width: Math.floor(now.size!.width * now.size!.pixelRatio),
+      height: Math.floor(now.size!.height * now.size!.pixelRatio),
+    });
+  }
+
+  /**
+   * Report a drawing error once until a frame draws again, and stop playback on
+   * it.
+   */
   function fail(
-    now: ILive,
+    now: IAutoMovieInspectorLive,
     snapshot: AutoMovieInspectorPlayhead.ISnapshot,
     error: unknown,
   ): void {
     if (snapshot.playing) playhead.pause();
-    const message: string = messageOf(error);
+    const message: string = messageOfAutoMovieInspectorError(error);
     if (message !== now.error) {
       now.error = message;
       report.error(message);
     }
   }
 
-  /** Install the current request against the actual objects and keep the preceding request active on refusal. */
+  /**
+   * Install a request on the live subject; on refusal keep the applied one in
+   * force and report the refusal.
+   */
   function installInspection(
-    now: ILive,
+    now: IAutoMovieInspectorLive,
     request: IAutoMovieCapturePlanRequest,
     seconds: number,
   ): boolean {
-    const marks:
-      | ReturnType<NonNullable<IAutoMovieDrawScene["marks"]>>
-      | undefined = now.instance.marks?.(seconds);
-    const inspect: (
-      next: IAutoMovieCapturePlanRequest,
-    ) => IAutoMovieInspectionHandle = (
-      next: IAutoMovieCapturePlanRequest,
-    ): IAutoMovieInspectionHandle =>
-      applyAutoMovieInspection({
-        scene: now.instance.scene,
-        request: next.inspection,
-        renderer: now.renderer,
-        ...(marks === undefined ? {} : { marks }),
-        markKinds: now.instance.markKinds ?? [],
-      });
-    try {
-      now.inspection = inspect(request);
-      return true;
-    } catch (error) {
-      now.inspection = inspect(now.applied);
-      wanted = now.applied;
-      report.refused(now.applied, messageOf(error));
-      return false;
-    }
+    return installAutoMovieInspectorRequest({
+      ...{ now, request, seconds },
+      refused: (error: unknown): void => {
+        wanted = now.applied;
+        report.refused(now.applied, messageOfAutoMovieInspectorError(error));
+      },
+    });
   }
-
   return {
     apply: (request: IAutoMovieCapturePlanRequest): void => {
       if (disposed || request === wanted) return;
       wanted = request;
-      const now: ILive | undefined = live;
+      const now: IAutoMovieInspectorLive | undefined = live;
       if (now === undefined) return;
 
       // Opted-in subjects apply each request only after the current settled scene is observed.
       if (now.instance.inspectPlaced !== undefined) {
-        if (firstSecond(request) !== firstSecond(now.applied))
-          playhead.seek(firstSecond(request));
+        if (
+          firstAutoMovieInspectorSecond(request) !==
+          firstAutoMovieInspectorSecond(now.applied)
+        )
+          playhead.seek(firstAutoMovieInspectorSecond(request));
         now.dirty = true;
         return;
       }
 
       // A generic subject keeps its inspection until its request changes.
-      if (written(request) !== written(now.applied)) {
+      if (
+        writeAutoMovieInspectorInspection(request) !==
+        writeAutoMovieInspectorInspection(now.applied)
+      ) {
         now.inspection.restore();
         const accepted: boolean = installInspection(
           now,
@@ -432,8 +462,11 @@ export function mountAutoMovieInspectorScene(props: {
         }
         report.legend([...now.inspection.legend]);
       }
-      if (firstSecond(request) !== firstSecond(now.applied))
-        playhead.seek(firstSecond(request));
+      if (
+        firstAutoMovieInspectorSecond(request) !==
+        firstAutoMovieInspectorSecond(now.applied)
+      )
+        playhead.seek(firstAutoMovieInspectorSecond(request));
       now.applied = request;
       now.dirty = true;
     },
@@ -445,15 +478,17 @@ export function mountAutoMovieInspectorScene(props: {
     dispose: (): void => {
       if (disposed) return;
       disposed = true;
-      const now: ILive | undefined = live;
+      const now: IAutoMovieInspectorLive | undefined = live;
       live = undefined;
       if (now === undefined) return;
-      release([
+      releaseAutoMovieInspectorSteps([
         (): void => {
           if (now.frame !== undefined) host.cancelFrame(now.frame);
           now.frame = undefined;
         },
         (): void => now.inspection.restore(),
+        (): void => now.transition.dispose(),
+        (): void => now.beauty.dispose(),
         (): void => now.renderer.dispose(),
         (): void => now.instance.dispose(),
         (): void => diagnosticLog.dispose(),
@@ -461,35 +496,4 @@ export function mountAutoMovieInspectorScene(props: {
       ]);
     },
   };
-}
-
-/** The first second a request draws: its first explicit second, or the start of its sampling. */
-function firstSecond(request: IAutoMovieCapturePlanRequest): number {
-  return request.sampling.kind === "at"
-    ? request.sampling.seconds[0]!
-    : request.sampling.from;
-}
-
-/** A request's inspection as the text it writes, the identity an applied inspection is reused by. */
-function written(request: IAutoMovieCapturePlanRequest): string {
-  return JSON.stringify(formatAutoMovieInspectionRequest(request.inspection));
-}
-
-/** Run every step, then throw every failure together. */
-function release(steps: readonly (() => void)[]): void {
-  const failures: unknown[] = [];
-  for (const step of steps)
-    try {
-      step();
-    } catch (error) {
-      failures.push(error);
-    }
-  if (failures.length === 1) throw failures[0];
-  if (failures.length > 1)
-    throw new AggregateError(failures, "The inspector mount failed to release");
-}
-
-/** The text of a thrown value. */
-function messageOf(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

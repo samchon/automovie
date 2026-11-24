@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Closed kinds distinguish semantic hierarchy, scene nodes, compact populations and simulated drawables that the engine palette collector and viewer resolution actually address.
+Closed kinds distinguish semantic hierarchy, scene nodes, compact populations, simulated drawables and surface graphics that the engine palette collector and viewer resolution actually address.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

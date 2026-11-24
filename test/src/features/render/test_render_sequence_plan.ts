@@ -57,14 +57,20 @@ const SPEC: IAutoMovieRenderSpec = {
 };
 
 /**
- * The sequence render manifest exposes the same cut arithmetic the viewer uses: trim offsets, transition overlap, per-frame live shot samples, blend tails, and encoder paths.
+ * The sequence render manifest exposes the same cut arithmetic the viewer uses:
+ * trim offsets, transition overlap, per-frame live shot samples, blend tails,
+ * and encoder paths.
  *
  * Scenarios:
  *
- * 1. A two-shot sequence with a 0.5 s dissolve has a 2.5 s runtime and 10 frames at render fps 4.
- * 2. Shot spans preserve trim offsets; the incoming entry starts at 0.5 s because the transition overlaps the previous shot tail.
- * 3. Frames inside the dissolve carry both incoming and outgoing shot-local times plus the incoming alpha.
- * 4. Default frame/output paths sanitize the sequence id and produce pinned ffmpeg args; custom paths override those defaults.
+ * 1. A two-shot sequence with a 0.5 s dissolve has a 2.5 s runtime and 10 frames
+ *    at render fps 4.
+ * 2. Shot spans preserve trim offsets; the incoming entry starts at 0.5 s because
+ *    the transition overlaps the previous shot tail.
+ * 3. Frames inside the dissolve carry both incoming and outgoing shot-local times
+ *    plus the transition's progress and kind.
+ * 4. Default frame/output paths sanitize the sequence id and produce pinned ffmpeg
+ *    args; custom paths override those defaults.
  * 5. Target mismatch and zero-frame schedules reject before capture.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans the actual two-shot cut and observes spans, trim offsets, blend samples, paths and target/zero-frame refusals, detecting incorrect overlap or output-clock mapping.
@@ -172,7 +178,12 @@ export function test_render_sequence_plan(): void {
       path: "frames/seq_duel/frame_00002.png",
       shot: "shot:b",
       shotTimeSeconds: 1,
-      blend: { shot: "shot:a", shotTimeSeconds: 1, alpha: 0 },
+      blend: {
+        shot: "shot:a",
+        shotTimeSeconds: 1,
+        alpha: 0,
+        kind: "crossDissolve",
+      },
     }),
   );
   const midDissolve: IAutoMovieSequenceRenderFrame = plan.frames[3]!;

@@ -6,6 +6,10 @@ Assemble the delivered video to the scope in [project context](project-context.m
 
 Build one film per screenplay folder. Check the [compositions](../contracts/development/composition.md#screenplay-realization) for missing or unintended repeated beats. Preserve scene order, cuts, pauses, transitions and titles. Use [frame evaluation](../motion/frame-evaluation.md) for scheduling and cut boundaries. Preserve the meaning of each [control channel](../motion/control-channels.md).
 
+The render, captures and the Viewer draw the transitions of the film's `playback` sequence: a `crossDissolve` mixes the two shots across its overlap, and a `fade` dips through black.
+
+When the sequence has a transition, give the film a `seekShot` member, because every picture inside a transition is refused without it. It places one shot at its own shot-local second, such as a transition's outgoing shot. Read the dialogue mouths at the film second, and let every other member describe the placed shot, so the outgoing tail keeps its own exposure, focus and soft props. Without `seekShot`, a shutter sample before a shot's start takes the shot's nearest live second, so the blur trail at a cut is shorter. The member's JSDoc sets the seconds it can be asked for.
+
 ## Render
 
 <!-- @source The [FFmpeg codec options](https://github.com/FFmpeg/FFmpeg/blob/master/doc/codecs.texi) define color_range. -->
@@ -14,7 +18,7 @@ Before scaling a new host or a changed export path, take a shot through a join a
 
 After [segment review](../motion/segment-review.md), use the README render command for the complete motion hint or direct 3D film. For a generated film, assemble the accepted finished takes.
 
-Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). To add those streams, use a documented assembly command that supports them or an approved production tool. The scaffold's render command produces picture only. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
+Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). The README render command mixes a declared [sound list](../audio/soundtrack.md#sound-list) into the soundtrack it encodes, encodes a supplied `delivery.audio.path` as given, and otherwise produces picture only. To add caption tracks or any other stream, use a documented assembly command that supports them or an approved production tool. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
 
 ## Repair and delivery
 
@@ -22,7 +26,7 @@ Follow [delivery repairs](../review/delivery-review.md#repairs) for a failed cut
 
 - its revision, media identities, fixed inputs, source, dependencies and reproduction commands;
 - checks, observers and outstanding limits;
-- for a whole motion hint, each shot's name, frame range, resolved camera and chosen lens;
+- for a whole motion hint, each shot's name, frame range, resolved camera and chosen lens, taking the frame ranges from a [trusted render report](media-records.md#render-reports)'s `cut`;
 - rights, attribution, generation requests and the derivatives they produced;
 - takes with content credentials, required disclosures and any required music cue sheet from the locked cut.
 

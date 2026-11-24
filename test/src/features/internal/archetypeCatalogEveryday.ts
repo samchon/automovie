@@ -46,10 +46,14 @@ import {
 import type { archetypeCatalog } from "./archetypeCatalog";
 
 /**
- * The catalog's rows of everyday objects, outdoor scenery, sport apparatus and implements, and music. Part of `archetypeCatalog`, kept apart so each file stays within its size.
+ * The catalog's rows of everyday objects, outdoor scenery, sport apparatus and
+ * implements, and music. Part of `archetypeCatalog`, kept apart so each file
+ * stays within its size.
  *
- * @param add Adds one row: its name, its archetype for a seed, and whether no seed varies it.
- * @param settled Whether a variant's bands are each one value and it has at most one read model.
+ * @param add Adds one row: its name, its archetype for a seed, and whether no
+ *   seed varies it.
+ * @param settled Whether a variant's bands are each one value and it has at
+ *   most one read model.
  */
 export function archetypeCatalogEveryday(
   add: archetypeCatalog.Add,
@@ -59,240 +63,335 @@ export function archetypeCatalogEveryday(
   for (const kind of createVessel.KINDS)
     add(
       `vessel-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createVessel({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createVessel({ kind, ...dimensions }, seed),
     );
   for (const kind of createWearable.KINDS)
     add(
       `wearable-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createWearable({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createWearable({ kind, ...dimensions }, seed),
     );
   for (const kind of createKeyboard.KINDS)
     add(
       `keyboard-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createKeyboard({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createKeyboard({ kind, ...dimensions }, seed),
     );
   for (const kind of createCleaning.KINDS)
     add(
       `cleaning-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createCleaning({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createCleaning({ kind, ...dimensions }, seed),
     );
   for (const kind of createTray.KINDS)
     add(
       `tray-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createTray({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createTray({ kind, ...dimensions }, seed),
     );
   add(
     "torch",
-    (seed?: number | string): AutoMovieArchetype => createTorch({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createTorch({ ...dimensions }, seed),
   );
   add(
     "pram",
-    (seed?: number | string): AutoMovieArchetype => createPram({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createPram({ ...dimensions }, seed),
   );
   for (const kind of createTableware.KINDS)
     add(
       `tableware-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createTableware({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createTableware({ kind, ...dimensions }, seed),
       settled(createTableware.BANDS[kind], createTableware.MODELS[kind]),
     );
   for (const kind of createFood.KINDS)
     add(
       `food-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createFood({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createFood({ kind, ...dimensions }, seed),
       settled(createFood.BANDS[kind], createFood.MODELS[kind]),
     );
   for (const kind of createLight.KINDS)
     add(
       `light-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createLight({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createLight({ kind, ...dimensions }, seed),
       settled(createLight.BANDS[kind]),
     );
   for (const open of [false, true])
     add(
       `umbrella-${open ? "open" : "closed"}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createUmbrella({ open }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createUmbrella({ open, ...dimensions }, seed),
     );
   for (const kind of createMobilityAid.KINDS)
     add(
       `mobilityAid-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createMobilityAid({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createMobilityAid({ kind, ...dimensions }, seed),
     );
   for (const kind of createRock.KINDS)
     add(
       `rock-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createRock({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createRock({ kind, ...dimensions }, seed),
     );
   for (const kind of createFireRing.KINDS)
     add(
       `fireRing-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createFireRing({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createFireRing({ kind, ...dimensions }, seed),
       settled(createFireRing.BANDS[kind]),
     );
   for (const kind of createTent.KINDS)
     add(
       `tent-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createTent({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createTent({ kind, ...dimensions }, seed),
     );
   for (const kind of createTree.KINDS)
     add(
       `tree-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createTree({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createTree({ kind, ...dimensions }, seed),
     );
   // Sport: the jump apparatus.
   add(
     "vaultingPole",
-    (seed?: number | string): AutoMovieArchetype =>
-      createVaultingPole({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createVaultingPole({ ...dimensions }, seed),
   );
   add(
     "highJump",
-    (seed?: number | string): AutoMovieArchetype => createHighJump({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createHighJump({ ...dimensions }, seed),
   );
   add(
     "highJump-poleVault",
-    (seed?: number | string): AutoMovieArchetype =>
-      createHighJump({ kind: "poleVault" }, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype =>
+      createHighJump({ kind: "poleVault", ...dimensions }, seed),
   );
   for (const kind of createPoolEdge.KINDS)
     add(
       `poolEdge-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createPoolEdge({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createPoolEdge({ kind, ...dimensions }, seed),
     );
   for (const kind of createGoal.KINDS)
     add(
       `goal-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createGoal({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createGoal({ kind, ...dimensions }, seed),
     );
   for (const kind of createStick.KINDS)
     add(
       `stick-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createStick({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createStick({ kind, ...dimensions }, seed),
     );
   add(
     "cue",
-    (seed?: number | string): AutoMovieArchetype => createCue({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createCue({ ...dimensions }, seed),
   );
   add(
     "cueTable",
-    (seed?: number | string): AutoMovieArchetype => createCueTable({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createCueTable({ ...dimensions }, seed),
   );
   add(
     "skateboard",
-    (seed?: number | string): AutoMovieArchetype => createSkateboard({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createSkateboard({ ...dimensions }, seed),
   );
   add(
     "ski",
-    (seed?: number | string): AutoMovieArchetype => createSki({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createSki({ ...dimensions }, seed),
   );
   add(
     "surfboard",
-    (seed?: number | string): AutoMovieArchetype => createSurfboard({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createSurfboard({ ...dimensions }, seed),
   );
   for (const kind of createLandingMat.KINDS)
     add(
       `landingMat-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createLandingMat({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createLandingMat({ kind, ...dimensions }, seed),
     );
   for (const kind of createVaultingTable.KINDS)
     add(
       `vaultingTable-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createVaultingTable({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype =>
+        createVaultingTable({ kind, ...dimensions }, seed),
     );
   // Sport: the balls, the struck and thrown implements and the track.
   for (const kind of createBall.KINDS)
     add(
       `ball-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createBall({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createBall({ kind, ...dimensions }, seed),
     );
   for (const kind of createRacket.KINDS)
     add(
       `racket-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createRacket({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createRacket({ kind, ...dimensions }, seed),
     );
   for (const kind of createGolfClub.KINDS)
     add(
       `golfClub-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createGolfClub({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createGolfClub({ kind, ...dimensions }, seed),
     );
   for (const kind of createGlove.KINDS)
     add(
       `glove-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createGlove({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createGlove({ kind, ...dimensions }, seed),
     );
   for (const kind of createJavelin.KINDS)
     add(
       `javelin-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createJavelin({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createJavelin({ kind, ...dimensions }, seed),
     );
   for (const kind of createShot.KINDS)
     add(
       `shot-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createShot({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createShot({ kind, ...dimensions }, seed),
     );
   for (const kind of createDiscus.KINDS)
     add(
       `discus-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createDiscus({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createDiscus({ kind, ...dimensions }, seed),
     );
   for (const kind of createHammerThrow.KINDS)
     add(
       `hammerThrow-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createHammerThrow({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createHammerThrow({ kind, ...dimensions }, seed),
     );
   for (const kind of createHurdle.KINDS)
     add(
       `hurdle-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createHurdle({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createHurdle({ kind, ...dimensions }, seed),
     );
   add(
     "startingBlock",
-    (seed?: number | string): AutoMovieArchetype =>
-      createStartingBlock({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createStartingBlock({ ...dimensions }, seed),
   );
   add(
     "relayBaton",
-    (seed?: number | string): AutoMovieArchetype => createRelayBaton({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createRelayBaton({ ...dimensions }, seed),
   );
   // Music: the instruments and the microphones.
   for (const kind of createInstrument.KINDS)
     add(
       `instrument-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createInstrument({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createInstrument({ kind, ...dimensions }, seed),
     );
   for (const kind of createMicrophone.KINDS)
     add(
       `microphone-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createMicrophone({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createMicrophone({ kind, ...dimensions }, seed),
       kind === "handheld",
     );
 }

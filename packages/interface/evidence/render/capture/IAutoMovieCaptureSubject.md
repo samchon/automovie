@@ -6,7 +6,7 @@ The subject's clock (seconds and frames per second), its raster in pixels, its v
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Each member is read by the planner: the clock by the times, the raster by the layout, the views and mark kinds by the refusals, the drawables by the sweep, the named instants by the captions. Boxes use the interface's own vector.
+Each member is read by the planner: the clock by the times, the raster by the layout, the views and mark kinds by the refusals, the drawables by the sweep, the named instants by the captions. The optional delivery members, the intent, the sound list and the cut, are read by the delivery render, the cut as the playback timeline its owner already types. Boxes use the interface's own vector.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

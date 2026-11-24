@@ -2,7 +2,8 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
 import type { IAutoMovieCameraAction } from "../harness/IAutoMovieCameraAction";
 
 /**
- * One frame span's directorial intent for framing, camera movement and lens settings.
+ * One frame span's directorial intent for framing, camera movement and lens
+ * settings.
  *
  * A downstream host can read the lens marks independently of the camera path.
  * The scene camera's `fovY` remains the geometric field of view.
@@ -40,4 +41,10 @@ export interface IAutoMovieCameraIntent {
    * the action named none.
    */
   focalLength: number | null;
+
+  /**
+   * The lens stop, finite and `> 0`, present exactly when the action authored
+   * `fNumber`. `resolveAutoMovieLensAt` reads it with `focus` and `focusPull`.
+   */
+  fNumber?: number;
 }

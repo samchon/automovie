@@ -1,21 +1,3 @@
-# src/vehicles/CarCabin.ts#CarCabin
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what it builds and what it reads.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Hinged and sliding leaves, sliding glass and reclining backs as articulations on the layout's planes, the controls at offsets from the seating reference point.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The three builders `createCar` calls.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Every door, window and back is one helper over its side and station, not a copy per position.
-
 # src/vehicles/CarCabin.ts#CarCabin.doors
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -54,7 +36,7 @@ States which seats each class has.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Each seat is a cushion whose `seat` affordance sits on its front edge facing forward, laid out from its seating reference point: the front pair's the layout's, the rear bench's `REAR_SGRP` ahead of the rear doors' trailing edge, which lies `REAR_DOOR` behind the front doors, at the front seats' height (a provisional value, see `HIP`); its back turns about the cushion's rear edge with `+Y` along `-X`, so a positive travel tips its top back toward `-Z`, by up to `recline`.
+Each seat is a cushion whose `seat` affordance sits on its front edge facing forward, laid out from its seating reference point: the front pair's the layout's, the rear bench's `REAR_SGRP` ahead of the rear doors' trailing edge, which lies `REAR_DOOR` behind the front doors, at the front seats' height (a provisional value, see `HIP`); its back turns about the cushion's rear edge with `+Y` along `-X`, so a positive travel tips its top back toward `-Z`, by up to `recline`. A back whose `recline` is 0, the band's lower end, has no hinge, since a hinge's travel must be positive.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

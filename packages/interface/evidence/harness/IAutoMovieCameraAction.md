@@ -10,7 +10,7 @@ Framing, move and subject are closed choices the solver understands; the lens in
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Focus and focalLength leave the deterministic solve unchanged and produce no depth-of-field blur. Missing/invalid aspect uses a square-fit fallback at the low-level compiler, close keys within 1e-9 seconds merge with later values, and ordinary focus is resolved at the shot opening and a timed pull records its two marks without continuous lens tracking.
+Focus, focalLength and fNumber leave the deterministic solve unchanged; a directly rendered film draws depth of field from the recorded focus and fNumber through resolveAutoMovieLensAt, with an aperture taken from the camera's field of view rather than focalLength. Missing/invalid aspect uses a square-fit fallback at the low-level compiler, close keys within 1e-9 seconds merge with later values, and ordinary focus is resolved at the shot opening and a timed pull records its two marks without continuous lens tracking.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

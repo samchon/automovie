@@ -50,10 +50,13 @@ import {
 import type { archetypeCatalog } from "./archetypeCatalog";
 
 /**
- * The catalog's rows of vehicles, animals, weapons and gym equipment. Part of `archetypeCatalog`, kept apart so each file stays within its size.
+ * The catalog's rows of vehicles, animals, weapons and gym equipment. Part of
+ * `archetypeCatalog`, kept apart so each file stays within its size.
  *
- * @param add Adds one row: its name, its archetype for a seed, and whether no seed varies it.
- * @param settled Whether a variant's bands are each one value and it has at most one read model.
+ * @param add Adds one row: its name, its archetype for a seed, and whether no
+ *   seed varies it.
+ * @param settled Whether a variant's bands are each one value and it has at
+ *   most one read model.
  */
 export function archetypeCatalogCarried(
   add: archetypeCatalog.Add,
@@ -62,47 +65,67 @@ export function archetypeCatalogCarried(
   for (const kind of createCar.KINDS)
     add(
       `car-${kind}`,
-      (seed?: number | string): AutoMovieArchetype => createCar({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createCar({ kind, ...dimensions }, seed),
     );
   add(
     "bicycle",
-    (seed?: number | string): AutoMovieArchetype => createBicycle({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createBicycle({ ...dimensions }, seed),
   );
   for (const kind of createWheelchair.KINDS)
     add(
       `wheelchair-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createWheelchair({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createWheelchair({ kind, ...dimensions }, seed),
     );
   for (const kind of createMotorcycle.KINDS)
     add(
       `motorcycle-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createMotorcycle({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createMotorcycle({ kind, ...dimensions }, seed),
     );
   for (const kind of createCart.KINDS)
     add(
       `cart-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createCart({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createCart({ kind, ...dimensions }, seed),
       kind === "limber" || kind === "wagon",
     );
   for (const kind of createBoat.KINDS)
     add(
       `boat-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createBoat({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createBoat({ kind, ...dimensions }, seed),
       kind === "launch",
     );
   add(
     "deck",
-    (seed?: number | string): AutoMovieArchetype =>
-      createDeck(createDeck.REFERENCE, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype =>
+      createDeck({ ...createDeck.REFERENCE, ...dimensions }, seed),
     true,
   );
   add(
     "horse",
-    (seed?: number | string): AutoMovieArchetype => createHorse({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createHorse({ ...dimensions }, seed),
   );
 
   // These interaction fixtures include real collar/lead geometry and its rein
@@ -120,191 +143,285 @@ export function archetypeCatalogCarried(
   // catalog rows remain seed-variable even when their geometry is unchanged.
   add(
     "ox",
-    (seed?: number | string): AutoMovieArchetype =>
-      createOx({ ...createOx.REFERENCE, lead }, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype =>
+      createOx({ ...createOx.REFERENCE, lead, ...dimensions }, seed),
   );
   add(
     "camel",
-    (seed?: number | string): AutoMovieArchetype =>
-      createCamel({ ...createCamel.REFERENCE, lead }, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype =>
+      createCamel({ ...createCamel.REFERENCE, lead, ...dimensions }, seed),
   );
   add(
     "deer",
-    (seed?: number | string): AutoMovieArchetype =>
-      createDeer({ mass: 62, lead }, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype =>
+      createDeer({ mass: 62, lead, ...dimensions }, seed),
   );
   add(
     "pony",
-    (seed?: number | string): AutoMovieArchetype => createPony({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createPony({ ...dimensions }, seed),
   );
   add(
     "donkey",
-    (seed?: number | string): AutoMovieArchetype => createDonkey({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createDonkey({ ...dimensions }, seed),
   );
   add(
     "mule",
-    (seed?: number | string): AutoMovieArchetype => createMule({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createMule({ ...dimensions }, seed),
   );
   for (const frame of createHandgun.FRAMES)
     add(
       `handgun-${frame}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createHandgun({ frame }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createHandgun({ frame, ...dimensions }, seed),
     );
   for (const kind of createHolster.KINDS)
     add(
       `holster-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createHolster({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createHolster({ kind, ...dimensions }, seed),
     );
   for (const kind of createMagazine.KINDS)
     add(
       `magazine-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createMagazine({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createMagazine({ kind, ...dimensions }, seed),
       settled(createMagazine.BANDS[kind]),
     );
   for (const kind of createProjectile.KINDS)
     add(
       `projectile-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createProjectile({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createProjectile({ kind, ...dimensions }, seed),
       settled(createProjectile.BANDS[kind], createProjectile.MODELS[kind]),
     );
   for (const kind of createBow.KINDS)
     add(
       `bow-${kind}`,
-      (seed?: number | string): AutoMovieArchetype => createBow({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createBow({ kind, ...dimensions }, seed),
     );
   for (const kind of createCannon.KINDS)
     add(
       `cannon-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createCannon({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createCannon({ kind, ...dimensions }, seed),
       settled(createCannon.BANDS[kind], createCannon.MODELS[kind]),
     );
   for (const kind of createSiegeEngine.KINDS)
     add(
       `siegeEngine-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createSiegeEngine({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createSiegeEngine({ kind, ...dimensions }, seed),
     );
   for (const kind of createLongGun.KINDS)
     add(
       `longGun-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createLongGun({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createLongGun({ kind, ...dimensions }, seed),
     );
   add(
     `dumbbell`,
-    (seed?: number | string): AutoMovieArchetype => createDumbbell({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createDumbbell({ ...dimensions }, seed),
   );
   add(
     `kettlebell`,
-    (seed?: number | string): AutoMovieArchetype => createKettlebell({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createKettlebell({ ...dimensions }, seed),
   );
   add(
     `bench`,
-    (seed?: number | string): AutoMovieArchetype => createBench({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createBench({ ...dimensions }, seed),
   );
   add(
     `plyo-box`,
-    (seed?: number | string): AutoMovieArchetype => createPlyoBox({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createPlyoBox({ ...dimensions }, seed),
   );
   add(
     `rack`,
-    (seed?: number | string): AutoMovieArchetype => createRack({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createRack({ ...dimensions }, seed),
   );
   add(
     "sled",
-    (seed?: number | string): AutoMovieArchetype => createSled({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createSled({ ...dimensions }, seed),
   );
   add(
     "rowingMachine",
-    (seed?: number | string): AutoMovieArchetype =>
-      createRowingMachine({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createRowingMachine({ ...dimensions }, seed),
   );
   add(
     "exerciseBike",
-    (seed?: number | string): AutoMovieArchetype =>
-      createExerciseBike({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createExerciseBike({ ...dimensions }, seed),
   );
   for (const kind of createExerciseMat.KINDS)
     add(
       `exerciseMat-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createExerciseMat({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createExerciseMat({ kind, ...dimensions }, seed),
     );
   add(
     "jumpRope",
-    (seed?: number | string): AutoMovieArchetype => createJumpRope({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createJumpRope({ ...dimensions }, seed),
   );
   add(
     "ring",
-    (seed?: number | string): AutoMovieArchetype => createRing({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createRing({ ...dimensions }, seed),
   );
   add(
     "boxingGlove",
-    (seed?: number | string): AutoMovieArchetype => createBoxingGlove({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createBoxingGlove({ ...dimensions }, seed),
   );
   add(
     "heavyBag",
-    (seed?: number | string): AutoMovieArchetype => createHeavyBag({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createHeavyBag({ ...dimensions }, seed),
   );
   for (const kind of createPullUpBar.KINDS)
     add(
       `pull-up-bar-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createPullUpBar({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createPullUpBar({ kind, ...dimensions }, seed),
     );
   for (const kind of createParallelBars.KINDS)
     add(
       `parallel-bars-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createParallelBars({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype =>
+        createParallelBars({ kind, ...dimensions }, seed),
     );
   for (const kind of createBarbell.KINDS)
     add(
       `barbell-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createBarbell({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createBarbell({ kind, ...dimensions }, seed),
     );
   for (const kind of createClub.KINDS)
     add(
       `club-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createClub({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createClub({ kind, ...dimensions }, seed),
     );
   for (const kind of createSword.KINDS)
     add(
       `sword-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createSword({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createSword({ kind, ...dimensions }, seed),
     );
   for (const kind of createShield.KINDS)
     add(
       `shield-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createShield({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createShield({ kind, ...dimensions }, seed),
     );
   for (const kind of createPolearm.KINDS)
     add(
       `polearm-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createPolearm({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createPolearm({ kind, ...dimensions }, seed),
     );
   add(
     "pell",
-    (seed?: number | string): AutoMovieArchetype => createPell({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createPell({ ...dimensions }, seed),
   );
   for (const kind of createWeaponLoop.KINDS)
     add(
       `weaponLoop-${kind}`,
-      (seed?: number | string): AutoMovieArchetype =>
-        createWeaponLoop({ kind }, seed),
+      (
+        seed?: number | string,
+        dimensions?: archetypeCatalog.Dimensions,
+      ): AutoMovieArchetype => createWeaponLoop({ kind, ...dimensions }, seed),
     );
   add(
     "weaponRack",
-    (seed?: number | string): AutoMovieArchetype => createWeaponRack({}, seed),
+    (
+      seed?: number | string,
+      dimensions?: archetypeCatalog.Dimensions,
+    ): AutoMovieArchetype => createWeaponRack({ ...dimensions }, seed),
   );
 }

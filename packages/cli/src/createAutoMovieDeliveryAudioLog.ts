@@ -25,7 +25,8 @@ interface IAudioFormat {
  * the audit still sees the real duration.
  *
  * @returns A line consumer, the first decoded frame format and a completion
- * operation that reconciles timing with the PCM byte stream and the container.
+ *   operation that reconciles timing with the PCM byte stream and the
+ *   container.
  */
 export function createAutoMovieDeliveryAudioLog() {
   let format: IAudioFormat | undefined;
@@ -122,6 +123,7 @@ export function createAutoMovieDeliveryAudioLog() {
         sampleRate,
         continuous,
         ...(padding === 0 ? {} : { trailingPadding: padding }),
+        ...(pcm.loudness === undefined ? {} : { loudness: pcm.loudness }),
         observations:
           continuous && overrun < lastSamples
             ? pcm.silent.map(

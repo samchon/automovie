@@ -5,7 +5,7 @@ export type { AutoMovieFormationCapability } from "./AutoMovieFormationCapabilit
 export type { AutoMovieGrammarStyleIntent } from "./AutoMovieGrammarStyleIntent";
 export type { AutoMovieProductionPngColor } from "./AutoMovieProductionPngColor";
 export type { AutoMovieSubjectKind } from "./AutoMovieSubjectKind";
-export type * from "./cache";
+export type { AutoMovieViseme } from "./AutoMovieViseme";
 export type * from "./capture";
 export type * from "./effect";
 export type { IAutoMovieAcousticResponseProfile } from "./IAutoMovieAcousticResponseProfile";
@@ -28,6 +28,7 @@ export type { IAutoMovieCaptionReadabilityOutcome } from "./IAutoMovieCaptionRea
 export type { IAutoMovieCaptionReadabilityProfile } from "./IAutoMovieCaptionReadabilityProfile";
 export type { IAutoMovieCaptionReadabilityReport } from "./IAutoMovieCaptionReadabilityReport";
 export type { IAutoMovieCaptureRuntimeIdentity } from "./IAutoMovieCaptureRuntimeIdentity";
+export type { IAutoMovieClassifyPlaybackBoundary } from "./IAutoMovieClassifyPlaybackBoundary";
 export type { IAutoMovieCollisionProxyReference } from "./IAutoMovieCollisionProxyReference";
 export type { IAutoMovieCompileAttach } from "./IAutoMovieCompileAttach";
 export type { IAutoMovieCompiledContractRealization } from "./IAutoMovieCompiledContractRealization";
@@ -46,7 +47,6 @@ export type { IAutoMovieCompiledShotSource } from "./IAutoMovieCompiledShotSourc
 export type { IAutoMovieCompileLaunch } from "./IAutoMovieCompileLaunch";
 export type { IAutoMovieCompilePerformShotLaunches } from "./IAutoMovieCompilePerformShotLaunches";
 export type { IAutoMovieCompilePracticalLightMotion } from "./IAutoMovieCompilePracticalLightMotion";
-export type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
 export type { IAutoMovieComputeModelRestExtent } from "./IAutoMovieComputeModelRestExtent";
 export type { IAutoMovieComputeModelRestExtentY } from "./IAutoMovieComputeModelRestExtentY";
 export type { IAutoMovieCoupleObjects } from "./IAutoMovieCoupleObjects";
@@ -54,7 +54,6 @@ export type { IAutoMovieCreateCompiledSlotSummary } from "./IAutoMovieCreateComp
 export type { IAutoMovieCreatePerformShotSubjectFramer } from "./IAutoMovieCreatePerformShotSubjectFramer";
 export type { IAutoMovieCreateSourceOracle } from "./IAutoMovieCreateSourceOracle";
 export type { IAutoMovieCurrentSubjectReviewObservation } from "./IAutoMovieCurrentSubjectReviewObservation";
-export type { IAutoMovieClassifyPlaybackBoundary } from "./IAutoMovieClassifyPlaybackBoundary";
 export type { IAutoMovieCut } from "./IAutoMovieCut";
 export type { IAutoMovieDecodedProductionAudioAsset } from "./IAutoMovieDecodedProductionAudioAsset";
 export type { IAutoMovieDerivedArtifactSource } from "./IAutoMovieDerivedArtifactSource";
@@ -136,10 +135,10 @@ export type { IAutoMovieMeasurementProxyReference } from "./IAutoMovieMeasuremen
 export type { IAutoMovieModelLod } from "./IAutoMovieModelLod";
 export type { IAutoMovieModelPartPoints } from "./IAutoMovieModelPartPoints";
 export type { IAutoMovieMotionAdoptionConsumer } from "./IAutoMovieMotionAdoptionConsumer";
+export type { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceConsumer";
 export type { IAutoMovieMotionTake } from "./IAutoMovieMotionTake";
 export type { IAutoMovieMotionTakeAnchor } from "./IAutoMovieMotionTakeAnchor";
 export type { IAutoMovieMotionTakeProvenance } from "./IAutoMovieMotionTakeProvenance";
-export type { IAutoMovieMotionResourceConsumer } from "./IAutoMovieMotionResourceConsumer";
 export type { IAutoMovieNamedState } from "./IAutoMovieNamedState";
 export type { IAutoMovieObjectMotionGate } from "./IAutoMovieObjectMotionGate";
 export type { IAutoMoviePassageBlockage } from "./IAutoMoviePassageBlockage";
@@ -152,13 +151,16 @@ export type { IAutoMoviePhysicalShapeBounds } from "./IAutoMoviePhysicalShapeBou
 export type { IAutoMoviePlaceFormationSlot } from "./IAutoMoviePlaceFormationSlot";
 export type { IAutoMoviePlacementSummary } from "./IAutoMoviePlacementSummary";
 export type { IAutoMoviePlantPerformShotStanceFeet } from "./IAutoMoviePlantPerformShotStanceFeet";
-export type { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 export type { IAutoMoviePlaybackEditorialMarker } from "./IAutoMoviePlaybackEditorialMarker";
+export type { IAutoMoviePlaybackEntry } from "./IAutoMoviePlaybackEntry";
 export type { IAutoMoviePlaybackEvent } from "./IAutoMoviePlaybackEvent";
+export type { IAutoMoviePlaybackLayer } from "./IAutoMoviePlaybackLayer";
 export type { IAutoMoviePlaybackSample } from "./IAutoMoviePlaybackSample";
 export type { IAutoMoviePlaybackTimeline } from "./IAutoMoviePlaybackTimeline";
 export type { IAutoMoviePointSubjectBox } from "./IAutoMoviePointSubjectBox";
+export type { IAutoMoviePracticalLightBinding } from "./IAutoMoviePracticalLightBinding";
 export type { IAutoMoviePreparePlaybackTimeline } from "./IAutoMoviePreparePlaybackTimeline";
+export type { IAutoMovieProductionAacDescription } from "./IAutoMovieProductionAacDescription";
 export type { IAutoMovieProductionAcousticResponse } from "./IAutoMovieProductionAcousticResponse";
 export type { IAutoMovieProductionAudioProbe } from "./IAutoMovieProductionAudioProbe";
 export type { IAutoMovieProductionAudioProcessing } from "./IAutoMovieProductionAudioProcessing";
@@ -172,12 +174,12 @@ export type { IAutoMovieProductionFrameRate } from "./IAutoMovieProductionFrameR
 export type { IAutoMovieProductionLipSyncJoin } from "./IAutoMovieProductionLipSyncJoin";
 export type { IAutoMovieProductionMediaProbe } from "./IAutoMovieProductionMediaProbe";
 export type { IAutoMovieProductionMixedVisualDeliveryPolicy } from "./IAutoMovieProductionMixedVisualDeliveryPolicy";
-export type { IAutoMovieProductionOpusDescription } from "./IAutoMovieProductionOpusDescription";
 export type { IAutoMovieProductionPhonemeChunk } from "./IAutoMovieProductionPhonemeChunk";
 export type { IAutoMovieProductionPngPicture } from "./IAutoMovieProductionPngPicture";
 export type { IAutoMovieProductionRenderFrame } from "./IAutoMovieProductionRenderFrame";
 export type { IAutoMovieProductionRenderLayer } from "./IAutoMovieProductionRenderLayer";
 export type { IAutoMovieProductionRenderLayersForPass } from "./IAutoMovieProductionRenderLayersForPass";
+export type { IAutoMovieProductionRoomTone } from "./IAutoMovieProductionRoomTone";
 export type { IAutoMovieProductionSoundAnalysis } from "./IAutoMovieProductionSoundAnalysis";
 export type { IAutoMovieProductionSoundCue } from "./IAutoMovieProductionSoundCue";
 export type { IAutoMovieProductionSoundEvent } from "./IAutoMovieProductionSoundEvent";

@@ -14,7 +14,7 @@ Size the form from the subject's record.
 
 ## Primitives
 
-Use primitives or straight extrusions with only the sides needed at the scene's camera distance. A correctly sized low-poly piece from [Sources](sources.md) also works.
+Use primitives or straight extrusions with only the sides needed at the scene's camera distance. Keep only the parts whose [detail level](crafting/construction.md#detail-levels) that distance resolves. The [segment budget](crafting/construction.md#segment-budget) does not apply to a model primitive, whose segment count is fixed. A correctly sized low-poly piece from [Sources](sources.md) also works.
 
 Leave out bevels, surface relief, ornament, texture and any interior no camera sees. Entity work says how the facts a coarse form cannot show reach the film.
 

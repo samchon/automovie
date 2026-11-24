@@ -4,7 +4,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
 
-/** The delivery spec the production's render used: 1280 by 720 at 24 fps, H.264 in yuv420p at CRF 18. */
+/**
+ * The delivery spec the production's render used: 1280 by 720 at 24 fps, H.264
+ * in yuv420p at CRF 18.
+ */
 const SPEC: IAutoMovieRenderSpec = {
   target: "production",
   frameFormat: { width: 1280, height: 720, fps: 24 },
@@ -15,18 +18,29 @@ const SPEC: IAutoMovieRenderSpec = {
 };
 
 /**
- * A drawn video's encoding is admitted on its exact clock and planned as the one FFmpeg vector the production's render host ran, with and without a soundtrack.
+ * A drawn video's encoding is admitted on its exact clock and planned as the
+ * one FFmpeg vector the production's render host ran, with and without a
+ * soundtrack.
  *
  * Scenarios:
  *
- * 1. Two seconds at 24 fps give 48 frames and the scaffold host's silent vector: quiet logging, the frame sequence at 24 fps, libx264 in yuv420p at CRF 18 and 1280x720 with fast start, four threads, the medium preset, 48 frames, the video stream mapped, no audio, cut at 2 s.
- * 2. With a soundtrack, it is the second input, mapped as the first audio stream, padded and encoded as 48 kHz stereo AAC at 192 kb/s, and the output is still cut at 2 s.
- * 3. A clock of 2.01 s, 48.24 frames, is refused; so are zero seconds and more than a million frames.
+ * 1. Two seconds at 24 fps give 48 frames and the scaffold host's silent vector:
+ *    quiet logging, the frame sequence at 24 fps, libx264 in yuv420p at CRF 18
+ *    with no B-frames, scaled to 1280x720 through the BT.709 matrix at full
+ *    range and tagged BT.709, sRGB transfer and full range, fast start, movie
+ *    and video track timescales of 24, four threads, the medium preset, 48
+ *    frames, the video stream mapped, no audio, cut at 2 s.
+ * 2. With a soundtrack, it is the second input, mapped as the first audio stream,
+ *    padded and encoded as 48 kHz stereo AAC at 192 kb/s, and the output is
+ *    still cut at 2 s.
+ * 3. A clock of 2.01 s, 48.24 frames, is refused; so are zero seconds and more
+ *    than a million frames.
  * 4. An odd raster, 1281 wide, is refused, and so is a blank soundtrack path.
- * 5. NTSC and decimal 29.97 fps keep different exact clocks in both FFmpeg rate arguments.
+ * 5. NTSC and decimal 29.97 fps keep different exact clocks in both FFmpeg rate
+ *    arguments, and both timescales are the exact rate's numerator.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Plans encodings through the exported planner and compares the whole vector; a planner that dropped the frame cap, the stream map, the clock cut or the soundtrack's padding, or admitted a fractional clock, fails.
- * @evidence contracts/development/testing.md#independent-expectations The expected vectors are written out argument by argument from the arguments the scaffold's delivery host passed to FFmpeg before #3314 moved it, which is the case matrix's requirement that `automovie render` plan the same encoder arguments; frame counts are seconds times fps.
+ * @evidence contracts/development/testing.md#independent-expectations The expected vectors are written out argument by argument from the arguments the scaffold's delivery host passed to FFmpeg before #3314 moved it, plus the #4087 profile settings derived from the delivery profile: H.273 code points 1, 13, 1 and full range spelled as FFmpeg's `bt709`, `iec61966-2-1` and `pc`, B-frames off for a zero composition start, and both timescales equal to the rate numerator so a 24 fps frame lasts one tick; frame counts are seconds times fps.
  * @evidence contracts/development/testing.md#distinguishing-cases Silent against soundtrack, a whole clock against a fractional, empty and oversized one, an even raster against an odd one, and a blank soundtrack. Drawing and writing the frames is owned by `test_draw_drawn_video`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_render_video_encoding_plan`; it runs no FFmpeg.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
@@ -48,12 +62,26 @@ export function test_render_video_encoding_plan(): void {
     "yuv420p",
     "-crf",
     "18",
+    "-bf",
+    "0",
+    "-vf",
+    "scale=w=1280:h=720:out_color_matrix=bt709:out_range=full",
+    "-color_primaries",
+    "bt709",
+    "-color_trc",
+    "iec61966-2-1",
+    "-colorspace",
+    "bt709",
+    "-color_range",
+    "pc",
     "-r",
     "24",
-    "-s",
-    "1280x720",
     "-movflags",
     "+faststart",
+    "-movie_timescale",
+    "24",
+    "-video_track_timescale",
+    "24",
     "-threads",
     "4",
     "-preset",
@@ -179,8 +207,10 @@ export function test_render_video_encoding_plan(): void {
       [
         plan.args[plan.args.indexOf("-framerate") + 1],
         plan.args[plan.args.indexOf("-r") + 1],
+        plan.args[plan.args.indexOf("-movie_timescale") + 1],
+        plan.args[plan.args.indexOf("-video_track_timescale") + 1],
       ],
-      [argument, argument],
+      [argument, argument, String(rate[0]), String(rate[0])],
     );
   }
 }

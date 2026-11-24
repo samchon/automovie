@@ -1,21 +1,3 @@
-# src/core/AutoMovieArchetypeConvexCell.ts#AutoMovieArchetypeConvexCell
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines cell ownership, local SI units, shared geometry and the distinction between one convex wall and a hollow assembly.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One copied local point set supplies the engine hull, its visible closed boundary and its uniform-solid mass properties. Part TRS places all three together.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The builder produces cells; mass, collision and placed assemblies read the same records. There is no mesh inference or object-kind registry.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A cell is a convex solid, never the convex envelope of an entire concave or hollow object. Input and output geometry ownership is explicit.
-
 # src/core/AutoMovieArchetypeConvexCell.ts#AutoMovieArchetypeConvexCell.Table
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -60,11 +42,11 @@ States local units, copied inputs, positive finite domain and failure behavior.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Existing physicalHullFaces owns supporting planes and their relative conditioning tolerance. Its same outward loops feed buildAutoMoviePolyhedron, and physicalHullMass integrates that hull and supplies its principal frame. The caller declares that this convex volume is a wall cell.
+Existing physicalHullFaces owns supporting planes and their relative conditioning tolerance. The engine's buildAutoMovieConvexHull turns its outward loops into the visible mesh through buildAutoMoviePolyhedron, and physicalHullMass integrates that hull and supplies its principal frame. The caller declares that this convex volume is a wall cell.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Copy/admit corners, obtain shared hull and integrated properties, admit representability, then build its visible boundary.
+Copy/admit corners, obtain integrated hull properties, admit representability, then build its visible boundary through the engine's one hull-mesh owner, buildAutoMovieConvexHull, which the form expectation check's hull mutant also uses.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
