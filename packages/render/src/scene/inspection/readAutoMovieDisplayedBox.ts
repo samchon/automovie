@@ -192,14 +192,12 @@ export namespace readAutoMovieDisplayedBox {
       return (
         material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile
       );
-    const patches: unknown = material.userData.shaderPatches;
-    const patch: unknown =
-      Array.isArray(patches) && patches.length === 1 ? patches[0] : undefined;
+    // The skinned material's own shader-patch records, each named by its key.
+    const patches: readonly { key: string }[] | undefined =
+      material.userData.shaderPatches;
     return (
-      patch !== null &&
-      typeof patch === "object" &&
-      "key" in patch &&
-      patch.key === DUAL_QUATERNION_KEY &&
+      patches?.length === 1 &&
+      patches[0]!.key === DUAL_QUATERNION_KEY &&
       material.customProgramCacheKey() === DUAL_QUATERNION_KEY
     );
   }

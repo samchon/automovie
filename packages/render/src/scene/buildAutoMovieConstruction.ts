@@ -16,12 +16,7 @@ export function buildAutoMovieConstruction(
   lines: readonly IAutoMovieConstructionPolyline[],
   options: { color: number; maxPoints: number },
 ): { object: THREE.Group; dispose: () => Promise<void> } {
-  if (
-    !options ||
-    options.color < 0 ||
-    options.color > 0xffffff ||
-    options.maxPoints < 1
-  )
+  if (options.color < 0 || options.color > 0xffffff || options.maxPoints < 1)
     throw new Error(
       "Construction needs an explicit colour and positive point budget",
     );

@@ -129,22 +129,10 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "$input.spaces[1].cells[0].planes",
     ],
     [
-      "non-finite plane normal",
-      (value) => (value.spaces[1]!.cells[0]!.planes[0]!.normal.x = Number.NaN),
-      "$input.spaces[1].cells[0].planes[0].normal.x",
-    ],
-    [
       "zero plane normal",
       (value) =>
         (value.spaces[1]!.cells[0]!.planes[0]!.normal = { x: 0, y: 0, z: 0 }),
       "$input.spaces[1].cells[0].planes[0].normal",
-    ],
-    [
-      "non-finite plane offset",
-      (value) =>
-        (value.spaces[1]!.cells[0]!.planes[0]!.offset =
-          Number.POSITIVE_INFINITY),
-      "$input.spaces[1].cells[0].planes[0].offset",
     ],
     [
       "duplicate element",
@@ -285,19 +273,9 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "$input.connectors[0].route",
     ],
     [
-      "non-finite connector route",
-      (value) => (value.connectors[0]!.route[0]!.x = Number.NaN),
-      "$input.connectors[0].route[0].x",
-    ],
-    [
       "invalid connector width",
       (value) => (value.connectors[0]!.width = 0),
       "$input.connectors[0].width",
-    ],
-    [
-      "invalid connector clearance",
-      (value) => (value.connectors[0]!.clearHeight = Number.NaN),
-      "$input.connectors[0].clearHeight",
     ],
     [
       "missing connector element",

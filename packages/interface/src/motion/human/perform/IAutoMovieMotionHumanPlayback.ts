@@ -38,8 +38,8 @@ export namespace IAutoMovieMotionHumanPlayback {
    */
   export interface IBinding {
     /**
-     * The rig of the body every phase was authored for: a read by another
-     * body's rig reads none of them.
+     * The body every phase was authored for, kept as the caller passed it: a
+     * read by another body reads none of them. Only its identity is read.
      */
     readonly body: Pick<IAutoMovieMotionHumanBody, "skeleton">;
 

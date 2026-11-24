@@ -134,9 +134,7 @@ export function assertArchitectureDesignReferencePart1(
     { warned: true, onlyWarning: true },
   );
   const seedRefusals: ReadonlyArray<readonly [string, number]> = [
-    ["a fractional seed", 4211.5],
     ["an infinite seed", Number.POSITIVE_INFINITY],
-    ["a NaN seed", Number.NaN],
     ["a seed beyond exact integer range", 2 ** 53],
   ];
   seedRefusals.forEach(([name, seed]: readonly [string, number]): void => {

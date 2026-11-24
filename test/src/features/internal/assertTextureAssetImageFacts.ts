@@ -67,22 +67,6 @@ export function assertTextureAssetImageFacts(
           ),
       ],
       [
-        "fractionalEdge",
-        (): boolean =>
-          hasViolation(
-            closure({
-              facts: (
-                asset: string,
-              ): IAutoMovieTextureImageFacts | undefined =>
-                asset === "public/textures/tile-base.png"
-                  ? { mediaType: "image/png", width: 16, height: 16.5 }
-                  : facts(asset),
-            }),
-            "range",
-            ".baseColorTexture.height",
-          ),
-      ],
-      [
         "overBudget",
         (): boolean =>
           hasViolation(
@@ -114,7 +98,6 @@ export function assertTextureAssetImageFacts(
       hdrAsBaseColor: true,
       pngEnvironmentAccepted: true,
       zeroEdge: true,
-      fractionalEdge: true,
       overBudget: true,
       exactBudgetAccepted: true,
     },

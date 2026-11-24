@@ -66,9 +66,9 @@ export const applyAutoMovieShadowParticipation: (
     // opacity, and would shut its own light in; it casts none.
     const material: THREE.Material | THREE.Material[] = (object as THREE.Mesh)
       .material;
-    const blended: boolean = (
-      [material].flat()
-    ).some((entry: THREE.Material): boolean => entry.transparent);
+    const blended: boolean = [material]
+      .flat()
+      .some((entry: THREE.Material): boolean => entry.transparent);
     object.castShadow = !patch && !blended;
     object.receiveShadow = !patch;
   });

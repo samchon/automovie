@@ -48,8 +48,7 @@ export function collectAutoMovieOwnedResources(
     > = object as THREE.Mesh;
     if (mesh.isMesh !== true) return;
     geometries.add(mesh.geometry);
-    for (const material of [mesh.material].flat())
-      materials.add(material);
+    for (const material of [mesh.material].flat()) materials.add(material);
     if (mesh.customDepthMaterial !== undefined)
       materials.add(mesh.customDepthMaterial);
     if (mesh.customDistanceMaterial !== undefined)

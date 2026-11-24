@@ -450,7 +450,6 @@ export namespace QuadrupedRidePose {
       const {
         axial,
         targets,
-        floor,
         coordinateScale,
         range,
         bar,

@@ -12,8 +12,8 @@ import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 /** Rigid carrier deltas applied to a quadruped's parts and contacts. */
 export namespace ApplyQuadrupedCarrierPose {
   /**
-   * Move parts and contact frames through their carriers' rigid deltas from
-   * the rest frames to the posed frames.
+   * Move parts and contact frames through their carriers' rigid deltas from the
+   * rest frames to the posed frames.
    *
    * @param animal The model whose parts and contacts move; never changed.
    * @param rest Each bone's rest frame.

@@ -36,19 +36,22 @@ export namespace HumanPreparedPlayback {
   /** Human posture data returned from the same leaf evaluation. */
   export type ISample = IAutoMovieMotionHumanPlayback.ISample;
 
-  /** What a binding reads of a body: its rig, whose identity names the body. */
+  /**
+   * The type a binding keeps a body as: it reads only the body's identity, so
+   * callers pass their whole body and a test a small record.
+   */
   export type IBody = Pick<IAutoMovieMotionHumanBody, "skeleton">;
 
   /**
    * Bind a copy of the phase records to their native plan.
    *
    * @param plan The plan the phases stand for.
-   * @param body The body they were authored for: its rig alone.
+   * @param body The body they were authored for, kept as passed.
    * @param source The phases.
    */
   export function attach(plan: Plan, body: IBody, source: ISource): void {
     plan.playback = {
-      body: { skeleton: body.skeleton },
+      body,
       original: plan.posture,
       source: {
         ...source,
@@ -118,8 +121,8 @@ export namespace HumanPreparedPlayback {
    * Evaluate the active native phase at its actual local second.
    *
    * @param plan The plan.
-   * @param body The body read: its rig alone, which tells whether the phases
-   *   were authored for it.
+   * @param body The body read: the phases are read only for the very body they
+   *   were authored for.
    * @param reader The plan's reader the leaf would call.
    * @param bare Whether the leaf is bare of layers, overlays, holds and stops.
    * @param full Whether the leaf reads the whole pose without a continuation.
@@ -136,11 +139,7 @@ export namespace HumanPreparedPlayback {
   ): ISample | undefined {
     const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
       plan.playback;
-    if (
-      binding === undefined ||
-      !binding.ready ||
-      binding.body.skeleton !== body.skeleton
-    )
+    if (binding === undefined || !binding.ready || binding.body !== body)
       return undefined;
     const placed: boolean = reader === binding.located;
     if (binding.source.mode === "fitted") {

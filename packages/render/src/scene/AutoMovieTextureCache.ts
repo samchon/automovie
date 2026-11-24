@@ -275,8 +275,7 @@ export class AutoMovieTextureCache {
         failed = true;
         failures.push(error);
       }
-      if (!failed)
-        this.uncertainRetirements.delete(texture);
+      if (!failed) this.uncertainRetirements.delete(texture);
     }
     if (failures.length === 1) throw failures[0];
     if (failures.length > 1)
@@ -311,8 +310,8 @@ export class AutoMovieTextureCache {
 }
 
 /**
- * One text per binding: every field of the reference in a fixed order, so
- * equal bindings spelled in different key orders share one text.
+ * One text per binding: every field of the reference in a fixed order, so equal
+ * bindings spelled in different key orders share one text.
  *
  * @param binding The binding record.
  * @returns Its canonical text.

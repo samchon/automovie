@@ -22,7 +22,11 @@ import { walkLeg } from "./walkLeg";
 import { walkLegRise } from "./walkLegRise";
 
 /** The record of `IPrepareResult2`'s site. */
-type IPrepareResult2 = { end: walkFoot.IEnd; contact: IAutoMovieVector3 };
+type IPrepareResult2 = {
+  end: walkFoot.IEnd;
+  contact: IAutoMovieVector3;
+  pitch: number;
+};
 
 /** The alternatives of `PrepareAbout`'s site. */
 type PrepareAbout = "heel" | "mtp";
@@ -31,6 +35,7 @@ type PrepareAbout = "heel" | "mtp";
 type IPrepareResult = {
   end: walkFoot.IEnd;
   contact: IAutoMovieVector3;
+  pitch: number;
 };
 
 /** The alternatives of `SIDEBone`'s site. */
@@ -99,7 +104,9 @@ export namespace walkReachStance {
    * @param dorsal The ankle's dorsal limit, degrees, by the weight the foot
    *   bears (`walkLeg.dorsal`); an unloaded foot's when absent.
    * @returns The stance rule evaluated at a hip in world metres: the stance as
-   *   reached and its contact point in the foot's frame.
+   *   reached, its contact point in the foot's frame and its pitch. Given the
+   *   pitch the rule reached there, solved in preparation, a read places the
+   *   foot at it with no search.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -109,7 +116,7 @@ export namespace walkReachStance {
     pivoted: number,
     rocker: number,
     dorsal: number = ANKLE_DORSIFLEXION.unloaded,
-  ): (hip: IAutoMovieVector3) => IPrepareResult {
+  ): (hip: IAutoMovieVector3, solved?: number) => IPrepareResult {
     const initial: IAutoMovieMotionHumanFoot.IPlacement = foot.placement;
     const direction: ReturnType<typeof HumanFoot.headingPitch> =
       HumanFoot.headingPitch(initial.rotation);
@@ -175,16 +182,28 @@ export namespace walkReachStance {
       bears && about === "heel"
         ? handover(body, side, at(0), heading, rocker, dorsal)
         : undefined;
-    return (h: IAutoMovieVector3): IPrepareResult2 => {
+    return (h: IAutoMovieVector3, solved?: number): IPrepareResult2 => {
       let placement: IAutoMovieMotionHumanFoot.IPlacement = initial;
       let pitch: number = starting;
       let held: IAutoMovieVector3 = contact;
+      // A pitch solved in preparation is placed by its pivot alone: about the
+      // ball once a heel strike's foot is heel-up, else about the end it
+      // turns about.
+      if (solved !== undefined) {
+        if (solved !== starting) {
+          pitch = solved;
+          if (about === "heel" && pitch < 0 && ball !== undefined) {
+            placement = ball.at(pitch);
+            held = ball.contact;
+          } else placement = at(pitch);
+        }
+      } else
       // The heel rises about the ball once the shank leans past the ankle's
       // dorsal limit: the forefoot rocker begins where the ankle can bend no
       // further (Perry and Burnfield), so the ball never slides. A heel
       // strike's toes come down about the heel the same way, to the fixed
       // point where the lowered toes leave the shank at that limit.
-      if (bears)
+      if (bears) {
         if (about === "heel") {
           let first: number | undefined;
           for (let k: number = 0; k < TOES_DOWN; k++) {
@@ -229,6 +248,7 @@ export namespace walkReachStance {
             placement = at(pitch);
           }
         }
+      }
       // The heel rises further about the ball while the thigh would trail more
       // than TRAIL behind vertical and the ankle can still plantarflex: the
       // knee then bends and the thigh comes forward, the trailing-limb posture
@@ -236,7 +256,7 @@ export namespace walkReachStance {
       // thigh's distance from the bound, and none is asked of a pitch at the
       // ankle's plantar limit. Raising the heel only brings the thigh forward,
       // so this room has no fold.
-      if (about === "mtp") {
+      if (solved === undefined && about === "mtp") {
         const risen: number = walkLegRise(
           (degrees: number): number => {
             // The search keeps no placement, so it reads the ankle alone; the
@@ -341,6 +361,7 @@ export namespace walkReachStance {
       return {
         end: { ankle: placement.ankle, rotation: placement.rotation, toes },
         contact: bearing,
+        pitch,
       };
     };
   }

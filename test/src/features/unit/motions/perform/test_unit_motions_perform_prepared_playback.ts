@@ -26,8 +26,8 @@ import { syntheticHumanPlan } from "../../../internal/synthetic/syntheticHumanPl
  *    second is read; a second outside every phase reads nothing.
  * 4. Another body reads nothing.
  *
- * The bodies are the stored average man's and smallest woman's rigs: the
- * binding reads a body's rig alone.
+ * The bodies are records of the stored average man's and smallest woman's rigs:
+ * the binding reads only a body's identity.
  */
 export async function test_unit_motions_perform_prepared_playback(): Promise<void> {
   const body: HumanPreparedPlayback.IBody = {

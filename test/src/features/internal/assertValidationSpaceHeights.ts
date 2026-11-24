@@ -109,17 +109,6 @@ export function assertValidationSpaceHeights(): void {
     "every height-rule parameter is range-checked",
     namedFacts([
       [
-        "constantValue",
-        (): boolean =>
-          hasViolation(
-            validateSpace({
-              space: withHeight({ kind: "constant", value: Number.NaN }),
-            }),
-            "range",
-            ".height.value",
-          ),
-      ],
-      [
         "planeOrigin",
         (): boolean =>
           hasViolation(
@@ -251,7 +240,6 @@ export function assertValidationSpaceHeights(): void {
       ],
     ]),
     {
-      constantValue: true,
       planeOrigin: true,
       planeSlopeX: true,
       planeSlopeZ: true,

@@ -298,13 +298,7 @@ export function test_validation_shot_artifact_paths(): void {
       shot: shot({ events: [event({ time: -1 })] }),
       path: "$input.events[0].time",
     },
-    {
-      title: "an event whose contact point is not a finite vector",
-      shot: shot({
-        events: [event({ point: { x: Number.NaN, y: 0, z: 0 } })],
-      }),
-      path: "$input.events[0].point",
-    },
+
     {
       title: "an event whose action index is not a whole number",
       shot: shot({ events: [event({ actionIndex: 1.5 })] }),

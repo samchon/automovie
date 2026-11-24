@@ -27,8 +27,8 @@ import { assertTakeClean } from "./assertTakeClean";
 /**
  * Shared staging of the everyday prop takes (#3982, #3992, #3996, #4005,
  * #4013): one performer at the origin facing `+Z`, props placed by their
- * affordances, and the reads every spec of them makes, a prop's drift in
- * its holding hand, an affordance's world point and a refusal.
+ * affordances, and the reads every spec of them makes, a prop's drift in its
+ * holding hand, an affordance's world point and a refusal.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staging and the shared reads.
  * @evidence contracts/development/testing.md#behavioral-verification Every read is taken from the displayed performance.
@@ -172,8 +172,7 @@ export namespace everydayTake {
     t: number,
   ): IAutoMovieVector3 {
     // The contact where the prop's articulations put it at that second: a
-    // contact that rides none stays at its declared place, and a model is
-    // posed only once per state it is read at.
+    // contact that rides none stays at its declared place.
     const rest: IAutoMovieAffordance = (model.affordances ?? []).find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     )!;
@@ -188,14 +187,8 @@ export namespace everydayTake {
     );
   }
 
-  /** Posed models by their state, per model: a pose is built once per state read. */
-  const POSED: WeakMap<
-    IPosable,
-    Map<string, IAutoMovieMotionHumanObject.IModel>
-  > = new WeakMap();
-
   /**
-   * A contact of a model posed at an articulation state, the pose cached.
+   * A contact of a model posed at an articulation state.
    *
    * @param model The model.
    * @param state The articulation state.
@@ -207,12 +200,7 @@ export namespace everydayTake {
     state: Record<string, number>,
     id: string,
   ): IAutoMovieAffordance {
-    let cache: Map<string, IAutoMovieMotionHumanObject.IModel> | undefined =
-      POSED.get(model);
-    if (cache === undefined) POSED.set(model, (cache = new Map()));
-    const key: string = JSON.stringify(state);
-    let posed: IAutoMovieMotionHumanObject.IModel | undefined = cache.get(key);
-    if (posed === undefined) cache.set(key, (posed = model.articulate!(state)));
+    const posed: IAutoMovieMotionHumanObject.IModel = model.articulate!(state);
     return (posed.affordances ?? []).find(
       (a: IAutoMovieAffordance): boolean => a.id === id,
     )!;
@@ -236,8 +224,8 @@ export namespace everydayTake {
 
   /**
    * Assert the take passes the shipped verdicts; a failure names every
-   * performer's actions with their spans and events, so a fault's time
-   * reads against the phase it falls in.
+   * performer's actions with their spans and events, so a fault's time reads
+   * against the phase it falls in.
    *
    * @param label What the take is.
    * @param take The placed take.
@@ -293,9 +281,7 @@ export namespace everydayTake {
   export type IPerformer =
     IAutoMovieMotionHumanPerformance.IInput["performers"][number];
 
-  /**
-   * Another performer.
-   */
+  /** Another performer. */
   export interface IOther {
     /** Its subject. */
     subject: string;

@@ -26,9 +26,6 @@ export namespace QuadrupedTimedCues {
 
   /** A timed path with its cues. */
   export interface ICued {
-    /** Discriminant of a cued route among a ride's routes. */
-    kind: "cued";
-
     /** The planned course, such as `AutoMovieArchetypeCourse.timed`'s. */
     plan: AutoMovieArchetypeCourse.IPlan;
     /** The requests, in order and not overlapping. */

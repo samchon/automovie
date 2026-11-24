@@ -42,9 +42,10 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
         : "standard";
   const context: WebGLRenderingContext | WebGL2RenderingContext =
     props.renderer.getContext();
-  const observed: unknown = context.getParameter(context.DEPTH_BITS) as unknown;
-  const observedDepthBits: number | null =
-    typeof observed === "number" ? observed : null;
+  // WebGL reports DEPTH_BITS as a number.
+  const observedDepthBits: number | null = context.getParameter(
+    context.DEPTH_BITS,
+  );
   const base: {
     camera: string;
     sourceNear: number | null;

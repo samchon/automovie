@@ -10,6 +10,7 @@ import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { jumpPush } from "./jumpPush";
 import { walkLeg } from "./walkLeg";
 
@@ -123,6 +124,19 @@ export function jumpPushRocker(
         (2 * STEP);
     return { met, excess };
   })();
+  // The rule's heel-rise search, solved at the rise's knots and read
+  // between them from a knot course (`prepareHumanSampledCourse`), so a
+  // read searches nothing.
+  const rule: (seconds: number) => number[] = ((): ((
+    seconds: number,
+  ) => number[]) => {
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    return prepareHumanSampledCourse(
+      RISE_KNOTS.map((k: number): number => lowered + k * span),
+      (t: number): number[] => [ruled(sample(t), read)],
+    );
+  })();
   const gap: number = start - edge.met;
   const excess: number = edge.excess;
   const carried: number =
@@ -132,13 +146,12 @@ export function jumpPushRocker(
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,
   ) => number = (
     phase: jumpPush.IPhase,
-    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
   ): number => {
     const t: number = phase.seconds;
     return t < lowered
       ? supportPitch * (1 - minimumJerk.share(t / lowered)) +
           rolling * carriedRate(lowered, t)
-      : ruled(phase, resolution) +
+      : rule(t)[0]! +
           gap * (1 - minimumJerk.share((t - lowered) / span)) +
           (carried > CARRY ? excess * carriedRate(carried, t - lowered) : 0);
   };
@@ -213,6 +226,13 @@ export namespace jumpPushRocker {
 }
 /** The finite-difference step of the heel rule's slope, seconds. */
 const STEP: number = 1e-3;
+
+/**
+ * The rise's knots as shares of it: its two ends, its middle and the middle of
+ * each half, the knots the walking stance's heel rise is solved at over a
+ * single support (`walkLocomoteLowering.times`).
+ */
+const RISE_KNOTS: readonly number[] = [0, 0.25, 0.5, 0.75, 1];
 
 /** The record of `IOfEdgeResult`'s site. */
 type IOfEdgeResult = {

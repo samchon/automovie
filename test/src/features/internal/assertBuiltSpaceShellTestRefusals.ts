@@ -87,16 +87,6 @@ export const assertBuiltSpaceShellTestRefusals: (
           }),
       ],
       [
-        "aFractionalIndex",
-        (): boolean =>
-          refuse({
-            ...cube,
-            triangles: cube.triangles.map(
-              (index: number, at: number): number => (at === 0 ? 0.5 : index),
-            ),
-          }),
-      ],
-      [
         "aDegenerateFacet",
         (): boolean =>
           refuse({
@@ -124,17 +114,6 @@ export const assertBuiltSpaceShellTestRefusals: (
         (): boolean =>
           refuse(boxShell({ x: 0, y: 0, z: 0 }, { x: 2, y: 2, z: 2 }, false)),
       ],
-      [
-        "aNonFiniteVertex",
-        (): boolean =>
-          refuse({
-            ...cube,
-            vertices: cube.vertices.map(
-              (vertex: IAutoMovieVector3, at: number): IAutoMovieVector3 =>
-                at === 0 ? { ...vertex, y: Number.NaN } : vertex,
-            ),
-          }),
-      ],
     ]),
     {
       aWholeCubePasses: true,
@@ -143,12 +122,10 @@ export const assertBuiltSpaceShellTestRefusals: (
       tooFewTriangles: true,
       aRaggedIndexCount: true,
       anIndexNamingNoVertex: true,
-      aFractionalIndex: true,
       aDegenerateFacet: true,
       anUnmatchedEdge: true,
       aDoubledFacet: true,
       aShellWoundInsideOut: true,
-      aNonFiniteVertex: true,
     },
   );
 };

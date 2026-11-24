@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -30,7 +29,7 @@ type PrepareHumanFootPivotPivot = "heel" | "ball" | "toe" | "sole" | "mtp";
  *   the same fixed rotation/socket preparation.
  */
 export function prepareHumanFootPivot(
-  body: IAutoMovieMotionHumanBody,
+  body: humanFootOffset.IBody,
   side: AutoMovieHumanSide,
   pivot: PrepareHumanFootPivotPivot,
   at: IAutoMovieVector3,

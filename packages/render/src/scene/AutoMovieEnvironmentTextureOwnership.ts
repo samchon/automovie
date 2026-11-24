@@ -5,8 +5,8 @@ import * as THREE from "three";
  *
  * A texture already mapped as an equirectangular reflection in the requested
  * colour space is left as it is, so its cube/PMREM conversion is reused.
- * Otherwise its earlier conversions are released through `dispose`, the
- * mapping and colour space are set, and an upload is requested.
+ * Otherwise its earlier conversions are released through `dispose`, the mapping
+ * and colour space are set, and an upload is requested.
  */
 export namespace AutoMovieEnvironmentTextureOwnership {
   /**

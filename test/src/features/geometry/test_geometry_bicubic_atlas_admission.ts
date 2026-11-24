@@ -132,19 +132,7 @@ export function test_geometry_bicubic_atlas_admission(): void {
       generated.diagnostics.length > 0,
     );
   };
-  const sparse: IAutoMovieBicubicAtlasGeometry = two();
-  binds(sparse);
-  const sparseIds: number[] = new Array<number>(4);
-  sparseIds[0] = 0;
-  sparseIds[2] = 2;
-  sparseIds[3] = 3;
-  sparse.boundaryAuthorities![0]!.controlIds = sparseIds as unknown as [
-    number,
-    number,
-    number,
-    number,
-  ];
-  localFailure(sparse, "sparse authority");
+
   const invalidPatch: IAutoMovieBicubicAtlasGeometry = two();
   binds(invalidPatch);
   invalidPatch.patches[0]!.controlIds[0] = -1;

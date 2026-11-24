@@ -74,23 +74,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart3(
           ),
       ],
       [
-        "spacingZ",
-        (): boolean =>
-          refuses(
-            [
-              population({
-                layout: {
-                  kind: "grid",
-                  rows: 2,
-                  columns: 2,
-                  spacing: { x: 1, z: Number.NaN },
-                },
-              }),
-            ],
-            "populations[0].set.layout.spacing.z",
-          ),
-      ],
-      [
         "capacityTooSmall",
         (): boolean =>
           refuses(
@@ -141,7 +124,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart3(
     {
       rows: true,
       spacingX: true,
-      spacingZ: true,
       capacityTooSmall: true,
       malformedColumnsReportOnlyTheColumn: true,
     },

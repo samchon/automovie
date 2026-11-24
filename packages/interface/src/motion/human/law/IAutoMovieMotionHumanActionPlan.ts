@@ -8,6 +8,7 @@ import type { IAutoMovieMotionHumanEvaluation } from "../compose/IAutoMovieMotio
 import type { IAutoMovieMotionHumanPlayback } from "../perform/IAutoMovieMotionHumanPlayback";
 import type { IAutoMovieHumanPostureRotation } from "../posture/IAutoMovieHumanPostureRotation";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
+import type { IAutoMovieMotionHumanKickGeometry } from "../striking/IAutoMovieMotionHumanKickGeometry";
 import type { IAutoMovieMotionHumanStrikingRecord } from "../striking/IAutoMovieMotionHumanStrikingRecord";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
@@ -144,6 +145,13 @@ export interface IAutoMovieMotionHumanActionPlan {
    * @returns The record.
    */
   record?(): IAutoMovieMotionHumanStrikingRecord.IRecord;
+
+  /**
+   * What an action cut from this plan may continue, by the plan's family: a
+   * kick's geometry, which a redirect keeps the clock and the chamber of.
+   * Absent on a plan nothing continues.
+   */
+  continues?: IAutoMovieMotionHumanActionPlan.IContinued;
 
   /**
    * The posture at a second of the action.
@@ -312,5 +320,20 @@ export namespace IAutoMovieMotionHumanActionPlan {
 
     /** Seconds from the action start to the end of the physical phase. */
     to: number;
+  }
+
+  /**
+   * What a plan offers the action cut from it, discriminated by the plan's
+   * family so the reader narrows it without a cast.
+   */
+  export type IContinued = IKicked;
+
+  /** A kick's offer: the geometry a round-kick redirect continues. */
+  export interface IKicked {
+    /** The family. */
+    family: "kick";
+
+    /** The kick's geometry. */
+    source: IAutoMovieMotionHumanKickGeometry.ISource;
   }
 }

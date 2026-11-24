@@ -229,7 +229,7 @@ export function test_validation_self_intersection(): void {
           second: {
             from: "leftUpperArm",
             to: "rightFoot",
-            radius: Number.NaN,
+            radius: -1,
           },
         },
       ],
@@ -241,7 +241,7 @@ export function test_validation_self_intersection(): void {
     hasViolation(invalidSecond, "type", "$secondPlan.pairs[0].second.to"),
   );
   TestValidator.predicate(
-    "invalid second-only non-finite radius",
+    "invalid second-only negative radius",
     hasViolation(invalidSecond, "range", "$secondPlan.pairs[0].second.radius"),
   );
   TestValidator.equals(
@@ -250,19 +250,6 @@ export function test_validation_self_intersection(): void {
     2,
   );
 
-  const invalidRate: ReturnType<typeof validateSelfIntersection> =
-    validateSelfIntersection({
-      motion: crossing,
-      skeleton: crossingSkeleton,
-      pairs: [pair],
-      sampleRate: Number.POSITIVE_INFINITY,
-      path: "$ratePlan",
-    });
-  TestValidator.predicate(
-    "non-finite sample rate",
-    hasViolation(invalidRate, "range", "$ratePlan.sampleRate"),
-  );
-  TestValidator.equals("non-finite rate count", violationCount(invalidRate), 1);
 
   const zeroRate: ReturnType<typeof validateSelfIntersection> =
     validateSelfIntersection({

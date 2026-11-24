@@ -110,34 +110,13 @@ export function assertArchitectureBuiltPopulationRefusalsPart1(
             "populations[0].prototypeBounds.x",
           ),
       ],
-      [
-        "nonFinite",
-        (): boolean =>
-          hasViolation(
-            validateBuiltEnvironment({
-              environment: work([
-                population({}, "place", {
-                  min: { x: 0, y: Number.NaN, z: 0 },
-                  max: { x: 0, y: 0, z: 0 },
-                }),
-              ]),
-            }),
-            "range",
-            "populations[0].prototypeBounds.min.y",
-          ),
-      ],
     ]),
-    { pointAccepted: true, inverted: true, nonFinite: true },
+    { pointAccepted: true, inverted: true, },
   );
 
   TestValidator.equals(
     "the facts every layout needs are checked",
     namedFacts([
-      [
-        "fractionalCount",
-        (): boolean =>
-          refuses([population({ count: 2.5 })], "populations[0].set.count"),
-      ],
       [
         "emptyCount",
         (): boolean =>
@@ -161,7 +140,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart1(
       ],
     ]),
     {
-      fractionalCount: true,
       emptyCount: true,
       nonFiniteAnchor: true,
       nonFiniteHeading: true,

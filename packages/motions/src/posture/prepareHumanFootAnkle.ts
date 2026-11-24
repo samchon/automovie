@@ -1,7 +1,6 @@
 import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -28,7 +27,7 @@ type PrepareHumanFootAnklePivot = "heel" | "ball" | "toe" | "sole" | "mtp";
  *   another pitch and never keeps the record.
  */
 export function prepareHumanFootAnkle(
-  body: IAutoMovieMotionHumanBody,
+  body: humanFootOffset.IBody,
   side: AutoMovieHumanSide,
   pivot: PrepareHumanFootAnklePivot,
   at: IAutoMovieVector3,

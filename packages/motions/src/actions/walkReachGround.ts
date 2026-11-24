@@ -14,7 +14,11 @@ import { walkReachFeet } from "./walkReachFeet";
 import { walkReachStance } from "./walkReachStance";
 
 /** What a stance's reading returns: its foot as reached and its contact point. */
-type IGroundRead = { end: walkFoot.IEnd; contact: IAutoMovieVector3 };
+type IGroundRead = {
+  end: walkFoot.IEnd;
+  contact: IAutoMovieVector3;
+  pitch: number;
+};
 
 /** The settled members the feet complete. */
 type GroundCompleted = "feet" | "contacts";
@@ -69,6 +73,9 @@ const DOUBLINGS: number = 8;
  * @param solved The root's lowering already solved for this instant in
  *   preparation, metres; the stances are then placed under it with no root
  *   search. Solved here when absent.
+ * @param pitches Each foot's pitch its stance rule reached at this instant,
+ *   solved in preparation (`IGround.pitches`); a foot is then placed at it with
+ *   no search. Solved here for a side absent.
  * @returns The pelvis and each stance as reached.
  */
 export function walkReachGround(
@@ -88,6 +95,7 @@ export function walkReachGround(
   dorsal: Readonly<Partial<Record<AutoMovieHumanSide, number>>> = {},
   step?: number,
   solved?: number,
+  pitches: Readonly<Partial<Record<AutoMovieHumanSide, number>>> = {},
 ): walkReach.IGround {
   const { yaw, pivots, hips: upright }: walkReach.IPelvis = planned;
 
@@ -122,6 +130,7 @@ export function walkReachGround(
   const placed: walkReach.IGround["feet"] = {} as walkReach.IGround["feet"];
   const contacts: walkReach.IGround["contacts"] =
     {} as walkReach.IGround["contacts"];
+  const reached: walkReach.IGround["pitches"] = { left: 0, right: 0 };
   // Each stance's reader, prepared once for this solve.
   const readers: Record<
     AutoMovieHumanSide,
@@ -170,10 +179,12 @@ export function walkReachGround(
       const known: IGroundRead | undefined = inactive
         ? undefined
         : read[side].get(drop);
-      const out: IGroundRead = known ?? readers[side](hip(side, drop));
+      const out: IGroundRead =
+        known ?? readers[side](hip(side, drop), pitches[side]);
       if (!inactive && known === undefined) read[side].set(drop, out);
       placed[side] = out.end;
       contacts[side] = out.contact;
+      reached[side] = out.pitch;
     }
   };
   // A foot claims its stance's lowering, or `walkReach.CLAIM` under none when it
@@ -266,6 +277,18 @@ export function walkReachGround(
     root: { ...root, y: root.y - drop },
     hips: { left: hip("left", drop), right: hip("right", drop) },
     ...completed,
+    // A foot that bears nothing is placed only when it is read
+    // (`walkReachFeet`), and its pitch with it.
+    pitches: {
+      get left(): number {
+        void completed.feet.left;
+        return reached.left;
+      },
+      get right(): number {
+        void completed.feet.right;
+        return reached.right;
+      },
+    },
     ...(tilted === undefined ? {} : { pelvis: tilted.rotation }),
   };
 }

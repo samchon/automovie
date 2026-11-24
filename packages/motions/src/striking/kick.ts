@@ -326,12 +326,15 @@ export namespace kick {
         : {}),
       record: (): IAutoMovieMotionHumanStrikingRecord.IRecord =>
         geometry().record,
-      source: {
-        timing,
-        geometry,
-        params: p,
-        start: t0,
-        context: source?.context ?? context,
+      continues: {
+        family: "kick",
+        source: {
+          timing,
+          geometry,
+          params: p,
+          start: t0,
+          context: source?.context ?? context,
+        },
       },
     };
   }
@@ -351,11 +354,12 @@ export namespace kick {
     )
       return undefined;
 
-    // A segment of the kick family carries a kick's plan, spread copies
-    // included, so its source is the kick it continues.
-    const source: IAutoMovieMotionHumanKickGeometry.ISource = (
-      from.plan as IAutoMovieMotionHumanKick.IPlan
-    ).source;
+    // A kick's plan offers its geometry, spread copies included, so its
+    // source is the kick it continues.
+    const continued: IAutoMovieMotionHumanActionPlan.IContinued | undefined =
+      from.plan.continues;
+    if (continued?.family !== "kick") return undefined;
+    const source: IAutoMovieMotionHumanKickGeometry.ISource = continued.source;
     if (from.share * source.timing.duration > source.timing.chamber + 1e-9)
       return undefined;
     if (

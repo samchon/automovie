@@ -205,7 +205,7 @@ export function test_validation_script_tree_gates(): void {
               ...node.payload,
               dialogue: [
                 { speaker: "A", text: "x", anchor: -1 },
-                { speaker: "B", text: "y", anchor: Number.NaN },
+                { speaker: "B", text: "y", anchor: -2 },
               ],
             },
           }

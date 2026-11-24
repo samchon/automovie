@@ -112,6 +112,12 @@ export namespace walkReach {
     contacts: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
     /**
+     * Each foot's pitch as its stance rule reached it, degrees negative toes
+     * down (`walkReachStance`): what a prepared course of the stance keeps.
+     */
+    pitches: Record<AutoMovieHumanSide, number>;
+
+    /**
      * The pelvis's world rotation, where the caller tilts it from upright under
      * its heading (a trunk tipped about the hips,
      * `AutoMovieMotionHumanLean.pivot`), the hip joints then the tilted ones;

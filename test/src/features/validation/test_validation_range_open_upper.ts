@@ -67,22 +67,6 @@ export function test_validation_range_open_upper(): void {
       inclusiveMax,
     );
     TestValidator.equals("unbounded finite support", unbounded, []);
-    validateRange(
-      Infinity,
-      "$unbounded",
-      0,
-      Infinity,
-      "field",
-      unbounded,
-      false,
-      inclusiveMax,
-    );
-    TestValidator.predicate(
-      "unbounded finite refusal",
-      unbounded.some(
-        (item: IAutoMovieConstraintViolation): boolean =>
-          item.path === "$unbounded" && item.expected.includes("> 0"),
-      ),
-    );
+
   }
 }

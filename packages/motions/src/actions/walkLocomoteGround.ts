@@ -223,30 +223,42 @@ export namespace walkLocomoteGround {
     // from a knot course (`prepareHumanKnotCourse`, Flash and Hogan's
     // minimum-jerk path through the knots), so a read places the stances
     // under it with no root search.
+    // Each knot's exact settling, read by both courses: kept for this
+    // preparation alone.
+    const solved: Map<number, walkReach.IGround> = new Map();
+    const exact = (t: number): walkReach.IGround => {
+      const known: walkReach.IGround | undefined = solved.get(t);
+      if (known !== undefined) return known;
+      const amount: number = context.steps.amount(t);
+      const out: walkReach.IGround = ground(
+        context,
+        flights,
+        descents,
+        t,
+        {
+          left: context.steps.foot("left", t),
+          right: context.steps.foot("right", t),
+        },
+        amount,
+        context.pelvis(t, context.steps.phase(t), amount),
+        undefined,
+      );
+      solved.set(t, out);
+      return out;
+    };
     const lowering: (seconds: number) => number[] =
       walkLocomoteLowering.prepare(
         context.steps.duration,
         swings,
-        (t: number): number => {
-          const feet: Feet = {
-            left: context.steps.foot("left", t),
-            right: context.steps.foot("right", t),
-          };
-          const amount: number = context.steps.amount(t);
-          return (
-            context.root(t).y -
-            ground(
-              context,
-              flights,
-              descents,
-              t,
-              feet,
-              amount,
-              context.pelvis(t, context.steps.phase(t), amount),
-              undefined,
-            ).root.y
-          );
-        },
+        (t: number): number => context.root(t).y - exact(t).root.y,
+      );
+    // Each foot's stance pitch, the heel-rise search a read would make,
+    // solved at the same knots.
+    const pitches: (seconds: number) => Record<AutoMovieHumanSide, number> =
+      walkLocomoteLowering.prepareStances(
+        context.steps.duration,
+        swings,
+        (t: number): Record<AutoMovieHumanSide, number> => exact(t).pitches,
       );
     return {
       settle: (
@@ -264,6 +276,7 @@ export namespace walkLocomoteGround {
           hips,
           resolution,
           lowering(t)[0]!,
+          pitches(t),
         ),
       end,
     };

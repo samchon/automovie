@@ -15,6 +15,7 @@ import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /** Linear-basis round-trip tolerance, scaled by max(1, largest basis entry). */
 const MATRIX_ROUND_TRIP_EPSILON: number = 1e-8;
@@ -262,6 +263,8 @@ const appendCombinedStateDefects: (
 const cannotRepresentWorldTrs: (world: number[]) => boolean = (
   world: number[],
 ): boolean => {
+  // Composing finite local scales can overflow binary64.
+  if (world.some(overflowsBinary64)) return true;
   const decomposed: IAutoMovieMatrix4.IDecomposeResult =
     Matrix4.decompose(world);
   const recomposed: number[] = Matrix4.compose(
@@ -274,6 +277,7 @@ const cannotRepresentWorldTrs: (world: number[]) => boolean = (
   for (let column: number = 0; column < 3; ++column)
     for (let row: number = 0; row < 3; ++row) {
       const index: number = column * 4 + row;
+      if (overflowsBinary64(recomposed[index]!)) return true;
       magnitude = Math.max(magnitude, Math.abs(world[index]!));
       difference = Math.max(
         difference,

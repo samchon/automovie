@@ -26,7 +26,6 @@ type Ride = AutoMovieArchetypeRide.IRide<
   createBoat.Dimension
 >;
 
-
 /**
  * A rowboat rowed along a course: its root on the path, its oars swept through
  * the stroke cycle and lifted out of the water on the recovery, at a stroke
@@ -206,8 +205,8 @@ export namespace rowBoat {
   /** A rowboat's ride with what `bind` reads of a native rowing course. */
   export interface IRowRide extends Ride {
     /**
-     * The full samplers of a native course in course seconds, or undefined
-     * for a ride along an external plan, which `bind` refuses.
+     * The full samplers of a native course in course seconds, or undefined for
+     * a ride along an external plan, which `bind` refuses.
      */
     readonly rowing: IRowing | undefined;
   }

@@ -125,27 +125,27 @@ export function installAutoMovieDraw(
 
   // The subject and the renderer, made once as the page installs the draw.
   const loading: Promise<ILoaded> = (async (): Promise<ILoaded> => {
-      const name: string = selectAutoMovieDrawSubject(
-        Object.keys(offered),
-        injected.subject,
-      );
-      const scene: IAutoMovieDrawScene = await offered[name]!.create();
-      const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
-        antialias: false,
-        // A transparent draw needs a drawing buffer with alpha; an opaque
-        // draw clears to alpha 1 and stays opaque.
-        alpha: true,
-        preserveDrawingBuffer: false,
-      });
-      renderer.setPixelRatio(1);
-      return {
-        name,
-        scene,
-        renderer,
-        placement: new AutoMovieDrawPlacement(name, scene, renderer),
-        beauty: new AutoMovieDrawBeauty(renderer),
-      };
-    })();
+    const name: string = selectAutoMovieDrawSubject(
+      Object.keys(offered),
+      injected.subject,
+    );
+    const scene: IAutoMovieDrawScene = await offered[name]!.create();
+    const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({
+      antialias: false,
+      // A transparent draw needs a drawing buffer with alpha; an opaque
+      // draw clears to alpha 1 and stays opaque.
+      alpha: true,
+      preserveDrawingBuffer: false,
+    });
+    renderer.setPixelRatio(1);
+    return {
+      name,
+      scene,
+      renderer,
+      placement: new AutoMovieDrawPlacement(name, scene, renderer),
+      beauty: new AutoMovieDrawBeauty(renderer),
+    };
+  })();
   const load: () => Promise<ILoaded> = (): Promise<ILoaded> => loading;
 
   const draw: IAutoMovieDrawFunction = {

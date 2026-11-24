@@ -47,9 +47,7 @@ export function observeAutoMovieRecoveryPolyline<
         status: "cancelled",
         diagnostics: ["Cancelled before fitting"],
       };
-    if (
-      !input.name.trim()
-    )
+    if (!input.name.trim())
       return {
         operator,
         status: "refused",

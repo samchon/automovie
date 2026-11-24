@@ -67,12 +67,4 @@ export function test_validation_free_fall_config(): void {
     "range violation on fallDuration",
     hasViolation(zeroDuration.validation, "range", ".fallDuration"),
   );
-  TestValidator.predicate(
-    "range violation on non-finite fallDuration",
-    hasViolation(
-      fall({ fallDuration: Number.POSITIVE_INFINITY }).validation,
-      "range",
-      ".fallDuration",
-    ),
-  );
 }

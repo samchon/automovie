@@ -96,6 +96,80 @@ export namespace walkLocomoteLowering {
   }
 
   /**
+   * Prepare each foot's stance pitch as courses: the pitch its stance rule
+   * reaches (`walkReachStance`, a heel-rise search under the settled hip) is
+   * solved exactly at the lowering's knots (`times`), and each foot's course is
+   * split at its own toe-offs and heel strikes, so a stance's course never
+   * reaches across the swing where its pivot changes. A read then places each
+   * foot at its course's pitch with no search.
+   *
+   * @param duration The take's duration, seconds.
+   * @param swings Every swing of the plan.
+   * @param exact Each foot's exact pitch at a second, degrees.
+   * @returns Each foot's pitch at a second, degrees.
+   */
+  export function prepareStances(
+    duration: number,
+    swings: readonly walkLocomoteSwings.ISwing[],
+    exact: (t: number) => Readonly<Record<AutoMovieHumanSide, number>>,
+  ): (seconds: number) => Record<AutoMovieHumanSide, number> {
+    const knots: number[] = times(duration, swings);
+    const intervals: Record<AutoMovieHumanSide, IStance[]> = {
+      left: [],
+      right: [],
+    };
+    for (const side of walkReach.SIDES) {
+      const marks: number[] = [
+        0,
+        ...swings
+          .filter((s: walkLocomoteSwings.ISwing): boolean => s.side === side)
+          .flatMap((s: walkLocomoteSwings.ISwing): number[] => [s.off, s.on])
+          .filter((t: number): boolean => t > GAP && t < duration - GAP),
+        duration,
+      ].sort((a: number, b: number): number => a - b);
+      for (let i: number = 0; i + 1 < marks.length; i++) {
+        const from: number = marks[i]!;
+        const to: number = marks[i + 1]!;
+        if (!(to > from)) continue;
+        const at: number[] = [
+          from,
+          ...knots.filter((t: number): boolean => t > from + GAP && t < to - GAP),
+          to,
+        ];
+        intervals[side].push({
+          from,
+          to,
+          course: prepareHumanSampledCourse(at, (t: number): number[] => [
+            exact(t)[side],
+          ]),
+        });
+      }
+    }
+    const pitch = (side: AutoMovieHumanSide, t: number): number => {
+      const list: IStance[] = intervals[side];
+      const found: IStance =
+        list.find((s: IStance): boolean => t <= s.to) ?? list[list.length - 1]!;
+      return found.course(t)[0]!;
+    };
+    return (seconds: number): Record<AutoMovieHumanSide, number> => ({
+      left: pitch("left", seconds),
+      right: pitch("right", seconds),
+    });
+  }
+
+  /** One foot's stance or swing interval and its pitch's course over it. */
+  interface IStance {
+    /** The interval's first second. */
+    from: number;
+
+    /** Its last second. */
+    to: number;
+
+    /** The foot's pitch over it, degrees. */
+    course: (seconds: number) => number[];
+  }
+
+  /**
    * A walk's pelvis at a second under its prepared lowering: the stances placed
    * under the lowered hips, a swinging foot's claim kept only as the mark that
    * it bears no stance.
@@ -107,6 +181,7 @@ export namespace walkLocomoteLowering {
    * @param hips The pelvis's joint angles there.
    * @param resolution The read's optional FK source.
    * @param drop The prepared lowering, metres.
+   * @param pitches Each foot's prepared stance pitch, degrees.
    * @returns The settled pelvis and feet.
    */
   export function placed(
@@ -117,6 +192,7 @@ export namespace walkLocomoteLowering {
     hips: Hips,
     resolution: Resolution,
     drop: number,
+    pitches: Readonly<Record<AutoMovieHumanSide, number>>,
   ): walkReach.IGround {
     const read: ReturnType<typeof preparePoseResolution> | undefined =
       resolution === undefined
@@ -153,6 +229,7 @@ export namespace walkLocomoteLowering {
       {},
       undefined,
       drop,
+      pitches,
     );
   }
 }

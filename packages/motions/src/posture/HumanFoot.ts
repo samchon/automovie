@@ -409,7 +409,7 @@ export namespace HumanFoot {
    * @returns The foot's placement.
    */
   export function pivot(
-    body: IAutoMovieMotionHumanBody,
+    body: humanFootOffset.IBody,
     side: AutoMovieHumanSide,
     pivot: Pivot,
     at: IAutoMovieVector3,
@@ -476,7 +476,7 @@ export namespace HumanFoot {
    * @returns The point, world metres.
    */
   export function point(
-    body: IAutoMovieMotionHumanBody,
+    body: humanFootOffset.IBody,
     side: AutoMovieHumanSide,
     point: PointPoint,
     foot: IAutoMovieMotionHumanFoot.IPlacement,

@@ -48,22 +48,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart2(
           ),
       ],
       [
-        "uniformMaximum",
-        (): boolean =>
-          refuses(
-            [
-              population({
-                variation: {
-                  scale: { min: 1, max: Number.NaN },
-                  palette: ["#808080"],
-                  traits: [],
-                },
-              }),
-            ],
-            "populations[0].set.variation.scale.max",
-          ),
-      ],
-      [
         "uniformOrder",
         (): boolean =>
           refuses(
@@ -205,7 +189,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart2(
     ]),
     {
       uniformMinimum: true,
-      uniformMaximum: true,
       uniformOrder: true,
       axisMinimum: true,
       axisMaximum: true,

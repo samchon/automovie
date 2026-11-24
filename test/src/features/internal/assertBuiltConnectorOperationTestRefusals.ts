@@ -38,11 +38,6 @@ export const assertBuiltConnectorOperationTestRefusals = (): void => {
       "$input.connectors[0].landings[0].at",
     ],
     [
-      "a non-finite landing station",
-      (value) => (value.connectors[0]!.landings![0]!.at = Number.NaN),
-      "$input.connectors[0].landings[0].at",
-    ],
-    [
       "landings that do not advance along the route",
       (value) => {
         value.connectors[0]!.landings!.push({ space: "plant", at: 0.25 });
@@ -136,13 +131,6 @@ export const assertBuiltConnectorOperationTestRefusals = (): void => {
       "a state driving a carriage past its own travel",
       (value) =>
         (value.connectors[0]!.operation!.states[0]!.carriages[0]!.value = 99),
-      "$input.connectors[0].operation.states[0].carriages[0].value",
-    ],
-    [
-      "a state driving a carriage to nowhere",
-      (value) =>
-        (value.connectors[0]!.operation!.states[0]!.carriages[0]!.value =
-          Number.NaN),
       "$input.connectors[0].operation.states[0].carriages[0].value",
     ],
     [

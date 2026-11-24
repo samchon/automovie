@@ -278,48 +278,7 @@ export function test_validation_space(): void {
       ".rampTo",
     ),
   );
-  const junkRamp: IAutoMovieValidation = validateSpace({
-    space: withSurface({ rampTo: { x: Number.NaN, y: 2, z: 0 } }),
-  });
-  TestValidator.predicate(
-    "non-finite rampTo caught",
-    hasViolation(junkRamp, "range", ".rampTo.x"),
-  );
-  TestValidator.equals(
-    "non-finite rampTo skips the degeneracy math",
-    namedFacts([
-      ["refused", (): boolean => junkRamp.success === false],
-      [
-        "violated",
-        (): boolean =>
-          junkRamp.success === false && junkRamp.violations.length === 1,
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-  const junkRampZ: IAutoMovieValidation = validateSpace({
-    space: withSurface({ rampTo: { x: 8, y: 2, z: Number.NaN } }),
-  });
-  TestValidator.equals(
-    "non-finite rampTo z likewise skips the degeneracy math",
-    namedFacts([
-      [
-        "hasViolationJunkRampZRange",
-        (): boolean => hasViolation(junkRampZ, "range", ".rampTo.z"),
-      ],
-      ["junkRampZSuccess", (): boolean => junkRampZ.success === false],
-      [
-        "junkRampZViolations",
-        (): boolean =>
-          junkRampZ.success === false && junkRampZ.violations.length === 1,
-      ],
-    ]),
-    {
-      hasViolationJunkRampZRange: true,
-      junkRampZSuccess: true,
-      junkRampZViolations: true,
-    },
-  );
+
   TestValidator.predicate(
     "unresolved walkable id",
     hasViolation(

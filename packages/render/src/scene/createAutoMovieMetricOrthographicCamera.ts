@@ -20,11 +20,9 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   farMeters: number;
 }): THREE.OrthographicCamera {
   if (
-    !input ||
     input.width < 1 ||
     input.height < 1 ||
     input.pixelPitchMeters <= 0 ||
-    input.principalPointPx.length !== 2 ||
     input.distanceMeters <= 0 ||
     input.nearMeters <= 0 ||
     input.farMeters <= input.nearMeters

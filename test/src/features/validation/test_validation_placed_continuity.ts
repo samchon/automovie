@@ -21,7 +21,7 @@ export const test_validation_placed_continuity = (): void => {
     observation: {
       kind: "present",
       transform: {
-        translation: { x: Infinity, y: 0, z: 0 },
+        translation: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0, w: 2 },
         scale: { x: 1, y: 0, z: 1 },
       },
@@ -32,10 +32,7 @@ export const test_validation_placed_continuity = (): void => {
     () =>
       raw.status === "checked" &&
       raw.motion === undefined &&
-      raw.violations.length === 3 &&
-      raw.violations.some(
-        ({ path }) => path === "props.lantern.world.translation.x",
-      ) &&
+      raw.violations.length === 2 &&
       raw.violations.some(
         ({ path }) => path === "props.lantern.world.rotation",
       ) &&

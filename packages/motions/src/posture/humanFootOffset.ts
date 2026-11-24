@@ -21,7 +21,7 @@ type HumanFootOffsetPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
  *   borrowed point, while articulated/joint offsets are fresh.
  */
 export function humanFootOffset(
-  body: IAutoMovieMotionHumanBody,
+  body: humanFootOffset.IBody,
   side: AutoMovieHumanSide,
   point: HumanFootOffsetPoint,
   toes: number = 0,
@@ -43,6 +43,9 @@ type HumanFootOffsetPreparePoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /** Fixed ankle-local socket preparation for an action's changing toe angles. */
 export namespace humanFootOffset {
+  /** What a sole point reads of a body: its rest joints and its sockets. */
+  export type IBody = Pick<IAutoMovieMotionHumanBody, "rest" | "surfaces">;
+
   /**
    * Resolve actual rest/socket geometry once, then evaluate actual toe flexion.
    * MTP queries return fresh subtraction values and foot-owned sockets retain
@@ -51,7 +54,7 @@ export namespace humanFootOffset {
    * stored.
    */
   export function prepare(
-    body: IAutoMovieMotionHumanBody,
+    body: IBody,
     side: AutoMovieHumanSide,
     point: HumanFootOffsetPreparePoint,
   ): (toes: number) => IAutoMovieVector3 {

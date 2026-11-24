@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -22,7 +21,7 @@ type PrepareHumanFootPointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
  *   `point`.
  */
 export function prepareHumanFootPoint(
-  body: IAutoMovieMotionHumanBody,
+  body: humanFootOffset.IBody,
   side: AutoMovieHumanSide,
   point: PrepareHumanFootPointPoint,
   toes: number = 0,

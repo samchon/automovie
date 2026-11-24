@@ -22,12 +22,10 @@ export function captureAutoMovieMetricFrame(input: {
   mode: "surface" | "silhouette";
 }): string {
   if (
-    !input ||
     input.width < 1 ||
     input.height < 1 ||
     input.maxPixels < 1 ||
-    input.width * input.height > input.maxPixels ||
-    !["surface", "silhouette"].includes(input.mode)
+    input.width * input.height > input.maxPixels
   )
     throw new Error(
       "Metric capture requires positive bounded physical pixel dimensions and an explicit pass",

@@ -6,6 +6,7 @@ import {
 
 import { Vector3 } from "../math/Vector3";
 import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /** A facet whose doubled area is this small or smaller bounds nothing. */
 const FACET_AREA_EPSILON: number = 1e-12;
@@ -82,7 +83,8 @@ export const validateBuiltSpaceShell: (
     const area: number = Vector3.length(
       Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
     );
-    if (area <= FACET_AREA_EPSILON) {
+    // Cross products of finite vertices can overflow binary64.
+    if (area <= FACET_AREA_EPSILON || overflowsBinary64(area)) {
       collector.push(
         "range",
         `${path}.triangles[${face}]`,
@@ -107,7 +109,7 @@ export const validateBuiltSpaceShell: (
       return;
     }
   const volume: number = builtSpaceShellVolume(shell);
-  if (volume <= 0)
+  if (volume <= 0 || overflowsBinary64(volume))
     collector.push(
       "range",
       `${path}.triangles`,

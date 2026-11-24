@@ -1,5 +1,5 @@
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
-import type { IAutoMovieMotionHumanKickGeometry } from "./IAutoMovieMotionHumanKickGeometry";
+import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
 import type { IAutoMovieMotionHumanStrikingQuality } from "./IAutoMovieMotionHumanStrikingQuality";
 import type { IAutoMovieMotionHumanStrikingRecord } from "./IAutoMovieMotionHumanStrikingRecord";
 
@@ -90,6 +90,6 @@ export namespace IAutoMovieMotionHumanKick {
   /** A kick's plan: a strike's plan that another kick may continue from. */
   export interface IPlan extends IAutoMovieMotionHumanStrikingRecord.IPlan {
     /** What a redirect continues. */
-    source: IAutoMovieMotionHumanKickGeometry.ISource;
+    continues: IAutoMovieMotionHumanActionPlan.IKicked;
   }
 }

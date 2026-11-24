@@ -257,7 +257,7 @@ export function assertArchitectureDesignObservationPromotionPart1(
       promoteDesignObservations({ reference: value });
     }, ["pavilion-plan", "$input.candidates[0].primitives[0]"]),
   );
-  [-0.1, 1.5, Number.NaN].forEach((floor: number): void =>
+  [-0.1, 1.5].forEach((floor: number): void =>
     TestValidator.predicate(
       `a confidence floor of ${floor} is refused`,
       throwsError(

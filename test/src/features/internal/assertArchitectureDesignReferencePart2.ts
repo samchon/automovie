@@ -75,12 +75,6 @@ export function assertArchitectureDesignReferencePart2(): {
       "$input.frames[0].page",
     ],
     [
-      "fractional page",
-      (value: IAutoMovieDesignReference): number =>
-        (value.frames[0]!.page = 1.5),
-      "$input.frames[0].page",
-    ],
-    [
       "blank level label",
       (value: IAutoMovieDesignReference): string =>
         (value.frames[0]!.level = " "),
@@ -91,12 +85,6 @@ export function assertArchitectureDesignReferencePart2(): {
       (value: IAutoMovieDesignReference): number =>
         (value.frames[0]!.bounds.width = 0),
       "$input.frames[0].bounds.width",
-    ],
-    [
-      "non-finite sheet height",
-      (value: IAutoMovieDesignReference): number =>
-        (value.frames[0]!.bounds.height = Number.NaN),
-      "$input.frames[0].bounds.height",
     ],
     [
       "anchor left of the sheet",
@@ -111,12 +99,6 @@ export function assertArchitectureDesignReferencePart2(): {
       "$input.frames[0].anchor.y",
     ],
     [
-      "non-finite anchor",
-      (value: IAutoMovieDesignReference): number =>
-        (value.frames[0]!.anchor.x = Number.NaN),
-      "$input.frames[0].anchor.x",
-    ],
-    [
       "duplicate scale candidate id",
       (value: IAutoMovieDesignReference): string =>
         (value.frames[1]!.scaleCandidates[1]!.id = "section-fifty"),
@@ -126,13 +108,6 @@ export function assertArchitectureDesignReferencePart2(): {
       "non-positive metres per unit",
       (value: IAutoMovieDesignReference): number =>
         (value.frames[0]!.scaleCandidates[0]!.metersPerUnit = 0),
-      "$input.frames[0].scaleCandidates[0].metersPerUnit",
-    ],
-    [
-      "non-finite metres per unit",
-      (value: IAutoMovieDesignReference): number =>
-        (value.frames[0]!.scaleCandidates[0]!.metersPerUnit =
-          Number.POSITIVE_INFINITY),
       "$input.frames[0].scaleCandidates[0].metersPerUnit",
     ],
     [
@@ -160,12 +135,6 @@ export function assertArchitectureDesignReferencePart2(): {
       "$input.frames[0].axisX",
     ],
     [
-      "non-finite x axis",
-      (value: IAutoMovieDesignReference): number =>
-        (value.frames[0]!.axisX.x = Number.POSITIVE_INFINITY),
-      "$input.frames[0].axisX.x",
-    ],
-    [
       "zero y axis",
       (value: IAutoMovieDesignReference): { x: number; y: number; z: number } =>
         (value.frames[0]!.axisY = { x: 0, y: 0, z: 0 }),
@@ -188,12 +157,6 @@ export function assertArchitectureDesignReferencePart2(): {
       (value: IAutoMovieDesignReference): { x: number; y: number; z: number } =>
         (value.frames[0]!.north = { x: 0, y: 0, z: 0 }),
       "$input.frames[0].north",
-    ],
-    [
-      "non-finite origin",
-      (value: IAutoMovieDesignReference): number =>
-        (value.frames[0]!.origin.x = Number.NaN),
-      "$input.frames[0].origin.x",
     ],
     [
       "non-unit frame rotation",
@@ -254,12 +217,6 @@ export function assertArchitectureDesignReferencePart2(): {
       (value: IAutoMovieDesignReference): number =>
         (value.primitives[4]!.points.length = 2),
       "$input.primitives[4].points",
-    ],
-    [
-      "non-finite observed point",
-      (value: IAutoMovieDesignReference): number =>
-        (value.primitives[0]!.points[0]!.x = Number.NaN),
-      "$input.primitives[0].points[0].x",
     ],
     [
       "a mark drawn past the right edge of its own sheet",

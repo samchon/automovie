@@ -127,7 +127,7 @@ export function createAutoMovieSurfaceAppearance(input: {
           // the existing skin/detail patch operations and their texture ownership.
           copy.onBeforeCompile = material.onBeforeCompile;
           copy.customProgramCacheKey = material.customProgramCacheKey;
-          if (Array.isArray(material.userData.shaderPatches))
+          if (material.userData.shaderPatches !== undefined)
             copy.userData.shaderPatches = [...material.userData.shaderPatches];
           copy.vertexColors = true;
           copy.needsUpdate = true;

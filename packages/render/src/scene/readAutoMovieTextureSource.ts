@@ -17,8 +17,8 @@ import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFo
  *
  * The Source and Texture uuids, which Three assigns once per object, describe
  * their sharing in this host. Engine retains the sharing relation rather than
- * token spelling; current representation and upload-state metadata
- * still determine allocation equivalence.
+ * token spelling; current representation and upload-state metadata still
+ * determine allocation equivalence.
  *
  * Environment conversion reports configured and factory sampler intent because
  * sharp conversion can temporarily upload with another sampler without a later
