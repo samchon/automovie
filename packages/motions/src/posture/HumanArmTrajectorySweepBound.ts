@@ -1,5 +1,8 @@
-import { AutoMovieMotionBound, Vector3 } from "@automovie/engine";
-import type { physicalShapeGjk } from "@automovie/engine";
+import {
+  AutoMovieMotionBound,
+  Vector3,
+  physicalShapeGjk,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
