@@ -16,6 +16,7 @@ import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { solveXpbdArticulation } from "./solveXpbdArticulation";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
+import { solveXpbdJointTree } from "./solveXpbdJointTree";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
 /**
@@ -39,12 +40,18 @@ import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
  */
 export namespace solveXpbdJoints {
   /**
-   * One position pass over the joints.
+   * One position pass over the joints: each articulation's joints projected
+   * together by the tree's direct Newton solve (`solveXpbdJointTree`), then
+   * each joint outside the forest (closing a loop, or with a kinematic child)
+   * by its own block correction.
    *
-   * @param joints The joints, in creation order.
+   * @param kept The world's forest of joints (`solveXpbdArticulation.forest`).
    */
-  export function positions(joints: readonly AutoMovieXpbdJoint[]): void {
-    for (const joint of joints) {
+  export function positions(kept: solveXpbdArticulation.IForest): void {
+    for (const node of kept.nodes.values())
+      if (node.parent === undefined && node.children.length !== 0)
+        solveXpbdJointTree.project(node);
+    for (const joint of kept.loops) {
       const parent: AutoMovieXpbdBody = joint.parent;
       const child: AutoMovieXpbdBody = joint.child;
       if (!parent.dynamic && !child.dynamic) continue;
@@ -99,7 +106,7 @@ export namespace solveXpbdJoints {
    * (h c_i) = s_i`. A motor whose impulse exceeds its cap `tau_i h` is held at
    * the cap and the rest re-solved.
    *
-   * @param joints The joints, in creation order.
+   * @param kept The world's forest of joints (`solveXpbdArticulation.forest`).
    * @param h The substep, seconds.
    * @param contacts The step's contacts, which hold each tree at its supports.
    * @param tasks The root tasks the trees' supports should meet, by root body.
@@ -107,14 +114,14 @@ export namespace solveXpbdJoints {
    *   kept across steps.
    */
   export function motors(
-    joints: readonly AutoMovieXpbdJoint[],
+    kept: solveXpbdArticulation.IForest,
     h: number,
     contacts: readonly solveXpbdContacts.IContact[],
     tasks: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask>,
     warm: Map<AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm>,
   ): void {
     for (const joint of solveXpbdArticulation.motors(
-      joints,
+      kept,
       h,
       contacts,
       tasks,

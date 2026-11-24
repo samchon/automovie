@@ -207,3 +207,33 @@ A pure computation over its arguments; nothing is shared between calls.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Mutates only the bodies it is given; allocates only transient vectors.
+
+# src/physics/AutoMovieXpbdMath.ts#AutoMovieXpbdMath.displace
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what moves, by what, and the kinematic case.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The position update every correction applies (Mueller et al. 2020, section 3.3): the centre by the translation, the rotation by `q <- normalize(q + 1/2 [w, 0] q)`.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One translation and the shared small turn.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A kinematic body is left as it is.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant work.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A single update; nothing it computes is asked again.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Mutates only the body's centre and rotation.

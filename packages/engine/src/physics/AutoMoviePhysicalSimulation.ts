@@ -358,7 +358,7 @@ export class AutoMoviePhysicalSimulation {
               // The blow acts through the struck body's whole articulation
               // (`solveXpbdArticulation.impulse`).
               solveXpbdArticulation.impulse(
-                world.joints,
+                world.forest(),
                 bound.bodies.get(`${impulse.body}/${impulse.bone}`)!,
                 impulse.point,
                 Vector3.scale(

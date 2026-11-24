@@ -431,9 +431,17 @@ export class AutoMovieXpbdBody {
    * @param dynamic Whether it becomes dynamic.
    */
   public setDynamic(dynamic: boolean): void {
+    const changed: boolean = this.dynamic !== dynamic;
     this.dynamic = dynamic;
     this.next = undefined;
+    if (changed) this.changed?.();
   }
+
+  /**
+   * Told when `dynamic` changes, so the world's joint forest, which depends on
+   * it, is rebuilt; set by the world that creates the body.
+   */
+  public changed?: AutoMovieXpbdBody.Listener;
 
   /**
    * Move the body frame's origin, keeping its rotation and velocities; the
@@ -505,4 +513,9 @@ export class AutoMovieXpbdBody {
       rotation: { ...rotation },
     };
   }
+}
+
+export namespace AutoMovieXpbdBody {
+  /** A body's change notice. */
+  export type Listener = () => void;
 }

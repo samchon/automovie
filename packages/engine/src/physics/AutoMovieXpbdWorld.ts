@@ -12,6 +12,7 @@ import { AutoMovieXpbdIntegration } from "./AutoMovieXpbdIntegration";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdSnapshot } from "./AutoMovieXpbdSnapshot";
 import { readXpbdManifolds } from "./readXpbdManifolds";
+import { solveXpbdArticulation } from "./solveXpbdArticulation";
 import { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdJoints } from "./solveXpbdJoints";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
@@ -84,6 +85,9 @@ export class AutoMovieXpbdWorld {
   /** The next handle. */
   private counter: number = 0;
 
+  /** The joints' forest; absent until read and after it goes stale. */
+  private kept?: solveXpbdArticulation.IForest;
+
   /**
    * Create an empty world.
    *
@@ -114,6 +118,9 @@ export class AutoMovieXpbdWorld {
       pose.rotation,
     );
     body.gravityScale = gravityScale;
+    body.changed = (): void => {
+      this.kept = undefined;
+    };
     this.bodies.push(body);
     return body;
   }
@@ -169,7 +176,18 @@ export class AutoMovieXpbdWorld {
       joint,
     );
     this.joints.push(created);
+    this.kept = undefined;
     return created;
+  }
+
+  /**
+   * The joints' forest (`solveXpbdArticulation.forest`), built on first use and
+   * again only after a joint is created or a body's `dynamic` changes.
+   *
+   * @returns The forest the motors' pass and a blow read.
+   */
+  public forest(): solveXpbdArticulation.IForest {
+    return (this.kept ??= solveXpbdArticulation.forest(this.joints));
   }
 
   /**
@@ -203,17 +221,21 @@ export class AutoMovieXpbdWorld {
     const dynamic: AutoMovieXpbdBody[] = this.bodies.filter(
       (body: AutoMovieXpbdBody): boolean => body.dynamic,
     );
-    solveXpbdJoints.positions(this.joints);
+    solveXpbdJoints.positions(this.forest());
+    // The contacts' corrections move each jointed body's whole tree along
+    // its joints' free axes (`solveXpbdArticulation.responder`), so a contact
+    // no longer pulls a body off its joints after the joints' pass.
     solveXpbdContacts.positions(
       this.found,
       h,
       this.allowedError,
       this.contactFrequency,
+      solveXpbdArticulation.responder(this.forest()),
     );
     for (const body of dynamic) AutoMovieXpbdIntegration.derive(body, h);
     solveXpbdContacts.velocities(this.found, h, Vector3.length(this.gravity));
     solveXpbdJoints.motors(
-      this.joints,
+      this.forest(),
       h,
       this.found,
       this.rootTasks,

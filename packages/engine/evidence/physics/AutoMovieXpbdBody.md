@@ -800,15 +800,15 @@ Returns a boolean; retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what the switch keeps and drops.
+States what the switch keeps and drops, and whom it tells.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A set kinematic pose belongs to the kind being left, so the switch clears it.
+A set kinematic pose belongs to the kind being left, so the switch clears it; a change of kind changes the world's joint forest, so the body tells its world (`changed`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Two field writes.
+Two field writes and one notice on a change.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -1005,3 +1005,21 @@ A mutation; nothing to share.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Holds one pose until the next step consumes it; retains no caller object.
+
+# src/physics/AutoMovieXpbdBody.ts#AutoMovieXpbdBody.Listener
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what it is told.
+
+## @evidence contracts/development/design.md#principled-representation
+
+A notice with no payload: the listener reads the body itself.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+One function type.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+None.
