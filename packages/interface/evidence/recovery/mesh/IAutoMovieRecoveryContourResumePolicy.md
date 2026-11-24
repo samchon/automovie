@@ -10,7 +10,7 @@ Caller-verified byte identity of the artifact that used these actual values.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-validateRecoveryContourResume, resumeAutoMovieRecoveryContours share IAutoMovieRecoveryContourResumePolicy's canonical records; the referenced quantities retain one declaration owner.
+resumeAutoMovieRecoveryContours shares IAutoMovieRecoveryContourResumePolicy's canonical records; the referenced quantities retain one declaration owner.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

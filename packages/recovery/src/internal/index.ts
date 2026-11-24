@@ -175,7 +175,6 @@ export * from "./stepRecoveryRelativePose";
 export * from "./triangulateRecoveryCameraPoint";
 export * from "./triangulateRecoverySceneTrack";
 export * from "./updateRecoveryRegularization";
-export * from "./validateRecoveryContourResume";
 export * from "./validateRecoveryMapMetricRow";
 export * from "./validateRecoveryMapMetricScales";
 export * from "./GhoshConicApproximationBalance";

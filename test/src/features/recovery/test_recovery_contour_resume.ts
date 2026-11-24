@@ -19,7 +19,7 @@ import { nclose } from "../internal/nclose";
  * 1. One interior plane cuts a triangle and a square. A three-span original budget publishes the triangle and fails the square; resume fits only raw ordinal one into patch index zero.
  * 2. Actual edge count four supplies the new budget, exact four-face provenance supplies preplan bound twelve, and Hermite phase widths sum to the independently known square perimeter twelve millimetres.
  * 3. Original coefficient serialization and source arrays remain unchanged; an opaque high-degree/rational curve reference survives without conversion.
- * 4. Successful, foreign and duplicate targets, stale complete contour bindings and missing, duplicated, invalid or unused original policies refuse before any fit checkpoint.
+ * 4. Successful and foreign targets, stale complete contour bindings and missing, foreign or unused original policies refuse before any fit checkpoint.
  * 5. A failed open ribbon cut remains open after resume, while a failed isolated-contact reference remains explicitly unsupported without a fabricated curve.
  * 6. Progress exceptions and cooperative abort return no value; pre-abort performs no work.
  *

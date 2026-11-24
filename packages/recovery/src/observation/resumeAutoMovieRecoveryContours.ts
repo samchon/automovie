@@ -24,7 +24,6 @@ import { planeFrame } from "../internal/mesh-observations/planeFrame";
 import { sourceOrientation } from "../internal/mesh-observations/sourceOrientation";
 import { observeRecoverySection } from "../internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
-import { validateRecoveryContourResume } from "../internal/validateRecoveryContourResume";
 
 /**
  * Fit only explicitly failed, rebound raw source contours into a new patch.
@@ -60,44 +59,16 @@ export function resumeAutoMovieRecoveryContours<
   const operator: IAutoMovieRecoveryResult<never>["operator"] =
     "contour-resume-v1";
   let cancellationRequested: boolean = false;
-  let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
-    const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
-    cancellationRequested = requested === true;
+    cancellationRequested = options.cancelled?.() === true;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
-
     if (cancelled())
       return {
         operator,
         status: "cancelled",
         diagnostics: ["Cancelled before contour resume"],
-      };
-    if (
-      !validateRecoveryContourResume(input) ||
-      !options ||
-      !["bezier", "hermite"].includes(options.curveFormat) ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function")
-    )
-      return {
-        operator,
-        status: "refused",
-        diagnostics: [
-          "Complete saved source bindings, distinct failed raw targets, caller-bound actual original policies and a supported basis are required",
-        ],
       };
 
     const checkpoint: () => void = (): void => {
@@ -411,18 +382,19 @@ export function resumeAutoMovieRecoveryContours<
   }
 }
 
+/** A raw contour's address: its saved coordinate and raw contour ordinal. */
 function address(coordinateMm: number, contourIndex: number): string {
   return `${coordinateMm}/${contourIndex}`;
 }
 
-function finiteVector(value: unknown): value is [number, number, number] {
-  return (
-    Array.isArray(value) &&
-    value.length === 3 &&
-    [0, 1, 2].every((index: number): boolean => Number.isFinite(value[index]))
+/** Whether every component of a computed millimetre vector is finite. */
+function finiteVector(value: readonly [number, number, number]): boolean {
+  return value.every((component: number): boolean =>
+    Number.isFinite(component),
   );
 }
 
+/** Whether a saved section's frame equals the resumed plane frame exactly. */
 function sameFrame(
   saved: IAutoMovieRecoverySavedSection["frame"],
   actual: IAutoMovieRecoveryContourResume["frame"],

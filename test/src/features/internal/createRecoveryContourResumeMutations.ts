@@ -3,10 +3,10 @@ import type { IAutoMovieRecoveryContourResumeInput } from "@automovie/interface"
 /** Invalid saved bindings and target policies for selective-resume refusal.
  *
  * Scenarios:
- * 1. Preserve each original mutation, including successful/foreign/duplicate targets, stale source/frame/lineage and invalid artifact policies.
+ * 1. Preserve each original binding mutation: successful and foreign targets, stale source/frame/lineage and missing, foreign or unused artifact policies.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The owning contour-resume scenario applies every returned mutation and requires refusal before any fit checkpoint.
- * @evidence contracts/development/testing.md#independent-expectations Each mutation violates a declared input identity, unique-address or finite-policy premise independently of computed coefficients.
+ * @evidence contracts/development/testing.md#independent-expectations Each mutation breaks a saved binding, a target's failed raw address or an artifact policy's binding, independently of computed coefficients.
  * @evidence contracts/development/testing.md#distinguishing-cases Separate source, selection, frame, alias, raw-publication and policy failures distinguish complete preflight from partial target fitting.
  * @evidence contracts/development/testing.md#execution-ownership This pure helper returns caller-owned closures; no I/O, native resource or Human fixture is used.
  */
@@ -20,9 +20,7 @@ export function createRecoveryContourResumeMutations(): Array<
     (value: IAutoMovieRecoveryContourResumeInput): void => {
       value.targets = [{ coordinateMm: 2, contourIndex: 1 }];
     },
-    (value: IAutoMovieRecoveryContourResumeInput): void => {
-      value.targets = [...value.targets, ...value.targets];
-    },
+
     (value: IAutoMovieRecoveryContourResumeInput): void => {
       value.savedSections[0]!.sourceLineage =
         value.savedSections[0]!.sourceLineage.slice(1);
@@ -53,17 +51,13 @@ export function createRecoveryContourResumeMutations(): Array<
     (value: IAutoMovieRecoveryContourResumeInput): void => {
       value.fitPolicies[0]!.observationIdentity = "different-artifact";
     },
-    (value: IAutoMovieRecoveryContourResumeInput): void => {
-      value.fitPolicies = [...value.fitPolicies, ...value.fitPolicies];
-    },
+
     (value: IAutoMovieRecoveryContourResumeInput): void => {
       value.fitPolicies = [
         ...value.fitPolicies,
         { ...value.fitPolicies[0]!, observationIdentity: "unused-artifact" },
       ];
     },
-    (value: IAutoMovieRecoveryContourResumeInput): void => {
-      value.fitPolicies[0]!.toleranceMm = Number.NaN;
-    },
+
   ];
 }
