@@ -71,9 +71,14 @@ export namespace FamilyConicSurfaceMeasurements {
    * @evidence contracts/development/implementation.md#efficient-algorithms A single winding preparation serves every supplied probe. Absent probes leave winding uncomputed. One crossing census retains at most one witness per input triangle.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The surface, topology and named points come from the caller. No reference, underconstrained inference, renamed owner or evaluated stand-in enters the measurements.
    */
-  export function measure(mesh: Mesh, expectation: IExpectation): IReport {
+  export function measure(
+    mesh: Mesh,
+    expectation: IExpectation,
+    measuredPieces?: IAutoMovieMeshPiece[],
+  ): IReport {
     const surface: IAutoMovieMesh = original(mesh);
-    const pieces: IAutoMovieMeshPiece[] = measureAutoMovieMeshPieces(surface);
+    const pieces: IAutoMovieMeshPiece[] =
+      measuredPieces ?? measureAutoMovieMeshPieces(surface);
     const findings: string[] = [];
     if (pieces.length !== expectation.pieces.length)
       findings.push(

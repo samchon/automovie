@@ -2,6 +2,7 @@ import type { AutoMovieHumanEmptyProbes } from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionRealization,
+  IAutoMovieHumanBodySurface,
   IAutoMovieMeshCrossing,
   IAutoMovieMeshPiece,
   IAutoMovieMeshWinding,
@@ -18,8 +19,15 @@ export namespace FamilyConicFormMeasurements {
    */
   type Realization = Pick<
     IAutoMovieConstructionRealization.IRealization,
-    "mesh" | "body" | "surfaces"
-  >;
+    "body"
+  > & {
+    mesh: Surface.Mesh & { indices: number[] };
+    surfaces:
+      | IAutoMovieConstructionRealization.IRealization["surfaces"]
+      | ReadonlyMap<string, IAutoMovieSolidSurface>;
+    triangleGroups?: IAutoMovieHumanBodySurface.IOutput["mesh"]["groups"];
+    pieces?: IAutoMovieMeshPiece[];
+  };
 
   /** One measured opening or the family rule's reason it could not be sampled. */
   type Probe = AutoMovieHumanEmptyProbes.IProbe & {
@@ -39,6 +47,8 @@ export namespace FamilyConicFormMeasurements {
     samples: number;
     /** Largest world-space discrepancy, in mm. */
     maxMm: number;
+    /** Point on the first surface at the largest discrepancy, in world mm. */
+    pointMm: AutoMovieVector3Tuple;
   }
 
   /**
@@ -84,13 +94,10 @@ export namespace FamilyConicFormMeasurements {
      * vertex.
      */
     contacts: Contact[];
-    /**
-     * Least retained triangle separation for the supplied owner pairs, in
-     * mm.
-     */
+    /** Least retained triangle separation for the supplied owner pairs, in mm. */
     clearances: Clearance[];
     /** Maximum fitted bed or strip clipping, recorded at each authored digit. */
-    clipping: { digit: string; maximumMm: number }[];
+    clipping: NonNullable<IAutoMovieHumanBodySurface.IOutput["nailClipping"]>;
     /** Every failed or unavailable measurement. */
     findings: string[];
     /** Duration of the report alone, in ms. */
@@ -130,10 +137,11 @@ export namespace FamilyConicFormMeasurements {
           kind: "empty",
           point: probe.point.map((mm): number => mm / 1000),
         });
-    const shape = Surface.measure(real.mesh, {
-      pieces: [{ genus: 0, boundaryLoops: 0 }],
-      probes: sites,
-    });
+    const shape = Surface.measure(
+      real.mesh,
+      { pieces: [{ genus: 0, boundaryLoops: 0 }], probes: sites },
+      real.pieces,
+    );
     const { pieces, crossings, findings } = shape;
     const interior: IAutoMovieMeshWinding = shape.probes[0]!.reading;
     let probeIndex: number = 1;
@@ -147,7 +155,7 @@ export namespace FamilyConicFormMeasurements {
 
     const contacts: Contact[] = boundaryGaps(real, findings);
     const clearances: Clearance[] = ownerGaps(
-      real.mesh,
+      real,
       pairs,
       crossings.length !== 0,
     );
@@ -181,12 +189,9 @@ export namespace FamilyConicFormMeasurements {
    * denotes.
    */
   function boundaryGaps(real: Realization, findings: string[]): Contact[] {
-    const surfaces = new Map(
-      real.surfaces.map((surface): [string, IAutoMovieSolidSurface] => [
-        surface.name,
-        surface,
-      ]),
-    );
+    const surfaces = Array.isArray(real.surfaces)
+      ? new Map(real.surfaces.map((surface) => [surface.name, surface]))
+      : real.surfaces;
     const rows = new Map<string, Contact>();
     const unavailable = new Set<string>();
     for (const face of real.body.faces) {
@@ -211,12 +216,11 @@ export namespace FamilyConicFormMeasurements {
             continue;
           }
           let gap: number;
+          let first: AutoMovieVector3Tuple;
+          let second: AutoMovieVector3Tuple;
           try {
-            const first: AutoMovieVector3Tuple = position(surface, chart);
-            const second: AutoMovieVector3Tuple = position(
-              other,
-              authority.chart,
-            );
+            first = position(surface, chart);
+            second = position(other, authority.chart);
             gap = Math.hypot(
               first[0] - second[0],
               first[1] - second[1],
@@ -233,6 +237,8 @@ export namespace FamilyConicFormMeasurements {
             face.chain < authority.chain
               ? [face.chain, authority.chain]
               : [authority.chain, face.chain];
+          const pointMm: AutoMovieVector3Tuple =
+            face.chain === ordered[0] ? first : second;
           const key: string = JSON.stringify(ordered);
           const row = rows.get(key);
           if (row === undefined)
@@ -241,10 +247,14 @@ export namespace FamilyConicFormMeasurements {
               second: ordered[1]!,
               samples: 1,
               maxMm: gap,
+              pointMm,
             });
           else {
             ++row.samples;
-            row.maxMm = Math.max(row.maxMm, gap);
+            if (gap > row.maxMm) {
+              row.maxMm = gap;
+              row.pointMm = pointMm;
+            }
           }
         }
     }
@@ -264,46 +274,58 @@ export namespace FamilyConicFormMeasurements {
   }
 
   /**
-   * Take triangles with two or three corners assigned to the same named face.
-   * Each selected face's distance query receives only its own corners.
+   * Take triangles from the actual named ranges of the generated skin. The
+   * generic engine mesh publishes owner coordinates instead of index ranges.
    */
   function ownerGaps(
-    mesh: Realization["mesh"],
+    { mesh, triangleGroups }: Realization,
     pairs: readonly (readonly [string, string])[],
     hasCrossings: boolean,
   ): Clearance[] {
     const names = new Set(pairs.flat());
     const faces = new Map(
-      mesh.owners.flatMap((name, owner): [number, number[]][] =>
-        names.has(name) ? [[owner, []]] : [],
-      ),
+      [...names].map((name): [string, number[]] => [name, []]),
     );
-    for (let i: number = 0; i < mesh.indices.length; i += 3) {
-      const a: number = mesh.indices[i]!;
-      const b: number = mesh.indices[i + 1]!;
-      const c: number = mesh.indices[i + 2]!;
-      const front: number = mesh.coordinates[a * 3]!;
-      const middle: number = mesh.coordinates[b * 3]!;
-      const back: number = mesh.coordinates[c * 3]!;
-      const owner: number =
-        front === back || front === middle
-          ? front
-          : middle === back
-            ? middle
-            : -1;
-      const positions = faces.get(owner);
-      if (positions === undefined) continue;
-      for (const vertex of [a, b, c])
+    const append = (positions: number[], first: number, end: number): void => {
+      for (let i: number = first; i < end; ++i) {
+        const vertex: number = mesh.indices[i]!;
         positions.push(
           mesh.positions[vertex * 3]!,
           mesh.positions[vertex * 3 + 1]!,
           mesh.positions[vertex * 3 + 2]!,
         );
+      }
+    };
+    if (triangleGroups !== undefined) {
+      for (const [index, group] of triangleGroups.entries()) {
+        if (!group.name.endsWith("/solid")) continue;
+        const positions = faces.get(group.name.slice(0, -"/solid".length));
+        if (positions !== undefined)
+          append(
+            positions,
+            group.start,
+            triangleGroups[index + 1]?.start ?? mesh.indices.length,
+          );
+      }
+    } else if ("owners" in mesh && "coordinates" in mesh) {
+      const owned = mesh as IAutoMovieConstructionRealization.IMesh;
+      for (let i: number = 0; i < mesh.indices.length; i += 3) {
+        const front: number = owned.coordinates[mesh.indices[i]! * 3]!;
+        const middle: number = owned.coordinates[mesh.indices[i + 1]! * 3]!;
+        const back: number = owned.coordinates[mesh.indices[i + 2]! * 3]!;
+        const owner: number =
+          front === back || front === middle
+            ? front
+            : middle === back
+              ? middle
+              : -1;
+        const positions = faces.get(owned.owners[owner]!);
+        if (positions !== undefined) append(positions, i, i + 3);
+      }
     }
     const prepared = new Map(
-      [...faces].flatMap(([owner, positions]) => {
+      [...faces].flatMap(([name, positions]) => {
         if (positions.length === 0) return [];
-        const name: string = mesh.owners[owner]!;
         return [
           [
             name,

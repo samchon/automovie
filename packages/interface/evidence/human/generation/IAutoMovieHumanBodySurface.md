@@ -6,7 +6,7 @@ Generated registered-frame skin buffers, material coordinates and opening rims i
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The namespace groups only IOutput, GenerateDetails declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+The namespace groups IOutput, GenerateDetails and SolidObserver declarations. Each member retains its own concrete data or callable representation.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -14,7 +14,25 @@ IOutput, GenerateDetails separate the declared inputs, results and related quant
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-AutoMovieHumanBodySurface exchanges the named IOutput, GenerateDetails contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+AutoMovieHumanBodySurface exchanges the named IOutput, GenerateDetails and SolidObserver contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+
+# src/human/generation/IAutoMovieHumanBodySurface.ts#IAutoMovieHumanBodySurface.SolidObserver
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Borrows the solid tessellator's named world-millimetre source charts from the same generation call.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The observer sees the existing chart map as read-only. Those charts supplied the solid tessellator's point and derivative reads.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+AutoMovieHumanBodySurface.generate calls an optional observer with the gathered source charts when requested.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The callback borrows the existing solid tessellator inputs from its generation call.
 
 # src/human/generation/IAutoMovieHumanBodySurface.ts#IAutoMovieHumanBodySurface.IOutput
 
@@ -30,7 +48,7 @@ Returned by AutoMovieHumanBodySurface.generate.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `mesh`, `normals`, `coordinates`, `construction`, `rims`; callers supply the complete record.
+Required fields are `mesh`, `normals`, `coordinates`, `construction`, `rims`. Optional `nailClipping` carries the actual emitted skin's per-digit maximum in mm when its producer observed clipping. An omitted receipt leaves that measurement unavailable.
 
 # src/human/generation/IAutoMovieHumanBodySurface.ts#IAutoMovieHumanBodySurface.GenerateDetails
 

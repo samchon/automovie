@@ -41,6 +41,9 @@ const SUBJECT: string = "ansur-male-neutral";
 function evaluate(parameters: IAutoMovieHumanParameters): {
   calibration: IAutoMovieHumanBodyCalibration;
   mesh: IAutoMovieMesh;
+  solidSurfaces: ReadonlyMap<string, IAutoMovieSolidSurface>;
+  triangleGroups: IAutoMovieHumanBodySurface.IOutput["mesh"]["groups"];
+  nailClipping?: IAutoMovieHumanBodySurface.IOutput["nailClipping"];
   topology: IAutoMovieMeshTopology;
   pieces: IAutoMovieMeshPiece[];
   diagnostics: string[];
@@ -56,8 +59,11 @@ function evaluate(parameters: IAutoMovieHumanParameters): {
   const calibration: IAutoMovieHumanBodyCalibration =
     AutoMovieHumanBodyLaw.realize(definition).body;
   const calibrated: number = performance.now();
+  let solidSurfaces: ReadonlyMap<string, IAutoMovieSolidSurface> = new Map();
   const surface: IAutoMovieHumanBodySurface.IOutput =
-    AutoMovieHumanBodySurface.generate(calibration);
+    AutoMovieHumanBodySurface.generate(calibration, [], (charts): void => {
+      solidSurfaces = charts;
+    });
   const skinned: number = performance.now();
   // Calibration and its skin use millimetres. The inspector uses metres.
   const mesh: IAutoMovieMesh = {
@@ -99,6 +105,9 @@ function evaluate(parameters: IAutoMovieHumanParameters): {
   return {
     calibration,
     mesh,
+    solidSurfaces,
+    triangleGroups: surface.mesh.groups,
+    nailClipping: surface.nailClipping,
     topology,
     pieces,
     diagnostics,
@@ -132,7 +141,8 @@ function emittedTriangles(
 export function buildHumanNeutralCapture(
   subject: string = SUBJECT,
 ): ReturnType<typeof buildHumanSurfaceCapture> {
-  const { calibration, mesh, diagnostics } = buildHumanNeutralCapture.inspect();
+  const { calibration, mesh, diagnostics, solidSurfaces } =
+    buildHumanNeutralCapture.inspect();
   if (diagnostics.length !== 0)
     throw new Error(`${subject}\n${diagnostics.join("\n")}`);
 
@@ -140,7 +150,7 @@ export function buildHumanNeutralCapture(
   const surfaces: IAutoMovieSolidSurface[] = [];
   for (const chain of calibration.chains) {
     const surface: IAutoMovieSolidSurface | null =
-      AutoMovieSolidChain.surface(chain);
+      solidSurfaces.get(chain.name) ?? AutoMovieSolidChain.surface(chain);
     if (surface === null) continue;
     chains.push(chain);
     surfaces.push(surface);

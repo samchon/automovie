@@ -1,9 +1,15 @@
-import { AutoMovieViewChain } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  AutoMovieViewChain,
+  bracketedRoot,
+} from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,
+  IAutoMovieLoftChain,
   IAutoMovieLoftSectionFrame,
+  IAutoMovieSolidSurface,
   IAutoMovieViewAxis,
 } from "@automovie/interface";
 
@@ -60,11 +66,121 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     /** Course point in mm. */
     origin: AutoMovieVector3Tuple;
 
-    /** Mean phase spacing in mm. */
+    /** Phase spacing in mm. */
     spacing: number;
 
     /** Point on the wall along the ray toward the given world point. */
     wall: (target: AutoMovieVector3Tuple) => AutoMovieVector3Tuple;
+  }
+
+  /**
+   * Prepare the actual published loft's course and periodic section reader. The
+   * original phase grid brackets the wall on the projected ray and gives the
+   * longest physical ring chord used by the probe's spacing rule.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Intersects the retained Point0 curve with the facing ray in its own section frame. The root and phase spacing use the retained ring domain and angular correspondence.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Prepares one millimetre course search grid per supplied chain. Each requested section prepares one fixed-station point reader, evaluates its ring once, and refines only sign-changing intervals.
+   */
+  export function retained(
+    chain: IAutoMovieLoftChain,
+    surface: IAutoMovieSolidSurface,
+  ): IReader {
+    const period = surface.period;
+    const first = chain.layers[0]?.y;
+    const last = chain.layers.at(-1)?.y;
+    if (
+      surface.name !== chain.name ||
+      period === undefined ||
+      !(period > 0) ||
+      first === undefined ||
+      last === undefined ||
+      !(last > first) ||
+      chain.samples < 3
+    )
+      throw new Error(`${chain.name} has no matching periodic loft course`);
+    const phases: number[] =
+      chain.phases ??
+      Array.from(
+        { length: chain.samples },
+        (_, index): number => (period * index) / chain.samples,
+      );
+    const course = (station: number): AutoMovieVector3Tuple =>
+      AutoMovieLoftChain.frame(chain, station).origin;
+    const grid: ICourseSample[] = [];
+    for (let station = first; station < last; ++station)
+      grid.push({ station, point: course(station) });
+    grid.push({ station: last, point: course(last) });
+    return {
+      nearest: (point): number => nearest(course, grid, point),
+      section: (station): ISection => {
+        const frame = AutoMovieLoftChain.frame(chain, station);
+        const at =
+          surface.pointAt?.(station) ??
+          ((phase: number): AutoMovieVector3Tuple =>
+            surface.point?.(station, phase) ?? surface.jet(station, phase).p);
+        const points = phases.map(at);
+        const spacing = Math.max(
+          ...points.map((point, index): number =>
+            Math.hypot(...sub(point, points[(index + 1) % points.length]!)),
+          ),
+        );
+        return {
+          origin: frame.origin,
+          spacing,
+          wall: (target): AutoMovieVector3Tuple =>
+            retainedWall(chain.name, frame, at, phases, points, period, target),
+        };
+      },
+    };
+  }
+
+  /** Locate a single forward wall on the retained section's projected ray. */
+  function retainedWall(
+    name: string,
+    frame: IAutoMovieLoftSectionFrame,
+    at: (phase: number) => AutoMovieVector3Tuple,
+    phases: readonly number[],
+    points: readonly AutoMovieVector3Tuple[],
+    period: number,
+    target: AutoMovieVector3Tuple,
+  ): AutoMovieVector3Tuple {
+    const toward = sub(target, frame.origin);
+    const u = dot(toward, frame.u);
+    const v = dot(toward, frame.v);
+    const cross = (p: AutoMovieVector3Tuple): number => {
+      const local = sub(p, frame.origin);
+      return u * dot(local, frame.v) - v * dot(local, frame.u);
+    };
+    const signs = points.map(cross);
+    const matches: AutoMovieVector3Tuple[] = [];
+    for (const [index, left] of phases.entries()) {
+      const next = (index + 1) % phases.length;
+      const right = phases[next]! + (next === 0 ? period : 0);
+      const a = signs[index]!;
+      const b = signs[next]!;
+      const point =
+        a === 0
+          ? points[index]!
+          : a * b < 0
+            ? at(
+                bracketedRoot(
+                  (phase): number => cross(at(phase)),
+                  left,
+                  right,
+                  Number.EPSILON * period,
+                ),
+              )
+            : undefined;
+      if (point === undefined) continue;
+      const local = sub(point, frame.origin);
+      if (u * dot(local, frame.u) + v * dot(local, frame.v) > 0)
+        matches.push(point);
+    }
+    if (matches.length !== 1)
+      throw new Error(
+        `${name} has ${matches.length} forward walls on its facing ray`,
+      );
+    return matches[0]!;
   }
 
   /**
@@ -107,7 +223,9 @@ export namespace AutoMovieHumanEmptyProbeWalls {
     const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
     const read: (station: number) => number[] =
       AutoMovieHumanConicLoft.reader(family);
-    const resolve: (values: readonly number[]) => IAutoMovieHumanConicSection.IChain =
+    const resolve: (
+      values: readonly number[],
+    ) => IAutoMovieHumanConicSection.IChain =
       AutoMovieHumanConicSection.prepare(family.layout);
     const course = (station: number): AutoMovieVector3Tuple => [
       ...axis.at(station).origin,

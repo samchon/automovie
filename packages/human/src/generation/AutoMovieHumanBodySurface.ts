@@ -30,15 +30,15 @@ const { domed } = AutoMovieHumanBodySurfacePoles;
 /**
  * Whole-body skin assembled from the calibrated chains and their events.
  *
- * A parent evaluates each contact ring once, including its pinch phases,
- * and shares its directed arcs with child chains by vertex index. Each
- * chain lofts at its bisection stations between owned rings, inherited arcs
- * or poles. Inherited rings use the existing section-phase rule and zipper;
- * the short pinch closure is shared by the adjacent children.
+ * A parent evaluates each contact ring once, including its pinch phases, and
+ * shares its directed arcs with child chains by vertex index. Each chain lofts
+ * at its bisection stations between owned rings, inherited arcs or poles.
+ * Inherited rings use the existing section-phase rule and zipper; the short
+ * pinch closure is shared by the adjacent children.
  *
- * Shared incidence does not qualify correspondence, regularity or the
- * inferred closures. Those obligations remain with reproduction review.
- * Triangle groups are named `<chain>/<k>` by their principal interval.
+ * Shared incidence does not qualify correspondence, regularity or the inferred
+ * closures. Those obligations remain with reproduction review. Triangle groups
+ * are named `<chain>/<k>` by their principal interval.
  */
 export namespace AutoMovieHumanBodySurface {
   /** Chord tolerance of the station bisection in mm. */
@@ -48,10 +48,15 @@ export namespace AutoMovieHumanBodySurface {
    * Loft the whole calibrated body.
    *
    * @param calibration Shared chain coefficients, events and poles.
+   * @param details Optional detail intervals consumed by the existing body
+   *   loft.
+   * @param observeSolids Optional observer of this skin's actual prepared
+   *   analytic charts.
    */
   export function generate(
     calibration: IAutoMovieHumanBodyCalibration,
     details: IAutoMovieHumanBodySurface.GenerateDetails = [],
+    observeSolids?: IAutoMovieHumanBodySurface.SolidObserver,
   ): IAutoMovieHumanBodySurface.IOutput {
     const context: IAutoMovieHumanSurfaceContext = {
       mesh: AutoMovieHumanLoftMesh.create(),
@@ -159,7 +164,11 @@ export namespace AutoMovieHumanBodySurface {
     // 3a. The solids: every chain a merge names, drawn as trimmed faces and
     // blends with their rails shared.
     calibration.diagnostics?.push(
-      ...AutoMovieHumanBodySurfaceSolids.draw(context, calibration),
+      ...AutoMovieHumanBodySurfaceSolids.draw(
+        context,
+        calibration,
+        observeSolids,
+      ),
     );
 
     // 3b. Every appendage joined to its base through its strip, and every

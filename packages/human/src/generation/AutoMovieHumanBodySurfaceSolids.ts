@@ -7,6 +7,7 @@ import {
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodyCalibration,
+  IAutoMovieHumanBodySurface,
   IAutoMovieHumanSurfaceBoundary,
   IAutoMovieHumanSurfaceContext,
   IAutoMovieHumanSurfaceMerge,
@@ -74,11 +75,14 @@ export namespace AutoMovieHumanBodySurfaceSolids {
    *
    * @param context The body's surface context.
    * @param calibration The calibration.
+   * @param observe Optional observer of the prepared solid charts used by the
+   *   skin.
    * @returns Every broken premise.
    */
   export function draw(
     context: IAutoMovieHumanSurfaceContext,
     calibration: IAutoMovieHumanBodyCalibration,
+    observe?: IAutoMovieHumanBodySurface.SolidObserver,
   ): IAutoMovieLoftContract.IDiagnostic[] {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const merges: IAutoMovieHumanSurfaceMerge[] = calibration.merges ?? [];
@@ -393,6 +397,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       );
       for (const t of band) context.mesh.indices.push(t[0], t[1], t[2]);
     }
+    observe?.(surfaces);
     return diagnostics;
   }
 }

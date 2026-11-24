@@ -1,6 +1,9 @@
+import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
+  IAutoMovieLoftChain,
+  IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
@@ -146,7 +149,7 @@ export namespace AutoMovieHumanEmptyProbes {
     for (let k: number = 0; k + 1 < walls.length; ++k) {
       const a: IPreparedSide = walls[k]!,
         b: IPreparedSide = walls[k + 1]!;
-      const name: string = `${a.family.name}-${b.family.name.split(".").at(-1)}`;
+      const name: string = `${a.name}-${b.name.split(".").at(-1)}`;
       fingers.push(betweenPrepared(name, a, b));
     }
     probes.push(...fingers, ...fingers.map(reflect));
@@ -165,13 +168,41 @@ export namespace AutoMovieHumanEmptyProbes {
     name: string,
     family: IAutoMovieHumanConicLoft.IFamily,
   ): IProbe {
-    const station: number = (family.knots[0]! + family.knots.at(-1)!) / 2;
+    const axis = AutoMovieHumanConicLoft.axis(family);
+    return middleOf(
+      name,
+      family.name,
+      family.knots[0]!,
+      family.knots.at(-1)!,
+      (station): AutoMovieVector3Tuple => axis.at(station).origin,
+    );
+  }
+
+  /** Locate the centre of an actual retained cutter course, in mm. */
+  export function middleRetained(chain: IAutoMovieLoftChain): IPlaced {
+    return middleOf(
+      chain.name,
+      chain.name,
+      chain.layers[0]!.y,
+      chain.layers.at(-1)!.y,
+      (station): AutoMovieVector3Tuple =>
+        AutoMovieLoftChain.frame(chain, station).origin,
+    );
+  }
+
+  /** Place one probe at the supplied course's middle station. */
+  function middleOf(
+    name: string,
+    course: string,
+    first: number,
+    last: number,
+    at: (station: number) => AutoMovieVector3Tuple,
+  ): IPlaced {
+    const station: number = (first + last) / 2;
     return {
       name,
-      derivation: `the middle station ${round(station)} mm of the course of ${family.name}`,
-      point: [
-        ...AutoMovieHumanConicLoft.axis(family).at(station).origin,
-      ] as AutoMovieVector3Tuple,
+      derivation: `the middle station ${round(station)} mm of the course of ${course}`,
+      point: [...at(station)],
     };
   }
 
@@ -195,8 +226,14 @@ export namespace AutoMovieHumanEmptyProbes {
   }
 
   /** A named family with the wall reader borrowed by every adjacent pair. */
-  interface IPreparedSide {
-    family: IAutoMovieHumanConicLoft.IFamily;
+  export interface IPreparedSide {
+    /** Published name of the side. */
+    name: string;
+    /** Start of the regular section field in mm. */
+    first: number;
+    /** End of the regular section field in mm. */
+    last: number;
+    /** Original course and section readers. */
     walls: AutoMovieHumanEmptyProbeWalls.IReader;
   }
 
@@ -205,25 +242,41 @@ export namespace AutoMovieHumanEmptyProbes {
    * single probe.
    */
   function prepare(family: IAutoMovieHumanConicLoft.IFamily): IPreparedSide {
-    return { family, walls: AutoMovieHumanEmptyProbeWalls.prepare(family) };
+    return {
+      name: family.name,
+      first: family.knots[0]!,
+      last: family.knots.at(-1)!,
+      walls: AutoMovieHumanEmptyProbeWalls.prepare(family),
+    };
+  }
+
+  /** Share the original wall reader of a retained loft across adjacent probes. */
+  export function prepareRetained(
+    chain: IAutoMovieLoftChain,
+    surface: IAutoMovieSolidSurface,
+  ): IPreparedSide {
+    return {
+      name: chain.name,
+      first: chain.layers[0]!.y,
+      last: chain.layers.at(-1)!.y,
+      walls: AutoMovieHumanEmptyProbeWalls.retained(chain, surface),
+    };
   }
 
   /**
    * Locate the gap between two families with their original walls already
    * prepared.
    */
-  function betweenPrepared(
+  export function betweenPrepared(
     name: string,
     a: IPreparedSide,
     b: IPreparedSide,
   ): IProbe {
-    const [shortSide, longSide]: [IPreparedSide, IPreparedSide] =
-      span(a.family) <= span(b.family) ? [a, b] : [b, a];
-    const { family: short, walls: shortWall } = shortSide;
-    const { family: long, walls: longWall } = longSide;
-    const station: number = (short.knots[0]! + short.knots.at(-1)!) / 2;
+    const [short, long]: [IPreparedSide, IPreparedSide] =
+      a.last - a.first <= b.last - b.first ? [a, b] : [b, a];
+    const station: number = (short.first + short.last) / 2;
     const gap: AutoMovieHumanEmptyProbeWalls.IGap =
-      AutoMovieHumanEmptyProbeWalls.facing(shortWall, longWall)(station);
+      AutoMovieHumanEmptyProbeWalls.facing(short.walls, long.walls)(station);
     const derivation: string = `between ${short.name} at the middle station ${round(station)} mm of its course and ${long.name} at ${round(gap.other)} mm, where its course comes nearest`;
     return gap.gap >= gap.required
       ? { name, derivation, point: gap.middle }
@@ -246,32 +299,56 @@ export namespace AutoMovieHumanEmptyProbes {
    * @returns The probe, or the widest gap found when none is wide enough.
    */
   export function split(name: string, a: ISide, b: ISide): IProbe {
-    const [first, last]: [number, number] = [
-      a.family.knots[0]!,
-      a.family.knots.at(-1)!,
-    ];
-    const own: AutoMovieHumanEmptyProbeWalls.IReader =
-      AutoMovieHumanEmptyProbeWalls.prepare(a.family);
-    const other: AutoMovieHumanEmptyProbeWalls.IReader =
-      a.family === b.family
-        ? own
-        : AutoMovieHumanEmptyProbeWalls.prepare(b.family);
+    const own: IPreparedSide = prepare(a.family);
+    const other: IPreparedSide =
+      a.family === b.family ? own : prepare(b.family);
+    const reflectSide = (
+      { reflected }: ISide,
+      side: IPreparedSide,
+    ): IPreparedSide =>
+      reflected
+        ? {
+            ...side,
+            name: `${side.name}.mirror`,
+            walls: AutoMovieHumanEmptyProbeWalls.reflect(side.walls),
+          }
+        : side;
+    return splitPrepared(
+      name,
+      reflectSide(a, own),
+      reflectSide(b, other),
+      "first",
+    );
+  }
+
+  /** Walk the prepared first side away from its declared common-root end. */
+  export function splitPrepared(
+    name: string,
+    a: IPreparedSide,
+    b: IPreparedSide,
+    end: "first" | "last",
+  ): IProbe {
+    const [first, last, step]: [number, number, number] =
+      end === "first"
+        ? [a.first, a.last, STEP_MM]
+        : [a.last, a.first, -STEP_MM];
     const facing: (station: number) => AutoMovieHumanEmptyProbeWalls.IGap =
-      AutoMovieHumanEmptyProbeWalls.facing(
-        a.reflected ? AutoMovieHumanEmptyProbeWalls.reflect(own) : own,
-        b.reflected ? AutoMovieHumanEmptyProbeWalls.reflect(other) : other,
-      );
-    const derivation: string = `between ${label(a)} and ${label(b)}, walking ${label(a)}'s course from its first station ${round(first)} mm`;
+      AutoMovieHumanEmptyProbeWalls.facing(a.walls, b.walls);
+    const derivation: string = `between ${a.name} and ${b.name}, walking ${a.name}'s course from its ${end} station ${round(first)} mm`;
     let below: number = first;
     let widest: AutoMovieHumanEmptyProbeWalls.IGap | null = null;
-    for (let station: number = first; station <= last; station += STEP_MM) {
+    for (
+      let station: number = first;
+      (last - station) * step >= 0;
+      station += step
+    ) {
       const gap: AutoMovieHumanEmptyProbeWalls.IGap = facing(station);
       if (
         widest === null ||
         gap.gap - gap.required > widest.gap - widest.required
       )
         widest = gap;
-      if (gap.gap < gap.required) {
+      if (!(gap.gap >= gap.required)) {
         below = station;
         continue;
       }
@@ -279,7 +356,7 @@ export namespace AutoMovieHumanEmptyProbes {
       // Bisect between the last station too narrow and the first wide enough; the wide end always qualifies.
       let above: number = station;
       let found: AutoMovieHumanEmptyProbeWalls.IGap = gap;
-      if (station > first)
+      if (station !== first)
         for (let k: number = 0; k < 40; ++k) {
           const mid: number = (below + above) / 2;
           const at: AutoMovieHumanEmptyProbeWalls.IGap = facing(mid);
@@ -319,16 +396,6 @@ export namespace AutoMovieHumanEmptyProbes {
           point: [probe.point[0], probe.point[1], -probe.point[2]],
         }
       : { name, derivation, reason: probe.reason };
-  }
-
-  /** The length of a family's fields' station domain, mm. */
-  function span(family: IAutoMovieHumanConicLoft.IFamily): number {
-    return family.knots.at(-1)! - family.knots[0]!;
-  }
-
-  /** A side's name: the family's, followed by `.mirror` for the twin. */
-  function label(side: ISide): string {
-    return side.reflected ? `${side.family.name}.mirror` : side.family.name;
   }
 
   /** A number to a hundredth, for a derivation's text. */

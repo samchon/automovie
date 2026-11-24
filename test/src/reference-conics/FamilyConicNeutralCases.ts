@@ -17,6 +17,7 @@ import path from "node:path";
 
 import { FamilyConicBodyCases as Cases } from "./FamilyConicBodyCases";
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
+import { FamilyConicNeutralForm as Form } from "./FamilyConicNeutralForm";
 
 /**
  * Exact input changes for the independent neutral body and its verification
@@ -194,6 +195,7 @@ export namespace FamilyConicNeutralCases {
     const parameters: IAutoMovieHumanParameters = prepare()(row);
     const report: ReturnType<typeof buildHumanNeutralCapture.inspect> =
       buildHumanNeutralCapture.inspect(parameters);
+    const form: Form.IReport = Form.measure(report);
     const floorMetres: number = report.mesh.positions.reduce(
       (lowest: number, value: number, index: number): number =>
         index % 3 === 1 ? Math.min(lowest, value) : lowest,
@@ -214,6 +216,7 @@ export namespace FamilyConicNeutralCases {
           topology: report.topology,
           pieces: report.pieces,
           diagnostics: report.diagnostics,
+          form,
           trianglesByOwner: report.trianglesByOwner,
           milliseconds: report.milliseconds,
         },
@@ -222,7 +225,13 @@ export namespace FamilyConicNeutralCases {
       ) + "\n",
     );
     console.log(file);
-    if (report.diagnostics.length !== 0) process.exitCode = 1;
+    if (
+      report.diagnostics.length !== 0 ||
+      form.measurements === null ||
+      form.measurements.findings.length !== 0 ||
+      form.unavailable.length !== 0
+    )
+      process.exitCode = 1;
   }
 
   /** List exact invocations or evaluate one explicit case. */
@@ -246,7 +255,8 @@ export namespace FamilyConicNeutralCases {
 if (
   typeof require !== "undefined" &&
   typeof module !== "undefined" &&
-  require.main === module
+  require.main === module &&
+  path.parse(process.argv[1] ?? "").name === "FamilyConicNeutralCases"
 )
   void FamilyConicNeutralCases.main(process.argv.slice(2)).catch(
     (error: unknown): void => {

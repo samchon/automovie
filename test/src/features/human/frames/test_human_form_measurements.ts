@@ -1,10 +1,17 @@
+import { measureAutoMovieMeshPieces } from "@automovie/engine";
+import {
+  AutoMovieHumanArmSources,
+  AutoMovieHumanFootToeSources,
+} from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionRealization,
+  IAutoMovieLoftChain,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
 import { FamilyConicFormMeasurements as Form } from "../../../reference-conics/FamilyConicFormMeasurements";
+import { FamilyConicNeutralForm as Neutral } from "../../../reference-conics/FamilyConicNeutralForm";
 import { FamilyConicSurfaceMeasurements as Surface } from "../../../reference-conics/FamilyConicSurfaceMeasurements";
 
 /**
@@ -24,6 +31,11 @@ import { FamilyConicSurfaceMeasurements as Surface } from "../../../reference-co
  *    zero.
  * 4. Removing one simplex face leaves one boundary. The caller's declared open
  *    root and a separately supplied triangle stream retain that geometry.
+ * 5. The neutral adapter uses the exact emitted groups and welded pieces. Two
+ *    retained circular courses place an empty-space probe inside the simplex,
+ *    whereas missing cutter and nail observations stay unavailable. All twenty
+ *    exact-limit clipping receipts qualify. Missing, duplicate, nonfinite,
+ *    unknown and excessive readings each retain their own failure.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual capture form report with original index and source charts.
  * @evidence contracts/development/testing.md#independent-expectations The simplex has four outward faces, six edges and four vertices. The disjoint faces approach within two metres, and the source plane offset is in millimetres. The overlapping edge contains (0.5, 0.25, 0.25), strictly inside the face x + y + z = 1. The clipping boundary is fixed by the campaign's made-figure check.
@@ -109,6 +121,176 @@ export function test_human_form_measurements(): void {
     );
 
   verifyExplicitSurfaces();
+  verifyRetainedNeutralForm();
+}
+
+/** The neutral gate uses real buffers, source walls, and explicit absence. */
+function verifyRetainedNeutralForm(): void {
+  const shape = fixture([3, 0, 0]);
+  const mesh = { ...shape.mesh, normals: null, uvs: null, skin: null };
+  const pieces = measureAutoMovieMeshPieces(mesh);
+  const charts = new Map([
+    ["trunk", plane("trunk", 0)],
+    ["leg.left", cylinder("leg.left", 100)],
+    ["leg.right", cylinder("leg.right", 500)],
+    ["thumb.left", plane("thumb.left", 0)],
+    ["finger.left.index", plane("finger.left.index", 0.02)],
+  ]);
+  const capture: Parameters<typeof Neutral.measure>[0] = {
+    mesh,
+    pieces,
+    solidSurfaces: charts,
+    triangleGroups: [
+      { name: "thumb.left/solid", start: 0 },
+      { name: "finger.left.index/solid", start: 12 },
+    ],
+    calibration: {
+      chains: [
+        chain("trunk", 100),
+        chain("leg.left", 100),
+        chain("leg.right", 500),
+      ],
+      bodies: [
+        {
+          name: "fixture",
+          points: [{ chain: "thumb.left", chart: [0, 0] }],
+          faces: [
+            ...["trunk", "leg.left", "leg.right"].map((chain) => ({
+              chain,
+              cycles: [],
+            })),
+            {
+              chain: "finger.left.index",
+              cycles: [{ kind: "hole", points: [0], chart: [[0, 0]] }],
+            },
+          ],
+        },
+      ],
+    },
+  };
+  const { measurements, unavailable } = Neutral.measure(capture);
+  const legs = measurements?.probes.find(({ name }) => name === "legs");
+  if (
+    measurements === null ||
+    measurements.pieces !== pieces ||
+    Math.abs(measurements.interior.winding - 1) > 1e-12 ||
+    measurements.clearances.find(({ first }) => first === "thumb.left")
+      ?.gapMm !== 2000 ||
+    Math.abs(measurements.contacts[0]!.maxMm - 0.02) > 1e-12 ||
+    measurements.contacts[0]!.pointMm[2] !== 0.02 ||
+    !measurements.findings.some((finding) =>
+      finding.startsWith(
+        "shared contact finger.left.index / thumb.left gaps 0.02 mm",
+      ),
+    ) ||
+    legs === undefined ||
+    !("point" in legs) ||
+    Math.hypot(legs.point[0] - 300, legs.point[1] - 300, legs.point[2] - 100) >
+      1e-9 ||
+    legs.reading?.inside !== true ||
+    !measurements.findings.some((finding) =>
+      finding.startsWith("nose.nostril.left probe unplaced"),
+    ) ||
+    !unavailable.some((finding) =>
+      finding.includes("no nail clipping receipts"),
+    )
+  )
+    throw new Error(
+      `neutral form must report the exact retained buffers and unavailable sites: ${JSON.stringify({ measurements, unavailable })}`,
+    );
+
+  const empty = Neutral.measure({ ...capture, mesh: { ...mesh, indices: [] } });
+  if (
+    empty.measurements !== null ||
+    !empty.unavailable.some((finding) =>
+      finding.includes("no retained triangle buffer"),
+    )
+  )
+    throw new Error("an absent retained skin must remain unavailable");
+
+  const nailClipping = (["left", "right"] as const)
+    .flatMap((side) => [
+      ...AutoMovieHumanArmSources.names(side),
+      ...AutoMovieHumanFootToeSources.names(side),
+    ])
+    .map((digit) => ({ digit, maximumMm: 0.01 }));
+  const complete = Neutral.measure({ ...capture, nailClipping });
+  if (
+    nailClipping.length !== 20 ||
+    complete.measurements?.clipping !== nailClipping ||
+    complete.unavailable.some((finding) => finding.includes("nail clipping")) ||
+    complete.measurements.findings.some((finding) => finding.includes("clips "))
+  )
+    throw new Error(
+      "twenty retained clipping observations at 0.01 mm must qualify",
+    );
+
+  const [excess, duplicate, missing, ...rest] = nailClipping;
+  const incomplete = Neutral.measure({
+    ...capture,
+    nailClipping: [
+      { ...excess!, maximumMm: 0.012 },
+      { ...duplicate!, maximumMm: Number.NaN },
+      duplicate!,
+      { digit: "unknown", maximumMm: 0 },
+      ...rest,
+    ],
+  });
+  if (
+    incomplete.unavailable.length !== 4 ||
+    !incomplete.unavailable.some((finding) =>
+      finding.startsWith(`${duplicate!.digit} has 2`),
+    ) ||
+    !incomplete.unavailable.some((finding) =>
+      finding.startsWith(`${missing!.digit} has 0`),
+    ) ||
+    !incomplete.unavailable.some((finding) =>
+      finding.includes("finite nonnegative"),
+    ) ||
+    !incomplete.unavailable.some((finding) =>
+      finding.includes("unknown digit unknown"),
+    ) ||
+    !incomplete.measurements?.findings.some((finding) =>
+      finding.startsWith(`${excess!.digit} clips 0.012`),
+    )
+  )
+    throw new Error(
+      "neutral form must name all invalid or excessive clipping observations",
+    );
+}
+
+/** A straight world-Y course with regular stations at 100 and 300 mm. */
+function chain(name: string, x: number): IAutoMovieLoftChain {
+  return {
+    name,
+    order: 1,
+    rule: "polar",
+    samples: 16,
+    layers: [100, 300].map((y) => ({
+      y,
+      frame: { origin: [x, y, 100], u: [1, 0, 0], v: [0, 0, 1] },
+      coefficients: [0, 50, 0, 0, 0, 50],
+      slopes: [0, 0, 0, 0, 0, 0],
+    })),
+  };
+}
+
+/** The analytic 50 mm circular wall about that course. */
+function cylinder(name: string, x: number): IAutoMovieSolidSurface {
+  const point = (station: number, phase: number): AutoMovieVector3Tuple => [
+    x + 50 * Math.cos(phase),
+    station,
+    100 + 50 * Math.sin(phase),
+  ];
+  return {
+    name,
+    orientation: 1,
+    period: 2 * Math.PI,
+    pointAt: (station) => (phase) => point(station, phase),
+    jet: () => {
+      throw new Error("the probe owns a Point0 query");
+    },
+  };
 }
 
 /**
