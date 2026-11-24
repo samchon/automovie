@@ -179,7 +179,7 @@ export function test_viewer_render_modes(): void {
         AutoMovieThreeKind.isMaterial(mesh.material) &&
         AutoMovieThreeKind.isShaderMaterial(mesh.material) &&
         nclose(
-          mesh.material.uniforms.depthRange!.value as number,
+          mesh.material.uniforms.depthRange!.value,
           DEPTH_NORMALIZATION_RANGE,
           0,
         ) &&
@@ -270,7 +270,7 @@ export function test_viewer_render_modes(): void {
       ): boolean =>
         AutoMovieThreeKind.isMaterial(mesh.material) &&
         AutoMovieThreeKind.isShaderMaterial(mesh.material) &&
-        nclose(mesh.material.uniforms.depthRange!.value as number, 8, 0),
+        nclose(mesh.material.uniforms.depthRange!.value, 8, 0),
     ),
   );
   customRange.restore();
@@ -369,11 +369,7 @@ export function test_viewer_render_modes(): void {
         AutoMovieThreeKind.isMaterial(shell.material) &&
         AutoMovieThreeKind.isShaderMaterial(shell.material) &&
         shell.material.side === THREE.BackSide &&
-        nclose(
-          shell.material.uniforms.edgeWidth!.value as number,
-          EDGE_WIDTH,
-          0,
-        ) &&
+        nclose(shell.material.uniforms.edgeWidth!.value, EDGE_WIDTH, 0) &&
         shell.material.vertexShader.includes("skinning_vertex") &&
         shell.material.vertexShader.includes("instanceMatrix"),
     ),
@@ -483,7 +479,7 @@ export function test_viewer_render_modes(): void {
         ): boolean =>
           AutoMovieThreeKind.isMaterial(shell.material) &&
           AutoMovieThreeKind.isShaderMaterial(shell.material) &&
-          nclose(shell.material.uniforms.edgeWidth!.value as number, 0.05, 0),
+          nclose(shell.material.uniforms.edgeWidth!.value, 0.05, 0),
       ),
   );
   wideEdge.restore();

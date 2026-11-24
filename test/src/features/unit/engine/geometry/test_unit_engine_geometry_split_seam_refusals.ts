@@ -4,7 +4,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { ConstructionRead } from "../../../internal/construction/ConstructionRead";
 import { ConstructionSplitSeam as S } from "../../../internal/construction/ConstructionSplitSeam";
 
 /**

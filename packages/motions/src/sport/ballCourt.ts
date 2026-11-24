@@ -15,7 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlaced";
@@ -26,6 +25,7 @@ import { lookPrimitive } from "../compose/lookPrimitive";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { throwObjectLaunch } from "../throwing/throwObjectLaunch";
+import { ballCourtClock } from "./ballCourtClock";
 import { ballCourtHand } from "./ballCourtHand";
 import { ballCourtSphere } from "./ballCourtSphere";
 
@@ -127,16 +127,8 @@ export function ballCourt(
   const hands: readonly AutoMovieHumanSide[] = one
     ? [params.hand ?? "right"]
     : ["left", "right"];
-  const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.phrase({
-      prepare: row.prepare,
-      attack: row.attack,
-      follow: 0.22,
-      hold: guard ? 0.24 : 0.85,
-      retract: 0.34,
-    }),
-    modifiers,
-  );
+  const clock: IAutoMovieMotionClock = ballCourtClock(row, guard, modifiers);
+
   const release: number = clock.at("stroke");
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const weight = (t: number): number =>

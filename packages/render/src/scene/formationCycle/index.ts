@@ -19,3 +19,5 @@ export * from "../formationCyclePosition.js";
 export * from "../sampleFormationCycleMatrix.js";
 export * from "../formationCycleOf.js";
 export * from "../applyFormationCycleMaterial.js";
+export * from "../AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY.js";
+export * from "../isAutoMovieFormationCycleMaterial.js";

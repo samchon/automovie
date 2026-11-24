@@ -18,3 +18,4 @@ export * from "./AutoMovieMotionHumanAuditTangleMargin";
 export * from "./HumanVerdictsSpan";
 export * from "./splitSolvedHumanAuditSpan";
 export * from "./subtractHumanAuditInterval";
+export * from "./HumanVerdictsInput";

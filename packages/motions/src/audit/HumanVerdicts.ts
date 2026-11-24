@@ -1,17 +1,13 @@
 import { ROM_TOLERANCE } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanAudit,
   IAutoMovieMotionHumanAuditContact,
   IAutoMovieMotionHumanAuditMeasure,
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditRange,
   IAutoMovieMotionHumanContactWindow,
-  IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanPropOutcome,
-  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSimulation,
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieMotionHumanWater,
@@ -28,6 +24,7 @@ import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanAuditSpin } from "./AutoMovieMotionHumanAuditSpin";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
+import { HumanVerdictsInput } from "./HumanVerdictsInput";
 import { HumanVerdictsSpan } from "./HumanVerdictsSpan";
 import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
 
@@ -91,7 +88,7 @@ export function HumanVerdicts(
       return pose;
     },
   };
-  const people: readonly IAutoMovieMotionHumanPerformer[] =
+  const people: HumanVerdictsInput.IPerformance["performers"] =
     performance.performers;
   const findings: IAutoMovieMotionHumanVerdicts.IFinding[] = [];
   const place = (
@@ -319,43 +316,11 @@ export function HumanVerdicts(
  * it.
  */
 export namespace HumanVerdicts {
-  /**
-   * What the verdicts read of a performance: its length, its performers'
-   * bodies, their displayed poses and bones, the props' frames and flights, the
-   * solved windows and each performer's placed actions.
-   */
-  export interface IPerformance extends Pick<
-    IAutoMovieMotionHumanPerformance,
-    "duration" | "pose" | "bones" | "prop" | "site" | "flights" | "simulations"
-  > {
-    /** The performers, by subject, with their bodies. */
-    readonly performers: readonly Pick<
-      IAutoMovieMotionHumanActionLaw,
-      IAutoMovieMotionHumanPerformer,
-      "subject" | "body"
-    >[];
+  /** What the verdicts read of a performance (`HumanVerdictsInput`). */
+  export type IPerformance = HumanVerdictsInput.IPerformance;
 
-    /**
-     * A performer's placed actions, in film order.
-     *
-     * @param subject The performer.
-     * @returns The actions.
-     */
-    segments(subject: string): readonly HumanVerdicts.ISegment[];
-  }
-
-  /**
-   * What the verdicts read of a placed action: its identity, its film span, its
-   * params (for the water it names), its plan, and its law's family and
-   * physical flag.
-   */
-  export interface ISegment extends Pick<
-    IAutoMovieMotionHumanSegment,
-    "id" | "index" | "name" | "start" | "entryTime" | "end" | "params" | "plan"
-  > {
-    /** The action's law, as far as its family and physics are read. */
-    law: Pick<IAutoMovieMotionHumanActionLaw<never>, "family" | "physical">;
-  }
+  /** What the verdicts read of a placed action (`HumanVerdictsInput`). */
+  export type ISegment = HumanVerdictsInput.ISegment;
   /**
    * The depth a pressed skin gives, metres: how far two bodies may enter each
    * other, the tangle audit's own skin (`AutoMovieMotionHumanAuditSkin.BUILT`),
@@ -487,8 +452,9 @@ const remember = (
             performance.segments(subject),
             subject,
             performance.performers.find(
-              (p: IAutoMovieMotionHumanPerformer): boolean =>
-                p.subject === subject,
+              (
+                p: HumanVerdictsInput.IPerformance["performers"][number],
+              ): boolean => p.subject === subject,
             )!.body,
             simulations,
           ),
@@ -510,8 +476,9 @@ const remember = (
         "bone" in support
           ? support.bone
           : performance.performers.find(
-              (p: IAutoMovieMotionHumanPerformer): boolean =>
-                p.subject === support.subject,
+              (
+                p: HumanVerdictsInput.IPerformance["performers"][number],
+              ): boolean => p.subject === support.subject,
             )!.body.surfaces.regions[support.region].bone;
       return HumanPropFrame.bone(bones(support.subject, seconds).get(bone)!);
     },

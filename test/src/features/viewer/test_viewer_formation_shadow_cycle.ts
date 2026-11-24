@@ -6,6 +6,7 @@ import {
   AutoMovieThreeKind,
   type IAutoMovieFormationCycle,
   type IAutoMovieFormationCycleTake,
+  type IMaterialShaderSource,
   applyFormationCycleMaterial,
   buildInstancedFormation,
   formationCycleOf,
@@ -14,6 +15,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import type * as ThreeTypes from "three";
 
+import { compileMaterialShaderSource } from "../internal/compileMaterialShaderSource";
 import { createFormationShadowInputs } from "../internal/createFormationShadowInputs";
 import { nclose, throwsError } from "../internal/predicates";
 import { readObjectsOfKind } from "../internal/readObjectsOfKind";
@@ -154,31 +156,11 @@ export async function test_viewer_formation_shadow_cycle(): Promise<void> {
       ): boolean => !batch.frustumCulled,
     ),
   );
-  const shaders: { uniforms: Record<string, { value: unknown }> }[] = (
-    [
-      [beauty[0]!, THREE.ShaderLib.standard],
-      [depth, THREE.ShaderLib.depth],
-      [distance, THREE.ShaderLib.distance],
-    ] as const
-  ).map(
-    ([material, template]: readonly [
-      ThreeTypes.Material<ThreeTypes.MaterialEventMap>,
-      ThreeTypes.ShaderLibShader,
-    ]): { uniforms: Record<string, { value: unknown }> } => {
-      const shader: {
-        uniforms: {};
-        vertexShader: string;
-        fragmentShader: string;
-      } = {
-        uniforms: {},
-        vertexShader: template.vertexShader,
-        fragmentShader: template.fragmentShader,
-      };
-      // No renderer operation occurs at this pure shader extension boundary.
-      Reflect.apply(material.onBeforeCompile, material, [shader, undefined]);
-      return shader as { uniforms: Record<string, { value: unknown }> };
-    },
-  );
+  const shaders: IMaterialShaderSource[] = [
+    compileMaterialShaderSource(beauty[0]!, THREE.ShaderLib.standard),
+    compileMaterialShaderSource(depth, THREE.ShaderLib.depth),
+    compileMaterialShaderSource(distance, THREE.ShaderLib.distance),
+  ];
   for (const shader of shaders)
     TestValidator.predicate(
       "each projection reads the exact shared advance and table cells",
@@ -305,23 +287,16 @@ export async function test_viewer_formation_shadow_cycle(): Promise<void> {
     );
   }
   const detached: ThreeTypes.MeshDepthMaterial = new THREE.MeshDepthMaterial();
-  const plain: { uniforms: {}; vertexShader: string; fragmentShader: string } =
-    {
-      uniforms: {},
-      vertexShader: THREE.ShaderLib.depth.vertexShader,
-      fragmentShader: THREE.ShaderLib.depth.fragmentShader,
-    };
-  Reflect.apply(detached.onBeforeCompile, detached, [plain, undefined]);
   TestValidator.equals(
     "the unbound negative twin has no cycle cells",
-    Object.keys(plain.uniforms).length,
-    0,
+    compileMaterialShaderSource(detached, THREE.ShaderLib.depth).uniforms,
+    {},
   );
   applyFormationCycleMaterial(detached, cycle);
-  Reflect.apply(detached.onBeforeCompile, detached, [plain, undefined]);
   TestValidator.predicate(
     "binding the adjacent twin provides the same cells",
-    Object.keys(plain.uniforms).length > 0,
+    compileMaterialShaderSource(detached, THREE.ShaderLib.depth).uniforms
+      .automovieCycleTexture === cycle.uniforms.automovieCycleTexture,
   );
   detached.dispose();
   const resources: (

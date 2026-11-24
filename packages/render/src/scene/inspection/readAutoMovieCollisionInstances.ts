@@ -8,15 +8,14 @@ import * as THREE from "three";
 import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
 import { formationCyclePosition } from "../formationCyclePosition.js";
+import { isAutoMovieFormationCycleMaterial } from "../isAutoMovieFormationCycleMaterial.js";
+import { readMaterialShaderPatches } from "../readMaterialShaderPatches.js";
 import { sampleFormationCycleMatrix } from "../sampleFormationCycleMatrix.js";
 import { AutoMovieCollisionSource } from "./AutoMovieCollisionSource.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
-
-/** Program key installed by the formation cycle material owner. */
-const CYCLE_PROGRAM: string = "automovie-formation-cycle";
 
 /**
  * Read each drawn instance of a batch, named by the generator's slot when it
@@ -134,7 +133,9 @@ export function readAutoMovieCollisionInstances(
 
 /**
  * Admit stock surfaces drawn by the default program, or by the formation cycle
- * program when the batch has a cycle.
+ * program when the batch has a cycle: the cycle's patch alone, since the
+ * envelope follows only the cycle's vertex law and another patch would move the
+ * drawn vertices off it.
  */
 function admits(mesh: THREE.InstancedMesh, cyclic: boolean): boolean {
   const materials: THREE.Material[] = [mesh.material].flat();
@@ -143,7 +144,8 @@ function admits(mesh: THREE.InstancedMesh, cyclic: boolean): boolean {
     materials.every(readAutoMovieDisplayedBox.supportsStockSurface) &&
     materials.every((material: THREE.Material): boolean =>
       cyclic
-        ? material.customProgramCacheKey() === CYCLE_PROGRAM
+        ? isAutoMovieFormationCycleMaterial(material) &&
+          readMaterialShaderPatches(material).length === 1
         : material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile,
     ) &&
     mesh.onBeforeRender === THREE.Object3D.prototype.onBeforeRender &&

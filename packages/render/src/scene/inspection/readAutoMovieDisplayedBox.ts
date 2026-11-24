@@ -7,7 +7,9 @@ import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
 import { createDualQuaternionSkinningShaderPatch } from "../dualQuaternionSkinning/createDualQuaternionSkinningShaderPatch.js";
+import { readMaterialShaderPatches } from "../readMaterialShaderPatches.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /** Program identity from the owned dual-quaternion shader builder. */
@@ -208,11 +210,11 @@ export namespace readAutoMovieDisplayedBox {
       return (
         material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile
       );
-    // The skinned material's own shader-patch records, each named by its key.
-    const patches: readonly { key: string }[] | undefined =
-      material.userData.shaderPatches;
+    // The skinned material's own shader patches, each named by its key.
+    const patches: readonly IMaterialShaderPatch[] =
+      readMaterialShaderPatches(material);
     return (
-      patches?.length === 1 &&
+      patches.length === 1 &&
       patches[0]!.key === DUAL_QUATERNION_KEY &&
       material.customProgramCacheKey() === DUAL_QUATERNION_KEY
     );

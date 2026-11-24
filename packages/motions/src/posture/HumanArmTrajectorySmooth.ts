@@ -9,6 +9,7 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  */
 export function HumanArmTrajectorySmooth(
   c: M.IContext,
+  sampled: boolean = true,
 ): HumanArmTrajectorySmooth.ISmooth {
   const n: number = c.n;
   const vars: number = (c.open ? n - 1 : n - 2) * c.width;
@@ -22,7 +23,11 @@ export function HumanArmTrajectorySmooth(
     (k - 1) * c.width + c.offset[a]! + f;
   c.free.forEach((free: number[], a: number): void => {
     // Accelerations; a still configuration's among its own waypoints.
-    for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
+    for (
+      let k: number = c.still ? 2 : 0;
+      sampled && k < (c.still ? n - 2 : n);
+      ++k
+    )
       free.forEach((d: number, f: number): void => {
         // An end's neighbour beyond it is the course beyond a stretch
         // (`M.IContext.beyond`), a constant, or the end itself.

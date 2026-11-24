@@ -102,8 +102,49 @@ export namespace HumanArmOptimiser {
           })();
 
     // The objective's exact quadratic terms, the same at every iterate.
-    const smooth: HumanArmTrajectorySmooth.ISmooth =
-      HumanArmTrajectorySmooth(read);
+    // On knots the smoothness is each segment's squared jerk in closed form
+    // (HumanArmTrajectoryJerk), in place of the frames' sampled
+    // accelerations; each arm's amplitude is fixed from the start.
+    const smooth: HumanArmTrajectorySmooth.ISmooth = HumanArmTrajectorySmooth(
+      read,
+      grid === undefined,
+    );
+    const first: number[][][] = start.map(
+      (arm: readonly (readonly number[])[]): number[][] =>
+        arm.map((v: readonly number[]): number[] => [...v]),
+    );
+    const seeded: Knots.IRates | undefined =
+      grid === undefined
+        ? undefined
+        : (rates ?? Knots.rates(context.times, first));
+    const jerk: number[] =
+      grid === undefined || seeded === undefined
+        ? []
+        : Jerk.weights(
+            context,
+            Jerk.amplitudes(
+              context,
+              Knots.read(context.times, grid.times, first, seeded),
+            ),
+          );
+    // A still arm has nothing to smooth: its knots hold no rate.
+    const initial: Knots.IRates | undefined =
+      seeded === undefined
+        ? undefined
+        : {
+            velocities: seeded.velocities.map(
+              (arm: number[][], a: number): number[][] =>
+                arm.map((v: number[]): number[] =>
+                  jerk[a] === 0 ? v.map((): number => 0) : [...v],
+                ),
+            ),
+            accelerations: seeded.accelerations.map(
+              (arm: number[][], a: number): number[][] =>
+                arm.map((v: number[]): number[] =>
+                  jerk[a] === 0 ? v.map((): number => 0) : [...v],
+                ),
+            ),
+          };
 
     // The subproblems of one solve share one interior-point session; a model
     // at another coefficient has data of another magnitude and is
@@ -129,12 +170,22 @@ export namespace HumanArmOptimiser {
           : { rates: limited(context, it.rates) }),
       }),
       evaluate: (x: IIterate): IReading => {
-        const evaluation: M.IEvaluation = M.evaluate(
+        const sampled: M.IEvaluation = M.evaluate(
           read,
           spread(x),
           kept.fixed,
           contact,
+          grid === undefined,
         );
+        const evaluation: M.IEvaluation =
+          x.rates === undefined
+            ? sampled
+            : {
+                ...sampled,
+                objective:
+                  sampled.objective +
+                  Jerk.cost(context, x.x, x.rates, jerk),
+              };
         if (changing !== undefined && kept.fixed === undefined)
           kept.fixed = { reading: evaluation, laid: changing };
         return { ...evaluation, greatest: evaluation.worst.value };
@@ -158,7 +209,15 @@ export namespace HumanArmOptimiser {
             smooth,
           );
         return shell(
-          grid === undefined ? built : Knots.reduce(context, weights!, built),
+          grid === undefined || x.rates === undefined
+            ? built
+            : Jerk.add(
+                context,
+                x.x,
+                x.rates,
+                jerk,
+                Knots.reduce(context, weights!, built),
+              ),
           x,
           evaluation,
           coefficient,

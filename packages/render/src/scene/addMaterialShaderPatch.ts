@@ -7,7 +7,9 @@ import { readMaterialShaderPatches } from "./readMaterialShaderPatches.js";
 /**
  * Add a shader patch to a material, keeping the ones already on it: three calls
  * one `onBeforeCompile`, so every patch a material carries runs in the order it
- * was added and the program key names them all.
+ * was added and the program key names them all. A patch whose key the material
+ * already carries replaces that one, so applying a patch again injects it
+ * once.
  *
  * This owner installs the material's compile and program-key hooks; an
  * unrelated preexisting hook is not composed. Registered keys must avoid
@@ -20,7 +22,9 @@ export const addMaterialShaderPatch: (
   patch: IMaterialShaderPatch,
 ) => void = (material: THREE.Material, patch: IMaterialShaderPatch): void => {
   const patches: IMaterialShaderPatch[] = [
-    ...readMaterialShaderPatches(material),
+    ...readMaterialShaderPatches(material).filter(
+      (one: IMaterialShaderPatch): boolean => one.key !== patch.key,
+    ),
     patch,
   ];
   material.userData.shaderPatches = patches;

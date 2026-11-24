@@ -465,8 +465,9 @@ export namespace HumanArmTrajectoryModel {
     x: readonly (readonly number[])[][],
     kept?: IEvaluateKept,
     contact?: readonly boolean[],
+    sampled: boolean = true,
   ): IEvaluation {
-    return HumanArmTrajectoryEvaluate(c, x, kept, contact);
+    return HumanArmTrajectoryEvaluate(c, x, kept, contact, sampled);
   }
 
   /** Configuration validity owned by HumanArmTrajectoryInvalid.of. */

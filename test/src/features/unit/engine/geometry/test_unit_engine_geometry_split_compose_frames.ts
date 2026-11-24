@@ -1,8 +1,6 @@
 import type { IAutoMovieConstructionSplit } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { ConstructionRead } from "../../../internal/construction/ConstructionRead";
-import { ConstructionShapes } from "../../../internal/construction/ConstructionShapes";
 import { ConstructionSplitCompose as C } from "../../../internal/construction/ConstructionSplitCompose";
 
 /**

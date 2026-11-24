@@ -1,6 +1,9 @@
 import type * as THREE from "three";
 
+import { AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY } from "./AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY.js";
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
+import type { IMaterialShaderSource } from "./IMaterialShaderSource.js";
+import { addMaterialShaderPatch } from "./addMaterialShaderPatch.js";
 
 /**
  * Teach one material to place its vertices at each member's own cycle position.
@@ -19,8 +22,10 @@ import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
  *
  * The bake stores affine part transforms in three Float32 texture rows. Shader
  * interpolation blends adjacent matrices, so rotations are approximated and can
- * lose orthogonality between samples. The installed compile/key hooks own this
- * material; unrelated existing hooks are not composed.
+ * lose orthogonality between samples. The injection is the material's shader
+ * patch `automovie-formation-cycle`, composed with its other patches; applying
+ * it again, with this cycle or another, replaces it rather than injecting
+ * twice.
  */
 export const applyFormationCycleMaterial: (
   material: THREE.Material,
@@ -29,29 +34,28 @@ export const applyFormationCycleMaterial: (
   material: THREE.Material,
   cycle: IAutoMovieFormationCycle,
 ): void => {
-  material.onBeforeCompile = (
-    shader: THREE.WebGLProgramParametersWithUniforms,
-  ): void => {
-    Object.assign(shader.uniforms, cycle.uniforms);
-    shader.vertexShader = shader.vertexShader
-      .replace("#include <common>", `#include <common>\n${CYCLE_PARS}`)
-      .replace(
-        "#include <beginnormal_vertex>",
-        `#include <beginnormal_vertex>\n${CYCLE_NORMAL}`,
-      )
-      .replace(
-        "#include <begin_vertex>",
-        `#include <begin_vertex>\n${CYCLE_POSITION}`,
-      );
-  };
-  // Without a distinct cache key three would hand this material the program it
-  // already compiled for the same material class without the injection, and
-  // the crowd would freeze for reasons invisible in the source.
-  material.customProgramCacheKey = (): string => CYCLE_PROGRAM_KEY;
+  addMaterialShaderPatch(material, {
+    key: AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY,
+    apply: (shader: IMaterialShaderSource): void => {
+      Object.assign(shader.uniforms, cycle.uniforms);
+      shader.vertexShader = shader.vertexShader
+        .replace("#include <common>", `#include <common>\n${CYCLE_PARS}`)
+        .replace(
+          "#include <beginnormal_vertex>",
+          `#include <beginnormal_vertex>\n${CYCLE_NORMAL}`,
+        )
+        .replace(
+          "#include <begin_vertex>",
+          `#include <begin_vertex>\n${CYCLE_POSITION}`,
+        );
+    },
+  });
+  // The patch's key enters the program cache key: without it three would hand
+  // this material the program it already compiled for the same material class
+  // without the injection, and the crowd would freeze for reasons invisible in
+  // the source.
   material.needsUpdate = true;
 };
-
-const CYCLE_PROGRAM_KEY: string = "automovie-formation-cycle";
 
 // A member's own radius comes out of the instance matrix it already carries,
 // which is stated relative to the unit's origin: the pivot a turning cue turns

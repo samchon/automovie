@@ -76,6 +76,7 @@ export function HumanArmTrajectoryEvaluate(
   x: readonly (readonly number[])[][],
   kept?: IHumanArmTrajectoryEvaluateKept,
   contact?: readonly boolean[],
+  sampled: boolean = true,
 ): M.IEvaluation {
   // Whether a waypoint's clearance is read.
   const reads = (k: number): boolean =>
@@ -211,7 +212,11 @@ export function HumanArmTrajectoryEvaluate(
   x.forEach((arm: readonly (readonly number[])[], a: number): void => {
     // A still configuration's waypoints are smoothed among themselves
     // only: its ends are not part of it.
-    for (let k: number = c.still ? 2 : 0; k < (c.still ? n - 2 : n); ++k)
+    for (
+      let k: number = c.still ? 2 : 0;
+      sampled && k < (c.still ? n - 2 : n);
+      ++k
+    )
       for (const d of c.free[a]!) {
         // An end's neighbour beyond it: the course beyond a stretch
         // (`M.IContext.beyond`), or the end itself.

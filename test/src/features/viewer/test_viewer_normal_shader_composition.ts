@@ -14,12 +14,19 @@ import * as THREE from "three";
 import { nclose } from "../internal/predicates";
 
 /**
- * Native material hooks compose relief and detail operations while preserving caller uniforms and refusing unsupported shader boundaries. Inputs are in-memory programs and materials, without a renderer.
+ * Native material hooks compose relief and detail operations while preserving
+ * caller uniforms and refusing unsupported shader boundaries. Inputs are
+ * in-memory programs and materials, without a renderer.
  *
  * Scenarios:
- * 1. Native chunk expansion and an already expanded program insert the caller's tangent-normal operation once before projection.
- * 2. An unsupported program refuses tangent and relief insertion, while the supported native template admits them.
- * 3. Composition preserves a caller uniform, copies the detail transform and orders relief before detail; an empty registration list preserves source and uniforms.
+ *
+ * 1. Native chunk expansion and an already expanded program insert the caller's
+ *    tangent-normal operation once before projection.
+ * 2. An unsupported program refuses tangent and relief insertion, while the
+ *    supported native template admits them.
+ * 3. Composition preserves a caller uniform, copies the detail transform and
+ *    orders relief before detail; an empty registration list preserves source
+ *    and uniforms.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the maintained tangent/relief/detail shader producers and ordered patch composition on native Three shader templates, then reads returned programs, uniforms and material keys; catches omitted insertion, reordered patches, lost caller fields and accepted unsupported boundaries.
  * @evidence contracts/development/testing.md#independent-expectations The supported tangent-normal boundary and declared relief-before-detail order define generated-source expectations; literal caller values and original object identities define preservation. These output checks do not compile GLSL or observe GPU fragments.
@@ -157,10 +164,9 @@ export function test_viewer_normal_shader_composition(): void {
   );
   TestValidator.predicate(
     "the detail strength preserves its supplied value",
-    nclose(shader.uniforms.detailNormalScale!.value as number, 0.75, 0),
+    nclose(shader.uniforms.detailNormalScale!.value, 0.75, 0),
   );
-  const transform: THREE.Matrix3 = shader.uniforms.detailNormalTransform!
-    .value as THREE.Matrix3;
+  const transform: THREE.Matrix3 = shader.uniforms.detailNormalTransform!.value;
   TestValidator.predicate(
     "the detail transform is a value-preserving independent matrix",
     transform !== texture.matrix &&
