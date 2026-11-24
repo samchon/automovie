@@ -44,11 +44,14 @@ import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
  * read these instead of differences of sampled points.
  */
 export namespace AutoMovieLoftJet {
-  /** Prepare a chain's total2 station readers after its immutable bind checks. */
+  /**
+   * Prepare total2 station readers using an immutable section binding. Without
+   * an admitted cap reader, the requested station selects and checks its cap.
+   */
   export function prepare(
     chain: IAutoMovieLoftChain,
     sections: ReturnType<typeof AutoMovieLoftSection.prepare>,
-    caps: ReturnType<typeof AutoMovieLoftCapRead.prepare>,
+    caps?: ReturnType<typeof AutoMovieLoftCapRead.prepare>,
   ): (
     station: number,
     sweep?: boolean,

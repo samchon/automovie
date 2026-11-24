@@ -127,7 +127,7 @@ export namespace NodeCanvasRaster {
 
   /**
    * Render one diagnostic frame with actual depth and an explicit subject header.
-   * The seventh subject argument defaults to f1; the existing sixth background argument keeps its meaning.
+   * The seventh subject argument defaults to reference; the existing sixth background argument keeps its meaning.
    * The eighth observation argument separates the displayed stage from run evidence; omission keeps a neutral diagnostic caption.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Existing CPU triangle depth, curve line modes, flat clay and Skia encoding consume the supplied metre scene and complete camera; subject and caller-reported observation affect only annotation text, with null diagnostic count remaining unknown.
@@ -145,7 +145,7 @@ export namespace NodeCanvasRaster {
     lineMode: "xray" | "depth",
     label: string,
     background?: IBackground,
-    subject: string = "f1",
+    subject: string = "reference",
     observation?: NodeCanvasTypes.Observation,
   ): {
     png: Buffer;
@@ -277,7 +277,7 @@ export namespace NodeCanvasRaster {
     };
   }
 
-  /** Identical camera projection, flat lighting and strict z-buffer triangle order for fresh and cached reference paths. */
+  /** Project the same triangles and either use their facets or chart-supplied normals for diffuse light. */
   function surfaces(
     camera: NodeCanvasTypes.Camera,
     meshes: readonly NodeCanvasTypes.Mesh[],
@@ -291,6 +291,11 @@ export namespace NodeCanvasRaster {
       camera.back[2] + camera.up[2] + camera.right[2],
     ]);
     for (const mesh of meshes) {
+      if (
+        mesh.normals !== undefined &&
+        mesh.normals.length !== mesh.positions.length
+      )
+        throw new Error("Analytic clay needs one normal per mesh vertex");
       const projected: NodeCanvasTypes.Point[] = [];
       for (let i: number = 0; i < mesh.positions.length; i += 3)
         projected.push(
@@ -341,24 +346,47 @@ export namespace NodeCanvasRaster {
               0,
               (facing * NodeCanvasCamera.dot(normal, light)) / length,
             );
-        const channel: (value: number) => number = (value: number): number =>
-          Math.round(255 * Math.pow(value * intensity, 1 / 2.2));
-        const colour: NodeCanvasTypes.Point = [
-          channel(mesh.colour[0]),
-          channel(mesh.colour[1]),
-          channel(mesh.colour[2]),
-        ];
+        const shade = (strength: number): NodeCanvasTypes.Point =>
+          mesh.colour.map(
+            (value): number => Math.round(255 * Math.pow(value * strength, 1 / 2.2)),
+          ) as NodeCanvasTypes.Point;
+        const samples: NodeCanvasTypes.Point[] | undefined = mesh.normals === undefined
+          ? undefined
+          : indices.map((j): NodeCanvasTypes.Point => [
+              mesh.normals![3 * j]!,
+              mesh.normals![3 * j + 1]!,
+              mesh.normals![3 * j + 2]!,
+            ]);
+        // Phong's scan-line method interpolates supplied normals before using
+        // the same diffuse term. The vertices still address the same mesh.
+        const colour: NodeCanvasTypes.Point | Shade = samples === undefined
+          ? shade(intensity)
+          : (u, v, w): NodeCanvasTypes.Point => {
+              const normal: NodeCanvasTypes.Point = [
+                u * samples[0]![0] + v * samples[1]![0] + w * samples[2]![0],
+                u * samples[0]![1] + v * samples[1]![1] + w * samples[2]![1],
+                u * samples[0]![2] + v * samples[1]![2] + w * samples[2]![2],
+              ];
+              const length: number = Math.hypot(...normal);
+              const cosine: number = length > 0
+                ? (facing * NodeCanvasCamera.dot(normal, light)) / length
+                : 0;
+              return shade(0.28 + 0.72 * Math.max(0, cosine));
+            };
         triangle(a, b, c, colour, camera, pixels, depth, statistics);
       }
     }
   }
+
+  /** Diffuse colour evaluated at one barycentric point of a triangle. */
+  type Shade = (u: number, v: number, w: number) => NodeCanvasTypes.Point;
 
   /** Barycentric triangle rasterization; maximum camera depth wins without painter sorting. */
   function triangle(
     a: NodeCanvasTypes.Point,
     b: NodeCanvasTypes.Point,
     c: NodeCanvasTypes.Point,
-    colour: NodeCanvasTypes.Point,
+    colour: NodeCanvasTypes.Point | Shade,
     camera: NodeCanvasTypes.Camera,
     pixels: Uint8ClampedArray,
     depth: Float64Array,
@@ -402,7 +430,10 @@ export namespace NodeCanvasRaster {
         const index: number = y * camera.width + x;
         if (z <= depth[index]!) continue;
         depth[index] = z;
-        pixels.set([...colour, 255], index * 4);
+        const rgb: NodeCanvasTypes.Point = typeof colour === "function"
+          ? colour(u, v, w)
+          : colour;
+        pixels.set([...rgb, 255], index * 4);
         statistics.surface++;
       }
   }

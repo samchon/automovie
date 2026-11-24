@@ -34,6 +34,12 @@ import type {
  */
 export namespace AutoMovieHumanArmBones {
   /**
+   * Coronal A-pose for the default rest. ESTIMATE: bisect the quarter turn
+   * between a hanging and a horizontal arm to leave room beside the trunk.
+   */
+  export const DEFAULT_ABDUCTION: number = Math.PI / 4;
+
+  /**
    * The landmarks from the shoulder centre, the bind's bone directions and
    * the two lengths.
    *

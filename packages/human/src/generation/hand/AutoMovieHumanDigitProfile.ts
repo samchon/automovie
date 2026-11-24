@@ -1,17 +1,14 @@
 import type {
   IAutoMovieHumanDigitCrease,
-  IAutoMovieHumanDigitJointRelief,
   IAutoMovieHumanDigitProfile,
   IAutoMovieHumanDigitSection,
   IAutoMovieHumanDigitSpan,
-  IAutoMovieHumanHandWindow,
   IAutoMovieHumanNailPlate,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSeamCarve } from "../../lofting/AutoMovieHumanSeamCarve";
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanDigitCrease } from "./AutoMovieHumanDigitCrease";
-import { AutoMovieHumanDigitJointRelief } from "./AutoMovieHumanDigitJointRelief";
 import { AutoMovieHumanDigitSpan } from "./AutoMovieHumanDigitSpan";
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 import { AutoMovieHumanNailFold } from "./AutoMovieHumanNailFold";
@@ -21,18 +18,13 @@ import { AutoMovieHumanNailPlate } from "./AutoMovieHumanNailPlate";
  * A digit's section shape along its centre line, composed from the digit's
  * pieces, each on its own axis:
  *
- * 1. the base section: for a finger the phalanx span law
- *    ({@link AutoMovieHumanDigitSpan}) on each bone from the web to the PIP,
- *    the PIP to the DIP and the DIP to the cap's start, scaled to the digit's
- *    own root section; for the thumb its own sections on its bones (the span
- *    law is observed on the fingers);
- * 2. the joint swellings ({@link AutoMovieHumanDigitJointRelief}) at the two
- *    distal joints, all round the section;
- * 3. the palmar flexion creases ({@link AutoMovieHumanDigitCrease}), grooves of
- *    the palmar depth;
- * 4. the fingertip pulp ({@link AutoMovieHumanHandWindow.PULP}) on the palmar
- *    side of the distal phalanx;
- * 5. the nail plate ({@link AutoMovieHumanNailPlate}), whose transverse arch sets
+ * 1. The base section: for a finger the phalanx span law
+ *    ({@link AutoMovieHumanDigitSpan}) on each bone from the web to the PIP, the
+ *    PIP to the DIP and the DIP to the cap's start, scaled to the digit's own
+ *    root section, and the thumb's own sections on its bones;
+ * 2. The palmar flexion creases ({@link AutoMovieHumanDigitCrease}), grooves of the
+ *    palmar depth;
+ * 3. The nail plate ({@link AutoMovieHumanNailPlate}), whose transverse arch sets
  *    the dorsal midline's curvature over the plate, and the proximal nail fold
  *    ({@link AutoMovieHumanNailFold}) behind its root.
  *
@@ -207,32 +199,7 @@ export namespace AutoMovieHumanDigitProfile {
   export function of(
     input: IAutoMovieHumanDigitProfile.IInput,
   ): IAutoMovieHumanDigitProfile.OfResult {
-    const j1: number = input.joints[1];
-    const radiusAt = (s: number): number => {
-      const [w, p, d] = input.base(s);
-
-      return (w + (p + d) / 2) / 2;
-    };
-
-    // Joint windows: centred on each joint, half a turn's length either side.
-    const reliefs: IAutoMovieHumanDigitJointRelief.IInput[] = input.joints.map(
-      (at: number): IAutoMovieHumanDigitJointRelief.IInput => ({
-        at,
-        half: Math.max(1, input.softness * radiusAt(at)),
-        radius: radiusAt(at),
-      }),
-    );
-
     const creases: IAutoMovieHumanDigitCrease.IInput[] = creasesOf(input);
-
-    // The pulp's middle halfway from the distal joint to the apex.
-    const distal: number = input.length - j1;
-    const middle: number = j1 + distal / 2;
-    const pad: IAutoMovieHumanHandWindow.IMassSize = {
-      length: distal,
-      width: input.base(middle)[0],
-      depth: input.base(middle)[1],
-    };
 
     const plate: IAutoMovieHumanNailPlate.ISize = plateOf(input);
     const plateRoot: number = input.cap - plate.length;
@@ -244,12 +211,7 @@ export namespace AutoMovieHumanDigitProfile {
 
     return (s: number): IAutoMovieHumanDigitSection.IShape => {
       const at: number = Math.min(s, input.cap);
-      const [w0, p0, d0] = input.base(at);
-      const swell: number = reliefs.reduce(
-        (sum: number, r: IAutoMovieHumanDigitJointRelief.IInput): number =>
-          sum + AutoMovieHumanDigitJointRelief.height(r, at),
-        0,
-      );
+      const [w, p0, d0] = input.base(at);
       const groove: number = creases.reduce(
         (sum: number, c: IAutoMovieHumanDigitCrease.IInput): number =>
           sum + AutoMovieHumanDigitCrease.depth(c, at),
@@ -257,24 +219,10 @@ export namespace AutoMovieHumanDigitProfile {
       );
       const u: number = (at - plateRoot) / plate.length;
 
-      // Volume only grows by the bumps (swelling, pulp, fold) and only the
-      // declared recess (the creases) carves it (`AutoMovieHumanSeamUnion`,
-      // `AutoMovieHumanSeamCarve`).
-      const w: number = AutoMovieHumanSeamUnion.bump(w0, swell);
-      const palmar: number = AutoMovieHumanSeamUnion.bump(
-        AutoMovieHumanSeamCarve.dent(
-          AutoMovieHumanSeamUnion.bump(p0, swell),
-          -groove,
-        ),
-        AutoMovieHumanHandWindow.mass(
-          AutoMovieHumanHandWindow.PULP,
-          pad,
-          at - middle,
-          0,
-        ),
-      );
+      // Keep the base's section size and apply its crease and nail fold.
+      const palmar: number = AutoMovieHumanSeamCarve.dent(p0, -groove);
       const dorsal: number = AutoMovieHumanSeamUnion.bump(
-        AutoMovieHumanSeamUnion.bump(d0, swell),
+        d0,
         AutoMovieHumanNailFold.height(plate, u, 0),
       );
 
@@ -302,7 +250,10 @@ export namespace AutoMovieHumanDigitProfile {
   }
 }
 
-/** Least apex share a section half keeps convex with (`AutoMovieHumanDigitSection`'s domain is (0, 1.5]). */
+/**
+ * Least apex share a section half keeps convex with
+ * (`AutoMovieHumanDigitSection`'s domain is (0, 1.5]).
+ */
 const APEX_MIN: number = 0.3;
 
 /** Greatest apex share, the section half's domain end. */

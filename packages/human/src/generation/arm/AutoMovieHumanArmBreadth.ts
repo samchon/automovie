@@ -7,13 +7,15 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
+import { AutoMovieHumanArmInterim } from "./AutoMovieHumanArmInterim";
 
 /**
- * The bideltoid owner in an explicitly straight, arms-down measuring frame.
- * Only the retained deltoid/biceps across family changes; GH, AP, stations,
- * poles, forearm and hand remain fixed. The proximal cap through the authored
- * humeral midpoint is the selected deltoid domain, not a measured maximum
- * station. Source critical roots are binary64 candidates, not interval proof.
+ * The bideltoid owner in an explicitly straight, arms-down measuring frame. The
+ * deltoid and biceps have a tape but no AP caliper. After solving their lateral
+ * support, estimate the unconstrained AP depth with the ellipse that carries
+ * the tape. The production section closes the exact tape afterward. GH,
+ * stations, poles and the supplied distal calipers remain fixed. The source's
+ * proximal cap through the humeral midpoint defines the search.
  */
 export namespace AutoMovieHumanArmBreadth {
   /** Read the selected source's outward support using the common scalar owner. */
@@ -70,7 +72,10 @@ export namespace AutoMovieHumanArmBreadth {
     return { radius, station };
   }
 
-  /** Solve the fixed source family's public width, then verify the actual residual. */
+  /**
+   * Solve the fixed source family's public width, then verify the actual
+   * residual.
+   */
   export function fit(
     input: IAutoMovieHumanSectionSource,
     side: "left" | "right",
@@ -142,6 +147,33 @@ export namespace AutoMovieHumanArmBreadth {
     const error: number = residual(scale);
     if (failure !== null || !Number.isFinite(error) || Math.abs(error) > 1e-9)
       return failure ?? `Bideltoid source residual ${error} mm exceeds 1e-9`;
-    return { input: family(scale), scale };
+    const changed: IAutoMovieHumanSectionSource = family(scale);
+    const sites: IAutoMovieHumanSectionSite[] = [];
+    for (const row of changed.sites) {
+      if (
+        (row.site !== "deltoid" && row.site !== "biceps") ||
+        !("girth" in row.fullness)
+      ) {
+        sites.push(row);
+        continue;
+      }
+      const width: number = row.edges[1] - row.edges[3];
+      const tape: number = row.fullness.girth;
+      if (!(2 * width < tape))
+        return `Bideltoid gives ${row.site} breadth ${width} mm, requiring its circumference to exceed ${2 * width} mm; the tape is ${tape} mm`;
+      try {
+        const half: number =
+          AutoMovieHumanArmInterim.ellipseDepth(width, tape) / 2;
+        sites.push({
+          ...row,
+          edges: [half, row.edges[1], -half, row.edges[3]],
+        });
+      } catch (error: unknown) {
+        const detail: string =
+          error instanceof Error ? error.message : String(error);
+        return `Bideltoid ${row.site} tape ${tape} mm and breadth ${width} mm: ${detail}`;
+      }
+    }
+    return { input: { ...changed, sites }, scale };
   }
 }

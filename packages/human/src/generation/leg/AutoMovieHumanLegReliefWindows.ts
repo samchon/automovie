@@ -8,26 +8,32 @@ import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
  * extents and displacement axis) built by the one rule
  * `AutoMovieHumanLegReliefWindow.create`, with a net whose three outer rings
  * are zero, so its height, slope and curvature vanish at the edge (rule J7).
- * Each window's numbers are conventions awaiting a relief fit on the
- * references (as the foot's malleoli): their sizes are anatomical sizes in
- * local radii, not measured medians.
+ * Each relief's extent is an estimate in local radii.
  */
 export namespace AutoMovieHumanLegReliefWindows {
+  /** Nominal ANSUR II knee-to-malleolus interval in mm at 1700 mm stature. */
+  const NOMINAL_SHANK: number = (0.2865 - 0.039) * 1700;
+
+  /** ANSUR II mean distance below mid-patella, from the female and male values. */
+  const TIBIALE_BELOW_MID_PATELLA: number = (11.2 + 20.2) / 2;
+
   /** How much higher the lateral head of the gastrocnemius stands than the medial head, a share of the shank: the lateral head is the higher and smaller (map.md, 7.2). */
   export const LATERAL_RISE: number = 0.04;
 
   /**
    * The kneecap as a relief window in its own frame: its own centre on the
-   * shank (0.086 of the bone), its own section angle, extents and
+   * shank, its own section angle, extents and
    * displacement axis, with a net whose three outer rings are zero, so its
    * height, slope and curvature vanish at the edge (rule J7).
    *
-   * Mid-patella stands 36 mm under the knee centre on the references (ANSUR II: 16.9 mm women, 3.3 mm men under the lateral epicondyle and 11.2 and 20.2 mm above tibiale); the patella is about 45 mm long and 50 mm broad, so a half extent of half a knee radius (27 mm) and 0.46 radians (25 mm at 54 mm radius). It pushes forward and 10 degrees down, along its own axis.
+   * ANSUR II locates the mid-patella below the lateral epicondyle. Its
+   * mean offset is expressed in the nominal shank chart. The window
+   * widths estimate the patella's half extents in radius and angle.
    */
   export const PATELLA: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.patella",
     segment: "shank",
-    share: 0.086,
+    share: AutoMovieHumanLegGirth.MID_PATELLA / NOMINAL_SHANK,
     angle: 0,
     halfStation: 0.5,
     halfAngle: 0.46,
@@ -37,16 +43,17 @@ export namespace AutoMovieHumanLegReliefWindows {
 
   /**
    * The tibial tuberosity as a relief window in its own frame: its own centre on the
-   * shank (0.14 of the bone), its own section angle, extents and
+   * shank, its own section angle, extents and
    * displacement axis, with a net whose three outer rings are zero, so its
    * height, slope and curvature vanish at the edge (rule J7).
    *
-   * Tibiale stands 11.2 to 20.2 mm under mid-patella (ANSUR II); the tuberosity is a small forward prominence about 60 mm under the knee centre.
+   * Tibiale stands below mid-patella in ANSUR II. Use this survey
+   * landmark as a height proxy for the forward tuberosity.
    */
   export const TIBIAL_TUBEROSITY: IAutoMovieHumanLegReliefWindow.IWindow = {
     name: "leg.tibialTuberosity",
     segment: "shank",
-    share: 0.14,
+    share: (AutoMovieHumanLegGirth.MID_PATELLA + TIBIALE_BELOW_MID_PATELLA) / NOMINAL_SHANK,
     angle: 0,
     halfStation: 0.3,
     halfAngle: 0.25,
@@ -237,7 +244,7 @@ export namespace AutoMovieHumanLegReliefWindows {
    * The rectus femoris and the vasti make the thigh's front convex in side view
    * from the groin to the suprapatellar level, fullest a little above the
    * thigh's middle. The window spans that run along the bone (1.8 local radii
-   * either side of its centre, about 0.35 of the femur on f1) and the anterior
+   * either side of its centre) and the anterior
    * sector between the vastus medialis and the vastus lateralis (0.7 radians
    * either side of straight ahead), and pushes forward along the section's own
    * forward axis. It is a bump added to the tube's envelope; the tube is

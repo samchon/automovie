@@ -58,7 +58,7 @@ What a body's neutral is derived from: its skin's rings and its bind skeleton.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Read by AutoMovieHumanNeutral.of. Also types AutoMovieHumanNeutral.read.
+Read by AutoMovieHumanNeutral.of from the caller's supplied source.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -68,11 +68,11 @@ Required fields are `rings`, `joints`; callers supply the complete record.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-One calibrated body's neutral, derived at its first request and shared by every later one.
+Supplies the rings and bind skeleton for one neutral derivation.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-One calibrated body's neutral, derived at its first request and shared by every later one. The callable takes  and returns ISource.
+The callable takes no arguments and returns the exact ISource used by the current derivation.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -80,4 +80,4 @@ IAutoMovieHumanNeutral.OfSource is the canonical exchange used by AutoMovieHuman
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The representation is used by AutoMovieHumanNeutral.of for one calibrated body's neutral, derived at its first request and shared by every later one.
+The caller supplies one source per request. The compatibility entry point invokes it directly and keeps no source or result.

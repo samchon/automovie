@@ -15,9 +15,9 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  * 1. A digit from 0 mm to a cap at 20.5 mm with no joint and no relief
- *    window stands every `STEP` (2 mm) up to 2.5 mm short of the cap, then
- *    its three tip rings at 1.2, 0.3 and 0 mm before it: 0 to 16 by 2, then
- *    19.3, 20.2 and 20.5.
+ *    window stands every 2 mm before the final base interval, then adds
+ *    rings half and one eighth of that interval before the cap. This puts
+ *    the base stations at 0 to 18 by 2 and the tip at 19.5, 20.25 and 20.5.
  * 2. A relief window of zero half width, one of negative half width, one
  *    of not-a-number half width, and one so narrow (1e-300 mm) that its
  *    quarter is under half an ulp of the arc length are refused, as are a
@@ -69,7 +69,7 @@ export function test_human_scan_termination(): void {
   same(
     "stations",
     AutoMovieHumanDigitStations.of(0, 20.5, [], []),
-    [0, 2, 4, 6, 8, 10, 12, 14, 16, 19.3, 20.2, 20.5],
+    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 19.5, 20.25, 20.5],
   );
   for (const half of [0, -1, NaN, 1e-300])
     refused(`window half ${half}`, () =>

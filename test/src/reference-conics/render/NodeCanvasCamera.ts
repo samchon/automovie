@@ -42,6 +42,69 @@ export namespace NodeCanvasCamera {
     return { name, target, back, right, up, scale, width, height };
   }
 
+  /** Positions of the actual corners the raster receives, in metres. */
+  export function indexedPoints(
+    meshes: readonly Pick<NodeCanvasTypes.Mesh, "positions" | "indices">[],
+  ): NodeCanvasTypes.Point[] {
+    return meshes.flatMap(({ indices, positions }) =>
+      [...new Set(indices)].map((index): NodeCanvasTypes.Point => [
+        positions[3 * index]!,
+        positions[3 * index + 1]!,
+        positions[3 * index + 2]!,
+      ]),
+    );
+  }
+
+  /**
+   * Fit metre positions in the annotated raster content. An explicit vertical
+   * landmark may fix where the camera centres relative to the supplied points.
+   */
+  export function fitAnnotated(
+    name: string,
+    back: NodeCanvasTypes.Point,
+    upHint: NodeCanvasTypes.Point,
+    points: readonly NodeCanvasTypes.Point[],
+    width: number,
+    height: number,
+    upAt?: number,
+  ): NodeCanvasTypes.Camera {
+    if (points.length === 0)
+      throw new Error("Cannot frame an empty anatomical selection");
+    const b: NodeCanvasTypes.Point = unit(back);
+    const right: NodeCanvasTypes.Point = unit(cross(upHint, b));
+    const up: NodeCanvasTypes.Point = cross(b, right);
+    const axes: NodeCanvasTypes.Point[] = [right, up, b];
+    const low: NodeCanvasTypes.Point = [Infinity, Infinity, Infinity];
+    const high: NodeCanvasTypes.Point = [-Infinity, -Infinity, -Infinity];
+    for (const p of points)
+      for (let k: number = 0; k < axes.length; ++k) {
+        const value: number = dot(p, axes[k]!);
+        low[k] = Math.min(low[k]!, value);
+        high[k] = Math.max(high[k]!, value);
+      }
+    const centre: NodeCanvasTypes.Point = [
+      (low[0] + high[0]) / 2,
+      upAt ?? (low[1] + high[1]) / 2,
+      (low[2] + high[2]) / 2,
+    ];
+    // Raster samples columns 0..width-1 and rows 80..height-26 at pixel centres.
+    const contentHeight: number = height - 105;
+    const vertical: number =
+      2 * Math.max(Math.abs(high[1] - centre[1]), Math.abs(low[1] - centre[1]));
+    const scale: number =
+      0.88 *
+      Math.min(
+        width / Math.max(high[0] - low[0], 0.001),
+        contentHeight / Math.max(vertical, 0.001),
+      );
+    const contentCentre: number = 80 + contentHeight / 2;
+    centre[1] += (contentCentre - (height + 40) / 2) / scale;
+    const target: NodeCanvasTypes.Point = [0, 1, 2].map((k: number): number =>
+      right[k]! * centre[0] + up[k]! * centre[1] + b[k]! * centre[2],
+    ) as NodeCanvasTypes.Point;
+    return { name, target, right, up, back: b, scale, width, height };
+  }
+
   /** Projects a metre point; larger z is nearer and screen y increases downward. */
   export function project(point: NodeCanvasTypes.Point, camera: NodeCanvasTypes.Camera): NodeCanvasTypes.Point {
     const delta: NodeCanvasTypes.Point = [point[0] - camera.target[0], point[1] - camera.target[1], point[2] - camera.target[2]];

@@ -40,7 +40,7 @@ export namespace AutoMovieHumanHeadCanonical {
    *
    * @evidence contracts/common.md#principled-implementation Ear attachment datums come from actual unchanged original plates; each scalar member changes only the existing cranial fullness control.
    * @evidence contracts/common.md#clear-and-simple-design Caliper, attachment and tape stages are sequential and the selected part is the sole output mass.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No exception is hidden and no saturated bracket, remembered f1 value or metadata-only source is returned.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unresolved bracket retains its diagnostic. The returned source is the admitted field at the solved parameter.
    * @evidence contracts/common.md#meaningful-documentation Optional placements retain the lane's calibration-mm semantics; stage times include the actual work in this invocation.
    * @evidence contracts/performance.md#efficient-algorithms One base original and two existing plates precede the bounded tape family solve, without raw loft preparation.
    * @evidence contracts/performance.md#reuse-equivalent-work Every trial borrows the same closed calipers, neck source, placement laws and actual ear datums; Composer retains the returned part itself.

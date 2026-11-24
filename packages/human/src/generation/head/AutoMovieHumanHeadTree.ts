@@ -267,7 +267,7 @@ export namespace AutoMovieHumanHeadTree {
     const feature: IAutoMovieHumanHeadFeatures.IFeature = placed.feature;
     // A dome crosses its parent between its base and its apex; a long one
     // is searched across its middle, where its wall stands steepest.
-    const search: { phase: number; from: number; to: number } =
+    const search: NonNullable<IAutoMovieHumanHeadFeatures.IFeature["search"]> =
       feature.search ?? {
         phase: feature.elongated === true ? Math.PI / 2 : 0,
         from: 0,
@@ -292,11 +292,13 @@ export namespace AutoMovieHumanHeadTree {
         partFace: feature.part.name,
         hostFace: feature.material?.name ?? feature.parent,
         phase: search.phase,
+        ...(search.phases === undefined ? {} : { phases: search.phases }),
         from: search.from,
         to: search.to,
       },
-      parameter:
-        feature.elongated === true ? { type: "arc" } : { type: "phase" },
+      parameter: {
+        type: feature.parameter ?? (feature.elongated === true ? "arc" : "phase"),
+      },
       partWidth: width,
       hostWidth: width,
       continuity: "G2",

@@ -15,10 +15,10 @@ import type {
  * 2. A median split with the values of rational subdivision leaves the curve unchanged: the split limb layout with every median fullness `rho` and every half shoulder `w' / (1 + w')`, `w' = sqrt((1 + w) / 2)`, `w = rho / (1 - rho)`, reads the same radius as the plain layout on an off-centre box with touch offsets and four different shoulders.
  * 3. A different median fullness moves the curve: raising one median's fullness by 0.1 changes the radius inside that quarter and leaves the opposite quarter's untouched.
  * 4. A mirror layout is symmetric in the median line: the radius at `phi` equals the radius at `-phi`, and its chain has the listed anchors and their reflections.
- * 5. A share outside (0, 1) is confined inside the model, and a shoulder past the fair bound is held at it: shoulders of 1.5 and 0.9 yield the chain with the shoulder at 0.85, and a shoulder of 0.8 is kept.
+ * 5. A share outside (0, 1) is confined inside the model. A shoulder past the fair bound is held at the shoulder for rational weight four, `4 / 5`, and a shoulder of `3 / 4` is kept.
  * 6. A guide on its box corner is held back: with the forward extreme's touch offset equal to the side support, the chain is still admitted and the guide stands below the corner on its own support line.
  * 7. The bilateral helper reads the ellipse: `bilateral(0)` on the ellipse's half with the ellipse shoulder, and `bilateral(1)` with every median at that shoulder and every half shoulder from rational subdivision, are the ellipse at every phase; `bilateral(1)` has 10 fields where `limb(1)` has 20.
- * 8. `continuous` makes the curvature continuous at a median: on f1's trunk section over the hips the polar curve's one-sided curvatures at its first median differ more than twentyfold as stored and agree within 3 % after, with every anchor in place.
+ * 8. `continuous` makes the curvature continuous at a median. Made adjacent arcs start with middle weights four and one third and keep their anchors as the curvatures meet.
  * 9. A feature anchor (`f`) stands where its numbers put it with its own tangent: on the ellipse, at its point of parameter 45 degrees with the ellipse's tangent there, read on the chord of its frame (share, outward offset, turn from the chord), its fields are a share, mm and an angle, the chain is admitted and the resolved anchor is that point and direction.
  * 10. Feature anchors keep their order wherever their frame moves: two features after the forward extreme with fixed numbers stay admitted with rising phases while the side extreme stands at four places.
  * 11. The features of a run share one chord: moving the first off it, or turning it, leaves the second where it was.
@@ -173,7 +173,7 @@ export function test_human_conic_section(): void {
   const fair: number[] = [...ellipse];
   fair[8] = 0.9;
   const bounded: number[] = [...ellipse];
-  bounded[8] = 0.85;
+  bounded[8] = 4 / 5;
   const chain: IAutoMovieViewChain.ISection = S.chain(wild, S.limb(0));
   if (chain.fault !== null)
     failures.push(`out-of-range shoulder: chain refused with ${chain.fault}`);
@@ -185,7 +185,7 @@ export function test_human_conic_section(): void {
     )
   )
     failures.push(
-      "out-of-range shoulder: not equal to the chain at the model's fair bound 0.85",
+      "out-of-range shoulder: not equal to a chain with middle weight four",
     );
   if (
     !(
@@ -194,9 +194,9 @@ export function test_human_conic_section(): void {
       ) <= 1e-12
     )
   )
-    failures.push("shoulder 0.9: not held at the fair bound 0.85");
+    failures.push("shoulder 0.9: not held at the shoulder for middle weight four");
   const under: number[] = [...ellipse];
-  under[8] = 0.8;
+  under[8] = 3 / 4;
   if (
     !(
       Math.abs(
@@ -205,7 +205,7 @@ export function test_human_conic_section(): void {
     )
   )
     failures.push(
-      "shoulder 0.8: moved to the fair bound though it is under it",
+      "shoulder 0.75: moved to the fair bound though it is under it",
     );
 
   // 6. A guide on its box corner: the forward extreme's touch offset equals the side support, which leaves the first arc no leg unless the model holds the guide back.
@@ -264,13 +264,13 @@ export function test_human_conic_section(): void {
     }
   }
 
-  // 8. Curvature made continuous at a median: on f1's trunk section over the hips (bilateral(1), the front arc at 0.85 and the side arc at
-  // 0.26), the polar curve's one-sided curvatures at the first median differ a hundredfold; after `continuous` they agree, and the median
-  // point and both extremes stay where they were.
-  const hip: number[] = [
-    132.86, 0.6497, 41.98, 192.38, 0.5433, -86.77, 0.85, 0.261, 0.3327, 0.8603,
-  ];
-  const smooth: number[] = S.continuous(hip, S.bilateral(1), 1);
+  // 8. Keep the two equal-half conic triangles from the made ellipse. Their
+  // deliberately unequal middle weights change the endpoint curvatures by
+  // the square of their ratio while preserving every anchor.
+  const unequal: number[] = [...halved];
+  unequal[6] = 4 / 5;
+  unequal[7] = 1 / 4;
+  const smooth: number[] = S.continuous(unequal, S.bilateral(1), 1);
   const sided = (values: number[], at: number, sign: 1 | -1): number => {
     // The curvature of the polar curve r(phi) from points on one side only: r' and r'' by one-sided differences of second order.
     const h: number = 1e-4;
@@ -281,17 +281,17 @@ export function test_human_conic_section(): void {
     const d2: number = (2 * r0! - 5 * r1! + 4 * r2! - r3!) / (h * h);
     return (r0! * r0! + 2 * d1 * d1 - r0! * d2) / (r0! * r0! + d1 * d1) ** 1.5;
   };
-  const median: AutoMovieVector2Tuple = S.resolve(hip, S.bilateral(1)).input
+  const median: AutoMovieVector2Tuple = S.resolve(unequal, S.bilateral(1)).input
     .points[1]!;
   const at: number = Math.atan2(median[1], median[0]);
-  const [before, after]: number[] = [sided(hip, at, -1), sided(hip, at, 1)];
+  const [before, after]: number[] = [sided(unequal, at, -1), sided(unequal, at, 1)];
   const [smoothBefore, smoothAfter]: number[] = [
     sided(smooth, at, -1),
     sided(smooth, at, 1),
   ];
   if (!(Math.max(before!, after!) > 20 * Math.min(before!, after!)))
     failures.push(
-      `hip median as stored: curvatures ${before} and ${after}, expected a jump`,
+      `made median before correction: curvatures ${before} and ${after}, expected a jump`,
     );
   if (
     !(
@@ -300,15 +300,15 @@ export function test_human_conic_section(): void {
     )
   )
     failures.push(
-      `hip median made continuous: curvatures ${smoothBefore} and ${smoothAfter}, expected equal`,
+      `made median after correction: curvatures ${smoothBefore} and ${smoothAfter}, expected equal`,
     );
   const moved: AutoMovieVector2Tuple = S.resolve(smooth, S.bilateral(1)).input
     .points[1]!;
   if (
     !(moved[0] === median[0] && moved[1] === median[1]) ||
-    smooth.slice(0, 6).some((x: number, k: number): boolean => x !== hip[k])
+    smooth.slice(0, 6).some((x: number, k: number): boolean => x !== unequal[k])
   )
-    failures.push("hip median made continuous: an anchor moved");
+    failures.push("conic median made continuous: an anchor moved");
 
   // 9. A feature anchor stands where its numbers put it, with its own tangent: on the ellipse of scenario 1, a feature between the forward
   // and the side extreme at the ellipse's point of parameter 45 degrees, its tangent the ellipse's there. Its numbers are read on the chord

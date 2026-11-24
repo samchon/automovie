@@ -6,7 +6,7 @@ The held run and its blend width are explicit in physical millimetres.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The material course and its F1 native caller share this one optional input.
+The material course and its native caller share this one optional input.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

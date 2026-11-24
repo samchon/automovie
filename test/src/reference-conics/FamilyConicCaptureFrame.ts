@@ -1,13 +1,20 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { FamilyConicCaptureContext as Capture } from "./FamilyConicCaptureContext";
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 
 /** Write one existing raster result, retaining scalar provenance instead of PNG buffers. */
 export namespace FamilyConicCaptureFrame {
+  /** Scalar frame receipt destination supplied by a caller. */
+  interface IContext {
+    /** Completed artifact metadata, with its output directory. */
+    frames: (N.Frame & { directory: string })[];
+    /** Selected subject identity used when the call omits a display subject. */
+    input: { selected: { id: string } };
+  }
+
   /**
    * Render and release one PNG with the actual subject, displayed stage and explicit run evidence.
    * Corrected annotation bytes are intentional; the two-field returned file identity remains unchanged.
@@ -21,7 +28,7 @@ export namespace FamilyConicCaptureFrame {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The write is awaited and only file identity and scalar metadata survive; the PNG and raster arrays leave scope on return.
    */
   export async function write(
-    context: Pick<Capture.IContext, "frames" | "input"> | null,
+    context: IContext | null,
     out: string,
     file: string,
     camera: N.Camera,

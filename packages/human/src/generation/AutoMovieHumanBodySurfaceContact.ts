@@ -1,8 +1,6 @@
 import type {
   IAutoMovieHumanBranchEvent,
   IAutoMovieHumanBranchSplit,
-  IAutoMovieHumanConstructionPath,
-  IAutoMovieHumanLoftMesh,
   IAutoMovieHumanSurfaceContext,
   IAutoMovieHumanWebResult,
   IAutoMovieLoftChain,
@@ -85,10 +83,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
           kind: "inherited",
           ring: built.rings.get(c.name)!,
         });
-      const paths: IAutoMovieHumanConstructionPath[] =
-        WEBS.get(context.mesh) ?? [];
-      paths.push(...built.construction);
-      WEBS.set(context.mesh, paths);
+      context.webPaths.push(...built.construction);
       return;
     }
     const whole = (arcs: number[][]): boolean =>
@@ -170,42 +165,26 @@ export namespace AutoMovieHumanBodySurfaceContact {
     // A pinch of a span left as a slit lies on the parent and on both
     // children at once, where the skin turns: its normal is its faces' own,
     // not the parent's surface it would otherwise take.
-    const pinned: Set<number> = PINNED.get(context.mesh) ?? new Set();
-    PINNED.set(context.mesh, pinned);
     for (const c of children)
       if (!whole(c.arcs))
         c.arcs.forEach((_: number[], k: number): void => {
-          for (const v of span(c.arcs, k)) pinned.add(v);
+          for (const v of span(c.arcs, k)) context.pinches.add(v);
         });
   }
 
-  /** Each mesh's webs' rows and separatrices, as construction. */
-  export const WEBS: WeakMap<
-    IAutoMovieHumanLoftMesh.IContext,
-    IAutoMovieHumanConstructionPath[]
-  > = new WeakMap();
-
-  /** Each mesh's slit pinches, whose normal is their faces' own. */
-  export const PINNED: WeakMap<
-    IAutoMovieHumanLoftMesh.IContext,
-    Set<number>
-  > = new WeakMap();
-
   /**
-   * Normals with every slit pinch on its faces' own normal. A pinch lies on
-   * the parent and on both children, where the skin turns, so the parent's
-   * surface normal it would otherwise take stood up to 37 degrees off its
-   * faces on f1 and m2 (the crotch's front 22 to 23). Applied after the ring
-   * blend only: a neighbour on the smooth parent averaged with a pinch's
-   * crease normal stood 38 degrees off its own surface behind the crotch.
+   * Give each slit pinch the normal of its actual incident faces. A pinch
+   * belongs to the parent and both children, whose one-sided tangent planes
+   * can differ. Apply this after the ring blend to keep the crease normal
+   * local to the shared vertex.
    */
   export function held(
-    mesh: IAutoMovieHumanLoftMesh.IContext,
+    pinches: ReadonlySet<number>,
     faces: readonly number[],
     normals: number[],
   ): number[] {
     const out: number[] = [...normals];
-    for (const v of PINNED.get(mesh) ?? []) {
+    for (const v of pinches) {
       const l: number = Math.hypot(
         faces[3 * v]!,
         faces[3 * v + 1]!,

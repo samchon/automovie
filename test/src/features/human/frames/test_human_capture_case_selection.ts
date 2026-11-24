@@ -46,7 +46,7 @@ export function test_human_capture_case_selection(): void {
     "packages/human/src/made.ts": "a".repeat(64),
   };
   const artifact: Input.IArtifact<typeof first> = {
-    schema: "f1-native-cases/v1",
+    schema: "human-native-cases/v1",
     sourceHashes: hashes,
     cases: [first, second, infeasible, unavailable],
   };
@@ -107,11 +107,11 @@ export function test_human_capture_case_selection(): void {
   // Scenario 4: a stage is bound to its round by its bundle, not by the working tree.
   const round: Input.IArtifact<typeof first> = {
     ...artifact,
-    bundles: { "FamilyConicFigure.cjs": "d".repeat(64), "FamilyConicNativeRound.cjs": "e".repeat(64) },
+    bundles: { "capture.cjs": "d".repeat(64), "producer.cjs": "e".repeat(64) },
   };
   try {
     // The working tree's made.ts would now hash to "b"...: it is not consulted, so the stage is admitted.
-    Input.bundle(round.bundles, { name: "FamilyConicFigure.cjs", sha256: "D".repeat(64) });
+    Input.bundle(round.bundles, { name: "capture.cjs", sha256: "D".repeat(64) });
     if (Input.select(round, "second", round.sourceHashes) !== second)
       failures.push("the round's own stage did not retain the second case");
     if (round.sourceHashes["packages/human/src/made.ts"] !== "a".repeat(64))
@@ -122,8 +122,8 @@ export function test_human_capture_case_selection(): void {
   const strangers: { name: string; read: () => unknown; names: string }[] = [
     {
       name: "stage from another build",
-      read: (): unknown => Input.bundle(round.bundles, { name: "FamilyConicFigure.cjs", sha256: "f".repeat(64) }),
-      names: "FamilyConicFigure.cjs",
+      read: (): unknown => Input.bundle(round.bundles, { name: "capture.cjs", sha256: "f".repeat(64) }),
+      names: "capture.cjs",
     },
     {
       name: "stage the round never built",
@@ -132,13 +132,13 @@ export function test_human_capture_case_selection(): void {
     },
     {
       name: "round without a bundle record",
-      read: (): unknown => Input.bundle(artifact.bundles, { name: "FamilyConicFigure.cjs", sha256: "d".repeat(64) }),
-      names: "FamilyConicFigure.cjs",
+      read: (): unknown => Input.bundle(artifact.bundles, { name: "capture.cjs", sha256: "d".repeat(64) }),
+      names: "capture.cjs",
     },
     {
       name: "malformed bundle record",
-      read: (): unknown => Input.bundle({ "FamilyConicFigure.cjs": "short" }, { name: "FamilyConicFigure.cjs", sha256: "d".repeat(64) }),
-      names: "FamilyConicFigure.cjs",
+      read: (): unknown => Input.bundle({ "capture.cjs": "short" }, { name: "capture.cjs", sha256: "d".repeat(64) }),
+      names: "capture.cjs",
     },
   ];
   for (const scenario of strangers) {

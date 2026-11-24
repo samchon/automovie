@@ -13,3 +13,5 @@ Read by AutoMovieHumanShoulderDatum.create. Also types AutoMovieHumanTrunkClosur
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 Required fields are `hip`, `highHip`, `waist`, `underbust`, `chest`, `bustSpan`, `neckBase`, `acrossShoulder`, `biacromial`, `cervicale`, `acromion`, `axilla`, `female`, `bicep`, `neckToWaist`, `shoulderToApex`, `upperArm`, `sex`, `fat`, `muscularity`, `scale`; callers supply the complete record.
+
+The optional `kyphoticAngle` and `lordoticAngle` carry the person's posterior posture. The trunk solver otherwise takes the sex-specific postural study default.

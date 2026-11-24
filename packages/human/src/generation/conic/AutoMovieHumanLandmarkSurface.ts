@@ -10,7 +10,7 @@ import type { AutoMovieVector3Tuple, IAutoMovieHumanLandmarkSurface, IAutoMovieS
  * the landmarks' offsets at their phases: a graph over the plane that passes through every landmark. A point is on the far side where
  * its own offset exceeds the surface's at its phase.
  *
- * It is the armscye's landmark loop as `test/src/reference-conics/FamilyConicLoop.ts` builds it for the fit (construction.md, Ports:
+ * It is the armscye's landmark loop from its measured authoring points (construction.md, Ports:
  * "The loop passes through the landmarks that define it by their published definitions"), without the reference: the fit clips the
  * trunk and the arm by that surface, and the figure cuts the arm's own skin by the same surface to find where the two meet.
  */

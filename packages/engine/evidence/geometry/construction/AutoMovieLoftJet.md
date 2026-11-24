@@ -109,7 +109,7 @@ Owns no retained state or handles; its returned vector belongs to the caller.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Uses the same analytic station, phase, lift and relief product rules through admitted section and cap readers.
+Uses the same analytic station, phase, lift and relief product rules through an admitted section reader. Shared cap readers may be supplied by callers that also read cap points. Other callers use the existing station's cap admission.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -121,7 +121,7 @@ A cap tip or unavailable local physical2 still refuses jet generation.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents the immutable bindings used by total2 station readers.
+Documents the immutable section binding, optional cap reader and per-station cap admission.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

@@ -19,7 +19,10 @@ import type {
 /** Numerical world-height meeting budget, calibration millimetres. */
 const TOLERANCE: number = 1e-9;
 
-/** Discovery subdivisions of each actual source partition, not a crossing certificate. */
+/**
+ * Discovery subdivisions of each actual source partition, not a crossing
+ * certificate.
+ */
 const SUBDIVISIONS: number = 8;
 
 /** A station's immutable original section and its actual world plane. */
@@ -28,6 +31,8 @@ interface Station {
   frame: ReturnType<IAutoMovieViewPart["axis"]["at"]>;
   /** Null is the actual collapsed axis point, not a regular section. */
   point: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
+  /** Conservative projection of the source section box onto world Y, mm. */
+  height: readonly [number, number];
 }
 
 /** One original point, before any loft or tessellation. */
@@ -40,7 +45,10 @@ interface Reading {
 
 /** Original horizontal cuts of the same leg field consumed by the pelvis. */
 export namespace AutoMovieHumanGlutealCut {
-  /** Preserve the existing point-only consumer without preparing another field or solving another cut. */
+  /**
+   * Preserve the existing point-only consumer without preparing another field
+   * or solving another cut.
+   */
   export function create(
     part: IAutoMovieViewPart,
     y: number,
@@ -61,12 +69,13 @@ export namespace AutoMovieHumanGlutealCut {
 
   /**
    * Read one regular world-Y cut with its actual X/Z and source chart.
-   * Named/critical/cap partitions and bounded discovery retain explicit missing,
-   * multiple and tangent cases. These sampled points certify neither a whole
-   * continuous cut nor a final blended-skin tape. Missing physical derivatives
-   * remain unavailable when transversality must be checked. Discovery reads
-   * only the identical native point; the accepted crossing still requires
-   * the original WorldJet and its unchanged transversality test.
+   * Named/critical/cap partitions and bounded discovery retain explicit
+   * missing, multiple and tangent cases. These sampled points certify neither a
+   * whole continuous cut nor a final blended-skin tape. Missing physical
+   * derivatives remain unavailable when transversality must be checked.
+   * Discovery reads only the identical native point; the accepted crossing
+   * still requires the original WorldJet and its unchanged transversality
+   * test.
    */
   export function records(
     part: IAutoMovieViewPart,
@@ -83,28 +92,30 @@ export namespace AutoMovieHumanGlutealCut {
       const source: IAutoMovieLoftViewSource.ISource = prepared.source;
       const partitions: number[] | string = stations(part, source);
       if (typeof partitions === "string") return partitions;
-      const cache: Map<number, Station | string> = new Map();
-      const at: (s: number, phi: number) => Reading | string = (
-        s: number,
-        phi: number,
-      ): Reading | string => {
-        let station: Station | string | undefined = cache.get(s);
-        if (station === undefined) {
-          const values: IAutoMovieLoftViewRead.IValues | string =
-            AutoMovieLoftViewRead.values(source, s);
-          station =
-            typeof values === "string"
-              ? values
-              : {
-                  frame: part.axis.at(s),
-                  point: values.extents.every(
-                    (value: number): boolean => value === 0,
-                  )
-                    ? null
-                    : AutoMovieLoftSectionNative.point(values),
-                };
-          cache.set(s, station);
-        }
+      const reader: ReturnType<typeof AutoMovieLoftViewRead.prepare> =
+        AutoMovieLoftViewRead.prepare(source);
+      const readStation = (s: number): Station | string => {
+        const values: IAutoMovieLoftViewRead.IValues | string =
+          reader.values(s);
+        if (typeof values === "string") return values;
+        const frame: Station["frame"] = part.axis.at(s);
+        const a: number = -frame.u[1] * values.extents[2]!;
+        const b: number = frame.u[1] * values.extents[0]!;
+        const c: number = -frame.v[1] * values.extents[3]!;
+        const d: number = frame.v[1] * values.extents[1]!;
+        return {
+          frame,
+          height: [
+            frame.origin[1] + Math.min(a, b) + Math.min(c, d),
+            frame.origin[1] + Math.max(a, b) + Math.max(c, d),
+          ],
+          point: values.extents.every((value: number): boolean => value === 0)
+            ? null
+            : AutoMovieLoftSectionNative.point(values),
+        };
+      };
+      const fixed: (Station | string)[] = partitions.map(readStation);
+      const at = (station: Station | string, phi: number): Reading | string => {
         if (typeof station === "string") return station;
         if (station.point === null)
           return { point: [...station.frame.origin], collapsed: true };
@@ -121,16 +132,30 @@ export namespace AutoMovieHumanGlutealCut {
         };
       };
       const points: IAutoMovieHumanGlutealCut.IPoint[] = [];
+      const fixedSide: number[] = fixed.map(
+        (station: Station | string): number =>
+          typeof station === "string" || source.fullness.kind !== "shoulder"
+            ? 0
+            : station.height[0] > y + TOLERANCE
+              ? 1
+              : station.height[1] < y - TOLERANCE
+                ? -1
+                : 0,
+      );
       for (let k: number = 0; k < count; k++) {
         const phi: number = (2 * Math.PI * k) / count;
         const roots: number[] = [];
-        let prior: { station: number; residual: number } | undefined;
-        for (const s of partitions) {
-          const value: Reading | string = at(s, phi);
+        let prior:
+          | { station: number; residual: number; index: number }
+          | undefined;
+        for (const [index, s] of partitions.entries()) {
+          const side: number = fixedSide[index]!;
+          const value: Reading | string | null =
+            side === 0 ? at(fixed[index]!, phi) : null;
           if (typeof value === "string") return `${part.name}: ${value}`;
-          if (!value.point.every(Number.isFinite))
+          if (value !== null && !value.point.every(Number.isFinite))
             return `${part.name}: nonfinite original cut point at phase ${phi}.`;
-          const residual: number = value.point[1] - y;
+          const residual: number = value === null ? side : value.point[1] - y;
           if (!Number.isFinite(residual))
             return `${part.name}: nonfinite original height at phase ${phi}.`;
           if (Math.abs(residual) <= TOLERANCE) roots.push(s);
@@ -140,9 +165,21 @@ export namespace AutoMovieHumanGlutealCut {
             Math.abs(residual) > TOLERANCE &&
             prior.residual * residual < 0
           ) {
+            const residualAt = (atIndex: number): number => {
+              const point: Reading | string = at(fixed[atIndex]!, phi);
+              if (typeof point === "string") throw new Error(point);
+              return point.point[1] - y;
+            };
+            const before: number =
+              fixedSide[prior.index] === 0
+                ? prior.residual
+                : residualAt(prior.index);
+            const after: number = side === 0 ? residual : residualAt(index);
             const root: number | null = AutoMovieIllinois.root(
               (q: number): number => {
-                const read: Reading | string = at(q, phi);
+                if (q === prior!.station) return before;
+                if (q === s) return after;
+                const read: Reading | string = at(readStation(q), phi);
                 if (typeof read === "string") throw new Error(read);
                 return read.point[1] - y;
               },
@@ -155,19 +192,26 @@ export namespace AutoMovieHumanGlutealCut {
               return `${part.name}: level cut did not converge at phase ${phi}.`;
             roots.push(root);
           }
-          prior = { station: s, residual };
+          prior = { station: s, residual, index };
         }
         if (roots.length !== 1)
           return `${part.name}: level cut has ${roots.length} discovered crossings at phase ${phi}; one regular bracket is required and bounded absence is not a geometric absence proof.`;
         const s: number = roots[0]!;
-        const read: Reading | string = at(s, phi);
+        const read: Reading | string = at(readStation(s), phi);
         if (typeof read === "string") return `${part.name}: ${read}`;
         if (read.collapsed)
           return `${part.name}: the level cut collapses to its actual axis point at phase ${phi}.`;
         if (Math.abs(read.point[1] - y) > TOLERANCE)
           return `${part.name}: level cut has no admitted height residual.`;
         const jet: ReturnType<typeof AutoMovieLoftViewWorldJet> =
-          AutoMovieLoftViewWorldJet(source, part.axis, s, phi);
+          AutoMovieLoftViewWorldJet(
+            source,
+            part.axis,
+            s,
+            phi,
+            undefined,
+            reader.jets,
+          );
         if (typeof jet === "string")
           return `${part.name}: level cut transversality is unavailable: ${jet}`;
         if (
@@ -194,7 +238,10 @@ export namespace AutoMovieHumanGlutealCut {
   }
 }
 
-/** Reuse actual source partitions for discovery; no new shape or frame is fitted. */
+/**
+ * Reuse actual source partitions for discovery; no new shape or frame is
+ * fitted.
+ */
 function stations(
   part: IAutoMovieViewPart,
   source: IAutoMovieLoftViewSource.ISource,

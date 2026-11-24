@@ -8,22 +8,19 @@ import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import { AutoMovieHumanDigitSpan } from "../hand/AutoMovieHumanDigitSpan";
 
 /**
- * A toe's taper along its line: the digit span law
- * ({@link AutoMovieHumanDigitSpan}, the observed shares of a digit's half
- * width, palmar and dorsal depths at its web, middle joint, distal joint and
- * cap) laid on the toe's own joints, as shares of the toe's section at its
- * web.
+ * The toe's taper places the shared quarter-ellipsoid ordinates from
+ * {@link AutoMovieHumanDigitSpan} at the toe's own web, joints and cap.
+ * Half-width and both signed depth magnitudes use the same relative change from
+ * the toe's section at its web.
  *
  * A toe is a digit on the finger's plan: its proximal phalanx starts at the
- * metatarsal head (the line's start), its web stands halfway along that
- * phalanx (Gray 1918, the web reaching the middle of the proximal phalanx),
- * its joints at the prior's shares of the line, and its cap about one shaft
- * half breadth short of the apex, where the round tip starts. The hallux has
- * one interphalangeal joint, which takes the distal joint's knot. Behind the
- * web the shares hold the web's, so the root's flare and the web surface
- * keep the toe's root. The shares give the shaft its taper toward the tip
- * and the nail side its flattening (the dorsal share falls faster than the
- * plantar one), the same law on every person.
+ * metatarsal head (the line's start), its web stands halfway along that phalanx
+ * (Gray 1918, the web reaching the middle of the proximal phalanx), its joints
+ * at the prior's shares of the line, and its cap about one shaft half breadth
+ * short of the apex, where the round tip starts. The hallux has one
+ * interphalangeal joint, which takes the distal joint's knot. Behind the web
+ * the shares hold the web's, so the root's flare and the web surface keep the
+ * toe's root. The common taper shrinks the section toward the tip.
  */
 export namespace AutoMovieHumanFootToeTaper {
   /**

@@ -30,7 +30,7 @@ Also types AutoMovieHumanLegProximal.contact.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `parent`, `owner`, `phase`, `point`, `station`, `outward`, `radius`, `parentFrame`, `childFrame`; callers supply the complete record.
+The contact names its native `axis` (`u` AP or `v` transverse) and its sign. Both material lines carry the actual parent, scalar and frame jets at their own contact stations.
 
 # src/human/generation/leg/IAutoMovieHumanLegProximal.ts#IAutoMovieHumanLegProximal.IParent
 
@@ -70,7 +70,7 @@ The representation is used by AutoMovieHumanLegProximal.childFrame, AutoMovieHum
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-New proximal outward original, with its actual complete parent authority.
+Re-authored proximal material line with its actual complete parent authority.
 
 ## @evidence contracts/development/design.md#principled-representation `outline`: Reauthored prefix; all named-thigh-and-later scalar spans replay unchanged. `contact`: Contact retained by both construction and independent source readers.
 

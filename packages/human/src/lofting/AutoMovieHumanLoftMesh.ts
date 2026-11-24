@@ -31,8 +31,8 @@ export namespace AutoMovieHumanLoftMesh {
 
   /**
    * Sample a chain on its declared station grid and common phase clock.
-   * Fixed F1 ports retain the exact diagonal used by the original measured
-   * contour capture, including the original pole fan orientation.
+   * Each ring cell uses the same indexed diagonal. Its pole fans retain the
+   * orientation of the adjacent surface.
    */
   export function sampled(
     chain: IAutoMovieLoftChain,

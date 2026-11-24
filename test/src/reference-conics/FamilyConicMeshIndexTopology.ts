@@ -2,12 +2,12 @@ import { countAutoMovieMeshComponents } from "@automovie/engine";
 import type { IAutoMovieConstructionRealization } from "@automovie/interface";
 
 /**
- * The emitted F1 skin's connected components and edge incidence by exact triangle index.
+ * The emitted skin's connected components and edge incidence by exact triangle index.
  * Coincident vertices retain their distinct indices. The emitted index array is required.
  * An empty index array has zero components and edges. Three or more uses are non-manifold.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Reuses the canonical index component census, then counts each undirected edge once per actual triangle occurrence. It reads the same exact indices used to draw the skin.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The former F1 body edge check and the one existing component call share a scalar result.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One existing component call and one pass over used edges share a scalar result.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No position welding, index replacement or assumed retained seam can reduce an open edge count.
  * @evidence contracts/development/common.md#meaningful-documentation Defines exact index identity, one-use edges and three-or-more-use edges.
  * @evidence contracts/development/implementation.md#efficient-algorithms One existing component computation and one linear edge traversal keep O(V+E) scratch.

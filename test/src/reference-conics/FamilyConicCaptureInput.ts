@@ -1,6 +1,5 @@
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import { FamilyConicCaseSelection as Selection } from "./FamilyConicCaseSelection";
-import type { IAutoMovieHumanF1Engineering } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -37,7 +36,7 @@ export namespace FamilyConicCaptureInput {
   }
 
   /**
-   * Read the existing capture producers once for a source-only or full-case invocation.
+   * Read the caller's source producers and the actual executed artifact once.
    *
    * @evidence contracts/development/implementation.md#principled-implementation SHA-256 identities are read for actual capture/runtime source files and process.argv bundle bytes.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Sequential source reads precede executed artifact hashing.
@@ -47,42 +46,10 @@ export namespace FamilyConicCaptureInput {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Awaited readFile closes handles; byte buffers leave scope and no cache remains.
    * @evidence contracts/development/common.md#meaningful-documentation The comment names actual runtime producer files and executed bundle identity.
    */
-  export async function producer(root: string): Promise<IProducer> {
-    const names: readonly string[] = [
-      "FamilyConicCaseIdentity.ts",
-      "FamilyConicCaseSelection.ts",
-      "FamilyConicCaptureInput.ts",
-      "FamilyConicCaptureCatalog.ts",
-      "FamilyConicCaptureContext.ts",
-      "FamilyConicCaptureFrame.ts",
-      "FamilyConicOriginalCatalog.ts",
-      "FamilyConicCaptureFraming.ts",
-      "FamilyConicCaptureTransport.ts",
-      "FamilyConicCaptureTransportFiles.ts",
-      "FamilyConicSourceSelection.ts",
-      "FamilyConicSourceCapture.ts",
-      "FamilyConicSourcePreparation.ts",
-      "FamilyConicSourceEvidence.ts",
-      "FamilyConicSourceDrawing.ts",
-      "FamilyConicCaptureFileIO.ts",
-      "FamilyConicCaptureBaseline.ts",
-      "FamilyConicRecordedInputTransport.ts",
-      "FamilyConicCaptureViews.ts",
-      "FamilyConicFigureCapture.ts",
-      "FamilyConicDeviationCapture.ts",
-      "FamilyConicNativeCapture.ts",
-      "FamilyConicSkinInspection.ts",
-      "FamilyConicFigure.ts",
-      "FamilyConicDeviation.ts",
-      "FamilyConicNearest.ts",
-      "FamilyConicSource.ts",
-      "render/NodeCanvasCamera.ts",
-      "render/NodeCanvasTypes.ts",
-      "render/NodeCanvasRaster.ts",
-    ];
+  export async function producer(sourceFiles: readonly string[]): Promise<IProducer> {
     const files: IFile[] = [];
-    for (const name of names) {
-      const file: string = path.join(root, "test/src/reference-conics", name);
+    for (const source of sourceFiles) {
+      const file: string = path.resolve(source);
       files.push({ file, sha256: hash(await fs.readFile(file)) });
     }
     const entry: string | undefined = process.argv[1];
@@ -103,7 +70,7 @@ export namespace FamilyConicCaptureInput {
     /** Absolute repository root. */
     root: string;
     /** Exact producer record; resolution is not shape acceptance. */
-    selected: IAutoMovieHumanF1Engineering.IResolvedCase;
+    selected: Selection.ICaseRecord;
     /** Artifact bytes and canonical selected-field identity. */
     artifact: IFile;
     /** Exact canonical field JSON hash, without rounding numbers. */
@@ -225,7 +192,7 @@ export namespace FamilyConicCaptureInput {
     });
     Selection.sourcePaths(artifact.sourceHashes);
     const current: Record<string, string> = { ...artifact.sourceHashes };
-    const selected: IAutoMovieHumanF1Engineering.IResolvedCase =
+    const selected: Selection.ICaseRecord =
       Selection.select(artifact, id, current);
     if (
       selected.fields === null ||

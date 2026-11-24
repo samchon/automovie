@@ -7,6 +7,7 @@ import {
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
 import {
+  AutoMovieHumanBodySurfacePoles,
   AutoMovieHumanBodySurfaceSolids,
   AutoMovieHumanLoftMesh,
 } from "@automovie/human";
@@ -28,6 +29,7 @@ import { nclose } from "../../internal/nclose";
  * The generic and Human skin consumers preserve the same explicit endpoint failure.
  *
  * Scenarios:
+ *
  * 1. A public skin:false analytic ellipsoid supplies one real source chain,
  *    without a generated person, private coefficient fit or surface replacement.
  * 2. Body.draw -> ConstructionSkin.close and Human BodySurfaceSolids.draw both
@@ -37,12 +39,15 @@ import { nclose } from "../../internal/nclose";
  *    top; the failed bottom arc is never converted to a pole fan.
  * 4. A contradictory shared-ID chart refuses one face; both actual consumers
  *    preserve the unrelated valid sibling and report the same named cause.
+ * 5. A retained original cap is sampled across its declared domain.
+ * 6. A legacy critical point chooses a dome base whose meridian curvature belongs
+ *    to the existing chord resolution.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Uses actual public view realization, Body.draw/publication, generic Skin.close and Human BodySurfaceSolids.draw, then observes their output mesh and diagnostics through normal context data.
- * @evidence contracts/development/testing.md#independent-expectations A source closed at both ends has two declared pole points. A bottom-contact hole leaves the top intact and prevents a complete bottom ring; exactly one top apex and no bottom apex must therefore be emitted. The two actual reporting adapters must retain the same provider detail, with Human producer body.solids/level7.
+ * @evidence contracts/development/testing.md#independent-expectations A source closed at both ends has two declared pole points. A bottom-contact hole leaves the top intact and prevents a complete bottom ring; exactly one top apex and no bottom apex must therefore be emitted. The two actual reporting adapters must retain the same provider detail, with Human producer body.solids/level7. The critical fallback's circular sections give exact ellipse semiaxes and endpoint curvature radii.
  * @evidence contracts/development/testing.md#distinguishing-cases Compares full versus partial endpoint sources through both actual cap consumers, explicit published boundary identity, null skin setup and all collected diagnostic/apex findings. Analytic triangle orientation and foreign charts are owned by the separate boundary/transaction specifications.
  * @evidence contracts/development/testing.md#execution-ownership One discoverable synchronous CPU test through construction_mesh_consumers. It creates small authored chains in process, generates no Human person and starts no process, viewer, renderer or profile.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A public skin:false analytic ellipsoid supplies one real source chain,).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists each analytic scenario and the normal entry points it uses.
  */
 export function test_construction_mesh_consumers(): void {
   const failures: string[] = [];
@@ -85,11 +90,58 @@ export function test_construction_mesh_consumers(): void {
   }
   namedRefusal(failures, chain);
   ownedCapReplay(failures, chain);
+  criticalDome(failures);
   if (failures.length !== 0)
     throw new Error(`Actual mesh consumer findings:\n${failures.join("\n")}`);
 }
 
-/** Small chord demand distinguishes original cap sampling and true tip provenance from a principal-end fan. */
+/** Circular rings distinguish a resolvable fallback from a pointed ellipsoid. */
+function criticalDome(failures: string[]): void {
+  const layers: IAutoMovieLoftChain.ILayer[] = [
+    [-3, 1.2],
+    [0, 1.2],
+    [2, 1.2],
+    [2.5, 0.6],
+    [3, 0.1],
+  ].map(
+    ([y, radius]: number[]): IAutoMovieLoftChain.ILayer => ({
+      y: y!,
+      coefficients: [0, radius!, 0, 0, 0, radius!],
+      slopes: new Array<number>(6).fill(0),
+    }),
+  );
+  const chain: IAutoMovieLoftChain = {
+    name: "synthetic critical dome",
+    order: 1,
+    rule: "polar",
+    samples: 32,
+    layers,
+  };
+  const context: IAutoMovieHumanSurfaceContext = contextOf([chain]);
+  context.poles.set(chain.name + ":top", {
+    chain: chain.name,
+    end: "top",
+    point: [0, 3.5, 0],
+    critical: true,
+  });
+
+  // The 0.6 mm ring's tip curvature radius is 0.6²/1 = 0.36 mm.
+  // The 1.2 mm ring's endpoint curvature radii both exceed 0.5 mm.
+  const base: number | null = AutoMovieHumanBodySurfacePoles.domeBase(
+    context,
+    chain,
+    "top",
+  );
+  if (base !== 2) failures.push("Critical dome chose an unresolved meridian.");
+  context.tolerance = 0.05;
+  if (AutoMovieHumanBodySurfacePoles.domeBase(context, chain, "top") !== null)
+    failures.push("Critical dome discarded a resolvable end ring.");
+}
+
+/**
+ * Small chord demand distinguishes original cap sampling and true tip
+ * provenance from a principal-end fan.
+ */
 function ownedCapReplay(failures: string[], chain: IAutoMovieLoftChain): void {
   const surface: IAutoMovieSolidSurface | null =
     AutoMovieSolidChain.surface(chain);
@@ -343,6 +395,9 @@ function contextOf(
       ),
     ),
     coordinates: [],
+    webPaths: [],
+    pinches: new Set(),
+    domeNormals: [],
     roots: new Map(),
     ends: new Map(),
     holes: new Map(),

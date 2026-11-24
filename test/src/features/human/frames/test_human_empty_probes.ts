@@ -1,6 +1,4 @@
 import {
-  AutoMovieHumanF1,
-  AutoMovieHumanF1EmptyProbes,
   AutoMovieHumanEmptyProbes as P,
   AutoMovieHumanConicSection as S,
 } from "@automovie/human";
@@ -15,8 +13,8 @@ import { vclose } from "../../internal/predicates";
 /**
  * The empty-probe law places a probe midway between two families' facing walls
  * only where they stand at least twice the larger ring phase spacing apart,
- * places a cutter's probe on its course's middle station, and lists f1's every
- * probe from its stored families.
+ * places a cutter's probe on its course's middle station and lists every probe
+ * required by the supplied families.
  *
  * The made families are straight courses along +Y with `up` +X, so the chart's
  * `u` is +X and `v = u x t` is +Z, and each section is the circle of radius `R
@@ -34,15 +32,14 @@ import { vclose } from "../../internal/predicates";
  *    and the probe is listed with its reason and no point.
  * 3. A made cutter with a straight 40 mm course from `[1, 0, 2]`: its probe stands
  *    at the course's 20 mm station, `[1, 20, 2]`, within 1e-9 mm.
- * 4. F1's own listing names every stored cutter once per side it is mirrored to,
- *    the probe between the legs, and the six probes between adjacent fingers on
- *    both hands, each with exactly one of a point and a reason, and no lip
- *    probe. It reads f1's stored families and realizes no skin.
+ * 4. The supplied listing names the single cutter, both copies of the reflected
+ *    cutter, the leg gap and the adjacent finger gaps on both hands. Each probe
+ *    has exactly one of a point and a reason.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanEmptyProbes.between`, `middle` and `list` on made and stored families. It catches a probe placed between walls too close for the skin's chords, a probe off the walls' midpoint, a cutter probe off its course's middle, and a listing that misses or repeats a probe or invents a lip gap; it allows any wall gap at or above the required one.
- * @evidence contracts/development/testing.md#independent-expectations The wall points, gaps and phase count follow in closed form from the made circles and courses stated above; the f1 names follow from the stored cutters' mirroring and the four fingers' order.
- * @evidence contracts/development/testing.md#distinguishing-cases A gap above and one below the requirement on the same families, a cutter, and the whole f1 listing. The capture's skin and hull checks belong to the Human capture's inspection, which this unit test does not run.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on made and stored families; no person, skin or realization.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanEmptyProbes.between`, `middle` and `list` on closed-form families and checks the placement and ordered listing.
+ * @evidence contracts/development/testing.md#independent-expectations Wall points and gaps follow from circles. The expected names follow from cutter mirroring and finger order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes a gap above and one below the requirement, a cutter and a listing with both mirrored and independent entries.
+ * @evidence contracts/development/testing.md#execution-ownership A synchronous unit on authored circles without a realized skin.
  * @evidence contracts/development/common.md#meaningful-documentation Numbered scenarios state each made input and its expectation.
  */
 export function test_human_empty_probes(): void {
@@ -116,31 +113,31 @@ export function test_human_empty_probes(): void {
   // 3. A cutter's probe on its course's middle station.
   at("cutter", P.middle("cutter", made("cutter", 2, 1)), [1, 20, 2]);
 
-  // 4. f1's listing.
-  const probes: P.IProbe[] = P.list(AutoMovieHumanF1EmptyProbes);
+  const probes: P.IProbe[] = P.list({
+    cutters: [
+      { family: made("lacuna", 0), mirrored: false, cut: (family) => family },
+      { family: made("nostril", 22), mirrored: true, cut: (family) => family },
+    ],
+    leg: made("leg", 32),
+    fingers: [
+      made("finger.index", 0),
+      made("finger.middle", 40),
+      made("finger.ring", 80),
+    ],
+  });
   const names: string[] = probes.map((probe: P.IProbe): string => probe.name);
-  const fingers: string[] = [
-    "finger.index-middle",
-    "finger.middle-ring",
-    "finger.ring-pinky",
-  ];
+  const fingers: string[] = ["finger.index-middle", "finger.middle-ring"];
   const expected: string[] = [
-    ...AutoMovieHumanF1.CUTTERS.flatMap(
-      (c: {
-        family: IAutoMovieHumanConicLoft.IFamily;
-        mirrored: boolean;
-      }): string[] =>
-        c.mirrored
-          ? [c.family.name, `${c.family.name}.mirror`]
-          : [c.family.name],
-    ),
+    "lacuna",
+    "nostril",
+    "nostril.mirror",
     "legs",
     ...fingers,
     ...fingers.map((n: string): string => `${n}.mirror`),
   ];
   if (JSON.stringify(names) !== JSON.stringify(expected))
     failures.push(
-      `f1 lists [${names.join(", ")}] instead of [${expected.join(", ")}]`,
+      `listing gives [${names.join(", ")}] instead of [${expected.join(", ")}]`,
     );
   for (const probe of probes) {
     const point: boolean = "point" in probe;
@@ -149,8 +146,6 @@ export function test_human_empty_probes(): void {
       failures.push(`${probe.name}: needs exactly one of a point and a reason`);
     if (!(probe.derivation.length > 0))
       failures.push(`${probe.name}: no derivation`);
-    if (/lip|mouth/.test(probe.name))
-      failures.push(`${probe.name}: f1's mouth has no lip gap`);
   }
 
   if (failures.length !== 0) throw new Error(failures.join("\n"));

@@ -15,7 +15,7 @@ import type { IAutoMovieHumanConicSection, IAutoMovieHumanNativeGirthClosure } f
  *
  * Scenarios:
  * 1. The ellipse's tape is the series' perimeter within 1e-5 of it (the sampled hull's stated error).
- * 2. The tape rises with the fullness at -2, -1, 0, 1 and 2, and stays inside the rhombus and the box at the bracket's ends.
+ * 2. The tape rises with fullness up to the rational weight bound and holds there. It stays inside the rhombus and the box.
  * 3. Asked for a girth 3 % longer and 3 % shorter, the closed section measures it within 1e-6 mm, its fullness has the girth's sign, and
  *    its eight extreme coordinates are the given numbers; asked for its own tape it returns the given vector itself with fullness zero.
  * 4. A girth of the box's perimeter and one under the rhombus's are refused; a nonpositive girth is refused.
@@ -64,8 +64,11 @@ export function test_human_native_girth_closure(): void {
   close("the ellipse's tape", own, perimeter, 1e-5 * perimeter);
 
   // 2. Monotone in the fullness, inside the rhombus and the box.
-  const tapes: number[] = [-8, -2, -1, 0, 1, 2, 8].map((fullness: number): number => Closure.tape(Closure.shift(ellipse, layout, fullness), layout));
-  for (let k: number = 1; k < tapes.length; ++k) if (!(tapes[k]! > tapes[k - 1]!)) failures.push("the tape did not rise with the fullness: " + JSON.stringify(tapes));
+  const ellipseWeight: number = Math.SQRT1_2;
+  const capFullness: number = Math.log(4 / ellipseWeight);
+  const tapes: number[] = [-8, -2, -1, 0, 1, capFullness, capFullness + 1].map((fullness: number): number => Closure.tape(Closure.shift(ellipse, layout, fullness), layout));
+  for (let k: number = 1; k < tapes.length - 1; ++k) if (!(tapes[k]! > tapes[k - 1]!)) failures.push("the tape did not rise before the weight bound: " + JSON.stringify(tapes));
+  close("the tape past the weight bound", tapes.at(-1)!, tapes.at(-2)!, 1e-9);
   if (!(tapes[0]! > rhombus && tapes.at(-1)! < box)) failures.push("a tape left the rhombus and the box of its extremes: " + JSON.stringify([rhombus, tapes[0], tapes.at(-1), box]));
 
   // 3. Closed on a longer and a shorter girth; the identity.

@@ -221,6 +221,7 @@ export namespace AutoMovieSolidJoin {
       AutoMovieSolidJoinNormalCheck(
         columns,
         column,
+      missing,
         period,
         curve,
         FOLD_SHARES,

@@ -3,74 +3,38 @@ import type {
   IAutoMovieHumanFootFrame,
 } from "@automovie/interface";
 
-import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
+import { AutoMovieHumanFootPlaces } from "../AutoMovieHumanFootPlaces";
 
-/**
- * The instep's crest over the forefoot: the dorsal profile of the foot from the
- * first toe web back over the metatarsals to the midfoot (a = 0.86 to 0.5), the
- * summit line of each section. Own centre: the second metatarsal head, the
- * line's highest and most constant part. Its knots are reference medians (over
- * f1, f2, m1 and m2, read by exact plane cuts of their left feet), `[a, u, y / L]`
- * in foot lengths and breadths and foot lengths, awaiting a published value.
- */
+/** Dorsal guide from the first web to the measured arch site. */
 export namespace AutoMovieHumanFootCrestForefoot {
   /**
-   * The region's knots as world points, front to back.
-   *
-   * @param frame The foot's frame.
+   * Nominal guide stations at the metatarsal head, above its web and at the
+   * arch.
    */
+  const SHARES: readonly number[] = [
+    (1 + AutoMovieHumanFootPlaces.BALL) / 2,
+    AutoMovieHumanFootPlaces.BALL,
+    (AutoMovieHumanFootPlaces.BALL + 1 / 2) / 2,
+    1 / 2,
+  ];
+
+  /** World dorsal guide points from the shared smooth roof law. */
   export function knots(
     frame: IAutoMovieHumanFootFrame.IFrame,
   ): AutoMovieVector3Tuple[] {
-    return KNOTS.map(
-      (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
-        frame.at(q[0], q[1], q[2] * frame.L),
+    return SHARES.map(
+      (share: number): AutoMovieVector3Tuple =>
+        frame.at(share, across(share), depth(share) * frame.L),
     );
   }
 
-  /**
-   * The crest's height over the floor at a place along the foot, in foot
-   * lengths: the monotone cubic through the region's knots, which the web line
-   * reads to move each cleft back by its margin radius.
-   *
-   * @param a Place along the foot from the rearmost point, foot lengths.
-   */
-  export function depth(a: number): number {
-    return AutoMovieHumanMonotoneCubic.interpolate(
-      KNOTS.map((q: readonly [number, number, number]): [number, number] => [
-        q[0],
-        q[2],
-      ]),
-      a,
-    );
+  /** Roof height above the floor in foot lengths. */
+  export function depth(share: number): number {
+    return AutoMovieHumanFootPlaces.dorsum(1, share);
   }
 
-  /**
-   * The crest's across place at a place along the foot, in foot breadths
-   * from the forefoot's medial extreme: the monotone cubic through the
-   * region's knots.
-   *
-   * @param a Place along the foot from the rearmost point, foot lengths.
-   */
-  export function across(a: number): number {
-    return AutoMovieHumanMonotoneCubic.interpolate(
-      KNOTS.map((q: readonly [number, number, number]): [number, number] => [
-        q[0],
-        q[1],
-      ]),
-      a,
-    );
+  /** ESTIMATE: the dorsum crest runs over the medial third of the forefoot. */
+  export function across(_share: number): number {
+    return 1 / 3;
   }
 }
-
-/** The region's knots, front first: `[a, u, y / L]`. Reference median. */
-const KNOTS: readonly (readonly [number, number, number])[] = [
-  [0.86, 0.19, 0.1],
-  [0.8, 0.19, 0.121],
-  [0.75, 0.195, 0.146],
-  [0.7, 0.26, 0.164],
-  [0.65, 0.2965, 0.187],
-  [0.6, 0.3, 0.21],
-  [0.55, 0.3245, 0.233],
-  [0.5, 0.37, 0.258],
-];

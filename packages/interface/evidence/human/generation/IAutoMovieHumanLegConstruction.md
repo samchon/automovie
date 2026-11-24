@@ -6,7 +6,7 @@ Describes calibration leg tapes, body controls and optional measured gluteal-fur
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Calibration leg tapes, body controls and optional measured gluteal-furrow height. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+Calibration leg tapes, body controls, optional measured gluteal-furrow height and optional per-side bone lengths. The bone lengths are Euclidean joint-centre spans in calibration millimetres. The preparation validates numerical feasibility.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

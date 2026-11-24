@@ -78,7 +78,7 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
    * specified direction or a measured clinical landmark. Actual greatest
    * width, ridge anatomy and whole course still require observation.
    * The plane intersects this same native family at the public side height.
-   * No f1 tape residual, reference coordinate or finished curve chooses it.
+   * The current person's native tape evaluation chooses it.
    *
    * @evidence contracts/common.md#principled-implementation Intersects a declared AP plane with the same original native section, authors that trial's height spans, and measures their full physical derivative through the existing engine GL8 owner.
    * @evidence contracts/common.md#clear-and-simple-design One trial returns its radius, shared centre, height, actual named points and integral; no emitted geometry or second neck source supplies them.

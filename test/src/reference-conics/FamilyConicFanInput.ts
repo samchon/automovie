@@ -352,6 +352,8 @@ export namespace FamilyConicFanInput {
         period: 2 * Math.PI,
         orientation: 1,
         jet: source.jet,
+        point: source.point,
+        pointAt: source.pointAt,
       },
       station,
       basis,

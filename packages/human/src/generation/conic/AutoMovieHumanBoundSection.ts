@@ -7,6 +7,7 @@ import type {
   IAutoMovieConicFieldJet,
   IAutoMovieLoftSectionConnect,
   IAutoMovieLoftSectionJet,
+  IAutoMovieViewAxisJet,
 } from "@automovie/interface";
 
 type V = AutoMovieVector3Tuple;
@@ -20,6 +21,47 @@ const { add, subtract, multiply, divide, constant } = AutoMovieConicFieldJet.AD;
 export namespace AutoMovieHumanBoundSection {
   /** The source's monotone clock span. */
   export type IArc = IAutoMovieHumanBoundSection.IArc;
+
+  /**
+   * Read the inherited radial slope at the child's address from the host's
+   * outward normal and the child's section-plane jet in world millimetres.
+   * The numerator and denominator retain their signs at grazing incidence.
+   */
+  export function portSlope(
+    frame: IAutoMovieViewAxisJet.IJet,
+    phase: number,
+    radius: number,
+    normal: V,
+  ): { ray: V; moving: V; across: number; numerator: number; sigma: number } {
+    const cosine: number = Math.cos(phase), sine: number = Math.sin(phase);
+    const vector = AutoMovieSolidVector;
+    const ray: V = vector.add(vector.scale(frame.value.u, cosine), vector.scale(frame.value.v, sine));
+    const turn: V = vector.add(vector.scale(frame.first.u, cosine), vector.scale(frame.first.v, sine));
+    const moving: V = vector.add(frame.first.origin, vector.scale(turn, radius));
+    const across: number = vector.dot(normal, ray);
+    const numerator: number = -vector.dot(normal, moving);
+    return { ray, moving, across, numerator, sigma: numerator / across };
+  }
+
+  /**
+   * Signed margins of the port's slope limits, in millimetres times the radial
+   * incidence. Their sum is positive only for the outward radial sheet.
+   *
+   * The least loop-weight to slope-basis ratio is 5/2. The slope-basis maximum
+   * is 16/81, so its largest positive excursion fits in one fold reach.
+   */
+  export function portSlopeMargins(
+    slope: Pick<ReturnType<typeof portSlope>, "across" | "numerator">,
+    radius: number,
+    length: number,
+    reach: number,
+  ): readonly [star: number, bulge: number] {
+    const inherited: number = length * slope.numerator;
+    return [
+      inherited + (5 / 2) * radius * slope.across,
+      (81 / 16) * reach * slope.across - inherited,
+    ];
+  }
 
   /**
    * Bind the original section generator on a bounded proximal span.
@@ -278,13 +320,10 @@ function portSection(input: {
     if (input.normal !== undefined) {
       const jet = view.axis.jet?.(s);
       if (jet === undefined || jet === null) throw new AutoMovieLoftAdmissionError("the child's course has no jet at the loop's station " + s);
-      const n: V = input.normal(clock), c: number = Math.cos(phi), d: number = Math.sin(phi);
-      const { add, scale, dot } = AutoMovieSolidVector;
-      const e: V = add(scale(jet.value.u as V, c), scale(jet.value.v as V, d));
-      const turned: V = add(scale(jet.first.u as V, c), scale(jet.first.v as V, d));
-      const across: number = dot(n, e);
-      if (!(Math.abs(across) > 0)) throw new AutoMovieLoftAdmissionError("the host's tangent plane holds the child's ray at clock " + clock);
-      sigma = -dot(n, add(jet.first.origin as V, scale(turned, r))) / across;
+      const slope = AutoMovieHumanBoundSection.portSlope(jet, phi, r, input.normal(clock));
+      if (!(Math.abs(slope.across) > 0))
+        throw new AutoMovieLoftAdmissionError("the host's tangent plane holds the child's ray at clock " + clock);
+      sigma = slope.sigma;
     }
     return { clock, s, phi, r, sigma };
   });

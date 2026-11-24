@@ -27,42 +27,16 @@ import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
 import { AutoMovieHumanFootToeSources } from "./AutoMovieHumanFootToeSources";
 
 /**
- * A foot and its toes from the person's foot dimensions and the reference set's
- * foot outline (`AutoMovieHumanReferenceOutlines.FOOT`: lateral and medial
- * edges about the heel-to-toe axis and the dorsum's and sole's heights, per
- * foot length; `AutoMovieHumanFootPlaces`: the foot's yaw, the ankle's place
- * along it, the toes' along maxima and across loop means; estimated from the private reference set, no
- * published source gives a foot's outline).
+ * Independent foot and toe originals. The person's heel-to-ball length
+ * places the first metatarsal head. The Maestro cascade places the others,
+ * and public breadth closes against the combined horizontal supports.
+ * The shared foot host supplies the original outlines on those stations.
  *
- * The foot's axis turns out by its yaw from the heel, which stands behind the
- * ankle centre by the ankle's place. Its sites are the heel half-way to the
- * ankle's place, the ankle's place, the instep and the ball (`instepLength`,
- * `ballOfFootLength`), plus all distinct outline-table rows. The
- * axis stands at half the lowest dorsum among the sites, and each site's box
- * is the table's edges about the axis there. The forefoot closes half-way
- * from the ball to the shortest toe's tip, where the toes have taken over.
- *
- * Each toe runs from its retained cascade/root-u proxy to a generated distal apex. That apex
- * combines its retained foremost along reach with its first accepted loop's
- * vertex-mean across position: these are different observations, not a
- * measured three-dimensional tip or MTP/PIP/DIP landmarks.
- * Its breadth is a packing proxy: the mean gap to its neighbours' across means,
- * or the one gap at either end, since the toes fill the
- * forefoot side by side. The actual leg's sagittal cut replaces the retained
- * ankle-cut envelope in the dorsal source. Each toe root and hidden start
- * read the final parent's complete native field at their own across place.
- * The resulting local vertical chord owns proximal centre and depth, with
- * its available physical derivatives and original frame retained explicitly.
- * Distal depth belongs to the individual toe: the retained FootPrior D/B
- * ratio times its across-gap breadth in the original per-L pattern, before
- * the common transverse scale. That ratio's extraction site is unverified,
- * and its transfer to this foot-axis chart is a modelling proxy. The FOOT
- * dorsum envelope includes all toes and cannot supply an individual depth.
- * The moving origin height and signed plantar edge share one angle clock,
- * knot partition and jets; their sum is the authored nonnegative absolute
- * plantar curve. This local transfer does not assert identical parent and
- * child contact arcs or world C2. The midpoint and hidden inner start are generating stations,
- * not measured phalangeal joint centres; the latter remains owed.
+ * The actual leg contact and the standing arch measurement drive the dorsal
+ * curve. Each toe begins on the parent's native field with its position and
+ * vertical derivatives. Distal length uses the phalanx pattern and ends at
+ * the person's foot-length constraint. The nominal transverse partition
+ * infers proximal breadth and distal depth from the neighbouring toe axes.
  */
 export namespace AutoMovieHumanFootInterim {
   /** Actual production names; enumeration performs no geometry or full-parent request. */

@@ -59,9 +59,7 @@ export namespace AutoMovieHumanHeadLayout {
         sideNeckPointHeight: inputs.neckBase.sideNeckPointHeight * source.scale,
         suprasternaleHeight: inputs.neckBase.suprasternaleHeight * source.scale,
 
-        // The harmonic neck has already been rigidly registered to this
-        // shared input frame; shape-dependent posterior estimates do not
-        // move the body's common C7 datum.
+        // The normal neck source is registered at the body's common C7 datum.
         cervicaleOrigin: inputs.neckBase.cervicaleOrigin * source.scale,
         priorCervicaleOrigin: source.registration.priorCervicaleX,
       },
@@ -71,8 +69,7 @@ export namespace AutoMovieHumanHeadLayout {
   }
 
   /**
-   * World height of the adopted posterior C7 point, mm. NeckConstruction
-   * closes its generating ring's mean from this named-point constraint.
+   * World height of the adopted posterior C7 point, mm.
    *
    * @evidence contracts/common.md#principled-implementation Reads the public resolved cervicale height directly, instead of cancelling a derived neck-course ratio and then mistaking that value for a ring mean.
    * @evidence contracts/common.md#clear-and-simple-design One seat definition serves generation and standalone debug consumers.

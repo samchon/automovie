@@ -22,7 +22,7 @@ import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
 
 const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
-const { contact, held, WEBS } = AutoMovieHumanBodySurfaceContact;
+const { contact, held } = AutoMovieHumanBodySurfaceContact;
 const { join, loft, LOOP } = AutoMovieHumanBodySurfaceLoft;
 const { chain } = AutoMovieHumanBodySurfaceRead;
 const { domed } = AutoMovieHumanBodySurfacePoles;
@@ -84,6 +84,9 @@ export namespace AutoMovieHumanBodySurface {
         ),
       ),
       coordinates: [],
+      webPaths: [],
+      pinches: new Set(),
+      domeNormals: [],
       roots: new Map(),
       ends: new Map(),
       holes: new Map(),
@@ -173,7 +176,7 @@ export namespace AutoMovieHumanBodySurface {
           calibration.events,
         ),
       );
-    construction.push(...(WEBS.get(context.mesh) ?? []));
+    construction.push(...context.webPaths);
 
     const faces: number[] = AutoMovieHumanLoftMesh.normals(context.mesh);
     return {
@@ -181,9 +184,9 @@ export namespace AutoMovieHumanBodySurface {
       construction,
       rims: context.rims,
       normals: domed(
-        context.mesh,
+        context.domeNormals,
         held(
-          context.mesh,
+          context.pinches,
           faces,
           ringBlend(
             calibration,

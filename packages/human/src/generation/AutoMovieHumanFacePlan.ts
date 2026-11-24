@@ -8,11 +8,10 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanHeadArcs } from "./AutoMovieHumanHeadArcs";
 
 /**
- * The face's plan: the exponent of the super-ellipse `|x / a|^n + |z / b|^n
- * = 1` the face's front quarter follows in the top view at the subnasale's
- * level, from the tragion (a, the half bitragion breadth, across) to the
- * subnasale (b, its depth ahead of the tragions' line), replacing the head
- * prior's observed `frame.plan`.
+ * The face's plan: the exponent of the super-ellipse `|x / a|^n + |z / b|^n =
+ * 1` the face's front quarter follows in the top view at the subnasale's level,
+ * from the tragion (a, the half bitragion breadth, across) to the subnasale (b,
+ * its depth ahead of the tragions' line).
  *
  * Derivation: the bitragion subnasale arc, the tape from tragion to tragion
  * under the nose (ANSUR 1988, the person's by `AutoMovieHumanHeadArcs`), is
@@ -26,16 +25,18 @@ import { AutoMovieHumanHeadArcs } from "./AutoMovieHumanHeadArcs";
  * the chord (n of about 1) to the box's two sides (n large), so a plan exists
  * for every arc between them and is held at the nearer end otherwise. At the
  * norms' means, with the arc at the mean face width, the quarter stands within
- * two millimetres of an ellipse's (n near 2), beside the old prior's 2.5 read on the
- * references at the zygomatic level.
+ * two millimetres of an ellipse's (n near 2).
  *
- * Limits: two surveys of different people meet in one quarter (an Army tape
- * and a 3D facial scan); the tape crosses under the nose and over the cheeks'
- * skin, so the plan is the skin's; the head modeler converts the exponent to
- * its conic shoulder.
+ * Limits: two surveys of different people meet in one quarter (an Army tape and
+ * a 3D facial scan); the tape crosses under the nose and over the cheeks' skin,
+ * so the plan is the skin's; the head modeler converts the exponent to its
+ * conic shoulder.
  */
 export namespace AutoMovieHumanFacePlan {
-  /** 3D Facial Norms' means, women and men, mm: cranial base width, middle facial depth, maximum facial width. */
+  /**
+   * 3D Facial Norms' means, women and men, mm: cranial base width, middle
+   * facial depth, maximum facial width.
+   */
   export const NORMS: IAutoMovieHumanFacePlan.Norms = [
     { tt: 139.0, tsn: 123.5, zy: 129.8 },
     { tt: 147.9, tsn: 132.8, zy: 137.6 },

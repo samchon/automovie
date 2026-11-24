@@ -5,11 +5,11 @@ import {
   AutoMovieSolidVector as Vector,
   AutoMovieViewAxis,
 } from "@automovie/engine";
-import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
+import { AutoMovieHumanNativeRootLaw as Root } from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,
-  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieHumanNativeRoot,
   IAutoMovieLoftViewFullSource,
   IAutoMovieSolidSurface,
   IAutoMovieViewAxis,
@@ -83,7 +83,7 @@ export function test_human_native_root_trial_direction(): void {
     centre: [0.001, 0], semi: [0.001, 1 / 4], sense: 1,
     shape: [1, 1, 1, 1],
   };
-  const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
+  const original: IAutoMovieHumanNativeRoot.ICalibration = Root.calibrate({
     name: "made-trial-direction", parent: originalParent, child, loop,
     rails: [1], count: 4, correspondence: "angle",
     metric: { station: 0, depth: 2, breadth: 2 }, basis: child.axis.at(0),
@@ -97,16 +97,16 @@ export function test_human_native_root_trial_direction(): void {
   const reader: IAutoMovieLoftViewFullSource.IReader = Full.create(parent);
 
   /** Exercise Level through its production public Root consumer and real calibration. */
-  const solve: (source: IAutoMovieViewPart) => IAutoMovieHumanF1NativeRoot.IRootSpec = (
+  const solve: (source: IAutoMovieViewPart) => IAutoMovieHumanNativeRoot.IRootSpec = (
     source: IAutoMovieViewPart,
-  ): IAutoMovieHumanF1NativeRoot.IRootSpec => Root.prepare(original, source, [1, 1]).resolve(child);
+  ): IAutoMovieHumanNativeRoot.IRootSpec => Root.prepare(original, source, [1, 1]).resolve(child);
 
   scenario("literal identity", (): void => {
     const full: IAutoMovieLoftViewFullSource.IReader = Full.create(originalParent);
-    const same: IAutoMovieHumanF1NativeRoot.IRootSpec = solve(originalParent);
+    const same: IAutoMovieHumanNativeRoot.IRootSpec = solve(originalParent);
     check("literal original loop", same.loop === loop);
-    same.rows.forEach((row: IAutoMovieHumanF1NativeRoot.IRootRow, k: number): void => {
-      const column: IAutoMovieHumanF1NativeRoot.IRootRow["level"] = row.level;
+    same.rows.forEach((row: IAutoMovieHumanNativeRoot.IRootRow, k: number): void => {
+      const column: IAutoMovieHumanNativeRoot.IRootRow["level"] = row.level;
       check("literal original share " + k, Object.is(column.share, 1));
       check("identity has no replacement derivative " + k, column.derivative === null);
       const point: AutoMovieVector3Tuple = full.point(...original.charts[k]!);
@@ -141,8 +141,8 @@ export function test_human_native_root_trial_direction(): void {
   });
 
   scenario("regular final root survives a negative trial", (): void => {
-    const result: IAutoMovieHumanF1NativeRoot.IRootSpec = solve(parent);
-    const column: IAutoMovieHumanF1NativeRoot.IRootRow["level"] = result.rows[0]!.level;
+    const result: IAutoMovieHumanNativeRoot.IRootSpec = solve(parent);
+    const column: IAutoMovieHumanNativeRoot.IRootRow["level"] = result.rows[0]!.level;
     check("final root in independently isolated interval", column.share > 2 && column.share < 3);
     check("final original direction", column.derivative !== null && column.derivative > 0);
     const high: number = column.bracket?.[1] ?? NaN;
@@ -162,8 +162,8 @@ export function test_human_native_root_trial_direction(): void {
       check("strict source admits canonical Q address", reader.point(...address).every(Number.isFinite));
     physical(reader, column.share, close, check);
     close("root equation R=3/4", radius(column.share)[0], 3 / 4);
-    result.rows.forEach((rootRow: IAutoMovieHumanF1NativeRoot.IRootRow, k: number): void => {
-      const row: IAutoMovieHumanF1NativeRoot.IRootRow["level"] = rootRow.level;
+    result.rows.forEach((rootRow: IAutoMovieHumanNativeRoot.IRootRow, k: number): void => {
+      const row: IAutoMovieHumanNativeRoot.IRootRow["level"] = rootRow.level;
       const c: number = 2 * Math.PI * k / 4;
       const point: AutoMovieVector3Tuple = reader.point(
         1 + row.share * Math.cos(c), row.share * (1 / 4) * Math.sin(c),

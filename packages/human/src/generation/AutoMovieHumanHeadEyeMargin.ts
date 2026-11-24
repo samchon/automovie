@@ -7,12 +7,11 @@ import type {
 } from "@automovie/interface";
 
 /**
- * One lid margin as a short Fourier series about its globe, the right one the
- * reflection of the left (every sine harmonic changes sign), its canthi the
- * fissure length apart in 3D.
+ * An elliptical orbital guide with an equal-depth canthus line. Its smooth
+ * sagittal advance increases from the canthi towards the central rims.
  */
 export namespace AutoMovieHumanHeadEyeMargin {
-  /** One lid margin, a short Fourier series about its globe. */
+  /** Place the eye's elliptical guide and its sagittal depth about the globe. */
   export function margin(
     plan: IAutoMovieHumanHeadLayout,
     face: IAutoMovieHumanHeadPrior.IFace,
@@ -20,26 +19,28 @@ export namespace AutoMovieHumanHeadEyeMargin {
     o: IAutoMovieHumanHeadEyeOpening,
     sign: 1 | -1,
   ): IAutoMovieHumanLoftAperture {
-    // The right margin is the left's reflection, z to -z with its phase run
-    // backward (t -> -t): every sine harmonic changes sign, so both margins
-    // turn the same way about their globes.
-    const row = (c0: number, h: readonly number[], unit: number): number[] => [
-      c0,
-      ...h.map(
-        (v: number, i: number): number => v * unit * (i % 2 === 1 ? sign : 1),
-      ),
-    ];
+    const advance: number = face.marginForward * plan.scale;
+
+    // ESTIMATE: the depth runs from one quarter to three quarters of the globe radius, in a second harmonic.
     return {
       name: sign > 0 ? "eye.left" : "eye.right",
-      order: 3,
+      order: 2,
       coefficients: [
-        ...row(
-          eye.centre[0] + face.marginForward * plan.scale,
-          face.margin[0]!,
-          plan.scale,
-        ),
-        ...row(plan.eye, face.margin[1]!, o.height / 2),
-        ...row(sign * o.place, face.margin[2]!, sign * o.span),
+        eye.centre[0] + advance,
+        0,
+        0,
+        -advance / 2,
+        0,
+        plan.eye,
+        0,
+        (sign * o.height) / 2,
+        0,
+        0,
+        sign * o.place,
+        sign * o.span,
+        0,
+        0,
+        0,
       ],
       forward: [1, 0, 0],
       depth: 4,

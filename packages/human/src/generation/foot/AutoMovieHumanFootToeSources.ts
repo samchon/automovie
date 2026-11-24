@@ -60,11 +60,7 @@ export namespace AutoMovieHumanFootToeSources {
       AutoMovieHumanFootPlaces.TOES;
     const partNames: readonly string[] = names(foot.side);
 
-    // A maximum of population means need not equal the mean's unit maximum.
-
-    // Treat this retained pattern as relative toe lengths, then let public
-
-    // heel-to-longest-toe length own its actual longitudinal support.
+    // Scale the relative phalanx pattern to the public heel-to-longest-toe length.
     const longest: number = Math.max(
       ...tips.map((tip: { tip: number }): number => tip.tip),
     );
@@ -72,6 +68,9 @@ export namespace AutoMovieHumanFootToeSources {
     const owner: IAutoMovieHumanFootSource.ISource =
       AutoMovieHumanFootSource.fromControls(controls);
     const cascade: readonly number[] = AutoMovieHumanFootPrior.PRIOR.cascade;
+    const expected: readonly [number, number] =
+      AutoMovieHumanFootPrior.PRIOR.expected.breadth;
+    const nominalBreadth: number = ((expected[0] + expected[1]) * L) / 2;
     const stations: number[] = [
       region.span[1],
       region.span[1] + (cascade[0]! * L) / AutoMovieHumanFootPrior.CASCADE_FOOT,
@@ -95,14 +94,11 @@ export namespace AutoMovieHumanFootToeSources {
         const breadth: number = gap * transverse;
         const terminal: number = t.tip / longest;
 
-        // The original toe pattern is normalized by L. Apply the retained
-        // individual aspect before the group's across-only kappa, so changing
-
-        // public B does not move the floor, cap stations or the Y family.
-
-        // This is a source choice, not a recovered individual measurement.
+        // Convert nominal across shares with the public ANSUR breadth-to-
+        // length midrange before applying the transverse-only measurement.
+        // This keeps breadth edits from changing the cap and floor datums.
         const distalDepth: number =
-          AutoMovieHumanFootPrior.PRIOR.toes[k]!.depth * gap * L;
+          AutoMovieHumanFootPrior.PRIOR.toes[k]!.depth * gap * nominalBreadth;
         const height: number = distalDepth / 2;
         const at: (along: number, across: number) => AutoMovieVector3Tuple = (
           along: number,
@@ -122,7 +118,7 @@ export namespace AutoMovieHumanFootToeSources {
           t.across * transverse,
         );
 
-        // The observed foot-along chart owns the cap reach as well as width.
+        // The foot-along chart owns the cap reach as well as width.
 
         // An oblique centreline's arclength would re-interpret that chart.
         const span: number = terminal * L - stations[k]!;

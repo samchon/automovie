@@ -12,4 +12,4 @@ Returned by AutoMovieHumanTrunkSolver.context. Read by AutoMovieHumanTrunkClosur
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `fixed`, `seat`, `cervicale`, `span`, `buttock`, `iliocristale`, `omphalion`, `axilla`, `shoulderY`, `soft`; callers supply the complete record.
+The context carries the actual seat and landmark heights, a median back anchored at that seat, and the aspect ratio of the person's underbust chest-wall ellipse. Tape widths may change through the solve while these inputs stay fixed.

@@ -4,13 +4,14 @@ import type { IAutoMovieHumanFootSource } from "../foot/IAutoMovieHumanFootSourc
 import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
 
 /**
- * Original parent/child contact coordinates and physical frame derivatives for proximal leg-source transfer.
+ * Original parent/child contact coordinates and physical frame derivatives for
+ * proximal leg-source transfer.
  *
- * The interface package owns these declarations; AutoMovieHumanLegProximal in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanLegProximal in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanLegProximal {
-  /** Actual parent/child coordinates and separately qualified transfer jets.
-   */
+  /** Actual parent/child coordinates and separately qualified transfer jets. */
   export interface IContact {
     /** Definition consumed by this exact source transfer. */
     parent: IParent;
@@ -22,7 +23,9 @@ export namespace IAutoMovieHumanLegProximal {
     point: AutoMovieVector3Tuple;
     /** Actual source station on the unchanged child course, mm. */
     station: number;
-    /** Signed native v direction of the outward guide. */
+    /** The selected native material line. `u` is AP and `v` is transverse. */
+    axis: "u" | "v";
+    /** Signed native direction on the selected material line. */
     outward: 1 | -1;
     /** Positive ray radius and first/second derivatives in child station. */
     radius: [number, number, number];
@@ -32,8 +35,7 @@ export namespace IAutoMovieHumanLegProximal {
     childFrame: FrameJet;
   }
 
-  /** The identical parent definition and its authoritative named hip station.
-   */
+  /** The identical parent definition and its authoritative named hip station. */
   export interface IParent {
     /** Actual trial/final parent, not an independently reconstructed hip box. */
     definition: IAutoMovieHumanSourceDefinition;
@@ -41,16 +43,17 @@ export namespace IAutoMovieHumanLegProximal {
     station: number;
   }
 
-  /** The actual public axis's separately available frame derivatives.
-   */
+  /** The actual public axis's separately available frame derivatives. */
   export type FrameJet = NonNullable<
     ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>>
   >;
 
-  /** New proximal outward original, with its actual complete parent authority.
-   */
+  /** New proximal material line, with its actual complete parent authority. */
   export interface IResult {
-    /** Reauthored prefix; all named-thigh-and-later scalar spans replay unchanged. */
+    /**
+     * Reauthored prefix; all named-thigh-and-later scalar spans replay
+     * unchanged.
+     */
     outline: IAutoMovieViewPart.IOutline;
     /** Contact retained by both construction and independent source readers. */
     contact: IContact;

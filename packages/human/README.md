@@ -8,7 +8,7 @@ The package is being rebuilt. The realistic skin surface was removed and is bein
 
 The package needs Node.js 22.23.2 or later.
 
-```bash
+```powershell
 npm install @automovie/human @automovie/interface
 ```
 
@@ -34,7 +34,7 @@ const body = AutoMovieHumanCanonicalBody.prepare(parameters, { mass: 72, id: "a"
 
 The polygon man is drawn by `@automovie/render` from the canonical body, and posed with canonical poses such as the ones `@automovie/motions` samples.
 
-```bash
+```powershell
 npm install @automovie/render @automovie/interface three
 ```
 
@@ -63,29 +63,22 @@ The polygon man is plain because it only has to show motion cheaply. Nothing abo
 
 ## Inspection
 
-The figure is inspected with AutoMovie's shared instrument. `src/executable/subjects.ts` is a draw-only subject module that offers every person the package defines, by name (`f1`), in its canonical pose; `<person>@<pose>` names another pose once the package defines one. From this folder, `pnpm capture` runs `automovie capture` on it for stills and contact sheets, and `pnpm inspect` opens the inspector page over it; both take the request keys the [`render` README](../render/README.md#inspection) lists.
+From this package directory, `pnpm capture` saves stills and contact sheets, and `pnpm inspect` opens the interactive inspector. Both use the Human subject module. Capture uses Playwright's Chromium or the Chromium executable specified by `CHROME_PATH`. [Inspection request keys](../render/README.md#request-keys).
 
-| Path | What it names |
+```powershell
+pnpm capture --subject ansur-upper-arm-envelope --views 'front@ortho;right@ortho;three-quarter' --passes clay --marks 'curve/*'
+```
+
+The `ansur-upper-arm-envelope` subject is a circular conic loft with geometric caps. It uses the ANSUR II women's mean acromion-radiale length of 311.2 mm and flexed upper-arm circumference of 305.6 mm. [ANSUR II measurements](docs/sources/ansur-ii.md).
+
+| Path or pattern | Selection |
 | --- | --- |
-| `f1` | The whole person |
-| `f1/body` | The sewn skin: the trunk with the limbs, digits, ears and nose joined to it |
-| `f1/<family>`, `f1/<family>.mirror` | One family's construction curves, such as `f1/arm` and its reflected twin's `f1/arm.mirror`; a loose family, when one is defined, is also a piece of its own here |
-| `f1/<family>/section/<k>` | The section ring at the family's `k`-th authored knot |
-| `f1/<family>/guide/<q>` | The guide rail at quarter phase `q`, 0 to 3 |
-| `f1/<family>/axis` | The line through the rings' centres |
-| `f1/probe/<name>` | One empty probe, such as `f1/probe/legs` or `f1/probe/finger.index-middle.mirror` |
+| `ansur-upper-arm-envelope/upperarm` | The surface |
+| `ansur-upper-arm-envelope/upperarm/section/*` | Section rings |
+| `ansur-upper-arm-envelope/upperarm/guide/*` | Guide rails |
+| `ansur-upper-arm-envelope/upperarm/axis` | The centreline |
 
-The construction curves are marks of the kinds `curve/section`, `curve/guide` and `curve/axis`, so `--marks curve/*` draws them over the surface and `--marks curve/* --surface 0` draws them alone, through the same views. The skin is one piece, so a family's surface cannot be drawn apart from the body; select its curves and frame them with `@focus`.
-
-The empty probes are points the skin must leave empty, listed by `AutoMovieHumanEmptyProbes` from the families and cutters: each cutter's course middle, the gap between the legs and the gaps between neighbouring fingers. Each placed probe is one point mark of the first kind that applies:
-
-| Kind | Legend | Meaning |
-| --- | --- | --- |
-| `probe/outside-hull` | probe outside hull, flagged | The probe lies outside the families' convex hull, so it tests open air and must be moved |
-| `probe/filled` | filled probe, flagged | The skin's winding number puts the probe inside the skin or on it |
-| `probe/empty` | empty probe | The skin leaves the probe empty |
-
-Select the probes with `--marks "probe/*"`, which matches whichever kinds the figure supplies; a pattern that matches no kind throws. A probe the law cannot place, such as a finger gap narrower than twice the phase spacing, has no mark and keeps its reason in the listing.
+The available curve kinds are `curve/section`, `curve/guide` and `curve/axis`. Use `--marks 'curve/*' --surface 0` to see the curves alone and `--shade clay` for the form pass. [Anatomical consistency](docs/testing/consistency.md).
 
 ## Background
 

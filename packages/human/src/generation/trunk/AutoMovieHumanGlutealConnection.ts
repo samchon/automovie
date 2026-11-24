@@ -19,25 +19,37 @@ interface FootprintContact {
   y: number;
   /** World across coordinate, mm. */
   z: number;
-  /** Actual composite original-parent interval. */
-  chord: IAutoMovieHumanGlutealParent.IChord;
+  /** Actual composite original-parent intervals. */
+  chords: IAutoMovieHumanGlutealParent.IChord[];
 }
 
 /** A sampled limiting AP boundary and its exact queried footprint phase. */
 interface RootLimit {
-  /** Null is the independent central wall constraint, rather than a footprint sample. */
+  /**
+   * Null is the independent central wall constraint, rather than a footprint
+   * sample.
+   */
   footprintPhase: number | null;
-  /** Identical original source owner, physical station, phase and world AP position. */
+  /**
+   * Identical original source owner, physical station, phase and world AP
+   * position.
+   */
   boundary: IAutoMovieHumanGlutealParent.IBoundary;
 }
 
-/** One completed numerical grid, retained only for a failed refinement's provenance. */
+/**
+ * One completed numerical grid, retained only for a failed refinement's
+ * provenance.
+ */
 interface RootRefinement {
   /** Uniform footprint phase count. */
   phases: number;
   /** Common AP interval, calibration mm. */
   interval: [number, number];
-  /** Largest change from the preceding nested grid, mm; absent on the first grid. */
+  /**
+   * Largest change from the preceding nested grid, mm; absent on the first
+   * grid.
+   */
   change: number | null;
   /** Source-owned limiting back boundary or independent central wall. */
   lower: RootLimit;
@@ -45,14 +57,26 @@ interface RootRefinement {
   upper: RootLimit;
 }
 
+/** A candidate AP interval with the actual owners of both bounds. */
+interface Support {
+  /** Posterior bound. */
+  lower: RootLimit;
+  /** Anterior bound. */
+  upper: RootLimit;
+}
+
 /** A gluteal root/contact derived from its actual composite original parent. */
 export namespace AutoMovieHumanGlutealConnection {
-  /** Derive the internal root from full local AP chords, keeping the independent apex/footprint. */
+  /**
+   * Derive the internal root from full local AP chords, keeping the independent
+   * apex/footprint.
+   */
   export function create(
     input: IAutoMovieHumanGlutealConnection.IInput,
   ): IAutoMovieHumanGlutealConnection.IConnection | string {
     if (
       !input.target.every(Number.isFinite) ||
+      !(Number.isFinite(input.fold) && input.fold > 0) ||
       !input.footprint.every(
         (edge: number): boolean => Number.isFinite(edge) && edge > 0,
       )
@@ -66,10 +90,12 @@ export namespace AutoMovieHumanGlutealConnection {
       input.target[2],
     );
     if (typeof centre === "string") return centre;
-    if (centre.length !== 1)
-      return "Gluteal apex has no unique source-supported parent AP chord.";
+    const posterior: IAutoMovieHumanGlutealParent.IChord | undefined =
+      centre[0];
+    if (posterior === undefined)
+      return "Gluteal apex has no source-supported parent AP chord.";
     const wall: AutoMovieVector3Tuple = [
-      centre[0]!.back.x,
+      posterior.back.x,
       input.target[1],
       input.target[2],
     ];
@@ -96,109 +122,130 @@ export namespace AutoMovieHumanGlutealConnection {
     } catch (error: unknown) {
       return `Gluteal own footprint: ${error instanceof Error ? error.message : String(error)}`;
     }
-    const chordAt: (phi: number) => FootprintContact | string = (
-      phi: number,
-    ): FootprintContact | string => {
+    const chordAt = (phi: number, scale: number): FootprintContact | string => {
       if (!Number.isFinite(phi)) return "Gluteal contact needs a finite phase.";
       const local: ReturnType<typeof read> = read(phi);
-      const y: number = wall[1] + local.p[0];
-      const z: number = wall[2] + local.p[1];
+      const y: number = wall[1] + scale * local.p[0];
+      const z: number = wall[2] + scale * local.p[1];
       const chords: IAutoMovieHumanGlutealParent.IChord[] | string =
         parent.chord(y, z);
       if (typeof chords === "string") return chords;
-      return chords.length === 1
-        ? { y, z, chord: chords[0]! }
-        : `Gluteal footprint phase ${phi} has no unique source-supported parent chord.`;
+      return { y, z, chords };
     };
-    let previous: [number, number] | null = null;
-    const refinements: RootRefinement[] = [];
-    for (let count: number = 32; count <= MAX_PHASES; count *= 2) {
-      let lower: number = wall[0];
-      let upper: number = Infinity;
-      let lowerAt: RootLimit = {
-        footprintPhase: null,
-        boundary: centre[0]!.back,
-      };
-      let upperAt: RootLimit | null = null;
-      for (let i: number = 0; i < count; i++) {
-        const phase: number = (2 * Math.PI * i) / count;
-        const contact: ReturnType<typeof chordAt> = chordAt(phase);
-        if (typeof contact === "string") return contact;
-        if (contact.chord.back.x > lower)
-          lowerAt = { footprintPhase: phase, boundary: contact.chord.back };
-        if (contact.chord.front.x < upper)
-          upperAt = { footprintPhase: phase, boundary: contact.chord.front };
-        lower = Math.max(lower, contact.chord.back.x);
-        upper = Math.min(upper, contact.chord.front.x);
-      }
-      if (!(Number.isFinite(lower) && Number.isFinite(upper) && upper > lower))
-        return `Gluteal footprint has no common internal AP root interval: [${lower}, ${upper}] mm.`;
-      if (upperAt !== null)
-        refinements.push({
-          phases: count,
-          interval: [lower, upper],
-          change:
-            previous === null
-              ? null
-              : Math.max(
-                  Math.abs(lower - previous[0]),
-                  Math.abs(upper - previous[1]),
-                ),
-          lower: lowerAt,
-          upper: upperAt,
-        });
-      if (
-        previous !== null &&
-        Math.max(
-          Math.abs(lower - previous[0]),
-          Math.abs(upper - previous[1]),
-        ) <= ROOT_ACCURACY
-      ) {
-        const root: AutoMovieVector3Tuple = [
-          (lower + upper) / 2,
-          wall[1],
-          wall[2],
+    const admit = (scale: number): RootRefinement | string => {
+      let windows: Support[] = [
+        {
+          lower: { footprintPhase: null, boundary: posterior.back },
+          upper: { footprintPhase: null, boundary: posterior.front },
+        },
+      ];
+      let previous: [number, number] | null = null;
+      for (let count: number = 32; count <= MAX_PHASES; count *= 2) {
+        // Older even phases are already constraints on these intervals.
+        const stride: number = count === 32 ? 1 : 2;
+        for (let i: number = stride - 1; i < count; i += stride) {
+          const phase: number = (2 * Math.PI * i) / count;
+          const contact: FootprintContact | string = chordAt(phase, scale);
+          if (typeof contact === "string") return contact;
+          windows = intersect(windows, contact.chords, phase);
+          if (windows.length === 0)
+            return `Gluteal footprint has no common AP root at phase ${phase}, world Y/Z [${contact.y}, ${contact.z}] mm (${contact.chords.length} local chords).`;
+        }
+        const selected: Support = windows[0]!;
+        const interval: [number, number] = [
+          selected.lower.boundary.x,
+          selected.upper.boundary.x,
         ];
-        return {
-          parent,
-          wall,
-          normal: [-1, 0, 0],
-          amplitude,
-          root,
-          embed: root[0] - wall[0],
-          rootInterval: [lower, upper],
-          phases: count,
-          contact(
-            phi: number,
-          ): IAutoMovieHumanGlutealConnection.IContact | string {
-            const value: ReturnType<typeof chordAt> = chordAt(phi);
-            if (typeof value === "string") return value;
-            if (root[0] < value.chord.back.x || root[0] > value.chord.front.x)
-              return `Gluteal root leaves its actual parent at phase ${phi}.`;
-            return { point: [root[0], value.y, value.z], chord: value.chord };
-          },
-        };
+        const change: number | null =
+          previous === null
+            ? null
+            : Math.max(
+                Math.abs(interval[0] - previous[0]),
+                Math.abs(interval[1] - previous[1]),
+              );
+        if (change !== null && change <= ROOT_ACCURACY)
+          return { phases: count, interval, change, ...selected };
+        previous = interval;
       }
-      previous = [lower, upper];
+      return `Gluteal footprint scale ${scale} did not reach its ${ROOT_ACCURACY} mm sampled AP accuracy.`;
+    };
+    let scale: number = 1;
+    let fit: RootRefinement | string = admit(scale);
+    if (typeof fit === "string") {
+      // ESTIMATE: preserve the anatomical footprint proportions and measured
+      // apex, reducing the unmeasured footprint uniformly to a supported
+      // ring. The existing fold reach sets the bracket resolution.
+      let low: number = 0;
+      let high: number = 1;
+      const reach: number = Math.max(...input.footprint);
+      while ((high - low) * reach > input.fold) {
+        const candidate: number = (low + high) / 2;
+        if (candidate === low || candidate === high) break;
+        const sample: RootRefinement | string = admit(candidate);
+        if (typeof sample === "string") high = candidate;
+        else {
+          low = candidate;
+          scale = candidate;
+          fit = sample;
+        }
+      }
     }
-    return `Gluteal root's bounded phase refinement did not reach its declared accuracy: ${JSON.stringify(
-      {
-        accuracy: ROOT_ACCURACY,
-        parents: parent.sources.map(
-          (
-            field: (typeof parent.sources)[number],
-          ): { name: string; domain: readonly [number, number] } => ({
-            name: field.part.name,
-            domain: field.source.domain,
-          }),
-        ),
-        target: input.target,
-        footprint: input.footprint,
-        shoulder: input.shoulder,
-        lateral: input.lateral,
-        wall,
-        refinements,
+    if (typeof fit === "string") return fit;
+    const [lower, upper]: [number, number] = fit.interval;
+    const root: AutoMovieVector3Tuple = [(lower + upper) / 2, wall[1], wall[2]];
+    const [
+      up,
+      across,
+      down,
+      medial,
+    ]: IAutoMovieHumanGlutealConnection.IInput["footprint"] = input.footprint;
+    return {
+      parent,
+      wall,
+      normal: [-1, 0, 0],
+      amplitude,
+      root,
+      embed: root[0] - wall[0],
+      footprint: [up * scale, across * scale, down * scale, medial * scale],
+      rootInterval: fit.interval,
+      phases: fit.phases,
+      contact(phi: number): IAutoMovieHumanGlutealConnection.IContact | string {
+        const value: FootprintContact | string = chordAt(phi, scale);
+        if (typeof value === "string") return value;
+        const chord: IAutoMovieHumanGlutealParent.IChord | undefined =
+          value.chords.find(
+            ({ back, front }): boolean =>
+              back.x <= root[0] && root[0] <= front.x,
+          );
+        return chord === undefined
+          ? `Gluteal root leaves its actual parent at phase ${phi}.`
+          : { point: [root[0], value.y, value.z], chord };
       },
-    )}`;
+    };
   }
+}
+
+/**
+ * Intersect sorted unions of physical parent chords, retaining the limiting
+ * owners.
+ */
+function intersect(
+  candidates: readonly Support[],
+  chords: readonly IAutoMovieHumanGlutealParent.IChord[],
+  phase: number,
+): Support[] {
+  const next: Support[] = [];
+  for (const interval of candidates)
+    for (const chord of chords) {
+      const lower: RootLimit =
+        chord.back.x > interval.lower.boundary.x
+          ? { footprintPhase: phase, boundary: chord.back }
+          : interval.lower;
+      const upper: RootLimit =
+        chord.front.x < interval.upper.boundary.x
+          ? { footprintPhase: phase, boundary: chord.front }
+          : interval.upper;
+      if (lower.boundary.x < upper.boundary.x) next.push({ lower, upper });
+    }
+  return next;
 }

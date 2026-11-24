@@ -1,7 +1,6 @@
 import type {
   IAutoMovieHumanBackProfile,
   IAutoMovieHumanBodyMeasures,
-  IAutoMovieHumanReferenceOutlineTypes,
   IAutoMovieHumanTrunkLaws,
   IAutoMovieHumanTrunkViewLaws,
 } from "@automovie/interface";
@@ -9,24 +8,14 @@ import type {
 import { AutoMovieHumanBackProfile } from "../AutoMovieHumanBackProfile";
 import { AutoMovieHumanChestWall } from "../AutoMovieHumanChestWall";
 import { AutoMovieHumanLumbarSection } from "../AutoMovieHumanLumbarSection";
-import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 
 /**
- * The trunk's laws bound for a person (#3047), in calibration millimetres:
- * the back median's forward place relative to cervicale's back point from
- * the trunk outline table between the crotch and cervicale
- * (`AutoMovieHumanReferenceOutlines.TRUNK`, per stature, estimated from the
- * private reference set) and on cervicale's tangent above it
- * (`AutoMovieHumanBackProfile`). The rasterstereography survey behind the
- * back profile publishes the curve's angles and the C7 to PSIS length, not
- * the line's forward places; the profile's places come from two circular
- * arcs split by the vertebral column's lengths, an assumption no source
- * gives for the skin line, so below cervicale the table's estimate stands
- * in for the unpublished places. The table reads the median section's back
- * extreme, which at the buttock is the gluteal apex (the caller stands the
- * base in front of it by the gluteal amplitude).
- * The other laws: the top hip's box
- * from the navel section's law (`AutoMovieHumanLumbarSection`), the
+ * Trunk laws in calibration millimetres. The person's posture and stature place
+ * the median back from cervicale through the thoracic and lumbar arcs and onto
+ * the sacral tangent (`AutoMovieHumanBackProfile`). Ohlendorf et al. measured
+ * the angles and the C7-to-PSIS chord. The two circular arcs are the named
+ * geometric estimate of their side-view curve. The other laws: the top hip's
+ * box from the navel section's law (`AutoMovieHumanLumbarSection`), the
  * underbust's from the thorax without the breasts (`AutoMovieHumanChestWall`),
  * each a pure function of the person's measures, the published laws taking
  * world millimetres and the calibration scale applied on both sides.
@@ -41,7 +30,8 @@ export namespace AutoMovieHumanTrunkLaws {
    *
    * @param measures The person's resolved measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
-   * @param crotch The crotch's height, calibration mm, where the table's span starts.
+   * @param crotch The crotch's height, calibration mm, below the trunk
+   *   stations.
    * @param pending The values still owed by laws.
    * @returns The laws `AutoMovieHumanTrunkViews.of` reads.
    */
@@ -54,9 +44,6 @@ export namespace AutoMovieHumanTrunkLaws {
     const profile: IAutoMovieHumanBackProfile.IProfile =
       AutoMovieHumanBackProfile.of(measures);
     const top: number = measures.cervicaleHeight * scale;
-    const stature: number = measures.stature * scale;
-    const T: typeof AutoMovieHumanReferenceOutlines =
-      AutoMovieHumanReferenceOutlines;
     const scaled = (b: {
       breadth: number;
       depth: number;
@@ -66,19 +53,15 @@ export namespace AutoMovieHumanTrunkLaws {
     });
     return {
       chest: pending.chest,
-      backStations: T.TRUNK.rows.map(
-        (
-          row: IAutoMovieHumanReferenceOutlineTypes.IRow,
-        ): { site: string; y: number } => ({
-          site: `back.shape.${row.share}`,
-          y: crotch + row.share * (top - crotch),
-        }),
-      ),
+      backStations: profile.knots
+        .map(({ name, y }): { site: string; y: number } => ({
+          site: `back.${name}`,
+          y: y * scale,
+        }))
+        .filter(({ y }): boolean => crotch < y && y < top)
+        .sort((a, b): number => a.y - b.y),
       back: (y: number): number =>
-        pending.cervicale +
-        (y >= top
-          ? profile.at(y / scale)[0] * scale
-          : T.at(T.TRUNK, "back", (y - crotch) / (top - crotch)) * stature),
+        pending.cervicale + profile.at(y / scale)[0] * scale,
       lumbar: (girth: number): IAutoMovieHumanTrunkViewLaws.IBox =>
         scaled(AutoMovieHumanLumbarSection.box(measures, girth / scale)),
       chestWall: (girth: number): IAutoMovieHumanTrunkViewLaws.IBox =>

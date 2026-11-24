@@ -1,7 +1,6 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanConicLoft,
-  IAutoMovieHumanF1,
 } from "@automovie/interface";
 
 import { AutoMovieHumanConicLoft } from "./AutoMovieHumanConicLoft";
@@ -86,7 +85,18 @@ export namespace AutoMovieHumanEmptyProbes {
      * The stored cutters, each with its mirroring and the cut the figure lofts
      * from it.
      */
-    cutters: IAutoMovieHumanF1.Cutters;
+    cutters: readonly {
+      /** The cutter before its cut-specific transform. */
+      family: IAutoMovieHumanConicLoft.IFamily;
+
+      /** Whether there is a matching cutter across the median plane. */
+      mirrored: boolean;
+
+      /** The family actually used to cut the skin. */
+      cut: (
+        family: IAutoMovieHumanConicLoft.IFamily,
+      ) => IAutoMovieHumanConicLoft.IFamily;
+    }[];
 
     /** The leg family; its twin is the other leg. */
     leg: IAutoMovieHumanConicLoft.IFamily;

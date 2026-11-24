@@ -33,14 +33,22 @@ export interface IAutoMovieHumanWebSurface {
     share: number,
   ) => AutoMovieVector3Tuple;
 
-  /**
-   * Registered-frame point in millimetres on a column near a web, at fractional row r in the configured row count. Column and child geometry must stay unchanged while this surface retains their endpoint calculations.
-   */
+  /** Read one point in registered-frame millimetres on a column near a web. The row can be fractional. */
   chart: (
     col: IAutoMovieHumanWebSurface.Plain,
     own: IAutoMovieHumanWebChild,
     r: number,
   ) => AutoMovieVector3Tuple;
+
+  /**
+   * Prepare a column near a web from its two fixed endpoints. The returned
+   * reader borrows the column and child geometry and evaluates a fractional
+   * row in registered-frame millimetres.
+   */
+  prepareChart: (
+    col: IAutoMovieHumanWebSurface.Plain,
+    own: IAutoMovieHumanWebChild,
+  ) => (r: number) => AutoMovieVector3Tuple;
 
   /**
    * Prepare a reader for a column away from the webs. Its fractional row argument uses the configured row count and returns registered-frame millimetres between the parent's and child's copied jets. The prepared reader owns that fixed column's sampled curve.

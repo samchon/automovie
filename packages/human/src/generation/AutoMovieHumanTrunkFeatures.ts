@@ -1,5 +1,6 @@
 import { AutoMovieSplineCurve } from "@automovie/engine";
 import type {
+  AutoMovieVector3Tuple,
   IAutoMovieHumanTrunkColumn,
   IAutoMovieHumanTrunkFeature,
   IAutoMovieHumanTrunkFeatureFrame,
@@ -19,8 +20,6 @@ import { AutoMovieHumanGlutealDome } from "./AutoMovieHumanGlutealDome";
 import { AutoMovieHumanGlutealFrame } from "./AutoMovieHumanGlutealFrame";
 import { AutoMovieHumanGlutealRelief } from "./AutoMovieHumanGlutealRelief";
 import { AutoMovieHumanScapularMass } from "./AutoMovieHumanScapularMass";
-import { AutoMovieHumanSpinalGroove } from "./AutoMovieHumanSpinalGroove";
-import { AutoMovieHumanSpinalProfile } from "./AutoMovieHumanSpinalProfile";
 import { AutoMovieHumanSternalNotch } from "./AutoMovieHumanSternalNotch";
 import { AutoMovieHumanSternalNotchProfile } from "./AutoMovieHumanSternalNotchProfile";
 import { AutoMovieHumanTrunkCourses } from "./AutoMovieHumanTrunkCourses";
@@ -32,8 +31,8 @@ import { AutoMovieHumanUmbilicus } from "./AutoMovieHumanUmbilicus";
 
 /**
  * The trunk's features merged into its chart: the breasts, the buttocks, the
- * umbilicus and the spinal furrow, each built in its own frame by its own
- * pieces and merged by a relief window over the column's base surface.
+ * umbilicus and sternal notch, each built in its own frame by its own pieces
+ * and merged by a relief window over the column's base surface.
  *
  * The features read only the column, the landmark heights and the person's
  * tapes, so they can be built, drawn and measured without the rest of the
@@ -80,9 +79,8 @@ export namespace AutoMovieHumanTrunkFeatures {
   }
 
   /**
-   * The trunk's base surface on a column: the body point at a height and a
-   * phase, the section's rings remembered per height so a relief's net reads
-   * each ring once.
+   * The trunk's base surface on a column. Prepare one section from a requested
+   * height and read its points at the net row's phases.
    *
    * @param col The column.
    * @returns The base surface.
@@ -90,20 +88,17 @@ export namespace AutoMovieHumanTrunkFeatures {
   export function baseSurface(
     col: IAutoMovieHumanTrunkColumn.IColumn,
   ): IAutoMovieHumanTrunkReliefNet.Base {
-    const rings: Map<number, number[]> = new Map();
-    const at = (y: number, t: number): [number, number, number] => {
-      let controls: number[] | undefined = rings.get(y);
-      if (controls === undefined) {
-        controls = AutoMovieHumanTrunkRing.controls(col.at(y));
-        rings.set(y, controls);
-      }
-      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
-        controls,
-        AutoMovieHumanTrunkQuadrant.ORDER,
-        t,
-      );
-
-      return [p[0], y, p[1]];
+    const station = (y: number): ((t: number) => AutoMovieVector3Tuple) => {
+      const controls: number[] = AutoMovieHumanTrunkRing.controls(col.at(y));
+      return (t: number): AutoMovieVector3Tuple => {
+        const p: [number, number, number, number] =
+          AutoMovieSplineCurve.evaluate(
+            controls,
+            AutoMovieHumanTrunkQuadrant.ORDER,
+            t,
+          );
+        return [p[0], y, p[1]];
+      };
     };
 
     // The windows stay inside the chart's two shared ends: over the crotch
@@ -113,7 +108,10 @@ export namespace AutoMovieHumanTrunkFeatures {
       col.keys[col.keys.length - 1]!.y - AutoMovieHumanSternalNotch.CLEARANCE,
     ];
 
-    return Object.assign(at, { bounds });
+    return Object.assign(
+      (y: number, t: number): AutoMovieVector3Tuple => station(y)(t),
+      { bounds, station },
+    );
   }
 
   /**
@@ -226,7 +224,8 @@ export namespace AutoMovieHumanTrunkFeatures {
    *
    * @param col The column.
    * @param sites The landmark heights and the buttock's projection.
-   * @returns The left and the right window; none when the base already has the buttock's depth.
+   * @returns The left and the right window; none when the base already has the
+   *   buttock's depth.
    */
   export function buttocks(
     col: IAutoMovieHumanTrunkColumn.IColumn,
@@ -288,12 +287,12 @@ export namespace AutoMovieHumanTrunkFeatures {
   }
 
   /**
-   * The umbilicus, the spinal furrow and the sternal notch.
+   * The umbilicus and the sternal notch.
    *
    * @param col The column.
    * @param sites The landmark heights.
    * @param diagnostics The list a broken carve is recorded in.
-   * @returns The notch's window, the pit's and the furrow's.
+   * @returns The notch's and the pit's windows.
    */
   export function midline(
     col: IAutoMovieHumanTrunkColumn.IColumn,
@@ -303,8 +302,6 @@ export namespace AutoMovieHumanTrunkFeatures {
     const rate = (y: number, index: number): number =>
       AutoMovieHumanTrunkRing.speeds(col.at(y))[index]!;
     const base: IAutoMovieHumanTrunkReliefNet.Base = baseSurface(col);
-    const to: number = sites.axilla - 1;
-    const middle: number = (sites.furrowFrom + to) / 2;
     const notch: IAutoMovieHumanTrunkFeatureFrame.IFrame =
       AutoMovieHumanSternalNotch.frame(
         sites.neck,
@@ -340,36 +337,18 @@ export namespace AutoMovieHumanTrunkFeatures {
           ),
         ],
       ),
-      ...guarded(
-        "trunk.spinalGroove",
-        SUBTRACTIVE,
-        diagnostics,
-        (): IAutoMovieLoftRelief[] => [
-          AutoMovieHumanSpinalGroove.create(
-            AutoMovieHumanTrunkFeatureFrame.midline(
-              middle,
-              col.at(middle).back,
-              "back",
-            ),
-            (to - sites.furrowFrom) / 2,
-            base,
-            AutoMovieHumanSpinalProfile.RADIUS / rate(sites.waist, 6),
-          ),
-        ],
-      ),
     ];
   }
 
   /**
-   * Every feature of the trunk. Each is an optional piece: one that cannot
-   * keep its contract is left out, the base keeps its place there, and the
-   * broken contract is recorded (`construction-levels.md`, Totality and
-   * diagnostics).
+   * Every feature of the trunk. Each is an optional piece: one that cannot keep
+   * its contract is left out, the base keeps its place there, and the broken
+   * contract is recorded (`construction-levels.md`, Totality and diagnostics).
    *
    * @param col The column.
    * @param sites The landmark heights and tapes.
    * @param diagnostics The list a broken feature is recorded in.
-   * @returns The windows: both breasts, both blades and both buttocks (unions), the notch, the umbilicus and the furrow (carves).
+   * @returns The windows for the paired masses, the notch and the umbilicus.
    */
   export function all(
     col: IAutoMovieHumanTrunkColumn.IColumn,
@@ -400,8 +379,8 @@ export namespace AutoMovieHumanTrunkFeatures {
   }
 
   /**
-   * An optional piece's windows, or none and one diagnostic when it breaks
-   * its contract.
+   * An optional piece's windows, or none and one diagnostic when it breaks its
+   * contract.
    *
    * @param producer The piece's name.
    * @param level Its construction level.

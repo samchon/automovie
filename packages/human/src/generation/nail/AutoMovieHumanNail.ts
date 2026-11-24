@@ -246,11 +246,8 @@ export namespace AutoMovieHumanNail {
   /** Stations along the bed the nail's frame is fitted over. */
   const BED: number = 9;
 
-  /**
-   * How far the fitted skin may stand off the digit across the plate, mm: the greatest rms of f1's fitted tip sections (0.08 to
-   * 0.17 mm, the body note's dome table). Over the plate's half width it is the angle a level roll read on that skin can be off by.
-   */
-  const FIT_RMS: number = 0.17;
+  /** Maximum normalized amplification of a nail-frame secant step. ESTIMATE for restarting a poorly conditioned linearization. */
+  const SECANT_GAIN: number = 4;
 
   /** The golden section's share, `(sqrt(5) - 1) / 2`. */
   const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
@@ -266,11 +263,12 @@ export namespace AutoMovieHumanNail {
   /**
    * The middle weight of the conic from a level crown to an upright side extreme that turns on `radius` at the crown, where a conic of
    * weight `w` and depth `drop` turns on `2 w^2 side^2 / drop`, and has fallen `sagitta` at the edge. By bisection between the section
-   * model's bounds of a shoulder `w / (1 + w)`, 0.03 and 0.85; where no weight between them passes through the edge, the ellipse's.
+   * model's bounds of a shoulder `w / (1 + w)`. Use the ellipse if that interval contains no solution.
    */
   function weight(side: number, radius: number, edge: number, sagitta: number): number {
     const miss = (w: number): number => sink(side, (2 * w * w * side * side) / radius, w, edge) - sagitta;
-    let [a, b]: [number, number] = [0.03 / 0.97, 0.85 / 0.15];
+    const fair: number = AutoMovieHumanConicSection.FAIR;
+    let [a, b]: [number, number] = [0.03 / 0.97, fair / (1 - fair)];
     if (miss(a) * miss(b) > 0) return Math.SQRT1_2;
     const rising: boolean = miss(b) > 0;
     for (let i: number = 0; i < 48; ++i) {
@@ -334,7 +332,7 @@ export namespace AutoMovieHumanNail {
     };
     // The distance along grows with the station on the distal segment, so the station is the bracketed root, to the accuracy of
     // twenty-four halvings: a distal segment of 30 mm under 2e-6 mm, the chord error of the net a digit's skin is read on
-    // (`AutoMovieHumanF1Nails`). Brent's safeguarded steps reach it in a few skin reads where the bisection took twenty-four.
+    // (`AutoMovieHumanDigitNails`). Brent's safeguarded steps locate it on the prepared skin.
     const station = (x: number, phase: number): number =>
       AutoMovieHumanBracketRoot.solve((s: number): number => dot(offset(s, phase), frame.distal) - x, skin.first, skin.tip, 24);
     const lateralAt = (x: number, phase: number): AutoMovieVector3Tuple => at(station(x, phase), phase);
@@ -442,12 +440,11 @@ export namespace AutoMovieHumanNail {
     // The stations are cut square to the long axis, so at a fixed axis the rings are fixed, and a roll or a shift of the frame only
     // turns the coordinates the same rings are read in: on them the roll is settled alone, by its objective below, with no skin
     // read. But every pass cuts the rings anew at the axis the pass before fitted, and the re-cut rings feed the shift, the slope
-    // and the roll back into each other at first order: stepped by what each pass asked, the three fell by 0.3 to 0.6 a pass and
-    // two of f1's toes ended at the cap (run 16-41-29). So the three are solved together, by a secant step: the matrix that tells
+    // and the roll back into each other at first order. Solve the three together by a secant step: the matrix that tells
     // how the last step changed what was asked, started as the identity (the plain step) and corrected each pass by Broyden's
     // rank-one rule, is solved for the step that would leave nothing asked. The fixed point is the plain iteration's whatever the
-    // matrix is. A step over eight times what was asked would mean a contraction slower than seven eighths a pass, beyond any
-    // read on f1 (0.3 to 0.8), and starts the matrix again. The shift is counted in bed lengths, so the three are of one scale.
+    // matrix is. Restart from the identity when the linearization amplifies the normalized step past SECANT_GAIN.
+    // The shift is counted in bed lengths so the three unknowns are of comparable scale.
     const bedLength: number = tip0 - fold0;
     let secant: number[][] = [
       [1, 0, 0],
@@ -480,10 +477,11 @@ export namespace AutoMovieHumanNail {
       // frame, is the value that makes `(turn / error)^2 + (roll / spread)^2` least within a quarter turn either side: the skin's
       // evidence, whose error is the fitted skin's across the plate, against the prior that the nail lies in its segment's frame.
       // No crossing of the turn through zero is sought: a far, weakly held one on a round back lowers the first term a little and
-      // pays the second in full. Sought as the nearest crossing it rolled f1's two roundest toes 25 and 36 degrees (run 16-16-14).
+      // pays the second in full.
       // The objective is read at 49 rolls, each of its local leasts is placed within the two steps about it by Brent's method to the width of forty golden sections,
       // and the least of those is taken.
-      const error: number = FIT_RMS / half;
+      // ESTIMATE: allow half the person's plate thickness as vertical uncertainty over the skin's half width.
+      const error: number = Math.atan2(proportions.thickness / 2, half);
       const cost = (by: number): number => (levelled(by).turn / error) ** 2 + ((roll + by) / spread) ** 2;
       const [from, to]: [number, number] = [-Math.PI / 2 - roll, Math.PI / 2 - roll];
       const sampled: number[] = Array.from({ length: 49 }, (_: unknown, n: number): number => cost(from + ((to - from) * n) / 48));
@@ -514,7 +512,7 @@ export namespace AutoMovieHumanNail {
           });
       }
       let move: number[] | null = solved(secant, wanted);
-      if (move === null || !(Math.hypot(move[0]!, move[1]!, move[2]!) <= 8 * Math.hypot(wanted[0]!, wanted[1]!, wanted[2]!))) {
+      if (move === null || !(Math.hypot(move[0]!, move[1]!, move[2]!) <= SECANT_GAIN * Math.hypot(wanted[0]!, wanted[1]!, wanted[2]!))) {
         secant = [
           [1, 0, 0],
           [0, 1, 0],

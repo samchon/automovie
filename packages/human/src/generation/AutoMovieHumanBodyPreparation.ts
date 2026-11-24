@@ -26,13 +26,16 @@ import { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
 /**
- * Requested original factories and explicit production completion.
- * The common local section and world frame precede either adjoining source.
- * Production adds actual head-owned bind records; only an explicit raw method
- * obtains a chain. Original lookup assembles no body tree or final skin.
+ * Requested original factories and explicit production completion. The common
+ * local section and world frame precede either adjoining source. Production
+ * adds actual head-owned bind records; only an explicit raw method obtains a
+ * chain. Original lookup assembles no body tree or final skin.
  */
 export namespace AutoMovieHumanBodyPreparation {
-  /** Resolve the original common definitions without requesting head, body tree or raw geometry. */
+  /**
+   * Resolve the original common definitions without requesting head, body tree
+   * or raw geometry.
+   */
   export function prepareSources(
     input: IAutoMovieHumanBodySources.IInput,
   ): IAutoMovieHumanBodySources.IOriginal {
@@ -44,14 +47,20 @@ export namespace AutoMovieHumanBodyPreparation {
     return original;
   }
 
-  /** Explicit production preparation adds actual head/eye and whole bind records, before tree assembly. */
+  /**
+   * Explicit production preparation adds actual head/eye and whole bind
+   * records, before tree assembly.
+   */
   export function of(
     input: IAutoMovieHumanBodySources.IInput,
   ): IAutoMovieHumanBodyPreparation.IOutput {
     return complete(prepareSources(input));
   }
 
-  /** Explicitly add actual head/eye and full skeleton metadata to the same originals; no raw request is made. */
+  /**
+   * Explicitly add actual head/eye and full skeleton metadata to the same
+   * originals; no raw request is made.
+   */
   export function complete(
     original: IAutoMovieHumanBodySources.IOriginal,
   ): IAutoMovieHumanBodyPreparation.IOutput {
@@ -96,7 +105,10 @@ export namespace AutoMovieHumanBodyPreparation {
     );
   }
 
-  /** Prepare the same lazy original factories, without evaluating unrelated siblings. */
+  /**
+   * Prepare the same lazy original factories, without evaluating unrelated
+   * siblings.
+   */
   export function bodyInput(
     context: IAutoMovieHumanBodySources.IOriginal,
   ): IAutoMovieHumanBodyLane.IInput {
@@ -116,7 +128,10 @@ export namespace AutoMovieHumanBodyPreparation {
     return context.body;
   }
 
-  /** The production's two original tape passes, without raw lofts or face composition. */
+  /**
+   * The production's two original tape passes, without raw lofts or face
+   * composition.
+   */
   export function trunkSource(
     context: IAutoMovieHumanBodySources.IOriginal,
   ): IAutoMovieHumanTrunkBuild.IOutput {
@@ -145,7 +160,10 @@ export namespace AutoMovieHumanBodyPreparation {
     }
   }
 
-  /** Read one production original; null means an unrecognized request, not a successful missing part. */
+  /**
+   * Read one production original; null means an unrecognized request, not a
+   * successful missing part.
+   */
   export function original(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
@@ -186,7 +204,10 @@ export namespace AutoMovieHumanBodyPreparation {
     return null;
   }
 
-  /** A completed trial is not a final parent when the actual trunk source failed publication. */
+  /**
+   * A completed trial is not a final parent when the actual trunk source failed
+   * publication.
+   */
   function completeLeg(context: IAutoMovieHumanBodySources.IOriginal): void {
     const actual: IAutoMovieHumanTrunkBuild.IOutput = trunkSource(context);
     if (actual.trunk === null)
@@ -195,38 +216,26 @@ export namespace AutoMovieHumanBodyPreparation {
       );
   }
 
-  /** Loft exactly the requested original once; failures keep their actual diagnostics, without a fallback or unrelated generation. */
+  /**
+   * Loft the requested original and return its diagnostics to this observation.
+   */
   export function loft(
     context: IAutoMovieHumanBodySources.IOriginal,
     name: string,
   ): IAutoMovieHumanSourceRealization | null {
-    const retained: IAutoMovieHumanSourceRealization | undefined =
-      context.rawSources?.get(name);
-    if (retained !== undefined) return retained;
     const definition: IAutoMovieHumanSourceDefinition | null = original(
       context,
       name,
     );
-    if (definition === null) return null;
-    const result: IAutoMovieHumanSourceRealization =
-      AutoMovieHumanSiteViewPart.loft(definition);
-    context.rawSources ??= new Map();
-    context.rawSources.set(name, result);
-    if (
-      name === "trunk" ||
-      name.startsWith("breast.") ||
-      name.startsWith("gluteal.")
-    ) {
-      const trunk: IAutoMovieHumanTrunkBuild.IOutput = trunkSource(context);
-      trunk.sources.push({ name, result });
-      trunk.diagnostics.push(
-        ...result.diagnostics.slice(definition.diagnostics.length),
-      );
-    }
-    return result;
+    return definition === null
+      ? null
+      : AutoMovieHumanSiteViewPart.loft(definition);
   }
 
-  /** Resolve the same trunk input identities once at the canonical preparation boundary, in calibration mm. */
+  /**
+   * Resolve the same trunk input identities once at the canonical preparation
+   * boundary, in calibration mm.
+   */
   export function trunkInputs(
     params: IAutoMovieHumanParameters,
     inputs: IAutoMovieHumanBodyLaw.ILimbInputs["legs"],
@@ -250,6 +259,8 @@ export namespace AutoMovieHumanBodyPreparation {
       acromion: anatomy.acromialHeight * inputs.scale,
       cervicale: anatomy.cervicaleHeight * inputs.scale,
       axilla: anatomy.axillaHeight * inputs.scale,
+      kyphoticAngle: anatomy.kyphoticAngle,
+      lordoticAngle: anatomy.lordoticAngle,
       female: anatomy.sex === AutoMovieHumanSex.Female,
       sex: inputs.sex,
       fat: inputs.fat,

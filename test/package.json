@@ -11,15 +11,8 @@
     "sweep:parts": "esbuild src/sweep/generateLawSweepParts.ts --bundle --platform=node --format=cjs --log-level=warning --outfile=bin/sweep-parts.cjs && node bin/sweep-parts.cjs",
     "evidence": "evidence",
     "conic:build": "esbuild \"src/reference-conics/FamilyConic*.ts\" --bundle --platform=node --format=cjs --external:@napi-rs/canvas --outdir=.shots/esbuild --out-extension:.js=.cjs --log-level=warning",
-    "conic:armscye": "pnpm conic:build && node .shots/esbuild/FamilyConicArmscye.cjs",
-    "conic:deviation": "pnpm conic:build && node .shots/esbuild/FamilyConicDeviation.cjs",
     "conic:fit": "pnpm conic:build && node .shots/esbuild/FamilyConicBody.cjs",
-    "conic:figure": "pnpm conic:build && node .shots/esbuild/FamilyConicFigure.cjs",
-    "conic:scan": "pnpm conic:build && node .shots/esbuild/FamilyConicScan.cjs",
-    "conic:tree": "pnpm conic:build && node .shots/esbuild/FamilyConicTree.cjs",
-    "conic:tip": "pnpm conic:build && node .shots/esbuild/FamilyConicTip.cjs",
-    "conic:merge": "pnpm conic:build && node .shots/esbuild/FamilyConicMerge.cjs",
-    "conic:ports": "pnpm conic:build && node .shots/esbuild/FamilyConicPorts.cjs"
+    "conic:neutral": "esbuild src/reference-conics/FamilyConicNeutralCases.ts --bundle --platform=node --format=cjs --external:@napi-rs/canvas --outfile=.shots/esbuild/FamilyConicNeutralCases.cjs --log-level=warning && node .shots/esbuild/FamilyConicNeutralCases.cjs"
   },
   "author": "Samchon",
   "license": "MIT",

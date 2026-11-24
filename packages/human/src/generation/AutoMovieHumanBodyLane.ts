@@ -146,10 +146,7 @@ export namespace AutoMovieHumanBodyLane {
       name: string,
       definition: IAutoMovieHumanSourceDefinition,
     ): IAutoMovieConstructionView | null =>
-      view(
-        name,
-        input.preparedSources?.get(name) ?? { ...definition, loft: null },
-      );
+      view(name, { ...definition, loft: null });
     const fold: (
       part: IAutoMovieConstructionNode,
       partFace: string,

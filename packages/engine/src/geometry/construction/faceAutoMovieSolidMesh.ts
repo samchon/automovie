@@ -34,16 +34,21 @@ export function faceAutoMovieSolidMesh(
 /** Fixed-scope face publication for one append-only tessellation. */
 export namespace faceAutoMovieSolidMesh {
   /**
-   * Prepare the existing edge incidence for a batch of faces. The caller gives
-   * this closure exclusive ownership of mesh index writes during the batch.
-   * Each admitted face adds its edges to that same incidence.
+   * Prepare edge incidence for one append-only batch of faces. Before each
+   * face, read just the new triangle tail, including caps or seams the caller
+   * added between faces. Published triangles and their order must stay fixed
+   * for the batch, and its face callbacks must not mutate or reenter the mesh.
    */
   export function prepare(
     mesh: IAutoMovieSolidMesh.IMesh,
   ): (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[] {
     const incidence: IIncidence = edgesOf(mesh.indices);
-    return (input: IAutoMovieSolidMesh.IFace): IAutoMovieSolidMesh.IOpen[] =>
-      append(mesh, input, incidence);
+    let scanned: number = mesh.indices.length;
+    return (input: IAutoMovieSolidMesh.IFace): IAutoMovieSolidMesh.IOpen[] => {
+      addEdges(incidence, mesh.indices, scanned);
+      scanned = mesh.indices.length;
+      return append(mesh, input, incidence);
+    };
   }
 }
 
@@ -241,14 +246,12 @@ function append(
       sample.chart[1],
     );
   }
-  const start: number = mesh.indices.length;
   AutoMovieSolidMeshWrite.emit(
     mesh,
     indices,
     input.surface.orientation * (input.inverted === true ? -1 : 1),
     true,
   );
-  if (incidence !== undefined) addEdges(incidence, mesh.indices, start);
   return open;
 }
 

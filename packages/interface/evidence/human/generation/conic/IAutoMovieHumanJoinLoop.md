@@ -60,7 +60,7 @@ The port curve and the host and part seeds carry metres and radians in their res
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The F1 tree reads the loop and seeds, and the reference inspection reads the producer's gap and station observations.
+The junction tree reads the loop and seeds. Its inspection can read the producer's gap and station observations.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

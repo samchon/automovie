@@ -18,13 +18,13 @@ import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 
 /**
  * The head's landmark skeleton. From the neck ring and the public head inputs
- * it places, by their Farkas definitions and published relations, the
- * landmarks of the midline and beside it, and the stations and sizes the other
- * pieces read (`IAutoMovieHumanHeadLayout`), before any skin exists. Public
- * Euclidean chords close in the generating landmark plan; independent
- * source-curve observers check their actual downstream points. The retired
- * radial head pass still accepts its correction record, but is not the
- * production view lane's source or calibration loop.
+ * it places, by their Farkas definitions and published relations, the landmarks
+ * of the midline and beside it, and the stations and sizes the other pieces
+ * read (`IAutoMovieHumanHeadLayout`), before any skin exists. Public Euclidean
+ * chords close in the generating landmark plan; independent source-curve
+ * observers check their actual downstream points. The retired radial head pass
+ * still accepts its correction record, but is not the production view lane's
+ * source or calibration loop.
  *
  * @evidence contracts/common.md#principled-implementation Public dimensions and declared anatomical/geometric conventions produce one shared landmark/layout record before source authoring.
  * @evidence contracts/common.md#clear-and-simple-design Canonical LS/LI own border chords; separate bulk priors and one regional sulcus owner avoid a profile-to-lip residual cycle.
@@ -105,7 +105,6 @@ export namespace AutoMovieHumanHeadLandmarks {
     fix: IAutoMovieHumanHeadCorrections = NONE,
   ): IAutoMovieHumanHeadLayout {
     const prior: IAutoMovieHumanHeadPrior.IPrior = compiled.prior;
-    const r: IAutoMovieHumanHeadPrior.IRatios = prior.ratios;
     const f: IAutoMovieHumanHeadPrior.IFace = prior.face;
     const p: IAutoMovieHumanHeadPrior.IProfile = prior.profile;
     const fr: IAutoMovieHumanHeadPrior.IFrame = prior.frame;
@@ -121,9 +120,18 @@ export namespace AutoMovieHumanHeadLandmarks {
     const B: number = (head.length * head.cephalicIndex * k) / 100;
     // Published millimetres of the norms, at this face's size.
     const q: number = FH / p.unit;
-    const centre: number = neck.x + r.forward * neck.radius;
+    // ESTIMATE: align the vault's posterior support plane with the generating nape's posterior point.
+    const centre: number = neck.back + L / 2;
     const gx: number = centre + L / 2;
-    const nx: number = gx - p.nasion * q;
+    const browAhead: number =
+      head.glabellaAheadOfNasion === undefined
+        ? p.nasion * q
+        : head.glabellaAheadOfNasion * k;
+    const browRise: number =
+      head.glabellaAboveNasion === undefined
+        ? p.glabella * FH
+        : head.glabellaAboveNasion * k;
+    const nx: number = gx - browAhead;
     const snx: number = gx + p.subnasale * q;
     const pgx: number = gx + p.pogonion * q;
     const fissure: number =
@@ -163,7 +171,7 @@ export namespace AutoMovieHumanHeadLandmarks {
     const sto: number = sn - p.lip * (sn - menton);
     const pg: number = menton + p.chin * (sto - menton);
     const eye: number = n - fissure / 2;
-    const g: number = n + p.glabella * FH;
+    const g: number = n + browRise;
 
     // The pronasale: the protrusion from the subnasale, its direction closing
     // the nasal triangle whose bridge is the population's share of the
@@ -247,8 +255,8 @@ export namespace AutoMovieHumanHeadLandmarks {
 
     // Beside the midline: the tragion the upper facial depth behind the
     // nasion at the cranial base's half width; the zygion on the arch in
-    // front of it; the frontotemporale on the forehead; the gonion on the
-    // mandibular plane, a fixed distance ahead of the ears' line.
+    // front of it; the frontotemporale on the forehead. The mandible's floor
+    // and rising ramus intersect at the gonion.
     const tragionY: number = eye - fr.tragionDrop * FH;
     const half: number = (fr.base * B) / 2;
     const depth: number = Math.sqrt(
@@ -257,13 +265,12 @@ export namespace AutoMovieHumanHeadLandmarks {
     const tragion: P2 = [nx - depth, tragionY];
     const zygion: P2 = [tragion[0] + fr.arch * depth, eye - fr.zygion * FH];
     const frontal: P2 = [gx - fr.frontal * L, g];
-    const ear: number = centre + prior.ear.forward * k;
-    const goX: number = ear + prior.mandible.gonion * k;
-    const plane: number =
-      ((prior.mandible.plane[0]! + prior.mandible.plane[1]! * inputs.sex) *
-        Math.PI) /
-      180;
-    const gonion: P2 = [goX, menton + (pgx - turn - goX) * Math.tan(plane)];
+    const gonion: P2 = mandibularAngle(
+      [pgx - turn, menton],
+      tragion,
+      inputs.sex,
+      prior.mandible,
+    );
 
     const opening: (e: PublicEye) => IAutoMovieHumanHeadEyeOpening = (
       e: PublicEye,
@@ -309,7 +316,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       vault: 2,
       tape: head.circumference * k + fix.tape,
       reach:
-        Math.sqrt(Math.max(1, L * L - (p.glabella * FH) ** 2)) -
+        Math.sqrt(Math.max(1, L * L - browRise * browRise)) -
         L / 2 +
         fix.occiput,
       noseWidth: (head.face.nose.width * k) / 2 + fix.ala,
@@ -321,7 +328,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       // Separate normal bulk priors; these neither orient the public chord
       // nor calibrate an individual's outermost lip to the clinical mean.
       lips: [p.lips[0]! * q, p.lips[1]! * q],
-      gap: f.gape * head.mouthOpening * k,
+      gap: f.gape * k,
       joint: f.joint * head.mandibularLaterotrusion * k,
       left: opening(head.face.eyePair.left),
       right: opening(head.face.eyePair.right),
@@ -363,20 +370,15 @@ export namespace AutoMovieHumanHeadLandmarks {
       },
       profile,
     };
-    for (const side of ["left", "right"] as const)
-      [plan[side].span, plan[side].place] = canthi(
-        plan[side],
-        prior.face,
-        plan.scale,
-      );
     return plan;
   }
 
   /**
-   * Place the selected tragion height and retained t-n norm together.
-   * The base half-width is the prior's declared t-t construction; the
-   * selected drop law must not replace Y after X closed a different chord.
-   * Zygion retains its declared share of that same forward depth.
+   * Place the selected tragion height and retained t-n norm together. The base
+   * half-width is the prior's declared t-t construction; the selected drop law
+   * must not replace Y after X closed a different chord. Zygion retains its
+   * declared share of that same forward depth and the jaw intersects its floor
+   * at the new ramus placement.
    *
    * @evidence contracts/common.md#principled-implementation Solves the retained three-dimensional t-n chord with the actual selected height and cranial-base half-width.
    * @evidence contracts/common.md#clear-and-simple-design One immutable layout update supplies every downstream head curve.
@@ -402,60 +404,44 @@ export namespace AutoMovieHumanHeadLandmarks {
       );
     const depth: number = Math.sqrt(squared);
     const x: number = plan.landmarks.nasion[0] - depth;
+    const tragion: P2 = [x, height];
     return {
       ...plan,
       landmarks: {
         ...plan.landmarks,
-        tragion: [x, height],
+        tragion,
         zygion: [x + frame.arch * depth, plan.landmarks.zygion[1]],
+        gonion: mandibularAngle(
+          plan.landmarks.menton,
+          tragion,
+          plan.sex,
+          AutoMovieHumanHeadPrior.PRIOR.mandible,
+        ),
       },
     };
   }
 }
 
 /**
- * The lid margin's lateral half-span that stands its canthi, the margin's
- * medial and lateral extremes, the fissure length apart in 3D, and the
- * fissure's centre that puts the medial canthus half the intercanthal width
- * off the midline: `[span, place]`.
+ * The mandible's lower border from menton meets the ramus descending from the
+ * tragion's sagittal projection.
  */
-function canthi(
-  o: IAutoMovieHumanHeadEyeOpening,
-  face: IAutoMovieHumanHeadPrior.IFace,
-  scale: number,
-): [number, number] {
-  const series: (h: readonly number[], unit: number, t: number) => number = (
-    h: readonly number[],
-    unit: number,
-    t: number,
-  ): number =>
-    unit *
-    (h[0]! * Math.cos(t) +
-      h[1]! * Math.sin(t) +
-      h[2]! * Math.cos(2 * t) +
-      h[3]! * Math.sin(2 * t) +
-      h[4]! * Math.cos(3 * t) +
-      h[5]! * Math.sin(3 * t));
-  let span: number = o.length / 2;
-  let medial: number = -span;
-  for (let pass: number = 0; pass < 4; pass++) {
-    let lo: Vec3 = [0, 0, Infinity];
-    let hi: Vec3 = [0, 0, -Infinity];
-    for (let i: number = 0; i < 720; i++) {
-      const t: number = (2 * Math.PI * i) / 720;
-      const p: Vec3 = [
-        series(face.margin[0]!, scale, t),
-        series(face.margin[1]!, o.height / 2, t),
-        series(face.margin[2]!, span, t),
-      ];
-      if (p[2] < lo[2]) lo = p;
-      if (p[2] > hi[2]) hi = p;
-    }
-    const f: number = o.length / AutoMovieHumanHeadMath.dist(lo, hi);
-    span *= f;
-    medial = lo[2] * f;
-  }
-  return [span, o.inner - medial];
+function mandibularAngle(
+  menton: P2,
+  tragion: P2,
+  sex: number,
+  jaw: IAutoMovieHumanHeadPrior.IMandible,
+): P2 {
+  const plane: number = ((jaw.plane[0]! + jaw.plane[1]! * sex) * Math.PI) / 180;
+  const angle: number = ((jaw.angle[0]! + jaw.angle[1]! * sex) * Math.PI) / 180;
+  const floor: number = Math.tan(plane);
+
+  // ESTIMATE: place the ramus' upper sagittal endpoint at the tragion's projection.
+  const ramus: number = Math.tan(angle - plane - Math.PI / 2);
+  const floorAtTragion: number = menton[1] + (menton[0] - tragion[0]) * floor;
+  const x: number =
+    tragion[0] + (ramus * (tragion[1] - floorAtTragion)) / (1 - ramus * floor);
+  return [x, menton[1] + (menton[0] - x) * floor];
 }
 
 /** A point of a section. */
@@ -463,6 +449,3 @@ type P2 = [number, number];
 
 /** The public eye. */
 type PublicEye = IAutoMovieHumanHeadIdentity["face"]["eyePair"]["left"];
-
-/** A point. */
-type Vec3 = [number, number, number];

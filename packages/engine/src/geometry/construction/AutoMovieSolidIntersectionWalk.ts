@@ -49,9 +49,9 @@ export namespace AutoMovieSolidIntersectionWalk {
    * points per target and 6 closing trials). Valid finite counts, host-face
    * indices and regular callback jets remain premises, not new admissions.
    * Failed first walks retain at most the two actual terminal direction
-   * contexts. An identical representable point and addresses cannot advance either
-   * walk. An actual atlas face transfer remains eligible. Observation never queries
-   * a surface or changes a proposal.
+   * contexts. A chord must advance in the directed physical tangent. Distinct
+   * local addresses can map to the same representable world point. A
+   * representable chord can continue through any admitted atlas face.
    *
    * @returns The walk, or why it failed.
    */
@@ -188,15 +188,13 @@ export namespace AutoMovieSolidIntersectionWalk {
         h, predicted, tangent: T.world, guess, halving, distance: null, allowance: null,
       };
       const chart: AutoMovieSolidChartVector4 = [p.s, p.phi, p.y, p.theta];
-      const samePoint = (q: Vec3): boolean => q.every((value, i): boolean => value === p.point[i]);
       const stagnant = (): null => {
         const domain = part.domain;
         const exitsPart: boolean = domain !== undefined &&
           ((p.s === domain[0] && ds < 0) || (p.s === domain[1] && ds > 0));
         return Observation.fail(observation, exitsPart ? "walk-part-bound" : "walk-no-progress", chart, p.face);
       };
-      if (samePoint(predicted) && guess.every((value, i): boolean => value === chart[i]))
-        return stagnant();
+      if (!(dot(sub(predicted, p.point), T.world) > 0)) return stagnant();
 
       /** Meeting corrected using the original predicted plane. */
       const next: IPoint | null = AutoMovieSolidTraceSolve.solve(
@@ -215,9 +213,9 @@ export namespace AutoMovieSolidIntersectionWalk {
       if (observation?.step !== undefined && observation.step !== null) {
         observation.step.distance = distance; observation.step.allowance = allowance;
       }
-      if (next.face === p.face && samePoint(next.point) &&
-          next.s === p.s && next.phi === p.phi && next.y === p.y && next.theta === p.theta)
-        return stagnant();
+      // Chart movement or a smaller residual does not advance the
+      // pseudo-arclength plane unless the corrected point moves forward.
+      if (!(dot(sub(next.point, p.point), T.world) > 0)) return stagnant();
       return distance <= allowance ? next : Observation.fail(observation, "branch-distance", [next.s, next.phi, next.y, next.theta], next.face);
     };
 

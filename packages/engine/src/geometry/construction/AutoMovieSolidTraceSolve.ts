@@ -119,7 +119,16 @@ export namespace AutoMovieSolidTraceSolve {
     if (observation !== undefined) { observation.meeting = null; observation.trial = null; observation.failure = null; }
     let x: AutoMovieSolidChartVector4 = [guess[0], guess[1], guess[2], guess[3]];
     const initialA: IJet | null = AutoMovieSolidDomain.jet(part, x[0], x[1]);
-    if (initialA === null) return Observation.fail(observation, "part-jet-unavailable", x, face, { budget: budget.left });
+    if (initialA === null)
+      return Observation.fail(
+        observation,
+        AutoMovieSolidDomain.contains(part, x[0], x[1])
+          ? "part-jet-unavailable"
+          : "part-chart-outside",
+        x,
+        face,
+        { budget: budget.left },
+      );
     const initialB: IAutoMovieSolidTraceTrialTrial | null =
       AutoMovieSolidTraceTrial(host, face, x[2], x[3], budget.left > 0, observation);
     if (initialB === null) return Observation.fail(observation, "host-trial-unavailable", x, face, { part: initialA, budget: budget.left });
@@ -163,7 +172,17 @@ export namespace AutoMovieSolidTraceSolve {
           x[3] + k * dx[3]!,
         ];
         const ay: IJet | null = AutoMovieSolidDomain.jet(part, y[0], y[1]);
-        if (ay === null) { Observation.reject(observation, "part-jet-unavailable", y, currentFace); continue; }
+        if (ay === null) {
+          Observation.reject(
+            observation,
+            AutoMovieSolidDomain.contains(part, y[0], y[1])
+              ? "part-jet-unavailable"
+              : "part-chart-outside",
+            y,
+            currentFace,
+          );
+          continue;
+        }
         const by: IAutoMovieSolidTraceTrialTrial | null =
           AutoMovieSolidTraceTrial(
             host,

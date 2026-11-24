@@ -179,7 +179,7 @@ export function AutoMovieHumanNativeSourceLaw(
     items.map(map) as IAutoMovieViewPart.IQuarters<T>;
   if (original.fullness.kind !== "top")
     throw new Error(
-      "native F1 root controls require the actual complete top source",
+      "native root controls require the actual complete top source",
     );
   const top: IAutoMovieViewPart.ITop = original.fullness;
   const split = (
@@ -244,7 +244,7 @@ function varying(
 ): IAutoMovieViewPart {
   if (original.fullness.kind !== "top")
     throw new Error(
-      "native F1 root controls require the actual complete top source",
+      "native root controls require the actual complete top source",
     );
   const top: IAutoMovieViewPart.ITop = original.fullness;
   if (centre !== undefined && top.touch === undefined)

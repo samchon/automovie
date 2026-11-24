@@ -7,32 +7,13 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
   IAutoMovieCubicBezierCurve64,
-  IAutoMovieHumanArmF1Lines,
-  IAutoMovieHumanArmPrior,
-  IAutoMovieHumanHandForm,
   IAutoMovieHumanHandPalm,
-  IAutoMovieHumanLimbFrame,
-  IAutoMovieLoftChain,
-  IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
 } from "@automovie/interface";
 
-import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
-import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanArmCurveSpec } from "../arm/AutoMovieHumanArmCurveSpec";
-import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
-import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import { AutoMovieHumanPalmRelief } from "./AutoMovieHumanPalmRelief";
 
-const { scale, dot, mean }: typeof AutoMovieHumanHandVector =
-  AutoMovieHumanHandVector;
-const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide =
-  AutoMovieHumanHandSide;
-
-/**
- * The palm's chain, its sections square to the hand's axis, each carrying the
- * palm's reliefs (`AutoMovieHumanPalmRelief`).
- */
+/** Coefficient restoration and attachment for caller-owned hand contours. */
 export namespace AutoMovieHumanHandPalm {
   /** Restore one exact three-coordinate tuple at the JSON boundary. */
   export function fixedPoint(value: readonly number[]): AutoMovieVector3Tuple {
@@ -40,7 +21,7 @@ export namespace AutoMovieHumanHandPalm {
       value.length !== 3 ||
       value.some((x: number): boolean => !Number.isFinite(x))
     )
-      throw new Error("A fixed F1 point needs three finite coordinates");
+      throw new Error("A fixed contour point needs three finite coordinates");
     return [value[0]!, value[1]!, value[2]!];
   }
 
@@ -56,7 +37,7 @@ export namespace AutoMovieHumanHandPalm {
         value.phaseUnit !== "normalized")
     )
       throw new Error(
-        "The fixed F1 curve has an unsupported representation or unit",
+        "The fixed contour curve has an unsupported representation or unit",
       );
     return {
       ...value,
@@ -66,7 +47,9 @@ export namespace AutoMovieHumanHandPalm {
       spans: value.spans.map(
         (span: number[][]): AutoMovieCubicBezierControls3 => {
           if (span.length !== 4)
-            throw new Error("A fixed F1 cubic needs four ordered controls");
+            throw new Error(
+              "A fixed contour cubic needs four ordered controls",
+            );
           return [
             fixedPoint(span[0]!),
             fixedPoint(span[1]!),
@@ -78,7 +61,10 @@ export namespace AutoMovieHumanHandPalm {
     };
   }
 
-  /** Restore the unchanged absolute frame and cubic loops of an authored section. */
+  /**
+   * Restore the unchanged absolute frame and cubic loops of an authored
+   * section.
+   */
   export function fixedSection(
     value: IAutoMovieHumanHandPalm.IFixedSectionValue,
   ): IAutoMovieHumanHandPalm.IFixedSection {
@@ -166,7 +152,10 @@ export namespace AutoMovieHumanHandPalm {
     };
   }
 
-  /** Read each exact observed plane in the contour loft's common numerical chart. */
+  /**
+   * Read each exact observed plane in the contour loft's common numerical
+   * chart.
+   */
   export function contourCoordinates(
     rows: readonly IAutoMovieHumanHandPalm.IFixedSection[],
     worldCollar: boolean,
@@ -206,12 +195,12 @@ export namespace AutoMovieHumanHandPalm {
   }
 
   /**
-   * Continue the actual open clay boundary through a parallel archive span.
-   * The first strip owns the existing boundary vertices; subsequent rows
-   * use the original Bézier curves and only a measured terminal closes it.
+   * Continue the actual open clay boundary through a parallel archive span. The
+   * first strip owns the existing boundary vertices; subsequent rows use the
+   * original Bézier curves and only a measured terminal closes it.
    */
   export function attachFixed(
-    clay: IAutoMovieHumanArmF1Lines.IFixedMesh,
+    clay: IAutoMovieHumanHandPalm.IFixedMesh,
     sections: readonly IAutoMovieHumanHandPalm.IFixedSection[],
     observedRoot: readonly AutoMovieVector3Tuple[],
     frame: ReturnType<IAutoMovieViewAxis.IAxis["at"]>,
@@ -375,7 +364,7 @@ export namespace AutoMovieHumanHandPalm {
 
   /** Read the actual open capture edge and verify every directed mesh edge. */
   export function openTerminal(
-    clay: IAutoMovieHumanArmF1Lines.IFixedMesh,
+    clay: IAutoMovieHumanHandPalm.IFixedMesh,
     frame: ReturnType<IAutoMovieViewAxis.IAxis["at"]>,
   ): IAutoMovieHumanHandPalm.IOpenTerminalResult {
     // CaptureSpecs.loft samples the open terminal layer at 72 phases.
@@ -426,7 +415,10 @@ export namespace AutoMovieHumanHandPalm {
     return { base, boundary };
   }
 
-  /** Convert native reference axes to capture-world axes by reflecting Z at the same scale. */
+  /**
+   * Convert native reference axes to capture-world axes by reflecting Z at the
+   * same scale.
+   */
   function world([
     x,
     y,
@@ -459,7 +451,10 @@ export namespace AutoMovieHumanHandPalm {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  /** Retile both observed palm collar spans in world millimetres without changing any rim vertex. */
+  /**
+   * Retile both observed palm collar spans in world millimetres without
+   * changing any rim vertex.
+   */
   function worldCollar(
     loft: IAutoMovieContourLoft64.IResult,
     stations: readonly number[],
@@ -474,7 +469,10 @@ export namespace AutoMovieHumanHandPalm {
     return indices;
   }
 
-  /** Replace one collar strip while retaining its exact indexed rims and winding. */
+  /**
+   * Replace one collar strip while retaining its exact indexed rims and
+   * winding.
+   */
   function worldCollarStrip(
     loft: IAutoMovieContourLoft64.IResult,
     stations: readonly number[],
@@ -593,71 +591,5 @@ export namespace AutoMovieHumanHandPalm {
       for (let i: number = 0; i < tiles.length; i += 3)
         [tiles[i + 1], tiles[i + 2]] = [tiles[i + 2]!, tiles[i + 1]!];
     return [...indices.slice(0, begin), ...tiles, ...indices.slice(end)];
-  }
-
-  /** The palm's chain, its sections square to the hand's axis. */
-  export function palmOf(
-    hand: IAutoMovieHumanHandForm,
-    map: IAutoMovieHumanHandPalm.PalmOfMap,
-    side: "left" | "right",
-    sign: 1 | -1,
-  ): IAutoMovieLoftChain {
-    const prior: IAutoMovieHumanArmPrior.IHandPrior =
-      AutoMovieHumanArmPrior.PRIOR.hand;
-    const along: AutoMovieVector3Tuple = [...prior.along];
-    const normal: AutoMovieVector3Tuple = scale(along, -1);
-
-    // Each section carries the palm's reliefs in the form's axes before the
-    // hand's map; the palm starts at its most proximal section.
-    const start: number = Math.min(
-      ...hand.palmRings.map(
-        (ring: readonly AutoMovieVector3Tuple[]): number => ring[0]![0],
-      ),
-    );
-    const samples: IAutoMovieHumanLimbFrame.ISample[] = hand.palmRings.map(
-      (
-        ring: readonly AutoMovieVector3Tuple[],
-      ): IAutoMovieHumanLimbFrame.ISample => {
-        const points: AutoMovieVector3Tuple[] = AutoMovieHumanPalmRelief.ring(
-          hand.digits,
-          ring,
-          start,
-        ).map((q: AutoMovieVector3Tuple): AutoMovieVector3Tuple => map(q));
-        const c: AutoMovieVector3Tuple = [
-          mean(points, 0),
-          mean(points, 1),
-          mean(points, 2),
-        ];
-        const frame: IAutoMovieLoftSectionFrame = AutoMovieHumanLimbFrame.frame(
-          c,
-          normal,
-          [...prior.through],
-        );
-        return {
-          station: -dot(c, along),
-          frame: sidedFrame(frame, sign),
-          ring: reflect(points, sign),
-        };
-      },
-    );
-    const first: number = samples[0]!.station;
-    return {
-      name: `hand.${side}.1`,
-      basis: "spline",
-      order: prior.palmSection.order,
-      samples: prior.palmSection.samples,
-      rule: "arclength",
-      layers: AutoMovieHumanLimbFrame.layers(
-        samples.map(
-          (
-            s: IAutoMovieHumanLimbFrame.ISample,
-          ): IAutoMovieHumanLimbFrame.ISample => ({
-            ...s,
-            station: s.station - first,
-          }),
-        ),
-        prior.palmSection.order,
-      ),
-    };
   }
 }

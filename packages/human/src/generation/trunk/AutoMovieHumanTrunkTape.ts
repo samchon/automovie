@@ -14,35 +14,38 @@ import type {
 
 /**
  * The trunk base's fullness at a tape site whose tape wraps the merged skin:
- * the chest tape over the breasts, the hip tape over the gluteal masses
- * (ISO 8559-1 5.3.4 and 5.3.13). A tape bridges every concavity, so it reads
- * the convex hull of the level cut through the base, masses and named
- * parent cuts; the base's common conic shoulder there is the root that puts that
- * hull's perimeter at the tape (#3047).
+ * the chest tape over the breasts, the hip tape over the gluteal masses (ISO
+ * 8559-1 5.3.4 and 5.3.13). A tape bridges every concavity, so it reads the
+ * convex hull of the level cut through the base, masses and named parent cuts;
+ * the base's common conic shoulder there is the root that puts that hull's
+ * perimeter at the tape (#3047).
  *
- * The source cut at height y contains the base's original section, the
- * masses' original side curves and explicitly supplied original leg cuts.
- * A leg cut retains its own oblique chart and is not cast to an AP mass.
- * The actual straight AP declaration of each mass has
- * world-Y up and a constant axis height equal to this site. Its horizontal
- * cut is therefore exactly the two +/-v source loci, including the pole;
- * no intermediate loft or final skin supplies the cut. Each edge contributes
- * its named/scalar-critical points and 64 station intervals, while the base
- * retains 512 angular samples. Their polygon hull perimeter is a numerical
- * approximation, not an exact continuous-tape or final-merge certificate.
- * Unsupported charts or another cutting level retain a source diagnostic.
+ * The source cut at height y contains the base's original section, the masses'
+ * original side curves and explicitly supplied original leg cuts. A leg cut
+ * retains its own oblique chart and is not cast to an AP mass. The actual
+ * straight AP declaration of each mass has world-Y up and a constant axis
+ * height equal to this site. Its horizontal cut is therefore exactly the two
+ * +/-v source loci, including the pole; no intermediate loft or final skin
+ * supplies the cut. Each edge contributes its named/scalar-critical points and
+ * 64 station intervals, while the base retains 512 angular samples. Their
+ * polygon hull perimeter is a numerical approximation, not an exact
+ * continuous-tape or final-merge certificate. Unsupported charts or another
+ * cutting level retain a source diagnostic.
  *
  * The perimeter rises with the base's shoulder (the base's section grows
  * outward and the masses stay), so the root is bracketed by the base box's
- * valid shoulder range. An unreachable tape returns no solved shoulder and
- * one diagnostic; the caller retains its admitted original rather than
- * authoring an extreme failed estimate as a new source knot.
+ * valid shoulder range. An unreachable tape returns no solved shoulder and one
+ * diagnostic; the caller retains its admitted original rather than authoring an
+ * extreme failed estimate as a new source knot.
  */
 export namespace AutoMovieHumanTrunkTape {
   /** Phases read on the base's section and on each mass. */
   export const PHASES: number = 512;
 
-  /** Project one actual parent cut into tape points and matching provenance without solving or constructing the parent again. */
+  /**
+   * Project one actual parent cut into tape points and matching provenance
+   * without solving or constructing the parent again.
+   */
   export function parent(
     name: string,
     records: IAutoMovieHumanTrunkTape.ParentRecords,
@@ -170,13 +173,11 @@ export namespace AutoMovieHumanTrunkTape {
       );
       return points;
     };
-    const moving: Map<number, [number, number][]> = new Map();
     let unavailable: string | undefined;
-    const additional: (r: number) => [number, number][] = (
+    const additional: (r: number, witnesses?: boolean) => [number, number][] = (
       r: number,
+      witnesses: boolean = false,
     ): [number, number][] => {
-      const retained: [number, number][] | undefined = moving.get(r);
-      if (retained !== undefined) return retained;
       const points: [number, number][] = [];
       for (const parent of input.parentsAt?.(r) ?? []) {
         if (typeof parent.points === "string") {
@@ -189,13 +190,13 @@ export namespace AutoMovieHumanTrunkTape {
             return [];
           }
           points.push(point);
-          owners.set(point, {
-            owner: parent.name,
-            ...parent.provenance?.[index],
-          });
+          if (witnesses)
+            owners.set(point, {
+              owner: parent.name,
+              ...parent.provenance?.[index],
+            });
         }
       }
-      moving.set(r, points);
       return points;
     };
     const parentError: () => IAutoMovieHumanTrunkTape.IResult =
@@ -211,10 +212,20 @@ export namespace AutoMovieHumanTrunkTape {
         ],
       });
     const perimeter: (r: number) => number = (r: number): number =>
-      hull([...sectionPoints(r), ...cuts, ...additional(r)]);
+      unavailable === undefined
+        ? hull([...sectionPoints(r), ...cuts, ...additional(r)])
+        : NaN;
 
     const [lo, hi]: readonly [number, number] = reach.shoulder;
-    const low: number = perimeter(lo);
+    // Prepare the bracket endpoints and its lower-hull witness explicitly.
+    // Root trials only produce the cut of their own candidate parent.
+    const base: [number, number][] = sectionPoints(lo);
+    const lowerPoints: [number, number][] = [
+      ...base,
+      ...cuts,
+      ...additional(lo, true),
+    ];
+    const low: number = hull(lowerPoints);
     const high: number = perimeter(hi);
     if (unavailable !== undefined) return parentError();
     if (![low, high, input.tape].every(Number.isFinite))
@@ -231,9 +242,8 @@ export namespace AutoMovieHumanTrunkTape {
       };
     const outside: () => IAutoMovieHumanTrunkTape.IResult =
       (): IAutoMovieHumanTrunkTape.IResult => {
-        const base: [number, number][] = sectionPoints(lo);
         const boundary: [number, number][] = [];
-        hull([...base, ...cuts, ...additional(lo)], boundary);
+        hull(lowerPoints, boundary);
         const witness: {
           point: [number, number];
           owner: string;
@@ -270,7 +280,8 @@ export namespace AutoMovieHumanTrunkTape {
       };
     if (input.tape <= low || input.tape >= high) return outside();
     const r: number | null = AutoMovieIllinois.root(
-      (s: number): number => perimeter(s) - input.tape,
+      (s: number): number =>
+        (s === lo ? low : s === hi ? high : perimeter(s)) - input.tape,
       lo,
       hi,
       1e-6,
@@ -364,7 +375,10 @@ export namespace AutoMovieHumanTrunkTape {
     return out;
   }
 
-  /** Intervals along each original mass side edge; the resulting hull is sampled, not a continuous perimeter certificate. */
+  /**
+   * Intervals along each original mass side edge; the resulting hull is
+   * sampled, not a continuous perimeter certificate.
+   */
   const LINE_SAMPLES: number = 64;
 
   /** Height off the plane under which a sample lies on it, mm. */

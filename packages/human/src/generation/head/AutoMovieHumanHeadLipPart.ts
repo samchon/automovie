@@ -36,9 +36,9 @@ import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
  *
  * @evidence contracts/common.md#principled-implementation Owns the original borders, shared contact and section frame from supplied distances plus explicitly stated fairing and attachment conventions.
  * @evidence contracts/common.md#clear-and-simple-design One builder returns one upper or lower view; neither lip reads the sibling's output.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fit f1 or move the completed lip onto a parent; the unknown bow rise is not represented as survey data.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Each frame follows the original parent field. Geometric fairing estimates the unmeasured bow rise.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes Euclidean chord, anatomical site, population ratio and geometric convention, and states the parallel-plane axis requirement.
- * @evidence contracts/performance.md#efficient-algorithms Fixed-size bow solves precede linear border preparation. One parent admission serves the field; each uncached axis read uses an outline lookup and the contact owner's bounded native chord inverse and world2 queries.
+ * @evidence contracts/performance.md#efficient-algorithms Fixed-size bow solves precede linear border preparation. One parent admission serves the field; each axis read uses an outline lookup and the contact owner's bounded native chord inverse and world2 queries.
  * @evidence contracts/performance.md#reuse-equivalent-work Each lip uses the same declared contact law and one prepared own border.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned view and its call-owned spline/axis closure survive.
  */
@@ -64,8 +64,8 @@ export namespace AutoMovieHumanHeadLipPart {
    * @evidence contracts/common.md#clear-and-simple-design Original source functions own all four outlines and the axis; the engine performs the loft.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps hidden roots separate from visible borders and uses no emitted mesh, parent-foot translation or person branch.
    * @evidence contracts/common.md#meaningful-documentation Explains border fairing, parallel lateral planes, native incidence and Euclidean distances; true corners retain a finite frame value while physical frame2 is unavailable.
-   * @evidence contracts/performance.md#efficient-algorithms Border preparation is linear in named sites. A default contact admits the parent once; each uncached section uses one outline reading and the contact owner's at-most-48-step chord inverse, original section inverses and world2 queries. Selected-coordinate jets add constant vector arithmetic.
-   * @evidence contracts/performance.md#reuse-equivalent-work The prepared border supplies both frames and supporting outlines; one last-section record shares repeated at/jet and polar queries without retaining a growing station cache.
+   * @evidence contracts/performance.md#efficient-algorithms Border preparation is linear in named sites. A default contact admits the parent once; each section uses one outline reading and the contact owner's at-most-48-step chord inverse, original section inverses and world2 queries. Selected-coordinate jets add constant vector arithmetic.
+   * @evidence contracts/performance.md#reuse-equivalent-work The prepared border supplies both frames and supporting outlines.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one call-owned view, with no global generated data.
    */
   export function of(
@@ -164,19 +164,15 @@ export namespace AutoMovieHumanHeadLipPart {
     if ("detail" in prepared)
       throw new Error(`Lip border source: ${prepared.detail}`);
     const sign: number = upper ? 1 : -1;
-    let cachedStation: number | undefined;
-    let cachedSection: IAutoMovieHumanHeadLipContact.ISection | undefined;
 
-    /** Retain just the last actual section for paired value/jet and polar reads. */
+    /** Evaluate the requested station using the prepared border and host field. */
     const section: (s: number) => IAutoMovieHumanHeadLipContact.ISection = (
       s: number,
     ): IAutoMovieHumanHeadLipContact.ISection => {
-      if (s === cachedStation && cachedSection !== undefined)
-        return cachedSection;
       const own: IAutoMovieViewOutline.IReading | string =
         AutoMovieViewOutline.at(prepared, s);
       if (typeof own === "string") throw new Error(`Lip border: ${own}`);
-      cachedSection = attachment.section(
+      return attachment.section(
         s,
         2 * own.value,
         sign,
@@ -184,8 +180,6 @@ export namespace AutoMovieHumanHeadLipPart {
           ? null
           : [2 * own.stationJet[0], 2 * own.stationJet[1]],
       );
-      cachedStation = s;
-      return cachedSection;
     };
     const frame: (s: number) => IAutoMovieLoftSectionFrame = (
       s: number,

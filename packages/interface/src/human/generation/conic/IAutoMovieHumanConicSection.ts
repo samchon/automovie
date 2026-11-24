@@ -15,16 +15,12 @@ export namespace IAutoMovieHumanConicSection {
     mirror: boolean;
 
     /**
-     * Least shoulder an arc of this family takes; absent, only the model's edge bound holds. An arc whose shoulder lies far under the
-     * ellipse's `sqrt(2) - 1` hugs its chord and turns at its ends, and where two such arcs meet at an extreme the wall turns within a few
-     * millimetres: f1's trunk held 0.22 to 0.36 either side of its side extreme over the hips, turned 1.06 degrees a half millimetre there
-     * against 0.2 elsewhere, and drew an upright line down each hip. It is a family's own number, not the model's, because other walls
-     * (the face's, the leg's) were fitted with lower shoulders where their skin wants them.
+     * Least shoulder an arc of this family takes. The model's edge bound still
+     * applies. A shoulder far below the ellipse's `sqrt(2) - 1` approaches its
+     * chord and concentrates turn near its endpoints.
      *
-     * A list holds one least per arc, in the order of the shoulders (`leastOf`). The bound belongs to the arcs that need it, not to the
-     * whole section: f1's foot end was fitted under 0.3 for the two arcs at its top, whose corner drew a slot at the big toe's root, and
-     * the same bound held the sole's arc at 0.3 from 896 to 960 mm, where the skin wants a flatter arc, so the wall stood 1.0 to 1.7 mm
-     * under the sole and each section fitted alone without it came within 0.4 to 0.85 mm.
+     * A list holds one bound per arc in shoulder order (`leastOf`). This allows
+     * a tight turn and a flatter arc to use their own bounds within one section.
      */
     least?: number | readonly number[];
   }

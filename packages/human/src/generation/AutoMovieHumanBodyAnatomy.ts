@@ -46,7 +46,7 @@ export namespace AutoMovieHumanBodyAnatomy {
    * @returns The person's measures, world millimetres and percent.
    */
   export function resolve(
-    params: IAutoMovieHumanParameters,
+    params: Pick<IAutoMovieHumanParameters, "body" | "extremities">,
   ): IAutoMovieHumanBodyMeasures {
     const given: IAutoMovieHumanBodyAnatomy = params.body.anatomy;
     const sex: AutoMovieHumanSexType = sexOf(params);
@@ -142,18 +142,20 @@ export namespace AutoMovieHumanBodyAnatomy {
     };
     const biacromialBreadth: number =
       given.biacromialBreadth ?? line(BIACROMIAL_ON_STATURE, stature);
+    const acromialHeight: number =
+      given.acromialHeight ?? line(ACROMIAL_HEIGHT_ON_STATURE, stature);
+    const cervicaleHeight: number =
+      given.cervicaleHeight ?? line(CERVICALE_HEIGHT_ON_STATURE, stature);
 
     // The natural waist stands at its surveyed share of the span from
     // trochanterion (on stature) to the person's cervicale.
     const waistHeight = (): number => {
-      const cervicale: number =
-        given.cervicaleHeight ?? line(CERVICALE_HEIGHT_ON_STATURE, stature);
       const trochanterion: number = line(
         TROCHANTERION_HEIGHT_ON_STATURE,
         stature,
       );
       return (
-        trochanterion + WAIST_HEIGHT_SHARE[k] * (cervicale - trochanterion)
+        trochanterion + WAIST_HEIGHT_SHARE[k] * (cervicaleHeight - trochanterion)
       );
     };
 
@@ -210,7 +212,9 @@ export namespace AutoMovieHumanBodyAnatomy {
       backNeckToWaist: t.neckToWaist,
       acrossBackShoulderWidth:
         given.acrossBackShoulderWidth ??
-        ACROSS_BACK_OVER_BIACROMIAL * biacromialBreadth,
+        // ESTIMATE: two straight chords from the acromia through cervicale,
+        // the frontal-plane lower bound of ISO 8559-1 5.4.3's skin course.
+        Math.hypot(biacromialBreadth, 2 * (cervicaleHeight - acromialHeight)),
       sideNeckToBustPoint: t.shoulderToApex,
       upperArmLength: t.upperArmLength,
       forearmLength: t.lowerArmLength,
@@ -239,10 +243,8 @@ export namespace AutoMovieHumanBodyAnatomy {
       calfCircumference: t.calf,
       sex,
       biacromialBreadth,
-      acromialHeight:
-        given.acromialHeight ?? line(ACROMIAL_HEIGHT_ON_STATURE, stature),
-      cervicaleHeight:
-        given.cervicaleHeight ?? line(CERVICALE_HEIGHT_ON_STATURE, stature),
+      acromialHeight,
+      cervicaleHeight,
       sideNeckPointHeight:
         given.sideNeckPointHeight ??
         line(SIDE_NECK_POINT_HEIGHT_ON_STATURE, stature),
@@ -311,7 +313,7 @@ export namespace AutoMovieHumanBodyAnatomy {
    * @param params Public input.
    */
   export function sexOf(
-    params: IAutoMovieHumanParameters,
+    params: Pick<IAutoMovieHumanParameters, "body">,
   ): AutoMovieHumanSexType {
     return params.body.anatomy.sex ?? AutoMovieHumanSex.Female;
   }
@@ -545,15 +547,6 @@ export namespace AutoMovieHumanBodyAnatomy {
 
   /** Mean stature by sex, mm, the default of an unknown height: ANSUR II, 1628.5 and 1756.2. */
   export const STATURE: AutoMovieHumanSexPair<number> = [1628.5, 1756.2];
-
-  /**
-   * Ratio of the ISO 8559-1 5.4.3 across back shoulder width to the straight
-   * breadth between the same shoulder points, read on the reference skins f1
-   * and f2 by `test_human_anatomy_course` (395.6 over 355.4 and 401.7 over
-   * 363.2): the default of an unknown across back width on the person's
-   * biacromial breadth, since no survey takes the ISO path.
-   */
-  export const ACROSS_BACK_OVER_BIACROMIAL: number = 1.11;
 
   /**
    * Each tape and length on stature, mm, the default of an unknown control:

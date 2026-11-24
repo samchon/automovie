@@ -13,9 +13,11 @@ export type { IAutoMovieHumanNativeFamily } from "./IAutoMovieHumanNativeFamily"
 export type { IAutoMovieHumanNativeGirthClosure } from "./IAutoMovieHumanNativeGirthClosure";
 export type { IAutoMovieHumanNativeProjectionCourse } from "./IAutoMovieHumanNativeProjectionCourse";
 export type { IAutoMovieHumanNativeRadialContact } from "./IAutoMovieHumanNativeRadialContact";
+export type { IAutoMovieHumanNativeRoot } from "./IAutoMovieHumanNativeRoot";
 export type { IAutoMovieHumanNativeScaleProfile } from "./IAutoMovieHumanNativeScaleProfile";
 export type { IAutoMovieHumanNativeSourceAuthority } from "./IAutoMovieHumanNativeSourceAuthority";
 export type { IAutoMovieHumanSkinCutLoop } from "./IAutoMovieHumanSkinCutLoop";
+export type { IAutoMovieHumanSkinDivide } from "./IAutoMovieHumanSkinDivide";
 export type { IAutoMovieHumanConicReliefRecentre } from "./IAutoMovieHumanConicReliefRecentre";
 export type { IAutoMovieHumanTipDome } from "./IAutoMovieHumanTipDome";
 export type { IAutoMovieHumanNativeSiteReaches } from "./IAutoMovieHumanNativeSiteReaches";

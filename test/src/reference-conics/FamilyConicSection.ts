@@ -351,8 +351,7 @@ export namespace FamilyConicSection {
     // The converter fits no interval whose curvature changes sign, so it bisects toward each inflection to its depth limit and leaves the
     // last sliver there (the domain over 2 to the depth) unresolved: a partial result made only of such slivers is the whole section. Each
     // of its leaves ends an arc or unresolved, so while its arc budget lasts its arcs and slivers number at most `maximumArcs`; past it, it
-    // leaves wider stretches unconverted and they number more. Then the chain read across them is not the section (f1's ripple at a 6 mm
-    // fairing: at station 28 the chain stopped at 107 degrees and the ray at phase 0 met nothing), so it is refused rather than drawn.
+    // leaves wider stretches unconverted. Refuse when a chain would have to cover a gap that large.
     const sliver: number =
       (curve.domain[1] - curve.domain[0]) / 2 ** CONVERT.maximumDepth;
     const covered: number = arcs.reduce(
@@ -652,9 +651,7 @@ export namespace FamilyConicSection {
                   x.share > 0.001 && x.share < 0.999,
               );
             // Where the run holds more inflections past the ramp's floor than it has lines, the strongest by bend are bound to the lines, in
-            // order, and the rest are left to fade: the wall's form keeps the folds, and a turn of a degree or two after the 20 mm fairing is
-            // no form feature. At f1's armpit, 1,260 mm up, the axillary folds bend 30 degrees and the sternal groove 37, and the breast's
-            // fronts 1.5 to 1.6; the run has three lines. Raising the fairing until the run fitted its lines erased the folds instead.
+            // order, and allow weaker inflections to fade. The ramp floor leaves stronger folds intact.
             const strong: number = read.filter(
               (x: { share: number; strength: number }): boolean =>
                 x.strength >= FEATURE_LEAST / 2,
@@ -720,10 +717,7 @@ export namespace FamilyConicSection {
             const shares: number[] = run.map((): number => NaN);
             // A line rests at its own share of its run's frame, its place among the run's features divided evenly between the run's two
             // extremes, the same at every station, and moves from that rest toward its inflection by the C2 ramp of the inflection's strength.
-            // A feature with no reading has no place of its own, so it divides its run evenly, and binding moves it only by the ramp. Rested
-            // instead on the lines bound at each station (their meeting point, or equal steps between bound neighbours), a weak line that bound
-            // at one station and not the next moved its neighbours' rests by a whole slot: f1's back features 12 and 13 traded places between
-            // 180 and 182 mm, and the blend of the two seeds was refused.
+            // Rest unbound features at even shares of the run. The ramp connects those stable positions to the measured lines as features strengthen.
             kinds.forEach((j: number, i: number): void => {
               const rest: number = (run.indexOf(j) + 1) / (run.length + 1);
               const shown: number =
@@ -749,9 +743,7 @@ export namespace FamilyConicSection {
             }
             // Each feature keeps the model's least share, with the line margin, of what is left of its run past the feature before it: the model
             // reads a feature's share of that remainder and clamps it to `EDGE` (`AutoMovieHumanConicSection.along`), so features nearer than
-            // that are not representable. A faded groove's two lines met at their pair's meeting point with its concave feature between them,
-            // all three at one share (f1's trunk at 200 mm); the arcs between them had no length, no heading made them conics, and the seed's
-            // heading search ran half a turn and settled on reversed tangents, refusing 271 of the trunk's 443 own seeds.
+            // that are not representable. Retain separation as a groove fades so its intermediate arcs do not collapse.
             for (let i: number = 0; i < run.length; ++i) {
               const before: number = i === 0 ? 0 : shares[i - 1]!;
               shares[i] = Math.max(
@@ -762,9 +754,7 @@ export namespace FamilyConicSection {
             // A fully faded feature (a line at ramp 0, or a convex or concave feature whose bounding lines all are) stands at the nearest share
             // of its run where the chain's curvature is above `STRAIGHT_TURN` over the model's least spacing (`LINE_EDGE` of the run): on a
             // straight stretch neighbouring features are collinear, their tangent lines meet behind the ends by the headings' rounding, and the
-            // arcs between them fall under the fit's meeting margin (f1's head read as its hull, anchors on one hull edge at 57 to 71 degrees,
-            // and the trunk at 176 mm, three anchors on a stretch whose inflections bend 1.2 degrees). Several may share a curved stretch, the
-            // least spacing kept between them.
+            // arcs between them can fall under the tangent-meeting margin. Keep the least separation when several features share a curved stretch.
             const lineRamp = (m: number): number =>
               alive[m] ? ramp(strengths[m]!) : 0;
             const fadedAt = (i: number): boolean => {
@@ -828,9 +818,7 @@ export namespace FamilyConicSection {
             // splits of an admissible conic chain are conic pieces, so each layout arc spans one curvature sign wherever every inflection of the
             // chain that bends past the ramp's floor carries a line. A fading line reaches its pair's meeting point on the chain itself. Faded
             // instead toward the base conic, one conic between the run's extremes, a feature stood off the section wherever the run is not one
-            // convex span: at the crotch's front the base conic from a median on the notch floor is a vertical line inside the thigh's crest,
-            // and of the 60 own seeds refused that way, 50 are admitted on the chain; the other 10 have more inflections past the floor in a run
-            // than the layout has lines (f1's neck and face, 620 to 790 mm).
+            // convex span. Recover the actual section points without requiring the base conic to traverse the notch.
             run.forEach(
               (j: number, i: number): void =>
                 void out.set(j, conversion.at(phiOf(shares[i]!))),
@@ -860,9 +848,7 @@ export namespace FamilyConicSection {
         Math.cos((anchor.window[0] + anchor.window[1]) / 2) > 0;
       return [(front ? 1 : -1) * radius(points, front ? 0 : Math.PI), 0];
     }
-    // The extreme is the skin's: a closure across an opening (`openings`) is the part's field extended over a hole another part fills, and
-    // it may bulge past the skin's own extreme. f1's trunk at 1,306 mm read its side extreme on the arm's closure, 207.6 mm out where the
-    // skin's widest stands at 188.7, and 2 mm on, back on the skin, 46 mm away.
+    // Measure extrema on the skin. A synthetic continuation across an opening can reach outside the observed wall.
     const opened = (q: P): boolean => {
       const phi: number = Math.atan2(q[1], q[0]);
       return openings.some(([a, b]: readonly [number, number]): boolean => {
@@ -899,8 +885,7 @@ export namespace FamilyConicSection {
    * the ripples smaller than the features the form keeps"): each run of the converted chain's pieces between consecutive inflections whose
    * own turn is below the ramp's floor (half `FEATURE_LEAST`), a ripple that binds no line, is replaced by its convex hull on the side its
    * neighbouring pieces turn, so no layout arc spans a sign change of the chain's curvature. Its inflections leave the conversion's ends.
-   * A run whose neighbours turn opposite ways holds a real inflection and is left as it is. On f1's head read as its hull, a faired edge
-   * flipped its curvature at bends of 0.1 to 0.3 degrees, and arcs between anchors across the flips were refused.
+   * A run whose neighbours turn opposite ways contains an inflection and retains it.
    *
    * @param conversion The section's conversion (`converted`).
    * @param changes Filled, when given, with the largest distance any point moved, mm.
@@ -1216,8 +1201,7 @@ export namespace FamilyConicSection {
       .filter((k: number): boolean => found[k] !== null);
     // A fading feature stands on the skin, its own sagitta its offset, and its tangent is the nearest to the skin's with which both its
     // arcs keep the fit's own meeting margin (`margin`, `FamilyConicFit.ADMISSIBLE_MARGIN` or the part's), its heading as stored (to 1e-4
-    // rad): a seed built against a looser test sits on the fit's wall and is refused there. Against 0.05, 259 of f1's 443 trunk sections
-    // seeded arcs the fit refused (least meetings of 0.001 to 0.099); at the region's wall (`arc` at zero), 37 of the nose's 40.
+    // rad). Use the same margin here as in fit admission.
     const conic = (a: number, tA: P, b: number, tB: P): boolean =>
       arc(found[a]!, tA, found[b]!, tB, margin);
     resolved.forEach((k: number, r: number): void => {
@@ -1226,9 +1210,7 @@ export namespace FamilyConicSection {
         resolved[(r + resolved.length - 1) % resolved.length]!;
       const after: number = resolved[(r + 1) % resolved.length]!;
       const reading: number = values[at[k]! + 2]!;
-      // Only headings within a quarter turn of the reading: past that the tangent runs against the chain's direction of travel, which no
-      // star-shaped chain has, and accepted there a crowded feature's search settled half a turn round (283 degrees for a reading of 105, f1's
-      // trunk at 150 mm). Where none serves, the reading stays and the chain is refused.
+      // Limit the search to a quarter turn so candidate tangents remain forward-facing. Preserve the observed heading when none is admissible.
       for (let step: number = 0; step * FEATURE_STEP < Math.PI / 2; ++step) {
         const tried: number[] =
           step === 0

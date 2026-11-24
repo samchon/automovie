@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanExtremityDimensions } from "@automovie/interface";
+import type { tags } from "typia";
 
 import type { IAutoMovieHumanArmIdentitySchema } from "./IAutoMovieHumanArmIdentitySchema";
 import type { IAutoMovieHumanLegIdentitySchema } from "./IAutoMovieHumanLegIdentitySchema";
@@ -22,4 +23,15 @@ export type IAutoMovieHumanExtremityDimensionsSchema =
         "footLength" | "footBreadth" | "ankleHeight"
       >
     >;
+
+    /** Positive joint-centre lengths in millimetres for both legs. */
+    legBones?: IAutoMovieHumanPairSchema<{
+      /** Hip centre to knee centre. */
+      femur: number & tags.ExclusiveMinimum<0>;
+      /** Knee centre to ankle centre. */
+      tibia: number & tags.ExclusiveMinimum<0>;
+    }>;
+
+    /** Positive ratio of phalangeal lengths to the derived lengths. */
+    phalangealLengthScale?: number & tags.ExclusiveMinimum<0>;
   };

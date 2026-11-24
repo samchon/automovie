@@ -2,9 +2,9 @@
 
 ## References
 
-- Call the references f1, f2, m1 and m2, or the reference source, in every file, issue, commit and pull request.
-- The reference data is private: read it, and keep it out of commits, copies and deletions.
-- Acquire further references without asking, with tooling kept in tracked paths under development's [Scripts and shared checkouts](../development/SKILL.md#scripts-and-shared-checkouts).
+- For geometry comparisons, use public assets with an explicit license and record the revision, exact asset identity and pose. Use primary anatomy measurements in their published frame and population.
+- Keep local reference data and captures outside commits. Human source and fixtures may depend only on documented public references and published measurements.
+- Keep acquisition and inspection tooling in tracked paths under development's [Scripts and shared checkouts](../development/SKILL.md#scripts-and-shared-checkouts).
 
 ## Ignored paths
 

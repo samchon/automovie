@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Own-side auricle directions, public dimensions and relief scaling in calibration millimetres. Member comments specify the individual units, frames and optional-value meanings.
+Own-side auricle directions and public dimensions in calibration millimetres. Member comments specify the units and frames.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -30,4 +30,4 @@ Returned by AutoMovieHumanHeadEarFrame.of. Read by AutoMovieHumanHeadEarPlate.of
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `n`, `a`, `b`, `top`, `bottom`, `length`, `breadth`, `protrusion`, `scale`, `sign`; callers supply the complete record.
+Required fields are `n`, `a`, `b`, `top`, `bottom`, `length`, `breadth`, `protrusion`, and `sign`. Relief sizing uses the person's breadth.

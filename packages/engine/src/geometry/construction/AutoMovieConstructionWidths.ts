@@ -22,7 +22,7 @@ const { cross, dot, norm, scale } = AutoMovieSolidVector;
  *
  * A fold with a `reach` reads `hypot(reach, R tan(beta / 2))` on a wedge: between a constant radius, whose tangent length vanishes with the turn, and a constant range distance, whose radius `d / tan(beta / 2)` grows without bound as the turn closes (Chuang and Hwang 1997, variable-radius blending by constrained spine generation, section 3), it keeps the rolling radius `chord / tan(beta / 2)` at least `R` on a fold and the chord at least the reach on a tangent arc, smoothly between. Where the ball governs the chord (`R tan(beta / 2)` at least the reach) its radius must fit both surfaces (`concave`), or the law is refused as `fold radius`.
  *
- * A constant chord is one value; a chord table is the periodic cubic B-spline through its values at uniform curve parameters from 0. The two laws read from the surfaces, the fold's `R tan(beta / 2)` and the curvature's `share / max(|k|, kappa_g)` (`kappa_g` the curve's geodesic curvature toward a square-offset rail, `toward`), are evaluated at every point of the traced curve and read between them by the periodic cubic B-spline through those values from the seed's parameter, so every law is C2 round the loop. A `station` width is the part's fixed rail station under the phase parameter and is refused anywhere else.
+ * A constant chord is one value; a chord table is the periodic cubic B-spline through its values at uniform curve parameters from 0. The fold and curvature laws take their samples at the traced points. They use a C2 periodic interpolant from the seed's parameter. A curvature interpolant whose cubic control hull leaves the sampled range instead uses a quintic blend inside each sample interval. A `station` width is the part's fixed rail station under the phase parameter and is refused anywhere else.
  */
 export namespace AutoMovieConstructionWidths {
   /**
@@ -44,10 +44,9 @@ export namespace AutoMovieConstructionWidths {
    * @param curve The traced curve and its sides, or null when neither width is read from it.
    * @returns The laws, or the premise one breaks.
    *
-   * The periodic interpolant passes through the admitted knot values but is
-   * not shape-preserving: positive samples or sampled caps do not guarantee
-   * positivity or the same cap between knots. Constant chord callbacks also
-   * keep reading their supplied width record, which must remain unchanged.
+   * Curvature-law samples must be positive. Their periodic interpolant
+   * stays within the observed range, including between knots. Constant chord
+   * callbacks keep reading their supplied width record, which must remain unchanged.
    *
    * A curvature law also keeps every square-offset rail a regular offset of the curve (`toward`): the host's rail always, the part's unless the
    * curve uses its phase, whose station rail does not offset square. A constant chord or table gets no such bound: a chord past that radius
@@ -180,7 +179,12 @@ export namespace AutoMovieConstructionWidths {
             return bend > 0 ? Math.min(cap, width.share / bend) : cap;
           },
         );
-        return periodic(values, curve.curve.points[0]!.t);
+        const invalid: number = values.findIndex(
+          (value: number): boolean => !(Number.isFinite(value) && value > 0),
+        );
+        if (invalid >= 0)
+          return `the ${side} has no positive curvature width at parameter ${curve.curve.points[invalid]!.t}`;
+        return periodic(values, curve.curve.points[0]!.t, true);
       }
     }
   }
@@ -328,16 +332,39 @@ export namespace AutoMovieConstructionWidths {
    *
    * @param values The values, mm.
    * @param start The parameter of the first value.
+   * @param bounded Keep the result in the sample range.
    * @returns The law.
    */
   function periodic(
     values: readonly number[],
     start: number,
+    bounded: boolean = false,
   ): (t: number) => number {
     const n: number = values.length;
     const coefficients: number[] = AutoMovieSplineCurve.interpolate(
       values.map((v: number): [number, number] => [v, 0]),
     );
+    if (bounded) {
+      const min: number = Math.min(...values);
+      const max: number = Math.max(...values);
+      const inside: boolean = coefficients
+        .slice(0, n)
+        .every((x: number): boolean => x >= min && x <= max);
+      if (!inside)
+        return (t: number): number => {
+          const turn: number = (t - start) / (2 * Math.PI);
+          const sample: number = (turn - Math.floor(turn)) * n;
+          const i: number = Math.min(n - 1, Math.floor(sample));
+          const f: number = sample - i;
+          const a: number = values[i]!;
+          const b: number = values[(i + 1) % n]!;
+          // The 10u³−15u⁴+6u⁵ step has zero endpoint derivatives
+          // through order two. Symmetry keeps the evaluated share below one half.
+          const u: number = Math.min(f, 1 - f);
+          const step: number = u ** 3 * (10 + u * (-15 + 6 * u));
+          return f <= 0.5 ? a + step * (b - a) : b + step * (a - b);
+        };
+    }
     return (t: number): number =>
       AutoMovieSplineCurve.evaluate(coefficients, n, t - start)[0];
   }

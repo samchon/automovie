@@ -53,6 +53,7 @@ export * from "./markAutoMovieMeshClearance";
 export * from "./measureAutoMovieFeatureEdges";
 export * from "./measureAutoMovieMeshClearance";
 export * from "./measureAutoMovieMeshCrossings";
+export * from "./measureAutoMovieMeshGap";
 export * from "./measureAutoMovieMeshDefects";
 export * from "./measureAutoMovieMeshPieces";
 export * from "./measureAutoMovieModelContacts";

@@ -5,12 +5,9 @@ import type { IAutoMovieHumanFootColumnLaw } from "@automovie/interface";
  * column, the malleoli's borders and the tendon rise nearly upright, their
  * place along and across the foot turning slowly with height.
  *
- * The region's knots are reference medians read one share of the stations at
- * a time, each with its own scatter of about a millimetre in plan. Carried
- * through the guide's interpolating spline, that scatter became the guide's
- * shape: on a climb of a few centimetres, steps of a millimetre back and forth
- * turned the guide into hooks and S bends, which the sections bounded by it
- * carried as ripples. The law is the least-squares quadratic of each plan
+ * Use a least-squares quadratic for an authored column's plan coordinates.
+ * A quadratic supports a lean and one change of direction over the span.
+ * The law fits each plan
  * coordinate over the knots' heights, the lowest order that holds a column's
  * lean and its turn toward the malleolus; the guide then reads the region's
  * knots at their own heights on the law, so it keeps every knot and its

@@ -7,35 +7,30 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
-import { AutoMovieHumanTrunkGlutealCleft } from "./AutoMovieHumanTrunkGlutealCleft";
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
-import { AutoMovieHumanTrunkInguinalFold } from "./AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkProfileBack } from "./AutoMovieHumanTrunkProfileBack";
 import { AutoMovieHumanTrunkProfileFront } from "./AutoMovieHumanTrunkProfileFront";
 
 /**
  * The trunk's column: the section at any height between its landmark keys.
  *
- * Every channel runs between the keys by the natural spline through them
- * (C2 along the height), except the half width, which runs by a monotone
- * cubic (Fritsch and Carlson 1980) so no row between two keys narrows or
- * widens past them: each tape's extreme then stays at its site, the natural
- * waist being the least girth because no row between its neighbours is
- * narrower. The inguinal fold and the gluteal cleft are added at the crotch.
+ * Every channel runs between the keys by the natural spline through them (C2
+ * along the height), except the half width, which runs by a monotone cubic
+ * (Fritsch and Carlson 1980) so no row between two keys narrows or widens past
+ * them: each tape's extreme then stays at its site, the natural waist being the
+ * least girth because no row between its neighbours is narrower. The base keeps
+ * regular ellipse sections at the crotch for the adjacent thigh and gluteal
+ * shapes to connect to.
  */
 export namespace AutoMovieHumanTrunkColumn {
   /**
    * The column through its keys.
    *
    * @param keys Landmark stations by strictly rising height.
-   * @param crotch Height of the crotch ring, mm.
-   * @param soft The inguinal fold's softness, mm.
    * @returns The column.
    */
   export function create(
     keys: IAutoMovieHumanTrunkKey[],
-    crotch: number,
-    soft: number,
   ): IAutoMovieHumanTrunkColumn.IColumn {
     const spline = (
       pick: (k: IAutoMovieHumanTrunkKey) => number | null,
@@ -91,8 +86,6 @@ export namespace AutoMovieHumanTrunkColumn {
             anterior(y),
           ),
         );
-        const rise: number = y - crotch;
-
         return {
           y: raw,
           width: w,
@@ -102,16 +95,15 @@ export namespace AutoMovieHumanTrunkColumn {
           squareFront: Math.max(1.2, squareFront(y)),
           squareBack: Math.max(1.2, squareBack(y)),
           anterior: a,
-          foldFront: AutoMovieHumanTrunkInguinalFold.at(rise, f - m, soft, [
-            AutoMovieHumanTrunkGuides.SHARE.bustLine * w,
-            a * w,
-          ]),
-          foldBack: AutoMovieHumanTrunkGlutealCleft.at(rise, m - b, [
-            AutoMovieHumanTrunkGuides.SHARE.scapular * w,
-            AutoMovieHumanTrunkGuides.SHARE.posteriorAxillary * w,
-          ]),
+          foldFront: flat,
+          foldBack: flat,
         };
       },
     };
   }
+}
+
+/** Zero displacement and derivatives on the regular section. */
+function flat(): [number, number, number] {
+  return [0, 0, 0];
 }

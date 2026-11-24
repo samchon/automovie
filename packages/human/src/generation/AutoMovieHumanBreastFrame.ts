@@ -7,24 +7,14 @@ import type {
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 
 /**
- * The breast's own frame: its centre is the bust point on the chest wall, not
- * the trunk's axis, and its axis is the wall's outward normal turned down by
- * `TILT`, so the lower pole overhangs the inframammary fold and the fold can
- * form under it. The up axis is the body's, taken perpendicular to the axis.
+ * The breast's centre is the bust point on the chest wall. Use the wall's
+ * outward section normal for the axis and body up for the vertical direction.
  *
  * This is the centre the breast's own piece is built about; the thorax's
  * ring has the thoracic axis for its centre, and the two are merged by the
  * breast's relief window.
  */
 export namespace AutoMovieHumanBreastFrame {
-  /**
-   * Downward tilt of the axis, radians (20 degrees): a breast stands off the
-   * chest wall along a direction between the wall's normal and gravity's, and
-   * its lower pole overhangs the fold. Conventional; to be read on the
-   * references' sagittal profile through the bust point.
-   */
-  export const TILT: number = (20 * Math.PI) / 180;
-
   /**
    * The frame of the left breast.
    *
@@ -38,11 +28,7 @@ export namespace AutoMovieHumanBreastFrame {
     // quarter back: (tz, -tx) points forward and outward on the front.
     const nx: number = input.tangent[1];
     const nz: number = -input.tangent[0];
-    const axis: AutoMovieVector3Tuple = [
-      nx * Math.cos(TILT),
-      -Math.sin(TILT),
-      nz * Math.cos(TILT),
-    ];
+    const axis: AutoMovieVector3Tuple = [nx, 0, nz];
 
     return AutoMovieHumanTrunkFeatureFrame.create(input.apex, axis);
   }

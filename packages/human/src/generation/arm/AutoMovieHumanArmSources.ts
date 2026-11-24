@@ -21,9 +21,15 @@ import { AutoMovieHumanArmHandControls } from "./AutoMovieHumanArmHandControls";
 import { AutoMovieHumanArmInterim } from "./AutoMovieHumanArmInterim";
 import { AutoMovieHumanArmWalk } from "./AutoMovieHumanArmWalk";
 
-/** Arm and hand original factories from direct rest/attachment definitions, before any trunk or skeleton assembly. */
+/**
+ * Arm and hand original factories from direct rest/attachment definitions,
+ * before any trunk or skeleton assembly.
+ */
 export namespace AutoMovieHumanArmSources {
-  /** Enumerate the same digit keys the source factories use, without preparing geometry. */
+  /**
+   * Enumerate the same digit keys the source factories use, without preparing
+   * geometry.
+   */
   export function names(
     side: IAutoMovieHumanArmSources.IInput["side"],
   ): string[] {
@@ -36,7 +42,10 @@ export namespace AutoMovieHumanArmSources {
     ];
   }
 
-  /** Prepare this side's actual arm laws once; no leg, foot, trunk or opposite arm is evaluated. */
+  /**
+   * Prepare this side's actual arm laws once; no leg, foot, trunk or opposite
+   * arm is evaluated.
+   */
   export function create(
     input: IAutoMovieHumanArmSources.IInput,
   ): IAutoMovieHumanArmSources.IOutput {
@@ -64,6 +73,7 @@ export namespace AutoMovieHumanArmSources {
         {
           projection: input.rest.projection,
           humerus,
+          calipers: measures,
         },
         true,
         hand.radialCenter,

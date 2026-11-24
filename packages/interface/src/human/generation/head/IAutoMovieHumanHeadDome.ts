@@ -20,7 +20,7 @@ export namespace IAutoMovieHumanHeadDome {
   export interface IAttempt {
     /** Actual child source name. */
     name: string;
-    /** Identical original frame, widths, rise and profile, before parent queries. */
+    /** Authored frame, widths, rise and profile, or the original bracket if contact fails. */
     definition: Omit<IDome, "host">;
     /** Actual selected material owner, distinct from the tree's parent label. */
     parent: string | null;
@@ -28,7 +28,7 @@ export namespace IAutoMovieHumanHeadDome {
     parentSource: IAutoMovieViewPart | null;
     /** Original declared physical station domain, without extension or clamping. */
     domain: [number, number] | null;
-    /** Original child nominal base, independent of attachment. */
+    /** Authored child nominal base, or the original bracket start if contact fails. */
     base: [number, number, number];
     /** Original source placement anchor; distinct from a derived parent-surface contact. */
     point: [number, number, number];
@@ -67,6 +67,9 @@ export namespace IAutoMovieHumanHeadDome {
 
     /** Height from the base to the apex, mm. */
     height: number;
+
+    /** Minimum constant-footprint stem length behind the nominal cap base, mm. */
+    stem?: number;
 
     /** Exponent of the projection profile, 2 for the ellipse. */
     profile: number;

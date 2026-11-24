@@ -2,6 +2,7 @@ import type { IAutoMovieLoftChain } from "../../construction/IAutoMovieLoftChain
 import type { IAutoMovieHumanLoftMesh } from "../lofting/IAutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanBodyApertures } from "./IAutoMovieHumanBodyApertures";
 import type { IAutoMovieHumanBranchEvent } from "./IAutoMovieHumanBranchEvent";
+import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 import type { IAutoMovieHumanSurfaceAppendage } from "./IAutoMovieHumanSurfaceAppendage";
 import type { IAutoMovieHumanSurfaceBoundary } from "./IAutoMovieHumanSurfaceBoundary";
 import type { IAutoMovieHumanSurfacePole } from "./IAutoMovieHumanSurfacePole";
@@ -33,6 +34,12 @@ export interface IAutoMovieHumanSurfaceContext {
   indices: Map<string, number>;
   /** Flat chain-index, station-mm and phase-radian triples per generated vertex. */
   coordinates: number[];
+  /** Rows and separatrices emitted by contacts that own a web. */
+  webPaths: IAutoMovieHumanConstructionPath[];
+  /** Shared slit vertex indices whose normals come from their incident faces. */
+  pinches: Set<number>;
+  /** Generated dome vertex indices and their analytic unit normals. */
+  domeNormals: [number, [number, number, number]][];
   /**
    * Loops on each base chain, by its name: an appendage's root loop or an
    * opening's trim loop, sampled in the base chart as `[station, phase]`.

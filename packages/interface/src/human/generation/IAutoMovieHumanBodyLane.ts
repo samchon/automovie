@@ -16,7 +16,6 @@ import type { IAutoMovieHumanLegWalk } from "./leg/IAutoMovieHumanLegWalk";
 import type { IAutoMovieHumanDigitWalk } from "./limb/IAutoMovieHumanDigitWalk";
 import type { IAutoMovieHumanNamedSource } from "./limb/IAutoMovieHumanNamedSource";
 import type { IAutoMovieHumanSourceDefinition } from "./limb/IAutoMovieHumanSourceDefinition";
-import type { IAutoMovieHumanSourceRealization } from "./limb/IAutoMovieHumanSourceRealization";
 import type { IAutoMovieHumanTrunkBuild } from "./trunk/IAutoMovieHumanTrunkBuild";
 
 /**
@@ -162,9 +161,6 @@ export namespace IAutoMovieHumanBodyLane {
     trunk: IAutoMovieHumanTrunkBuild.IInput;
     /** Same already prepared trunk/tape-pass result, when an original reader evaluated it first. */
     preparedTrunk?: IAutoMovieHumanTrunkBuild.IOutput;
-    /** Actually requested raw originals from this same preparation context. */
-    preparedSources?: ReadonlyMap<string, IAutoMovieHumanSourceRealization>;
-
     /** Both sides. */
     sides: Record<"left" | "right", ISide>;
 

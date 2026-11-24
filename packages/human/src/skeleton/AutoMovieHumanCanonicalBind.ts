@@ -27,42 +27,40 @@ import type { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 
 /**
  * The polygon man's bind joints, placed from the person's parameters by
- * closed-form placement laws alone, in calibration millimetres (forward +X,
- * up +Y, left +Z).
+ * closed-form placement laws alone, in calibration millimetres (forward +X, up
+ * +Y, left +Z).
  *
- * The polygon man is a coarse stand-in on Human's skeleton and carries only
- * the form it needs, so nothing here builds, fits or measures a curve of the
- * detailed figure: no trunk tape or course is closed, no neck girth is
- * solved, no head mass or surface is prepared. The detailed figure keeps its
- * own bind skeleton (`AutoMovieHumanBodyLaw.prepare`), whose trunk joints
- * stand on its converged surface.
+ * The polygon man is a coarse stand-in on Human's skeleton and carries only the
+ * form it needs, so nothing here builds, fits or measures a curve of the
+ * detailed figure: no trunk tape or course is closed, no neck girth is solved,
+ * no head mass or surface is prepared. The detailed figure keeps its own bind
+ * skeleton (`AutoMovieHumanBodyLaw.prepare`), whose trunk joints stand on its
+ * converged surface.
  *
  * What each joint is placed from:
  *
- * - Legs, feet and toes: `AutoMovieHumanLimbRest` from the public limb
- *   inputs and the body frame's perineal datum, as the detailed figure
- *   places them.
- * - Neck base, neck radius, atlas, head and crown: the neck prior's affine
- *   axis and tape radius (`AutoMovieHumanNeckSource`) and the head's landmark
- *   layout (`AutoMovieHumanHeadLandmarks.layout`), the head joint on the
- *   cranial centre at the tragion's published drop under the vertex. These
- *   are the values the detailed head lane publishes.
+ * - Legs, feet and toes: `AutoMovieHumanLimbRest` from the public limb inputs and
+ *   the body frame's perineal datum, as the detailed figure places them.
+ * - Neck base, neck radius, atlas, head and crown: the neck prior's affine axis
+ *   and tape radius (`AutoMovieHumanNeckSource`) and the head's landmark layout
+ *   (`AutoMovieHumanHeadLandmarks.layout`), the head joint on the cranial
+ *   centre at the tragion's published drop under the vertex. These are the
+ *   values the detailed head lane publishes.
  * - Jaw and eyes: the same layout's median profile at the nasion and its eye
  *   openings, by the rule of `AutoMovieHumanHeadLane.prepare`.
  * - Shoulders and arms: the acromion and the glenohumeral centre of
- *   `AutoMovieHumanShoulderDatum`, its neck support the neck's tape radius
- *   at the neck base. The detailed figure reads the support from its solved
+ *   `AutoMovieHumanShoulderDatum`, its neck support the neck's tape radius at
+ *   the neck base. The detailed figure reads the support from its solved
  *   neck-base course instead, which moves the glenohumeral centre by a few
  *   hundredths of a millimetre at most on the motion population.
- * - Spine, chest and the sternoclavicular joints' forward place: on the
- *   straight line from the mid-hip to the neck base, at the heights the
- *   skeleton law already gives them. This is the polygon man's own
- *   definition of its trunk joints, directed by the project owner: no
- *   published source in the package gives the vertebral column's forward
- *   place at these levels, and the detailed figure's column axis, the middle
- *   of its converged sections' depth, belongs to that figure's surface. The
- *   line is the simplest construction through the two joints the skeleton
- *   level does place.
+ * - Spine, chest and the sternoclavicular joints' forward place: on the straight
+ *   line from the mid-hip to the neck base, at the heights the skeleton law
+ *   already gives them. This is the polygon man's own definition of its trunk
+ *   joints, directed by the project owner: no published source in the package
+ *   gives the vertebral column's forward place at these levels, and the
+ *   detailed figure's column axis, the middle of its converged sections' depth,
+ *   belongs to that figure's surface. The line is the simplest construction
+ *   through the two joints the skeleton level does place.
  */
 export namespace AutoMovieHumanCanonicalBind {
   /** The bind joints with the stature they are scaled by. */
@@ -77,8 +75,8 @@ export namespace AutoMovieHumanCanonicalBind {
   /**
    * Place every bind joint of a person's polygon man.
    *
-   * The cost is fixed-size arithmetic: the limb and head input conversions,
-   * four harmonic neck rows, one landmark layout and the skeleton law.
+   * The cost is fixed-size arithmetic: the limb and head input conversions, the
+   * registered neck frame, one landmark layout and the skeleton law.
    *
    * @param params The Human's parameters.
    * @returns The bones and their stature.
@@ -174,7 +172,7 @@ export namespace AutoMovieHumanCanonicalBind {
         side,
         centre: [
           seat - face.marginForward * plan.scale,
-          plan.eye + face.globeRise * plan.scale,
+          plan.eye,
           (side === "left" ? 1 : -1) * plan[side].place,
         ],
         radius: face.radius * plan.scale,

@@ -26,15 +26,15 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 /**
  * The head lane as the figure consumes it: the head's construction subtree
  * (`AutoMovieHumanHeadTree`) from the person's inputs and its shared regular
- * neck boundary. The head mass and trunk consume that original boundary
- * before lofting; the body continues their open ends without a search or
- * a hidden overlap. Retained fold metadata serves existing lane readers.
+ * neck boundary. The head mass and trunk consume that original boundary before
+ * lofting; the body continues their open ends without a search or a hidden
+ * overlap. Retained fold metadata serves existing lane readers.
  *
  * The layout reads the neck's generating curves, with the tragion at its
- * published drop, each auricle's top at its own published height and the
- * face plan's exponent from the supplied inputs. Globe frames use the same
- * profile/recess seat as the tree's orbit cutters; they are records until
- * the eye module supplies its globe and lid parts.
+ * published drop, each auricle's top at its own published height and the face
+ * plan's exponent from the supplied inputs. Globe frames use the same
+ * profile/recess seat as the tree's orbit cutters; they are records until the
+ * eye module supplies its globe and lid parts.
  *
  * @evidence contracts/common.md#principled-implementation Places the tree, joints, globe frames and attachment sites from one anatomical layout and its generating neck and head axes.
  * @evidence contracts/common.md#clear-and-simple-design Owns the head subtree and the records the body and appearance actually consume; no second head assembly is built.
@@ -48,11 +48,12 @@ export namespace AutoMovieHumanHeadLane {
   /**
    * The head lane of a person.
    *
-   * @param inputs The head construction's inputs (`AutoMovieHumanBodyLaw.headInputs`).
+   * @param inputs The head construction's inputs
+   *   (`AutoMovieHumanBodyLaw.headInputs`).
    * @param sex The person's sex.
-   * @param neck The pure generating source shared with the transitional trunk adapter; its bottom mean locates the head mass's internal overlap.
+   * @param neck The pure generating source shared with the transitional trunk
+   *   adapter; its bottom mean locates the head mass's internal overlap.
    * @returns The subtree and its fold.
-   *
    * @evidence contracts/common.md#principled-implementation Consumes the analytic neck layout, applies the same published tragion, ear-top and face-fullness laws as the debug consumers, and seats globes on the orbit cutters' profile/recess definition.
    * @evidence contracts/common.md#clear-and-simple-design Returns the head tree together with the small records needed by actual body, skeleton and appearance consumers.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Each eye and ear reads its own dimensions. The measured old-to-new eye displacement is a deliberate definition change, not an output-preserving optimization.
@@ -139,7 +140,7 @@ export namespace AutoMovieHumanHeadLane {
         side,
         centre: [
           seat - face.marginForward * plan.scale,
-          plan.eye + face.globeRise * plan.scale,
+          plan.eye,
           (side === "left" ? 1 : -1) * plan[side].place,
         ],
         radius: face.radius * plan.scale,
@@ -184,7 +185,8 @@ export namespace AutoMovieHumanHeadLane {
   }
 
   /**
-   * Existing share of the head-mass station range used by the body's neck-fold search.
+   * Existing share of the head-mass station range used by the body's neck-fold
+   * search.
    *
    * @evidence contracts/common.md#principled-implementation Bounds the existing intersection search on the actual head source.
    * @evidence contracts/common.md#clear-and-simple-design One explicit search policy supplies the lane record.
@@ -197,11 +199,11 @@ export namespace AutoMovieHumanHeadLane {
   export const SEARCH: number = 0.3;
 
   /**
-   * The colour border reads the upper source's front-positive knot points
-   * from one corner to the other, then the lower's front-negative points
-   * back. The appearance Hermite spans use neighbouring chord differences;
-   * this approximation is not the engine source's exact continuous curve.
-   * Empty when either source lip is missing.
+   * The colour border reads the upper source's front-positive knot points from
+   * one corner to the other, then the lower's front-negative points back. The
+   * appearance Hermite spans use neighbouring chord differences; this
+   * approximation is not the engine source's exact continuous curve. Empty when
+   * either source lip is missing.
    */
   function vermilion(
     composed: IAutoMovieHumanHeadComposer.IOutput,

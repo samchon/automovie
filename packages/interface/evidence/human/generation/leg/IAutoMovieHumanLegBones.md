@@ -6,7 +6,7 @@ Describes canonical-left leg joint centres, segment lengths and stature/ankle pl
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Canonical-left leg joint centres, segment lengths and stature/ankle placement inputs. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+Canonical-left leg joint centres, segment lengths and stature/ankle placement inputs. The optional pair requests the two centre-to-centre spans in calibration millimetres. The bone owner keeps the ankle support and resolves a straight neutral limb through both spans.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

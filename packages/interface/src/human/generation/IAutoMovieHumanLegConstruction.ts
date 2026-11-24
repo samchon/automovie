@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanExtremityDimensions } from "../body/IAutoMovieHumanExtremityDimensions";
+
 /**
  * Calibration leg tapes, body controls and optional measured gluteal-furrow height. Runtime construction and admission remain with AutoMovieHumanLegConstruction in Human.
  */
@@ -28,6 +30,9 @@ export namespace IAutoMovieHumanLegConstruction {
 
     /** Calibration millimetres per world millimetre. */
     scale: number;
+
+    /** Optional joint-centre lengths of the two legs in calibration millimetres. */
+    lengths?: IAutoMovieHumanExtremityDimensions["legBones"];
 
     /**
      * Gluteal furrow height, the gluteal fold's lowest point over the floor

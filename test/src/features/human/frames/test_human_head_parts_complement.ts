@@ -6,11 +6,10 @@ type V = [number, number, number];
  * The head's parts are complements on their shared surfaces too: a point exactly on a surface is kept by exactly one part, the part
  * whose surface it is, for every pair.
  *
- * Made landmarks, mm, chosen so that points can be put exactly on each surface in floating point: the nose's line vertical (nasion
- * `(120, 1600, 0)`, subnasale `(120, 1540, 0)`, alar base `(110, 1548, 18)`), so its plane is `x = 110` between the levels 1540 and
- * 1600; the canthal line along Z (globe `(91, 1594, 32)`, canthi at z 16 and 48), so the orbit is the cylinder about the forward axis
- * with semi-axes 20.25 along Z and 18.65 along Y, ahead of `x = 91`; stomion `(113, 1522, 0)` and cheilion `(105, 1520, 22)`, so the
- * lips' wedge ends at `z = 22`.
+ * Made cut surfaces in mm allow exact independent boundary points. The nose
+ * has a rear plane at x = 110 between y = 1540 and 1600. The orbit is a cylinder
+ * of radius 20.25 centred at y = 1594, z = 32, clipped below x = 91. The mouth
+ * cut is bounded at |z| = 22, the wall ring at y = 1477.
  *
  * Points and the one part each must be kept by:
  * 1. The alar base, on the nose's plane: the nose.
@@ -23,30 +22,19 @@ type V = [number, number, number];
  * 7. Controls strictly inside each region and the wall: each kept by its own part alone.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the parts with `FamilyConicHeadParts.build` and calls every part's `keeps` on each point. It catches a point kept by two parts or by none, and a point given to the neighbour instead of the surface's owner.
- * @evidence contracts/development/testing.md#independent-expectations Each point is placed by the made landmarks' arithmetic written above, exact in floating point because the made axes are coordinate axes; the expected owner is the membership rule's statement, not a run's output.
+ * @evidence contracts/development/testing.md#independent-expectations Each point is placed by the made surfaces' arithmetic, exact at the named axis-aligned boundaries. Boundary ownership follows the stated ordering.
  * @evidence contracts/development/testing.md#distinguishing-cases One point on every surface, the two points where two surfaces meet, and one strictly inside each of the four regions. Generic frames, where a point on a surface is not exact in floating point, and the -Z twin are not covered.
- * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_head_parts_complement`; pure arithmetic on made landmarks, no reference and no figure.
- * @evidence contracts/development/common.md#meaningful-documentation States the made landmarks, why they are exact, and each point with its owner.
+ * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU unit uses made source cuts independently of capture and generation.
+ * @evidence contracts/development/common.md#meaningful-documentation States the made cut surfaces, their units and each expected owner.
  */
 export function test_human_head_parts_complement(): void {
   const failures: string[] = [];
-  const parts: H.IPart[] = H.build(
-    {
-      nasion: [120, 1600, 0],
-      subnasale: [120, 1540, 0],
-      alarBase: [110, 1548, 18],
-      stomion: [113, 1522, 0],
-      cheilion: [105, 1520, 22],
-      sublabiale: [110, 1504, 0],
-      cervical: [60, 1477, 0],
-      globe: [91, 1594, 32],
-      endocanthion: [95, 1594, 16],
-      exocanthion: [95, 1594, 48],
-    },
-    [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-    [21, 1563, 0],
-    [21, 1415, 0],
-  );
+  const parts: H.IPart[] = H.build({
+    ring: ([, y]) => 1477 - y,
+    nose: ([x, y]) => Math.max(110 - x, 1540 - y, y - 1600),
+    orbit: ([x, y, z]) => Math.max(91 - x, Math.hypot(y - 1594, z - 32) - 20.25),
+    lips: ([x, y, z]) => Math.max(105 - x, 1504 - y, y - 1540, Math.abs(z) - 22),
+  });
   const owners = (p: V): string => parts.filter((one: H.IPart): boolean => one.keeps(p)).map((one: H.IPart): string => one.name).join(" and ") || "no part";
   const cases: [string, V, string][] = [
     ["the alar base", [110, 1548, 18], "nose"],

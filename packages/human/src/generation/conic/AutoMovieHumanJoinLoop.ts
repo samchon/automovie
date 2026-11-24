@@ -32,8 +32,8 @@ import type {
  * families are fitted either side of one dividing surface: on its own side each wall is skin, past it each is a closure nobody sees.
  * The curve the two parts meet on is therefore the surface's trace on the skin, read twice: on the part's chart as the station at
  * which each of its station lines passes the surface, and on the host's chart as the shares of a port loop
- * (`AutoMovieHumanSkinCutLoop.shares`). The crossing of the two fitted walls is not that curve: past the surface each wall is free,
- * and measured on f1's shoulder the walls' crossing jumped between arm stations 74 and 119 over the cap.
+ * (`AutoMovieHumanSkinCutLoop.shares`). Each family's closure beyond the
+ * dividing surface is independent of that boundary.
  *
  * The loop is handed to the engine as `IAutoMovieConstructionPort.ILoop` on the host's chart, the declared contact of a shared-loop
  * join (`IAutoMovieConstructionJoin.loop`), with the two chart points a point seed names and the largest distance between the two

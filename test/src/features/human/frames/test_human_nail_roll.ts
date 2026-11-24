@@ -10,7 +10,7 @@ import type { IAutoMovieHumanNail } from "@automovie/interface";
  * `B = sin p cos p (1 / a^2 - 1 / b^2)`, `C = sin^2 p / a^2 + cos^2 p / b^2`, whatever `e` is, so the mean levelling turn at a roll `r`
  * from the given frame is `g(r) = -atan(D / C)` at `p = r + 0.2`, `D = sin p cos p (1 / b^2 - 1 / a^2)`: level at `r = -0.2`, and near
  * level `-(1 - b^2 / a^2) p`. Every shrunk section is the same ellipse scaled, so every station reads the same turn. The roll must be
- * the least of `(g(r) / s)^2 + (r / t)^2` over a quarter turn either side, `s` the skin's error 0.17 mm over the plate's half width
+ * the least of `(g(r) / s)^2 + (r / t)^2` over a quarter turn either side, `s` the angle subtended by half the plate's thickness over the plate's half width
  * (0.7 of half the breadth, which along the given frame's lateral is `2 sqrt(a^2 cos^2 0.2 + b^2 sin^2 0.2)`) and `t` the prior's
  * spread, 0.3 rad here. The test finds that least itself, on the closed form, ten thousand rolls a radian.
  *
@@ -20,8 +20,8 @@ import type { IAutoMovieHumanNail } from "@automovie/interface";
  * 2. A nearly round bar, 3.5 by 3.43 mm, conditioning 0.04: the roll is the closed form's least within 0.003 rad and within 0.02 rad
  *    of the given frame, where the level roll is 0.2 rad away.
  * 3. The control, each bar made again with the prior removed (a spread of a million radians): the roll is then the bare level roll,
- *    -0.2 rad within 0.003, and it misses the objective's expectation by more than twice that tolerance (0.02 rad on the first bar,
- *    0.19 on the second, which so leaves its frame). The assertions of 1 and 2 would fail on it: the test tells the objective from
+ *    -0.2 rad within 0.003, and it misses the weighted objective's expectation by more than twice that tolerance.
+ *    The assertions of 1 and 2 would fail on it: the test tells the objective from
  *    the level roll alone.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanNail.create` on each made bar, with the prior and without, and reads the roll and the conditioning it reports. It catches a roll taken from a crossing of the levelling turn alone, a prior left out or weighed by another formula, and a round back turned to a far crossing.
@@ -48,7 +48,7 @@ export function test_human_nail_roll(): void {
       },
     };
     const half: number = 0.7 * Math.sqrt((across * Math.cos(turned)) ** 2 + (high * Math.sin(turned)) ** 2);
-    const error: number = 0.17 / half;
+    const error: number = Math.atan2(proportions.thickness / 2, half);
     let [least, expected]: [number, number] = [Infinity, 0];
     for (let n: number = -15707; n <= 15707; ++n) {
       const p: number = n / 10000 + turned;

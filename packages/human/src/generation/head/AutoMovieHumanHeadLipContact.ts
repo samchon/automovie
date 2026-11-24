@@ -24,7 +24,7 @@ import type {
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No profile residual, copied conic coefficient, fitted mesh or fabricated pole derivative supplies a border.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes native incidence and public chord from bulk relief and whole-footprint containment.
  * @evidence contracts/performance.md#efficient-algorithms Parent scalar admission is linear in its knots. Each field query prepares one section and uses at most 56 native phase steps; a border uses at most 48 safeguarded chord steps plus its original world2 reads, retaining the source and axis owners' costs.
- * @evidence contracts/performance.md#reuse-equivalent-work The two lips borrow the same parent preparation and resting law; each lip may retain only its latest resulting section.
+ * @evidence contracts/performance.md#reuse-equivalent-work The two lips borrow the same parent preparation and resting law.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned contact retains its original parent and admitted scalar source; query temporaries and vectors have call scope, with no global cache.
  */
 export namespace AutoMovieHumanHeadLipContact {
@@ -75,8 +75,8 @@ export namespace AutoMovieHumanHeadLipContact {
         throw new Error(
           "Lip material parent requires its declared world-level X/Z chart",
         );
-      const point: ReturnType<typeof AutoMovieLoftSectionNative.point> =
-        AutoMovieLoftSectionNative.point(inputs);
+      const { point, phase: phaseJet }: ReturnType<typeof AutoMovieLoftSectionNative.curve> =
+        AutoMovieLoftSectionNative.curve(inputs);
       const target: number = z - plane.origin[2];
       const lower: number = point(-Math.PI / 2)[1];
       const upper: number = point(Math.PI / 2)[1];
@@ -99,7 +99,7 @@ export namespace AutoMovieHumanHeadLipContact {
             : (low + high) / 2;
       const local: ReturnType<
         ReturnType<typeof AutoMovieLoftSectionNative.phase>
-      > = AutoMovieLoftSectionNative.phase(inputs)(phase);
+      > = phaseJet(phase);
       const first: number = local.t[0] / local.t[1];
       const second: number =
         (local.tt[0] * local.t[1] - local.t[0] * local.tt[1]) / local.t[1] ** 3;

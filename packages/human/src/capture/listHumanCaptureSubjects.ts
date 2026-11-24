@@ -1,18 +1,14 @@
-import { HUMAN_CAPTURE_PEOPLE } from "./HUMAN_CAPTURE_PEOPLE";
+import { HUMAN_CAPTURE_SUBJECTS } from "./HUMAN_CAPTURE_SUBJECTS";
 
 /**
- * The names of every capture subject the package offers: each person in its canonical pose under the person's name, such as `f1`, then each of its other poses as `<person>@<pose>`.
- *
- * @returns The names in the people's order, then their poses' order.
+ * List each subject in its canonical pose, then each additional pose as
+ * <subject>@<pose>.
  */
 export function listHumanCaptureSubjects(): string[] {
-  return Object.entries(HUMAN_CAPTURE_PEOPLE).flatMap(
-    ([person, offered]: [
-      string,
-      (typeof HUMAN_CAPTURE_PEOPLE)[string],
-    ]): string[] =>
+  return Object.entries(HUMAN_CAPTURE_SUBJECTS).flatMap(
+    ([subject, offered]): string[] =>
       offered.poses.map((pose: string, index: number): string =>
-        index === 0 ? person : `${person}@${pose}`,
+        index === 0 ? subject : `${subject}@${pose}`,
       ),
   );
 }

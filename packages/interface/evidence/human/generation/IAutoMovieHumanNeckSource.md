@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Describes registered generating neck rows and their unchanged calibration-scale and sampling metadata; nested declarations retain their units, frames, optional states and callback contracts.
+Describes registered neck sections in calibration millimetres and their separate sampling metadata.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Registered generating neck rows and their unchanged calibration-scale and sampling metadata. Named nested records and aliases preserve these distinctions; callers must satisfy their numeric premises because structural types do not enforce numeric validity.
+The section descriptors give circle samples and frame data. The head mass consumes the associated normal plane, C7 datum and overlap centre.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -14,7 +14,7 @@ Interface owns these dependency-free exchange types for AutoMovieHumanNeckSource
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The namespace groups the existing NeckSource contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
+The namespace groups one input-derived section representation and its registered outputs. Runtime construction remains with Human.
 
 # src/human/generation/IAutoMovieHumanNeckSource.ts#IAutoMovieHumanNeckSource.IOutput
 
@@ -22,7 +22,7 @@ The namespace groups the existing NeckSource contracts without adding runtime fa
 
 Shared source descriptors, not a loft result or final neck surface.
 
-## @evidence contracts/development/design.md#principled-representation `rows`: The original four rows in rising mean-height order. `head`: Analytic top mean, adopted posterior point and endpoint dx/dy. `bottom`: Bottom generating row's analytic phase mean; not a named base-tape point.
+## @evidence contracts/development/design.md#principled-representation `rows`: Four samples of the circular radius taper, in increasing centre height. `head`: Normal plane origin, C7 registration and estimated axis slope. `bottom`: Internal overlap centre.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -38,11 +38,11 @@ Required fields are `rows`, `head`, `bottom`, `scale`, `order`, `samples`, `regi
 
 One original generating row, with dimensions in calibration mm.
 
-## @evidence contracts/development/design.md#principled-representation `ring`: Unmodified dimensionless x/z and millimetre y harmonics. `origin`: Baseline forward and vertical translation before harmonic offsets. `width`: Lateral harmonic scale, calibration mm.
+## @evidence contracts/development/design.md#principled-representation `ring`: Analytic coefficients of a circle in the declared phase direction. `origin`: Centre in calibration mm. `width` and `depth`: Lateral radius and forward projection in calibration mm. `scale`: Converts the height terms from world to calibration mm.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Read by AutoMovieHumanNeckSource.point, AutoMovieHumanNeckSource.mean. Also types AutoMovieHumanNeckSource.rows, AutoMovieHumanNeckSource.top.
+Produced by AutoMovieHumanNeckSource.of and read by AutoMovieHumanNeckSource.point.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

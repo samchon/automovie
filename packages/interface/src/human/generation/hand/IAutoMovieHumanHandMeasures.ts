@@ -15,4 +15,7 @@ export interface IAutoMovieHumanHandMeasures {
 
   /** Length of the thumb from its metacarpophalangeal joint, mm. */
   thumb: number;
+
+  /** Optional positive length ratio for all phalanges. Knuckle and metacarpal positions retain their original measures. */
+  phalangealLengthScale?: number;
 }

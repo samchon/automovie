@@ -7,9 +7,8 @@ import type { IAutoMovieHumanTipDome } from "@automovie/interface";
  * A digit's end is a dome whose length follows its thickness, not a fixed number of millimetres. A family's cap law
  * (`AutoMovieHumanConicLoft.ITip`) draws a half ellipsoid from the section at `from` to the pole when it leaves the wall with the wall's
  * slope and bend, so the dome's proportion is set by one thing alone: how far before the pole the cap starts against how thick the part
- * is there. Read on f1's reference by `test/src/reference-conics/FamilyConicBodyParts.ts` (each end's sections fitted by
- * `r(d) = R sqrt(1 - (1 - d / H)^2)`), a finger's end is a half ellipsoid 1.36 to 1.78 reaches long, the thumb's 1.09, a toe's 0.73 to
- * 1.08; caps started a fixed 3.1 to 3.9 mm before the pole drew the fingers' at 0.48 to 0.76 of a reach, blunter than the reference.
+ * is there. Along a half ellipsoid of axial length `H` and start radius `R`,
+ * the radius at distance `d` back from the pole is `R sqrt(1 - (1 - d / H)^2)`.
  *
  * The share is a prior of the kind of digit in its own normalised coordinate (length over reach), so it holds for a thicker or a thinner
  * digit; the pole and the reach are the person's.

@@ -4,8 +4,8 @@ import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 /**
  * A toe's pulp: the distal pad's widening of the shaft, a factor of 1 along
  * the proximal half of the line, rising by a monotone cubic from
- * {@link FROM} to {@link AT} of the line to the toe's pulp ratio (the hallux's
- * is 1.1, a lesser toe's 1.02, reference medians) and holding it to the tip.
+ * {@link FROM} to {@link AT} of the line to the supplied toe's pulp ratio
+ * and holding it to the tip.
  * Own axis: the toe's line, the pad being the toe's contact with the floor.
  */
 export namespace AutoMovieHumanFootToePulp {

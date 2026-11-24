@@ -1,5 +1,4 @@
-import fs from "node:fs/promises";
-import path from "node:path";
+import type { IAutoMovieMillimeterMesh } from "@automovie/interface";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
@@ -7,9 +6,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  * Cuts a part that stands out of its host as an excursion of the host's level sections (an auricle out of the head, a nose's wing out of
  * the face) into closed sections of its own skin, the front end of a conversion that fits them as sections with inflections, not as hulls.
  *
- * For each level plane of the part's height range the reference head is cut by that plane. The reference's own lofting lines are these level
- * cuts: `.references/curves/f1` holds them fitted, but between 1,556 and 1,580 mm only 4 to 10 mm apart, so this cuts the same mesh in the
- * same planes at the part's own spacing. In each plane:
+ * Cut the supplied host mesh in each level plane of the part's height range.
  * - the host's line across the part's box is a quadratic fitted to the host's cut on either side of the box;
  * - the excursion is the run of the cut inside the box between the first and last points standing farther than `threshold` out of that line
  *   (first pass); those roots jump where a shallow feature stands just past it (the tragus), so the second pass cuts every plane between the
@@ -18,9 +15,6 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
  *   one loop; a plane that cuts the part as a loop of its own (a free lobule) takes that loop.
  * Each section is counter-clockwise in its chart, and carries three landmarks (its back-most inmost, outermost and front-most inmost points)
  * and the points where its turning changes sign, read on the cut itself, so a back end can place the same layout's anchors at every station.
- *
- * Usage (from `test`): `node .shots/esbuild/FamilyConicExcursion.cjs <part>`; it writes `<part>.sections.json` under
- * `test/.shots/family-conic-excursion/<stamp>`. The reference is read only; nothing it writes enters the repository.
  */
 export namespace FamilyConicExcursion {
   /** One part to cut out of its host. */
@@ -57,19 +51,13 @@ export namespace FamilyConicExcursion {
 
     /**
      * Close the root by an invented convex closure whose side extremes stand clear of the skin: from each end of the skin along its own
-     * direction to a side extreme `GUIDE_BEHIND` mm behind that end and out past it, its tangent square to the chart there, then round to
+     * direction to a side extreme one sink depth behind that end and out past it, its tangent square to the chart there, then round to
      * the back on the median line. A conic layout's side guides, whose tangents the model holds square to the chart, then stand on the
      * closure and not on the corner where the skin meets it.
      */
     guided?: boolean;
   }
 
-  /**
-   * How far behind the skin's end a guided closure's side extreme stands, mm (`IPart.guided`). Fitted with its side guide on the skin's
-   * corner itself, f1's nose missed by 1.3 to 2.9 mm round that corner all the way up; 4 mm is about a quarter of the corner's distance
-   * from the course (17 to 20 mm), enough for the conic from the skin's last feature to the guide to stand clear of the skin.
-   */
-  const GUIDE_BEHIND: number = 4;
 
   /** A plane's closed section of the part. */
   export interface ISection {
@@ -93,37 +81,21 @@ export namespace FamilyConicExcursion {
   const TURN_LEAST: number = 0.15;
   const TURN_SPAN: number = 1.5;
 
-  /** The parts this cuts, by name; a nose's wing joins them with its own box, host band and threshold. */
-  export const PARTS: IPart[] = [
-    // The auricle on the +Z side: level planes through it from just over the lobule's free edge to just under the helix's top, 1.5 mm
-    // apart; chart u straight out of the head (+z) and v backward (-x), so v x u is up. Its box runs from x -12 behind the helix's back to
-    // x 30 in front of the tragus (`FamilyConicScan.ts ear`: the auricle spans x -6 to 26 at 78 mm out), and the head's line is fitted to
-    // the cut 12 mm beyond it on either side. The threshold of 3 mm leaves the tragus (73 to 74 mm out over a head 72 to 73 mm out) to the
-    // head: at 1.5 mm it was taken at some planes and not at their neighbours.
-    { name: "auricle", heights: [1542, 1600.5, 1.5], origin: [9, 74], u: [0, 0, 1], v: [-1, 0, 0], box: [-21, 21], beside: [[-33, -21], [21, 33]], threshold: 3, sink: 4 },
-    // The nose: level planes from the subnasale (1,542.5 mm, `FamilyConicBody.ts nose`) to where the dorsum runs into the face at 1,582 mm,
-    // 1 mm apart; chart u straight forward (+x) and v toward +Z, so v x u is up. Its box spans the wings, which stand within 18.5 to 20 mm of
-    // the median plane (`FamilyConicScan.ts alar`: the alar groove at 18.2 to 20 mm to the side), and the face's line is fitted to the
-    // cheeks 22 to 34 mm to either side. A threshold of 1.5 mm keeps the alar groove (1.4 mm under the hull, Open) inside the excursion.
-    { name: "nose", heights: [1542.5, 1582, 1], origin: [100, 0], u: [1, 0, 0], v: [0, 0, 1], box: [-22, 22], beside: [[-34, -22], [22, 34]], threshold: 1.5, sink: 4, guided: true },
-  ];
 
-  /** Cut every plane of a part out of the reference head. */
-  export function sections(source: R.ISource, part: IPart): { y: number; section: ISection | null }[] {
+  /** Cut every declared plane of a part from the supplied host. */
+  export function sections(mesh: IAutoMovieMillimeterMesh, part: IPart): { y: number; section: ISection | null }[] {
     const [from, to, step] = part.heights;
-    const heights: number[] = [];
-    for (let y: number = from; y <= to + 1e-9; y += step) heights.push(round(y));
-    const read: (y: number) => ISection | null = reader(source, part);
-    return heights.map((y: number) => ({ y, section: read(y) }));
+    const read: (y: number) => ISection | null = reader(mesh, part);
+    return stations(from, to, step).map((y: number) => ({ y, section: read(y) }));
   }
 
   /**
    * A reader of the part's section at any height: the first pass reads the roots at the part's own planes once, and each later plane is cut
    * between the median roots of those planes within `ROOT_WINDOW` steps of it, so a fit may read its sections at its own stations.
    */
-  export function reader(source: R.ISource, part: IPart): (y: number) => ISection | null {
+  export function reader(mesh: IAutoMovieMillimeterMesh, part: IPart): (y: number) => ISection | null {
     const [from, to, step] = part.heights;
-    return along(source, part, (y: number) => ({ origin: [part.origin[0], y, part.origin[1]], u: part.u, v: part.v }), from, to, step);
+    return along(mesh, part, (y: number) => ({ origin: [part.origin[0], y, part.origin[1]], u: part.u, v: part.v }), from, to, step);
   }
 
   /**
@@ -131,10 +103,11 @@ export namespace FamilyConicExcursion {
    * stations from `from` to `to`, `step` apart. A course that leans or turns, so its planes are no longer level, still cuts the same
    * excursion; its course point must lie inside every section a family fitted to the skin reads.
    */
-  export function along(source: R.ISource, part: IPart, frameAt: (s: number) => { origin: R.V; u: R.V; v: R.V }, from: number, to: number, step: number): (s: number) => ISection | null {
-    const loopsAt = (y: number): C.P[][] => R.loops(source.head, frameAt(y));
+  export function along(mesh: IAutoMovieMillimeterMesh, part: IPart, frameAt: (s: number) => { origin: R.V; u: R.V; v: R.V }, from: number, to: number, step: number): (s: number) => ISection | null {
+    const cutSource: R.IPrepared = R.prepare(mesh);
+    const loopsAt = (y: number): C.P[][] => cutSource.loops(frameAt(y));
     const rooted: { y: number; roots: [number, number] }[] = [];
-    for (let y: number = from; y <= to + 1e-9; y += step) {
+    for (const y of stations(from, to, step)) {
       const section: ISection | null = cut(loopsAt(y), part, null);
       if (section !== null && section.roots !== null) rooted.push({ y, roots: section.roots });
     }
@@ -149,6 +122,17 @@ export namespace FamilyConicExcursion {
       const at: [number, number] | null = own?.kind === "excursion" ? limits(y) : null;
       return at === null ? own : cut(loops, part, at);
     };
+  }
+
+  /** Read finite plane stations by index to avoid cumulative step rounding. */
+  function stations(from: number, to: number, step: number): number[] {
+    if (![from, to, step].every(Number.isFinite) || !(to >= from && step > 0))
+      throw new Error("Excursion planes need an ordered finite interval and positive step");
+    const intervals: number = (to - from) / step;
+    const count: number = Math.floor(intervals + Number.EPSILON * Math.max(1, intervals));
+    return Array.from({ length: count + 1 }, (_, index: number): number =>
+      Math.min(to, from + index * step),
+    );
   }
 
   /**
@@ -401,7 +385,7 @@ export namespace FamilyConicExcursion {
               // tangent square to the chart there; then round the back through the median line. Each stretch is a cubic Bezier.
               const outward = (p: C.P, t: C.P): C.P => {
                 const slope: number = t[0] < 0 ? Math.abs(t[1] / t[0]) : 0;
-                return [p[0] - GUIDE_BEHIND, p[1] + Math.sign(p[1]) * Math.max(0.5, (GUIDE_BEHIND * slope) / 2)];
+                return [p[0] - part.sink, p[1] + Math.sign(p[1]) * Math.max(0.5, (part.sink * slope) / 2)];
               };
               const tb: C.P = (() => {
                 const q: C.P = piece[Math.max(0, piece.length - 3)]!;
@@ -417,7 +401,7 @@ export namespace FamilyConicExcursion {
               const ga: C.P = outward(a, ta);
               const depth: number = 0.8 * Math.max(Math.abs(gb[1]), Math.abs(ga[1]));
               const back: C.P = [Math.min(gb[0], ga[0]) - depth, 0];
-              const k: number = GUIDE_BEHIND / 2;
+              const k: number = part.sink / 2;
               const bulge: number = 0.55 * depth;
               const bezier = (p0: C.P, p1: C.P, p2: C.P, p3: C.P, count: number): C.P[] =>
                 Array.from({ length: count }, (_: unknown, j: number): C.P => {
@@ -536,38 +520,4 @@ export namespace FamilyConicExcursion {
     return a.map((row: number[], i: number): number => row[n]! / row[i]!);
   }
 
-  function round(x: number): number {
-    return Math.round(x * 1000) / 1000;
-  }
-
-  /** Cut the named part and write its sections with their landmarks and inflections. */
-  export async function main(): Promise<void> {
-    const name: string = process.argv[2] ?? "";
-    const part: IPart | undefined = PARTS.find((p: IPart): boolean => p.name === name);
-    if (part === undefined) throw new Error("No part " + name + "; the parts are " + PARTS.map((p: IPart): string => p.name).join(", "));
-    const root: string = path.resolve(process.cwd(), "..");
-    const source: R.ISource = await R.load(root);
-    const rows = sections(source, part).map(({ y, section }) => {
-      if (section === null) return { y, kind: null };
-      const marks: [number, number, number] = landmarks(section.points);
-      const bends: number[] = inflections(section.points);
-      // The section's kernel point in the world, and how many rays from it cross the section more than once.
-      const core: { point: C.P; clearance: number } = kernel(section.points);
-      const shifted: C.P[] = section.points.map((p: C.P): C.P => [p[0] - core.point[0], p[1] - core.point[1]]);
-      const world: number[] = [0, 1, 2].map((k: number): number => (k === 1 ? y : 0) + (k === 0 ? part.origin[0] : k === 2 ? part.origin[1] : 0) + core.point[0] * part.u[k]! + core.point[1] * part.v[k]!);
-      process.stdout.write(JSON.stringify({ event: "excursion-section", part: part.name, y, kind: section.kind, points: section.points.length, roots: section.roots, inflections: bends.length, kernel: world.map(round), clearance: round(core.clearance), folds: star(shifted, 720, "inner")?.folds ?? -1 }) + "\n");
-      return { y, kind: section.kind, roots: section.roots, landmarks: marks, inflections: bends, points: section.points };
-    });
-    const out: string = path.join(root, "test/.shots/family-conic-excursion", new Date().toISOString().replaceAll(":", "-"));
-    await fs.mkdir(out, { recursive: true });
-    await fs.writeFile(path.join(out, part.name + ".sections.json"), JSON.stringify({ part, stations: rows }));
-    process.stdout.write(JSON.stringify({ event: "excursion-complete", part: part.name, out, stations: rows.filter((r): boolean => r.kind !== null).length }) + "\n");
-  }
 }
-
-// Run only as its own tool: the fit tool imports the reader.
-if (/FamilyConicExcursion\.c?[jt]s$/.test(process.argv[1] ?? ""))
-  FamilyConicExcursion.main().catch((error: unknown): void => {
-  process.stderr.write((error instanceof Error ? error.stack ?? error.message : String(error)) + "\n");
-  process.exitCode = 1;
-});

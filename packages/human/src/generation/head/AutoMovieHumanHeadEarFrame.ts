@@ -9,12 +9,12 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The auricle's own measurement chord and fixed orientation site.
- * The retained 17.5-degree sagittal lean is projected into the side-outline
- * tangent plane at the selected tragion height. That height is fixed before
- * placing the endpoints; changing the ear's centre cannot change this normal.
- * The plate uses horizontal section planes, independently of this tilted
- * sa-sba chord, so its highest/lowest points can own the global Y extrema.
+ * The auricle's own measurement chord and fixed orientation site. The retained
+ * 17.5-degree sagittal lean is projected into the side-outline tangent plane at
+ * the selected tragion height. That height is fixed before placing the
+ * endpoints; changing the ear's centre cannot change this normal. The plate
+ * uses horizontal section planes, independently of this tilted sa-sba chord, so
+ * its highest/lowest points can own the global Y extrema.
  *
  * @evidence contracts/common.md#principled-implementation Reads the identical head source's original side derivative at a named orientation site and keeps the tilted measurement chord distinct from the section normal.
  * @evidence contracts/common.md#clear-and-simple-design Returns one frame and the independent ear dimensions; the plate owns actual attachment points.
@@ -27,13 +27,11 @@ import type {
 export namespace AutoMovieHumanHeadEarFrame {
   /** Retained 17.5-degree sagittal lean within Banks/Cheney's 15-20 range. */
   export const LEAN: number = (17.5 * Math.PI) / 180;
-  /** Original relief-row breadth, world mm. */
-  export const PRIOR_BREADTH: number = 31;
 
   /**
-   * Orient once at tragion and place the chosen highest/lowest endpoints.
-   * The derivative belongs to the original side guide, not a finished scalp
-   * normal or a published individual auricular orientation.
+   * Orient once at tragion and place the chosen highest/lowest endpoints. The
+   * derivative belongs to the original side guide, not a finished scalp normal
+   * or a published individual auricular orientation.
    *
    * @evidence contracts/common.md#principled-implementation Uses the actual source station derivative and closes endpoint height span from the public tilted chord length.
    * @evidence contracts/common.md#clear-and-simple-design Orientation and endpoint placement are explicit separate operations.
@@ -85,7 +83,6 @@ export namespace AutoMovieHumanHeadEarFrame {
       length,
       breadth: ear.breadth * plan.scale,
       protrusion: ear.protrusion * plan.scale,
-      scale: ear.breadth / PRIOR_BREADTH,
       sign,
     };
   }

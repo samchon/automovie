@@ -1,42 +1,52 @@
 import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
-import type { IAutoMovieHumanNeckPrior } from "./IAutoMovieHumanNeckPrior";
 
 /**
- * Registered generating neck rows and their unchanged calibration-scale and sampling metadata. Runtime construction and admission remain with AutoMovieHumanNeckSource in Human.
+ * Registered neck section descriptors with calibration scale and sampling
+ * metadata.
  */
 export namespace IAutoMovieHumanNeckSource {
-  /** Shared source descriptors, not a loft result or final neck surface.
-   */
+  /** Shared source descriptors, not a loft result or final neck surface. */
   export interface IOutput {
-    /** The original four rows in rising mean-height order. */
+    /** Four samples of the circular taper in rising centre-height order. */
     rows: IRow[];
 
-    /** Analytic top mean, adopted posterior point and endpoint dx/dy. */
+    /** Normal plane origin, registered C7 point and estimated axis slope. */
     head: IAutoMovieHumanHeadNeck;
 
-    /** Bottom generating row's analytic phase mean; not a named base-tape point. */
+    /** Bottom generating row's centre in the internal trunk overlap. */
     bottom: [number, number, number];
 
     /** Calibration mm per world mm supplied by the body input boundary. */
     scale: number;
 
-    /** Retained phase resolution for projected normalization and the transitional engine chain. */
+    /** Ring order of the shared head-mass sampling policy. */
     order: number;
 
-    /** Retained chain display density; not the density of the head's view curves. */
+    /**
+     * Retained chain display density; not the density of the head's view
+     * curves.
+     */
     samples: number;
 
-    /** Same rigid AP map applied to every generating row and head datum. */
+    /** AP translation that registers the section frame at the supplied C7 datum. */
     registration: NonNullable<IAutoMovieHumanHeadNeck["registration"]>;
   }
 
-  /** One original generating row, with dimensions in calibration mm.
-   */
+  /** One original generating row, with dimensions in calibration mm. */
   export interface IRow {
-    /** Unmodified dimensionless x/z and millimetre y harmonics. */
-    ring: IAutoMovieHumanNeckPrior.IRing;
+    /** Analytic section coefficients in the same phase as the original outline. */
+    ring: {
+      /** Dimensionless forward cosines, starting at the mean. */
+      x: readonly number[];
 
-    /** Baseline forward and vertical translation before harmonic offsets. */
+      /** World-millimetre height cosines, starting at the mean. */
+      y: readonly number[];
+
+      /** Dimensionless lateral sines, starting at the first harmonic. */
+      z: readonly number[];
+    };
+
+    /** Section centre in calibration mm. */
     origin: [number, number, number];
 
     /** Lateral harmonic scale, calibration mm. */

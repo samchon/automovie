@@ -19,18 +19,18 @@ export interface IAutoMovieHumanHeadNeck {
   /** Actual height of that posterior point, distinct from the section mean, calibration mm. */
   backLevel: number;
 
-  /** That back's forward run per millimetre of height, `dx/dy`. */
+  /** The adopted normal band's axis slope, `dx/dy`. */
   backSlope: number;
 
   /** Base tape and resolved heights in calibration mm, scaled once by HeadLayout; absent on retired layout readers. */
   base?: IAutoMovieHumanHeadInputs["neckBase"] & {
-    /** Original local-prior posterior X before registration, calibration mm. */
+    /** Local posterior X before registration, calibration mm. */
     priorCervicaleOrigin: number;
   };
 
-  /** One explicit AP rigid registration from local harmonic prior to the common body frame, calibration mm. */
+  /** Rigid AP registration from the local section frame to the common body frame, calibration mm. */
   registration?: {
-    /** Prior posterior datum before mapping. */
+    /** Local posterior datum before mapping. */
     priorCervicaleX: number;
 
     /** Common generating C7 datum. */

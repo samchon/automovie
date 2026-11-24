@@ -9,16 +9,18 @@ import * as THREE from "three";
 import { buildHumanCaptureFigure } from "../capture/buildHumanCaptureFigure";
 import { listHumanCaptureSubjects } from "../capture/listHumanCaptureSubjects";
 
-/** Width and height of every picture drawn, pixels: square, because a standing figure is read from all sides. */
+/** Square raster for reading a subject from the same views. */
 const RASTER: number = 960;
 
 /**
- * The Human figure as the subjects a draw-only page offers: every person the package defines, by name, in each pose it is drawn in, for `automovie capture --module src/executable/subjects.ts` and the inspector.
+ * Named Human studies offered by `automovie capture` and the inspector.
  *
- * Each subject is the person's figure from `buildHumanCaptureFigure`, its sewn skin as the piece `body` and its construction curves as marks named by its families, on a light background under an ambient light and one key light. The figure stands still, so the subject lasts one frame and seeking does nothing. The delivery camera stands three-quarters to the figure's front at eye height and looks at its middle; the instrument's named views, fitted to what is drawn, are how it is read. The props are not read.
+ * Each subject has an admitted surface and named construction marks from
+ * `buildHumanCaptureFigure`. The scene lasts one frame and the camera is fitted
+ * to the subject's surface.
  *
- * ```bash
- * pnpm capture --views "front@ortho;right@ortho;three-quarter" --marks curve/*
+ * ```powershell
+ * pnpm capture --subject ansur-upper-arm-envelope --views "front@ortho;right@ortho;three-quarter" --marks "curve/*"
  * ```
  */
 export const subjects: AutoMovieDrawSubjects = (): Readonly<
@@ -44,7 +46,7 @@ function build(name: string): IAutoMovieDrawScene {
   key.position.set(1.5, 3, 2.5);
   scene.add(key, key.target, figure.object);
 
-  // The delivery camera: three-quarters to the front, framing the standing figure.
+  // Fit the three-quarter camera to the admitted surface.
   const box: THREE.Box3 = new THREE.Box3().setFromObject(figure.object);
   const centre: THREE.Vector3 = box.getCenter(new THREE.Vector3());
   const size: number = box.getSize(new THREE.Vector3()).length();

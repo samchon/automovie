@@ -7,6 +7,7 @@ import { writeFile } from "node:fs/promises";
 import { basename } from "node:path";
 
 import { FamilyConicMpfbSource as Mpfb } from "./FamilyConicMpfbSource";
+import type { FamilyConicMpfbSubdivision as Subdivision } from "./FamilyConicMpfbSubdivision";
 
 type Point = Mpfb.Point;
 type Outline = ReturnType<typeof AutoMovieMeshExtract.prepareOutline>;
@@ -186,10 +187,10 @@ export namespace FamilyConicMpfbArmscye {
    *
    * @see https://vtk.org/doc/nightly/html/classvtkCutter.html
    */
-  export function guide(source: Mpfb.IGeometry, geometry: IMeasurement): IGuide {
+  export function guide(source: Mpfb.IGeometry, geometry: IMeasurement, normals?: Subdivision.INormalField): IGuide {
     const side = divider(geometry).side;
     const anchors: Point[] = [geometry.cap, geometry.front, geometry.back, geometry.apex];
-    const loops = skinLoops(source, side);
+    const loops = skinLoops(source, side, normals);
     const attempts = loops.map((loop) => {
       // Complete chord distance, including landmarks inside a facet.
       const vector = ([x, y, z]: Point) => ({ x, y, z });
@@ -199,23 +200,35 @@ export namespace FamilyConicMpfbArmscye {
     }).sort((a, b): number => a.worst - b.worst);
     const selected = attempts[0];
     if (selected === undefined) throw new Error("The HM08 divider has no closed skin component");
-    const points: Point[] = selected.loop.map(({ point }): Point => point);
     const axis = AutoMovieHumanConicLoft.axis({ centres: [geometry.shoulder, geometry.elbow], halves: [], up: [1, 0, 0] });
     const { u, v, origin } = axis.at(0);
     const shaft: Point = V.cross(v, u);
-    const addresses = points.map((p) => {
+    const address = (p: Point) => {
       const q: Point = V.sub(p, origin);
       const station: number = V.dot(q, shaft);
       return { station, phase: Math.atan2(V.dot(q, v), V.dot(q, u)), ray: V.sub(q, V.scale(shaft, station)) };
-    });
-    const steps: number[] = addresses.map(({ phase }, i): number => {
-      const d: number = addresses[(i + 1) % points.length]!.phase - phase;
+    };
+    const directed = (addresses: readonly ReturnType<typeof address>[]): number[] => addresses.map(({ phase }, i): number => {
+      const d: number = addresses[(i + 1) % addresses.length]!.phase - phase;
       return Math.atan2(Math.sin(d), Math.cos(d));
     });
-    const winding: number = Math.round(steps.reduce((sum, x): number => sum + x, 0) / (2 * Math.PI));
+    let walk: CutNode[] = selected.loop;
+    const addresses = walk.map(({ point }) => address(point));
+    let steps: number[] = directed(addresses);
+    let winding: number = Math.round(steps.reduce((sum, x): number => sum + x, 0) / (2 * Math.PI));
+    if (winding === -1) {
+      // Triangle traversal has no anatomical direction. Reverse each edge with the same owning face normal.
+      const count: number = walk.length;
+      const previous: CutNode[] = walk;
+      walk = previous.map((_, i): CutNode => ({ point: previous[count - 1 - i]!.point, normal: previous[(2 * count - 2 - i) % count]!.normal }));
+      addresses.reverse();
+      steps = directed(addresses);
+      winding = 1;
+    }
+    const points: Point[] = walk.map(({ point }): Point => point);
     const crosses: Point[] = [], incidences: number[] = [], residuals: number[] = [];
     const reversedLocations: IGuide["reversedLocations"] = [];
-    selected.loop.forEach(({ point, normal }, i): void => {
+    walk.forEach(({ point, normal }, i): void => {
       const j: number = (i + 1) % points.length;
       const after: Point = points[j]!;
       const midpoint: Point = V.scale(V.add(point, after), 1 / 2);
@@ -359,14 +372,16 @@ type CrossingEdge = { a: number; b: number; node: number; face: number };
 type Triangle = [Point, Point, Point];
 
 /** A marching-triangles adjacency on source edge indices, with no geometric welding. */
-function skinLoops(source: Mpfb.IGeometry, field: (p: Point) => number): CutNode[][] {
+function skinLoops(source: Mpfb.IGeometry, field: (p: Point) => number, normals?: Subdivision.INormalField): CutNode[][] {
   const { positions, indices } = source.body;
+  if (normals !== undefined && normals.indices.length !== indices.length)
+    throw new Error("HM08 limit normals must address every triangle corner");
   const points: Point[] = Array.from({ length: positions.length / 3 }, (_, i): Point =>
     [positions[3 * i]!, positions[3 * i + 1]!, positions[3 * i + 2]!]);
   const values: number[] = points.map(field);
   if (!values.every(Number.isFinite)) throw new Error("The HM08 divider is undefined on a skin vertex");
   const boundaries: CrossingEdge[] = [];
-  const triangles: { cuts: CrossingEdge[]; normal: Point; corners: Triangle }[] = [];
+  const triangles: { cuts: CrossingEdge[]; normal: Point; corners: Triangle; readNormal: (p: Point) => Point }[] = [];
   for (let i: number = 0; i < indices.length; i += 3) {
     const [p, q, r] = [indices[i]!, indices[i + 1]!, indices[i + 2]!];
     const cuts: CrossingEdge[] = ([[p, q], [q, r], [r, p]] as [number, number][]).flatMap(([u, v]): CrossingEdge[] => {
@@ -376,7 +391,9 @@ function skinLoops(source: Mpfb.IGeometry, field: (p: Point) => number): CutNode
     if (cuts.length === 0) continue;
     const normal = V.unit(V.cross(V.sub(points[q]!, points[p]!), V.sub(points[r]!, points[p]!)));
     if (cuts.length !== 2 || normal === null) throw new Error("The divider cuts a degenerate HM08 triangle");
-    triangles.push({ cuts, normal, corners: [points[p]!, points[q]!, points[r]!] });
+    const corners: Triangle = [points[p]!, points[q]!, points[r]!];
+    const readNormal = normals === undefined ? (): Point => normal : faceNormal(corners, normal, normals, i);
+    triangles.push({ cuts, normal, corners, readNormal });
     boundaries.push(...cuts);
   }
   boundaries.sort((a, b): number => a.a - b.a || a.b - b.b);
@@ -408,9 +425,9 @@ function skinLoops(source: Mpfb.IGeometry, field: (p: Point) => number): CutNode
     let node: number = start, face: number = i;
     while (used[face] === 0) {
       used[face] = 1;
-      const { cuts, normal, corners } = triangles[face]!;
+      const { cuts, normal, corners, readNormal } = triangles[face]!;
       const end: number = cuts.find((cut): boolean => cut.node !== node)!.node;
-      loop.push(...refine(nodes[node]!.point, nodes[end]!.point, corners, normal, field));
+      loop.push(...refine(nodes[node]!.point, nodes[end]!.point, corners, normal, field, readNormal));
       node = end;
       if (node === start && nodes[node]!.parts.length === 2) { closed.push(loop); break; }
       const parts: number[] = nodes[node]!.parts;
@@ -421,15 +438,35 @@ function skinLoops(source: Mpfb.IGeometry, field: (p: Point) => number): CutNode
   return closed;
 }
 
+/** Prepare barycentric interpolation of the evaluated limit normals at a sample triangle's corners. */
+function faceNormal(corners: Triangle, facet: Point, normals: Subdivision.INormalField, offset: number): (point: Point) => Point {
+  const [a, b, c]: Triangle = corners;
+  const u: Point = V.sub(b, a), v: Point = V.sub(c, a);
+  const area: number = V.dot(V.cross(u, v), facet);
+  const samples: Point[] = [0, 1, 2].map((k): Point => {
+    const at: number = 3 * normals.indices[offset + k]!;
+    return [normals.values[at]!, normals.values[at + 1]!, normals.values[at + 2]!];
+  });
+  return (point: Point): Point => {
+    const q: Point = V.sub(point, a);
+    const s: number = V.dot(V.cross(q, v), facet) / area;
+    const t: number = V.dot(V.cross(u, q), facet) / area;
+    const normal: Point | null = V.unit(V.combine([[1 - s - t, samples[0]!], [s, samples[1]!], [t, samples[2]!]]));
+    if (normal === null || !(V.dot(normal, facet) > 0))
+      throw new Error("An interpolated limit normal reverses its HM08 sample facet");
+    return normal;
+  };
+}
+
 /** Continue the divider inside a face by cutting across each chord's midpoint. */
-function refine(a: Point, b: Point, corners: Triangle, normal: Point, field: (p: Point) => number): CutNode[] {
+function refine(a: Point, b: Point, corners: Triangle, normal: Point, field: (p: Point) => number, readNormal: (p: Point) => Point): CutNode[] {
   const tolerance: number = 0.001;
   const nodes: CutNode[] = [];
   const pending: [Point, Point][] = [[a, b]];
   while (pending.length > 0) {
     const [p, q] = pending.pop()!;
     const middle: Point = V.scale(V.add(p, q), 1 / 2);
-    if (Math.abs(field(middle)) <= tolerance) { nodes.push({ point: p, normal }); continue; }
+    if (Math.abs(field(middle)) <= tolerance) { nodes.push({ point: p, normal: readNormal(middle) }); continue; }
     const across: Point | null = V.unit(V.cross(normal, V.sub(q, p)));
     if (across === null || V.norm(V.sub(q, p)) <= tolerance)
       throw new Error("The HM08 divider does not converge inside its source facet");

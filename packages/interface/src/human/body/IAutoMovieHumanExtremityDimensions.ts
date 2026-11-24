@@ -25,6 +25,17 @@ export interface IAutoMovieHumanExtremityDimensions {
     >
   >;
 
+  /** Optional leg lengths, measured between joint centres in millimetres. */
+  legBones?: IAutoMovieHumanPair<{
+    /** Hip centre to knee centre. */
+    femur: number;
+    /** Knee centre to ankle centre. */
+    tibia: number;
+  }>;
+
+  /** Positive ratio applied to every derived finger and toe phalanx length, with the digit roots held. Omission uses the anatomical proportions at the supplied hand and foot dimensions. */
+  phalangealLengthScale?: number;
+
   /** Requested ankle assembly; omitted means joined. Generation is not implemented. */
   footAssembly?: "independent" | "joined";
 }

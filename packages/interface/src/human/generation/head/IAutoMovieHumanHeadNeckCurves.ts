@@ -43,7 +43,7 @@ export namespace IAutoMovieHumanHeadNeckCurves {
     /** Actual native normal metric at targets 1e-7/5e-8 mm; its difference is not the base GL8 K/2K observation or an error certificate. */
     normalMeasured: IAutoMovieCurveLengthMeasurement64;
 
-    /** Retained posterior-skin secant adopted as the normal-band origin's slope. */
+    /** The adopted normal band's axis slope, `dx/dy`. */
     slope: number;
 
     /** Course parameter's finite domain length; a clock, not an extra anatomical distance. */
@@ -80,7 +80,7 @@ export namespace IAutoMovieHumanHeadNeckCurves {
    * The caller owns the fixed-size scalar/point context; no generated body or asynchronous handle is retained.
    */
   export interface IInputs {
-    /** Retained mean, C7 posterior point, circle-equivalent lateral scale and posterior skin secant. */
+    /** Normal plane origin, registered C7 point, lateral radius and adopted axis slope. */
     neck: IAutoMovieHumanHeadNeck;
 
     /** Public base target/heights and common C7 datum, already scaled once. */

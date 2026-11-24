@@ -1,81 +1,41 @@
 # The armscye as a shared-loop join
 
-What f1's trunk and arm sources are at the shoulder, measured against every premise the shared-loop join admits on, and the order of work that follows. [Joint logic](joint-logic.md) gives the joint's anatomy and kind; this note holds the numbers.
+The parent publishes one physical loop and its tangent plane. Each child view line starts from that point and slope, and reaches its own protected arm section. [Joint logic](joint-logic.md) describes the anatomy and the connection kind.
 
-Measured 2026-11-17 by `test/src/reference-conics/FamilyConicArmscyeJoin.ts` on the two complete native sources (reliefs included, no loft and no mesh). From `test/`: `pnpm conic:build`, then `node .shots/esbuild/FamilyConicArmscyeJoin.cjs`.
+A radial port also needs a regular outward radial graph on the child's chart. A world meridian chart can keep the same boundary where the radial projection reverses. The validation reads the actual shoulder silhouette and the axillary hollow from matched front, back, below and close views. The geometry checks measure the common loop, its jets, surface crossings and retained boundaries.
 
-## Today's construction
+## Signed slope continuation on the parent chart
 
-The trunk's sections are clipped at the sagittal plane 151 mm from the median plane. The arm's course leaves through two thorax datums square to that plane; its first knot stands at station 32 (z = 153) and its rail at 42. A port band spans from a recorded loop on the trunk's chart (a centre, two semi-axes and one share per clock) to the arm's rail, and a cutter family digs the slit under the arm out of the band.
+The port inherits the host tangent plane from the published loop. Let `a = n·e` be the outward host normal on the child's radial ray and `b = -n·(o' + r e')` the negative normal component of its carried station derivative. The slope is `b/a`. Use the signed margins `L b + (5/2) r a > 0` and `(81/16) reach a - L b >= 0`, with `L` the protected mark less the child station. The bounds require a positive sum, which occurs on the outward sheet. At grazing their sum is zero. The slope factors follow from the quintic bases in [the port's slope bounds](joints-one-shot.md#the-ports-slope-bounds-2026-11-24).
 
-For a person the recorded loop is re-levelled per clock in the arm's caliper frame at station 42 (`AutoMovieHumanF1NativeRootLevel`). f1's frame is bit-identical to the recorded basis, so f1 never runs that solve. A person whose arm frame tilts by 0.07 degrees (an upper arm 0.9 times as long) is refused under the arm, where the level is not monotone along the control's ray: recorded level 0.25538, 0.25671 in the tilted frame, 0.26078 at the loop's centre. The refusal is one-sided: the same tilt of the other sign (an upper arm 1.1 times as long) is solved.
+The two-cylinder control at 60 degrees gives the exact lower-limit position on the host generator and rejects the reversed sheet whose scalar ratio lies within the limits. A separate full-loop control moves one arc across the clock origin on a quadratic radial wall. Its lower seam station attains the upper slope limit within 0.004 mm of the analytic station. The opposite arc retains its world point and both clock derivatives, and the seam closes across the clock origin with the same jets. The fixture checks both signed limits and positive angular speed at 768 interior clocks. The implicit child section-plane equation supplies the phase derivative along the host loop. The quintic gives the correction compact support, while the local displacement spline interpolates the continued offsets through that reach.
 
-| Length case | 0.9 | 1.1 |
-| --- | --- | --- |
-| Upper arm | refused, column 95 | admitted |
-| Forearm | admitted | refused, column 95 |
-| Hand length | refused, column 96 | admitted |
-| Hand breadth | admitted | refused, column 96 |
-| Phalanges | admitted | admitted |
-| Every limb length | refused, column 95 | admitted |
+When the host metric normal loses its bracket, a monotone chart coordinate supplies a transverse direction. For a reversed radial sheet the continuation predicts the signed level along its tangent and corrects across it. A displacement spline supplies the revised host-chart jets, with a quintic step across one measured fold reach. The strict lower bound uses one address tolerance of margin. A directed turn on the child chart is a separate premise of a radial port. [Shape Interrogation for Computer Aided Design and Manufacturing, §5.8.2.3](https://web.mit.edu/hyperbook/Patrikalakis-Maekawa-Cho/node109.html).
 
-## The two fields at the loop
+The anatomical references identify the front fold with pectoralis major and the back fold with latissimus dorsi and teres major. ISO defines the armscye line and the two fold points by their placement on the body. MPFB2's base asset has shoulder, clavicle, scapula and elbow joint groups and supplies no separate axillary-fold landmark group. These sources identify the region, while the host chart and child course supply the numerical construction. [Washington State University axilla dissection](https://learning.medicine.wsu.edu/wp-content/uploads/sites/4/2023/09/PDF-Lab-4.pdf), [Texas Tech University axilla dissection](https://anatomy.ttuhscep.edu/schemes/axilla.html), [ISO 8559-1:2017, §§3.1.13–14 and 3.2](https://gso-sims-preview-doc-aws.s3-eu-west-1.amazonaws.com/iso-8559-1-2017-en.html), [MPFB2 base asset](https://github.com/makehumancommunity/mpfb2/blob/9de0707fdc88438d7c53a1a2ac7937d9221e2431/src/mpfb/data/3dobjs/base.obj).
 
-In the arm's first section plane (z = 153, leaning 1.4 degrees from sagittal):
+Wang extracts the underarm node from the midpoint of the two contour turns in a level human section. His Gregory patches interpolate feature curves and their cross tangents, given by the boundary normal crossed with its curve tangent. This supplies a construction for a branch where a single radial chart cannot regularize the entire seam. VMTK's implementation gives a separate precedent for taking a branch course from the owned wall and entrance and exit anchors. Its maximum-inscribed-ball geometry is for segmented tubes; an arm course can use the more direct kernel of its own sections. [Wang, §§3.1 and 4.1, equation 4](https://mewangcl.github.io/pubs/CADParaHuman.pdf), [VMTK Centreline tutorial](https://vmtk.github.io/tutorials/Centerlines.html).
 
-| Arc | Trunk stations or arm phases | Reading |
-| --- | --- | --- |
-| Upper arc: anterior fold, cap, posterior fold | trunk stations 530 to 620, front and back | The trunk's skin cut by the plane and the arm's section stand 0.1 to 1.0 mm apart, the trunk outside, their normals turned 1 to 10 degrees. One line, drawn twice. |
-| The same arc, round the arm's first ring | arm phases 190 to 350 degrees | The ring stands 0.02 to 1.7 mm from the trunk's skin and changes side seven times, at 1.6 to 4.8 degrees. A trace has no transversal contact to follow. |
-| Fold feet | arm phases 10 to 40 and 170 to 180 degrees | The arm's wall leaves the trunk's solid 1.2 to 3.8 mm past its first station, at 23 to 70 degrees. |
-| Under the arm | arm phases 50 to 160 degrees | The arm's first ring stands outside the trunk's solid by 2.1 to 8.6 mm: at that ring the walls do not meet, and they do a few millimetres inward of it (below). The plane's cut of the trunk runs inside the arm's tube there (radius 1 to 12 mm about the arm's course against the arm's 39 to 41). |
+## The public HM08 shoulder
 
-Farther out the upper arc opens: at z = 158 the gap reaches 2.7 mm at the cap, at z = 163 it reaches 4.4 mm.
+The public source receipt pins HM08 revision `650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a` and its asset SHA-256. Only the body group's skin enters the slice geometry. The shoulder and elbow helper centroids determine the upper-arm course. A transverse cut brackets the topology change at 1265.269595–1265.270263 mm above the floor. The nearest pair of facing contours below the branch supplies the separating direction and the upper cut supplies the apex. The front and back fold turns come from the first conjoined neck spanning one measured arm semidepth. ESTIMATE. Within that neck, a quarter-semidepth chord suppresses individual triangulation-edge turns when selecting the anterior and posterior maxima. [MPFB2 source and CC0 license](https://github.com/makehumancommunity/mpfb2/tree/650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a), [Wang, §3.1](https://mewangcl.github.io/pubs/CADParaHuman.pdf#page=8).
 
-The arm's chart origin at its root stands at the armpit's height (y = 1299.9 mm): the section reaches 100 mm up to the shoulder's top and 40 mm down, so the root sections are charted from their lower edge.
+The public crease divider passes through the paired fold turns, apex and skin over the shoulder marker. Its source guide follows one connected triangle intersection with 229 points, a maximum landmark-to-chord gap of 0.000306 mm and a maximum midpoint divider residual of 0.000989 mm. The upper-arm azimuth turns once with no backwards step. Fourteen resolved facet segments in a short arc have reversed radial normals. At the protected conic station, 61.45234 mm along the clean shaft, the support-plane program leaves deficits of 1.797 mm for orientation and 5.829 mm for the lower star margin over the measured 41.333 mm centre-shift disc. Its signed tangent-plane distance is `r a = n·(P-o)`. Holding the shaft direction fixed makes that distance affine in the in-plane centre. [VTK implicit cutter](https://vtk.org/doc/nightly/html/classvtkCutter.html).
 
-### Carried inward, the two walls meet all round
+The proximal chart therefore reads each child-owned meridian curve along its physical arclength. Its shortest measured route is 10.237 mm and its longest is 100.899 mm. The child inherits the shared world point and co-normal at one end of each line, and converges to the original conic 2-jet at the protected section. The one-sided conic expression `3 f(0) - 3 f(h) + f(2h)` reproduces the value, first derivative and second derivative at the protected mark as a function of `-h`. A quintic blends the proximal correction in the first control interval. At the other end a quintic adds the discrepancy between the conic germ and the measured outlet tangent. Its physical reach comes from one measured arm semidepth and occupies less than half of each meridian. The adjacent face-normal turn at the outlet fell from 39.32 to 11.57 degrees along the lines, and from 33.16 to 12.80 degrees across them. The sampled skin has zero self-crossing witnesses. The measured outlet position gap is below `1e-15` mm and its first and second jet errors are below `1e-13` in the unit chart. The isolated clay still shows a pointed shadow at the lower seam. Final judgment uses the sewn trunk and arm with the matched views.
 
-The first ring is not where the walls meet under the arm. With the arm's face carried 22 mm inward of its first knot along its fields' end tangents, every arm phase has a crossing of the trunk's skin within 5 mm of the ring at station 31: at 26.4 to 31.8 mm under the arm (30 to 160 degrees), 32 to 36 at the posterior fold's foot, and between 28 and 35 over the cap, where the two skins weave through each other.
+The first sewn trial showed diagonal shading from the seam into the trunk. The fitted guide averages the measured station, radius, departure and angular meridian controls over the median angle between source-facet turns, 0.09650 rad in HM08. A symmetric `(1 - x²)^3` weight vanishes with two derivatives at one support width. The raw guide still supplies exact source registration, while both faces receive one fitted boundary and co-normal. The fitted rim moved by 0.0546 mm on average and 0.4025 mm at most. The child preview's worst adjacent angular normal turns fell from 27.71 to 11.74 degrees near the rim and from 32.89 to 12.40 degrees in the interior. Its common seam and distal position gaps are zero in the fit, with zero sampled self-crossing witnesses. The fitted child is smoother in the axilla closeup and the pointed dark rim is still visible before the parent closes it. [Taubin, signal processing approach to fair surface design](https://research.ibm.com/publications/signal-processing-approach-to-fair-surface-design).
 
-The loop generated from those crossings (`AutoMovieHumanF1Armscye`), against the reference's skin (`--reference`; positive outside the skin):
+The coupled meridian variation trial preserved the common two-jet and reduced the sampled longitudinal energy. In the sewn front and axilla views it added parallel arcs over the cap and alternating bands into the parent. The shape was refused. Sampling the public subdivision source at level two supplied a smoother skin and stable normals for the same measured chart, with the protected conic still measured on the original public stock. The front, back and axillary shape decisions use the matched views.
 
-| Arc, arm phase | Arm's point | Trunk's drop | The two fields apart |
-| --- | --- | --- | --- |
-| Upper arc, 185 to 350 degrees | within 0.35 mm | within 0.35 mm | 0.0 to 0.8 mm; 1.6 to 2.0 at 275 to 285 |
-| Under the arm's back half, 100 to 160, all on carried wall | -0.10 to +0.76 | within 0.15 | 0.0 to 1.7 |
-| Front of the hollow, 60 to 95, on carried wall | +0.7 to +1.7 | +0.2 to +2.3 | 0.0 to 1.7 |
-| Anterior fold, 352.5 to 30 | +1.2 to +3.3 | 0.0 to +3.4 | 1.5 to 6.3 |
+## The public side-root refit
 
-So the carried wall lies on the skin under the arm's back half and does not draw the join's edge off it there. At the front of the hollow both stored walls stand proud of the skin, and at the anterior fold the arm's wall stands up to 3.3 mm proud where its section turns its front lower corner. Both stored walls are fitted to the tape's hull, which bridges the fold.
+From `test/`, build the SideRoot tool and invoke it with an explicit source and chart.
 
-The joint alone (`--realize`: a trunk slab, the carried arm and one `merge` with the generated loop, realized in three seconds) is refused there: `one kept side: the part's kept side reverses before clock 4.385`, the anterior fold's foot.
+```powershell
+node .shots/esbuild/FamilyConicSideRoot.cjs --source=hm08 --chart=limit-level2 --out=.shots/hm08-side-root --emit --store
+```
 
-## Premises of the join
+The fit keeps both endpoint world two-jets. A constant and first angular harmonic move the interior of the actual measured meridian lines, with the lowest-degree longitudinal polynomial that has three zeros at each end. The shape fit uses independent meridian positions and the common group solver. It retains the actual sampled surface orientation and checks the emitted mesh for crossings. `--emit` produces `side-root-preview.json` with the anatomical chart, exact protected ring and distal conic in one indexed mesh in mm. `--store` produces `side-root-stock.json` with the pinned public input, retained arm stock and three fitted controls. A subsequent store keeps the preceding record under `pre-emit/`.
 
-Taken from `AutoMovieConstructionSharedLoop.create`, `AutoMovieSolidSharedCurve`, the fold branch of `AutoMovieConstructionWidths` and `IAutoMovieConstructionJoin`.
-
-| Premise | Today | Needs |
-| --- | --- | --- |
-| The loop is an `ILoop` on the trunk's chart: finite centre, positive semi-axes with the phase one under pi, `count` shares | A recorded table | A generated loop: the upper arc as the trunk's skin cut by the plane fixed in the thorax's frame, the lower arc as the two walls' own crossing, sampled into shares about a centre it is star-shaped about |
-| `shared loop`: every loop point within `tolerance` of the part's face | On the generated loop the two fields stand up to 0.8 mm apart over the cap, 1.7 under the arm and 6.3 at the anterior fold | One owner over the cap (the arm's root reads the trunk's cut), and both walls fitted to the skin at the anterior fold and the front of the hollow. The tolerance is then a numerical one on a shared curve; it is never sized to the two fits' mismatch |
-| `closed loop`, `enclosed loop` | Not evaluated | Follows from the generated loop |
-| `one kept side` | The ring changes side seven times | Follows once the upper arc is shared |
-| Each fold width positive; `fold radius` under both surfaces' radii toward the fold; no `cleft` past the cap | 23 to 70 degrees at the fold feet; unmeasurable under the arm | Measured once the lower arc exists |
-| Seams exact between columns | The join's seams are exact at columns only | A loop-owned band builder for joins, in the kernel, with an operator test that fails first |
-
-## Order of work
-
-1. **The trunk under the arm.** Fit the trunk's wall at the shoulder to the skin with the arm left out by the plane's far side only above the folds, so a wall stands under the arm for the arm's wall to cross. Today's clip at 151 mm leaves the tape hull to bridge there.
-2. **The arm's root.** Carry the arm's sections inward of the plane and centre their course on the sections; take the upper arc of the section in the plane from the trunk's cut.
-3. **The loop by rule.** Generate it for the person from the two sources: the plane's cut above the fold points, the walls' crossing below them. `FamilyConicArmscyeRule.ts` holds the candidate planes and the accepted landmarks as checks.
-4. **The join.** Declare it on that loop with fold widths; state the fold's radius at the fold feet and under the arm in the thorax's frame; where the walls face each other past the cap the kernel reports `cleft`, which is the slit of a hanging arm and stays two sheets.
-5. **Remove** the axilla cutter, the recorded loop, `AutoMovieHumanF1NativeRootLevel` for this joint, the arm's rail tables and their readers.
-6. **Gate.** f1 builds without a diagnostic; the shoulder and the armpit are opened in the three passes beside the reference on both sides; the length cases above and the tissue cases the joint refused are built and looked at.
-
-## What the references say
-
-| Source | Read | Bearing |
-| --- | --- | --- |
-| Wang C. C. L., Parameterization and parametric design of mannequins, Computer-Aided Design 37 (2005) | read in part: pages 3 to 9 | In level sections the armpit is a branch: the contour at the underarm height is one loop with the arms as lobes, and the underarm point is the middle of its front and back turning points, at `H_belly + 0.55 (H_backneck - H_belly)`. The feature curves lie on planes set by anthropometric rules. The junction's cross tangent (the paper's equation 4) and the n-sided patches are on pages this note's author did not read. |
-| Blender `MOD_skin.cc`; Dust3D; Anny; MPFB2 | not read by this note's author; the supervisor's reading is in the campaign's record | None claimed here |
+The analytic cylinder recovers its known fitted control amplitudes within `1.85e-11` mm, keeps both endpoint two-jets exactly, emits zero crossing witnesses and verifies the preceding stock by SHA-256 after a second store. On the level-two HM08 chart, the real fit completed in 17.14 seconds with the emitted distal arm. Its controls are −0.007063, −0.010875 and −0.041625 mm. The endpoint two-jet changes are all zero, the distal source gap is `2.22e-16` mm, and the emitted arm has zero self-crossing witnesses. The fitted arm continues to its original open distal station. The sewn trunk and distal wrist still require the assembly's own geometry checks.

@@ -50,7 +50,7 @@ export function test_human_capture_case_identity(): void {
     failures.push("matching reordered report was refused: " + String(error));
   }
   const aggregate: Parameters<typeof Selection.preflight>[0] = JSON.parse(
-    '{"schema":"f1-native-round/v1","cases":[]}',
+    '{"schema":"human-native-round/v1","cases":[]}',
   );
   const failed: Parameters<typeof Selection.preflight>[0] = JSON.parse(
     '{"id":"made-second","error":"unavailable"}',

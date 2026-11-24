@@ -18,7 +18,6 @@ import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
 import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
 import type { IAutoMovieHumanHeadLane } from "./head/IAutoMovieHumanHeadLane";
 import type { IAutoMovieHumanHeadPlacement } from "./head/IAutoMovieHumanHeadPlacement";
-import type { IAutoMovieHumanSourceRealization } from "./limb/IAutoMovieHumanSourceRealization";
 import type { IAutoMovieHumanTrunkBuild } from "./trunk/IAutoMovieHumanTrunkBuild";
 
 /**
@@ -112,8 +111,6 @@ export namespace IAutoMovieHumanBodySources {
     /** An unfinished coupled source is not publishable as a parent. */
     preparingTrunk?: boolean;
 
-    /** Only explicitly requested raw results. */
-    rawSources?: Map<string, IAutoMovieHumanSourceRealization>;
   }
 
   /** Already resolved production inputs; their calibration units are unchanged.

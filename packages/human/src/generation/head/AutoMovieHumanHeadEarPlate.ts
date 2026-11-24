@@ -23,18 +23,18 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 
 /**
- * Auricular source curves in horizontal parallel planes.
- * Sa/sba own the entire source's highest/lowest Y; their tilted chord has
- * the supplied length. C and j occupy different horizontal sections:
- * their actual three-dimensional chord is perpendicular to sa-sba and
- * has the supplied breadth. It is not a horizontal section diameter.
+ * Auricular source curves in horizontal parallel planes. Sa/sba own the entire
+ * source's highest/lowest Y; their tilted chord has the supplied length. C and
+ * j occupy different horizontal sections: their actual three-dimensional chord
+ * is perpendicular to sa-sba and has the supplied breadth. It is not a
+ * horizontal section diameter.
  *
  * At the tragal level, p2 joins an actual head-source scalp point to the
- * posterior rim along world lateral. This direction is an explicit
- * geometric convention: Cho Figure 1 names scalp distances but does not
- * specify a world-space normal formula. C is separately on the actual
- * scalp. Its 0.22-length drop, tragal run, free-end 8.3/17.3 stand and
- * carrier thickness remain declared geometric/retained conventions.
+ * posterior rim along world lateral. This direction is an explicit geometric
+ * convention: Cho Figure 1 names scalp distances but does not specify a
+ * world-space normal formula. C is separately on the actual scalp. Its
+ * 0.22-length drop, tragal run, free-end 8.3/17.3 stand and carrier thickness
+ * remain declared geometric/retained conventions.
  *
  * @evidence contracts/common.md#principled-implementation Separates global sa/sba extrema, the tilted c-j chord and the actual scalp-to-rim p2 endpoints.
  * @evidence contracts/common.md#clear-and-simple-design One horizontal chart and original coordinate records supply the plate and its relief courses.
@@ -81,8 +81,12 @@ export namespace AutoMovieHumanHeadEarPlate {
     const normal: [number, number, number] = [across[2], 0, -across[0]];
     const low: number = f.bottom;
     const high: number = f.top;
+
+    // ESTIMATE: place the upper insertion one scaled insertion length above the lowest point along the tilted axis.
     const attachment: number =
-      high - AutoMovieHumanHeadPrior.PRIOR.ear.topFree * (high - low);
+      low +
+      AutoMovieHumanHeadPrior.PRIOR.ear.insertion[plan.sex === 1 ? 0 : 1] *
+        (high - low);
     const posterior: number = attachment + f.breadth * q[1];
     const tragion: number = plan.landmarks.tragion[1];
     const rootX: (y: number) => number = (y: number): number =>
@@ -179,8 +183,7 @@ export namespace AutoMovieHumanHeadEarPlate {
     );
     for (let i: number = 1; i < 24; i++)
       sites.add(low + (high - low) * Math.sin((Math.PI * i) / 48) ** 2);
-    const thickness: number =
-      AutoMovieHumanHeadPrior.PRIOR.ear.rim * f.scale * plan.scale;
+    const thickness: number = AutoMovieHumanHeadPrior.PRIOR.ear.rim * f.breadth;
     const outward: number = normal.reduce(
       (sum: number, v: number, i: number): number => sum + v * f.n[i]!,
       0,

@@ -2,7 +2,6 @@ import { AutoMovieNaturalSpline } from "@automovie/engine";
 import type {
   IAutoMovieHumanArmGuides,
   IAutoMovieHumanArmPiece,
-  IAutoMovieHumanArmTube,
   IAutoMovieNaturalCubicSpline,
   IAutoMoviePolarSector,
 } from "@automovie/interface";
@@ -60,7 +59,7 @@ export namespace AutoMovieHumanArmGuides {
     const lo: number = xs[0]!;
     const hi: number = xs[xs.length - 1]!;
 
-    return (s: number): IAutoMovieHumanArmTube.IShape => {
+    return (s: number): IAutoMovieHumanArmGuides.IShape => {
       const at: number = Math.min(hi, Math.max(lo, s));
       const v: number[] = splines.map(
         (sp: IAutoMovieNaturalCubicSpline): number =>

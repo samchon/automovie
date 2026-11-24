@@ -11,7 +11,7 @@ export namespace AutoMovieSolidTraceObservation {
    */
   export type Reason = "invalid-host-chart" | "host-jet-unavailable" |
     "host-crossing-budget" | "host-face-limit" | "host-open-boundary" | "host-receiver-unavailable" |
-    "part-jet-unavailable" | "host-trial-unavailable" | "singular-newton-jacobian" |
+    "part-chart-outside" | "part-jet-unavailable" | "host-trial-unavailable" | "singular-newton-jacobian" |
     "residual-not-decreasing" | "line-search-stalled" | "newton-iterations" |
     "singular-first-rate" | "singular-second-rate" | "branch-distance" |
     "walk-step-failed" | "walk-step-limit" | "walk-no-progress" | "walk-part-bound" | "singular-tangent";

@@ -15,27 +15,26 @@ import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 /**
  * The parts inside the face's parts, each joined to its own parent part:
  *
- * | Part | Parent | Join | Size from |
- * | --- | --- | --- | --- |
- * | tip lobule | nose | merge | elliptical cap, as wide as the tip ball's breadth (`face.tipBall[2]` half nose widths), closing at pronasale |
- * | ala, each side | nose | merge | the alar lobule (`face.ala`) beside the subnasale at half `nose.width` |
- * | nostril, each side | nose (material contact: that side's ala) | diff | the nostril's size and centre in the base (`face.nostrilSize`, `face.nostrilCentre`) |
- * | philtral groove | head mass | diff | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius |
- * | mentolabial sulcus | head mass | diff | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale |
- * | helix, antihelix, concha, each side | auricle | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`) |
+ * | Part                                | Parent                                   | Join        | Size from                                                                                                    |
+ * | ----------------------------------- | ---------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
+ * | tip lobule                          | nose                                     | merge       | elliptical cap, as wide as the tip ball's breadth (`face.tipBall[2]` half nose widths), closing at pronasale |
+ * | ala, each side                      | nose                                     | merge       | original nasal side to alare, with the retained alar footprint                                               |
+ * | nostril, each side                  | nose (material contact: that side's ala) | diff        | an ellipse entering the underside of the actual ala                                                          |
+ * | philtral groove                     | head mass                                | diff        | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius                         |
+ * | mentolabial sulcus                  | head mass                                | diff        | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale                                       |
+ * | helix, antihelix, concha, each side | auricle                                  | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`)                                                  |
  *
- * Nasal sizes retain declared prior ratios of the supplied nasal triangle.
- * Alar centre and upper/lower heights use the prior's vertical n-prn span;
- * projected long supports preserve those heights in the tilted nasal frame.
- * Philtrum uses the actual source Sn-ls chord. The labiomental depth is
- * perpendicular to the actual source Li-Pg line (Legan/Burstone 1980),
- * with its midpoint and footprint still geometric placement conventions.
- * These raw cutters establish neither a through opening nor a lining.
+ * The alar centre and upper/lower heights use the retained vertical n-prn
+ * ratios. Projected long supports preserve those heights in the tilted nasal
+ * frame. Each alar base uses the original nasal surface on the lateral axis to
+ * alare. Each nostril uses the underside of its own ala. Philtrum uses the
+ * actual source Sn-ls chord. The labiomental depth is perpendicular to the
+ * actual source Li-Pg line (Legan/Burstone 1980).
  *
- * @evidence contracts/common.md#principled-implementation Uses the supplied nasal triangle, retained ratio units and actual lip landmarks. Alar height ratios keep their vertical n-prn denominator when mapped into the tilted footprint; these ratios and cutter axes remain geometric conventions.
+ * @evidence contracts/common.md#principled-implementation Uses actual native contact for the alar bases and both nostril recesses. Alar height ratios keep their vertical n-prn denominator when mapped into the tilted footprint. The nostril footprint scales adult basilar measurements by the supplied al–al chord.
  * @evidence contracts/common.md#clear-and-simple-design Places a fixed set of inner views and returns their explicit parent/join metadata; Dome owns the shared cap source.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No native-mesh fit, parent relocation or kernel-grazing profile change determines these sources. Existing positive-size floors and embedding allowances remain declared construction conventions.
- * @evidence contracts/common.md#meaningful-documentation States source units, prior denominators, tilted-frame projection, raw-cutter scope and unfinished openings/lining.
+ * @evidence contracts/common.md#meaningful-documentation States the source units, prior denominators, tilted-frame projection and original material contacts.
  * @evidence contracts/performance.md#efficient-algorithms Seven source requests use fixed vector arithmetic and cap station counts; material contacts additionally admit original scalars, order original source sites and search bounded native/plane brackets at their owners' costs.
  * @evidence contracts/performance.md#reuse-equivalent-work One nasal frame and shared source lip sites serve the related parts; each returned view is authored once per call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned feature arrays. Temporary vectors and constants are call-local, with no retained figure cache or handles.
@@ -58,12 +57,12 @@ export namespace AutoMovieHumanHeadInnerParts {
    * Every inner part of a person.
    *
    * @param plan The landmark skeleton.
-   * @param parents The identical evaluated original parents, before any Boolean realization.
+   * @param parents The identical evaluated original parents, before any Boolean
+   *   realization.
    * @returns The parts, each naming its parent.
-   *
    * @evidence contracts/common.md#principled-implementation Preserves Euclidean source landmarks, al-al apices and the retained alar vertical n-prn ratios; dividing by the nasal unit direction's Y component converts height to local long support.
    * @evidence contracts/common.md#clear-and-simple-design Shares one nasal frame and returns the explicit inner-part list for Composer, leaving joins to the tree.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fit a reference or shift a part after placement. The retained ratios, floors, embedding allowance and cutter axes are conventions rather than anatomical measurements.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the original material source during authoring. The retained ratio placements, floors, embedding allowance and cutter axes are declared estimates.
    * @evidence contracts/common.md#meaningful-documentation Distinguishes alar ratio units, cap placement and the still-unrealized openings and lining.
    * @evidence contracts/performance.md#efficient-algorithms Seven requests combine fixed vector/cap work with original scalar admission, O(n log n) source-site ordering, bounded native contact/plane inverses and one prepared native curvature read per success.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses nasal directions and the original lip sites within this assembly; each view is produced once and borrowed by Composer.
@@ -85,13 +84,16 @@ export namespace AutoMovieHumanHeadInnerParts {
     const mass: IAutoMovieViewPart = parent("head.mass");
     const nose: IAutoMovieViewPart = parent("nose");
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
-    const k: number = plan.scale;
     const prior: IAutoMovieHumanHeadPrior.IPrior =
       AutoMovieHumanHeadPrior.PRIOR;
     const f: IAutoMovieHumanHeadPrior.IFace = prior.face;
     const out: IAutoMovieHumanHeadFeatures.IFeature[] = [];
     const alarSpan: number = plan.nasion - plan.tip;
     const nasalForward: number = m.pronasale[0] - m.subnasale[0];
+    // Transfer Chaikangwan et al. Table 1's mean adult aperture (12.5 by
+    // 8.6 mm) using the midpoint of the two adult FaceBase al–al norms.
+    const nostrilLength: number = (12.5 / 34.35) * plan.noseWidth;
+    const nostrilWidth: number = (8.6 / 34.35) * plan.noseWidth;
 
     // The nose's frame: up along the dorsum's chord, forward square to it.
     const up: [number, number, number] = unit([
@@ -101,6 +103,8 @@ export namespace AutoMovieHumanHeadInnerParts {
     ]);
     const forward: [number, number, number] = [up[1], -up[0], 0];
     const tip: [number, number, number] = [m.pronasale[0], m.pronasale[1], 0];
+    // Oblique nasal sections can turn back in lobule phase while their
+    // true intersection remains transversal. Trace by physical arclength.
     out.push(
       ...part(
         "nose.lobule",
@@ -119,54 +123,66 @@ export namespace AutoMovieHumanHeadInnerParts {
         tip,
         nose,
         attempts,
+      ).map(
+        (feature): IAutoMovieHumanHeadFeatures.IFeature => ({
+          ...feature,
+          parameter: "arc",
+        }),
       ),
     );
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
       const half: number = f.ala[5]! * plan.noseWidth;
 
-      // The lateral apex is alare. Both sides share x/y, so these two
-      // apices are exactly the supplied Euclidean al-al width apart.
-      const centre: [number, number, number] = [
-        m.subnasale[0] + f.nostrilCentre[0]! * nasalForward,
+      // Weinberg et al. 3D Facial Norms defines lateral alare and measures
+      // al–al. The AP fraction of the prn lead and the vertical n–prn
+      // fraction are retained ESTIMATEs locating the section of the wing.
+      const apex: [number, number, number] = [
+        m.subnasale[0] + 0.42 * nasalForward,
         m.subnasale[1] + f.ala[2]! * alarSpan,
-        sign * (plan.noseWidth - half),
+        sign * plan.noseWidth,
       ];
-
-      // Prior.ala's half-heights are vertical n-prn ratios. A tilted local
-      // support contributes only up.y of its length to that vertical span.
-      const ala: IAutoMovieHumanHeadFeatures.IFeature[] = part(
-        `nose.ala.${side}`,
+      const lower: number = (f.ala[4]! * alarSpan) / up[1];
+      const footprint: [number, number, number, number] = [
+        (f.ala[3]! * alarSpan) / up[1],
+        half,
+        lower,
+        half,
+      ];
+      const name: string = `nose.ala.${side}`;
+      const span: Omit<IAutoMovieHumanHeadDome.IDome, "host"> = {
+        name,
+        origin: [apex[0], apex[1], 0],
+        outward: [0, 0, sign],
+        along: up,
+        extents: footprint,
+        height: plan.noseWidth,
+        profile: 2,
+        shoulder: AutoMovieViewSection.ELLIPSE,
+      };
+      const ala: IAutoMovieHumanHeadFeatures.IFeature[] = domePart(
+        span,
         "nose",
         "merge",
-        sub(centre, [0, 0, sign * INSET]),
-        [0, 0, sign],
-        up,
-        [
-          (f.ala[3]! * alarSpan) / up[1],
-          half,
-          (f.ala[4]! * alarSpan) / up[1],
-          half,
-        ],
-        INSET + half,
-        centre,
+        apex,
         nose,
         attempts,
+        INSET,
       );
       out.push(...ala);
-      const nostril: [number, number, number] = [
-        m.subnasale[0] + f.nostrilCentre[0]! * nasalForward,
-        m.subnasale[1],
-        sign * f.nostrilCentre[1]! * plan.noseWidth,
-      ];
 
-      // The nostril opens in the alar base, halfway between the midline and
-      // alare, where the nasal body (dorsum and columella, `face.dorsum`
-      // half widths) has already narrowed inside it. Its upward axis
-      // therefore enters material through this side's alar lobule, never
-      // through the nasal body's wall, so that ala's original is its material
-      // contact. The cumulative nose subtree, which merges this ala before
-      // the nostril, remains its tree parent.
+      // The midpoint of the exposed lateral run leaves material on both
+      // sides of the cut axis. Project the lower footprint box onto Y to
+      // start outside the real cap and end at its interior axis.
+      const drop: number = lower * up[1] + half * Math.abs(up[0]);
+      const nostril: [number, number, number] = [
+        apex[0],
+        apex[1] - drop,
+        ((ala[0]?.attachment?.point[2] ?? 0) + apex[2]) / 2,
+      ];
+      // The cumulative nose subtree merges this ala before the nostril
+      // difference. Surface contact belongs to the same side's original ala.
+      // World-X alignment is an ESTIMATE for the simplified external inlet.
       out.push(
         ...part(
           `nose.nostril.${side}`,
@@ -175,16 +191,12 @@ export namespace AutoMovieHumanHeadInnerParts {
           [nostril[0], nostril[1] - INSET, nostril[2]],
           [0, 1, 0],
           [1, 0, 0],
-          [
-            f.nostrilSize[0]! * plan.noseWidth,
-            f.nostrilSize[1]! * plan.noseWidth,
-            f.nostrilSize[0]! * plan.noseWidth,
-            f.nostrilSize[1]! * plan.noseWidth,
-          ],
-          INSET + 8.8 * k,
+          [nostrilLength, nostrilWidth, nostrilLength, nostrilWidth],
+          INSET + drop,
           nostril,
           ala[0]?.part ?? `nose.ala.${side}`,
           attempts,
+          INSET,
         ),
       );
     }
@@ -211,6 +223,7 @@ export namespace AutoMovieHumanHeadInnerParts {
     ];
     const philtralHalf: number =
       Math.hypot(m.subnasale[0] - ls[0], m.subnasale[1] - ls[1]) / 2;
+    const grooveHalfWidth: number = f.philtrum[1]! * (2 * plan.mouthWidth);
     out.push(
       ...part(
         "philtrum",
@@ -219,8 +232,8 @@ export namespace AutoMovieHumanHeadInnerParts {
         sub(philtralCentre, scale(philtralInward, INSET)),
         philtralInward,
         philtral,
-        [philtralHalf, f.philtrum[1]! * k, philtralHalf, f.philtrum[1]! * k],
-        INSET + f.philtrum[0]! * k,
+        [philtralHalf, grooveHalfWidth, philtralHalf, grooveHalfWidth],
+        INSET + f.philtrum[0]! * grooveHalfWidth,
         philtralCentre,
         mass,
         attempts,
@@ -270,8 +283,8 @@ export namespace AutoMovieHumanHeadInnerParts {
    * One inner part.
    *
    * @param host The original material parent, or the name of a required one
-   *   whose own source failed; that name records this part as a failed
-   *   attempt instead of authoring it without its contact.
+   *   whose own source failed; that name records this part as a failed attempt
+   *   instead of authoring it without its contact.
    */
   function part(
     name: string,
@@ -285,6 +298,7 @@ export namespace AutoMovieHumanHeadInnerParts {
     seed: [number, number, number],
     host: IAutoMovieViewPart | string,
     attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+    baseInset?: number,
   ): IAutoMovieHumanHeadFeatures.IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map(
@@ -301,6 +315,20 @@ export namespace AutoMovieHumanHeadInnerParts {
       shoulder: AutoMovieViewSection.ELLIPSE,
     };
 
+    return domePart(dome, parent, join, seed, host, attempts, baseInset);
+  }
+
+  /** Admit the caller's original cap and keep its tree and material owners. */
+  function domePart(
+    dome: Omit<IAutoMovieHumanHeadDome.IDome, "host">,
+    parent: string,
+    join: "merge" | "diff",
+    seed: [number, number, number],
+    host: IAutoMovieViewPart | string,
+    attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+    baseInset?: number,
+  ): IAutoMovieHumanHeadFeatures.IFeature[] {
+    const { name, origin, extents: e } = dome;
     // A missing material parent is its own failed premise, recorded like
     // any other attempt, so the composer still refuses the whole head.
     if (typeof host === "string") {
@@ -319,8 +347,8 @@ export namespace AutoMovieHumanHeadInnerParts {
       });
       return [];
     }
-    const source: IAutoMovieHumanHeadDome.IPart | null =
-      AutoMovieHumanHeadDome.attempt(dome, host, seed, attempts);
+    const source: ReturnType<typeof AutoMovieHumanHeadDome.attempt> =
+      AutoMovieHumanHeadDome.attempt(dome, host, seed, attempts, baseInset);
     return source === null
       ? []
       : [
@@ -331,8 +359,10 @@ export namespace AutoMovieHumanHeadInnerParts {
             contact:
               source.attachment === null || source.attachment.parameter === null
                 ? INSET
-                : source.stations.at(-1)! - h + source.attachment.parameter,
-            size: [h - INSET, Math.min(...e)],
+                : source.stations.at(-1)! -
+                  source.rise +
+                  source.attachment.parameter,
+            size: [source.rise - INSET, Math.min(...e)],
             parent,
             ...(host === undefined ? {} : { material: host }),
             ...(source.attachment === null

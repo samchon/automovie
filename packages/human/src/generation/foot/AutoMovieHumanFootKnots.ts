@@ -7,6 +7,8 @@ import type {
   IAutoMovieHumanFootWebLine,
 } from "@automovie/interface";
 
+import { AutoMovieHumanFootArch } from "../AutoMovieHumanFootArch";
+import { AutoMovieHumanFootPlaces } from "../AutoMovieHumanFootPlaces";
 import { AutoMovieHumanFootAchilles } from "./AutoMovieHumanFootAchilles";
 import { AutoMovieHumanFootColumn } from "./AutoMovieHumanFootColumn";
 import { AutoMovieHumanFootCrestForefoot } from "./AutoMovieHumanFootCrestForefoot";
@@ -14,48 +16,9 @@ import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
 import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
 import { AutoMovieHumanFootLateralForefoot } from "./AutoMovieHumanFootLateralForefoot";
 
-/**
- * The foot's guide regions and the five guides they compose, as one table.
- *
- * A guide is its regions' knots, front to back, joined by the guide's own C2
- * spline (`AutoMovieHumanFootGuide.of`); each region has its own centre and its
- * knots in the foot frame's normalized coordinates (foot lengths `a`, foot
- * breadths `u`, and heights in foot lengths or lateral malleolus heights). The
- * regions with a rule of their own keep their files (the crest's forefoot, the
- * lateral forefoot, the two columns, the heel's corner and the Achilles); the
- * others are knot lists in this table, each a reference median awaiting a
- * published value:
- *
- * - crest: the instep's summit line from the first toe web back and up the
- *   column to the ankle ring, the guide the section's two dorsal pieces start
- *   from: the forefoot's part and the ankle's (`crestAnkle`: over the talus's
- *   neck to the ankle ring, centred at the lateral malleolus height, the last
- *   knot on the ring).
- * - lateral: the greatest across point of each of the fan's own planes, the
- *   fifth metatarsal's side, the heel's lateral wall (`lateralHeel`: the
- *   calcaneus's wall at shares 0.55 to 0.65; on every reference the extreme
- *   passes from this wall to the malleolus between 0.65 and 0.75, a branch
- *   change the guide bridges to the column's first knot) and the column up to
- *   the lateral malleolus.
- * - contactLateral: the sole's lateral boundary on the floor under the ball
- *   (`contactLateralBall`, round the fifth metatarsal head, a = 0.86 to 0.6),
- *   the midfoot (`contactLateralMidfoot`, along the cuboid and the fifth
- *   metatarsal's base, a = 0.5 to 0.2, where the lateral arch is lowest) and the
- *   heel (`contactLateralHeel`, round the calcaneal tuberosity to the contact's
- *   rear end, a = 0.1 and 0.075), then round the heel's posterior corner and up
- *   the Achilles.
- * - contactMedial: the sole's medial boundary under the ball
- *   (`contactMedialBall`, round the first metatarsal head and the sesamoids,
- *   crossing the sole as the arch begins), the medial arch's footprint
- *   (`contactMedialMidfoot`, centred on the navicular) and the heel
- *   (`contactMedialHeel`), then round the heel's corner and up the Achilles.
- * - medial: the least across point of each of the fan's own planes, the first
- *   ray's side (`medialForefoot`, from the web ring to 0.45 of the stations),
- *   the navicular's arch (`medialNavicular`, the medial longitudinal arch's
- *   crown at shares 0.5 to 0.65) and the column up to the medial malleolus.
- */
+/** Independent forefoot, arch, heel and ankle guide regions in anatomical order. */
 export namespace AutoMovieHumanFootKnots {
-  /** Each guide's regions, front to back. */
+  /** The front-to-back regions of each continuous guide. */
   export const GUIDES: Readonly<
     Record<
       keyof IAutoMovieHumanFootBody.IGuides,
@@ -81,7 +44,18 @@ export namespace AutoMovieHumanFootKnots {
     medial: ["medialForefoot", "medialNavicular", "medialColumn"],
   };
 
-  /** The contact regions' knots on the floor, front first: `[a, u]` in foot lengths and breadths. */
+  /** Nominal metatarsal site used by the legacy foot's normalized chart. */
+  const BALL: number = AutoMovieHumanFootPlaces.BALL;
+
+  /** Nominal ankle position and calcaneal contact end in foot lengths. */
+  const ANKLE: number = AutoMovieHumanFootPlaces.ANKLE;
+  const CONTACT: number = AutoMovieHumanFootHeelCorner.END;
+
+  /**
+   * ESTIMATE of the standing footprint. Both edges of the ball and heel bear
+   * weight. Gray's lower lateral arch carries a narrow outer contact strip
+   * between them. The rear endpoints meet the heel corner exactly.
+   */
   const FLOOR: Readonly<
     Record<
       | "contactLateralBall"
@@ -94,87 +68,32 @@ export namespace AutoMovieHumanFootKnots {
     >
   > = {
     contactLateralBall: [
-      [0.86, 0.6],
-      [0.8, 0.61],
-      [0.75, 0.77],
-      [0.7, 0.91],
-      [0.6, 0.93],
+      [(1 + BALL) / 2, 3 / 4],
+      [BALL, 7 / 8],
     ],
     contactLateralMidfoot: [
-      [0.5, 0.845],
-      [0.4, 0.78],
-      [0.3, 0.72],
-      [0.2, 0.7],
+      [1 / 2, 5 / 6],
+      [ANKLE, 3 / 4],
     ],
     contactLateralHeel: [
-      [0.1, 0.61],
-      [0.075, 0.58],
+      [(ANKLE + CONTACT) / 2, 3 / 4],
+      [CONTACT, 1 / 2 + AutoMovieHumanFootHeelCorner.HALF],
     ],
     contactMedialBall: [
-      [0.86, 0.19],
-      [0.8, 0.17],
-      [0.75, 0.155],
-      [0.7, 0.19],
-      [0.6, 0.5],
+      [(1 + BALL) / 2, 1 / 4],
+      [BALL, 1 / 8],
     ],
     contactMedialMidfoot: [
-      [0.5, 0.6],
-      [0.4, 0.515],
-      [0.3, 0.405],
-      [0.2, 0.29],
+      [1 / 2, 2 / 3],
+      [ANKLE, 1 / 3],
     ],
     contactMedialHeel: [
-      [0.1, 0.28],
-      [0.075, 0.3335],
+      [(ANKLE + CONTACT) / 2, 1 / 4],
+      [CONTACT, 1 / 2 - AutoMovieHumanFootHeelCorner.HALF],
     ],
   };
 
-  /** The crest's knots up the ankle's front, lowest first: `[a, u, eta]`, eta in lateral malleolus heights. */
-  const ANKLE: readonly (readonly [number, number, number])[] = [
-    [0.406, 0.39, 1.2],
-    [0.377, 0.39, 1.4621],
-  ];
-
-  /** The border regions' knots read in the fan's own planes (`AutoMovieHumanFootGuide.fanned`): `[share, a, u, y / L, y / H]`. */
-  const FANNED: Readonly<
-    Record<
-      "lateralHeel" | "medialForefoot" | "medialNavicular",
-      readonly IAutoMovieHumanFootGuide.IFanKnot[]
-    >
-  > = {
-    lateralHeel: [
-      [0.55, 0.276, 0.8411, 0.069, 0.2511],
-      [0.6, 0.2221, 0.8275, 0.0651, 0.2321],
-      [0.65, 0.1593, 0.8028, 0.082, 0.2774],
-    ],
-    medialForefoot: [
-      [0, 0.8598, 0.0213, 0.0429, 0.1606],
-      [0.05, 0.7926, 0.0124, 0.0504, 0.184],
-      [0.1, 0.7293, 0.0001, 0.0585, 0.2096],
-      [0.15, 0.6657, 0.0119, 0.0651, 0.2366],
-      [0.2, 0.6054, 0.0289, 0.0827, 0.3071],
-      [0.25, 0.55, 0.0405, 0.0996, 0.3621],
-      [0.3, 0.5025, 0.0431, 0.1139, 0.4218],
-      [0.35, 0.4628, 0.0417, 0.1181, 0.437],
-      [0.4, 0.4291, 0.0422, 0.123, 0.4551],
-      [0.45, 0.3976, 0.0452, 0.1287, 0.4751],
-    ],
-    medialNavicular: [
-      [0.5, 0.3653, 0.0477, 0.1516, 0.5238],
-      [0.55, 0.3304, 0.0475, 0.1453, 0.5411],
-      [0.6, 0.3139, 0.0489, 0.1895, 0.7076],
-      [0.65, 0.298, 0.0484, 0.2203, 0.796],
-    ],
-  };
-
-  /**
-   * A region's knots as world points, front to back.
-   *
-   * @param region The region.
-   * @param frame The foot's frame.
-   * @param line The foot's web line.
-   * @returns The knots.
-   */
+  /** Read one guide region's original world points, from front to back. */
   export function knots(
     region: IAutoMovieHumanFootKnots.Region,
     frame: IAutoMovieHumanFootFrame.IFrame,
@@ -184,10 +103,7 @@ export namespace AutoMovieHumanFootKnots {
       case "crestForefoot":
         return AutoMovieHumanFootCrestForefoot.knots(frame);
       case "crestAnkle":
-        return ANKLE.map(
-          (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
-            frame.at(q[0], q[1], q[2] * frame.H),
-        );
+        return [frame.at(2 * ANKLE, 1 / 2, frame.ring)];
       case "lateralForefoot":
         return AutoMovieHumanFootLateralForefoot.knots(frame, line);
       case "lateralColumn":
@@ -195,9 +111,22 @@ export namespace AutoMovieHumanFootKnots {
       case "medialColumn":
         return AutoMovieHumanFootColumn.knots("medial", frame, line);
       case "lateralHeel":
+        return [
+          frame.at(ANKLE, 5 / 6, AutoMovieHumanFootHeelCorner.height(frame)),
+        ];
       case "medialForefoot":
+        return [(1 + BALL) / 2, BALL].map(
+          (share: number): AutoMovieVector3Tuple =>
+            frame.at(
+              share,
+              0,
+              (AutoMovieHumanFootCrestForefoot.depth(share) * frame.L) / 2,
+            ),
+        );
       case "medialNavicular":
-        return AutoMovieHumanFootGuide.fanned(frame, line, FANNED[region]);
+        return [
+          frame.at(2 * ANKLE, 1 / 8, AutoMovieHumanFootArch.navicular(frame.L)),
+        ];
       case "heelCornerLateral":
         return AutoMovieHumanFootHeelCorner.knots(frame, 1);
       case "heelCornerMedial":
@@ -213,20 +142,12 @@ export namespace AutoMovieHumanFootKnots {
       case "contactMedialMidfoot":
       case "contactMedialHeel":
         return FLOOR[region].map(
-          (q: readonly [number, number]): AutoMovieVector3Tuple =>
-            frame.at(q[0], q[1], 0),
+          ([a, u]): AutoMovieVector3Tuple => frame.at(a, u, 0),
         );
     }
   }
 
-  /**
-   * The five guides of a foot, each its regions' knots joined by the guide's
-   * own spline.
-   *
-   * @param frame The foot's frame.
-   * @param line The foot's web line.
-   * @returns The guides.
-   */
+  /** Join each guide's independent regions in the same public chart. */
   export function guides(
     frame: IAutoMovieHumanFootFrame.IFrame,
     line: IAutoMovieHumanFootWebLine.IWebLine,
@@ -238,8 +159,8 @@ export namespace AutoMovieHumanFootKnots {
         frame,
         line,
         GUIDES[name].flatMap(
-          (r: IAutoMovieHumanFootKnots.Region): AutoMovieVector3Tuple[] =>
-            knots(r, frame, line),
+          (region: IAutoMovieHumanFootKnots.Region): AutoMovieVector3Tuple[] =>
+            knots(region, frame, line),
         ),
       );
 

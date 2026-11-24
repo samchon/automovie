@@ -1,19 +1,27 @@
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
-import type { IAutoMovieHumanF1Engineering } from "@automovie/interface";
 
 /** Pure case admission shared by figure and deviation capture inputs. */
 export namespace FamilyConicCaseSelection {
+  /** A selector borrows the case data verbatim from its producer. */
+  export interface ICaseRecord {
+    /** The producer's stable case identifier. */
+    id: string;
+    /** Original field data passed to generation. */
+    fields: object;
+    /** Status supplied by the field producer. */
+    resolution: { status: string };
+  }
+
   /**
    * Serialized producer handoff; the production case type remains authoritative.
    *
    * @evidence contracts/development/design.md#principled-representation A schema, complete source fingerprint and immutable case list retain producer provenance without a second anatomy model.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The generic header permits small input-only tests; actual readers use the production IResolvedCase default.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The generic header permits small input-only tests; actual readers use the case producer record.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts Fields and numerical resolution are never rebuilt or inferred by this transport declaration.
    * @evidence contracts/development/common.md#meaningful-documentation Names producer provenance and the authoritative production case type.
    */
   export interface IArtifact<
-    T extends { id: string; resolution: { status: string } } =
-      IAutoMovieHumanF1Engineering.IResolvedCase,
+    T extends { id: string; resolution: { status: string } } = ICaseRecord,
   > {
     /** Exact serialized handoff version. */
     schema: string;
@@ -34,7 +42,7 @@ export namespace FamilyConicCaseSelection {
    * @evidence contracts/development/common.md#meaningful-documentation Names the base file name and the lowercase or uppercase hex digest.
    */
   export interface IBundle {
-    /** Base file name of the executed bundle, such as `FamilyConicFigure.cjs`. */
+    /** Base file name of the executed bundle, such as `FamilyConicBody.cjs`. */
     name: string;
     /** SHA-256 hex digest of the executed bundle's bytes. */
     sha256: string;
@@ -170,7 +178,7 @@ export namespace FamilyConicCaseSelection {
    *
    * @evidence contracts/development/implementation.md#principled-implementation Exact ids, resolved input status and equal complete source fingerprints admit the same producer object; fields are never solved or copied.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Schema and provenance admission precede one unique-id pass and the requested-status check.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing, duplicate and unresolved cases never fall back to F1; a partial fingerprint cannot certify the artifact.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Missing, duplicate and unresolved cases never fall back to another case; a partial fingerprint cannot certify the artifact.
    * @evidence contracts/development/common.md#meaningful-documentation Resolution concerns inputs, not source geometry or visual acceptance.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear work in case count and source-scope text uses one local id set and key arrays.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work One pure selection coordinates no solver, renderer or prepared resource.
@@ -183,7 +191,7 @@ export namespace FamilyConicCaseSelection {
     id: string,
     currentHashes: Readonly<Record<string, string>>,
   ): T {
-    if (artifact.schema !== "f1-native-cases/v1")
+    if (artifact.schema !== "human-native-cases/v1")
       throw new Error("Unsupported capture case schema");
     sources(artifact.sourceHashes, currentHashes);
     if (

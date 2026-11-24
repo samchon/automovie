@@ -1,11 +1,11 @@
 /**
- * Own-side auricle directions, public dimensions and relief scaling in calibration millimetres.
+ * Own-side auricle directions and public dimensions in calibration millimetres.
  *
- * The interface package owns these declarations; AutoMovieHumanHeadEarFrame in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanHeadEarFrame in
+ * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanHeadEarFrame {
-  /** Own-side dimensions and orientation in calibration mm.
-   */
+  /** Own-side dimensions and orientation in calibration mm. */
   export interface IFrame {
     /** Outward side-outline normal at the selected tragion height. */
     n: [number, number, number];
@@ -23,8 +23,6 @@ export namespace IAutoMovieHumanHeadEarFrame {
     breadth: number;
     /** Public scalp-to-rim distance at the tragal level. */
     protrusion: number;
-    /** Retained relief-row scale, world breadth/31 mm. */
-    scale: number;
     /** Own side, positive left and negative right. */
     sign: 1 | -1;
   }

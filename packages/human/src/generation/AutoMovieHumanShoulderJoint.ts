@@ -7,7 +7,7 @@ import type {
  * Campbell et al. 2009's male-population generic GH offset [12,-49,6] mm,
  * transferred from their measured AcrLR/triad to an explicitly authored
  * acromion and frontal shoulder chord. Neither input is their measured marker
- * frame: acromion AP is a retained skin prior and neck is an internal overlap.
+ * frame: acromion AP and the neck overlap lie on the same estimated frontal chord.
  * The AP long bar and frontal short bar below are construction conventions.
  * Public bideltoid is deliberately absent from this placement law.
  */

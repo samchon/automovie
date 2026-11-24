@@ -1,14 +1,10 @@
 /**
  * A guide's knots smoothed to their own noise: the cubic smoothing spline of
  * the knots' in-plane places over their stations (Reinsch 1967), so a guide
- * follows the reference medians where they agree and averages them where
- * they scatter.
+ * follows the input knots where they agree and smooths small irregularities
+ * where adjacent guide regions meet.
  *
- * Each region's knots are medians read one share of the stations at a time,
- * and the regions are read apart, so neighbouring knots carry scatter of
- * their own, crowd where two regions meet and fold where an extreme changes
- * branch. Interpolated exactly, all of it became the guide's shape. The
- * smoothing spline `g` minimises
+ * The smoothing spline `g` minimises
  *
  * ```text
  * sum_i |y_i - g(t_i)|^2 + alpha * integral |g''(t)|^2 dt

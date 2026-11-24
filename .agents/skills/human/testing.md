@@ -40,7 +40,7 @@ Give an anatomy row only a relation the laws could get wrong. A value the constr
 
 ## People
 
-The active task sets person coverage; select f1 explicitly for an f1-only campaign and leave population acceptance unclaimed. A person-level audit uses whole, consistent people: the references, the population ends of each length, breadth and sex, and each input at both declared ends. Derive every limit from the person's inputs, a published source or geometry, never from closeness to a reference body.
+Select the documented subjects and poses for the task. A person-level audit uses whole, consistent people and checks the population and declared input ranges it claims to cover. Derive measurement limits from the individual's input, a published definition or geometry. Judge shape in matched reference views.
 
 ## Writing one
 

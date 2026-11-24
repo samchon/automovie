@@ -3,22 +3,22 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import type { IAutoMovieHumanSegmentFrame } from "@automovie/interface";
 
 /**
- * A close region of f1, carried onto a changed case by its bones.
+ * A close region of the baseline, carried onto a changed case by its bones.
  *
- * The capture's close zones are read on f1's reference, in f1's world. A changed case moves its segments: a shorter thigh raises the
- * foot, so a camera fitted on f1's toes frames the case's toes partly out of the picture. Each point of the zone is carried by the
- * segment whose frame origin (its joint) stands nearest it in f1: its coordinates in that frame are kept and read in the case's frame
+ * The capture's close zones are read on the baseline's reference, in the baseline's world. A changed case moves its segments: a shorter thigh raises the
+ * foot, so a camera fitted on the baseline's toes frames the case's toes partly out of the picture. Each point of the zone is carried by the
+ * segment whose frame origin (its joint) stands nearest it in the baseline: its coordinates in that frame are kept and read in the case's frame
  * of the same name. A point on the other side (z < 0) is carried as its +Z image and reflected back, since the frames are the stored
- * side's. The carried points frame the case's own region; f1's points keep framing the reference.
+ * side's. The carried points frame the case's own region; the baseline's points keep framing the reference.
  */
 export namespace FamilyConicCaseRegion {
   /**
-   * Carry f1 points, metres, onto a case.
+   * Carry baseline points, metres, onto a case.
    *
-   * @param points Zone points in f1's world, metres.
-   * @param from f1's segment frames, millimetres.
+   * @param points Zone points in the baseline's world, metres.
+   * @param from the baseline's segment frames, millimetres.
    * @param to The case's segment frames of the same names, millimetres.
-   * @returns The carried points in the case's world, metres; f1's own frames return the points unchanged.
+   * @returns The carried points in the case's world, metres; the baseline's own frames return the points unchanged.
    */
   export function carry(
     points: readonly N.Point[],
@@ -29,7 +29,7 @@ export namespace FamilyConicCaseRegion {
       const moved: IAutoMovieHumanSegmentFrame | undefined = to.get(name);
       return moved === undefined ? [] : [[frame, moved] as [IAutoMovieHumanSegmentFrame, IAutoMovieHumanSegmentFrame]];
     });
-    if (pairs.length === 0) throw new Error("the case shares no segment frame with f1");
+    if (pairs.length === 0) throw new Error("the case shares no segment frame with the baseline");
     return points.map((p: N.Point): N.Point => {
       const side: number = p[2] < 0 ? -1 : 1;
       const q: [number, number, number] = [p[0] * 1000, p[1] * 1000, side * p[2] * 1000];

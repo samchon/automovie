@@ -1,10 +1,13 @@
 import { nclose } from "../../internal/nclose";
 import { AutoMovieViewAxis } from "@automovie/engine";
-import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
+import {
+  AutoMovieHumanNativeRootContact as Contact,
+  AutoMovieHumanNativeRootLaw as Root,
+} from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,
-  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieHumanNativeRoot,
   IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
@@ -21,6 +24,8 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Actual complete circle descriptors calibrate through the existing angle
  *    correspondence. Their unchanged clocks, rail, seed shares and phase stay
  *    literal controls even when a new interpolated phase graph would refuse.
+ *    A moved cutter derives its source contact. The band contact takes caller
+ *    chart coordinates and checks their material domain.
  * 3. Final physical source2 retains a cylinder's unit station derivative and
  *    zero station bend; target clock2 remains a distinct periodic curve jet.
  * 4. The candidate axis owns physical2 and its root/angle parameter conversion;
@@ -30,7 +35,7 @@ import { TestValidator } from "@nestia/e2e";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls targets, actual calibrate/prepare/resolve/seed/inspect, phaseCurve and reclock on complete in-memory native descriptors. All scenario failures are collected before one verdict, without a chain, person or renderer.
  * @evidence contracts/development/testing.md#independent-expectations Unit calipers require literal wall identity; a held wall retains its literal child, and the binary64 ulp at 1e20 is 16384, so adding that carry to child 1 gives literal 16385. These are generic Float64 control contracts, not physical measurements. Unchanged seed/source clocks are original controls, checked with Object.is. Circle derivatives, s=1+q^2, s=1+3*sin(q/2)^2, and a rotated constant-radius ellipse give the other closed expectations; no finite differences or copied implementation supplies an oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes tiny-wall cancellation, held small child, positive/negative one-ulp large carry, a representable subnormal, nonzero-bottom seed domain, an admitted discrete clock whose new cubic has negative derivative, both windings, wrapped inverse phases, radial provenance, missing physical2 and unsupported graphs. Whole-figure geometry and the numeric root solver belong to other gates.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes cancellation, one-ulp carries, a subnormal, a nonzero-bottom seed domain, unchanged search and changed source and band contacts, an admitted discrete clock whose new cubic has negative derivative, both windings, wrapped inverse phases, radial provenance, missing physical2 and unsupported graphs.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous portable CPU unit discovered as human_native_root_transport. The supervisor runs it with the other independent RED fixtures; this file starts no process and reads no reference.
  * @evidence contracts/development/common.md#meaningful-documentation States the five scenarios, exact-control versus approximate arithmetic assertions, physical mm/radian derivative units and the independent geometry behind each expectation.
  */
@@ -157,7 +162,7 @@ export function test_human_native_root_transport(): void {
     ];
     for (const row of cases) {
       const wall: AutoMovieVector3Tuple = [row.wall, 0, 0];
-      const result: IAutoMovieHumanF1NativeRoot.ICurves = Root.targets({
+      const result: IAutoMovieHumanNativeRoot.ICurves = Root.targets({
         parent: [[row.parent, 0, 0]],
         child: [[row.child, 0, 0]],
         wall: [wall],
@@ -175,7 +180,7 @@ export function test_human_native_root_transport(): void {
   });
 
   scenario("actual original transport", (): void => {
-    const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
+    const original: IAutoMovieHumanNativeRoot.ICalibration = Root.calibrate({
       name: "made-offset-circles",
       parent,
       child,
@@ -208,10 +213,10 @@ export function test_human_native_root_transport(): void {
         "made stricter graph",
       ),
     );
-    const prepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(original, parent, [1, 1]);
+    const prepared: IAutoMovieHumanNativeRoot.IPrepared = Root.prepare(original, parent, [1, 1]);
     if (prepared.axis !== child.axis)
       failures.push("unchanged candidate replaced its original course");
-    const root: IAutoMovieHumanF1NativeRoot.IRootSpec = prepared.resolve(child);
+    const root: IAutoMovieHumanNativeRoot.IRootSpec = prepared.resolve(child);
     if (root.loop !== loop)
       failures.push("unchanged root replaced its original radial controls");
     exact("unchanged rail station", root.railStations[0]!, 2);
@@ -221,15 +226,55 @@ export function test_human_native_root_transport(): void {
         root.rows[k]!.sourceClock,
         (turn * k) / 4,
       );
-    const seed: IAutoMovieHumanF1NativeRoot.ISeed = { phase: 0.17, from: 0.1, to: 0.9 };
-    const transported: IAutoMovieHumanF1NativeRoot.ISeedTransport = root.seed(child, child, seed);
+    const seed: IAutoMovieHumanNativeRoot.ISeed = { phase: 0.17, from: 0.1, to: 0.9 };
+    const transported: IAutoMovieHumanNativeRoot.ISeedTransport = root.seed(child, child, seed);
     exact("unchanged seed phase", transported.seed.phase, seed.phase);
     exact("unchanged seed from", transported.seed.from, seed.from);
     exact("unchanged seed to", transported.seed.to, seed.to);
     for (const control of transported.controls)
       close("unchanged seed physical residual", control.residual, [0, 0, 0]);
 
-    const inspection: readonly IAutoMovieHumanF1NativeRoot.IInspection[] = root.inspect(child);
+    const search: Contact.IResult = Contact.create(root, child, child, seed, {
+      type: "band", face: "made-band",
+    });
+    if (search.seed.type === "search")
+      close("unchanged cutter search line", [search.seed.phase, search.seed.from, search.seed.to], [seed.phase, seed.from, seed.to]);
+    else failures.push("unchanged cutter was issued a point seed");
+
+    const moved: IAutoMovieViewPart = circle(
+      "moved-cutter",
+      0.2,
+      AutoMovieViewAxis.straight([4.5, 1.81, 0], [0, 1, 0], [0, 0, 1]),
+    );
+    const line: IAutoMovieHumanNativeRoot.ISeed = { phase: 0, from: 0, to: 1 };
+    const source: Contact.IResult = Contact.create(root, child, moved, line, {
+      type: "source", part: parent,
+    });
+    if (source.seed.type === "point") {
+      // The cutter's phase-zero line [4.5 - s, 2.01, 0] enters the radius-2 parent at s = 2.5.
+      close("derived cutter seed in metres", source.seed.part, [0.0025, 0]);
+      close("derived host seed in metres", source.seed.host, [0.00201, 0]);
+      close("radial contact residual", source.observation.controls[0]!.residual, [0, 0, 0]);
+      close("cutter displacement", source.observation.controls[1]!.residual, [0.5, 0, 0]);
+    } else failures.push("moved cutter with a source host kept its search seed");
+
+    const band: Contact.IResult = Contact.create(root, child, moved, line, {
+      type: "band", face: "made-band", chart: { part: [2.5, 0], host: [3, Math.PI / 2] },
+    });
+    if (band.seed.type === "point") {
+      close("band cutter chart in metres", band.seed.part, [0.0025, 0]);
+      close("caller band chart in metres", band.seed.host, [0.003, Math.PI / 2]);
+    } else failures.push("moved cutter with a measured band chart kept its search seed");
+    refuses("missing caller band coordinates", (): Contact.IResult =>
+      Contact.create(root, child, moved, line, { type: "band", face: "made-band" }),
+    );
+    refuses("caller band cutter station outside the source", (): Contact.IResult =>
+      Contact.create(root, child, moved, line, {
+        type: "band", face: "made-band", chart: { part: [0, 0], host: [3, Math.PI / 2] },
+      }),
+    );
+
+    const inspection: readonly IAutoMovieHumanNativeRoot.IInspection[] = root.inspect(child);
     if (inspection.length !== 4)
       failures.push("actual source2 inspection lost a column");
     for (const row of inspection) {
@@ -257,7 +302,7 @@ export function test_human_native_root_transport(): void {
   });
 
   scenario("candidate physical axis2", (): void => {
-    const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
+    const original: IAutoMovieHumanNativeRoot.ICalibration = Root.calibrate({
       name: "made-axis",
       parent,
       child,
@@ -301,7 +346,7 @@ export function test_human_native_root_transport(): void {
       ...child,
       axis: { at: (s: number): IAutoMovieLoftSectionFrame => child.axis.at(s) },
     };
-    const valueOriginal: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
+    const valueOriginal: IAutoMovieHumanNativeRoot.ICalibration = Root.calibrate({
       name: "made-value-only",
       parent,
       child: without2,
@@ -312,7 +357,7 @@ export function test_human_native_root_transport(): void {
       metric: { station: 2, depth: 0.4, breadth: 0.4 },
       basis,
     });
-    const valuePrepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(
+    const valuePrepared: IAutoMovieHumanNativeRoot.IPrepared = Root.prepare(
       valueOriginal,
       parent,
       [2, 3],

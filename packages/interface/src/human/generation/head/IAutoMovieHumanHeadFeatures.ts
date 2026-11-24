@@ -46,6 +46,9 @@ export namespace IAutoMovieHumanHeadFeatures {
      */
     elongated?: boolean;
 
+    /** Contact trace clock. Absent, round features use phase and elongated features use arclength. */
+    parameter?: "phase" | "arc";
+
     /**
      * Where the engine searches the part's station line for its meeting
      * with the parent (`IAutoMovieConstructionSearchSeed`): the phase and the
@@ -55,6 +58,8 @@ export namespace IAutoMovieHumanHeadFeatures {
     search?: {
       /** Section phase in radians, increasing according to the source curve's orientation. */
       phase: number;
+      /** Declared number of evenly spaced station lines, starting at phase. */
+      phases?: number;
       /** Start of the seed-search interval as a dimensionless share of the part's station span. */
       from: number;
       /** End of the seed-search interval as a dimensionless share of the part's station span. */

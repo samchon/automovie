@@ -8,8 +8,7 @@ import type {
 /**
  * Segment lengths as edits of a chain: a segment's length moves the joint at its far end along the segment, so every joint centre and
  * relative frame past it follows through the chain composer (`AutoMovieHumanSegmentFrame.world`), and a later segment keeps its own
- * length and translates. This is the station law the limb law proved on f1 in step 2 of #3151
- * (`test/src/reference-conics/FamilyConicLimbLaw.ts`, `chainWith`, `extremityFrames`, `scaleIn`), moved into the package.
+ * length and translates within its parent's composed frame.
  *
  * A joint's offset in its parent's frame is scaled by one ratio (a long bone: the far joint along the bone), or, inside a segment whose
  * children spread across it (the hand's metacarpal heads, the foot's metatarsal heads), by one ratio along the segment's axis and another

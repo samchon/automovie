@@ -1,34 +1,31 @@
 import { nclose } from "../../internal/predicates";
 import {
-  AutoMovieHumanConicSection as S,
-  AutoMovieHumanF1NativeFanControls as Fan,
-  AutoMovieHumanF1NativeRootLaw as Root,
-  AutoMovieHumanF1SourceScope as Scope,
+  AutoMovieHumanNativeFanControls as Fan,
+  AutoMovieHumanNativeRootLaw as Root,
 } from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieHumanConicLoft,
-  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieHumanNativeRoot,
 } from "@automovie/interface";
 
 /**
- * Shared root control response, preserved address residual and independent web/source scope.
+ * Shared root control response, preserved address residual and independent web depth.
  *
  * Scenarios:
  * 1. Clock zero stays held while another complete wall control moves in either sign; both original port targets follow that same response.
  * 2. Independent depth/breadth affine controls retain their literal calipers and zero-input controls without world-coordinate cancellation.
  * 3. Native-address increments preserve the original relief residual, a small signed edit and the original phase branch across pi.
- * 4. A web's along coordinate follows its own original/current chord ratio while depth stays held, and an arm uses its real open-top kept scope.
+ * 4. A web's along coordinate follows its own original/current chord ratio while depth stays held.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the actual root, fan and source-scope owners that production will consume; all failures are collected in one tiny round.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the root control and fan profile owners and collects every failure.
  * @evidence contracts/development/testing.md#independent-expectations Literal vector additions, diagonal scales, two-to-one chord arithmetic and original address increments supply expectations without evaluating the implementation twice.
- * @evidence contracts/development/testing.md#distinguishing-cases Includes positive/negative wall edits, unchanged controls, a wrapped phase, invalid ratios/chords and original-versus-production cap scope.
- * @evidence contracts/development/testing.md#execution-ownership Uses two made controls and a three-knot conic definition only; no person, reference, loft, mesh, rendering or process.
- * @evidence contracts/development/common.md#meaningful-documentation Separates target controls, actual source scope, mm along/depth and radian phase.
+ * @evidence contracts/development/testing.md#distinguishing-cases Includes positive and negative wall edits, unchanged controls, a wrapped phase and invalid ratios and chords.
+ * @evidence contracts/development/testing.md#execution-ownership Uses synthetic vectors and profile knots in a synchronous CPU test.
+ * @evidence contracts/development/common.md#meaningful-documentation Identifies the target controls, millimetre along and depth coordinates, and radian phase.
  */
 export function test_human_native_shared_root_controls(): void {
   const failures: string[] = [];
-  const basis: IAutoMovieHumanF1NativeRoot.ITargets["basis"] = {
+  const basis: IAutoMovieHumanNativeRoot.ITargets["basis"] = {
     origin: [0, 0, 0],
     u: [1, 0, 0],
     v: [0, 0, 1],
@@ -54,7 +51,7 @@ export function test_human_native_shared_root_controls(): void {
       );
   };
   for (const sign of [-1, 1]) {
-    const actual: IAutoMovieHumanF1NativeRoot.ICurves = Root.targets({
+    const actual: IAutoMovieHumanNativeRoot.ICurves = Root.targets({
       parent: [
         [0, 0, 0],
         [0, 2, 0],
@@ -73,7 +70,7 @@ export function test_human_native_shared_root_controls(): void {
     close("complete parent wall carry", actual.parent[1]!, [0, 2, 3 * sign]);
     close("complete child wall carry", actual.child[1]!, [1, 2, 3 * sign]);
   }
-  const anisotropic: IAutoMovieHumanF1NativeRoot.ICurves = Root.targets({
+  const anisotropic: IAutoMovieHumanNativeRoot.ICurves = Root.targets({
     parent: [
       [4, 0, 0],
       [4, 2, 1],
@@ -156,45 +153,5 @@ export function test_human_native_shared_root_controls(): void {
     }
     if (!refused) failures.push("invalid root scale accepted " + invalid);
   }
-  const family: IAutoMovieHumanConicLoft.IFamily = {
-    name: "made",
-    centres: [
-      [0, 0, 0],
-      [0, 20, 0],
-    ],
-    halves: [],
-    up: [1, 0, 0],
-    layout: S.limb(0),
-    knots: [0, 2, 4],
-    values: [
-      [3, 2.5, 2],
-      [0, 0, 0],
-      [0, 0, 0],
-      [2, 2, 2],
-      [-2, -2, -2],
-      [0, 0, 0],
-      [0, 0, 0],
-      [-2, -2, -2],
-      ...[0, 1, 2, 3].map((): number[] => [0.4, 0.4, 0.4]),
-    ],
-    tips: [
-      { from: 0, tip: -2 },
-      { from: 4, tip: 6 },
-    ],
-  };
-  const arm: Scope.IResult = Scope.resolve(family, {
-    kind: "arm",
-    until: 3,
-    turn: 0.2,
-  });
-  if (
-    arm.family.tips?.[0] !== family.tips![0] ||
-    arm.family.tips?.[1] !== null ||
-    !nclose(arm.wallDomain[1], 3, 1e-12) ||
-    arm.family.turn !== 0.2
-  )
-    failures.push(
-      "production arm scope retained a closed raw cap/domain or lost its sampling request",
-    );
   if (failures.length > 0) throw new Error(failures.join("\n"));
 }

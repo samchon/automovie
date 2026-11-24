@@ -4,9 +4,6 @@ import {
 import {
   FamilyConicOriginalCatalog as Original,
 } from "../../../reference-conics/FamilyConicOriginalCatalog";
-import {
-  FamilyConicSourceCapture as Source,
-} from "../../../reference-conics/FamilyConicSourceCapture";
 import type {
   NodeCanvasTypes as N,
 } from "../../../reference-conics/render/NodeCanvasTypes";
@@ -20,16 +17,15 @@ import type {
  *
  * Scenarios:
  * 1. Native whole views include front/left/top while legacy direction order remains unchanged.
- * 2. Source-only needs an admitted case and rejects ambiguous flag values.
- * 3. An asymmetric source uses its actual axis and touch-aware guides, with mm/rad/share retained.
- * 4. Original interpolation controls and feature height/shift nets remain the same objects.
- * 5. Failed factories and one invalid scalar remain named, while other original readings survive without physical2.
+ * 2. An asymmetric source uses its actual axis and touch-aware guides, with mm/rad/share retained.
+ * 3. Original interpolation controls and feature height/shift nets remain the same objects.
+ * 4. Failed factories and one invalid scalar remain named, while other original readings survive without physical2.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual new source/view boundaries with one small made source, never a person constructor, renderer, reference file or realization.
  * @evidence contracts/development/testing.md#independent-expectations Literal source origin10/s/2mm and extreme2mm plus touch0.25mm give the independently expected world guide12/s/2.25mm; required front/left/top and distinct unit labels come from the inspection contract.
- * @evidence contracts/development/testing.md#distinguishing-cases The valid asymmetric source accompanies a duplicate-station scalar, a throwing factory, unavailable axis2 and malformed source-only selections in one accumulated round.
- * @evidence contracts/development/testing.md#execution-ownership Exercises source definitions and CLI/view selection only, with no whole person, filesystem, source solver or renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Five numbered scenarios distinguish original controls, evaluated points, physical2 and successful raw/skin capture.
+ * @evidence contracts/development/testing.md#distinguishing-cases The valid asymmetric source accompanies a duplicate-station scalar, a throwing factory and an unavailable axis2.
+ * @evidence contracts/development/testing.md#execution-ownership Exercises source definitions and view selection with no whole person, filesystem, solver or renderer.
+ * @evidence contracts/development/common.md#meaningful-documentation Four scenarios distinguish original controls, evaluated points and unavailable later construction stages.
  */
 export function test_human_capture_originals(): void {
   const failures: string[] = [];
@@ -135,7 +131,7 @@ export function test_human_capture_originals(): void {
       },
     },
   ];
-  const actual: Original.IResult = Source.observe(entries);
+  const actual: Original.IResult = Original.create(entries);
   check(
     factories === 3,
     "all original factories must be observed exactly once",
@@ -224,26 +220,5 @@ export function test_human_capture_originals(): void {
       "front,back,left,right,high-oblique,low-oblique",
     "legacy whole direction order changed",
   );
-  check(
-    Source.requested(["--source-only"], true),
-    "explicit admitted source-only selection was ignored",
-  );
-  check(
-    !Source.requested([], false),
-    "ordinary default was changed into source-only",
-  );
-  for (const args of [["--source-only"], ["--source-only=yes"]]) {
-    let refused: boolean = false;
-    try {
-      Source.requested(args, false);
-    } catch {
-      refused = true;
-    }
-    check(
-      refused,
-      "unadmitted or malformed source-only selection was accepted: " +
-        args.join(" "),
-    );
-  }
   if (failures.length > 0) throw new Error(failures.join("\n"));
 }

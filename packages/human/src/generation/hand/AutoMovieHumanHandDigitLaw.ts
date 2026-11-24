@@ -1,7 +1,6 @@
 import { AutoMovieNaturalSpline } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieHumanArmPrior,
   IAutoMovieHumanHandDigit,
   IAutoMovieHumanHandDigitLaw,
   IAutoMovieNaturalCubicSpline,
@@ -50,11 +49,11 @@ export namespace AutoMovieHumanHandDigitLaw {
   /**
    * A digit's law from its anchors and its root.
    *
-   * @param root Its first ring at the web, for its centre and the sense its phase
-   *   turns.
+   * @param root Its first ring at the web, for its centre and the sense its
+   *   phase turns.
    */
   export function digit(
-    source: IAutoMovieHumanArmPrior.IDigit,
+    source: IAutoMovieHumanHandDigitLaw.IDigitSource,
     root: AutoMovieVector3Tuple[],
     start: IAutoMovieHumanHandDigitLaw.IDigitStart = null,
   ): IAutoMovieHumanHandDigit {

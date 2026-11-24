@@ -241,9 +241,8 @@ export namespace AutoMovieHumanConicLoft {
     // monotone between, so the engine's outlines through the stations do not swing across a slope break.
     // The guides' extents (`AutoMovieHumanConicSection.extents`) are positive magnitudes (signed by their side), so they are extended
     // multiplicatively, in their logarithm: `v exp((d / v) L g(x))`, the same ease on `ln |v|`. It has the same value and slope `d` at
-    // the knot and levels out at `x = -1`, and it never reaches zero, so the axis stays inside the box by construction. On f1's arm the
-    // forward extent leaves its first knot (24 mm) at 10.1 mm falling 6.9 mm/mm toward the shoulder; the linear ease dipped by
-    // `d L / 2` = 41 mm and crossed zero below 22.4 mm (joints-one-shot.md, "The guide extents in log space").
+    // the knot and levels out at `x = -1`. A linear ease can reach zero where
+    // `d L / 2 >= v`. The log extension preserves each extent's original sign.
     const k: number = family.extended, span: number = knots[1]! - k;
     const magnitudes: Set<number> = new Set(family.layout === undefined ? [] : AutoMovieHumanConicSection.extents(family.layout));
     const ends = splines.map((spline: IAutoMovieNaturalCubicSpline): [number, number] => {
@@ -800,16 +799,13 @@ export namespace AutoMovieHumanConicLoft {
 
   /**
    * A side part's fields extended from its stored first knot back to its joint's loop, so its view starts at the loop and the port
-   * (`AutoMovieHumanBoundSection.port`) can blend from the loop into the part's own sections (joints-one-shot.md, "The port blend, ruled").
+   * (`AutoMovieHumanBoundSection.port`) can blend from the loop into the part's own sections.
    *
    * The extension leaves the first knot on each field's own tangent and levels out over the stored first knot interval, then holds
    * (`IFamily.extended`, read by `reader`: C1, monotone, with no constant of its own; the guides' extents eased in their logarithm, so
-   * they stay positive); the stored stretch is the stored natural cubics unchanged. It is asked only as far as the loop's shallowest
-   * station. Inside one natural cubic a prepended knot with the first knot's values swung the cubic (a half extent at -3.26 mm) and a
-   * knot on the tangent line followed the arm's steep root slopes; a plain hold's slope break made the engine's outlines swing between
-   * stations, and a linear ease of the extents crossed zero on f1's arm below 22.4 mm. The port replaces the extension in the skin: at
-   * the loop's own station the port is the loop, and the extension's own section there carries weight zero. A family that already
-   * starts at or before `from` is returned unchanged.
+   * they stay positive). The original natural cubics continue from their first knot.
+   * At the loop the port carries the parent's curve and the extension's weight is zero.
+   * A family starting at or before `from` needs no extension.
    *
    * @param family The stored family.
    * @param from The loop's shallowest station on the family's course, mm (less one address tolerance).

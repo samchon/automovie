@@ -71,24 +71,20 @@ export namespace IAutoMovieHumanConicLoft {
     tips?: [ITip | null, ITip | null];
 
     /**
-     * Largest distance between two neighbouring phases at the part's widest section, mm; absent, `PHASE_MM`. A small part whose skin turns
-     * within a few millimetres takes a finer pitch: at 4 mm the ear's thin rim was sampled by three phases and its edge drew a row of teeth.
+     * Largest distance between two neighbouring phases at the part's widest section, mm. A missing value uses `PHASE_MM`.
      */
     pitch?: number;
 
     /**
-     * Largest step between neighbouring phases, radians, beside the finest relief net's columns: the mesh's density round the part held
-     * apart from its nets'. f1's trunk took its phases from its finest net, the eyes' at 105 columns (0.016 rad); with that net coarsened to
-     * 73 columns for its own sake the whole face's mesh went from about 400 phases round to 270 and read in level bands and blocks.
+     * Largest step in radians between neighbouring phases of the part. It sets
+     * a density independently of the attached relief nets.
      */
     phase?: number;
 
     /**
      * Largest turn of a ring's tangent between two neighbouring phases, radians; absent, the phases are uniform. With it the phases are
-     * spaced by how fast the rings turn as well as by `pitch`: at every phase the density is the most any ring asks there, its length over
-     * `pitch` or its turn over this, so a sharp edge that only some sections have (a sole's) takes its phases close together where it
-     * stands, and the rest of the part keeps its spacing. f1's leg on uniform phases set by its thigh's girth turned by up to 0.83 rad
-     * between two of them round the forefoot's outer edge, which showed as level stripes.
+     * spaced by how fast the rings turn as well as by `pitch`. At each phase,
+     * use the greatest required density across rings from arc length or tangent turn.
      */
     turn?: number;
   }
@@ -144,8 +140,8 @@ export namespace IAutoMovieHumanConicLoft {
 
     /**
      * The end is not the figure's skin: buried inside another part, as a digit's root inside its limb, or under the digits merged onto it,
-     * as a hand's or a foot's closed end. It closes as the conic (`c = 0`), the slimmest the law allows, instead of bending on as its wall
-     * bends: the fuller cap brought the foot's end 5.9 mm below the sole and moved where the outer digits come out of their limbs' ends.
+     * as a hand's or a foot's closed end. It closes as the conic (`c = 0`),
+     * which bounds the buried geometry at the slimmer end of the taper law.
      */
     covered?: boolean;
 
@@ -154,24 +150,20 @@ export namespace IAutoMovieHumanConicLoft {
      * course. A coordinate `x` of the cap is `x g + 2 c g (1 - g)^2` for its centre's coordinate `c`: at `from` it and its slope in `g` are
      * the plain cap's, so the cap leaves the wall as before; it bulges toward the centre over its middle, by `8 c / 27` at most at
      * `g = 1 / 3`; and it still closes on the course, where the pole is, since `x / g` tends to `x + 2 c`, which keeps the course inside
-     * every section while `|2 c|` is less than the section's extent on the far side. f1's crown: the course runs 16 mm behind the skull's
-     * top (the reference's top contour at 1,699 mm spans x -4 to 40), and the plain cap shrank the last section, 34 mm behind the course
-     * and 83 mm in front, toward it, so the back of the crown stood 4 mm proud of the reference at x -20 and the top was a flat lid with a
-     * corner behind.
+     * every section while `|2 c|` is less than the section's extent on the far side.
      */
     centre?: [number, number];
 
     /**
-     * Each coordinate of the cap takes the taper and the bend of its own outline at `from`, instead of the mean extent's. One factor for the
-     * whole section met the mean slope but not each side's: f1's crown section narrows 0.95 mm a millimetre in front (on 83 mm) and 1.2 behind
-     * (on 34 mm), and the shared factor took 1.9 in front and 0.77 behind, a dip at the crown's front and a corner at its back. A coordinate
-     * within `OWN_LEAST` of the section's size of zero keeps the shared factor, since its relative change has no meaning there.
+     * Each coordinate of the cap takes the taper and bend of its own outline at `from`.
+     * A coordinate within `OWN_LEAST` of the section's size of zero keeps the shared
+     * factor because its relative change is ill-conditioned there.
      */
     own?: boolean;
 
     /**
-     * How many rings the cap is meshed in between its first section and its tip; absent, one at each of its knots (`CAP_KNOTS`). A dome
-     * turns its normal through a quarter turn over its rings, and twelve showed as a bullseye of flat bands on a toe's tip.
+     * Number of rings between the cap's first section and its tip. The default
+     * places one ring at each cap knot (`CAP_KNOTS`).
      */
     rings?: number;
   }

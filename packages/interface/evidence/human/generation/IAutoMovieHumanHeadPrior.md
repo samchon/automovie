@@ -6,15 +6,15 @@ Head, face, jaw and auricle priors with source-specific dimensional scales and a
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The namespace groups only IFace, IPrior, IRatios, IProfile, IFrame, IMandible, IEar declarations; it adds no runtime state, fixture dispatch or alternate implementation. Each member retains its own concrete data or callable representation.
+The namespace groups IFace, IPrior, IProfile, IFrame, IMandible, and IEar declarations. Each member retains its own concrete data representation.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-IFace, IPrior, IRatios, IProfile, IFrame, IMandible, IEar separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
+IFace, IPrior, IProfile, IFrame, IMandible, and IEar separate the declared inputs and related quantities. The Human producers and engine operators own their numeric domains and geometric consistency.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-AutoMovieHumanHeadPrior exchanges the named IFace, IPrior, IRatios, IProfile, IFrame, IMandible, IEar contracts with its Human callers. Interface owns these type declarations without importing that implementation.
+Interface owns the IFace, IPrior, IProfile, IFrame, IMandible, and IEar type declarations used by AutoMovieHumanHeadPrior and its Human callers.
 
 # src/human/generation/IAutoMovieHumanHeadPrior.ts#IAutoMovieHumanHeadPrior.IFace
 
@@ -26,11 +26,11 @@ The face's named features.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Read by AutoMovieHumanHeadEyeMargin.margin, canthi, AutoMovieHumanHeadNoseAla.lobes. Also types AutoMovieHumanHeadLandmarks.f, AutoMovieHumanHeadEyeParts.face.
+Read by AutoMovieHumanHeadEyeMargin.margin and AutoMovieHumanHeadNoseAla.lobes. Also types AutoMovieHumanHeadLandmarks.f and AutoMovieHumanHeadEyeParts.face.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `profileKnots`, `profile`, `dorsum`, `tipBall`, `ala`, `underside`, `nasolabial`, `crease`, `fissure`, `gape`, `joint`, `philtrum`, `socket`, `eyeRecess`, `globeRise`, `radius`, `margin`, `marginForward`, `nostrilSize`, `nostrilCentre`, `nostrilSweep`, `nostrilTear`; callers supply the complete record.
+The complete record owns nasal curves, alar and nostril dimensions, oral and philtral details, and the globe and nominal aperture. The resting gape is an absolute millimetre quantity.
 
 # src/human/generation/IAutoMovieHumanHeadPrior.ts#IAutoMovieHumanHeadPrior.IPrior
 
@@ -38,7 +38,9 @@ Required fields are `profileKnots`, `profile`, `dorsum`, `tipBall`, `ala`, `unde
 
 The whole prior.
 
-## @evidence contracts/development/design.md#principled-representation `tilt`: Hump of the section planes' tilt about the lateral axis, nose side down: height in radians, its station, its widths below and above. `ratios`: Input ratios. `profile`: Midline profile.
+## @evidence contracts/development/design.md#principled-representation
+
+The profile, transverse frame, face, mandible and ear each have a dedicated record with the units defined at their members.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -46,23 +48,7 @@ Read by AutoMovieHumanHeadLandmarks.compile. Also types AutoMovieHumanHeadLandma
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `tilt`, `ratios`, `profile`, `frame`, `face`, `mandible`, `ear`; callers supply the complete record.
-
-# src/human/generation/IAutoMovieHumanHeadPrior.ts#IAutoMovieHumanHeadPrior.IRatios
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Ratios from public inputs to places the inputs do not define.
-
-## @evidence contracts/development/design.md#principled-representation `neck`: Menton above the neck ring, per neck length. `forward`: Skull centre (midway from glabella to opisthocranion) ahead of the neck ring's centre, per neck radius.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Also types AutoMovieHumanHeadLandmarks.r.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Required fields are `neck`, `forward`; callers supply the complete record.
+Callers supply all five prior records. The generating layout positions the head from the person's measures and the generating nape datum.
 
 # src/human/generation/IAutoMovieHumanHeadPrior.ts#IAutoMovieHumanHeadPrior.IProfile
 
@@ -70,7 +56,9 @@ Required fields are `neck`, `forward`; callers supply the complete record.
 
 The midline profile's landmarks, relative to glabella and face height.
 
-## @evidence contracts/development/design.md#principled-representation `unit`: Face height the published millimetres below are scaled from: the 3D Facial Norms' adult women's n-gn, 118.6 mm (Weinberg 2016). `glabella`: Glabella above nasion, per face height. `nasion`: Nasion behind glabella, millimetres.
+## @evidence contracts/development/design.md#principled-representation
+
+`unit` is the 3D Facial Norms adult women's morphological face height in millimetres. `glabella` and `nasion` give the brow chord's fallback components per face height and in norm millimetres, respectively.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -102,7 +90,9 @@ Required fields are `tragion`, `tragionDrop`, `base`, `zygion`, `arch`, `frontal
 
 The mandible's skin, a volume in the section union.
 
-## @evidence contracts/development/design.md#principled-representation `plane`: Mandibular plane's rise toward the back, degrees, and per unit of the masculine-feminine control. `angle`: Gonial angle, degrees, and per unit of the masculine-feminine control. `gonion`: Gonion ahead of the ear's line, millimetres.
+## @evidence contracts/development/design.md#principled-representation
+
+`plane` and `angle` give the mandibular plane and gonial angle in degrees, with their respective changes per unit of the masculine-feminine control. The mandibular floor and ramus meet at the generated gonion.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -110,7 +100,7 @@ IAutoMovieHumanHeadPrior.IMandible is the canonical exchange used by IAutoMovieH
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `plane`, `angle`, `gonion`, `throatAngle`, `under`, `round`, `fat`, `taper`, `inset`, `back`, `throat`; callers supply the complete record.
+The record contains angular conventions for the mandible and its underside.
 
 # src/human/generation/IAutoMovieHumanHeadPrior.ts#IAutoMovieHumanHeadPrior.IEar
 
@@ -118,7 +108,9 @@ Required fields are `plane`, `angle`, `gonion`, `throatAngle`, `under`, `round`,
 
 The auricle.
 
-## @evidence contracts/development/design.md#principled-representation `lengthRatio`: Length along the ear per the ear length input. `breadthRatio`: Chord per the breadth input. `drop`: Ear's centre below eye level, in ear lengths.
+## @evidence contracts/development/design.md#principled-representation
+
+The auricle record gives insertion and lobular length shares by sex and two geometric breadth shares for the carrier and circular ridge. The ear's place follows the person's own tragion and ear measurements.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -126,4 +118,4 @@ Also types AutoMovieHumanHeadEarParts.prior.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `lengthRatio`, `breadthRatio`, `drop`, `forward`, `lean`, `egg`, `stand`, `lobeFree`, `topFree`, `splitFree`, `roofFree`, `root`, `rim`, `lobeFrom`, `lobeBlend`, `frontRim`, `helix`, `scapha`, `antihelix`, `concha`, `tragus`, `antitragus`; callers supply the complete record.
+Callers supply the four dimensionless shares. The auricle generators convert them to the person's own length and breadth.

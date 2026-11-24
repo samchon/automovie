@@ -41,29 +41,20 @@ Radiographs of 66 adults ([buryanov-2010-hand-segments](../sources/buryanov-2010
 - Joints from the web, as shares of the web-to-tip length: PIP at 0.41 (index), 0.41 (middle), 0.38 (ring), 0.34 (little); DIP at 0.72, 0.74, 0.72, 0.66. The web stands 15 to 25 % of that length above the MCP joint space, highest at the little finger.
 - A finger's external length from its web to its tip over the middle finger's (Buryanov and Kotiuk, the tip and distal phalanx of Table I over their Table III share): index 0.872, ring 0.927, little 0.716. Greiner 1991 measures from the centre of the proximal palmar flexion crease and gives 0.900, 0.940, 0.764; the two datums differ, and the construction measures from the web, so it takes Buryanov's.
 
-## Capture posture
+## Bind posture
 
-The generated bind is the captured standing posture with relaxed hands, a pose convention and not a shape. Its angles were read on the four reference bodies along each finger's own sections, with PIP and DIP placed by the shares above, one shared value per joint (degrees, toward the palm; spread toward the thumb's side):
+The hand's longitudinal axis follows the person's forearm in the bind. Anatomical anterior projected perpendicular to that axis points toward the radial side. The palm normal is radial crossed with longitudinal for the left hand. Bilateral reflection carries the right hand's centres and material axes together.
+
+The digit directions come from the public CC0 MakeHuman HM08 rig at revision `650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a`. Each joint is the mean of the distinct vertices in its OBJ `joint-l-*` cube. The measurement frame points from the wrist to MCP III, across from MCP V toward MCP II, and into the palm. The four fingers use the rig's MCP, PIP, DIP and tip markers. Spread and proximal flexion are spherical angles in that frame. PIP and DIP turns use the signed angle in the plane through the incoming bone and the palm normal. These are pose values for one authored rig. [Asset](https://github.com/makehumancommunity/mpfb2/blob/650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a/src/mpfb/data/3dobjs/base.obj) · [Rig](https://github.com/makehumancommunity/mpfb2/blob/650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a/src/mpfb/data/rigs/standard/rig.default.json) · [Asset license](https://github.com/makehumancommunity/mpfb2/blob/650c5c53bd6989a8ac264f31fa1d11d4a0c7bd8a/LICENSE.ASSETS.md)
 
 | Finger | Proximal phalanx from the hand's axis | Spread | PIP | DIP |
 | --- | --- | --- | --- | --- |
-| Index | 19.6 | 3.0 | 9.3 | -3.3 |
-| Middle | 12.8 | -0.8 | 23.9 | -6.9 |
-| Ring | 21.1 | -12.8 | 18.5 | -7.6 |
-| Little | 35.4 | -12.9 | 6.0 | -7.6 |
+| Index | 5.6 | 9.4 | 11.0 | 1.9 |
+| Middle | 2.3 | -6.5 | 11.2 | -0.1 |
+| Ring | 1.4 | -15.9 | 12.1 | -0.4 |
+| Little | 11.2 | -19.9 | 7.9 | 1.5 |
 
-Holding one person out moves a flexion or spread by at most 3.8 degrees, a DIP by up to 7.8. The DIPs rest slightly extended, so the active-flexion coupling of DIP to two thirds of PIP does not describe this posture. The ring and little fingers fan toward the little finger's side.
-
-The thumb rests on the same rule as the fingers, every digit at one share of its joints' ranges: the fingers' mean proximal flexion is 22.2 degrees of the MCP's 80 (AAOS), their mean PIP flexion 14.4 of 90, so the thumb's MCP rests at 0.278 of its 50 degrees (13.9) and its IP at 0.160 of its 80 (12.8), each about its own bone from the metacarpal. The one reference thumb walked alone (f1, proximal phalanx about 22 degrees from the hand's axis, which includes the metacarpal's own tilt) is a check of the rule, not an input.
-
-## Section shape on the reference
-
-Read on f1's bone-normal digit sections (left hand, `limbs/<digit>_l-v3`), depths measured from the bone axis toward the palm and the back of the hand, in the hand's frame. One person in its captured posture, so a shape prior and not a population value.
-
-- Palmar depth over dorsal depth: about 1.2 over the proximal phalanges (index 1.1 to 1.3, middle 1.15 to 1.35, ring 1.1 to 1.3, little 0.8 to 1.2), about 1.1 over the middle phalanges (index 1.3 to 1.45, middle 0.93 to 1.0, ring 1.0, little 1.15), and over the distal phalanx rising toward the nail bed's middle (index to 3 near the tip, middle and ring 1.5, little 2.1) before the tip rounds. The palmar pad is the fuller half; the dorsal skin thins over the nail bed.
-- Half width over half depth is near 1 over the proximal phalanx (index 9.1 mm wide against 9.5 and 7.5 mm deep), so a finger's proximal section is nearly round, not flattened.
-- Girth falls monotonically from the root to the tip on every finger (index 56 to 43 mm, middle 57 to 44 mm over P1 and P2): this relaxed capture shows no swelling at PIP or DIP above the shafts at the sections' 2 mm spacing (no step above 0.3 mm), so a joint's swelling is held at the upper bound that reading allows, 4 % of the joint's radius.
-- Curvature at the side points and apexes read by three points 1.5 mm apart scatters by a factor of two between neighbouring stations; it is not used as a constant. The section takes the half ellipses' apexes and the side speed `sqrt(h_p h_d)` that makes the two halves meet G2 at the side points.
+The same projected readings give the thumb MCP and IP turns of 4.8° and 1.5°. The palm-side ratios for each generated finger section come from the section's own dorsal and palmar depth law.
 
 ## Form
 
@@ -74,7 +65,7 @@ Read on f1's bone-normal digit sections (left hand, `limbs/<digit>_l-v3`), depth
 - Finger segments step down from one to the next, bridged by wedges; joints are square, shafts narrower, tips triangular; the middle joint of each finger is the largest. The nail sits in a horseshoe of skin that begins behind its root and bevels below its end.
 - Palmar skin is thick and tied to the palmar aponeurosis; dorsal skin is loose and wrinkles over the interphalangeal joints in extension.
 
-The construction follows these parts as pieces on their own axes: a finger's section along its bones is the phalanx span law (shares of the root half width 1.0, 0.9, 0.76 and 0.6 at the web, PIP, DIP and the cap's start; dorsal depth falling faster than palmar, the nail side flattening), with the joint swellings, the pulp and the nail fold as volume-adding bumps, the flexion creases as declared recesses, and the nail plate's transverse arch setting the dorsal midline's curvature over the plate. The palm carries the interosseous valleys (recesses on the back), the hypothenar (a bump on the palmar side) and the aponeurosis pad (the palmar face at least the pad's half ellipse).
+The generated finger sections follow the measured breadth and depth profiles on the phalanges. The palm field and each digit's proximal attachment share the anatomical construction described below.
 
 ## Range of motion
 
@@ -82,15 +73,14 @@ AAOS norms as transcribed by Hendriks et al. 2020 ([hendriks-2020-aaos](../sourc
 
 ## Knuckle arc, palm and thumb
 
-- Metacarpal lengths over the third, CT ([reddy-2024-metacarpal-ct](../sources/reddy-2024-metacarpal-ct.md)): thumb 0.711, index 1.039, ring 0.883, little 0.797. The third-MC/reach factor 0.774 is a retained transfer convention across the Reddy and de Leva datums; its exact aggregation has not been recovered. It is not a direct Reddy measurement or an exactly recomputed pooled ratio. The bases are level across the distal carpal row (conventional), so the heads arc: in an adult the index head is about 3 mm beyond the middle knuckle, the ring 9 mm and the little 16 mm behind it.
-- The thumb's carpometacarpal joint sits at the metacarpal base level, radial and palmar (placement conventional), with the measured metacarpal length and the identity's thumb length for its phalanges.
+- Metacarpal lengths over the third from Reddy Table 4 are 0.711 for the thumb, 1.039 for index, 0.883 for ring and 0.797 for little. Dividing the sex-specific MC3 total lengths by de Leva's WJC-to-MET3 reaches gives the modelling factors 60.4/78 for women and 66.6/86.2 for men. The distal carpal row for digits II to V is taken level as a geometric convention. [Reddy](../sources/reddy-2024-metacarpal-ct.md) · [de Leva](../sources/de-leva-1996.md)
 
 - Palm length and thumb length are identity measurements. Adults: palm 0.601 (women) and 0.603 (men) of hand length (ANSUR II means), thumb 0.359 and 0.356 (1977 survey, 16 to 18 years). Children: the middle finger beyond the palm grows along the 1977 curve (0.428 to 0.439 girls, 0.416 to 0.435 boys of hand length from 2-4 to 16-18 years) and the thumb along its own (0.335 to 0.359, 0.341 to 0.356).
 - The middle finger from its joint is 1.347 times its length beyond the crease (de Leva's knuckle fraction 0.459 against ANSUR II palm length), which places the third knuckle.
 - Finger lengths relative to the middle finger from the 1987-1988 Army hand survey ([greiner-1991-hand](../sources/greiner-1991-hand.md)), sexes averaged: index 0.900, ring 0.940, little 0.764. The children's surveys give index 0.907 to 0.918 and little 0.74 to 0.75, within two hundredths; holding adult ratios at every age is a modelling inference. The same survey gives adult thumb 0.351 (women) and 0.359 (men) of hand length; children follow the 1977 curve.
 - The Army survey's means give index over ring (2D:4D) 0.964 for women and 0.951 for men. Averaging them is a modelling assumption, not an individual anatomical constraint.
 
-The pure generating hand carries the retained form's direction from its nominal axial crease `[crease, 0, 0]` to `[branch, thenar.b, thenar.c]` into the orthonormal hand frame by similarity. The CMC is the ray's intersection with the common metacarpal-base plane, and its measured metacarpal length continues along that ray. This nominal origin is a declared transfer proxy, not the old wrist skin loop's mean, a measured WJC-to-thenar vector or a recovered CMC. No separate depth input is inferred and the old anisotropic skin solve is not replayed. This replaces the planar midpoint-to-public-palm-corner convention, which placed both CMC and MCP in the palm plane. The public thumb identity is crease-to-tip; the internal MCP-to-tip phalanx length retains that explicit transfer proxy. The other fingers, public crease and material frame keep their separate owners.
+In the same open rig, the thumb CMC lies 0.345 of the wrist-to-MCP III reach from the wrist along the hand axis. The radial and palmar offsets are 0.355 and 0.224 of the projected MCP II-to-V chord. The metacarpal unit direction is approximately `[0.673, 0.665, 0.323]` in the longitudinal, radial and palmar axes. These landmark ratios rescale on each person's actual knuckles. The segment uses Reddy's MC1 length ratio. Buryanov's measured thumb segment shares use the public crease-to-tip length as the MCP-to-tip proxy.
 
 ## Finger widths and webs
 
@@ -102,14 +92,16 @@ The current child profile still comprises four conic quarters. Retaining the com
 
 An MCP/CMC remains a skeletal joint. If it does not provide a qualified interior skin start, a supported base is selected only along that same first-bone line, leaving the skeletal tuple, distal joints and declared skin apex unchanged. The first measured shaft remains the midpoint between the original skeletal joint and the first distal joint, mapped into the longer root-to-first segment by its actual distances. The attachment retains both datums and the original joint's coordinate availability; unavailable does not mean outside. Actual depth rays require a qualified boundary reading or a declared parent zero pole, and an open source end is not turned into a fabricated outside section. The child uses the existing regular-bottom/top-pole contract, so its source test reads a positive canonical base rather than inventing a zero skin pole at the MCP. Changing from the former both-pole angle parameter to the top-root parameter reauthors the interpolation between named sites too; unchanged measured values do not establish unchanged distal curves. Both hands' complete defining curves and actual raw loft need inspection in this new source epoch.
 
+For root selection, the parent must supply qualified boundary crossings in both dorsal directions and all four quarter directions. Keep the anatomical joint when it has positive margin and all six crossings. Otherwise take the greatest positive margin among the existing first-bone extension samples that satisfy all six. At an oblique thumb, the deepest sampled point can lose its chart coordinate at the wrist with positive margin, even though a shallower point on the same bone line has all six crossings. The parent field and its chart supply the test without an added anatomical coefficient. The thumb's proximal articulation is between the first metacarpal and the trapezium. [Functional anatomy of the carpometacarpal joint of the thumb](https://pubmed.ncbi.nlm.nih.gov/3595013/)
+
 At an interphalangeal turn, the section's measured breadth and both signed depth supports define a geometric bend-radius bound: the farthest corner of their box lies at `hypot(max(dorsalDepth, palmarDepth), breadth/2)`. The quintic angle law converts this radius to its turn half arclength. Using half the depth alone had placed the inner named section at zero longitudinal support when its depth was split equally. The box bound gives room at that named section without changing the skeletal centres, capture angles, bone lengths or measured shaft law. It is a construction bound rather than a measured anatomical bend radius, and it does not prove reach or absence of folds throughout the varying turn; actual source/frame derivatives and neighbouring sections must still be read.
 
 ## Open questions
 
 - Phalanx lengths as fractions of hand length: Buchholz et al. 1992 remains unread; Buryanov and Kotiuk 2010 gives absolute lengths and shares of the finger, not of hand length.
-- Ring and little fingers: on the reference bodies, measured from their more distal web along their own sections, they are 0.82 to 0.87 and 0.62 to 0.65 of the middle finger. Part of the gap to Greiner's 0.940 and 0.764 is his crease datum; Buryanov's web datum gives 0.927 and 0.716. The rest is open: a finger between two webs is read from the more distal one by the observer, and which web Buryanov's X-ray shadow marks for the ring finger is not stated.
+- Buryanov's radiographic web definition does not distinguish the two adjacent web datums of the ring finger.
 - Nail plate dimensions and curvature.
-- Positions of the metacarpal bases (the carpometacarpal line) and of the thumb's carpometacarpal joint: no measured source, so the bases are taken level.
+- Population positions of the carpometacarpal line and thumb carpometacarpal joint.
 - Child metacarpal proportions: none read, so adult CT ratios are held.
 - Finger abduction ranges.
 - `AutoMovieHumanoidBone` has no bones for metacarpals two to five, so palm arching (cupping) cannot be posed; either `interface` gains metacarpal bones or Human keeps an internal palm arch.

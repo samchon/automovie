@@ -182,6 +182,10 @@ export namespace AutoMovieHumanHeadFeatures {
         AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) -
         face.eyeRecess * k;
       const depth: number = Math.max(INSET, front - floor);
+      const ceiling: number = AutoMovieHumanHeadMassPart.frontCeiling(mass, [
+        plan.eye - eye.height,
+        plan.eye + eye.height,
+      ]);
       return dome(
         `orbit.${side}`,
         "diff",
@@ -194,6 +198,9 @@ export namespace AutoMovieHumanHeadFeatures {
         [front, plan.eye, z],
         mass,
         attempts,
+        // Begin in front of the complete orbital footprint. The constant
+        // stem ends at the same cap base and leaves the lid floor unchanged.
+        ceiling - front,
       );
     };
     const builders: readonly (() => IAutoMovieHumanHeadFeatures.IFeature[])[] =
@@ -264,6 +271,7 @@ export namespace AutoMovieHumanHeadFeatures {
     seed: [number, number, number],
     host?: IAutoMovieViewPart,
     attempts?: IAutoMovieHumanHeadDome.IAttempt[],
+    stem?: number,
   ): IAutoMovieHumanHeadFeatures.IFeature[] {
     const h: number = Math.max(INSET + 0.5, height);
     const source: IAutoMovieHumanHeadDome.IPart | null =
@@ -275,6 +283,7 @@ export namespace AutoMovieHumanHeadFeatures {
           along,
           extents,
           height: h,
+          ...(stem === undefined ? {} : { stem }),
           profile,
           shoulder: AutoMovieViewSection.ELLIPSE,
         },

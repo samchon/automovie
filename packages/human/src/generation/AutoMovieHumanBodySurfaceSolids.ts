@@ -2,6 +2,7 @@ import {
   AutoMovieSolidChain,
   AutoMovieSolidMesh,
   AutoMovieSolidVector,
+  faceAutoMovieSolidMesh,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -23,31 +24,29 @@ import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 type Vec3 = AutoMovieVector3Tuple;
 
 /**
- * The skin of the solids: every chain a merge or diff names, and every face
- * of a published body (`IAutoMovieHumanBodyCalibration.bodies`, merges onto
- * merged hosts), drawn by the
- * solid tessellation (`AutoMovieSolidMesh`) into the body's mesh with
- * the body's loft coordinates.
+ * The skin of the solids: every chain a merge or diff names, and every face of
+ * a published body (`IAutoMovieHumanBodyCalibration.bodies`, merges onto merged
+ * hosts), drawn by the solid tessellation (`AutoMovieSolidMesh`) into the
+ * body's mesh with the body's loft coordinates.
  *
- * Each merge's seam is drawn first (its two rails, one vertex per column,
- * and its blend chain's rows between them); then each host and part chain
- * once as a face on its own grid, the bisection stations of the body's chord
- * tolerance (`AutoMovieHumanLoftStations.bisect`) and its own uniform
- * phases, trimmed by every rail that lies on it. A face's end that an event
- * owns (a contact ring of the ring loft, today's neck on a new trunk) keeps
- * that ring: the face stops a station short and its edge is bridged to the
- * ring's shared vertices (`AutoMovieSolidMesh.bridge`), so the two
- * tessellations meet watertight. A face's end left open by
- * its trims closes on the chain's pole by a fan, the apex's phase NaN as for
- * every pole of the body. Every other vertex carries
- * `[chain, station, phase]` on the chain that evaluated it, the blend's on
- * its blend chain, so the normals, the binding and the chart read them as
- * they read any lofted vertex. Triangle groups are `<chain>/solid`.
+ * Each merge's seam is drawn first (its two rails, one vertex per column, and
+ * its blend chain's rows between them); then each host and part chain once as a
+ * face on its own grid, the bisection stations of the body's chord tolerance
+ * (`AutoMovieHumanLoftStations.bisect`) and its own uniform phases, trimmed by
+ * every rail that lies on it. A face's end that an event owns (a contact ring
+ * of the ring loft, today's neck on a new trunk) keeps that ring: the face
+ * stops a station short and its edge is bridged to the ring's shared vertices
+ * (`AutoMovieSolidMesh.bridge`), so the two tessellations meet watertight. A
+ * face's end left open by its trims closes on the chain's pole by a fan, the
+ * apex's phase NaN as for every pole of the body. Every other vertex carries
+ * `[chain, station, phase]` on the chain that evaluated it, the blend's on its
+ * blend chain, so the normals, the binding and the chart read them as they read
+ * any lofted vertex. Triangle groups are `<chain>/solid`.
  *
  * Each chain must carry its jets (`AutoMovieLoftJet.carries`): the view
  * operator's chains and the blend chains do. A merge naming a chain without
- * them, or a face end left open without a pole, is one diagnostic and the
- * merge or the end is left out.
+ * them, or a face end left open without a pole, is one diagnostic and the merge
+ * or the end is left out.
  */
 export namespace AutoMovieHumanBodySurfaceSolids {
   /**
@@ -179,7 +178,10 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         continue;
       }
       for (const f of body.faces) {
-        /** Both roles retain the same published point identities and this-face chart. */
+        /**
+         * Both roles retain the same published point identities and this-face
+         * chart.
+         */
         const restore: (
           c: IAutoMovieSolidBody.IPublished["faces"][number]["cycles"][number],
         ) => IAutoMovieSolidMesh.ILoop = (
@@ -214,6 +216,8 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       cycle: number[];
       out: Vec3;
     }[] = [];
+    const appendFace: ReturnType<typeof faceAutoMovieSolidMesh.prepare> =
+      faceAutoMovieSolidMesh.prepare(mesh);
     for (const [name, trims] of loops) {
       const chain: IAutoMovieLoftChain = context.chains.get(name)!;
       const s: IAutoMovieSolidSurface = surfaces.get(name)!;
@@ -278,7 +282,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
                   (chain.samples - 1)),
       );
       groups.push({ name: `${name}/solid`, start: mesh.indices.length });
-      const open: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
+      const open: IAutoMovieSolidMesh.IOpen[] = appendFace({
         surface: s,
         stations,
         phases,

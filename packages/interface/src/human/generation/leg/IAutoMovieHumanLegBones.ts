@@ -1,4 +1,5 @@
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
+import type { IAutoMovieHumanExtremityDimensions } from "../../body/IAutoMovieHumanExtremityDimensions";
 
 /**
  * Canonical-left leg joint centres, segment lengths and stature/ankle placement inputs. Runtime construction and admission remain with AutoMovieHumanLegBones in Human.
@@ -43,5 +44,8 @@ export namespace IAutoMovieHumanLegBones {
 
     /** Forward place of the ankle centre, calibration mm: the foot's stance. */
     ankleForward: number;
+
+    /** Optional hip-to-knee and knee-to-ankle lengths, calibration millimetres. */
+    lengths?: NonNullable<IAutoMovieHumanExtremityDimensions["legBones"]>["left"];
   }
 }

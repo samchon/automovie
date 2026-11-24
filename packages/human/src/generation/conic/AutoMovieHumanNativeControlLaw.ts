@@ -18,12 +18,10 @@ import type {
  * Share of an outline's extent E (its largest knot magnitude) within which a junction's bound value, station slope (per mm) and station
  * second derivative (per mm squared) must equal the changed source's: E·1e-9, E·1e-9 /mm and E·1e-9 /mm².
  *
- * Basis. The bound jet is written into a knot whose neighbours stand about 1 mm away (f1's source stations), and a value step δ blended
- * over a gap g by the quintic bends the wall by at most (10/√3)·δ/g². At 1e-9 of a 166 mm half-breadth every order adds under 1e-6 /mm,
- * 1e-4 of the wall's own 0.012 to 0.023 /mm (its 43 to 86 mm radii). Both readings are one law read by two owners, so coordinates agree
- * to binary64 rounding, about 1e-13 of E, and an anisotropic tangent angle to its two quintics' truncation between source knots, sixth
- * order in their spacing; the 0.064 mm step (4e-4 of E) that made a -3.9 /mm ridge at f1's underbust site under knot-sampled scaling
- * stands 4e5 above.
+ * ESTIMATE for rounding in independent spline and station-map evaluations.
+ * The maximum second derivative introduced by a value discrepancy δ over a
+ * quintic interval of length g is `(10 / sqrt(3)) δ / g²`. Check fit curvature
+ * with the actual interval lengths where the station mesh is refined.
  */
 const JUNCTION_AGREEMENT: number = 1e-9;
 
@@ -192,8 +190,8 @@ export namespace AutoMovieHumanNativeControlLaw {
    * A junction is a binding, never an overwrite: the original's value and station 2-jet at its station must equal the changed source's
    * within {@link JUNCTION_AGREEMENT} of the outline's extent, or it is refused with both readings. An admitted junction then holds the
    * original's reading at its knot, which that tolerance keeps from bending the wall. A junction written over a disagreeing changed
-   * source spans only the gap to the nearest changed knot, so a step of δ there makes a second derivative of about 5.8 δ / gap²:
-   * 0.9 mm across f1's 1 mm source stations made a -3.5 /mm ridge at the bust site. An interval's two ends are not checked this way.
+   * source spans only the gap to the nearest changed knot. A step δ there can
+   * produce a second derivative of `(10 / sqrt(3)) δ / gap²`. Interval holds use both original endpoints.
    *
    * @evidence contracts/development/implementation.md#principled-implementation Retains every original knot in the protected interval and its actual parameter2, transferred analytically into the changed source parameter and normalized by its new whole span. Shared endpoint jets preserve the original cubic spans and C2 joins. A junction compares the two sources' value and station jets at its station (transferred parameter jets at a singular endpoint) and refuses a disagreement instead of writing it.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Original and changed sources are admitted once; one sorted union supplies every explicit native knot jet.

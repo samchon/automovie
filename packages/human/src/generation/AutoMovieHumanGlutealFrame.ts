@@ -7,15 +7,10 @@ import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFra
 
 /**
  * The gluteal mass's own frame: its centre is the buttock point on the
- * posterior wall (the hip tape's site, ANSUR II buttock height), its axis the
- * wall's outward normal turned down by `TILT`, since the buttock stands out
- * behind and overhangs the gluteal fold below it. The pelvis's ring has the
- * pelvic axis for its centre; the two are merged by the gluteal relief.
+ * posterior wall (the hip tape's site, ANSUR II buttock height) and the axis
+ * follows the wall's outward section normal.
  */
 export namespace AutoMovieHumanGlutealFrame {
-  /** Downward tilt of the axis, radians (10 degrees). Conventional; to be read on the references' sagittal profile through the buttock point. */
-  export const TILT: number = (10 * Math.PI) / 180;
-
   /**
    * The frame of the left buttock.
    *
@@ -29,10 +24,6 @@ export namespace AutoMovieHumanGlutealFrame {
     const nx: number = input.tangent[1];
     const nz: number = -input.tangent[0];
 
-    return AutoMovieHumanTrunkFeatureFrame.create(input.apex, [
-      nx * Math.cos(TILT),
-      -Math.sin(TILT),
-      nz * Math.cos(TILT),
-    ]);
+    return AutoMovieHumanTrunkFeatureFrame.create(input.apex, [nx, 0, nz]);
   }
 }

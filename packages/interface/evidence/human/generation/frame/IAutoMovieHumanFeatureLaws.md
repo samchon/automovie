@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Owns named landmark frames, dimensionless scale shares and explicit unavailable template rows.
+Owns named landmark frames and caller-supplied dimensionless scale shares.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -20,7 +20,7 @@ Defines the units and roles of the received and printed values.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The Scale declaration contributes to anatomical surface feature laws through named landmark frames, dimensionless scale shares and explicit unavailable template rows.
+The Scale declaration contributes to anatomical surface feature laws through named landmark frames and caller-supplied dimensionless scale shares.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -38,25 +38,7 @@ Each member describes its geometric or source role.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The ILaw declaration contributes to anatomical surface feature laws through named landmark frames, dimensionless scale shares and explicit unavailable template rows.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The published producer and its callers consume this exact declaration through Interface.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The representation preserves the source fields and leaves numerical admission to its runtime owner.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member describes its geometric or source role.
-
-# src/human/generation/frame/IAutoMovieHumanFeatureLaws.ts#IAutoMovieHumanFeatureLaws.INone
-
-## @evidence contracts/development/design.md#principled-representation
-
-The INone declaration contributes to anatomical surface feature laws through named landmark frames, dimensionless scale shares and explicit unavailable template rows.
+The ILaw declaration contributes to anatomical surface feature laws through named landmark frames and caller-supplied dimensionless scale shares.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -74,7 +56,7 @@ Each member describes its geometric or source role.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The IDatums declaration contributes to anatomical surface feature laws through named landmark frames, dimensionless scale shares and explicit unavailable template rows.
+The IDatums declaration contributes to anatomical surface feature laws through named landmark frames and caller-supplied dimensionless scale shares.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

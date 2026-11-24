@@ -23,7 +23,7 @@ const { cylinder, distance, plane, sphere }: typeof HumanSolidShapes =
  * 1. Original closed-form transversal, contact and missing-curve cases retain their point/preimage/derivative expectations.
  * 2. Explicit bounded graphs and two original parent charts reject exterior callback evaluation through actual Foot/Newton/rail consumers; source callback error identity survives.
  * 3. A skew plane cuts a cylinder in a loop whose station turns strictly inside its original domain. Clipping the same domain through the curve's maximum leaves the contact open.
- * 4. Orthogonal placed charts share an open line with a finite original boundary and a stride below the next representable coordinate.
+ * 4. Orthogonal placed charts share an open line with a finite original boundary and a stride below the next representable coordinate, including when local chart steps remain representable.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the same independent bounded trial/atlas fixture as owned_domain, without requiring a source AST or a mesh cap. Traces with `AutoMovieSolidIntersection.trace` and reads `ICurve.points` and `ICurve.at` for four closed-form pairs: a 6 mm cylinder along z through a 10 mm cylinder along x (the Steinmetz curve), a 5 mm cylinder at 40 degrees to a plane (an ellipse), two spheres of 10 and 8 mm with centres 12 mm apart (a circle), and two spheres 30 mm apart (no meeting), plus the two cylinders of equal radius (a tangential contact). It catches a curve off either surface, wrong preimages, a tangent or curvature that is not the curve's own, a loop that is not closed, a contact reported as transversal, and a curve invented where none exists. Any tracer passes that finds the true curve at every phase.
  * @evidence contracts/development/testing.md#independent-expectations Expectations are the pairs' closed forms: the Steinmetz curve `(r cos t, r sin t, sqrt(R^2 - r^2 sin^2 t))` with `z' = -r^2 sin 2t / 2z` and `z'' = (-r^2 cos 2t - z'^2) / z`, the host preimage `y = r cos t`, `theta = atan2(z, r sin t)`; the plane's ellipse `x = -r cos t / sin a`, `y = r sin t` with semi-axes `r / sin a` and `r`; the spheres' circle in the plane `z = (R1^2 - R2^2 + c^2) / 2c` of radius `sqrt(R1^2 - z^2)`. Limits are 1e-9 mm on points and 1e-8 relative on derivatives, a thousand times the 1e-12 mm solve tolerance on 10 mm magnitudes. The shared bounded fixture additionally uses y=u^2 for the exact interior foot/Newton station0.5, rejects impossible station1.2, preserves accepted station1 during infeasible polish and checks radius0.55 rails across two explicit charts. Oracle limit: the closed forms hold only on the traced branch (the Steinmetz curve's upper loop, `z > 0`), which the seed selects.
@@ -326,6 +326,48 @@ export function test_construction_operator_intersection(): void {
       failures.push("the large periodic chart confused representable progress with original part ownership: " +
         stuck.diagnostics.map(({ detail }) => detail).join(" "));
   }
+  // The same open intersection translated in world space. Its local addresses
+  // can advance even though no world displacement is representable.
+  const placedPart = cylinder(
+    "large world cylinder",
+    [large, 0, 0],
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    1,
+  );
+  const placedHost = plane(
+    "large world plane",
+    [large, 0, 0],
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+  );
+  const tinyWorldStep = AutoMovieSolidIntersection.trace({
+    part: { ...placedPart, domain: [-1, 1] },
+    host: placedHost,
+    parameter: { kind: "arc" },
+    seed: { s: 0, phi: 0, y: 0, theta: 1 },
+    count,
+    tolerance,
+    grazing: 0.05,
+  });
+  const tinyWorldDirections = tinyWorldStep.diagnostics.flatMap(({ detail }) =>
+    [...detail.matchAll(/"reason":"([^"]+)","length":([^,]+)/g)].map(
+      ([, reason, length]) => [reason, Number(length)],
+    ),
+  );
+  if (
+    tinyWorldStep.curve !== null ||
+    tinyWorldDirections.length !== 2 ||
+    tinyWorldDirections.some(
+      ([reason, length]) => reason !== "walk-no-progress" || length !== 0,
+    )
+  )
+    failures.push(
+      "a local chart change advanced a stationary world point: " +
+        tinyWorldStep.diagnostics.map(({ detail }) => detail).join(" "),
+    );
 
   if (failures.length)
     throw new Error(

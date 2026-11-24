@@ -162,18 +162,12 @@ export namespace FamilyConicFit {
   const LINE_ROUNDS: number = 48;
 
   /**
-   * The least share of its chord at which every arc's two tangent lines must meet ahead of its start and behind its end (`AutoMovieViewChain`'s
-   * `a` and `b`), at every dense station, as fitted and as stored. Admissible at zero alone, a fit settles against that wall: f1's armpit slit
-   * cutter, fitted with the barrier, held `a` at 0 to 0.05 of the chord over its first sections and `b` at 0.02 over its groove, and the
-   * stored family, read by the engine's spline between its stations, was refused ("the tangent lines meet behind the end", `b` -0.006). A part
-   * may ask for less (`IPart.margin`) where a tight groove needs it.
+   * ESTIMATE: use an interior chord share for each tangent meeting, leaving interpolation room between admitted sample sections. A part can declare its own geometric margin.
    */
   export const ADMISSIBLE_MARGIN: number = 0.1;
 
   /**
-   * The margin a constructed family is held to (`construct`), unless its part asks for another. Its values are read from the section, not
-   * pushed against the admissibility wall by a minimisation, so the margin only guards the engine's spline between stations: f1's armpit
-   * vault, constructed, met at 0.072 to 0.099 of its chords beside its top, refused at 0.1 and admitted on the native path.
+   * ESTIMATE: directly constructed families use a smaller margin because the controls have no optimizer pushing them against the bound. A part can declare a different margin.
    */
   export const CONSTRUCT_MARGIN: number = 0.02;
 
@@ -730,8 +724,7 @@ export namespace FamilyConicFit {
       const least: number = Math.min(...leastMeetings(t, layout));
       return Number.isFinite(least) ? least : -Infinity;
     };
-    // Every share strictly inside (0, 1) as the engine reads it, unclamped: the share barrier (`EDGE`) is a residual, not a wall, and f1's
-    // slit cutter, fitted on the corrected trunk, stored a shoulder whose spline between knots fell to -0.010 ("shoulder outside (0, 1)").
+    // Admission requires every interpolated share inside (0, 1). The residual barrier alone cannot guarantee that bound between knots.
     const shares: number[] = units
       .map((unit: C.Unit, f: number): number => (unit === "share" ? f : -1))
       .filter((f: number): boolean => f >= 0);
@@ -1166,11 +1159,7 @@ export namespace FamilyConicFit {
               .join(" ") +
             "\n",
         );
-        // The list above reads only whether each chain is a conic chain, but `cost` refuses a start on every test of `admissible`: a chain at
-        // every dense station, its least tangent meeting at or above the margin, and every share inside (0, 1), each raw and as stored. f1's
-        // foot end seeded from its stored wall was refused with every chain admitted, so each test is printed for the start that was refused
-        // (`projected`, the given start or the projection of the sections' own seeds) and for the flat start the fit falls back on when none
-        // is given (one section's seed held at every knot, the middle section's, the first the fallback tries).
+        // Report each hard admission predicate for the supplied or projected start and the flat fallback.
         const start = (
           label: string,
           values: number[][],
@@ -1393,10 +1382,7 @@ export namespace FamilyConicFit {
       // and each next a tenth of the last, so the solution travels inside the admissible region toward the plain least-squares fit.
       const barrierLevels: number[] = [0];
       if (process.argv.includes("--barrier") && current !== null) {
-        // The first weight is read from the start's own margins (Nocedal and Wright, ch. 19, on initialising mu): the first barrier term,
-        // `mu sum |log m|`, is `BARRIER_SHARE` of the data term. Spread evenly over the number of margins instead, a start near the region's
-        // wall at many stations (large `|log m|`) took a barrier many times its misfit and was pushed toward the region's centre: f1's nose
-        // went from 1.1 to 5.9 to 11.4 mm at each knot inserted.
+        // Scale the initial log-barrier by the sum of the actual log margins. Near-boundary rows can otherwise dominate the current data objective on the first step.
         let logs: number = 0;
         for (const b of dense)
           for (const m of margins(theta(Y, b)) ?? [])

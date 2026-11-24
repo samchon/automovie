@@ -38,12 +38,8 @@ import type {
  *   the section wherever they fade, as an `i` anchor keeps it. Its numbers are
  *   its share of what is left of that chord past the feature before it
  *   (`along`), its offset `o` square to the chord in millimetres outward, and
- *   its tangent's turn `h` from the chord's direction, radians (`place`). Read
- *   as free chart coordinates, f1's nose's six feature lines left that order
- *   at 146 of 157 stations where its alar crease and wing fade; each on the
- *   chord from the feature before it, a tenth of a millimetre at one feature
- *   turned the next one's chord past its arc's own turn and the fit stood
- *   against those walls in both directions.
+ *   its tangent's turn `h` from the chord's direction, radians (`place`). The
+ *   remaining positive share keeps the relative order for every section.
  *
  * After the anchors come the shoulders, one per arc between consecutive
  * anchors: the conic shoulder `rho = |M S| / |M A|` of the engine's native
@@ -60,11 +56,12 @@ export namespace AutoMovieHumanConicSection {
   const EDGE: number = 0.03;
 
   /**
-   * Largest shoulder an arc takes. A shoulder near 1 hugs its two tangent lines and turns at their meeting within a millimetre: f1's trunk
-   * fitted the tape's straight run between the thighs with shoulders of 0.91 to 0.96, and those arcs drew a crease up the front of each thigh
-   * that no net over the wall could take out. Held at this the wall stays fair, and what it leaves the net carries.
+   * Maximum shoulder for broad arcs. ESTIMATE: limit the middle weight to four.
+   * The rational midpoint then stays at least one fifth of the way from the
+   * tangent corner to the chord midpoint. End curvature stays at least one
+   * sixteenth of that of the unit-weight arc with the same control triangle.
    */
-  const FAIR: number = 0.85;
+  export const FAIR: number = 4 / 5;
 
   /** Largest share of the way to a box corner that a guide's touch offset may take. */
   const CORNER: number = 0.92;
@@ -846,12 +843,11 @@ export namespace AutoMovieHumanConicSection {
    * arc keeping its triangle (its two end points and the meeting of their tangents).
    *
    * Two conics that meet at an anchor share its tangent but not its curvature, and where one arc ends nearly flat and the next starts sharply
-   * bent the wall turns within a few millimetres along the anchor's whole station line: f1's trunk over the hips met at its first median with
-   * curvatures of 1.2 and 308 per metre and drew an upright line down each hip. For a rational quadratic with end weights 1 and middle
+   * bent the wall turns sharply along the anchor's whole station line. For a rational quadratic with end weights 1 and middle
    * weight `w = rho / (1 - rho)` the curvature at an end is `|(P1 - P0) x (P2 - P1)| / (w^2 |leg|^3)`, the leg the side of the triangle at
    * that end (Farin, rational quadratic Bezier curves; Pottmann, curvature continuous conic splines). Both curvatures are brought to their
    * geometric mean, so each arc's weight moves by the same factor; the shoulders stay within the model's bounds, where the joint is as near
-   * G2 as they allow. Merged into one conic instead (both halves of one arc split at its shoulder), the hip's shape moved further.
+   * G2 as they allow.
    *
    * @param values The section's field vector.
    * @param layout Its layout, not a mirror's last anchor: `k` must have an arc on either side in the listed anchors.

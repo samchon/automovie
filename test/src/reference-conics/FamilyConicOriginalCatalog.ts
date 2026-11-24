@@ -11,7 +11,7 @@ import type {
 /** Observe original definitions independently of section/mesh admission; no curve is recovered from a skin. */
 export namespace FamilyConicOriginalCatalog {
   /**
-   * Actual source owner, optionally paired with the invocation's fixed authored-F1 counterpart.
+   * Actual source owner, optionally paired with the invocation's fixed authored counterpart.
    *
    * @evidence contracts/development/design.md#principled-representation Actual source identity and existing family factories identify before-cutter definitions; fixed authored counterparts remain distinct from private-reference surfaces.
    * @evidence contracts/development/design.md#minimal-and-owned-surface SourceCapture supplies the production family reader and declared role; optional raw family controls are borrowed from Human.
@@ -28,7 +28,7 @@ export namespace FamilyConicOriginalCatalog {
     /** Actual existing family factory; one failure does not hide other originals. */
     read: () => IAutoMovieViewPart;
 
-    /** Existing fixed F1 source factory for matched chart framing; absence stays unavailable. */
+    /** Existing fixed comparison source factory for matched chart framing; absence stays unavailable. */
     reference?: () => IAutoMovieViewPart;
 
     /** Borrowed original control declaration, not a reverse fit to sampled geometry. */

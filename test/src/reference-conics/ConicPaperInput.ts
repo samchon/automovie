@@ -4,11 +4,8 @@ import type {
   IAutoMoviePlanarCurveSource,
 } from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
-import { createHash } from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
 
-/** Private observation reader; only index rows explicitly marked closed enter the experiment. */
+/** Explicit section-curve inputs and their exact cubic chart evaluation. */
 export namespace ConicPaperInput {
   /** Weak source-identity reuse shares exact preprocessing between the two methods without retaining source curves. */
   const criticalCache: WeakMap<Span, IAutoMovieCubicCriticalParameters> =
@@ -89,117 +86,6 @@ export namespace ConicPaperInput {
     /** Source-critical evaluation, mapping and cache lookup time, in milliseconds. */
     milliseconds: number;
   }
-  /** Minimal discovery shape; column positions are read by name, never assumed. */
-  interface Index {
-    loopColumns: string[];
-    files: { file: string }[];
-    sections: {
-      index: number;
-      coordinateMm: number;
-      inTopologyGap: boolean;
-      loops: unknown[][];
-    }[];
-  }
-  /** Region file wrapper, resolved using index file ordinals and source section/curve ordinals. */
-  interface Region {
-    sections: {
-      index: number;
-      curves: { kind: string; ordinal: number; curve: Curve }[];
-    }[];
-  }
-
-  /** Read every closed loop, including suspect/broken observations, without importing reference bytes into source. */
-  export async function load(root: string): Promise<Packet> {
-    const started: number = performance.now();
-    const directory: string = path.join(root, ".references/curves/bezier/f1");
-    const hashes: Packet["hashes"] = [];
-    const read = async (file: string): Promise<Buffer> => {
-      const bytes: Buffer = await fs.readFile(path.join(directory, file));
-      hashes.push({
-        file,
-        bytes: bytes.length,
-        sha256: createHash("sha256").update(bytes).digest("hex"),
-      });
-      return bytes;
-    };
-    const index: Index = JSON.parse(
-      (await read("index.json")).toString("utf8"),
-    ) as Index;
-    const column = (name: string): number => {
-      const value: number = index.loopColumns.indexOf(name);
-      if (value < 0) throw new Error("Missing saved index column " + name);
-      return value;
-    };
-    const closed: Map<
-      number,
-      { section: Index["sections"][number]; row: unknown[] }[]
-    > = new Map();
-    for (const section of index.sections)
-      for (const row of section.loops)
-        if (row[column("kind")] === "closed") {
-          const file: number = row[column("file")] as number;
-          const entries: {
-            section: Index["sections"][number];
-            row: unknown[];
-          }[] = closed.get(file) ?? [];
-          entries.push({ section, row });
-          closed.set(file, entries);
-        }
-
-    const loops: Loop[] = [];
-    for (const [ordinal, entries] of closed) {
-      const record: Region = JSON.parse(
-        (await read(index.files[ordinal]!.file)).toString("utf8"),
-      ) as Region;
-      const lookup: Map<string, Curve> = new Map();
-      for (const section of record.sections)
-        for (const item of section.curves)
-          if (item.kind === "closed")
-            lookup.set(section.index + ":" + item.ordinal, item.curve);
-      for (const { section, row } of entries) {
-        const number: number = row[column("ordinal")] as number;
-        const key: string = section.index + ":" + number;
-        const curve: Curve | undefined = lookup.get(key);
-        if (
-          curve === undefined ||
-          curve.type !== "cubicBezier" ||
-          !curve.closed ||
-          curve.spans.length !== row[column("spans")]
-        )
-          throw new Error("Index/coefficient disagreement at " + key);
-        loops.push({
-          key,
-          section: section.index,
-          ordinal: number,
-          heightMm: section.coordinateMm,
-          region: row[column("region")] as string,
-          component: row[column("meshComponent")] as number,
-          quality: (row[column("quality")] as { status: string }).status,
-          below: row[column("below")] as number[],
-          above: row[column("above")] as number[],
-          curve,
-        });
-      }
-    }
-    loops.sort(
-      (a: Loop, b: Loop): number =>
-        a.section - b.section || a.ordinal - b.ordinal,
-    );
-    if (
-      new Set(loops.map((loop: Loop): string => loop.key)).size !== loops.length
-    )
-      throw new Error("Duplicate final loft loop identity");
-    return {
-      loops,
-      sections: index.sections.length,
-      topologyGapSections: index.sections.filter(
-        (s: Index["sections"][number]): boolean => s.inTopologyGap,
-      ).length,
-      hashes,
-      loadMs: performance.now() - started,
-    };
-  }
-
   /** Evaluate one cubic's exact Bernstein derivatives; derivatives four and five vanish inside its chart. */
   export function value(
     span: Span,

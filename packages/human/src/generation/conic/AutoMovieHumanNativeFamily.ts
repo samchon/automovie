@@ -17,7 +17,7 @@ import type {
   IAutoMovieHumanNativeFamily,
 } from "@automovie/interface";
 
-/** A full native source generated from qualified F1 controls, independently of any loft. */
+/** A full native source generated from the caller's admitted controls before lofting. */
 export namespace AutoMovieHumanNativeFamily {
   /** Canonical controls and their prepared scalar reader in one cap scope. */
   interface IPreparedSource {

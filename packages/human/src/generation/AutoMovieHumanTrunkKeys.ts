@@ -12,11 +12,12 @@ import { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
 import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
 import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
+import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
 /**
  * The column of a solve's state: the landmark heights the courses move, the
- * keys at the landmark stations, the column through them and what the
- * features stand on. A function of the context and the state alone.
+ * keys at the landmark stations, the column through them and what the features
+ * stand on. A function of the context and the state alone.
  */
 export namespace AutoMovieHumanTrunkKeys {
   /**
@@ -59,54 +60,52 @@ export namespace AutoMovieHumanTrunkKeys {
   ): IAutoMovieHumanTrunkKey[] {
     const h: IAutoMovieHumanTrunkKeys.Heights = heights(ctx, st);
     const K: typeof AutoMovieHumanTrunkShapes = AutoMovieHumanTrunkShapes;
-    const S: number = ctx.fixed.stature;
     const share: number = AutoMovieHumanTrunkGuides.SHARE.anteriorAxillary;
+    const bicepsRadius: number = ctx.fixed.inputs.bicep / (2 * Math.PI);
+    const axillaWidth: number = st.shoulderZ - bicepsRadius;
+    const neckDepth: number = ctx.seat.front[0] - ctx.seat.back[0];
+    const axillaDepth: number = 2 * axillaWidth * ctx.chestWallDepth;
+    const weight: number = AutoMovieHumanTrunkSolve.window(
+      ctx.shoulderY,
+      ctx.axilla,
+      ctx.seat.y,
+    );
+    const shoulderDepth: number =
+      neckDepth + weight * (axillaDepth - neckDepth);
+    const at = (
+      y: number,
+      width: number,
+      ratio: number,
+      anterior: number = share,
+    ): IAutoMovieHumanTrunkKey => K.key(y, width, ratio, ctx.back(y), anterior);
 
     return [
-      K.key(ctx.fixed.crotch, st.groin, K.CROTCH, S, share),
-
-      // The buttock point's back at the buttock's depth over the hip breadth
-      // (ANSUR II): the base reaches the gluteal mass's measured depth, so the
-      // gluteal relief only adds what the base still lacks there. Without
-      // this place the base's back ran through the crotch and the high hip,
-      // far inside, and the relief's peaked profile carried the whole depth
-      // as a cone with a folded band under it.
-      K.key(ctx.buttock, st.widths.buttock, K.BUTTOCK, S, share),
+      // ESTIMATE: the unmeasured adjacent crotch keeps the hip's aspect ratio.
+      at(ctx.fixed.crotch, st.groin, K.BUTTOCK_DEPTH),
+      at(ctx.buttock, st.widths.buttock, K.BUTTOCK_DEPTH),
 
       // No front place at the high hip: its tape fixes the girth there, and the
       // abdominal wall's front runs from the buttock row to the waist.
       {
-        ...K.key(h.highHip, st.widths.highHip, K.HIGH_HIP, S, share),
+        // ESTIMATE: carry the nearest lumbar aspect ratio to high hip.
+        ...at(h.highHip, st.widths.highHip, K.WAIST_DEPTH),
         front: null,
       },
-      K.key(h.waist, st.widths.waist, K.WAIST, S, share),
-      K.key(h.fold, st.widths.fold, K.FOLD, S, share),
-      K.key(h.bust, st.widths.bust, K.BUST, S, share),
-      K.key(
-        ctx.axilla,
-        K.AXILLA_WIDTH * st.widths.bust,
-        K.AXILLA,
-        S,
-        st.anterior,
-      ),
-      {
-        y: ctx.shoulderY,
-        width: st.shoulderZ,
-        middle: K.SHOULDER.middle * S,
-        front: K.SHOULDER.front * S,
-        back: K.SHOULDER.back * S,
-        squareFront: K.SHOULDER.squareFront,
-        squareBack: K.SHOULDER.squareBack,
-        anterior: share,
-      },
+      at(h.waist, st.widths.waist, K.WAIST_DEPTH),
+      at(h.fold, st.widths.fold, ctx.chestWallDepth),
+      at(h.bust, st.widths.bust, ctx.chestWallDepth),
+      // ESTIMATE: reserve the person's upper-arm circle medial to the acromion.
+      at(ctx.axilla, axillaWidth, ctx.chestWallDepth, st.anterior),
+      // ESTIMATE: blend observed neck depth with the axillary wall ellipse.
+      at(ctx.shoulderY, st.shoulderZ, shoulderDepth / (2 * st.shoulderZ)),
       {
         y: ctx.seat.y,
         width: ctx.seat.width,
         middle: ctx.seat.middle,
         front: ctx.seat.front[0],
         back: ctx.seat.back[0],
-        squareFront: K.SHOULDER.squareFront,
-        squareBack: K.SHOULDER.squareBack,
+        squareFront: 2,
+        squareBack: 2,
         anterior: share,
       },
     ];
@@ -123,11 +122,7 @@ export namespace AutoMovieHumanTrunkKeys {
     ctx: IAutoMovieHumanTrunkContext,
     st: IAutoMovieHumanTrunkState,
   ): IAutoMovieHumanTrunkColumn.IColumn {
-    return AutoMovieHumanTrunkColumn.create(
-      keys(ctx, st),
-      ctx.fixed.crotch,
-      ctx.soft,
-    );
+    return AutoMovieHumanTrunkColumn.create(keys(ctx, st));
   }
 
   /**
@@ -145,13 +140,6 @@ export namespace AutoMovieHumanTrunkKeys {
   ): IAutoMovieHumanTrunkFeatures.ISites {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
     const h: IAutoMovieHumanTrunkKeys.Heights = heights(ctx, st);
-    const target: IAutoMovieHumanTrunkKey = AutoMovieHumanTrunkShapes.key(
-      ctx.buttock,
-      st.widths.buttock,
-      AutoMovieHumanTrunkShapes.BUTTOCK,
-      ctx.fixed.stature,
-      AutoMovieHumanTrunkGuides.SHARE.anteriorAxillary,
-    );
 
     return {
       crotch: ctx.fixed.crotch,
@@ -162,10 +150,9 @@ export namespace AutoMovieHumanTrunkKeys {
       fold: h.fold,
       bust: h.bust,
       axilla: ctx.axilla,
-      furrowFrom: ctx.buttock + 0.05 * ctx.span,
       bustSpan: inputs.bustSpan,
       projection: st.projection,
-      buttockProjection: col.at(ctx.buttock).back - target.back!,
+      buttockProjection: col.at(ctx.buttock).back - ctx.back(ctx.buttock),
       span: ctx.span,
       neck: ctx.seat.y,
     };

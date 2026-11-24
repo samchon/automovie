@@ -1,9 +1,9 @@
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { AutoMovieLoftChain, AutoMovieViewLoft } from "@automovie/engine";
 import type {
-  IAutoMovieHumanF1,
   IAutoMovieSolidSurface,
   IAutoMovieViewLoft,
+  IAutoMovieViewPart,
 } from "@automovie/interface";
 
 /** Display samples of actual native source factories and separately retained operator fields. */
@@ -47,7 +47,7 @@ export namespace FamilyConicCaptureCatalog {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only sampled lines and provenance survive; temporary factory chains are released after each source and no global cache is added.
    */
   export function create(
-    declared: Pick<IAutoMovieHumanF1.IConstruction, "sources">,
+    declared: { sources: ReadonlyMap<string, IAutoMovieViewPart> },
     surfaces: readonly IAutoMovieSolidSurface[],
     cutters: readonly string[],
   ): IResult {

@@ -18,7 +18,7 @@ States named versus thrown failure, buffer/owner atomicity, partial endpoint dia
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-An isolated face reads the current prior triangles once. A prepared draw reads the initial triangle buffer once and updates incidences on each admitted append. Each face also pays for its grid, residual triangulation, admission and staged index order.
+An isolated face reads the current prior triangles once. A prepared draw reads the initial triangle buffer once and the newly committed triangle ranges before each face. Each face also pays for its grid, residual triangulation, admission and staged index order.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -32,7 +32,7 @@ An isolated face retains incidence only during admission. A prepared draw owns i
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Builds directed and unoriented incidence from the original output buffer. Each admitted face contributes its actual emitted edges.
+Builds directed and unoriented incidence from committed triangles. Faces, seams and caps all contribute their actual emitted edges, in the same order as isolated face admission sees them. The two directed keys of an edge correspond to the opposite halfedges in [CGAL's indexed Surface Mesh](https://doc.cgal.org/6.1.1/Surface_mesh/index.html).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -40,11 +40,11 @@ One caller-owned closure delegates to the same atomic face admission as an isola
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The closure changes its incidence only after a face is emitted. Refusals leave both the topology state and output untouched.
+The closure only adds edges from already committed triangles. A refused face adds no edges and leaves the output unchanged.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the append-only batch's exclusive ownership of mesh index writes.
+States the fixed-prefix premise, reads of interleaved cap or seam triangles, and the prohibition on writes or reentrancy from face callbacks.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

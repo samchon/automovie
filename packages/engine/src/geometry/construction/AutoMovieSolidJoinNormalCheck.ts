@@ -22,6 +22,7 @@ type IFailure = {
  *
  * @param columns Already admitted columns, in their original traversal order.
  * @param column The same join's reader; each column reads its two neighbours once.
+ * @param explain Why either neighbouring column could not be read.
  * @param period Original curve-parameter turn, radians.
  * @param curve Original borrowed curve; its names identify curve provenance and its point count sets the neighbour step. Join's diagnostic producer already owns the requested source names.
  * @param shares Original fold-share count, a positive finite integer.
@@ -33,6 +34,7 @@ type IFailure = {
 export function AutoMovieSolidJoinNormalCheck(
   columns: readonly IAutoMovieSolidJoin.IColumn[],
   column: IAutoMovieSolidJoin.IJoin["column"],
+  explain: (t: number) => string,
   period: number,
   curve: IAutoMovieSolidIntersection.ICurve,
   shares: number,
@@ -45,10 +47,17 @@ export function AutoMovieSolidJoinNormalCheck(
   > = AutoMovieSolidVector;
   const step: number = period / (16 * curve.points.length);
   for (const c of columns) {
-    const before: IAutoMovieSolidJoin.IColumn | null = column(c.rail.curve.t - step);
-    const after: IAutoMovieSolidJoin.IColumn | null = column(c.rail.curve.t + step);
-    if (before === null || after === null)
-      return { contract: "rails", detail: `no rail beside t ${c.rail.curve.t}` };
+    const low: number = c.rail.curve.t - step;
+    const high: number = c.rail.curve.t + step;
+    const before: IAutoMovieSolidJoin.IColumn | null = column(low);
+    const after: IAutoMovieSolidJoin.IColumn | null = column(high);
+    if (before === null || after === null) {
+      const missing: number = before === null ? low : high;
+      return {
+        contract: "rails",
+        detail: `no rail beside t ${c.rail.curve.t} at t ${missing}: ${explain(missing)}`,
+      };
+    }
     let previous: Vec3 | null = null;
     let previousAlong: Vec3 | null = null;
     let previousFirst: Vec3 | null = null;

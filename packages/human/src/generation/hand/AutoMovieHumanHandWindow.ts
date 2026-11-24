@@ -1,22 +1,23 @@
 import type { IAutoMovieHumanHandWindow } from "@automovie/interface";
 
 /**
- * The compact windows the hand's reliefs are made of: a bump that is one at
- * its centre and zero, with its first and second derivatives, at its edge.
+ * The compact windows the hand's reliefs are made of: a bump that is one at its
+ * centre and zero, with its first and second derivatives, at its edge.
  *
- * A relief that grows out of a skin without a seam must vanish with its
- * slope and curvature at its window's edge (`IAutoMovieLoftRelief`, rule J7
- * of the shared seam module). The bump `(1 - x^2)^3` does: it has a triple
- * zero at `x = +-1`, so the base skin and the relief meet C2 there. Every
- * joint swelling, digital crease, fingertip pulp, nail fold and eminence of
- * the hand uses it, each with its own centre, half extent and amplitude.
+ * A relief that grows out of a skin without a seam must vanish with its slope
+ * and curvature at its window's edge (`IAutoMovieLoftRelief`, rule J7 of the
+ * shared seam module). The bump `(1 - x^2)^3` does: it has a triple zero at `x
+ * = +-1`, so the base skin and the relief meet C2 there. Every joint swelling,
+ * digital crease, fingertip pulp, nail fold and eminence of the hand uses it,
+ * each with its own centre, half extent and amplitude.
  */
 export namespace AutoMovieHumanHandWindow {
   /**
    * The bump `(1 - x^2)^3` of a coordinate scaled so its edge is at 1; zero
    * outside.
    *
-   * @param x Coordinate over the window's half extent, so the window is `|x| < 1`.
+   * @param x Coordinate over the window's half extent, so the window is `|x| <
+   *   1`.
    */
   export function bump(x: number): IAutoMovieHumanHandWindow.IJet {
     if (Math.abs(x) >= 1) return { value: 0, slope: 0, curvature: 0 };
@@ -47,17 +48,14 @@ export namespace AutoMovieHumanHandWindow {
    * (origin the middle of the pad on the palmar sector, along the bone, normal
    * the palmar normal of the skin there). `L` is the distal phalanx's length,
    * `W` the section's half width and `D` its palmar depth at the pad's middle.
-   * It ends on the tip cap, which takes the pulp's height at its last rings
-   * (G2). f1's tip sections show the palmar depth rising over the distal
-   * phalanx (index 7.3 to 7.8 mm against the dorsal 3.8 to 2.0) while the
-   * dorsal falls, which the span law's distal knots already carry; the pulp is
-   * the extra a knot cannot, localised at the pad. The toes' pads take the same
-   * mass (`AutoMovieHumanFootToeSpan`, `AutoMovieHumanFootToeLines`).
+   * Without a separate measured window, the cap's own ellipse supplies the pad
+   * volume. The half-length places a caller's added window between the distal
+   * joint and apex, over the full section width.
    */
   export const PULP: IAutoMovieHumanHandWindow.IMass = {
-    height: 0.12,
-    length: 0.45,
-    width: 0.85,
+    height: 0,
+    length: 0.5,
+    width: 1,
   };
 
   /**
@@ -89,6 +87,7 @@ export namespace AutoMovieHumanHandWindow {
     s: number,
     t: number,
   ): number {
+    if (mass.height === 0) return 0;
     return (
       mass.height *
       size.depth *

@@ -3,11 +3,11 @@ import {
   AutoMovieLoftViewFullSource as Full,
   AutoMovieViewAxis,
 } from "@automovie/engine";
-import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
+import { AutoMovieHumanNativeRootLaw as Root } from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,
-  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieHumanNativeRoot,
   IAutoMovieLoftViewFullSource,
   IAutoMovieViewAxis,
   IAutoMovieViewPart,
@@ -86,7 +86,7 @@ export function test_human_native_root_domain(): void {
         semi: [entry.semiMetres, phaseSemi], sense: 1,
         shape: Array.from({ length: count }, (): number => 1),
       };
-      const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
+      const original: IAutoMovieHumanNativeRoot.ICalibration = Root.calibrate({
         name: "made-domain", parent, child, loop, rails: [0.5], count,
         correspondence: "angle",
         metric: { station: 0.5, depth: 2 * a, breadth: 2 * breadth },
@@ -97,18 +97,18 @@ export function test_human_native_root_domain(): void {
       close("literal upper station", source.point(entry.domain[1], 0)[1], entry.domain[1]);
       rejects("below actual domain", (): AutoMovieVector3Tuple => source.point(entry.domain[0] - 1, 0));
       rejects("above actual domain", (): AutoMovieVector3Tuple => source.point(entry.domain[1] + 1, 0));
-      const held: IAutoMovieHumanF1NativeRoot.IRootSpec = Root.prepare(original, parent, [1, 1]).resolve(child);
+      const held: IAutoMovieHumanNativeRoot.IRootSpec = Root.prepare(original, parent, [1, 1]).resolve(child);
       if (held.loop !== loop) failures.push(entry.name + ": original loop was replaced");
-      held.rows.forEach((row: IAutoMovieHumanF1NativeRoot.IRootRow): void => {
+      held.rows.forEach((row: IAutoMovieHumanNativeRoot.IRootRow): void => {
         if (!Object.is(row.level.share, 1)) failures.push("original share was changed");
       });
 
-      const prepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(original, parent, [entry.scale, 1]);
+      const prepared: IAutoMovieHumanNativeRoot.IPrepared = Root.prepare(original, parent, [entry.scale, 1]);
       const candidate: IAutoMovieViewPart = ellipse(
         child.name, a * entry.scale, breadth, [0, 1], prepared.axis,
       );
-      const made: IAutoMovieHumanF1NativeRoot.IRootSpec = prepared.resolve(candidate);
-      const row: IAutoMovieHumanF1NativeRoot.IRootRow = made.rows[entry.column]!;
+      const made: IAutoMovieHumanNativeRoot.IRootSpec = prepared.resolve(candidate);
+      const row: IAutoMovieHumanNativeRoot.IRootRow = made.rows[entry.column]!;
       const c: number = 2 * Math.PI * entry.column / count;
       const q: number = row.level.share;
       if (!(q > 1 && q < 2))

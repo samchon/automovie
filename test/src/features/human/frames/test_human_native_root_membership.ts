@@ -3,11 +3,11 @@ import {
   AutoMovieLoftViewFullSource as Full,
   AutoMovieViewAxis,
 } from "@automovie/engine";
-import { AutoMovieHumanF1NativeRootLaw as Root } from "@automovie/human";
+import { AutoMovieHumanNativeRootLaw as Root } from "@automovie/human";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,
-  IAutoMovieHumanF1NativeRoot,
+  IAutoMovieHumanNativeRoot,
   IAutoMovieLoftViewFullSource,
   IAutoMovieViewAxis,
   IAutoMovieViewPart,
@@ -84,7 +84,7 @@ export function test_human_native_root_membership(): void {
     sense: -1,
     shape: Array.from({ length: count }, (): number => 1),
   };
-  const original: IAutoMovieHumanF1NativeRoot.ICalibration = Root.calibrate({
+  const original: IAutoMovieHumanNativeRoot.ICalibration = Root.calibrate({
     name: "made-cylinder-ellipse",
     parent,
     child,
@@ -97,11 +97,11 @@ export function test_human_native_root_membership(): void {
   });
 
   scenario("unchanged original controls and clock", (): void => {
-    const same: IAutoMovieHumanF1NativeRoot.IRootSpec = Root.prepare(original, parent, [1, 1]).resolve(child);
+    const same: IAutoMovieHumanNativeRoot.IRootSpec = Root.prepare(original, parent, [1, 1]).resolve(child);
     if (same.loop !== loop) failures.push("unchanged loop was replaced");
     exact("unchanged rail length", same.railStations.length, 1);
     exact("unchanged rail station", same.railStations[0]!, 1);
-    same.rows.forEach((row: IAutoMovieHumanF1NativeRoot.IRootRow, k: number): void => {
+    same.rows.forEach((row: IAutoMovieHumanNativeRoot.IRootRow, k: number): void => {
       exact("original clock " + k, row.sourceClock, (2 * Math.PI * k) / count);
       exact("original child phase " + k, row.targetChildAddress[1], original.childPhases[k]!);
       row.actualParent.forEach((value: number, axis: number): void =>
@@ -111,7 +111,7 @@ export function test_human_native_root_membership(): void {
   });
 
   scenario("actual calipers and curved parent membership", (): void => {
-    const prepared: IAutoMovieHumanF1NativeRoot.IPrepared = Root.prepare(original, parent, [1, 2]);
+    const prepared: IAutoMovieHumanNativeRoot.IPrepared = Root.prepare(original, parent, [1, 2]);
     const candidate: IAutoMovieViewPart = ellipse(
       "made-child",
       1,
@@ -127,8 +127,8 @@ export function test_human_native_root_membership(): void {
     close("independent source depth", up[1] - down[1], 2);
     close("independent source breadth", twin[2] - side[2], 12);
 
-    const made: IAutoMovieHumanF1NativeRoot.IRootSpec = prepared.resolve(candidate);
-    const row: IAutoMovieHumanF1NativeRoot.IRootRow = made.rows[count / 4]!;
+    const made: IAutoMovieHumanNativeRoot.IRootSpec = prepared.resolve(candidate);
+    const row: IAutoMovieHumanNativeRoot.IRootRow = made.rows[count / 4]!;
     const z: number = -20 * Math.sin(0.3);
     const x: number = Math.sqrt(100 - z * z);
     close("actual parent stays on cylinder", row.actualParent[0] ** 2 + row.actualParent[2] ** 2, 100);

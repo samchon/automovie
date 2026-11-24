@@ -5,9 +5,6 @@ import {
   FamilyConicOriginalCatalog as Original,
 } from "../../../reference-conics/FamilyConicOriginalCatalog";
 import {
-  FamilyConicSourceCapture as Source,
-} from "../../../reference-conics/FamilyConicSourceCapture";
-import {
   NodeCanvasCamera as Camera,
 } from "../../../reference-conics/render/NodeCanvasCamera";
 import {
@@ -23,14 +20,14 @@ import type { IAutoMovieViewPart as Part } from "@automovie/interface";
  *
  * Scenarios:
  * 1. A failed actual factory preserves its available fixed counterpart; a failed counterpart preserves its actual neighbour.
- * 2. Complete explicitly associated F1 parent/child bounds fit one fixed camera, while a similarly named foreign owner cannot change it.
+ * 2. Complete explicitly associated parent/child bounds fit one fixed camera, while a similarly named foreign owner cannot change it.
  * 3. Foreign body-frame registration is refused, without alignment or changed-case fitting.
- * 4. An explicit native case changes the header, while omitted and explicit f1 produce byte-identical default PNGs.
- * 5. Admitted source-only input rejects an unknown key, and declared breast/hand owner bounds remain available independently of nose.
+ * 4. An explicit native case changes the header, while omitted and explicit reference produce byte-identical default PNGs.
+ * 5. Declared breast and hand owner bounds remain available independently of the nose.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual catalog, fixed-framing helper and existing rasterizer with two tiny made parts, literal metre samples and an empty scene; no person, source solver, reference file or realization executes.
  * @evidence contracts/development/testing.md#independent-expectations Literal associated bounds at plus/minus0.1m must remain inside the900px frame; the foreign band.nose.mirror point at100m must not shrink that frame. Only the subject argument differs between the header PNG counterparts.
- * @evidence contracts/development/testing.md#distinguishing-cases Failed actual/valid reference and valid actual/failed reference, exact/foreign owners, equal/shifted frame and default/explicit f1/variant headers distinguish the repaired boundaries.
+ * @evidence contracts/development/testing.md#distinguishing-cases Failed actual/valid reference and valid actual/failed reference, exact/foreign owners, equal/shifted frame and default/explicit reference/variant headers distinguish the repaired boundaries.
  * @evidence contracts/development/testing.md#execution-ownership Uses source definitions, existing camera projection and empty-scene Canvas only; performs no filesystem, case assembly, whole figure or geometry measurement.
  * @evidence contracts/development/common.md#meaningful-documentation Five numbered scenarios name the independent observation, shared framing and header contracts.
  */
@@ -152,6 +149,7 @@ export function test_human_capture_scope_frames(): void {
         closed: false,
       },
     ],
+    owners: { nose: ["band.nose"], breast: ["band.breast"], hand: ["wrist.arm"] },
     provenance: null,
   };
   const plan: Framing.IPlan = Framing.plan("nose", baseline);
@@ -231,16 +229,6 @@ export function test_human_capture_scope_frames(): void {
       hand.points.some((point: N.Point): boolean => point[2] === 0.7),
     "declared hand wrist input bounds were absent",
   );
-  let typoRefused: boolean = false;
-  try {
-    Source.requested(["--source-only", "--soruces=nose"], true);
-  } catch {
-    typoRefused = true;
-  }
-  check(
-    typoRefused,
-    "admitted source-only input ignored an unknown option key",
-  );
   Framing.compatible(baseline, baseline.frame);
   let refused: boolean = false;
   try {
@@ -272,7 +260,7 @@ export function test_human_capture_scope_frames(): void {
     "xray",
     "same scene",
     undefined,
-    "f1",
+    "reference",
   ).png;
   const changed: Buffer = Raster.render(
     headerCamera,
@@ -285,7 +273,7 @@ export function test_human_capture_scope_frames(): void {
   ).png;
   check(
     legacy.equals(explicit),
-    "default f1 PNG bytes changed when passing the same explicit subject",
+    "default reference PNG bytes changed when passing the same explicit subject",
   );
   check(
     !legacy.equals(changed),

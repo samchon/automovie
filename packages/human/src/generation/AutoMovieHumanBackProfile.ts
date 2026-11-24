@@ -94,7 +94,10 @@ export namespace AutoMovieHumanBackProfile {
    * @param measures A person's resolved measures.
    */
   export function of(
-    measures: IAutoMovieHumanBodyMeasures,
+    measures: Pick<
+      IAutoMovieHumanBodyMeasures,
+      "sex" | "stature" | "cervicaleHeight" | "kyphoticAngle" | "lordoticAngle"
+    >,
   ): IAutoMovieHumanBackProfile.IProfile {
     const shape: IAutoMovieHumanBackProfile.IShape =
       SHAPE[measures.sex === AutoMovieHumanSex.Female ? 0 : 1];

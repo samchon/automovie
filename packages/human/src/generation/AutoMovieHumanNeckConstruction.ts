@@ -34,10 +34,9 @@ export namespace AutoMovieHumanNeckConstruction {
    * Evaluate the mass's neck interval for the remaining old trunk.
    *
    * @param mass The exact canonical shoulder-fullness mass composed for the production head.
-   * @param placement Existing internal overlap mean, named C7 height and phase resolution; its harmonic rows do not supply this skin.
+   * @param placement The internal overlap centre, named C7 height and phase resolution.
    * @returns Original interval and complete engine result. A changed interval
-   *   is not claimed identical to the old nonplanar harmonic chain or to the
-   *   whole mass's final coefficient interpolation between sections.
+   *   retains the original mass's scalar curves and regular interval.
    *
    * @evidence contracts/common.md#principled-implementation Retains the prepared parameter and expresses its derivatives in the restricted curve's normalized parameter. All interior shape knots survive and source-owner jets define both boundaries. Open closure is represented by an absent pole, independently of the source parameter.
    * @evidence contracts/common.md#clear-and-simple-design Restricts source records to the interval and delegates interpolation, every section and the chain to the engine.
