@@ -40,10 +40,10 @@ import type * as THREE from "three";
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged. The capture and the render show the mouths on the same bound figures, so stills and delivered frames show the same mouths; the inspector shows the authored mouth.
  */
 export interface IFilmProduction {
-  /** Scene the Viewer renders, owned by this mount. */
+  /** Scene the inspector renders, owned by this mount. */
   scene: THREE.Scene;
 
-  /** Camera the Viewer renders through; camera entities move it in `seek`. */
+  /** Camera the inspector renders through; camera entities move it in `seek`. */
   camera: THREE.PerspectiveCamera;
 
   /**
@@ -130,7 +130,7 @@ export interface IFilmProduction {
   /**
    * The film's camera response as last placed: exposure in EV100, white
    * balance, tone curve, glare and the adopted grade as ASC CDL values. Read
-   * right after each placement, before each beauty picture of the Viewer, a
+   * right after each placement, before each beauty picture of the inspector, a
    * capture or the delivered video and before each `graphics` plate, so a
    * transition's outgoing tail, placed by `seekShot`, takes its own exposure,
    * white balance and focus. Absent draws the scene light straight to the
@@ -168,7 +168,7 @@ export interface IFilmProduction {
   /**
    * Render-target work for the film as last placed, run on the host's renderer
    * right after each placement, a transition shot's and a sub-frame sample's
-   * included, before each picture of the Viewer, a capture or the delivered
+   * included, before each picture of the inspector, a capture or the delivered
    * video: draw the placed shot's surface feeds with `renderFeeds` of the
    * surface graphics `prepareAutoMovieSurfaceGraphics` returned, resolving each
    * feed camera by id and passing the film's `optics` for the same placement,
@@ -256,10 +256,10 @@ export interface IFilmProduction {
   };
 
   /**
-   * Optional named review cameras that the Viewer's `view` parameter selects,
-   * such as a side-on view, one behind each subject or a high 45° view; each
-   * places the inspection camera for the film as last placed at the drawn
-   * second and leaves the film camera untouched.
+   * Optional named review cameras that the inspector's `view` parameter
+   * selects, such as a side-on view, one behind each subject or a high 45°
+   * view; each places the inspection camera for the film as last placed at the
+   * drawn second and leaves the film camera untouched.
    */
   views?: Readonly<
     Record<
@@ -277,9 +277,9 @@ export interface IFilmProduction {
    * Optional inspection marks of the film at an exact second: what its owners
    * locate, such as the construction curves of its built forms from
    * `markAutoMovieConstructionCurves`. They are drawn only when an inspection's
-   * `marks` parameter names their kinds, in the Viewer and in a capture alike,
-   * and are asked for right after the drawn second's last placement, the shot
-   * the picture shows most of, so they describe that shot.
+   * `marks` parameter names their kinds, in the inspector and in a capture
+   * alike, and are asked for right after the drawn second's last placement, the
+   * shot the picture shows most of, so they describe that shot.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the marks locate, when they are drawn, when they are asked for and which placement they describe.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
@@ -335,7 +335,7 @@ export interface IFilmProduction {
   seekShot?(shot: string, seconds: number, filmSeconds: number): void;
 
   /**
-   * Releases the scene's resources when the Viewer page closes.
+   * Releases the scene's resources when the inspector page closes.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the call releases and when.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.

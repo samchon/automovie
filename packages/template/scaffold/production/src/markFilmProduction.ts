@@ -10,7 +10,7 @@ import type { IFilmProduction } from "./IFilmProduction";
 /**
  * Every mark a mounted film supplies at an exact second: its own `marks`, then, when it supplies a physical performance, the skeleton of its displayed bodies (`joint`, `bone`), the contact forces of that second (`contact`) and, when the performance supplies its support wrenches, the allocated support force and any shortfall (`support/allocated`, `support/shortfall`), as the engine's producers draw them.
  *
- * The Viewer page and the draw-only page both hand these to the inspection, so `marks=joint` or `marks=contact` draws the same thing in every host. Call it after the film's `seek` to the same second.
+ * The inspector page and the draw-only page both hand these to the inspection, so `marks=joint` or `marks=contact` draws the same thing in every host. Call it after the film's `seek` to the same second.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is gathered, from which producers and kinds, who calls it and when.
  * @evidence contracts/development/implementation.md#principled-implementation The skeleton, contacts and support wrenches are the engine's mark producers fed from the performance the film displays, so the picture shows the state the film was placed in, not a second model.

@@ -8,11 +8,11 @@ import type { IFilmProduction } from "../../IFilmProduction";
  * film per film folder, each composing its scenes.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The film resolves a fresh scene and camera per mount without loading anything, and its seek updates world matrices for the requested second, so playback, seeking and capture draw the same state.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The film holds only its length and scene assembly; the Viewer entry owns display and the render owns capture.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The film holds only its length and scene assembly; the inspector entry owns display and the render owns capture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The starter contains no story, motion or special case; its camera and background are neutral defaults.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each seek updates world matrices once, linear in the scene's object count, which is zero here.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work One scene and camera serve every seek of a mount.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each mount owns its scene and camera, and dispose clears the scene when the Viewer page closes.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Each mount owns its scene and camera, and dispose clears the scene when the inspector page closes.
  */
 export function starter(): IFilm {
   return {
