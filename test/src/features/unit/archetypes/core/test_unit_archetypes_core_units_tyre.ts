@@ -4,9 +4,9 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * `AutoMovieArchetypeUnits.tyre` is a metric tyre's outer diameter as its
- * size designation defines it (ETRTO): the rim diameter in inches plus twice
- * the sidewall, section width × aspect ratio.
+ * `AutoMovieArchetypeUnits.tyre` is a metric tyre's outer diameter as its size
+ * designation defines it (ETRTO): the rim diameter in inches plus twice the
+ * sidewall, section width × aspect ratio.
  *
  * Scenarios:
  *

@@ -11,13 +11,17 @@ import { softPanel } from "../../../internal/softFixtures";
  *
  * Scenarios:
  *
- * 1. dt = 1/64 s, speed 4 m/s, edges 0.25 m: (1/64)(4)/0.25 = 0.25.
+ * 1. Dt = 1/64 s, speed 4 m/s, edges 0.25 m: (1/64)(4)/0.25 = 0.25.
  * 2. A single particle: 0.
  */
 export function test_unit_engine_soft_body_travel_number(): void {
   TestValidator.predicate(
     "the worked travel",
-    nclose(softBodyTravelNumber(softPanel({ columns: 2, rows: 2 })), 0.25, 1e-15),
+    nclose(
+      softBodyTravelNumber(softPanel({ columns: 2, rows: 2 })),
+      0.25,
+      1e-15,
+    ),
   );
   TestValidator.equals(
     "no edge, no travel",

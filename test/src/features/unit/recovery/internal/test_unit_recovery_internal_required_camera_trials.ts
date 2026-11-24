@@ -4,8 +4,7 @@ import { TestValidator } from "@nestia/e2e";
 /**
  * `requiredRecoveryCameraTrials` is the RANSAC stopping count of Fischler and
  * Bolles 1981, `⌈ln(1 − p) / ln(1 − w)⌉`, with w the chance that a sample of
- * size s drawn without replacement holds only inliers,
- * `Π (I − k) / (N − k)`.
+ * size s drawn without replacement holds only inliers, `Π (I − k) / (N − k)`.
  *
  * Scenarios:
  *
@@ -20,7 +19,11 @@ export function test_unit_recovery_internal_required_camera_trials(): void {
     requiredRecoveryCameraTrials(10, 5, 2, 0.99),
     Math.ceil(Math.log(0.01) / Math.log(7 / 9)),
   );
-  TestValidator.equals("all inliers", requiredRecoveryCameraTrials(8, 8, 3, 0.99), 1);
+  TestValidator.equals(
+    "all inliers",
+    requiredRecoveryCameraTrials(8, 8, 3, 0.99),
+    1,
+  );
   TestValidator.equals(
     "too few inliers",
     requiredRecoveryCameraTrials(10, 1, 2, 0.99),

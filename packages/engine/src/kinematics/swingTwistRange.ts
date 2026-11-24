@@ -22,7 +22,6 @@ import { wrapDegrees } from "../math/wrapDegrees";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { toRigAngle } from "../rom/toRigAngle";
-import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
 import { placeSwingTwistChart } from "./placeSwingTwistChart";
 import { skeletonJointAxes } from "./skeletonJointAxes";
@@ -110,15 +109,15 @@ export namespace swingTwistRange {
 
   /**
    * Prepare one frame for repeated numerical readings while its axes and
-   * rest-frame records stay unchanged. Admission remains lazy at first use.
+   * rest-frame records stay unchanged; each reading admits the frame itself.
    *
    * @param joint The unchanged frame borrowed by this operation.
-   * @returns A fresh frozen frame wrapper, released with the operation.
+   * @returns The same frame.
    */
   export function prepare(
     joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieJointRotationFrame {
-    return SwingTwistFramePreparation.of(joint);
+    return joint;
   }
 
   /**
@@ -133,7 +132,7 @@ export namespace swingTwistRange {
     joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieSwingTwistRange.IReading {
     const basis: IAutoMovieSwingTwistBasis.IBasis =
-      SwingTwistFramePreparation.basis(joint);
+      swingTwistBasis.of(joint.axes);
     const unit: IAutoMovieQuaternion = Quaternion.normalize(q);
     const direction: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(unit, basis.u),
@@ -203,7 +202,7 @@ export namespace swingTwistRange {
     joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
     const basis: IAutoMovieSwingTwistBasis.IBasis =
-      SwingTwistFramePreparation.basis(joint);
+      swingTwistBasis.of(joint.axes);
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = nearestAngleAlias(reading.twist, interval);

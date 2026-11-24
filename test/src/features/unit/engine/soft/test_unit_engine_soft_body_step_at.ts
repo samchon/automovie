@@ -5,13 +5,13 @@ import { TestValidator } from "@nestia/e2e";
 import { softPanel } from "../../../internal/softFixtures";
 
 /**
- * `softBodyStepAt` is the whole fixed steps elapsed by a shot second,
- * `⌊t / dt⌋`, with negative time held at step zero and a 1e-9 step allowance
- * for rounding just below a boundary.
+ * `softBodyStepAt` is the whole fixed steps elapsed by a shot second, `⌊t /
+ * dt⌋`, with negative time held at step zero and a 1e-9 step allowance for
+ * rounding just below a boundary.
  *
  * Scenarios:
  *
- * 1. dt = 1/64 s: 0.5 s is step 32, 0.51 s is step 32.
+ * 1. Dt = 1/64 s: 0.5 s is step 32, 0.51 s is step 32.
  * 2. A second rounded just below a boundary, 32/64 − 1e-15, still reads 32.
  * 3. Negative time reads step 0.
  */

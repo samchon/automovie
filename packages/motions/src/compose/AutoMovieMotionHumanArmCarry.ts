@@ -287,7 +287,8 @@ export namespace AutoMovieMotionHumanArmCarry {
                   }),
                 ),
               );
-      },      write: (
+      },
+      write: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
         before?: (seconds: number) => IAutoMovieMotionHumanPosture,

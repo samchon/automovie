@@ -12,8 +12,16 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Frame 7 of mask as jpg padded to 3: frame_007.mask.jpg.
  */
 export function test_unit_render_root_guide_pass_frame_name(): void {
-  TestValidator.equals("beauty", guidePassFrameName(42, "beauty"), "frame_00042.png");
-  TestValidator.equals("depth", guidePassFrameName(42, "depth"), "frame_00042.depth.png");
+  TestValidator.equals(
+    "beauty",
+    guidePassFrameName(42, "beauty"),
+    "frame_00042.png",
+  );
+  TestValidator.equals(
+    "depth",
+    guidePassFrameName(42, "depth"),
+    "frame_00042.depth.png",
+  );
   TestValidator.equals(
     "mask as jpg",
     guidePassFrameName(7, "mask", "jpg", 3),

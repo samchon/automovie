@@ -4,6 +4,7 @@ import {
   physicalStanceBalance,
 } from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -36,29 +37,48 @@ export function test_physical_leg_capacity(): void {
   const failures: string[] = [];
   const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const rigid = (position: IAutoMovieVector3): AutoMovieXpbdBody =>
-    ({
-      translation: () => position,
-      rotation: () => identity,
-    }) as unknown as AutoMovieXpbdBody;
+  const rigid = (
+    position: IAutoMovieVector3,
+  ): Pick<AutoMovieXpbdBody, "translation" | "rotation"> => ({
+    translation: (): IAutoMovieVector3 => position,
+    rotation: (): IAutoMovieQuaternion => identity,
+  });
 
   // 1. The bent leg's capacity.
-  const segments: ReadonlyMap<string, AutoMovieXpbdBody> = new Map([
+  const segments: ReadonlyMap<
+    string,
+    Pick<AutoMovieXpbdBody, "translation" | "rotation">
+  > = new Map([
     ["pelvis", rigid({ x: 0, y: 1, z: 0 })],
     ["thigh", rigid({ x: 0, y: 0.55, z: 0.3 })],
     ["shin", rigid({ x: 0, y: 0.1, z: 0.2 })],
   ]);
-  const joint = (parent: string, child: string, reverse: number) => ({
+  const joint = (
+    parent: string,
+    child: string,
+    reverse: number,
+  ): IAutoMoviePhysicalJoint => ({
     id: child,
     parent,
     child,
     parentFrame: { position: zero, rotation: identity },
     childFrame: { position: zero, rotation: identity },
-    axes: [{ axis: "x", maximumTorque: 100, reverseTorque: reverse }],
+    axes: [
+      {
+        axis: "x",
+        minimum: -Math.PI,
+        maximum: Math.PI,
+        stiffness: 0,
+        damping: 0,
+        maximumTorque: 100,
+        reverseTorque: reverse,
+        channel: "flexion",
+      },
+    ],
   });
-  const profile = {
+  const profile: Pick<IAutoMoviePhysicalProfile, "joints"> = {
     joints: [joint("pelvis", "thigh", 80), joint("thigh", "shin", 60)],
-  } as unknown as IAutoMoviePhysicalProfile;
+  };
   const force: number = physicalLegCapacity({
     profile,
     segments,

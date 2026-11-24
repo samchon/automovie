@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieCenterOfMass } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
@@ -14,7 +14,6 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
   IAutoMovieMotionManner,
-  IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -30,6 +29,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "../striking/StrikingBody";
+import { backToBackLoad } from "./backToBackLoad";
 import { kissBody } from "./kissBody";
 
 /**
@@ -304,7 +304,7 @@ function planBackToBack(
         part: "back",
         kind: "bear",
         region: "upperBack",
-        load: load(body, pitch),
+        load: backToBackLoad(body, pitch),
         from: clock.at("ready") / duration,
         to: clock.at("relax") / duration,
         support: {
@@ -340,32 +340,3 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
     interrupts: {},
     plan: planBackToBack,
   };
-
-/**
- * The share of the body's weight the leaning trunk lays on the partner: the
- * trunk's mass share times the tangent of the lean.
- */
-function load(body: IAutoMovieMotionHumanBody, pitch: number): number {
-  const model: IAutoMovieResolveCenterOfMass.IModel =
-    resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-  const upper: ReadonlySet<string> = new Set([
-    "spine",
-    "chest",
-    "upperChest",
-    "neck",
-    "head",
-  ]);
-  const trunk: number = model.segments
-    .filter((s: IAutoMovieResolveCenterOfMass.ISegment): boolean =>
-      upper.has(s.bone),
-    )
-    .reduce(
-      (sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number =>
-        sum + s.mass,
-      0,
-    );
-  return Math.min(
-    1,
-    (trunk / model.mass) * Math.tan((Math.abs(pitch) * Math.PI) / 180),
-  );
-}

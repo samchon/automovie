@@ -12,12 +12,14 @@ import { nclose } from "../../../internal/nclose";
  *
  * Scenarios:
  *
- * 1. dt = 1/8 s, g = 8, H = 2, dx = dz = 1: (1/8)·4·√2 = √2/2.
+ * 1. Dt = 1/8 s, g = 8, H = 2, dx = dz = 1: (1/8)·4·√2 = √2/2.
  * 2. Halving dt halves the number.
  */
 export function test_unit_engine_fluid_courant_number(): void {
   const solver: IAutoMovieFluidDomain["solver"] = fluidDomain().solver;
-  const domain: IAutoMovieFluidDomain = fluidDomain({ solver: { ...solver, referenceDepth: 2 } });
+  const domain: IAutoMovieFluidDomain = fluidDomain({
+    solver: { ...solver, referenceDepth: 2 },
+  });
 
   // 1. The worked number.
   TestValidator.predicate(

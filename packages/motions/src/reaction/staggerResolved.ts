@@ -17,9 +17,7 @@ import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource"
  * sample: the arms' carriage reads the sample's posture, and each balance pass
  * reads that posture again with the arms let out, or with the root shifted. The
  * carriage's posture is assembled and fitted once; a balance pass's posture is
- * derived from that assembly (`deriveHumanPosture`) and takes the carriage's
- * leg fits where its legs read exactly what they read there
- * (`resolveHumanPostureSource.fit` with the completed fit).
+ * derived from that assembly (`deriveHumanPosture`) and fitted afresh.
  *
  * @param body The body.
  * @returns The sample readers: `carriage` first for a sample, then `centre` any
@@ -28,7 +26,7 @@ import { resolveHumanPostureSource } from "../posture/resolveHumanPostureSource"
 export function staggerResolved(
   body: IAutoMovieMotionHumanBody,
 ): staggerResolved.IReader {
-  const knots: Parameters<typeof resolveHumanPostureSource.fit>[5][] = [];
+  const knots: deriveHumanPosture.ISolved[] = [];
   return {
     carriage: (
       index: number,
@@ -76,8 +74,7 @@ export function staggerResolved(
       index: number,
       posture: IAutoMovieMotionHumanPosture,
     ): IAutoMovieVector3 => {
-      const knot: Parameters<typeof resolveHumanPostureSource.fit>[5] =
-        knots[index];
+      const knot: deriveHumanPosture.ISolved | undefined = knots[index];
       if (knot === undefined) return HumanBalance.centre(body, posture);
       const pose: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["pose"] =
         resolveHumanPostureSource.fit(

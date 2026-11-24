@@ -264,41 +264,23 @@ const SPLIT: readonly string[] = ["u", "v", "angle", "shoulder"];
  * data here.
  */
 function validate(source: IAutoMovieLoftViewSource.ISource): void {
-  // A source is immutable while it is read, so its structure is checked on its first reading alone; every reading still checks its station.
-  // Checked on every reading, the structure cost an eighth of a body's realization.
-  if (source !== null && typeof source === "object" && VALIDATED.has(source)) {
-    return;
-  }
   structure(source);
-  VALIDATED.add(source);
 }
-
-/** Sources whose structure has been checked, released with them. */
-const VALIDATED: WeakSet<IAutoMovieLoftViewSource.ISource> = new WeakSet();
 
 /** Refuse a malformed source or station by the rule it breaks. */
 function structure(source: IAutoMovieLoftViewSource.ISource): void {
   if (
-    source === null ||
-    source.kind !== "view" ||
-    !Array.isArray(source.extents) ||
     source.extents.length !== 4 ||
-    !Array.isArray(source.domain) ||
     source.domain.length !== 2 ||
     !(source.domain[1] > source.domain[0]) ||
-    !Array.isArray(source.caps) ||
-    source.caps.length > 2 ||
-    source.fullness === null ||
-    (source.fullness.kind !== "shoulder" && source.fullness.kind !== "top")
+    source.caps.length > 2
   )
     throw new Error("The present view source is malformed.");
   if (
     source.fullness.kind === "top"
-      ? !Array.isArray(source.fullness.shoulders) ||
-        source.fullness.shoulders.length !== 4
+      ? source.fullness.shoulders.length !== 4
       : source.fullness.departures !== null &&
-        (!Array.isArray(source.fullness.departures) ||
-          source.fullness.departures.length !== 4)
+        source.fullness.departures.length !== 4
   )
     throw new Error("The present fullness source has no four-quarter layout.");
 
@@ -331,7 +313,6 @@ function structure(source: IAutoMovieLoftViewSource.ISource): void {
           (
             list: readonly (readonly IAutoMovieViewOutline.IOutline[])[],
           ): boolean =>
-            !Array.isArray(list) ||
             list.some(
               (split: readonly IAutoMovieViewOutline.IOutline[]): boolean =>
                 split.length !== 4,

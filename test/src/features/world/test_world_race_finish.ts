@@ -120,6 +120,7 @@ export function test_world_race_finish(): void {
     (offset: number, k: number): AutoMovieArchetypeRide.IRide<string, string> =>
       rideQuadruped(horse, {
         plan: AutoMovieArchetypeCourse.timed(`runner${k}`, lane(k, offset)),
+        kind: "cued",
         cues: [{ from: 0, to: POST / pace, gait: "gallop" }],
       }),
   );
@@ -189,6 +190,7 @@ export function test_world_race_finish(): void {
     horse,
     {
       plan: AutoMovieArchetypeCourse.timed("runner0", lane(0, 1)),
+      kind: "cued",
       cues: [{ from: 0, to: POST / pace, gait: "gallop" }],
     },
   );

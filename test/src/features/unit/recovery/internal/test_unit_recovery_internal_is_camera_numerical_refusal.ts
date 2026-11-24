@@ -10,15 +10,18 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. "camera-pose: …", "singular-matrix: …" and "matrix3: …" plain Errors are
  *    refusals.
- * 2. A RangeError with a refusal prefix and a plain Error with another
- *    message are not.
+ * 2. A RangeError with a refusal prefix and a plain Error with another message are
+ *    not.
  */
 export function test_unit_recovery_internal_is_camera_numerical_refusal(): void {
   TestValidator.predicate(
     "declared refusals",
-    ["camera-pose: degenerate", "singular-matrix: rank 2", "matrix3: zero"].every(
-      (message: string): boolean =>
-        isRecoveryCameraNumericalRefusal(new Error(message)),
+    [
+      "camera-pose: degenerate",
+      "singular-matrix: rank 2",
+      "matrix3: zero",
+    ].every((message: string): boolean =>
+      isRecoveryCameraNumericalRefusal(new Error(message)),
     ),
   );
   TestValidator.predicate(

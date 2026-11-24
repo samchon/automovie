@@ -10,7 +10,7 @@ import type {
   IAutoMovieSwingTwistRange,
 } from "@automovie/interface";
 
-import { SwingTwistFramePreparation } from "../kinematics/SwingTwistFramePreparation";
+import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
@@ -281,25 +281,15 @@ export namespace scanJointRom {
         : (rig ?? swingTwistRange.of(bone));
     const range: IAutoMovieJointRotationFrame | undefined =
       source === undefined ? undefined : swingTwistRange.prepare(source);
-    let composer:
-      | ReturnType<typeof jointToQuaternionOnBasis.prepare>
-      | undefined;
     const compose:
       | ((joint: IAutoMovieJointPose) => IAutoMovieQuaternion)
       | undefined =
       range === undefined
         ? undefined
-        : (joint: IAutoMovieJointPose): IAutoMovieQuaternion => {
-            if (composer === undefined) {
-              const basis: IAutoMovieJointAxes | undefined =
-                SwingTwistFramePreparation.normalized(
-                  range,
-                  "jointToQuaternion axes",
-                );
-              composer = jointToQuaternionOnBasis.prepare(basis!, range.frame);
-            }
-            return composer(joint);
-          };
+        : jointToQuaternionOnBasis.prepare(
+            normalizeJointAxes(range.axes, "jointToQuaternion axes"),
+            range.frame,
+          );
     return (
       joint: IAutoMovieJointPose,
       rotation?: IAutoMovieQuaternion,

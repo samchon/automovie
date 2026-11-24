@@ -10,8 +10,8 @@ import { vclose } from "../../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. A frame at (1, 2, 3) turned 90° about +Y (q = (0, sin 45°, 0, cos 45°))
- *    sends local (1, 0, 0) to (1, 2, 2), since +X turns to −Z.
+ * 1. A frame at (1, 2, 3) turned 90° about +Y (q = (0, sin 45°, 0, cos 45°)) sends
+ *    local (1, 0, 0) to (1, 2, 2), since +X turns to −Z.
  * 2. That frame's +Z axis is +X.
  */
 export function test_unit_archetypes_core_frame_point(): void {

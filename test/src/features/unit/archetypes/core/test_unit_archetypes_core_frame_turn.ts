@@ -10,12 +10,11 @@ import { vclose } from "../../../internal/vclose";
  *
  * Scenarios:
  *
- * 1. 90° about +Z through (1, 0, 0): the pivot stays, (2, 0, 0) goes to
- *    (1, 1, 0).
+ * 1. 90° about +Z through (1, 0, 0): the pivot stays, (2, 0, 0) goes to (1, 1, 0).
  * 2. `move` by that turn carries a frame at (2, 0, 0) to (1, 1, 0), its scale
  *    kept.
- * 3. `chain(after, before)` of two such quarter turns sends (2, 0, 0) to
- *    (0, 0, 0), the half turn about the pivot.
+ * 3. `chain(after, before)` of two such quarter turns sends (2, 0, 0) to (0, 0,
+ *    0), the half turn about the pivot.
  */
 export function test_unit_archetypes_core_frame_turn(): void {
   const motion: AutoMovieArchetypeFrame.IMotion = AutoMovieArchetypeFrame.turn(

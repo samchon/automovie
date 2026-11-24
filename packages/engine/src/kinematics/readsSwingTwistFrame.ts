@@ -6,7 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
 /**
@@ -29,11 +28,10 @@ export function readsSwingTwistFrame(
   frame: IAutoMovieRestFrame | undefined,
   joint: IAutoMovieJointRotationFrame,
 ): boolean {
-  const own: IAutoMovieJointAxes =
-    SwingTwistFramePreparation.normalized(
-      joint,
-      "swingTwistExcludedSwivels axes",
-    ) ?? normalizeJointAxes(joint.axes, "swingTwistExcludedSwivels axes");
+  const own: IAutoMovieJointAxes = normalizeJointAxes(
+    joint.axes,
+    "swingTwistExcludedSwivels axes",
+  );
   const vector: (a: IAutoMovieVector3, b: IAutoMovieVector3) => boolean = (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,

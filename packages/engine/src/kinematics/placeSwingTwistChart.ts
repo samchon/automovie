@@ -9,7 +9,6 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { rotationBetween } from "../math/rotationBetween";
 import { toRigAngle } from "../rom/toRigAngle";
-import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRange } from "./swingTwistRange";
 
@@ -48,7 +47,7 @@ export function placeSwingTwistChart(
   state?: IState,
 ): IAutoMovieQuaternion {
   const basis: IAutoMovieSwingTwistBasis.IBasis =
-    state?.basis ?? SwingTwistFramePreparation.basis(joint);
+    state?.basis ?? swingTwistBasis.of(joint.axes);
   if (state !== undefined) state.basis = basis;
   const k: number = Math.hypot(place.x, place.y);
   const azimuth: number =

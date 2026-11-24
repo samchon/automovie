@@ -10,8 +10,7 @@ import { throwsError } from "../../../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Unit exponent boundaries carry and borrow on positive and negative
- *    encodings.
+ * 1. Unit exponent boundaries carry and borrow on positive and negative encodings.
  * 2. Signed zero and the smallest subnormal step to each other exactly.
  * 3. Stepping past the largest finite double is refused.
  */

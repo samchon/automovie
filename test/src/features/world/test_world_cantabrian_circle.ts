@@ -69,6 +69,7 @@ export function test_world_cantabrian_circle(): void {
             0.1,
           ),
         ),
+        kind: "cued",
         cues: [{ from: 0, to: 2 * LAP, gait: "canter" }],
       }),
   );

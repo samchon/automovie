@@ -12,18 +12,24 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Two indices with one value, and a zero width, refuse.
  */
 export function test_unit_recovery_internal_validate_map_metric_row(): void {
-  validateRecoveryMapMetricRow({ indices: [0, 2], values: [1, -1] }, 3);
+  validateRecoveryMapMetricRow(
+    { indices: [0, 2], values: [1, -1], offset: 0 },
+    3,
+  );
   for (const indices of [[1, 1], [2, 0], [3]])
     TestValidator.error(`indices ${indices.join(", ")}`, (): void =>
       validateRecoveryMapMetricRow(
-        { indices, values: indices.map((): number => 1) },
+        { indices, values: indices.map((): number => 1), offset: 0 },
         3,
       ),
     );
   TestValidator.error("unpaired values", (): void =>
-    validateRecoveryMapMetricRow({ indices: [0, 1], values: [1] }, 3),
+    validateRecoveryMapMetricRow(
+      { indices: [0, 1], values: [1], offset: 0 },
+      3,
+    ),
   );
   TestValidator.error("a zero width", (): void =>
-    validateRecoveryMapMetricRow({ indices: [], values: [] }, 0),
+    validateRecoveryMapMetricRow({ indices: [], values: [], offset: 0 }, 0),
   );
 }

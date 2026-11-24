@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
  * Scenarios:
  *
  * 1. Camera [1, 2] and points [[1, 1, 1]] are admitted.
- * 2. No camera scale, a zero camera scale, a negative point scale and a
- *    two-scale point refuse.
+ * 2. No camera scale, a zero camera scale, a negative point scale and a two-scale
+ *    point refuse.
  */
 export function test_unit_recovery_internal_validate_map_metric_scales(): void {
   validateRecoveryMapMetricScales([1, 2], [[1, 1, 1]]);

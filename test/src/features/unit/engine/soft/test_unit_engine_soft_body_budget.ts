@@ -12,9 +12,9 @@ import { softPanel } from "../../../internal/softFixtures";
  *
  * Scenarios:
  *
- * 1. A 3 × 3 panel: 9 particles, 12 structural, 8 shear, 6 bend, 8
- *    triangles, 432 bytes; with 2 iterations over 1000 steps the gathers are
- *    2·26·2·1000 = 104000.
+ * 1. A 3 × 3 panel: 9 particles, 12 structural, 8 shear, 6 bend, 8 triangles, 432
+ *    bytes; with 2 iterations over 1000 steps the gathers are 2·26·2·1000 =
+ *    104000.
  * 2. A 2 × 2 panel has no bend constraint.
  */
 export function test_unit_engine_soft_body_budget(): void {

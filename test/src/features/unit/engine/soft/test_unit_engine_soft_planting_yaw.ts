@@ -11,8 +11,8 @@ import { qclose } from "../../../internal/qclose";
  * Scenarios:
  *
  * 1. Amount 0 is identity for any sample.
- * 2. Sample ¼, amount 1: t = ½ gives (cos, sin) = (0.6, 0.8), so the
- *    quaternion is (0, 0.8, 0, 0.6).
+ * 2. Sample ¼, amount 1: t = ½ gives (cos, sin) = (0.6, 0.8), so the quaternion is
+ *    (0, 0.8, 0, 0.6).
  * 3. Sample 0, amount 1: t = 0 gives identity.
  */
 export function test_unit_engine_soft_planting_yaw(): void {

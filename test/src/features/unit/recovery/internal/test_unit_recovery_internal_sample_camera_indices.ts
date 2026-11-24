@@ -2,10 +2,10 @@ import { sampleRecoveryCameraIndices } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `sampleRecoveryCameraIndices` draws a reproducible subset without
- * replacement by a seeded partial Fisher–Yates shuffle (Knuth, TAOCP vol. 2,
- * Algorithm P): distinct indices inside the population, the same for the same
- * seed, domain and trial.
+ * `sampleRecoveryCameraIndices` draws a reproducible subset without replacement
+ * by a seeded partial Fisher–Yates shuffle (Knuth, TAOCP vol. 2, Algorithm P):
+ * distinct indices inside the population, the same for the same seed, domain
+ * and trial.
  *
  * Scenarios:
  *

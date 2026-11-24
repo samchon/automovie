@@ -30,7 +30,12 @@ export function test_unit_render_scene_resolve_film_beauty_composition(): void {
   TestValidator.equals(
     "a dissolve",
     resolveAutoMovieFilmBeautyComposition([layer(0.75), layer(0.25)]),
-    { kind: "dissolve", outgoing: layer(0.75), incoming: layer(0.25), alpha: 0.25 },
+    {
+      kind: "dissolve",
+      outgoing: layer(0.75),
+      incoming: layer(0.25),
+      alpha: 0.25,
+    },
   );
   for (const layers of [[layer(0.5), layer(0.25)], [], [layer(1.5)]])
     TestValidator.error(`${layers.length} layers refuse`, (): unknown =>

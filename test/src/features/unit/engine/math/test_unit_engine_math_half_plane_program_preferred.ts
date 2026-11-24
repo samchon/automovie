@@ -5,8 +5,8 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/predicates";
 
 /**
- * With no half-plane, `solveAutoMovieHalfPlaneProgram` returns the point of
- * the disc of the given radius nearest the preferred point: the point itself
+ * With no half-plane, `solveAutoMovieHalfPlaneProgram` returns the point of the
+ * disc of the given radius nearest the preferred point: the point itself
  * inside, its radial projection `r p / |p|` outside.
  *
  * Scenarios:

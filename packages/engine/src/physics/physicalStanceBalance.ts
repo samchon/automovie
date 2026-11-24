@@ -1551,8 +1551,11 @@ export namespace physicalStanceBalance {
    *   rate, radians per second; or undefined without a hip strategy.
    */
   export function hip(input: {
-    profile: IAutoMoviePhysicalProfile;
-    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    profile: Pick<IAutoMoviePhysicalProfile, "joints" | "segments">;
+    segments: ReadonlyMap<
+      string,
+      Pick<AutoMovieXpbdBody, "translation" | "rotation" | "worldCom" | "angvel">
+    >;
     limbs: readonly Limb[];
     stance: readonly Limb[];
     direction: IAutoMovieVector3;
@@ -1593,11 +1596,13 @@ export namespace physicalStanceBalance {
       ]),
     );
     let inertia: number = 0;
-    let root: AutoMovieXpbdBody | undefined;
+    let root:
+      | Pick<AutoMovieXpbdBody, "rotation" | "angvel">
+      | undefined;
     for (const segment of input.profile.segments) {
-      const rigid: AutoMovieXpbdBody | undefined = input.segments.get(
-        segment.bone,
-      );
+      const rigid:
+        | Pick<AutoMovieXpbdBody, "rotation" | "worldCom" | "angvel">
+        | undefined = input.segments.get(segment.bone);
       if (!rigid || legs.has(segment.bone)) continue;
       if (!input.profile.joints.some((joint) => joint.child === segment.bone))
         root = rigid;
@@ -1650,8 +1655,8 @@ export namespace physicalStanceBalance {
    * @returns The moment, N m; zero without a stance hip.
    */
   export function hipRoom(input: {
-    profile: IAutoMoviePhysicalProfile;
-    segments: ReadonlyMap<string, AutoMovieXpbdBody>;
+    profile: Pick<IAutoMoviePhysicalProfile, "joints">;
+    segments: ReadonlyMap<string, Pick<AutoMovieXpbdBody, "translation" | "rotation">>;
     stance: readonly { limb: Limb; point: IAutoMovieVector3; force: number }[];
     axis: IAutoMovieVector3;
   }): number {
@@ -1856,8 +1861,8 @@ export namespace physicalStanceBalance {
  * joint or its parent.
  */
 function stanceHip(
-  profile: IAutoMoviePhysicalProfile,
-  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
+  profile: Pick<IAutoMoviePhysicalProfile, "joints">,
+  segments: ReadonlyMap<string, Pick<AutoMovieXpbdBody, "translation" | "rotation">>,
   limb: Limb,
   axis: IAutoMovieVector3,
   carried?: { point: IAutoMovieVector3; force: number },
@@ -1865,9 +1870,8 @@ function stanceHip(
   const joint = profile.joints.find(
     (candidate): boolean => candidate.child === limb.chain[0],
   );
-  const parent: AutoMovieXpbdBody | undefined = joint
-    ? segments.get(joint.parent)
-    : undefined;
+  const parent: Pick<AutoMovieXpbdBody, "translation" | "rotation"> | undefined =
+    joint ? segments.get(joint.parent) : undefined;
   if (!joint || !parent) return undefined;
   const frame: IAutoMovieQuaternion = Quaternion.multiply(
     parent.rotation(),

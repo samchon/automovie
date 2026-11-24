@@ -175,6 +175,7 @@ export function test_world_mounted_cues(): void {
           knot(charge + 6, gallop),
         ]),
       ),
+      kind: "cued",
       cues: [{ from: charge + REACTION, to: charge + 6, gait: "gallop" }],
     },
   );

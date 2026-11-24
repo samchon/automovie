@@ -110,7 +110,7 @@ export namespace rangeSteppingFoot {
     read: ReturnType<typeof prepareHumanPoseResolution>,
     dorsal?: number,
   ): number {
-    const goal: IAutoMovieHumanLimbGoal = posture.limbs[`Leg`]!;
+    const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
     const placement: IAutoMovieMotionHumanFoot.IPlacement = {
       ankle: goal.point,
       rotation: goal.rotation!,

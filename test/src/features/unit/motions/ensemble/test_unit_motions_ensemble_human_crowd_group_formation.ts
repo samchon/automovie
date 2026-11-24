@@ -2,7 +2,10 @@ import type {
   IAutoMovieMotionHumanFormation,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { AutoMovieMotionHumanEnsemble } from "@automovie/motions";
+import {
+  HumanFormation,
+  humanCrowdGroupFormation,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,14 +22,8 @@ import { TestValidator } from "@nestia/e2e";
  *    off-grid and backward reads.
  * 4. Malformed density, breadth and member counts are refused.
  * 5. A placed outer slot can reach a footprint beyond the centroid proxy.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Identifies the density, membership, shoulder clearance and moving-frame cases covered by the scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Samples public formation slots to catch a lost group member, shared slot, reversed bend, incorrect spacing, shoulder overlap, or a shape fixed in world space.
- * @evidence contracts/development/testing.md#independent-expectations Moussaïd et al. (2010), Table 1 and Fig. 4, supply the field distances and order along travel. Shoulder clearance follows from the sum of widths, and rigid course transport from Euclidean geometry. The midpoint uses the documented interpolation of measured distance and bearing. The test measures slot geometry and leaves locomotion and obstacle clearance to their own specs.
- * @evidence contracts/development/testing.md#distinguishing-cases Distinguishes pairs, trios and groups of four, sparse and moderate densities, the intermediate fit, the upper clamp, large shoulder breadths, off-grid seeks through a translated quarter-turn, an obstacle outside the summed-shoulder-breadth proxy, and malformed requests.
- * @evidence contracts/development/testing.md#execution-ownership The exported feature test composes a two-sample course in memory and reads only slot points. It builds zero pose or limb plans and needs no host.
  */
-export function test_motion_ensemble_crowd_group_shape(): void {
+export function test_unit_motions_ensemble_human_crowd_group_formation(): void {
   const frame: IAutoMovieMotionHumanFormation.ICourse = {
     kind: "course",
     samples: [
@@ -39,40 +36,44 @@ export function test_motion_ensemble_crowd_group_shape(): void {
   const tolerance: number = 1e-9;
 
   /** Compare two geometric quantities to the roundoff tolerance. */
-  const near = (label: string, actual: number, expected: number): void =>
+  const near: (label: string, actual: number, expected: number) => void = (
+    label: string,
+    actual: number,
+    expected: number,
+  ): void =>
     TestValidator.predicate(label, Math.abs(actual - expected) < tolerance);
 
   /** Read every slot from the public formation API in member order. */
-  const points = (
+  const points: (
+    formation: IAutoMovieMotionHumanFormation,
+    seconds?: number,
+  ) => IAutoMovieVector3[] = (
     formation: IAutoMovieMotionHumanFormation,
     seconds: number = 0,
   ): IAutoMovieVector3[] =>
     Array.from(
-      { length: AutoMovieMotionHumanEnsemble.HumanFormation.count(formation) },
+      { length: HumanFormation.count(formation) },
       (_: unknown, i: number): IAutoMovieVector3 =>
-        AutoMovieMotionHumanEnsemble.HumanFormation.prepare(formation).slot(
-          i,
-          seconds,
-        ).at,
+        HumanFormation.prepare(formation).slot(i, seconds).at,
     );
 
   /** Measure the planar separation of two slots. */
-  const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-    Math.hypot(a.x - b.x, a.z - b.z);
+  const distance: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number => Math.hypot(a.x - b.x, a.z - b.z);
 
   /** Measure the right neighbour's bearing clockwise from travel along +Z. */
-  const bearing = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-    (Math.atan2(a.x - b.x, b.z - a.z) * 180) / Math.PI;
+  const bearing: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): number => (Math.atan2(a.x - b.x, b.z - a.z) * 180) / Math.PI;
 
   // These synthetic shoulders fit within the smallest measured lateral gap,
   // isolating the observed geometry from the shoulder-clearance bound.
   const narrow: readonly number[] = [0.25, 0.25, 0.25, 0.25];
   const dyad: IAutoMovieVector3[] = points(
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(
-      frame,
-      narrow.slice(0, 2),
-      0.25,
-    ),
+    humanCrowdGroupFormation(frame, narrow.slice(0, 2), 0.25),
   );
   TestValidator.equals("both pair members remain present", dyad.length, 2);
   near(
@@ -84,7 +85,7 @@ export function test_motion_ensemble_crowd_group_shape(): void {
 
   const trio: readonly number[] = narrow.slice(0, 3);
   const sparse: IAutoMovieVector3[] = points(
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(frame, trio, 0.03),
+    humanCrowdGroupFormation(frame, trio, 0.03),
   );
   TestValidator.equals("a slot for each member", sparse.length, 3);
   for (const point of sparse) near("a sparse group is abreast", point.z, 0);
@@ -95,8 +96,11 @@ export function test_motion_ensemble_crowd_group_shape(): void {
     0.81,
   );
 
-  const bent: IAutoMovieMotionHumanFormation =
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(frame, trio, 0.25);
+  const bent: IAutoMovieMotionHumanFormation = humanCrowdGroupFormation(
+    frame,
+    trio,
+    0.25,
+  );
   const moderate: IAutoMovieVector3[] = points(bent);
   near(
     "first moderate measured spacing",
@@ -136,7 +140,7 @@ export function test_motion_ensemble_crowd_group_shape(): void {
   );
 
   const transitional: IAutoMovieVector3[] = points(
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(frame, trio, 0.14),
+    humanCrowdGroupFormation(frame, trio, 0.14),
   );
   near(
     "halfway density interpolates the first measured spacing",
@@ -150,7 +154,7 @@ export function test_motion_ensemble_crowd_group_shape(): void {
   );
 
   const aboveRange: IAutoMovieVector3[] = points(
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(frame, trio, 1),
+    humanCrowdGroupFormation(frame, trio, 1),
   );
   for (let i: number = 0; i < moderate.length; ++i) {
     near(
@@ -165,8 +169,11 @@ export function test_motion_ensemble_crowd_group_shape(): void {
     );
   }
 
-  const quartet: IAutoMovieMotionHumanFormation =
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(frame, narrow, 0.25);
+  const quartet: IAutoMovieMotionHumanFormation = humanCrowdGroupFormation(
+    frame,
+    narrow,
+    0.25,
+  );
   const four: IAutoMovieVector3[] = points(quartet);
   TestValidator.equals("four members remain present", four.length, 4);
   for (const [i, [spacing, angle]] of [
@@ -190,7 +197,7 @@ export function test_motion_ensemble_crowd_group_shape(): void {
   // observed moderate-density lateral gap. The two shoulders must fit.
   const wide: readonly number[] = [0.35, 0.25, 0.4];
   const broadened: IAutoMovieVector3[] = points(
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(frame, wide, 0.25),
+    humanCrowdGroupFormation(frame, wide, 0.25),
   );
   for (let i: number = 1; i < broadened.length; ++i) {
     TestValidator.predicate(
@@ -236,7 +243,9 @@ export function test_motion_ensemble_crowd_group_shape(): void {
   // summed-half-breadth proxy, but within one placed outer shoulder disc.
   const outer: IAutoMovieVector3 = points(quartet, 1)[0]!;
   const carriage: IAutoMovieVector3 = { x: outer.x, y: 1, z: outer.z - 0.2 };
-  const gap = (at: IAutoMovieVector3): number =>
+  const gap: (at: IAutoMovieVector3) => number = (
+    at: IAutoMovieVector3,
+  ): number =>
     Math.hypot(
       Math.max(0, Math.abs(at.x - carriage.x) - 0.05),
       Math.max(0, Math.abs(at.z - carriage.z) - 0.05),
@@ -247,23 +256,15 @@ export function test_motion_ensemble_crowd_group_shape(): void {
   );
 
   TestValidator.error("a singleton cannot form a walking group", (): void => {
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(frame, [0.25], 0.03);
+    humanCrowdGroupFormation(frame, [0.25], 0.03);
   });
   TestValidator.error("an unmeasured group size is refused", (): void => {
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(
-      frame,
-      [...narrow, 0.25],
-      0.03,
-    );
+    humanCrowdGroupFormation(frame, [...narrow, 0.25], 0.03);
   });
   TestValidator.error("a negative density is refused", (): void => {
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(frame, trio, -0.03);
+    humanCrowdGroupFormation(frame, trio, -0.03);
   });
   TestValidator.error("a zero half breadth is refused", (): void => {
-    AutoMovieMotionHumanEnsemble.humanCrowdGroupFormation(
-      frame,
-      [0, 0.25],
-      0.03,
-    );
+    humanCrowdGroupFormation(frame, [0, 0.25], 0.03);
   });
 }

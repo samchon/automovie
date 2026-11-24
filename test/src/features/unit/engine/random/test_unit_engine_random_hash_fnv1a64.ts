@@ -19,7 +19,11 @@ export function test_unit_engine_random_hash_fnv1a64(): void {
 
   // 1-3. The published vectors.
   TestValidator.equals("empty", hashAutoMovieFnv1a64([]), "cbf29ce484222325");
-  TestValidator.equals("a", hashAutoMovieFnv1a64(ascii("a")), "af63dc4c8601ec8c");
+  TestValidator.equals(
+    "a",
+    hashAutoMovieFnv1a64(ascii("a")),
+    "af63dc4c8601ec8c",
+  );
   TestValidator.equals(
     "foobar",
     hashAutoMovieFnv1a64(ascii("foobar")),

@@ -8,8 +8,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. On a 4 × 3 lattice, particle (1, 1) = 5: its right neighbour (at 1) is
- *    6, its lower-right shear (at 7) is 10, its bend two right (at 9) is 7.
+ * 1. On a 4 × 3 lattice, particle (1, 1) = 5: its right neighbour (at 1) is 6, its
+ *    lower-right shear (at 7) is 10, its bend two right (at 9) is 7.
  * 2. Its bend two left (at 8) and two up (at 10) leave the lattice: −1.
  */
 export function test_unit_engine_soft_body_neighbour_of(): void {

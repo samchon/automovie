@@ -11,8 +11,16 @@ import { TestValidator } from "@nestia/e2e";
  * 2. No name of ["a", "b"], "c" of ["a", "b"], and anything of [] refuse.
  */
 export function test_unit_render_draw_select_subject(): void {
-  TestValidator.equals("named", selectAutoMovieDrawSubject(["a", "b"], "b"), "b");
-  TestValidator.equals("the only one", selectAutoMovieDrawSubject(["only"], null), "only");
+  TestValidator.equals(
+    "named",
+    selectAutoMovieDrawSubject(["a", "b"], "b"),
+    "b",
+  );
+  TestValidator.equals(
+    "the only one",
+    selectAutoMovieDrawSubject(["only"], null),
+    "only",
+  );
   TestValidator.error("several unnamed", (): string =>
     selectAutoMovieDrawSubject(["a", "b"], null),
   );

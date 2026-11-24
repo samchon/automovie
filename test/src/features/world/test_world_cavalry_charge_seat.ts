@@ -79,6 +79,7 @@ export function test_world_cavalry_charge_seat(): void {
   }
   const ride: Ride = rideQuadruped(horse, {
     plan: AutoMovieArchetypeCourse.timed("charger", samples),
+    kind: "cued",
     cues: [
       { from: 0, to: 3, gait: "canter" },
       { from: 3, to: 8, gait: "gallop" },

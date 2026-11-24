@@ -9,11 +9,9 @@ import type {
   IAutoMovieResolvedJointAngles,
 } from "@automovie/interface";
 
-import { SwingTwistFramePreparation } from "../kinematics/SwingTwistFramePreparation";
 import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
-import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { abductionRange } from "./abductionRange";
 import { swingConeBlend } from "./swingConeBlend";
@@ -131,20 +129,11 @@ function project(
       twist,
       input,
     );
-    const basis: IAutoMovieJointAxes | undefined =
-      SwingTwistFramePreparation.normalized(range, "jointToQuaternion axes");
-    // A prepared frame lends its composer, the same products with its
-    // factors prepared once for the frame.
-    const compose: ReturnType<typeof SwingTwistFramePreparation.composer> =
-      basis === undefined
-        ? undefined
-        : SwingTwistFramePreparation.composer(range, "jointToQuaternion axes");
-    const q: IAutoMovieQuaternion =
-      basis === undefined
-        ? jointToQuaternion(sanitized, range.axes, range.frame)
-        : compose !== undefined
-          ? compose(sanitized)
-          : jointToQuaternionOnBasis(sanitized, basis, range.frame);
+    const q: IAutoMovieQuaternion = jointToQuaternion(
+      sanitized,
+      range.axes,
+      range.frame,
+    );
     // A joint on the range's edge within a rounding error is inside, so a
     // clamped joint clamps to itself.
     if (swingTwistRange.overshoot(q, constraint, range) <= EDGE)

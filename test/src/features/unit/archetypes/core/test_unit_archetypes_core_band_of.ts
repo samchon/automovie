@@ -7,8 +7,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios:
  *
- * 1. of("kg", 1, 2, "s") has no provisional field; with true it has one.
- * 2. metres(0.5, 0.5, "s") is a fixed metre band.
+ * 1. Of("kg", 1, 2, "s") has no provisional field; with true it has one.
+ * 2. Metres(0.5, 0.5, "s") is a fixed metre band.
  * 3. Ends out of order, 2 to 1, refuse.
  */
 export function test_unit_archetypes_core_band_of(): void {

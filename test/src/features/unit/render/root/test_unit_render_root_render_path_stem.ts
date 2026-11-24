@@ -3,8 +3,8 @@ import { TestValidator } from "@nestia/e2e";
 
 /**
  * `renderPathStem` maps a target to one safe path component: runs outside
- * `A-Za-z0-9_.-` become one `_`, trailing dots go, an empty result is
- * "render", and a Windows device name (any extension) gains a leading `_`.
+ * `A-Za-z0-9_.-` become one `_`, trailing dots go, an empty result is "render",
+ * and a Windows device name (any extension) gains a leading `_`.
  *
  * Scenarios:
  *
@@ -13,7 +13,11 @@ import { TestValidator } from "@nestia/e2e";
  * 3. "con" and "NUL.mp4" become "_con" and "_NUL.mp4"; "console" is kept.
  */
 export function test_unit_render_root_render_path_stem(): void {
-  TestValidator.equals("separators", renderPathStem("shot 01/take"), "shot_01_take");
+  TestValidator.equals(
+    "separators",
+    renderPathStem("shot 01/take"),
+    "shot_01_take",
+  );
   TestValidator.equals("trailing dots", renderPathStem("final..."), "final");
   TestValidator.equals("dot", renderPathStem("."), "render");
   TestValidator.equals("dot dot", renderPathStem(".."), "render");

@@ -13,7 +13,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { toRigAngle } from "../rom/toRigAngle";
-import { SwingTwistFramePreparation } from "./SwingTwistFramePreparation";
+import { swingTwistBasis } from "./swingTwistBasis";
 import { readsSwingTwistFrame } from "./readsSwingTwistFrame";
 import { swingTwistRegion } from "./swingTwistRegion";
 import { swivelArcs } from "./swivelArcs";
@@ -48,7 +48,7 @@ export function swingTwistRefusedArcs(
     !readsSwingTwistFrame(props.basis, props.frame, joint)
   )
     return [];
-  const u: IAutoMovieVector3 = SwingTwistFramePreparation.basis(joint).u;
+  const u: IAutoMovieVector3 = swingTwistBasis.of(joint.axes).u;
 
   // The rotation's half-angle readings and its rest direction's cosine at
   // swivels 0, 90 and 180.
