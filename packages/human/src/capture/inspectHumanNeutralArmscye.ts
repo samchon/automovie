@@ -7,6 +7,7 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieHumanBodyLane,
   IAutoMovieLoftViewFullSource,
   IAutoMovieSolidSharedCurve,
   IAutoMovieViewPart,
@@ -14,14 +15,13 @@ import type {
 
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanNeckBoundary } from "../generation/AutoMovieHumanNeckBoundary";
+import { AutoMovieHumanTrunkRows } from "../generation/AutoMovieHumanTrunkRows";
 import { AutoMovieHumanArmscyePort } from "../generation/conic/AutoMovieHumanArmscyePort";
 import { AutoMovieHumanJoinLoop } from "../generation/conic/AutoMovieHumanJoinLoop";
 import { AutoMovieHumanNeutralParameters } from "./AutoMovieHumanNeutralParameters";
+import { inspectHumanArmscyeAssembly } from "./inspectHumanArmscyeAssembly";
 import { inspectHumanArmscyeMeridians } from "./inspectHumanArmscyeMeridians";
-import {
-  inspectHumanArmscyePort,
-  inspectHumanArmscyePortCrest,
-} from "./inspectHumanArmscyePort";
+import { inspectHumanArmscyePort } from "./inspectHumanArmscyePort";
 import { inspectHumanArmscyeSlices } from "./inspectHumanArmscyeSlices";
 import { inspectHumanArmscyeSlopeGrid } from "./inspectHumanArmscyeSlopeGrid";
 
@@ -34,6 +34,10 @@ type Options = {
   anatomicalShoulder: boolean;
   enginePort: boolean;
   engineCrestRange: boolean;
+  engineTorsoRange: boolean;
+  acromialTorso: boolean;
+  engineMeridianGuide: boolean;
+  engineBody: boolean;
 };
 
 /**
@@ -52,12 +56,16 @@ type Options = {
  * @see https://www.iso.org/standard/61686.html
  */
 export function inspectHumanNeutralArmscye(options: Options): void {
-  const context = AutoMovieHumanBodyLaw.prepareSources(
-    AutoMovieHumanNeutralParameters,
-  );
+  const body = options.engineBody
+    ? AutoMovieHumanBodyLaw.define(AutoMovieHumanNeutralParameters)
+    : undefined;
+  const context =
+    body?.prepared ?? AutoMovieHumanBodyLaw.prepareSources(AutoMovieHumanNeutralParameters);
   const common = context.common();
   const scoped = { ...context, common: () => common };
-  const head = context.headSource(common).source.tapeInvariant.part;
+  const head = body === undefined
+    ? context.headSource(common).source.tapeInvariant.part
+    : undefined;
   const { axilla: lower, acromion: upper } = context.trunkInputs;
   const { neckBase } = context.headInputs;
   const scale = context.limbs.legs.scale;
@@ -68,12 +76,12 @@ export function inspectHumanNeutralArmscye(options: Options): void {
   };
   const boundary = context.neckBoundary(common);
   const original = { ...scoped, neckBoundary: () => boundary };
-  inspect(original, head, { lower, upper, neck }, options);
+  inspect(original, head, { lower, upper, neck }, options, body?.lane);
 }
 
 function inspect(
   context: ReturnType<typeof AutoMovieHumanBodyLaw.prepareSources>,
-  head: IAutoMovieViewPart,
+  head: IAutoMovieViewPart | undefined,
   levels: {
     lower: number;
     upper: number;
@@ -88,35 +96,88 @@ function inspect(
     anatomicalShoulder,
     enginePort,
     engineCrestRange,
+    engineTorsoRange,
+    acromialTorso,
+    engineMeridianGuide,
+    engineBody,
   }: Options,
+  lane?: IAutoMovieHumanBodyLane.IDefinition,
 ): void {
   const { lower, upper, neck } = levels;
   const chordDirection = useChordDirection || anatomicalShoulder;
   const firstClearRing = useFirstClearRing || anatomicalShoulder;
   const boundary = context.neckBoundary();
-  const trunk = AutoMovieHumanBodyLaw.trunkSource(context);
-  const sourceSites = [...trunk.sections.keys()];
-  const base = trunk.sources.filter((item) => item.name === "trunk").at(-1)
-    ?.result.part;
+  const trunk = lane === undefined
+    ? AutoMovieHumanBodyLaw.trunkSource(context)
+    : undefined;
+  const sourceSites = trunk === undefined ? [] : [...trunk.sections.keys()];
+  const base = lane?.sourceParts.get("trunk") ??
+    trunk?.sources.filter((item) => item.name === "trunk").at(-1)?.result.part;
   if (base === null || base === undefined || !(upper > lower))
     throw new Error(
       `Armscye inspection needs the original trunk and ordered axilla/acromion levels (${lower}, ${upper} mm). Available planes: ${sourceSites.join(", ")}`,
     );
   const host =
     useDatum || anatomicalShoulder
-      ? shoulderDatum(base, lower, upper, boundary.seat.side, anatomicalShoulder)
+      ? shoulderDatum(
+          base, lower, upper, boundary.seat.side,
+          anatomicalShoulder && !acromialTorso ? 0 : 1,
+        )
       : base;
   const wall = AutoMovieLoftViewFullSource.create(host);
-  const contact = neckContact(wall, head, boundary.seat.y, host.samples);
+  const contact = head === undefined
+    ? undefined
+    : neckContact(wall, head, boundary.seat.y, host.samples);
   const rest = context.limbRest(boundary);
+  const openings: Array<Parameters<typeof inspectHumanArmscyeAssembly>[2][number]> = [];
+  if (engineTorsoRange && !anatomicalShoulder)
+    throw new Error("The torso support range needs --anatomical-shoulder");
   for (const side of ["left", "right"] as const) {
     try {
       const limb = rest.arm(side);
-      const arm = context
+      const arm = lane?.sourceParts.get(`arm.${side}`) ?? context
         .limbSources({ ...rest, arm: () => limb })
         .arm(side)
         .definition().part;
       if (arm === null) throw new Error(`No original arm.${side}`);
+      const observation = {
+        chordDirection,
+        firstClearRing,
+        slopeGrid,
+        medialTorso: anatomicalShoulder,
+        crest: anatomicalShoulder
+          ? { height: upper, lateral: context.trunkInputs.biacromial / 2 }
+          : undefined,
+        sideNeck: anatomicalShoulder ? boundary.seat.side : undefined,
+        enginePort,
+        engineCrestRange,
+        engineMeridianGuide,
+        engineBody,
+      };
+      if (engineTorsoRange) {
+        // Two bisection levels across the same person's two breadths.
+        const torsoRange = Array.from({ length: 5 }, (_, i) => {
+          const share = i / 4;
+          try {
+            const part = shoulderDatum(base, lower, upper, boundary.seat.side, share);
+            const source = AutoMovieLoftViewFullSource.create(part);
+            return {
+              share,
+              ...observe(part, source, arm, lower, upper, side, {
+                ...observation,
+                slopeGrid: false,
+                firstClearRing: true,
+                engineCrest: true,
+                engineCrestRange: false,
+              }),
+            };
+          } catch (error) {
+            return { share, error: String(error) };
+          }
+        });
+        console.log(JSON.stringify({ side, torsoRange }));
+        continue;
+      }
       const result = slices
         ? {
             sections: sectionSight(wall, arm, limb.bones, side, lower, upper),
@@ -126,23 +187,18 @@ function inspect(
               posterior: wall.point(station, Math.PI),
             })),
           }
-        : observe(host, wall, arm, lower, upper, side, {
-            chordDirection,
-            firstClearRing,
-            slopeGrid,
-            medialTorso: anatomicalShoulder,
-            crest: anatomicalShoulder
-              ? { height: upper, lateral: context.trunkInputs.biacromial / 2 }
-              : undefined,
-            sideNeck: anatomicalShoulder ? boundary.seat.side : undefined,
-            enginePort,
-            engineCrestRange,
-          });
+        : observe(host, wall, arm, lower, upper, side, observation);
+      if (engineBody && "port" in result && result.port !== undefined) {
+        openings.push({ side, port: result.port, guide: result.guide });
+        continue;
+      }
       console.log(
         JSON.stringify({
           side,
           datum: useDatum || anatomicalShoulder,
           anatomicalShoulder,
+          acromialTorso,
+          shoulderAxis: limb.bones.shoulder,
           neck,
           contact,
           sourceSites,
@@ -168,6 +224,8 @@ function inspect(
       );
     }
   }
+  if (lane !== undefined)
+    console.log(JSON.stringify({ assembly: inspectHumanArmscyeAssembly(lane, host, openings) }));
 }
 
 function sectionSight(
@@ -218,7 +276,7 @@ function shoulderDatum(
   lower: number,
   upper: number,
   neck: AutoMovieVector3Tuple,
-  medialTorso: boolean,
+  supportShare: number,
 ): IAutoMovieViewPart {
   const change = (
     outline: IAutoMovieViewPart.IOutline,
@@ -258,7 +316,9 @@ function shoulderDatum(
     // upper-arm tape radius from the bony width. The connection can then own
     // the upper arm's lateral soft-tissue course between both source sheets.
     // https://mreed.umtri.umich.edu/Anthro/Hotzman_2011_ANSURIII_Measurements_a548497.pdf
-    const breadth = medialTorso ? axilla.value : acromion.value;
+    const breadth = supportShare === 1
+      ? acromion.value
+      : axilla.value + supportShare * (acromion.value - axilla.value);
     const shoulderLine = author(
       { ...acromion, value: breadth },
       (neckRadius - breadth) / (neck[1] - upper),
@@ -333,6 +393,9 @@ function observe(
     sideNeck?: AutoMovieVector3Tuple;
     enginePort: boolean;
     engineCrestRange: boolean;
+    engineCrest?: true;
+    engineMeridianGuide: boolean;
+    engineBody: boolean;
   },
 ) {
   const { chordDirection, firstClearRing, slopeGrid, medialTorso, sideNeck } =
@@ -584,6 +647,8 @@ function observe(
   const portAt = (top: number, rows: number) => {
     const station = (lower + top) / 2;
     const x = centreX(station);
+    const crest = options.engineMeridianGuide ? options.crest : undefined;
+    const lateral = side === "left" ? 1 : -1;
     return {
       host,
       arm,
@@ -598,8 +663,32 @@ function observe(
       phaseExtent:
         Math.abs(phaseAt(station, x - depthRadius) - phaseAt(station, x + depthRadius)) / 2,
       rows,
+      ...(crest === undefined
+        ? {}
+        : {
+            meridian: {
+              clock: 0,
+              section: { axis: 2 as const, value: (lateral * crest.lateral) / 1000 },
+              through: { axis: 1 as const, value: crest.height / 1000 },
+            },
+          }),
     };
   };
+  const targetClock = sideNeck === undefined ? null : superiorClock(outlet);
+  if (options.engineBody && targetClock !== null) {
+    const stock = shaft.pointAt(outlet);
+    const span = Math.max(...rim.map((point, i) =>
+      V.norm(V.sub(point, stock(targetClock((2 * Math.PI * i) / arm.samples)))),
+    ));
+    const rows = Math.ceil(span / AutoMovieHumanTrunkRows.MAX_GAP);
+    return { port: inspectHumanArmscyePort.definition(portAt(apex, rows)), guide: rim };
+  }
+  if (options.engineCrest && options.crest !== undefined)
+    return {
+      apex,
+      outlet,
+      stockCrest: inspectHumanArmscyePort.crest(portAt(apex, 1), options.crest.lateral),
+    };
   if (options.engineCrestRange) {
     if (sideNeck === undefined || options.crest === undefined)
       throw new Error("The stock crest range needs --anatomical-shoulder");
@@ -609,7 +698,7 @@ function observe(
     const crestRange = Array.from({ length: 5 }, (_, i) => {
       const top = i === 4 ? neck : apex + ((neck - apex) * i) / 4;
       try {
-        return { top, ...inspectHumanArmscyePortCrest(portAt(top, 1), lateral) };
+        return { top, ...inspectHumanArmscyePort.crest(portAt(top, 1), lateral) };
       } catch (error) {
         return { top, error: String(error) };
       }
@@ -621,7 +710,6 @@ function observe(
   )?.station;
   if (elbow === undefined || !(elbow > outlet && elbow <= shaft.domain[1]))
     throw new Error("No retained original elbow beyond the armscye outlet");
-  const targetClock = sideNeck === undefined ? null : superiorClock(outlet);
   const physicalLoop = inspectHumanArmscyeMeridians({
     host: wall,
     child: shaft,

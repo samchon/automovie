@@ -182,9 +182,15 @@ export namespace buildHumanNeutralCapture {
         firstClearRing: args.includes("--first-clear-ring"),
         slices: args.includes("--level-slices"),
         slopeGrid: args.includes("--slope-grid"),
-        anatomicalShoulder: args.includes("--anatomical-shoulder"),
+        anatomicalShoulder:
+          args.includes("--anatomical-shoulder") || args.includes("--engine-body"),
         enginePort: args.includes("--engine-port"),
         engineCrestRange: args.includes("--engine-crest-range"),
+        engineTorsoRange: args.includes("--engine-torso-range"),
+        acromialTorso: args.includes("--acromial-torso"),
+        engineMeridianGuide:
+          args.includes("--engine-meridian-guide") || args.includes("--engine-body"),
+        engineBody: args.includes("--engine-body"),
       });
     else if (args.includes("--head-skin")) inspectNeutralHead(true);
     else if (args.includes("--head")) inspectNeutralHead(false);

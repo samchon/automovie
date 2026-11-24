@@ -178,22 +178,28 @@ async function readMeridians(
       side: Side;
       physicalLoop?: ReportPart;
       enginePort?: ReportPart;
+      assembly?: {
+        guides: { side: Side; guide: N.Point[] }[];
+        skin: ReportPart["skin"];
+      };
     };
-    const part = enginePort ? entry.enginePort : entry.physicalLoop;
-    if (part === undefined) return [];
-    const { side } = entry;
-    const { positions, indices, report } = part.skin;
-    const normals = ownerNormals ? meshOf(positions, indices).normals : null;
-    if (normals !== null) {
-      if (report?.seam === undefined)
-        throw new Error(
-          "The source report does not contain the owner seam normals",
-        );
-      for (const { vertex, normal } of report.seam)
-        normals.splice(3 * vertex, 3, ...normal);
-    }
-    return [
-      {
+    const assembly = enginePort ? entry.assembly : undefined;
+    const subjects = assembly === undefined
+      ? [{ side: entry.side, part: enginePort ? entry.enginePort : entry.physicalLoop }]
+      : assembly.guides.map(({ side, guide }) => ({ side, part: { guide, skin: assembly.skin } }));
+    return subjects.flatMap(({ side, part }) => {
+      if (part === undefined) return [];
+      const { positions, indices, report } = part.skin;
+      const normals = ownerNormals ? meshOf(positions, indices).normals : null;
+      if (normals !== null) {
+        if (report?.seam === undefined)
+          throw new Error(
+            "The source report does not contain the owner seam normals",
+          );
+        for (const { vertex, normal } of report.seam)
+          normals.splice(3 * vertex, 3, ...normal);
+      }
+      return [{
         side,
         part: {
           mesh: {
@@ -205,8 +211,8 @@ async function readMeridians(
           },
           guide: part.guide.map((point) => V.scale(point, 1 / 1000)),
         },
-      },
-    ];
+      }];
+    });
   });
 }
 /**
