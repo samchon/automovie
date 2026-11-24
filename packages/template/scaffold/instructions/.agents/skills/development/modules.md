@@ -16,6 +16,16 @@ A film only composes, as the [composition only](../contracts/development/composi
 
 The object shell over a functional core is the production's own style; installed packages keep theirs.
 
+## Shots and films
+
+<!-- @source `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`, and `IFilmProduction` in `src/IFilmProduction.ts`. -->
+
+Supply the place's prepared stage to the shot's `defineShot` builder and the prepared runtime records to `compileDefinedShot`. Give the runtime's `frameFormat` the film's `fps`, `width` and `height`, because without `fps` moving camera paths are keyed at 24 frames per second.
+
+The film draws only what it mounts. After building a shot's scene, mount its flames with `prepareAutoMovieFlames` and its surface graphics with `prepareAutoMovieSurfaceGraphics`. Apply both whenever the film places that shot and dispose both with the film, as the returned objects' JSDoc sets. A feed layer stays empty until the film's `beforeDraw` calls the graphics' `renderFeeds` with the film's `optics`.
+
+Give a film whose `playback` sequence has a transition a `seekShot` member, because every picture inside a transition is refused without it. Its JSDoc in `src/IFilmProduction.ts` sets what it places, which second each member then reads and the seconds it is asked for.
+
 ## One module
 
 Use one definition per subject or action. Vary it through parameters or a seed. Extend the definition when it lacks a required parameter.
@@ -24,7 +34,7 @@ Use one definition per subject or action. Vary it through parameters or a seed. 
 
 Build a place as [Environments](../3d-modeling/environments.md) sets out, and cite its items' named frames for entrances, seats and other motion targets. Keep the production's dimensions and scene-specific selections in its set source.
 
-Supply the prepared stage to the shot's `defineShot` builder and the prepared runtime records to `compileDefinedShot`. Give the runtime's `frameFormat` the film's `fps`, `width` and `height`, because without `fps` moving camera paths are keyed at 24 frames per second. Actors who use overlapping floors or cross between supports cite the appropriate walkable surfaces in their staged support windows. Check the assembled scene and its contacts with the production's own capture.
+Actors who use overlapping floors or cross between supports cite the appropriate walkable surfaces in their staged support windows. Check the assembled scene and its contacts with the production's own capture.
 
 ## Shared modules
 

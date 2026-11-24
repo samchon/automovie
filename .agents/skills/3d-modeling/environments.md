@@ -16,9 +16,9 @@ A builder or a seeded rule keeps the set deterministic and lets the environment 
 
 ## Placing by relation
 
-Place each piece by the relation that states the intent:
+Place each piece by the relation that states the intent, from those the archetypes README introduces:
 
-- a furnishing relation in `createFurnishedRoom` or a kit: against a `wall`, `after` an earlier piece along that wall, or `facing` an earlier piece;
+- a furnishing relation in `createFurnishedRoom` or a kit;
 - a named anchor in an item's `at`, such as a table's `stack` or a terrain amenity;
 - a terrain pad, or the start or end frame of a terrain path.
 
@@ -27,16 +27,21 @@ Type a coordinate only when no relation states the intent. A relation keeps its 
 ## One occurrence, then many
 
 1. Build one occurrence of the room, stand or group.
-2. Check its support in the environment's `support` findings: give each `floating` or `sunk` piece a relation or a support until every piece is `resting`, `declared` or `wall-borne`.
+2. Settle each piece's state in the environment's `support` findings as the support section below sets.
 3. Check its look in a capture at the shot camera under [visual debugging](../visual-debugging/SKILL.md).
 4. Repeat the checked occurrence through a kit count, a woods outline or an instance set.
 
+## Support
+
+The `support` findings refuse nothing, because a piece can be meant to hang or fly. Settle each state by its outcome, and the check ends when every piece has one:
+
+| State | Outcome |
+| --- | --- |
+| `declared` | None here; prop placement validation judges the piece |
+| `floating`, `sunk` | A relation or a support, or a note beside the piece saying why it hangs or flies on purpose |
+| `resting`, `wall-borne` | None; the piece is supported |
+| `unresolved` | A judgment by eye in the step 3 capture, because the piece's model has no measurable rest extent |
+
 ## Budgets
 
-The builders refuse work beyond these budgets and name the fields to change:
-
-| Budget | Lowered by |
-| --- | --- |
-| 100,000 slots per instance set (`IAutoMovieInstanceSetDesign.count`) | A smaller tree-disk or woods `count`, a wider woods `spacing`, or more sets |
-| 1,000,000 grid cells per wood | A wider woods `spacing` or a smaller `outline` |
-| 1,000,000 samples per terrain lattice | Fewer noise `octaves`, a longer `wavelength`, a larger `meshTolerance`, a smaller `size`, or wider pad and path shoulders |
+The builders refuse an instance set, a wood or a terrain lattice beyond its budget, and the refusal names the budget and what lowers it. Change what the refusal names, or split an instance set into more sets.

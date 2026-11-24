@@ -28,12 +28,12 @@ Start with pose for people, reduced or blurred depth for other forms and full st
 
 Resolve format, camera, crop and time through [frame evaluation](frame-evaluation.md). Draw [matched passes](../visual-debugging/passes.md#matched-passes) from the same performance and view. Verify pose and event alignment.
 
-Read each channel's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. Keep a structural channel's values free of exposure, tone mapping and overlays.
+Read each channel's limits: depth range and clipping, normal convention, and whether a mask has stable semantic identities or only positional colors. Keep the values of a depth, normal or mask channel free of exposure, tone mapping and overlays.
 
 Compare each rendered channel with the adapter's annotator on the same hint frame. Report mismatches. Until fixed, use the annotator's depth from the hint and retain the rendered pose for the faceless figure.
 
 ## Handoff
 
-Render the channels with the README render command's `--passes` option, which draws every frame through the film's camera and records each pass's convention and frame digests in `record.json`. Use them only under the [render report check](../production/media-records.md#render-reports), and render again on a mismatch. Keep mappings, palettes and sidecars under [media records](../production/media-records.md). Keep viewing encodes separate to preserve numeric depth and mask colors.
+Render the channels as guide passes with the README render command's `--passes` option. Use them only under the [render report check](../production/media-records.md#render-reports), and render again on a mismatch. Keep mappings, palettes and sidecars under [media records](../production/media-records.md). Keep viewing encodes separate to preserve numeric depth and mask colors.
 
 Inspect matched frames across the whole sequence under [capture times](../visual-debugging/capture.md#times). Check the receiver's input path. Report observed limits to [assembly](../production/assembly.md) or [generation](../video/generation.md). Without a commissioned generator, report compatibility as unverified.

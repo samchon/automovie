@@ -34,15 +34,15 @@ Send unsupported appearance facts through [canon references](../image/SKILL.md) 
 
 ## Flames, screens and lettering
 
-<!-- @source `IAutoMovieFlameCue`, `IAutoMovieSurfaceGraphicTrack`, `IAutoMovieSurfaceGraphicLayer` and `IAutoMovieFontSource` in `@automovie/interface`, with `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`. -->
+<!-- @source `IAutoMovieFlameCue`, `IAutoMovieSurfaceGraphicTrack`, `IAutoMovieSurfaceGraphic`, `IAutoMovieSurfaceGraphicLayer`, `IAutoMovieAffordance` and `IAutoMovieFontSource` in `@automovie/interface`. -->
 
 Show what a prop declares. At a lit candle's, lantern's, torch's, lighter's or fire ring's flame frame, author a flame cue on the shot and bind it to the practical light that frame motivates, so the light flickers with the flame and the flame's brightness follows the light. An unbound flame states its own luminance and color.
 
-Put pictures and text on a prop's `screen` or `face` surface with a surface-graphics track. Give an emissive screen the luminance of a white pixel in cd/m², and give print `printed` emission so the scene lights it. Show another staged camera's view with a feed layer. A face that is not a rectangle, such as a STOP sign's octagon, declares its `outline`, and every pass clips the graphics to it. A surface that rides an articulation, such as a book's face or a folded sheet, is refused.
+Put pictures and text on a prop's `screen` or `face` surface with a surface-graphics track. Make a graphic emissive where the surface glows, as a lit screen does, and printed where the scene lights it, as ink does. Show another staged camera's view with a feed layer. Declare the `outline` of a face that is not a rectangle, such as a STOP sign's octagon. A surface that rides an articulation, such as a book's face or a folded sheet, is refused. `IAutoMovieSurfaceGraphic` and the surface's `IAutoMovieAffordance` set each field's units and effect.
 
 Letter only from a font source the shot lists: a font the production synthesizes in its own code, or a licensed font file it holds as a project asset, recorded under [media records](../production/media-records.md#fonts-and-stills). For raised letters, such as channel letters over a storefront, decode the font in production code and build the lettering mesh as a set piece.
 
-The film draws only what it mounts. After building a shot's scene, mount its flames with `prepareAutoMovieFlames` and its surface graphics with `prepareAutoMovieSurfaceGraphics`, call each one's `apply` at the shot-local second whenever the film places that shot, and dispose both with the film. For a feed layer, the film's `beforeDraw` also calls the graphics' `renderFeeds` with the film's `optics`. Without that call the screen stays empty, and without the optics it shows raw scene light.
+Mount the flames and surface graphics in the film as [modules](modules.md#shots-and-films) sets.
 
 ## Detail
 

@@ -41,8 +41,10 @@ Give each input one role, and state it in the prompt under [input roles](diffusi
 - the accepted previous take, for continuing its motion under [continuity](diffusion/continuity.md#chaining-requests);
 - accepted dialogue audio or a voice reference, for commissioned speech where the model takes one.
 
-[Hints](diffusion/hints.md) sets how each input reaches the model. Render the request's hint and channels under [control channels](../motion/control-channels.md) at the model's frame rate and size. The render draws at the film's `fps`, `width` and `height`, so set those to the model's before rendering, with `durationSeconds` a whole number of frames at that rate. Resampling a channel afterwards would blend depth values and mask colors.
+[Hints](diffusion/hints.md) sets how each input reaches the model. Render the request's hint and channels under [control channels](../motion/control-channels.md) at the model's frame rate and size, because resampling a channel afterwards would blend depth values and mask colors.
+
+The render draws at the film's own `fps`, `width` and `height` and takes no option for another rate or size, and a delivered film keeps the delivery profile's. When the model's rate or size differs, register a request film in `src/composition/films/index.ts`, never delivered, that builds the delivered film's scenes at the model's `fps`, `width` and `height`. Give it a `durationSeconds` that is a whole number of frames at that rate, and render its hint and channels with the README render command.
 
 ## Record
 
-Add to each request's [record](../production/media-records.md#records) its scene file, the hint interval with the beat addresses it covers, its adherence and each input with its role. Take the interval's output frames from a [trusted render report](../production/media-records.md#render-reports)'s `cut`. When the request is conditioned on control channels, name `videos/controls/record.json` in its `IAutoMovieGeneratedAcquisition.inputs` and record the passes and the frame range it used.
+Add to each request's [record](../production/media-records.md#records) its scene file, the hint interval with the beat addresses it covers, its adherence and each input with its role. Take the interval's output frames from a [trusted render report](../production/media-records.md#render-reports)'s `cut`. When the request is conditioned on guide passes, name `videos/controls/record.json` in its `IAutoMovieGeneratedAcquisition.inputs` and record the passes and the frame range it used.

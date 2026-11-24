@@ -36,7 +36,7 @@ The pipeline keeps one film's files in these folders of `media/automovie/<film>/
 | --- | --- |
 | `frames/accepted/<revision>/` | The sheets of an accepted delivery, moved from its capture |
 | `videos/` | Renders and their reports |
-| `videos/controls/` | The control channels a render with guide passes draws, with their `record.json` |
+| `videos/controls/` | The guide passes a render draws with `--passes`, with their `record.json` |
 | `transparent/` | The straight-alpha `film.mov` of a transparent-background render, with its report |
 | `audios/` | Audio made for the user to hear |
 
@@ -56,7 +56,7 @@ Record the following in `media/manifest.json` or the generation request:
 - its license, attribution and usage terms;
 - its content digest.
 
-For control channels, record the SHA-256 of `videos/controls/record.json`. That digest seals every frame digest the record lists, so a request conditioned on hundreds of frames lists one file.
+For guide passes, record the SHA-256 of `videos/controls/record.json`. That digest seals every frame digest the record lists, so a request conditioned on hundreds of frames lists one file.
 
 Record the license terms for code, weights, body models, data, territory and service plan. Record provider, model, version, settings, prompt, input digests, job ID and seed if exposed.
 
