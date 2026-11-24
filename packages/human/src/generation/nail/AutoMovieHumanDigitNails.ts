@@ -289,7 +289,11 @@ export namespace AutoMovieHumanDigitNails {
       row.proportions,
       3 * CHORD_MM,
       TURN,
-      { ...setup, grooveRoom: margin?.side ?? setup.grooveRoom },
+      {
+        ...setup,
+        nativeOutline: setup.attached && (digit.startsWith("finger.") || digit === "toe.big"),
+        grooveRoom: margin?.side ?? setup.grooveRoom,
+      },
     );
     const { clipped, clippedAt, clippedIn } = nail.readings;
     const support: IAutoMovieHumanDigitNails.ISupport = {

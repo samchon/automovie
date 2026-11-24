@@ -9,6 +9,9 @@ export namespace IAutoMovieHumanNail {
     /** Prepare the bed inside the plate for solid attachment. */
     attached?: boolean;
 
+    /** Infer the exposed distal edge from the original skin tip. */
+    nativeOutline?: boolean;
+
     /** Original visible material boundary positions in world millimetres. */
     measured?: readonly AutoMovieVector3Tuple[];
 

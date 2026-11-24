@@ -378,7 +378,7 @@ export namespace AutoMovieHumanNail {
    *   skin's levelling is weighed against.
    * @param setup A measured boundary on this digit and the requested bed placement.
    */
-  export function create(name: string, bed: string, segment: IAutoMovieHumanNail.IFrame, skin: IAutoMovieHumanNail.ISkin, proportions: IAutoMovieHumanNail.IProportions, margin: number, spread: number, { attached = false, measured, measuredFaces, grooveRoom }: IAutoMovieHumanNail.ISetup = {}): IAutoMovieHumanNail.INail {
+  export function create(name: string, bed: string, segment: IAutoMovieHumanNail.IFrame, skin: IAutoMovieHumanNail.ISkin, proportions: IAutoMovieHumanNail.IProportions, margin: number, spread: number, { attached = false, measured, measuredFaces, grooveRoom, nativeOutline = false }: IAutoMovieHumanNail.ISetup = {}): IAutoMovieHumanNail.INail {
     // Histology places the bed against the inferior plate border (Perrin et
     // al., PMID 18032949). Solid union puts the bed midway inside the plate's
     // measured thickness. The material relief draws the plate's dorsal face.
@@ -584,15 +584,19 @@ export namespace AutoMovieHumanNail {
     const foldPoint = middleDorsal(rolled.section(fold0));
     const foldHeight: number = foldPoint.height;
     const end: number = rolled.at(skin.tip, 0)[0];
-    const sourceEdge: number = measuredSpan === null ? NaN :
-      Math.min(measuredSpan[1], end - proportions.thickness / 2);
-    const sourcePoint = measuredSpan === null ? null : middleDorsal(rolled.section(sourceEdge));
+    const supportedOutline: boolean = nativeOutline && measuredSpan === null;
+    // Jung et al. measure finger plate length to the fingertip. The hallux's
+    // hyponychium is distal to the nail bed (López Ripado et al.). Use half a
+    // plate thickness before the skin pole as an ESTIMATE, as for a measured edge.
+    const sourceEdge: number | null = measuredSpan === null && !supportedOutline ? null :
+      Math.min(measuredSpan?.[1] ?? end, end - proportions.thickness / 2);
+    const sourcePoint = sourceEdge === null ? null : middleDorsal(rolled.section(sourceEdge));
     const solvedPitch = (): number => {
-      if (sourcePoint !== null) {
+      if (sourcePoint !== null && sourceEdge !== null) {
         const dx: number = sourceEdge - fold0;
         const dy: number = sourcePoint.height - foldHeight;
         const gap: number = proportions.fold + proportions.thickness;
-        if (!(dx > gap)) throw new Error("nail: " + name + "'s measured span cannot carry its fold");
+        if (!(dx > gap)) throw new Error("nail: " + name + "'s distal span cannot carry its fold");
         // In the rotated plane the free skin point is one fold plus one
         // plate thickness below the proximal skin. Both landmarks keep
         // the requested edge depths without assuming a taut dorsal chord.
@@ -864,9 +868,12 @@ export namespace AutoMovieHumanNail {
       // Outside the outline the wall goes down to the plate's edge, not on down the plate's side: the face is read at the outline there.
       // Read on down the side it asked the net for 2 to 3.7 mm at its border (run 14-39-31, `clipped`).
       const over: number = y - (face(x, Math.max(-limit, Math.min(limit, z))) - supportDepth);
-      // The interior supports the selected plate representation. Both modes
-      // return to the original skin across the fold and free-edge ramps.
-      return share * (sharp ? step(left / proportions.thickness) - slope : slope) * over;
+      // A plate can enclose raised bed support. Its proximal and lateral folds
+      // keep the native skin outside the material, with a zero-slope approach
+      // across one fold depth on the enclosing side of the same outline.
+      const inside: number = Math.min(x - fold, left, limit - Math.abs(z));
+      const depth: number = supportedOutline && over < 0 ? over * step(inside / proportions.fold) : over;
+      return share * (sharp ? step(left / proportions.thickness) - slope : slope) * depth;
     };
     // The net's cell: a quarter of the narrowest transition the bed draws (the lofting skill's fitting rule, `NET` over a ramp's half
     // width). Along the digit the proximal fold's wall spans two ramps; across, the lateral wall spans the room beside the plate, and

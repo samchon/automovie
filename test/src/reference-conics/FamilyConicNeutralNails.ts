@@ -38,23 +38,38 @@ export namespace FamilyConicNeutralNails {
     closure: number;
   }
 
-  /** Observe all named neutral digit originals without requesting their fan. */
+  /** One native material outline and its scale in the plate frame, mm. */
+  interface IPlanReading {
+    planned: { length: number; width: number };
+    paired: { length: number; width: number; relief: [number, number] };
+    pitch: number;
+  }
+
+  /** Observe selected neutral digit originals without requesting their fan. */
   export async function observe(
     selected?: "left" | "right",
     directory?: string,
+    sites: readonly string[] = [],
   ) {
     const prepared = Body.prepareSources(AutoMovieHumanNeutralParameters);
     const rest = prepared.limbRest();
     const limbs = prepared.limbSources(rest);
     const results: Awaited<ReturnType<typeof record>>[] = [];
+    const requested = (name: string): boolean =>
+      sites.length === 0 || sites.includes(name);
     for (const side of ["left", "right"] as const) {
       if (selected !== undefined && side !== selected) continue;
       const arm = limbs.arm(side);
       const leg = rest.leg(side);
       const foot = limbs.leg(side).prepareFoot();
-      for (const hand of arm.fingers())
-        results.push(await record(hand.digit.name, (): IInput => finger(hand)));
-      for (const [index, row] of foot.toes().entries())
+      for (const hand of arm.fingers()) {
+        if (!requested(hand.digit.name)) continue;
+        results.push(
+          await record(hand.digit.name, (): IInput => finger(hand), directory),
+        );
+      }
+      for (const [index, row] of foot.toes().entries()) {
+        if (!requested(row.toe.name)) continue;
         results.push(
           await record(
             row.toe.name,
@@ -64,10 +79,16 @@ export namespace FamilyConicNeutralNails {
               );
               return toe(row, joints, index);
             },
-            index >= 3 ? directory : undefined,
+            directory,
           ),
         );
+      }
     }
+    if (sites.length > 0 && results.length !== sites.length)
+      throw new Error(
+        "Unknown, repeated or out-of-side neutral nail site in " +
+          sites.join(", "),
+      );
     return results;
   }
 
@@ -150,6 +171,7 @@ export namespace FamilyConicNeutralNails {
     let prepared: IInput | undefined;
     let fitted: IAutoMovieHumanDigitNails.IMade | undefined;
     let contact: IContact | null = null;
+    let plan: IPlanReading | null = null;
     let mesh: ReturnType<typeof Join.observePatch> | null = null;
     try {
       prepared = input();
@@ -167,6 +189,8 @@ export namespace FamilyConicNeutralNails {
       );
       const host = Full.create(digit);
       const crown = Full.create(plate);
+      const bare = Full.create(original);
+      const aside: P3 = Vec.cross(nail.frame.distal, nail.frame.dorsal);
       // Twice the native contact guide density also exercises its interval interiors.
       const count: number = 32;
       const measured = Array.from({ length: count }, (_, index) => {
@@ -175,11 +199,18 @@ export namespace FamilyConicNeutralNails {
           p = paired.partAt(clock);
         const a = host.jet(...h.point),
           b = crown.jet(...p.point);
+        const local: P3 = Vec.sub(a.p, nail.frame.origin);
         const tangent = (jet: typeof a, rate: readonly [number, number]): P3 =>
           Vec.add(Vec.scale(jet.u, rate[0]), Vec.scale(jet.v, rate[1]));
         return {
           gap: Vec.norm(Vec.sub(a.p, b.p)),
           tangent: Vec.norm(Vec.sub(tangent(a, h.first), tangent(b, p.first))),
+          along: Vec.dot(local, nail.frame.distal),
+          across: Vec.dot(local, aside),
+          relief: Vec.dot(
+            Vec.sub(a.p, bare.point(...h.point)),
+            nail.frame.dorsal,
+          ),
         };
       });
       const closure: number = Math.max(
@@ -202,6 +233,21 @@ export namespace FamilyConicNeutralNails {
         tangent: Math.max(...measured.map(({ tangent }): number => tangent)),
         closure,
       };
+      const length = (values: number[]): number =>
+        Math.max(...values) - Math.min(...values);
+      const relief: number[] = measured.map((row): number => row.relief);
+      plan = {
+        planned: {
+          length: nail.plan.span[1] - nail.plan.span[0],
+          width: nail.readings.width,
+        },
+        paired: {
+          length: length(measured.map((row): number => row.along)),
+          width: length(measured.map((row): number => row.across)),
+          relief: [Math.min(...relief), Math.max(...relief)],
+        },
+        pitch: nail.readings.pitch,
+      };
       let exterior: Join.IExterior | undefined;
       mesh = Join.observePatch(fitted, (built): void => {
         exterior = built;
@@ -216,6 +262,7 @@ export namespace FamilyConicNeutralNails {
         support: fitted.support,
         axisPreserved: original.axis === digit.axis,
         contact,
+        plan,
         mesh,
         capture,
         refusal: null,
@@ -227,6 +274,7 @@ export namespace FamilyConicNeutralNails {
         anatomy: prepared?.original.digit ?? null,
         support: fitted?.support ?? null,
         contact,
+        plan,
         mesh,
         refusal: error instanceof Error ? error.message : String(error),
         milliseconds: performance.now() - started,
@@ -239,7 +287,7 @@ export namespace FamilyConicNeutralNails {
     const out: string | undefined = process.argv[2];
     if (out === undefined)
       throw new Error(
-        "Usage: FamilyConicNeutralNails <receipt.json> [--side=left|right] [--views=directory]",
+        "Usage: FamilyConicNeutralNails <receipt.json> [--side=left|right] [--views=directory] [--site=finger.left.index]",
       );
     const side: string | undefined = process.argv
       .find((a): boolean => a.startsWith("--side="))
@@ -250,8 +298,11 @@ export namespace FamilyConicNeutralNails {
       .find((a): boolean => a.startsWith("--views="))
       ?.slice(8);
     if (directory !== undefined) await mkdir(directory, { recursive: true });
+    const selected: string[] = process.argv
+      .filter((a): boolean => a.startsWith("--site="))
+      .map((a): string => a.slice(7));
     const start: number = performance.now();
-    const sites = await observe(side, directory);
+    const sites = await observe(side, directory, selected);
     const result = {
       scope: "independent neutral originals",
       milliseconds: performance.now() - start,
